@@ -21,7 +21,7 @@ const CONSENT_JS = readFileSync('wh-consent.js', 'utf8');
 const CARD = '<div id="wh-consent" hidden role="region" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"'
   + ' style="position:fixed;left:1rem;right:1rem;bottom:1rem;max-width:34rem;margin:0 auto;z-index:9000;background:#12181f;color:#e6edf3;border:1px solid #2b3947;border-radius:0.75rem;padding:0.95rem 1.05rem;box-shadow:0 8px 28px rgba(0,0,0,.42);font-size:0.82rem;line-height:1.5">'
   + '<strong id="wh-consent-t" style="display:block;font-size:0.86rem;margin-bottom:0.3rem">Analytics on this page</strong>'
-  + '<p id="wh-consent-d" style="margin:0 0 0.75rem;color:#aebdcc">We would like to count anonymous page views to see which guides are useful. No names, emails or phone numbers are collected. Nothing is measured until you choose.</p>'
+  + '<p id="wh-consent-d" style="margin:0 0 0.75rem;color:#aebdcc">We would like to count anonymous page views to see which guides are useful. We collect no names, emails or phone numbers. We measure nothing until you choose.</p>'
   + '<div style="display:flex;gap:0.5rem;flex-wrap:wrap"><button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1.05rem;border-radius:0.5rem;border:0;background:#f5b301;color:#151a1f;font-weight:600">Allow</button>'
   + '<button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1.05rem;border-radius:0.5rem;border:1px solid #3a4a5a;background:transparent;color:#e6edf3">No thanks</button></div></div>';
 const PAGE = '<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width"><style>body{margin:0;font-family:sans-serif}.fixed{position:fixed}.top-0{top:0}nav.fixed{left:0;right:0;height:56px;background:#162032;z-index:30}</style></head><body>'

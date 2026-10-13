@@ -358,7 +358,10 @@ const FLOWS = {
       { select: '#w-category', index: 1 },
       { advance: 3 }],
     submit: '#btn-save-asset' },
-  skillmatrix: { steps: [], submit: 'button:has-text("Save Targets")' },
+  // a REAL change first (2026-10-13, critique W46048): Save Targets now writes only when a target changed - it reads
+  // "Targets saved" and is disabled at rest. The first ENABLED stepper is a non-primary "-" (or its "+" once at the
+  // floor), so repeated runs swing one target between two values instead of walking every target to its maximum.
+  skillmatrix: { steps: [{ click: '#target-grid .step-btn:not([disabled])' }], submit: 'button:has-text("Save Targets")' },
   // The remaining three write surfaces. report-sender and assistant ride EDGE FUNCTIONS, so their success
   // path only runs against a contract-faithful stub (ai-gateway's { ok, data:{ answer } } envelope is
   // shaped below); voice-journal needs a fake microphone, which the launch args supply.

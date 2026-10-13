@@ -60,6 +60,17 @@
      caption and control text. */
   h1 { font-size: 1.5rem; margin: 0 0 4px; }
   .sub { color: var(--wh-grey); font-size: .75rem; margin-bottom: 16px; }
+  /* ★THE ONE LINE A TECHNICIAN NEEDS, AND WHY IT USES --wh-text AND NOT --wh-grey (2026-10-05).
+     .sub is this page's muted token for secondary chrome. This sentence is not secondary: it is the
+     answer to "can I still do my job", read by someone mid-shift on a phone in a plant, so it takes the
+     full-contrast text token (#e8eef7 on #162032) rather than the grey. It is deliberately NOT an alert -
+     no amber, no red, no icon, no border-radius card: a page about outages must not look like it is having
+     one, and a reassurance styled as a warning reads as a new problem. (A coloured left rule was tried and
+     removed the same week: a side-stripe accent is a banned pattern here, and full-contrast prose above the
+     checks already reads as the page's first answer.) max-width keeps the measure readable at desktop while
+     the phone wraps naturally. */
+  .wh-still-works { color: var(--wh-text); font-size: .875rem; line-height: 1.6; max-width: 68ch;
+                    margin: 0 0 16px; }
   .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
   /* ★THE ONLY BUTTON ON THE PAGE WAS THE ONLY ELEMENT STILL OFF THE RAMP, AND I HAD ALREADY BLAMED
      SOMETHING ELSE FOR IT (2026-09-18, W46051 audit lens). Two receipts on this page - the slop row
@@ -91,7 +102,19 @@
      at 390, 1088px two-column at 1280. The reserve takes the TALLER case, because over-reserving on
      desktop costs 60px of empty space below a grid that is about to fill, and under-reserving on a
      phone costs a layout shift on the page people open when something is already broken. */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; min-height: 1148px; }
+  /* ★THE RESERVE WENT STALE AND STRETCHED EVERY CARD (critique W46055, 2026-10-13). The 1148px was measured for one
+     column at 390 and "two columns at 1280" - but at 1280 the grid lays out FOUR columns now, and grid rows stretch to
+     fill a min-height, so ten cards of ~100px content stood ~380px tall, mostly empty, with the SLO table pushed a screen
+     further down. Rows now take their content's height (align-content: start) and the reserve is per column count. */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; min-height: 1160px; align-content: start; }
+  /* the reserve per column count, measured 2026-10-13 with the probes settled (content height, ten cards): 1 column
+     1128-1160 (360-390), 2 columns 558-678 (768-600), 3 columns 444 (1024), 4 columns 390 (1280), 5 columns 288 (1440).
+     The grid is the viewport less 54px, so a band starts where one more 260px column + 12px gap fits; each band reserves
+     its narrowest (tallest) case. After the base rule on purpose: a media query adds no specificity. */
+  @media (min-width: 586px)  { .grid { min-height: 700px; } }
+  @media (min-width: 858px)  { .grid { min-height: 480px; } }
+  @media (min-width: 1130px) { .grid { min-height: 420px; } }
+  @media (min-width: 1402px) { .grid { min-height: 320px; } }
   /* ★A 4px COLOURED EDGE ON A 12px-ROUNDED CARD IS THE SIDE-TAB DESIGN.md FORBIDS, and it was the
      page's only primary detector finding, ten times over. The shape is the giveaway: a square-cornered
      stripe welded to a rounded box, so the accent's own corners fight the radius it sits inside. It was
@@ -169,13 +192,38 @@
 <body>
   <header>
     <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.75rem;color:rgba(255,255,255,0.7);text-decoration:none;">← Home</a>
-    <h1 translate="no">WorkHive Gateway — Status</h1>
-    <div class="sub">Pillar O · live <code>/health</code> across the edge gateway + specialists. Targets per <code>GATEWAY_SLO.md</code>.</div>
   </header>
 <!-- ★THE LANDMARK STARTS AFTER THE HEADER (T184, 2026-09-07). status.html is the page someone opens
      when something will not work, which makes it the worst page to make a screen-reader user walk
-     from the top of. Opened here and closed before the scripts at the end of the body. -->
+     from the top of. Opened here and closed before the scripts at the end of the body.
+     ...AND THE PAGE'S OWN NAME OPENS IT (critic batch A1, 2026-10-13). The h1 and its one-line summary sat in the
+     header, outside the landmark, so the skip link landed past the page's title and the lens read the page as having
+     no h1. They now open the main landmark; only the back link stays in the header. -->
 <main>
+    <h1 translate="no">WorkHive Gateway — Status</h1>
+    <!-- the reader's words, not the roadmap's (W46055): it said "Pillar O · live /health across the edge gateway +
+         specialists. Targets per GATEWAY_SLO.md" -->
+    <div class="sub">Live checks of the services behind WorkHive, each measured against the targets at the bottom of this page.</div>
+<!-- ★WHAT A TECHNICIAN CAME HERE TO ASK, SAID WHERE THEY CAN SEE IT (CA layer, §LX, 2026-10-05).
+     The CA walk read this page's VISIBLE copy as the crew's own words and found three. Chasing that
+     disagreement - a static read of the file finds fifteen - located the real defect, which is not a
+     vocabulary gap at all: the prover measures `document.body.innerText`, and innerText EXCLUDES the
+     contents of a collapsed <details>. Every crew-facing explanation on this page lived inside one. So
+     on the page a person opens MID-SHIFT because something will not work, "can I still do my job" was
+     two clicks away, and the instrument was right to say the page does not speak.
+     The fact itself was already here - "offline entries queue and sync" - buried in the SECOND details
+     block under "Which browsers WorkHive supports", where nobody asking about their work would look. It
+     is MOVED here, not duplicated, and said in the work's own nouns.
+     Every claim is the verified behaviour of offline-queue.js (a shared IndexedDB write queue that drains
+     on reconnect): logbook entries, inventory transactions, PM completions, asset edits and defect photo
+     drafts are the queues it actually carries. If that stops being true, this line is wrong and must
+     change with it. Kept to one calm sentence pair, outside any disclosure widget and styled as prose
+     rather than an alert - a page about outages must not look like it is having one. -->
+<!-- ...and in sentences of 20 words or fewer (critic B3, 2026-10-13): the pair had grown to two 30-plus-word runs. -->
+<p class="wh-still-works" data-i="p_ifacheckisredyoucanstillwork_ca05">If a check below is red you can still work.
+   Logbook entries, stock moves and PM completions save on this device. They sync by themselves once the
+   gateway answers again. A brownout or a dead cell signal does not lose a shift's records. Only what reads
+   fresh plant data needs the gateway right now: reports, the assistant and search.</p>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
   <p data-i="p_eachrowisonelivehealthcheckg_1f86">Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.</p>
@@ -192,8 +240,11 @@
      Firefox 74+, or Android System WebView updated since 2020). On an older engine the app cannot
      run, and it says so with a banner instead of showing a blank page - if you see that banner,
      update Chrome or Android System WebView from the Play Store.</p>
-  <p>On a supported browser, everything else here degrades gracefully: offline entries queue and
-     sync, and failed reads say what failed rather than showing empty screens.</p>
+  <!-- The degradation paragraph that used to sit here was MOVED to "How this page works" above (2026-10-05):
+       it is about what still works mid-shift, not about browsers, and nobody asking "can I still log my
+       work" opens a block titled "Which browsers WorkHive supports". What remains here is the browser floor
+       itself. The one claim worth keeping in a browser context is the failure MODE, so it stays: -->
+  <p data-i="p_onasupportedbrowserafailedre_7b31">On a supported browser a failed read says what failed, rather than showing an empty screen.</p>
 </details>
   <div class="bar">
     <button id="refresh" onclick="runChecks()" data-i="refresh">Refresh</button>
@@ -312,15 +363,25 @@
                   unreachable: _t('could not be reached from this browser', 'hindi maabot mula sa browser na ito'),
                   down: 'DOWN' };
 
+    // ★TEN CARDS NAMED IN THE CODE'S WORDS (critique W46055, 2026-10-13). The page opens in a worker's words - "if a
+    // check below is red you can still work ... what needs the gateway is reports, the assistant, and search" - and
+    // then named its ten checks "semantic-fact-extractor", "data-fabric-normalizer". Each card now leads with what the
+    // service does (from each function's own header), and keeps the function id on its status line for whoever runs it.
+    var NAMES = {
+      'ai-gateway': 'AI assistant', 'platform-gateway': 'Platform services', 'agentic-rag-loop': 'Knowledge search',
+      'voice-action-router': 'Voice commands', 'voice-report-intent': 'Voice reports', 'semantic-fact-extractor': 'Hive memory',
+      'analytics-orchestrator': 'Analytics briefs', 'asset-brain-query': 'Asset Brain', 'embed-entry': 'Search indexing',
+      'data-fabric-normalizer': 'Data imports'
+    };
     function render(rows) {
       var grid = document.getElementById('grid');
       grid.innerHTML = rows.map(function (r) {
         var deps = (r.deps || []).map(function (d) {
           return '<span class="dep ' + (d.ok ? 'ok' : 'bad') + '">' + esc(d.name) + (d.ok ? ' ✓' : ' ✕') + '</span>';
         }).join('');
-        return '<div class="card ' + r.state + '">' +
-          '<div class="fn"><span>' + esc(r.fn) + '</span><span class="dot ' + r.state + '"></span></div>' +
-          '<div class="meta">' + esc(LABEL[r.state]) + ' · HTTP ' + esc(r.status) + ' · ' + esc(r.ms) + ' ms' + (r.err ? ' · ' + esc(r.err) : '') + '</div>' +
+        return '<div class="card ' + r.state + '" data-fn="' + esc(r.fn) + '">' +
+          '<div class="fn"><span>' + esc(NAMES[r.fn] || r.fn) + '</span><span class="dot ' + r.state + '"></span></div>' +
+          '<div class="meta">' + esc(r.fn) + ' · ' + esc(LABEL[r.state]) + ' · HTTP ' + esc(r.status) + ' · ' + esc(r.ms) + ' ms' + (r.err ? ' · ' + esc(r.err) : '') + '</div>' +
           (deps ? '<div class="deps">' + deps + '</div>' : '') +
           '</div>';
       }).join('');
@@ -334,6 +395,7 @@
       render(rows);
       var ok = rows.filter(function (r) { return r.state === 'ok' || r.state === 'slow'; }).length;
       var down = rows.filter(function (r) { return r.state === 'down'; }).length;
+      var slowN = rows.filter(function (r) { return r.state === 'slow'; }).length;
       var noh = rows.filter(function (r) { return r.state === 'nohealth'; }).length;
       // A timed-out probe answers neither question, so it is counted as neither: it leaves the
       // healthy numerator AND the DOWN count, and is named on its own. Folding it into either one
@@ -354,8 +416,8 @@
         //    than saying nothing because it sends them looking. One whole template per locale with two
         //    slots, rather than a translated head glued onto an English tail.
         sum.textContent = _t(
-          'Could not reach any surface from this browser ({n} of {t}). This is a connection problem here, not a reading of the platform. Check your connection and press Refresh.',
-          'Walang maabot na surface mula sa browser na ito ({n} sa {t}). Problema ito sa koneksyon dito, hindi pagbasa sa plataporma. Tingnan ang koneksyon mo at pindutin ang I-refresh.')
+          'Could not reach any surface from this browser ({n} of {t}). This is a loading problem here, not a reading of the platform. Check your connection and press Refresh.',
+          'Walang maabot na surface mula sa browser na ito ({n} sa {t}). Problema ito sa pag-load dito, hindi pagbasa sa plataporma. Tingnan ang koneksyon mo at pindutin ang I-refresh.')
             .replace('{n}', unr).replace('{t}', rows.length)
           + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
         btn.disabled = false;
@@ -366,7 +428,11 @@
       // Filipino page while every label around it had been translated. Each clause composes per
       // language at the point it is built, because a sentence that only exists at runtime cannot be
       // translated afterwards.
-      sum.textContent = ok + '/' + probed + _t(' probed surfaces healthy (', ' na na-probe na surface ang maayos (') + avail + '%)' +
+      // ★"10/10 HEALTHY (100%)" OVER EIGHT CARDS SAYING "SLOW" (critique W46055, 2026-10-13). The rollup counts a slow
+      // answer as up - rightly, for availability - and then called it healthy, one line above eight amber cards. It
+      // now says what it counts (answering) and how many of those were slower than the 2 s target.
+      sum.textContent = ok + '/' + probed + _t(' services answering (', ' na na-probe na surface ang maayos (') + avail + '%)' +
+        (slowN ? ' · ' + slowN + ' slower than the 2 s target' : '') +
         (down ? ' · ' + down + _t(' DOWN', ' ang DOWN') : '') +
         (tmo ? ' · ' + tmo + _t(' did not answer in time (not counted either way)', ' ang hindi sumagot sa oras (hindi binibilang kahit saang panig)') : '') +
         (unr ? ' · ' + unr + _t(' unreachable from here (not counted either way)', ' ang hindi maabot mula rito (hindi binibilang kahit saang panig)') : '') +

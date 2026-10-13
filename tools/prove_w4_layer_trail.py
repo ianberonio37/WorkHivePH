@@ -42,6 +42,41 @@ _TELEMETRY = r"(?!client_errors\b)(?!ai_reply_feedback\b)(?!analytics_events\b)(
 WRITE = re.compile(r"\.from\(\s*['\"]" + _TELEMETRY + r"[a-z0-9_]+['\"]\s*\)\s*[\s\S]{0,120}?\.(insert|update|upsert|delete)\s*\(", re.I)
 
 
+# ★CODE, NOT COMMENTS (2026-10-13): wh-capture-validate.js's JSDoc usage example ("await db.from('logbook')
+# .insert(payload)") read as assistant.html writing the logbook. Block comments and whole-line comments are dropped;
+# a `//` after code is left alone, since it may sit inside a URL string.
+def _code_only(src: str) -> str:
+    src = re.sub(r"<!--.*?-->", " ", src, flags=re.S)
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    return "\n".join("" if ln.lstrip().startswith(("//", "*")) else ln for ln in src.split("\n"))
+
+
+# ★A PERSON'S OWN PREFERENCE IS NOT A CHANGE ANYONE ELSE CAN SEE (2026-10-13): voice-journal saves which assistant
+# voice the person uses, `.update({ preferred_persona: key }).eq('auth_uid', AUTH_UID)`. An update whose payload is
+# only these columns, scoped to the caller's own auth_uid, owes no audit row; any other column still does.
+SELF_PREF_COLUMNS = {"preferred_persona", "preferred_lang", "preferred_voice", "ui_theme"}
+_SELF_PREF = re.compile(r"\.update\(\s*\{([^{}]*)\}\s*\)\s*\.eq\(\s*['\"]auth_uid['\"]")
+
+
+def _is_self_preference(after: str) -> bool:
+    m = _SELF_PREF.match(after)
+    if not m:
+        return False
+    keys = set(re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\s*:", m.group(1)))
+    return bool(keys) and keys <= SELF_PREF_COLUMNS
+
+
+def _domain_writes(src: str) -> list:
+    code = _code_only(src)
+    out = []
+    for m in WRITE.finditer(code):
+        tail = code[m.end() - len(m.group(1)) - 2: m.end() + 300]   # from the "." of .update( onwards
+        if m.group(1).lower() == "update" and _is_self_preference(tail.lstrip()):
+            continue
+        out.append(m)
+    return out
+
+
 def l_rows() -> list[dict]:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     return [t for t in reg["trajectories"]
@@ -56,7 +91,7 @@ def check_page(page: str) -> tuple[str, str]:
     src = ct.page_source(page)
     if not src:
         return "n/a", f"{page} could not be read from disk"
-    writes = bool(WRITE.search(re.sub(r"<!--.*?-->", " ", src, flags=re.S)))
+    writes = bool(_domain_writes(src))
     trail = ct.TRAIL_CALL.search(src)
     if not writes:
         return "n/a", f"{page} makes no user-visible write, so it owes no trail"

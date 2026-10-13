@@ -1,0 +1,504 @@
+"""bank_lx_walk.py - judge and bank the LAYER-UX browser rows (LXP / LXC) one MCP batch walked (tools/lx_walk.js).
+
+The walk measures; this file judges, row by row, from the readings of THAT row's own page, persona and BOTH
+viewports - and banks a row only through tools/record_mcp_walk.py, which refuses an LX receipt without its layer, its
+persona and steps at phone-390 AND desktop-1280. A row whose reading does not hold is written as a RED receipt
+(--unproven, with what was found) and its registry row goes to `walked`, open, carrying the finding - an open row asks
+to be walked again; a falsely-closed one does not.
+
+THE VERDICTS (each viewport must hold; the row holds only when both do):
+  CA  at least 4 of the crew's own words on the page AND no developer word leaking (undefined, NaN, a raw uuid ...).
+      For assistive-tech the text is what the accessibility tree exposes, not what the eye sees.
+  C   figures read from dated domain rows must name their PERIOD and their CLOCK; a page showing fewer than five
+      figures, or none from a domain read, owes no window (n/a, recorded as such).
+  D   a provenance line the person can reach that says BOTH where the data came from AND when it last changed; for
+      assistive-tech it must also be ANNOUNCED (role=status / aria-live). Postgres witness: the newest write in the
+      first table the page read, for this person's hive.
+  LB  the largest rendered list is small (<=100) or visibly bounded (pagination, load more, "showing N of M"), the DOM
+      under 10,000 nodes, no single long task over 1.5 s.
+  CI  no uncaught exception, no console error, no 400/404/5xx and no failed request among the page's own calls - the
+      regressions a person meets right now (the walk's own stubs and held writes are excluded by construction).
+  L   the page's writes leave a trail: the source-level trail check (tools/prove_w4_layer_trail.py) for this page,
+      plus the trail rows in postgres for this person's hive naming who did what and when; a page offering this person
+      no write and holding no write path owes none (n/a).
+  AV  a model answer the walk made confidently WRONG, if the page showed it, sits in a card that says it is a machine's
+      (a source, a confidence, an "AI" label, a caveat); machine output already on the page, likewise; a page with no
+      model or pipeline output owes none (n/a).
+  A   with the data reads refused, the page names the failure or offers a retry - never a blank and never a fake
+      "nothing here"; with them 8 s late, it shows it is working. A page that read no data owes none (n/a).
+
+  python tools/bank_lx_walk.py LXB1759912345678 [--apply]
+"""
+from __future__ import annotations
+
+import argparse
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+os.chdir(ROOT)
+sys.path.insert(0, str(ROOT / "tools"))
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+DB = "supabase_db_workhive"
+GATES = {"CA": ["w4-layer-ca"], "C": ["w4-layer-clock", "clock-and-trail"],
+         "LB": ["w4-layer-loadbearing", "growth-honesty"], "AV": ["w4-layer-model-honesty", "ai-render-provenance"],
+         "CI": ["w4-layer-regression", "release-safety"], "L": ["w4-layer-trail", "audit-trail-coverage"],
+         "A": ["w4-layer-availability", "cc_failure_injection"], "D": ["w4-layer-provenance", "source-chip-truth"],
+         "RL": ["consumption-bound"]}
+# the instrument the LEDGER asks of each layer's lens (live_walk_manifest._mcp_for), written into the receipt
+INSTRUMENT = {"CA": "playwright-mcp", "LB": "playwright-mcp", "AV": "playwright-mcp", "CI": "playwright-mcp",
+              "C": "playwright-mcp + postgres-mcp", "L": "playwright-mcp + postgres-mcp",
+              "A": "playwright-mcp + postgres-mcp", "D": "playwright-mcp + postgres-mcp",
+              "RL": "playwright-mcp + postgres-mcp"}
+# RL: reads whose size is the hive's size or the person's, never a table that grows with use - a membership list, a
+# profile, the hive record. Unbounded is how they are meant to be read; the same set the C lens treats as identity.
+RL_BOUNDED_BY_NATURE = {"v_hives_truth", "hives", "hive_members", "worker_profiles", "v_worker_truth",
+                        "v_hive_members_truth", "marketplace_platform_admins"}
+NOISE_RES = re.compile(r"Failed to load resource: the server responded with a status of (401|403|406|409|416)")
+
+
+def psql(sql: str) -> list[str]:
+    r = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA", "-c", sql],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
+    return [ln for ln in (r.stdout or "").strip().splitlines() if ln.strip()]
+
+
+# ★THE SHARED CHROME READS TOO, AND ITS READS ARE NOT THE PAGE'S (2026-10-08). The nav hub counts community posts and
+# replies for its badge, the companion launcher reads its follow-up queue, and the identity helpers read the person's
+# membership - on EVERY page. Counted as the page's reads, they made a locked ai-quality page "show 12 figures from 6
+# domain reads". The set is DERIVED from the chrome scripts' own source, so a new chrome read is excluded the day it
+# lands rather than the day someone notices.
+CHROME_SCRIPTS = ("nav-hub.js", "companion-launcher.js", "offline-banner.js", "connectivity-widget.js",
+                  "session-timeout.js", "device-fingerprint.js", "wh-feedback-fab.js", "browser-floor.js",
+                  "offline-queue.js")
+_CHROME: set = set()
+
+
+def chrome_tables() -> set:
+    if not _CHROME:
+        for f in CHROME_SCRIPTS:
+            p = ROOT / f
+            if p.exists():
+                src = p.read_text(encoding="utf-8", errors="replace")
+                # a READ only: device-fingerprint INSERTS into hive_audit_log, and audit-log.html's own read of that
+                # table must not be excluded because a chrome script writes to it
+                _CHROME.update(re.findall(r"""\.from\(\s*['"`]([a-z0-9_]+)['"`]\s*\)\s*\.select\(""", src))
+                _CHROME.update("rpc/" + x for x in re.findall(r"""\.rpc\(\s*['"`]([a-z0-9_]+)['"`]""", src))
+        _CHROME.update({"analytics_events", "hive_members", "v_worker_truth", "worker_profiles"})
+    return _CHROME
+
+
+_PAGE_TABLES: dict = {}
+
+
+def page_tables(page: str) -> set:
+    """What the page's OWN source reads (the page and its same-basename script) - a chrome table the page itself also
+    reads (community.html reads v_community_posts_truth for its feed) is the page's read too."""
+    if page not in _PAGE_TABLES:
+        src = ""
+        for f in (ROOT / page, ROOT / (page[:-5] + ".js")):
+            if f.exists():
+                src += f.read_text(encoding="utf-8", errors="replace")
+        _PAGE_TABLES[page] = set(re.findall(r"""\.from\(\s*['"`]([a-z0-9_]+)['"`]""", src)) | \
+            {"rpc/" + x for x in re.findall(r"""\.rpc\(\s*['"`]([a-z0-9_]+)['"`]""", src)}
+    return _PAGE_TABLES[page]
+
+
+def own_reads(v: dict, page: str) -> list[str]:
+    """The domain reads the row's own page made - its healthy-load calls minus the shared chrome's (unless the page's
+    own source reads that relation too)."""
+    ch, mine = chrome_tables(), page_tables(page)
+    return [r for r in healthy_reads(v, page) if not r.startswith("fn:") and (r not in ch or r in mine)]
+
+
+def healthy_reads(v: dict, page: str) -> list[str]:
+    """The calls the row's OWN page made on its healthy load - never a hop on the route (every event is tagged)."""
+    return sorted({x["u"].replace("/rest/v1/", "").replace("/functions/v1/", "fn:") for x in v.get("reads") or []
+                   if x.get("mode") == "healthy" and x.get("pg") == page and x.get("st", 0) < 400
+                   and x["u"] not in ("/rest/v1/analytics_events",) and not x["u"].startswith("/functions/v1/login")})
+
+
+def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str, str]:
+    """('ok'|'n/a'|'FAIL'|'UNPROVEN', one sentence) for ONE viewport's reading."""
+    h = v.get("healthy") or {}
+    if not h or not h.get("session"):
+        return "UNPROVEN", "not signed in at this viewport - " + "; ".join(v.get("problems") or [])[:160]
+    if h.get("chars", 0) < 120 and layer not in ("A",):
+        return "UNPROVEN", f"the page rendered {h.get('chars')} characters - nothing to read"
+    vw = h.get("vw")
+    if layer == "CA":
+        ca = h.get("ca") or {}
+        txt = f"{ca.get('crewCount')} crew word(s) ({', '.join((ca.get('crew') or [])[:8])})"
+        if ca.get("jargon"):
+            return "FAIL", txt + f", and developer words leak into the page: {', '.join(ca['jargon'])}"
+        if (ca.get("crewCount") or 0) < 4:
+            return "FAIL", txt + " - fewer than four of the crew's own words"
+        return "ok", txt + ", no developer word leaking" + (" (the accessibility-tree text)" if persona == "assistive-tech" else "")
+    if layer == "C":
+        c = h.get("c") or {}
+        # ★A REGISTRY READ DATES NOTHING (2026-10-09, engineering-design: 16 catalog figures and one read of v_hives_truth).
+        # Who is this, which hive, what role - those reads decide the page, they are not records over time, so figures
+        # next to them owe no window. A page's figures owe one when it reads dated domain records.
+        REGISTRY = {"v_hives_truth", "hives", "hive_members", "worker_profiles", "v_worker_truth", "v_hive_members_truth"}
+        reads = [r for r in own_reads(v, page) if r.split("?")[0] not in REGISTRY]
+        if (c.get("figures") or 0) < 5 or not reads:
+            return "n/a", (f"{c.get('figures')} figure(s) and {len(reads)} domain read(s) - no dated figures, so no window "
+                           "is owed")
+        if c.get("period") and c.get("clock"):
+            return "ok", f"{c['figures']} figures from {len(reads)} domain read(s) name their period (\"{c['period']}\") and clock (\"{c['clock']}\")"
+        # ★A ROLLING WINDOW ENDING NOW CARRIES ITS OWN CLOCK (2026-10-08, analytics: "last 90 days (rolling, ending now)").
+        # 90 x 24 hours back from this moment has no hour boundary for a timezone to move, so "ending now" IS its reference.
+        # A CALENDAR window does have one - "today" and "this week" begin at a midnight that is somewhere - so a page that
+        # also names a calendar window still owes its timezone.
+        if c.get("rolling") and not c.get("calendar"):
+            return "ok", (f"{c['figures']} figures from {len(reads)} domain read(s) state a rolling window anchored at now "
+                          f"(\"{c['rolling']}\") - its reference point is its clock, with no calendar boundary for a timezone to move")
+        miss = [x for x, ok in (("no period", c.get("period")), ("no clock (timezone)", c.get("clock"))) if not ok]
+        return "FAIL", f"{c['figures']} figures from {len(reads)} domain read(s) ({', '.join(reads[:3])}) state {' and '.join(miss)}" + (f" - the period it does name: \"{c['period']}\"" if c.get("period") else "")
+    if layer == "D":
+        d = h.get("d") or {}
+        reads = own_reads(v, page)
+        if not reads:
+            return "n/a", "the page read no domain data - there is no provenance to show"
+        # ★A GATE SHOWS NO DATA, SO IT HAS NOTHING TO ATTRIBUTE (2026-10-09, audit-log as a worker: 288 chars, 0 figures).
+        # The page READ to decide the gate (who is this, which hive, what role) and showed none of it - provenance is owed
+        # for data a person is shown, and here they are shown a door, not a figure or a list.
+        shown_n = ((h.get("lb") or {}).get("maxList") or {}).get("n") or 0
+        if not ((h.get("c") or {}).get("figures") or 0) and shown_n <= 1:
+            return "n/a", (f"the page shows this person no data (0 figures, largest list {shown_n}) - its reads only decided what "
+                           "to show them, so there is nothing to attribute")
+        base = (f"{d.get('reachable')} reachable provenance line(s), {d.get('announced')} announced; source "
+                f"{d.get('saysSource')}, recency {d.get('saysRecency')}: {' | '.join((d.get('samples') or [])[:2])[:200]}")
+        need_announce = persona == "assistive-tech"
+        ok = (d.get("reachable") or 0) >= 1 and d.get("saysSource") and d.get("saysRecency") and (not need_announce or (d.get("announced") or 0) >= 1)
+        if ok:
+            return "ok", base + (f". {ctx.get('dWitness')}" if ctx.get("dWitness") else "")
+        why = []
+        if not d.get("reachable"):
+            why.append("no provenance line reaches the person" + (f" ({d.get('hiddenButRendered')} rendered inside aria-hidden)" if d.get("hiddenButRendered") else ""))
+        if d.get("reachable") and not d.get("saysSource"):
+            why.append("it never says WHERE the data came from")
+        if d.get("reachable") and not d.get("saysRecency"):
+            why.append("it never says WHEN it last changed")
+        if need_announce and d.get("reachable") and not d.get("announced"):
+            why.append("nothing announces it to a screen reader")
+        return "FAIL", base + " - " + "; ".join(why)
+    if layer == "LB":
+        lb = h.get("lb") or {}
+        ml = lb.get("maxList") or {}
+        n = ml.get("n") or 0
+        lt = lb.get("longTasks") or {}
+        txt = (f"largest rendered list {n} item(s) ({ml.get('tag', '-')}{('#' + ml['id']) if ml.get('id') else ''}), "
+               f"{'visibly bounded' if lb.get('bounded') else 'no visible bound'}, {lb.get('nodes')} DOM nodes, "
+               f"{lt.get('count')} long task(s) totalling {lt.get('total')} ms (longest {lt.get('max')} ms), "
+               f"DOMContentLoaded {lb.get('dcl')} ms")
+        bad = []
+        if n > 100 and not lb.get("bounded"):
+            bad.append(f"renders {n} items with nothing saying the list is bounded - as the data grows the page grows with it")
+        if (lb.get("nodes") or 0) > 10000:
+            bad.append("over 10,000 DOM nodes")
+        if (lt.get("max") or 0) > 1500:
+            bad.append(f"a single long task of {lt.get('max')} ms freezes the page")
+        return ("FAIL", txt + " - " + "; ".join(bad)) if bad else ("ok", txt)
+    if layer == "RL":
+        # "bound what this page can consume, and say so when it has" - read off the network, not the source: every
+        # list read the page made on its own load, the limit it asked for and the rows that came back
+        reads = [x for x in v.get("rl") or [] if x.get("pg") == page]
+        says = (h.get("rl") or {}).get("says")
+        # a limit of 1 is a lookup (the person's own record, the newest row), not a list someone could take for a total
+        lists = [x for x in reads if not x.get("single") and not (x.get("lim") is not None and x["lim"] <= 1)]
+        bound = [x for x in lists if x.get("lim")]
+        unbound = [x for x in lists if not x.get("lim") and (x.get("got") or 0) > 1
+                   and x.get("t") not in RL_BOUNDED_BY_NATURE and not str(x.get("t")).startswith("rpc/")]
+        binding = [x for x in bound if x.get("got") is not None and x["got"] >= x["lim"]]
+        wit = ctx.get("rlPg") or []
+        pgtxt = "; ".join(f"postgres: the largest hive holds {big} row(s) of {tb} against this page's cap of {lim}"
+                          for tb, lim, big in wit if big is not None)
+        if not reads:
+            return "n/a", f"the page made no data read on its own load at {vw}px, so it consumes nothing a cap could bound"
+        if unbound:
+            return "FAIL", ("reads " + ", ".join(f"{x['t']} ({x['got']} rows)" for x in unbound[:4])
+                            + " with no bound - each grows with the hive, and the page fetches all of it")
+        if binding and not says:
+            return "FAIL", ("a cap shown as a total: " + ", ".join(f"{x['t']} came back FULL at its cap of {x['lim']}" for x in binding[:4])
+                            + " and nothing on the page says the list is a slice")
+        head = (f"{len(reads)} read(s) on the page's own load, {len(bound)} of them capped lists"
+                + (f", {len(binding)} at the cap and said (\"{says}\")" if binding
+                   else (", none at its cap for this person" + (f" (largest: {max(bound, key=lambda x: x.get('got') or 0)['got']} of "
+                                                              f"{max(bound, key=lambda x: x.get('got') or 0)['lim']})" if bound else ""))))
+        # what the page asks a FUNCTION for is bounded where it is computed (the function is its own subject); say
+        # that it was asked for, so "no capped list" is never read as "consumes nothing"
+        fns = sorted({str(x.get("u", "")).split("/functions/v1/")[-1] for x in v.get("reads") or []
+                      if x.get("mode") == "healthy" and x.get("pg") == page and "/functions/v1/" in str(x.get("u", ""))})
+        fntxt = (f"; it also asked {', '.join(fns[:4])} for computed results, bounded where they are computed" if fns else
+                 "; nothing larger is loaded until the person asks for it")
+        # the largest-hive figure is a WITNESS, not a verdict: a read filtered by seller or by person is not a hive's slice
+        return "ok", head + fntxt + (("; " + pgtxt) if pgtxt else "")
+    if layer == "CI":
+        errs = [e["msg"] for e in v.get("pageErrors") or [] if e.get("mode") == "healthy" and e.get("pg") == page]
+        cons = [e["msg"] for e in v.get("console") or [] if e.get("mode") == "healthy" and e.get("pg") == page and not NOISE_RES.search(e["msg"])
+                and "the walk refused" not in e["msg"]]
+        http = [f"{x['st']} {x['m']} {x['u']}" for x in v.get("http") or [] if x.get("mode") == "healthy" and x.get("pg") == page
+                and ((x.get("st") in (400, 404)) or (x.get("st") or 0) >= 500
+                     or (x.get("st") == 0 and "ERR_ABORTED" not in str(x.get("fail")) and "aborted" not in str(x.get("fail")).lower()))]
+        # ★a RETURNER's refused refresh is the walk's own premise, not a broken call (2026-10-09, LXP1862). The walk plants
+        # a 21-day-old session whose refresh token is the literal "expired"; the server's 400 on grant_type=refresh_token
+        # IS the correct refusal, and Chrome logs it as one "Failed to load resource ... 400" line no page code can
+        # silence. It only lands on a row whose page is the wall itself (index.html - every other returner row's page
+        # loads after sign-in). Excused only when the wall then showed, one console line per excused call, and named.
+        refused = ""
+        if persona == "returner" and (v.get("returner") or {}).get("wallShown"):
+            seeded = [c for c in http if c.startswith("400 POST /auth/v1/token?grant_type=refresh_token")]
+            if seeded:
+                http = [c for c in http if c not in seeded]
+                for _ in seeded:
+                    hit = next((c for c in cons if "status of 400" in c), None)
+                    if hit is not None:
+                        cons.remove(hit)
+                refused = (f"; the walk's planted 21-day-old session was refused by the server ({len(seeded)} x 400 on "
+                           f"grant_type=refresh_token) and the sign-in wall showed - the returner's expected handshake")
+        txt = f"{len(errs)} uncaught exception(s), {len(cons)} console error(s), {len(http)} broken call(s)"
+        if errs or cons or http:
+            return "FAIL", txt + ": " + "; ".join((errs + cons + http)[:4])[:300]
+        return "ok", (txt + f" on the page's own load at {vw}px" + refused + f"; {ctx.get('ciWitness', '')}").rstrip("; ")
+    if layer == "L":
+        writes = (h.get("l") or {}).get("writes") or []
+        src = ctx.get("trailSrc") or ("?", "")
+        trail = ctx.get("trailPg") or ""
+        if not writes:
+            return "n/a", (f"offers this person no write at this width, so nothing they do here has a trail to leave "
+                           f"({src[1][:120]})")
+        if src[0] == "BAD":
+            return "FAIL", f"offers {', '.join(writes[:5]) or 'no visible write'}; {src[1]}"
+        if not ctx.get("trailOk"):
+            return "FAIL", f"offers {', '.join(writes[:5]) or 'no visible write'}; the source reaches the trail ({src[1][:120]}) but {trail}"
+        return "ok", f"offers {', '.join(writes[:5]) or 'no visible write at this width'}; {src[1][:160]}; {trail}"
+    if layer == "AV":
+        av = (v.get("av") or {}).get("av") or {}
+        calls = (v.get("av") or {}).get("modelCalls") or 0
+        hav = h.get("av") or {}
+        if av.get("markShown"):
+            if av.get("markHonest"):
+                return "ok", f"the model's confidently WRONG answer was shown inside a card that marks it as a machine's: \"{(av.get('markCard') or '')[:160]}\""
+            return "FAIL", f"the model's confidently WRONG answer was shown as bare fact - its card carries no source, confidence, AI label or caveat: \"{(av.get('markCard') or '')[:160]}\""
+        if hav.get("modelCard"):
+            leaf = hav.get("modelLeaf") or hav["modelCard"][:80]
+            if hav.get("modelCardHonest"):
+                return "ok", f"{calls} model call(s) on load (answered by the stub, not rendered); the pipeline output \"{leaf}\" sits in a card that marks it: \"{hav['modelCard'][:140]}\""
+            # a PIPELINE count (an anomaly tally, a risk score) is answerable for at page level: the page names where its
+            # figures came from (a reachable source line) or how they are computed (an openable method disclosure)
+            d = h.get("d") or {}
+            if (d.get("reachable") and d.get("saysSource")) or d.get("method"):
+                return "ok", (f"the pipeline output \"{leaf}\" is attributable on the page: "
+                              + ("a reachable source line says where it came from" if d.get("reachable") and d.get("saysSource") else "")
+                              + (" and " if (d.get("reachable") and d.get("saysSource")) and d.get("method") else "")
+                              + (f"{d.get('method')} openable 'how this is computed' disclosure(s)" if d.get("method") else ""))
+            return "FAIL", f"the pipeline output \"{leaf}\" sits in a card with no honesty mark and the page names no source or method for it: \"{hav['modelCard'][:140]}\""
+        if calls == 0:
+            return "n/a", "no model call and no machine output on this page for this person - no pipeline that could be wrong"
+        # it called a model/pipeline on load and did not render that answer: if it shows FIGURES, they come from a pipeline,
+        # and the page owes the reader where they came from (a reachable source line, or an openable method)
+        d = h.get("d") or {}
+        if ((h.get("c") or {}).get("figures") or 0) >= 5:
+            if (d.get("reachable") and d.get("saysSource")) or d.get("method"):
+                return "ok", (f"{calls} pipeline call(s) on load (answered by the stub - their answers are not rendered on "
+                              f"arrival); the figures the page shows are attributable: "
+                              + "; ".join((d.get("samples") or [])[:1])[:160])
+            return "FAIL", (f"{calls} pipeline call(s) on load, and the {(h.get('c') or {}).get('figures')} figures the page "
+                            "shows name no source and no method - a wrong pipeline would read as fact")
+        return "n/a", f"{calls} model call(s) on load, none of whose answers this page renders on arrival, and no figures shown"
+    if layer == "A":
+        reads = own_reads(v, page) + [r for r in healthy_reads(v, page) if r.startswith("fn:")]
+        if not reads:
+            return "n/a", "the page read nothing from a service - nothing behind it can be slow or down"
+        dn = (v.get("down") or {}).get("a") or {}
+        sl = v.get("slow") or {}
+        down_ok = bool(dn.get("saysFailure")) and not dn.get("blank")
+        early = sl.get("early") or {}
+        late = sl.get("late") or {}
+        painted = (early.get("chars") or 0) >= 0.9 * (sl.get("healthyChars") or 0)   # it did not wait for the data at all
+        recovered = (late.get("chars") or 0) >= max(200, 0.6 * (sl.get("healthyChars") or 0))
+        slow_ok = (bool(early.get("busy") or early.get("loadingWords")) or painted) and (recovered or bool(late.get("busy")))
+        txt = (f"reads refused: says \"{dn.get('saysFailure')}\", retry {dn.get('retry') or 'none'}, fake-empty "
+               f"{dn.get('fakeEmpty')}, blank {dn.get('blank')}; reads 8 s late: working sign {bool(early.get('busy') or early.get('loadingWords'))}{' (its content was already painted at 2.5 s)' if painted else ''}, "
+               f"content {late.get('chars')} of {sl.get('healthyChars')} chars at 18 s" + ("" if recovered else (" and still visibly working" if late.get("busy") else " and no longer working")))
+        if down_ok and slow_ok:
+            return "ok", txt
+        why = ([] if down_ok else ["with its reads refused it never says the read failed" + (" (a standing refresh control is not an answer)" if dn.get("retry") else "")]) + \
+              ([] if slow_ok else ["with its reads late it shows no working sign, or never recovers"])
+        return "FAIL", txt + " - " + "; ".join(why)
+    return "UNPROVEN", f"no judge for layer {layer}"
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("batch")
+    ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--layers", default="", help="bank only these layers (comma list) - the rest wait for a re-walk")
+    ap.add_argument("--hold", default="", help="row ids to leave untouched (comma list) - a reading still being checked")
+    a = ap.parse_args()
+    recs = json.load(io.open(f".tmp/w4_steps/{a.batch}.records.json", encoding="utf-8"))
+    steps_all = json.load(io.open(f".tmp/w4_steps/{a.batch}.json", encoding="utf-8"))
+    import prove_w4_layer_trail as tr
+    reg_rows = {t["id"]: t for t in json.load(io.open("trajectory_registry.json", encoding="utf-8"))["trajectories"]}
+    today = time.strftime("%Y-%m-%d")
+    decided = []
+    for cell in recs.get("cells") or []:
+        key = cell["persona"] + ":" + cell["page"]
+        page = cell["page"]
+        steps = [s for s in steps_all if s.get("cell") == key]
+        vps = {v["viewport"]: v for v in cell.get("vps") or []}
+        hive_id = None
+        cast = cell.get("cast")
+        if cast:
+            r = psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active' order by m.joined_at limit 1" % cast.replace("'", "''"))
+            hive_id = r[0] if r else None
+        ctx: dict = {}
+        layers = {r["layer"] for r in cell["rows"]}
+        if "L" in layers:
+            v0, w0 = tr.check_page(page)
+            ctx["trailSrc"] = (v0, w0)
+            if hive_id:
+                pg = psql("select count(*)||'|'||count(distinct actor)||'|'||coalesce((select actor||' / '||action||' / '||coalesce(target_type,'-')||' / '||to_char(created_at,'YYYY-MM-DD HH24:MI') from hive_audit_log where hive_id='%s' order by created_at desc limit 1),'') from hive_audit_log where hive_id='%s' and created_at > now() - interval '90 days'" % (hive_id, hive_id))
+                n, actors, latest = (pg[0].split("|", 2) + ["", "", ""])[:3] if pg else ("0", "0", "")
+                ctx["trailOk"] = int(n or 0) > 0 and bool(latest)
+                ctx["trailPg"] = (f"postgres: {n} trail row(s) in this person's hive in 90 days, {actors} distinct actor(s), the newest "
+                                  f"\"{latest}\" - readable later on audit-log.html by the hive's supervisor")
+            else:
+                pg = psql("select count(*)||'|'||coalesce(max(to_char(created_at,'YYYY-MM-DD')),'') from hive_audit_log where actor = '%s'" % (cast or "").replace("'", "''"))
+                n, last = (pg[0].split("|") + ["", ""])[:2] if pg else ("0", "")
+                ctx["trailOk"] = int(n or 0) > 0
+                ctx["trailPg"] = (f"postgres: this person holds no hive, and {n} trail row(s) name them as the actor" + (f" (newest {last})" if last else
+                                  " - a person with no hive leaves no readable trail of what they changed"))
+        if "D" in layers and hive_id:
+            v1 = vps.get("phone-390") or {}
+            tbls = [r for r in healthy_reads(v1, page) if not r.startswith("fn:") and not r.startswith("rpc/")]
+            for tb in tbls[:3]:
+                cols = set(psql("select column_name from information_schema.columns where table_schema='public' and table_name='%s'" % tb))
+                tcol = "updated_at" if "updated_at" in cols else ("created_at" if "created_at" in cols else None)
+                if not tcol or "hive_id" not in cols:
+                    continue
+                who = "worker_name" if "worker_name" in cols else ("actor" if "actor" in cols else None)
+                row = psql("select to_char(max(%s),'YYYY-MM-DD HH24:MI')%s from %s where hive_id='%s'" % (
+                    tcol, (", (select %s from %s where hive_id='%s' order by %s desc limit 1)" % (who, tb, hive_id, tcol)) if who else "", tb, hive_id))
+                if row and row[0].strip("|"):
+                    ctx["dWitness"] = f"postgres: the newest write to {tb} in this hive is {row[0].replace('|', ' by ')}"
+                    break
+        if "CI" in layers:
+            ctx["ciWitness"] = "the page is in the served roster every registered sweep walks (w4-layer-regression)"
+        if "RL" in layers:
+            # the postgres half: for each table the page read with a cap, how large the LARGEST hive's share is - a cap
+            # this person never reaches can still be one another hive's reader meets every day
+            caps: dict = {}
+            for x in ((vps.get("phone-390") or {}).get("rl") or []):
+                tb = str(x.get("t") or "")
+                if (x.get("pg") == page and x.get("lim") and int(x["lim"]) > 1 and not x.get("single")
+                        and tb not in RL_BOUNDED_BY_NATURE and re.fullmatch(r"[a-z0-9_]+", tb)):
+                    caps[tb] = max(caps.get(tb, 0), int(x["lim"]))
+            wit = []
+            for tb, lim in list(caps.items())[:5]:
+                cols = set(psql("select column_name from information_schema.columns where table_schema='public' and table_name='%s'" % tb))
+                if "hive_id" in cols:
+                    r = psql("select coalesce(max(c), 0) from (select count(*) c from public.%s group by hive_id) s" % tb)
+                    wit.append((tb, lim, int(r[0]) if r and r[0].isdigit() else None))
+            ctx["rlPg"] = wit
+        for r in cell["rows"]:
+            rid, layer = r["id"], r["layer"]
+            if a.layers and layer not in a.layers.split(","):
+                continue
+            if rid in {x.strip() for x in a.hold.split(",") if x.strip()}:
+                continue                                  # held back for a closer look - neither banked nor reddened
+            per = {}
+            for vpn in ("phone-390", "desktop-1280"):
+                per[vpn] = judge(layer, cell["persona"], vps.get(vpn) or {}, page, ctx)
+            verdicts = {x[0] for x in per.values()}
+            holds = verdicts <= {"ok", "n/a"} and len(per) == 2
+            decided.append((rid, layer, cell, per, holds, steps))
+    # ── write receipts + bank ──
+    banked, red = [], []
+    for rid, layer, cell, per, holds, steps in decided:
+        reading = " | ".join(f"{vp}: {v[0]} - {v[1]}" for vp, v in per.items())
+        note = (f"LX-{layer} on {cell['page']} walked {today} through the Playwright MCP (tools/lx_walk.js) as "
+                f"{cell['cast']} ({cell.get('castRole')}) for the {cell['persona']} persona, through the wall and the row's route "
+                f"({' -> '.join(cell.get('path') or [])}), each viewport a fresh context at a TRUE size. {reading}")
+        if not a.apply:
+            print(f"  {'HOLDS ' if holds else 'OPEN  '} {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {reading[:230]}")
+            continue
+        sp = Path(tempfile.gettempdir()) / f"lx_steps_{rid}.json"
+        io.open(sp, "w", encoding="utf-8", newline="\n").write(json.dumps(steps, ensure_ascii=False))
+        cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", INSTRUMENT[layer],
+               "--layer", layer, "--as-persona", cell["persona"], "--viewports", "phone-390,desktop-1280",
+               "--cast", cell.get("cast") or "", "--steps", str(sp), "--note", note[:1800], "--witness", reading[:1800]]
+        if not holds:
+            cmd += ["--unproven", ("the " + layer + " ask does not hold: " + "; ".join(f"{vp} {v[0]}: {v[1]}" for vp, v in per.items() if v[0] not in ("ok", "n/a")))[:600]]
+        rr = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        out = (rr.stdout or "") + (rr.stderr or "")
+        if rr.returncode != 0 or "refused" in out.lower():
+            print(f"  {rid}: the recorder REFUSED the receipt - {out.strip()[-200:]}")
+            continue
+        # ★THE RECEIPT IS THE VERDICT (2026-10-12). record_mcp_walk.py also judges the walk's STEPS (every hop rendered,
+        # identity kept on every hop) and writes ok:false when they fail - while this file judged only the layer and
+        # banked anyway. Six skillmatrix rows became `locking` with RED receipts, which the ledger counts as open: two
+        # files disagreeing about one walk. A row is banked only when the receipt the recorder wrote says ok.
+        if holds:
+            try:
+                rec = json.loads((ROOT / ".tmp" / "mcp_walks" / f"{rid}.json").read_text(encoding="utf-8"))["results"][0]
+                if not rec.get("ok"):
+                    holds = False
+                    reading += " | the walk itself did not hold: " + "; ".join(rec.get("problems") or [])[:300]
+            except Exception as e:
+                holds = False
+                reading += f" | the receipt could not be read back ({e})"
+        (banked if holds else red).append((rid, layer, cell, per, note, reading))
+    if not a.apply:
+        print("\n(dry run - pass --apply to record receipts and bank)")
+        return 0
+    reg = json.load(io.open("trajectory_registry.json", encoding="utf-8"))
+    byid = {t["id"]: t for t in reg["trajectories"]}
+    for rid, layer, cell, per, note, reading in banked:
+        t = byid[rid]
+        prev = t.get("basis") or ""
+        basis = (f"[{today}] pct -> 60. WALKED LIVE {today} via {INSTRUMENT[layer]} (tools/lx_walk.js, the Playwright MCP's "
+                 f"own browser; no model call - every model function answered by a stub; nothing sent; every write the page "
+                 f"attempted held): {note} Receipt .tmp/mcp_walks/{rid}.json.")
+        t["basis"] = basis + ((" || " + prev) if prev else "")
+        if prev and re.search(r"pct\s*(?:\d+\s*)?->\s*\d+", prev):
+            t["basis"] += f" || [{today}] pct -> 60: walked and banked - the first segment says how"
+        t["status"] = "locking" if t.get("status") not in ("locked",) else t["status"]
+        t["pct"] = max(int(t.get("pct") or 0), 60) if t["status"] != "locked" else 100
+        arts = t.setdefault("artifacts", {})
+        arts["gates"] = sorted(set(arts.get("gates") or []) | set(GATES[layer]))
+    for rid, layer, cell, per, note, reading in red:
+        t = byid[rid]
+        prev = t.get("basis") or ""
+        if t.get("status") in ("locking", "locked"):
+            continue                                    # never demote a banked row from a batch; say so instead
+        finding = (f"[{today}] pct -> 25. WALKED LIVE {today} via {INSTRUMENT[layer]} (tools/lx_walk.js) - the {layer} ask "
+                   f"does NOT hold yet, so the row stays open: {note} Receipt .tmp/mcp_walks/{rid}.json (red).")
+        t["basis"] = finding + ((" || " + prev) if prev else "")
+        if prev and re.search(r"pct\s*(?:\d+\s*)?->\s*\d+", prev):
+            t["basis"] += f" || [{today}] pct -> 25: walked, the first segment says what it found"
+        t["status"], t["pct"] = "walked", 25
+    fd, tmp = tempfile.mkstemp(dir=str(ROOT), suffix=".tmp")
+    os.close(fd)
+    io.open(tmp, "w", encoding="utf-8", newline="\n").write(json.dumps(reg, ensure_ascii=False, indent=1) + "\n")
+    os.replace(tmp, "trajectory_registry.json")
+    print(f"banked {len(banked)} row(s), {len(red)} row(s) walked and left open with a red receipt")
+    for rid, layer, cell, per, note, reading in red:
+        print(f"  OPEN {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {reading[:220]}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

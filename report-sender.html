@@ -1041,11 +1041,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ── Utils ────────────────────────────────────────────────────────────────────
     // escHtml provided by utils.js (loaded in <head>); no inline redefinition.
 
+    // ★A REPLACED TOAST WAS HIDDEN BY THE OLD ONE'S TIMER, AND TWO SENTENCES GOT 2.8 s (2026-10-12, UFAI edge walk
+    // W4746). Each call set its own 2.8 s timer and none was cancelled, so a message shown a second after another
+    // vanished 1.8 s in; and a refusal with its reason is two sentences nobody reads in 2.8 s. The previous timer is
+    // cancelled, and a longer message stays longer (about 55 ms a character, 2.8 s to 9 s).
+    let _rsToastTimer = null;
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2800);
+      clearTimeout(_rsToastTimer);
+      _rsToastTimer = setTimeout(() => t.classList.remove('show'), Math.min(9000, Math.max(2800, String(msg).length * 55)));
     }
 
     // ★THE EDGE FUNCTION'S OWN REASON WAS BEING THROWN AWAY ON THE ONE ACTION THAT CANNOT BE UNDONE.
@@ -1213,8 +1219,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                   'Handa nang ipadala. Pindutin ang Send kapag tama na ang body o voice context.');
       } else if (reports === 0 && recipients === 0) {
         tone = 'empty'; label = _t('Pick a report and a recipient', 'Pumili ng report at tatanggap');
-        sub  = _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`,
-                  `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact ang handa.`);
+        // ★THE VERDICT SAID "0 SAVED CONTACTS READY" WHILE THE CARD BELOW SAID "CHECKING" (2026-10-06, report-sender x
+        // assistive-tech, PostgREST stopped). The contacts card already tells pending / unread / saved-copy / real
+        // apart (see above); this sub-line read `saved` raw, so the verdict announced a count of zero before the read
+        // had answered, and a saved-copy count as if it were the server's. It now says the same thing the card says.
+        sub  = !_rsContactsSettled
+          ? _t(`${SELECTABLE_REPORTS} reports available · still checking your saved contacts.`,
+               `${SELECTABLE_REPORTS} report ang available · tinitingnan pa ang mga naka-save mong contact.`)
+          : (_rsReadFailed && !_contacts.length)
+          ? _t(`${SELECTABLE_REPORTS} reports available · your saved contacts could not be loaded, so their number is unknown.`,
+               `${SELECTABLE_REPORTS} report ang available · hindi ma-load ang mga naka-save mong contact, kaya hindi alam kung ilan.`)
+          : _rsUsedFallback
+          ? _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} from your saved copy (the server did not answer).`,
+               `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact mula sa saved copy mo (hindi sumagot ang server).`)
+          : _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`,
+               `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact ang handa.`);
       } else if (reports === 0) {
         tone = 'watch'; label = _t('Pick at least one report', 'Pumili ng kahit isang report');
         sub  = _t('Recipients are set; tap a chip above to choose what to send.',
@@ -1340,6 +1359,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           : `Recent Reports: the ${items.length} most recent of ${total}`;
       }
 
+      // 2026-10-06 (report-sender x assistive-tech): each Resend button's name read "Send the ... again" beside the
+      // visible word "Resend", so a voice-control user saying "click Resend" matched nothing - WCAG 2.5.3 Label
+      // in Name: the name must contain what is visible. It now starts with the visible word.
       list.innerHTML = items.map(item => {
         const color   = reportColor(item.report_type);
         const label   = reportLabel(item.report_type);
@@ -1357,7 +1379,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <button data-i="rs2-resend" class="resend-btn"
                     data-type="${escHtml(item.report_type)}"
                     data-summary="${escHtml(item.summary || '')}"
-                    aria-label="${escHtml(_t(`Send the ${label} from ${time} again, to whoever is selected above`, `Ipadala muli ang ${label} mula ${time}, sa sinumang napili sa itaas`))}">
+                    aria-label="${escHtml(_t(`Resend the ${label} from ${time} to whoever is selected above`, `Ipadala muli ang ${label} mula ${time}, sa sinumang napili sa itaas`))}">
               Resend
             </button>
           </div>`;
@@ -1714,6 +1736,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // `:not(.open)` out-specifies it, so display:flex alone left the sheet laid out and invisible - 8
       // controls present, 0 visible, no error. Measured on report-sender and dayplanner alike.
       overlay.classList.add('open');
+      // ★"+ ADD CONTACT" OPENED AN EMPTY DARK SCREEN (W4736, 2026-10-08). utils.js has since gated the SHEET too
+      // (`.bottom-sheet:not(.open) { visibility: hidden }`, W45964, so a closed sheet stops painting over full-page
+      // captures), and this page opened only the overlay: the blur came up, while the sheet and every field in it
+      // stayed visibility:hidden - measured: overlay visible, #contact-name hidden, no error. Marketplace's sheets
+      // were already opened in pairs (overlay + sheet); this one is now opened the same way, and closed the same way.
+      document.getElementById('contact-sheet').classList.add('open');
       // Delay focus until sheet animation completes (~300ms)
       setTimeout(() => nameInput.focus(), 300);
     }
@@ -1722,6 +1750,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Symmetric with openSheet: drop `.open` too, or the sheet keeps visibility:visible behind
       // display:none and the next open transitions from the wrong state.
       document.getElementById('sheet-overlay').classList.remove('open');
+      document.getElementById('contact-sheet').classList.remove('open');
       document.getElementById('sheet-overlay').style.display = 'none';
     }
 
@@ -2007,7 +2036,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const form = new FormData();
         form.append('audio', audioBlob, filename);
 
-        // ★ THIS ONE IS DELIBERATELY LEFT ON THE ANON KEY — do not "fix" it to match its neighbours.
+        // ★ (2026-10-12) THE BEARER IS NOW THE PERSON'S SESSION WHEN THERE IS ONE - the note below explains why this call
+        // stayed on the anon key, and it is right that voice-transcribe never REFUSES a missing identity. But on the anon
+        // key a signed-in worker was limited by client IP: one bucket for a whole crew behind one carrier address, and a
+        // walked note was refused 429 on it. With no session the call is the anonymous IP-keyed path, unchanged.
+        // (Earlier note, kept:) THIS ONE WAS DELIBERATELY LEFT ON THE ANON KEY.
         // Three sibling calls in this file were converted to db.functions.invoke() because their target
         // functions REFUSE a null authUid (send-report-email :176, voice-report-intent :127-129,
         // scheduled-agents :447-449 all reach resolveTenancy, which 401s without an identity).
@@ -2017,17 +2050,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // Verified per-FUNCTION rather than per-file, because a grep for the bearer accuses this call
         // exactly as loudly as the three real ones.
         // T146 (2026-08-26): bounded - an unbounded transcribe leaves the control spinning forever.
+        let _vtBearer = SUPABASE_KEY;
+        try { const { data: { session } } = await db.auth.getSession(); if (session && session.access_token) _vtBearer = session.access_token; }
+        catch (_) { /* empty-catch-allow: no session -> the anonymous bearer, as before */ }
         const _opts = { method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_vtBearer}` },
           body: form };
         const resp = (typeof fetchWithTimeout === 'function')
           ? await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts, 45000)
           : await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, _opts);
-        if (!resp) throw new Error(_t('That took too long to transcribe. Try again, or type it instead.', 'Masyadong matagal i-transcribe. Subukan muli, o i-type na lang.'));
+        if (!resp) {
+          const _late = new Error(_t('That took too long to transcribe. Try again, or type it instead.', 'Masyadong matagal i-transcribe. Subukan muli, o i-type na lang.'));
+          _late.whSentence = _late.message;
+          throw _late;
+        }
 
         if (!resp.ok) {
           const data = await resp.json().catch(() => ({}));
-          throw new Error(data.error || `HTTP ${resp.status}`);
+          const _refused = new Error(data.error || `HTTP ${resp.status}`);
+          // the function's own sentence, shown whole; a bare code or an empty body goes to whAiError's taxonomy
+          if (typeof data.error === 'string' && /\s/.test(data.error.trim())) _refused.whSentence = data.error.trim();
+          throw _refused;
         }
 
         const { text } = await resp.json();
@@ -2039,7 +2082,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
       } catch (err) {
         console.error('report-sender transcription failed:', err);
-        showToast(whAiError(err, _t('Transcription failed: ', 'Hindi natuloy ang transcription: ') + escHtml(String(err).slice(0, 50))));
+        // ★THE TRANSCRIBER'S OWN SENTENCE WAS CUT TO A FRAGMENT (2026-10-12, UFAI edge walk W4748). The fallback was
+        // 'Transcription failed: ' + escHtml(String(err).slice(0, 50)), and voice-transcribe's 503 sentence matches none
+        // of whAiError's patterns - so the person read "Transcription failed: Error: The voice transcriber is not
+        // answering just". This page's own timeout sentence was cut the same way, and escHtml into a textContent toast
+        // prints entities. A sentence the function or this page wrote is shown whole.
+        // The cause is the function's (or this page's) own first sentence; the remedy is THIS page's - nothing can be
+        // typed here ("Type your note instead" is voice-journal's advice), and the reports are picked below. No
+        // lookbehind in the regex: Safari before 16.4 rejects it at parse time, and this is the iPhone path.
+        const _cause = (err && err.whSentence) ? ((String(err.whSentence).match(/^[\s\S]*?[.!?](?=\s|$)/) || [String(err.whSentence)])[0]) : '';
+        showToast(_cause
+          ? _cause + ' ' + _t('Pick the reports below, or tap the mic and try again.', 'Piliin sa ibaba, o tapikin ang mic at subukan muli.')
+          : whAiError(err, _t('Transcription failed. Pick the reports below, or tap the mic and try again.', 'Hindi natuloy ang transcription. Piliin sa ibaba, o tapikin ang mic at subukan muli.')));
         setMicState('ready');
       }
     }
@@ -2048,6 +2102,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Save current selections before voice auto-selects (restored on clear)
       _preVoiceSelected = new Set(_selected);
       _preVoiceContacts = new Set(_selectedContacts);
+      // ★WHAT THE PERSON IS TOLD ABOUT ONE SPOKEN REQUEST IS SHOWN ONCE (2026-10-12, UFAI edge walk W4746): the refusal
+      // toast below was replaced in the same tick by the recipient-hint toast, on the one #toast element, so the person
+      // read that a contact was missing and never that nothing was understood. Both are collected and shown together.
+      const _tell = [];
 
       try {
         // Same anon-key defect as the send path: this call passes hive_id, and voice-report-intent gates
@@ -2060,8 +2118,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
         if (error) throw error;
         _voiceContext = data ?? { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
-      } catch {
+      } catch (err) {
         _voiceContext = { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
+        // ★THE SPOKEN REQUEST FAILED AND NOTHING SAID SO (LM-V walk, LM428, 2026-10-07): voice-report-intent failing
+        // fell back to "no reports, your words as a note" in silence - the person saw their words on the card and had
+        // no way to know nothing was picked from them. The fallback stays (the words are kept as context); the page
+        // now says the request was not understood and what to do, in the function's own sentence when it sent one.
+        let _why = '';
+        try {
+          _why = (typeof window.whFnError === 'function')
+            ? await window.whFnError(err, '') : '';
+        } catch (_) { _why = ''; }   /* empty-catch-allow: the plain sentence below is shown instead */
+        _tell.push(_t('Could not read the reports from what you said, so none were picked. Pick them below, or tap the mic and try again.',
+          'Hindi nabasa ang mga report sa sinabi mo, kaya walang napili. Piliin sa ibaba, o tapikin ang mic at subukan muli.')
+          + (_why && !/non-2xx/i.test(_why) ? ' (' + _why + ')' : ''));
       }
 
       // Client-side fallback: extract "to [Name/Role]" if AI missed it
@@ -2084,7 +2154,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       // Fuzzy match recipient hint against saved contacts
       if (_voiceContext.recipient_hint) {
-        applyRecipientHint(_voiceContext.recipient_hint);
+        const _miss = applyRecipientHint(_voiceContext.recipient_hint);
+        if (_miss) _tell.push(_miss);
       }
 
       // Show enriched context card
@@ -2092,25 +2163,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('voice-ctx').style.display = 'flex';
       updateSendBtn();
       setMicState('set');
+      if (_tell.length) showToast(_tell.join(' '));
     }
 
+    // Returns what the person should be told when the hint matches nobody ('' otherwise) - the caller shows it with
+    // anything else about the same request, in one toast.
     function applyRecipientHint(hint) {
-      if (!_contacts.length) return;
-      const h = hint.toLowerCase().trim();
+      if (!_contacts.length) return '';
+      // "to the team" / "to my supervisor": the article is not part of the name (2026-10-12, W4746 - "the team" was
+      // reported missing while every unlabelled contact IS the Team group)
+      const h = hint.toLowerCase().trim().replace(/^(?:the|my|our)\s+/, '');
 
       // "everyone" / "all" — select all contacts
       if (h === 'everyone' || h === 'all' || h === 'all contacts') {
         for (const c of _contacts) _selectedContacts.add(c.id);
         renderContacts();
-        return;
+        return '';
       }
 
-      // Role label match — "supervisor", "engineer", "manager", "team"
-      const byLabel = _contacts.filter(c => (c.label || 'Team').toLowerCase() === h);
+      // Role label match — "supervisor", "engineer", "manager", "team" (a plural names the same label)
+      const byLabel = _contacts.filter(c => { const l = (c.label || 'Team').toLowerCase(); return l === h || l + 's' === h; });
       if (byLabel.length) {
         for (const c of byLabel) _selectedContacts.add(c.id);
         renderContacts();
-        return;
+        return '';
       }
 
       // Name match — partial first name or full name contains hint
@@ -2120,12 +2196,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       });
 
       if (!byName.length) {
-        showToast(_t(`"${escHtml(hint)}" not found in contacts, add them first`,
-        `Hindi makita sa contacts ang "${escHtml(hint)}", idagdag muna sila`));
-        return;
+        // plain text: the toast is textContent, so escHtml printed its entities ("O&#39;Brien")
+        return _t(`"${hint}" is not in your contacts - add them first.`,
+        `Hindi makita sa contacts ang "${hint}", idagdag muna sila.`);
       }
       for (const c of byName) _selectedContacts.add(c.id);
       renderContacts();
+      return '';
     }
 
     function buildVoiceSummary() {
@@ -2210,8 +2287,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!result || result.status === 'failed') {
         throw new Error(result?.detail || 'Generation failed');
       }
+      // the report agent's own sentence, kept apart from the generic fallback below so only REAL model text is ever
+      // offered for a "was this right?" rating (renderResults)
+      _rsAgentSummary[reportType] = (typeof result.summary === 'string') ? result.summary.trim() : '';
+      _rsAgentTrace[reportType] = data.trace_id;   // LM-E: the call that wrote that sentence
       return result.summary || _t('Report generated successfully.', 'Matagumpay na nagawa ang ulat.');
     }
+    const _rsAgentSummary = {};   // report type -> the summary sentence scheduled-agents wrote for this run
+    const _rsAgentTrace = {};     // report type -> the trace id that scheduled-agents run returned (LM-E)
 
     // ── Processing UI helpers ─────────────────────────────────────────────────────
     function renderProcList(reports) {
@@ -2264,6 +2347,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>
         `;
       }).join('');
+      // ★THE SENTENCE THAT WENT OUT IN THE EMAIL COULD NOT BE CALLED WRONG (LM-E walk, 2026-10-08). Each summary here is
+      // the report agent's model-written sentence - the same one the recipients read. The shared "was this right?" row
+      // sits under each card's own sentence (one report, one answer, one row), and only when the sentence is the
+      // agent's: the generic "Report generated successfully." is not an answer. The list is rewritten whole per send.
+      if (typeof whAiTrustRow === 'function') {
+        const bodies = document.querySelectorAll('#results-list .result-body');
+        successes.forEach(([id], i) => {
+          const said = _rsAgentSummary[id];
+          const r = REPORTS.find(x => x.id === id);
+          if (!said || !bodies[i]) return;
+          whAiTrustRow(bodies[i], { db, agent: 'scheduled-agents', source: 'report-summary', page: 'report-sender',
+            traceId: whTraceIdOf(_rsAgentTrace[id]),
+            question: 'Summarise the ' + ((r && r.label) || id) + ' report', answer: said,
+            groundedOn: 'the figures this report computed from your hive\'s records just now' });
+        });
+      }
     }
 
     // ── Send flow ─────────────────────────────────────────────────────────────────
@@ -2370,7 +2469,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast(rateLimited
           ? (window.whAiError ? window.whAiError({ message: '429' }) : _t('You have hit the AI rate limit.', 'Naabot mo na ang limitasyon ng AI.'))
             + ' Your selection and recipients are still here.'
-          : _t('All reports failed, check connection and try again', 'Hindi natuloy ang lahat ng report, suriin ang koneksyon at subukan muli'));
+          // 2026-10-06 (report-sender x assistive-tech, PostgREST stopped): "check connection" was the advice for every
+          // non-429 failure, including a service outage with navigator.onLine TRUE.
+          : (navigator.onLine === false)
+            ? _t('You are offline, so no report was sent. Your selection and recipients are still here; send again when your connection is back.', 'Offline ka, kaya walang naipadalang report. Nandito pa ang pinili mo at ang mga tatanggap; ipadala muli kapag bumalik ang koneksyon mo.')
+            : _t('No report was sent - WorkHive did not answer. Your selection and recipients are still here; try again in a moment.', 'Walang naipadalang report - hindi sumagot ang WorkHive. Nandito pa ang pinili mo at ang mga tatanggap; subukan muli maya-maya.'));
         setCardState('idle');
       }
     }

@@ -72,7 +72,7 @@ The <a href="https://smrp.org/">Society for Maintenance and Reliability Professi
 
 No. You can start with a disciplined logbook and a checklist. The value is in consistent recording, not the tool. WorkHive is a free, offline-first platform that captures the downtime, repair, and PM data these metrics need without any subscription.
 
-**[Track these metrics free in WorkHive Analytics](https://workhiveph.com/analytics.html)**: OEE, MTBF, MTTR and PM compliance from your own logbook data.
+**Track these metrics free in WorkHive Analytics**: OEE, MTBF, MTTR and PM compliance from your own logbook data.
 
 ## Sources
 
@@ -83,4 +83,4 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 793fa86fed0bacab -->
+<!-- md-twin source-sha: f96ef2935f4e99f6 -->

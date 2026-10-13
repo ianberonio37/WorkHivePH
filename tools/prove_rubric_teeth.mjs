@@ -35,6 +35,46 @@ const PAGES = {
   modal: HEAD + '<main><h1>Synthetic modal page</h1><p>A control under an open dialog is covered by design.</p>'
     + '<p><button id="under">Under the dialog</button></p></main>'
     + '<div role="dialog" aria-modal="true" id="dlg" style="position:fixed;inset:0;background:rgba(0,0,0,.4)"><div style="background:#fff;margin:120px 24px;padding:16px"><h2>Confirm</h2><p>Sure?</p><button id="close">Close</button></div></div></body></html>',
+  // ★2026-10-13: a cover found by climbing to a chrome-looking ANCESTOR named the page's own <main id="wh-main-content">
+  // (assistant, 226 rows). A veil inside main sits on the summary: V1 must fail naming the veil, never wh-main-content.
+  ancestor: HEAD + '<main id="wh-main-content" style="position:relative"><h1>Synthetic covered summary</h1>'
+    + '<details><summary id="sum">How this page works</summary><p>Help text.</p></details>'
+    + '<div class="veil" style="position:absolute;left:0;right:0;top:40px;height:120px;background:rgba(0,0,0,.05)"></div></main></body></html>',
+  // ★2026-10-13: a <br> added no whitespace in the text B3 reads, so a sentence and the link on the next line merged
+  // (project-report: "...then Print Report.Go to Project Manager"). 16 words, <br>, a 9-word link: merged they are one
+  // 25-word sentence; a reader sees two lines. B3 must count no sentence over 20 words.
+  // ★2026-10-13: a summary NESTED inside a closed disclosure is hidden, and Chrome still lays it out, so V1 found the
+  // panel painted at its centre and called it covered (assistant: the help twin inside the closed scope disclosure).
+  // V1 must pass: nothing a person can see is covered.
+  nested: HEAD + '<main><h1>Synthetic closed disclosure</h1><details id="outer"><summary>Scope of answers</summary>'
+    + '<p>Inside the closed outer disclosure.</p><details id="inner"><summary id="innersum">How this page works</summary>'
+    + '<p>Help text.</p><p><a href="#mail">admin@example.com</a></p></details></details>'
+    + '<section style="background:#234;padding:80px 16px;margin-top:0"><p>Panel text that really is painted here.</p></section></main></body></html>',
+  // ★2026-10-13: B4 read a middot-separated chip line as one 38-word sentence (hive readiness). The meta line must
+  // pass; a real 38-word sentence in the same disclosure must still fail.
+  b4meta: HEAD + '<main><h1>Synthetic readiness</h1><details open><summary>How we compute hive readiness</summary>'
+    + '<p>Live · updates automatically · as of 13:59 PHT · Based on your hive readiness snapshot · Weighted: Process 25%'
+    + ' · Data 20% · Resilience 15% · Leadership 25% · Culture 15% of the score</p></details></main></body></html>',
+  b4long: HEAD + '<main><h1>Synthetic readiness</h1><details open><summary>How we compute hive readiness</summary>'
+    + '<p>The readiness score is calculated by combining the weighted process, data, resilience, leadership and culture'
+    + ' dimension scores that are recomputed whenever the underlying hive records change so that supervisors can'
+    + ' always compare the current standing against the previous snapshot.</p></details></main></body></html>',
+  // ★2026-10-13: J1 counted a CTA link ("Clear 2 overdue PMs") and modal-opening "Use" buttons as unguarded deletes.
+  j1ok: HEAD + '<main><h1>Synthetic parts</h1><p><a href="#overdue" id="cta">Clear 2 overdue PMs</a></p>'
+    + '<p><button class="btn-danger" onclick="openUseModal(1)">Use</button></p>'
+    + '<div id="use-modal" role="dialog" hidden><p>How many?</p></div>'
+    + '<script>window.openUseModal = function (id) { document.getElementById("use-modal").hidden = false; };</script></main></body></html>',
+  j1bad: HEAD + '<main><h1>Synthetic parts</h1><p><button class="btn-danger" onclick="deleteRow(1)">Delete</button></p>'
+    + '<script>window.deleteRow = function (id) { window.__rows = (window.__rows || 0) - 1; };</script></main></body></html>',
+  // ★2026-10-13: B3 graded a one-middot chip line as a sentence (project-report, grade 9.8). Two facts, not one; and a
+  // genuinely over-grade 14-word sentence beside it must still fail.
+  b3meta: HEAD + '<main><h1>Synthetic report</h1><p class="wh-source-chip">Recomputed each time you generate this report'
+    + ' · Based on your project items, project progression and accumulated expenditure</p></main></body></html>',
+  b3grade: HEAD + '<main><h1>Synthetic report</h1><p>Consolidated expenditure categorization necessitates comprehensive'
+    + ' interdepartmental reconciliation procedures before authorization occurs.</p></main></body></html>',
+  brjoin: HEAD + '<main><h1>Synthetic line break</h1><p>Each report covers one project and lists its tasks, costs and sign-offs'
+    + ' for the whole team.<br><a href="#pm" style="display:inline-flex;min-height:44px;align-items:center">Open the project'
+    + ' manager to choose one project now</a></p></main></body></html>',
 };
 
 async function grade(page, html) {
@@ -42,7 +82,7 @@ async function grade(page, html) {
   await page.evaluate((src) => (0, eval)('(' + src + ')')(), RUBRIC);
   const res = await page.evaluate(() => window.__RUBRIC.survey({ pageId: 'synthetic', root: 'main' }));
   const dim = (id) => (res.dims || []).find((d) => d.dim === id) || {};
-  return { V1: dim('V1'), R6: dim('R6') };
+  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1') };
 }
 
 const b = await chromium.launch();
@@ -56,10 +96,37 @@ const clean = await grade(page, PAGES.clean);
 if (clean.V1.pass !== 1) fails.push(`V1 must PASS on the clean page (control) - got pass=${clean.V1.pass} note="${(clean.V1.note || '').slice(0, 120)}"`);
 if (clean.R6.pass !== 1) fails.push(`R6 must PASS on the clean page (control) - got pass=${clean.R6.pass} note="${(clean.R6.note || '').slice(0, 120)}"`);
 const modal = await grade(page, PAGES.modal);
+const anc = await grade(page, PAGES.ancestor);
+if (anc.V1.pass !== 0 || !/veil/.test(anc.V1.note || '') || /wh-main-content/.test(anc.V1.note || ''))
+  fails.push(`V1 must FAIL naming the veil over the summary, never its ancestor <main> - got pass=${anc.V1.pass} note="${(anc.V1.note || '').slice(0, 140)}"`);
+const nst = await grade(page, PAGES.nested);
+if (nst.V1.pass !== 1)
+  fails.push(`V1 must PASS when the only "covered" controls sit inside a closed disclosure (hidden, not covered) - got pass=${nst.V1.pass} note="${(nst.V1.note || '').slice(0, 140)}"`);
+const b4m = await grade(page, PAGES.b4meta);
+if (b4m.B4.pass !== 1)
+  fails.push(`B4 must read a middot-separated chip line as a list of facts - got pass=${b4m.B4.pass} note="${(b4m.B4.note || '').slice(0, 120)}"`);
+const b4l = await grade(page, PAGES.b4long);
+if (b4l.B4.pass !== 0)
+  fails.push(`B4 must still fail a real 38-word sentence in a disclosure - got pass=${b4l.B4.pass} note="${(b4l.B4.note || '').slice(0, 120)}"`);
+const j1o = await grade(page, PAGES.j1ok);
+if (j1o.J1.kind === 'MEASURED' && j1o.J1.pass !== j1o.J1.total)
+  fails.push(`J1 must not count a CTA link or a modal-opening Use as an unguarded delete - got ${j1o.J1.pass}/${j1o.J1.total} "${j1o.J1.note || ''}"`);
+const j1b = await grade(page, PAGES.j1bad);
+if (!(j1b.J1.kind === 'MEASURED' && j1b.J1.pass === 0))
+  fails.push(`J1 must still fail an unguarded delete - got kind=${j1b.J1.kind} ${j1b.J1.pass}/${j1b.J1.total}`);
+const b3m = await grade(page, PAGES.b3meta);
+if (!/grade>8=0\b/.test(b3m.B3.note || ''))
+  fails.push(`B3 must read a one-middot chip line as two facts - got note="${(b3m.B3.note || '').slice(0, 120)}"`);
+const b3g = await grade(page, PAGES.b3grade);
+if (/grade>8=0\b/.test(b3g.B3.note || ''))
+  fails.push(`B3 must still grade a real over-grade sentence - got note="${(b3g.B3.note || '').slice(0, 120)}"`);
+const brj = await grade(page, PAGES.brjoin);
+if (!/>20w=0\b/.test(brj.B3.note || ''))
+  fails.push(`B3 must read a <br> as a line break (no 25-word merge of a sentence and the link below it) - got note="${(brj.B3.note || '').slice(0, 140)}"`);
 if (modal.V1.pass !== 1) fails.push(`V1 must PASS with a control under an OPEN modal (covered by design) - got pass=${modal.V1.pass} note="${(modal.V1.note || '').slice(0, 120)}"`);
 await b.close();
 if (fails.length) {
   console.log('FAIL rubric-teeth - ' + fails.join(' | '));
   process.exit(1);
 }
-console.log(`PASS rubric-teeth - V1 bites on a FAB over Save ("${(occ.V1.note || '').slice(0, 70)}"), R6 bites on a box past its hidden card ("${(occ.R6.note || '').slice(0, 60)}"); both stay quiet on the clean page and V1 stays quiet under an open modal`);
+console.log(`PASS rubric-teeth - V1 bites on a FAB over Save ("${(occ.V1.note || '').slice(0, 70)}"), R6 bites on a box past its hidden card ("${(occ.R6.note || '').slice(0, 60)}"); both stay quiet on the clean page, V1 stays quiet under an open modal and over a closed disclosure's hidden content, B3 reads a <br> as a line break, B4 reads a middot line as a list but still fails a long sentence, and J1 spares a link and a modal opener but not an unguarded delete`);

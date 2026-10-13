@@ -20,7 +20,7 @@
 //   node tools/prove_a11y_path.mjs                    # the roster
 //   node tools/prove_a11y_path.mjs --page hive.html   # one surface, verbose
 import { chromium } from 'playwright';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -76,7 +76,7 @@ const KEYBOARD = function keyboard(args) {
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;
 for (const file of (ONLY ? [ONLY] : (LIST || ROSTER))) {

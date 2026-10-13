@@ -545,7 +545,7 @@
         <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
         <div data-i="p_computingrecommendation_5948" class="ac-text" id="ah-action-text">Computing recommendation...</div>
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-        <a data-i="p_takeaction_ee0b" id="ah-action-btn" class="ac-cta hidden" href="#" data-ia="a_cta" aria-label="Do the recommended next action">Take action &#8594;</a>
+        <a data-i="p_takeaction_ee0b" id="ah-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
       </div>
       <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
         Show details
@@ -959,7 +959,9 @@
           <button id="ask-send" class="add-edge-btn" data-i="ask" style="background:linear-gradient(135deg,var(--orange-wh),var(--wh-orange-light));color:var(--navy-wh);border:none;font-weight:700;padding:0 16px;">Ask</button>
         </div>
         <div id="ask-output" style="margin-top:0.85rem;display:none;">
-          <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;"></div>
+          <!-- LM-L walk LM513 (2026-10-08): "Thinking...", the answer and the failure sentence all land here, and a screen
+               reader heard none of them - the area is a polite live region now -->
+          <div id="ask-answer" style="font-size:0.88rem;line-height:1.5;" role="status" aria-live="polite"></div>
           <div id="ask-cited" style="margin-top:0.55rem;font-size:0.8rem;color:var(--muted);"></div>
           <div id="ask-meta"  style="margin-top:0.4rem;font-size:0.75rem;color:var(--muted);letter-spacing:0.04em;"></div>
         </div>
@@ -1170,7 +1172,22 @@
       const col = { critical: '#f87171', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#9aa6b3';
       const txt = { critical: '#FCA5A5', high: '#f7a21b', medium: '#facc15', low: '#4ade80' }[lvl] || '#c3ccd6';
       const pct = r.risk_score != null ? ' ' + Math.round(Number(r.risk_score) * 100) + '%' : '';
-      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(typeof whLevelWord === 'function' ? whLevelWord(lvl) : lvl)} ${_t('risk', 'panganib')}${pct}</span>`;
+      /* ★"(model)" LIVED ONLY IN A TITLE (2026-10-06, asset-hub x assistive-tech, layer D - provenance). Each
+         card stacks two near-synonymous badges, "CRITICAL RISK 95%" over "CRITICALITY CRITICAL", and they are
+         different KINDS of fact: risk is the reliability model's estimate, criticality is a recorded
+         classification. The only thing that said which was which was title="Live reliability risk (model)",
+         and a title is never shown on touch and is read only as an optional description by some screen
+         readers - so on a phone, and for anyone moving chip by chip, "HIGH RISK 71%" over "CRITICALITY LOW"
+         read as a contradiction rather than as an estimate beside a classification.
+         The qualifier belongs next to its figure, but it does not fit VISIBLY: the badges share a 154px
+         column at a true 390 and the chip is nowrap, so " predicted" (+73px, measured in the chip's own
+         font) would break the card. Sighted readers already have the page's own word for it in view - the
+         verdict reads "N assets at critical or high predicted risk" - so the per-chip qualifier goes to the
+         accessibility tree, where a reader has no layout to lean on. "predicted" is the page's existing
+         vocabulary (its Filipino copy keeps the word too). The title stays for desktop hover. */
+      const _riskSR = '<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">'
+        + escHtml(' (predicted)') + '</span>';
+      return `<span class="risk-chip" title="Live reliability risk (model)" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:999px;background:${col}22;color:${txt};border:1px solid ${col}66;white-space:nowrap;">${escHtml(typeof whLevelWord === 'function' ? whLevelWord(lvl) : lvl)} ${_t('risk', 'panganib')}${pct}${_riskSR}</span>`;
     }
 
     function fmtDate(s) {
@@ -1187,7 +1204,12 @@
         .from('hive_members')
         .select('role, status')
         .eq('hive_id', HIVE_ID)
-        .eq('worker_name', WORKER_NAME)
+        // BRP-A (2026-10-04): the membership gate keys on the IDENTITY. It used to ask
+        // `worker_name = WORKER_NAME` - localStorage text - so a person whose display name had
+        // drifted from the one on their membership row failed this check and was gated out of a hive
+        // they are still a member of. hive_members' read policy already begins `auth_uid = auth.uid()`,
+        // and 20261004000003 enforces one row per (hive_id, auth_uid), so .maybeSingle() stays safe.
+        .eq('auth_uid', _authUid)
         .maybeSingle();
 
       if (error) {
@@ -1616,7 +1638,7 @@
           ${n.name && n.name !== n.tag ? '<div style="font-size:0.8rem; color:var(--wh-cloud);">' + e(n.name) + '</div>' : ''}
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.75rem; color:var(--muted);">
             ${n.criticality ? '<span>' + e(_t('Criticality claimed: ', 'Kritikalidad na inaangkin: ')) + '<strong style="color:var(--wh-cloud);">' + e(String(n.criticality).toUpperCase()) + '</strong></span>' : ''}
-            ${n.created_at ? '<span>' + e(_t('submitted ', 'isinumite ')) + e(typeof whFmtAgo === 'function' ? whFmtAgo(n.created_at) : new Date(n.created_at).toLocaleDateString()) + '</span>' : ''}
+            ${n.created_at ? '<span>' + e(_t('submitted ', 'isinumite ')) + e(typeof whFmtAgo === 'function' ? whFmtAgo(n.created_at) : new Date(n.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' })) + '</span>' : ''}
           </div>
           ${n.location ? '<div style="font-size:0.8rem; color:var(--muted);">' + e(n.location) + '</div>' : ''}
           ${n.status === 'rejected'
@@ -1890,8 +1912,28 @@
       `).join('');
 
       // Bind clicks
+      // ★THE ASSET LIST COULD ONLY BE OPENED WITH A MOUSE (2026-10-06, asset-hub x any, layer F render contract). Every
+      // card was a plain <div> with a click listener - not focusable, no role, no key handler - so a keyboard or
+      // screen-reader user could search the register and then not open a single asset; the page counted 11
+      // interactive elements beside 30 asset rows. Each card is now a button: focusable, Enter and Space open it, and
+      // its NAME is built from what the card shows (tag, name, location, the risk and criticality words) rather than
+      // left to the whole card's text, which would run every nested chip and hidden suffix together.
       list.querySelectorAll('.asset-card').forEach(el => {
-        el.addEventListener('click', () => openDetail(el.getAttribute('data-node-id')));
+        const _open = () => openDetail(el.getAttribute('data-node-id'));
+        el.addEventListener('click', _open);
+        try {
+          const _txt = (sel) => { const n = el.querySelector(sel); return n ? (n.textContent || '').replace(/\s+/g, ' ').trim() : ''; };
+          const _chips = Array.prototype.map.call(el.querySelectorAll('.risk-chip, [class*="crit"], [class*="badge"]'),
+            (c) => (c.textContent || '').replace(/\s+/g, ' ').trim()).filter(Boolean);
+          const _name = [_txt('.asset-card-tag'), _txt('.asset-card-name'), _txt('.asset-card-meta')].concat(_chips)
+            .filter(Boolean).join(', ');
+          el.setAttribute('role', 'button');
+          el.tabIndex = 0;
+          if (_name) el.setAttribute('aria-label', _name);
+          el.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _open(); }
+          });
+        } catch (_) { /* empty-catch-allow: the card still opens by pointer */ }
       });
     }
 
@@ -1911,6 +1953,11 @@
       document.getElementById('detail-view').style.display = 'block';
       document.getElementById('page-title').textContent = 'Asset Detail';
       document.getElementById('page-sub').textContent = 'Tap back to return to the list';
+      // The card that opened this view was just hidden with the list, so keyboard focus fell to <body> (2026-10-06,
+      // asset-hub x any). Land it on the page title, which now names the view the person is in.
+      try { const _pt = document.getElementById('page-title'); const _ae = document.activeElement;
+        const _lv = document.getElementById('list-view'); if (_pt && (!_ae || _ae === document.body || (_lv && _lv.contains(_ae)))) { _pt.setAttribute('tabindex', '-1'); _pt.focus({ preventScroll: true }); } }
+      catch (_) { /* empty-catch-allow: focus is best-effort */ }
 
       // Wire the back button to return to list
       const backBtn = document.querySelector('.back-btn');
@@ -2548,38 +2595,38 @@
         return;
       }
 
-      const reservations = picked.map(p => ({
-        hive_id:           HIVE_ID,
-        asset_name:        _stagingRec.asset_name,
-        item_id:           p.item_id,
-        qty_reserved:      p.qty_avg || 1,
-        reserved_by:       WORKER_NAME,
-        recommendation_id: _stagingRec.id,
-        notes:             'auto-staged from risk ' + (_stagingRec.risk_score || 0).toFixed(2),
-      }));
-
-      const [resvRes, recRes] = await Promise.allSettled([
-        // Idempotent: a double-accept (offline-retry / timeout re-send / 2nd device) that races the
-        // client button-disable is a no-op, not a duplicate reservation — backed by the UNIQUE
-        // (recommendation_id, item_id) index (mig 20260720000001, Arc S C-lens). ignoreDuplicates → ON CONFLICT DO NOTHING.
-        db.from('parts_staged_reservations').upsert(reservations, { onConflict: 'recommendation_id,item_id', ignoreDuplicates: true }),
-        db.from('parts_staging_recommendations')
-          .update({ status: 'accepted', acted_at: new Date().toISOString(), acted_by: WORKER_NAME })
-          .eq('id', _stagingRec.id).is('acted_at', null),  // P6-C1: only act on an un-acted recommendation (no double-act re-flip)
-      ]);
-
-      const insErr = resvRes.status === 'fulfilled' && resvRes.value.error ? resvRes.value.error : null;
-      const updErr = recRes.status === 'fulfilled' && recRes.value.error ? recRes.value.error : null;
-      if (insErr || updErr) {
-        console.warn('staging accept:', insErr?.message || updErr?.message);
+      // ★ACCEPTING WAS TWO WRITES THAT DID NOT KNOW ABOUT EACH OTHER (2026-10-08, UI-write recipes): the reservations
+      // upsert and the recommendation update ran in parallel, either could land without the other, and the toast said
+      // "Nothing changed" even when one half had gone through (a rejected promise was not read at all). One RPC now does
+      // both in ONE transaction (accept_parts_staging, migration 20261008000011): the quantity comes from the
+      // recommendation, the caller names only which parts, and the answer says exactly what happened.
+      const { data: _acc, error: _accErr } = await db.rpc('accept_parts_staging', {
+        p_recommendation_id: _stagingRec.id,
+        p_item_ids: picked.map(p => String(p.item_id)),
+      });
+      if (_accErr) {
+        console.warn('staging accept:', _accErr.message);
         if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
-        showToast(whWriteError(insErr || updErr, 'The parts were not staged. Nothing changed; try again.'));
+        showToast(whWriteError(_accErr, 'The parts were not staged. Nothing was held; try again.'));
+        return;
+      }
+      if (!_acc || !_acc.ok) {
+        const _why = (_acc && _acc.reason) || '';
+        const _said = _why === 'already_acted'
+          ? 'This recommendation was already ' + ((_acc && _acc.status) || 'acted on') + ', perhaps on another device. Nothing new was staged.'
+          : _why === 'expired' ? 'This recommendation has expired. Nothing was staged.'
+          : _why === 'not_found' ? 'This recommendation is no longer available to you. Nothing was staged.'
+          : 'None of the selected parts are on this recommendation any more. Nothing was staged.';
+        if (_why === 'already_acted' || _why === 'expired' || _why === 'not_found') { if (card) card.style.display = 'none'; _stagingRec = null; }
+        else if (btn) { btn.disabled = false; btn.textContent = 'Stage selected'; }
+        showToast(_said);
         return;
       }
 
       if (card) card.style.display = 'none';
       _stagingRec = null;
-      showToast('Staged ' + picked.length + ' part' + (picked.length === 1 ? '' : 's'));
+      const _held = Number(_acc.already_held) || 0;
+      showToast('Staged ' + _acc.staged + ' part' + (_acc.staged === 1 ? '' : 's') + (_held ? ' (' + _held + ' already held)' : ''));
     }
 
     async function _onStagingDismiss() {
@@ -3594,14 +3641,16 @@
       }
 
       // Insert pm_scope_items row
-      const today = new Date(); today.setHours(0,0,0,0);
+      // ★THE ANCHOR WAS YESTERDAY FOR EVERY MANILA USER (2026-10-13, the device-clock-day ratchet). This took the
+      // device's midnight and wrote its UTC date: Manila's midnight is 16:00 UTC the day before, so a PM task anchored
+      // "today" was stored with yesterday's date and its whole schedule ran one day early. The anchor is Manila's date.
       const { data: scope, error: scopeErr } = await db.from('pm_scope_items')
         .insert({
           asset_id:    pmAssetId,
           hive_id:     HIVE_ID,
           item_text:   strat.task_text,
           frequency:   freq,
-          anchor_date: today.toISOString().slice(0,10),
+          anchor_date: whManilaYmd(),
           is_custom:   true,
         })
         .select('id').single();
@@ -4136,7 +4185,7 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
       const today = new Date();
-      const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' }) : '';
       const engineer = (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) ? WORKER_NAME : 'Reliability engineer';
       const hiveTag  = (typeof HIVE_ID !== 'undefined' && HIVE_ID) ? HIVE_ID.slice(0, 8) : '';
 
@@ -4292,7 +4341,7 @@
     <div><strong>ISO 14224 class:</strong> ${esc(node.iso_class || '--')}</div>
     <div><strong>Criticality:</strong> ${esc(node.criticality || '--')}</div>
     <div><strong>Location:</strong> ${esc(node.location || '--')}</div>
-    <div><strong>Generated:</strong> ${esc(today.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }))}</div>
+    <div><strong>Generated:</strong> ${esc(today.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' }))}</div>
     <div><strong>Engineer:</strong> ${esc(engineer)}</div>
     <div><strong>Hive:</strong> ${esc(hiveTag)}</div>
   </div>
@@ -4366,7 +4415,7 @@
     AIAG-VDA 2019 (FMEA), MIL-STD-1629A (FMECA), ISO 14224 (taxonomy),
     IEC 61649 (Weibull), ISO 13381-1 (Condition Monitoring).
   </div>
-  <div>Generated by WorkHive Reliability Workbench &middot; ${esc(today.toLocaleDateString('en-CA'))}</div>
+  <div>Generated by WorkHive Reliability Workbench &middot; ${esc(today.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }))}</div>
 </footer>
 </main>
 </body></html>`;
@@ -4667,6 +4716,7 @@
         const node    = _allNodes.find(n => n.id === nodeId);
         const persona = (typeof window.getPersona === 'function') ? window.getPersona() : undefined;
         let answer, cited, narration, remaining;
+        let traceId = null;   // set only when the GATEWAY's answer is the one shown; the direct tool returns no id
         try {
           const resp = await db.functions.invoke('ai-gateway', {
             body: {
@@ -4682,7 +4732,12 @@
           cited     = rr.cited     ?? gw.cited;
           narration = rr.narration ?? gw.narration;
           remaining = (typeof rr.remaining === 'number') ? rr.remaining : gw.remaining;
-          if (answer == null) throw new Error('no answer from gateway');
+          // ★AN OBJECT WHERE THE ANSWER BELONGS PRINTED "[object Object]" (LM-S walk, LM203, 2026-10-07): escHtml
+          // stringifies whatever it is given, so a model that returned structured output instead of text put those
+          // literal words in the answer box. Only TEXT is an answer; anything else tries the direct tool below.
+          if (typeof answer !== 'string' || !answer.trim()) throw new Error('no text answer from gateway');
+          // the envelope's id for this call, kept for the rating row below (LM-E, 2026-10-08)
+          traceId = (typeof whTraceIdOf === 'function') ? whTraceIdOf(body) : null;
         } catch (_gwErr) {
           // Fallback: the bespoke direct tool (zero regression if the gateway is unavailable).
           const { data, error } = await db.functions.invoke('asset-brain-query', {
@@ -4706,15 +4761,19 @@
             ansEl.innerHTML = '<span style="color:var(--wh-red-text);">' + e(data?.error || 'No answer returned.') + '</span>';
             return;
           }
-          answer = data.answer; cited = data.cited; narration = data.narration; remaining = data.remaining;
+          answer = (typeof data.answer === 'string') ? data.answer.trim() : ''; cited = data.cited; narration = data.narration; remaining = data.remaining;
         }
 
-        ansEl.innerHTML = e(answer || '(no answer)').replace(/\n/g, '<br>');
+        if (!answer) {
+          ansEl.innerHTML = '<span style="color:var(--muted);">' + e("Asset Brain didn't send back an answer this time. Please ask again.") + '</span>';
+          return;
+        }
+        ansEl.innerHTML = e(answer).replace(/\n/g, '<br>');
         // EX-AT (2026-09-07): a person who catches a wrong answer can say so in one press, and the
         // chip says what it rested on - the shared row every AI surface now carries.
         if (typeof whAiTrustRow === 'function') {
           const _good = Array.isArray(cited) ? cited.filter(c => c && c.resolved !== false && c.label).map(c => c.label) : [];
-          whAiTrustRow(ansEl, { db, agent: 'asset-brain', source: 'asset-hub', page: 'asset-hub', question, answer,
+          whAiTrustRow(ansEl, { db, agent: 'asset-brain', source: 'asset-hub', page: 'asset-hub', question, answer, traceId,
             groundedOn: _good.length ? _good.slice(0, 3).join(', ') : _t("this asset's logbook, PMs, neighbours and peers", 'logbook, PM, kapitbahay at kapareho ng asset na ito') });
         }
 
@@ -4991,7 +5050,7 @@
           const url  = URL.createObjectURL(blob);
           const a    = document.createElement('a');
           a.href = url;
-          a.download = 'workhive-assets-' + new Date().toISOString().slice(0, 10) + '.csv';
+          a.download = 'workhive-assets-' + whManilaYmd() + '.csv';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -5117,7 +5176,9 @@
 
     function tryRegister() {
       if (window.WHVoice && typeof window.WHVoice.register === 'function') {
-        window.WHVoice.register('asset.lookup', assetLookupHandler);
+        // effect 'read' (LM-V walk, 2026-10-07): opens the asset and, when asked, puts the question
+        // to Asset Brain; it saves nothing, so Confirm runs it with no further lock.
+        window.WHVoice.register('asset.lookup', assetLookupHandler, { effect: 'read' });
         return true;
       }
       return false;

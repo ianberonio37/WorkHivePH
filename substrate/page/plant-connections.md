@@ -2,19 +2,19 @@
 name: page-plant-connections
 type: page
 source: file:plant-connections.html
-source_sha: dca57ee1243777cb
+source_sha: cbc02fd57b36a934
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `plant-connections.html` — Plant Connections | WorkHive
 
-Size: 47KB · 24 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 52KB · 25 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)
 **Edge invokes**: (none)
 **Truth views read**: `v_external_sync_truth`
 
-**Functions**: computeCardStates, computeVerdict, freshness, init, loadGatewayAudit, loadIntegrationConfigs, loadRecentSync, loadRetentionConfig, loadSensorTopics, loadSsoConfig, renderAll, renderDenied, renderDetailsToggle, renderGatewayCard, renderIntegrationsCard, renderRecommendation, renderRetentionCard, renderSensorTopicsCard, renderSimpleCards, renderSsoCard, renderSyncCard, renderVerdict, row, wireDetailsToggle
+**Functions**: computeCardStates, computeVerdict, freshness, init, loadGatewayAudit, loadIntegrationConfigs, loadRecentSync, loadRetentionConfig, loadSensorTopics, loadSsoConfig, renderAll, renderDenied, renderDetailsToggle, renderGatewayCard, renderIntegrationsCard, renderRecommendation, renderRetentionCard, renderSensorTopicsCard, renderSimpleCards, renderSsoCard, renderSyncCard, renderVerdict, row, whPcRefresh, wireDetailsToggle
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

@@ -227,6 +227,12 @@
       icon: `<span class="ic ic-maintenance" aria-hidden="true"></span>` },
     { label: 'Community',    href: 'community.html',    match: ['community'],          section: 'Your Team', /* universal */
       icon: `<span class="ic ic-community" aria-hidden="true"></span>` },
+    // ★THE PUBLIC FEED NAMED ITSELF "Home" (nav-hub MCP walk, 2026-10-06): with no entry it fell through to
+    // TOOLS[0], so the hub button on "What hives are talking about" announced "Home - open navigation hub".
+    // Its own hidden entry, NOT a 'public-feed' alias on Community: checkCommunityActivity skips the unread
+    // badge on any page whose entry matches 'community', and the public feed must not hide the hive's count.
+    { label: 'Public Feed',  href: 'public-feed.html',  match: ['public-feed'],        section: 'Your Team', hidden: true, /* universal */
+      icon: `<span class="ic ic-community" aria-hidden="true"></span>` },
 
     // ── Intelligence: AI, analytics, and predictions ──────────────────────────
     // Analytics Report MUST be listed before Analytics — both paths contain
@@ -520,12 +526,26 @@
   }
 
   // ─── Current Page Detection ───────────────────────────────────────────────────
+  // ★MATCH THE PAGE, NOT THE PATH (nav-hub MCP walk, 2026-10-06). This tested every alias against the WHOLE
+  // pathname, first hit wins. Served from /workhive/, the folder name contains "hive", so every page listed
+  // after Hive Board - achievements, analytics, alert-hub, asset-hub, assistant, audit-log, ai-quality and
+  // more - announced its hub button as "Hive Board - open navigation hub". And on any path, project-report
+  // contains "report" and was named Reports. The page's own file name is the identity: an exact alias wins,
+  // a contained alias (pretty URLs, the 'calc'/'voice' families) is the fallback, and the folder never counts.
   function getCurrentTool() {
-    const path = window.location.pathname.toLowerCase();
+    const file = (window.location.pathname.toLowerCase().split('/').pop() || '');
+    const slug = file.replace(/\.html$/, '');
+    const bare = function (m) { return m.replace(/\.html$/, ''); };
+    if (!slug || slug === 'index') {
+      for (const t of TOOLS) { if (t.match.indexOf('/') !== -1) return t; }
+    }
     for (const t of TOOLS) {
-      for (const m of t.match) {
-        if (m === '/' ? (path === '/' || path.endsWith('/index.html') || path === '') : path.includes(m)) return t;
-      }
+      for (const m of t.match) { if (m !== '/' && bare(m) === slug) return t; }
+    }
+    // the contained pass keeps an alias's '.html' (My Listings' 'marketplace-seller.html' must NOT claim
+    // marketplace-seller-profile - see the note at its entry), so such an alias only ever matches exactly
+    for (const t of TOOLS) {
+      for (const m of t.match) { if (m !== '/' && slug.indexOf(m) !== -1) return t; }
     }
     return TOOLS[0];
   }
@@ -610,11 +630,13 @@
   // An aria-label is invisible to a sighted reader, which is exactly why nothing caught it: no stamp
   // census sees it (there is no data-i on an attribute), and no visible-text diff moves when it changes
   // [[feedback_aria_label_only_is_invisible_to_sighted_users]].
-        fab.setAttribute('aria-label', _tt('Open navigation hub: ' + label + ' new in Community',
-          'Buksan ang nabigasyon: ' + label + ' bago sa Community'));
+        var _vis = ((document.getElementById('wh-hub-current-label') || {}).textContent || '').trim();
+        fab.setAttribute('aria-label', (_vis ? _vis + ' - ' : '') + _tt('open navigation hub: ' + label + ' new in Community',
+          'buksan ang nabigasyon: ' + label + ' bago sa Community'));
       } else {
         if (dot) dot.remove();
-        fab.setAttribute('aria-label', _tt('Open navigation hub', 'Buksan ang nabigasyon'));
+        var _vis2 = ((document.getElementById('wh-hub-current-label') || {}).textContent || '').trim();
+        fab.setAttribute('aria-label', (_vis2 ? _vis2 + ' - ' : '') + _tt('open navigation hub', 'buksan ang nabigasyon'));
       }
     }
   }
@@ -794,8 +816,10 @@
           border-color: var(--wh-orange, #F7A21B);
           box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 4px rgba(247,162,27,0.12);
         }
-        #wh-hub-fab svg { pointer-events: none; transition: transform 0.22s ease; }
-        #wh-hub-fab.open svg { transform: rotate(45deg); }
+        /* The icon is the .ic emoji now, not an SVG, so the old svg rotate-to-X never ran: the OPEN hub kept the same
+           glyph and nothing on the button said a second tap would close it (critique, 2026-10-13). Open, it shows the
+           close glyph of the platform's functional set (✓ ✕ ▾ ←, themeable text - Ian's emoji-only decision, 2026-07-22). */
+        #wh-hub-fab.open .ic-apps::before { content: "✕"; font-weight: 400; }
 
         /* ── Current page badge on FAB ── */
         #wh-hub-current-label {
@@ -1248,9 +1272,13 @@
       </style>
 
       <!-- FAB button -->
-      <button id="wh-hub-fab" aria-label="${_tt('Open navigation hub', 'Buksan ang nabigasyon')}" aria-expanded="false">
+      <!-- 2026-10-06 (assistive-tech, Label in Name): the FAB SHOWS the current page's label ("Hive Board",
+           "Logbook") and was NAMED "Open navigation hub" on every page, so a voice-control user saying the word on
+           the button matched nothing (WCAG 2.5.3: the name must contain what is visible). The name now starts with
+           the visible label; the Community unread-count updater reads that label from the button itself, so the two cannot disagree. -->
+      <button id="wh-hub-fab" aria-label="${current.label} - ${_tt('open navigation hub', 'buksan ang nabigasyon')}" aria-expanded="false">
         <span id="wh-hub-current-label">${current.label}</span>
-        <!-- Grid / apps icon — rotates to X when open -->
+        <!-- Navigation hub: a compass (.ic-apps in wh-icons.css); shows the close glyph while the hub is open -->
         <span class="ic ic-apps" aria-hidden="true"></span>
       </button>
 
@@ -1373,7 +1401,12 @@
         queued = false;
         if (!wrapper.isConnected) { obs.disconnect(); return; }
         var open = false, all = document.querySelectorAll(DIALOGISH);
-        for (var i = 0; i < all.length; i++) { if (visible(all[i])) { open = true; break; } }
+        /* ★THE HUB STOOD DOWN FOR ITS OWN PANEL (critique, 2026-10-13). #wh-hub-panel is role="dialog", so opening the
+           hub matched DIALOGISH and this hid the hub's own wrapper: visibility:hidden took the toggle away (the open
+           panel had no visible way to close it), and aria-hidden="true" on the wrapper removed the WHOLE open panel
+           from the accessibility tree - it stayed painted only because the panel sets visibility:visible itself.
+           Measured on assistant.html at 390, every app page alike. The stand-down is for OTHER dialogs. */
+        for (var i = 0; i < all.length; i++) { if (!wrapper.contains(all[i]) && visible(all[i])) { open = true; break; } }
         if (open === hidden) return;
         hidden = open;
         /* visibility, not display: the hub's own panel logic reads and writes display on its children, and

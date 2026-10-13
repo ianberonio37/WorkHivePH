@@ -2,7 +2,7 @@
 name: table-rls-ai_quality_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_quality_log
-source_sha: 4ae4f73a84830468
+source_sha: 6c9cf2f26a72dde5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: False · has auth_uid: False
 
-Columns (*=NOT NULL): id*, agent_id*, question_id*, question_text, expected_keywords, actual_answer, score, passed, judge_model, failure_reason
+Columns (*=NOT NULL): id*, agent_id*, question_id*, question_text, expected_keywords, actual_answer, score, passed, judge_model, failure_reason, run_at*, run_id, outcome
 
 Policies:
 - `ai_quality_log_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`

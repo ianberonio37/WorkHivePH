@@ -136,8 +136,13 @@ def main() -> int:
   BEGIN
     INSERT INTO cmms_audit_log(id,hive_id,batch_id,operation,entity_type,rows_written,created_at)
       VALUES(gen_random_uuid(),'{hive_w}',gen_random_uuid(),'GATE_CMMS','asset',5,now());
-    UPDATE cmms_audit_log SET rows_written=999 WHERE operation='GATE_CMMS';
-    DELETE FROM cmms_audit_log WHERE operation='GATE_CMMS';
+    -- Refused by PRIVILEGE is blocked too (2026-10-13): mig 20261012000068 swapped the table-level UPDATE grant for a
+    -- column-level one on `operation` (an import rollback marks its audit row), so rewriting rows_written now raises
+    -- 42501 instead of matching zero rows. Each tamper runs in its own sub-block; the verdict is still the row itself.
+    BEGIN UPDATE cmms_audit_log SET rows_written=999 WHERE operation='GATE_CMMS';
+    EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+    BEGIN DELETE FROM cmms_audit_log WHERE operation='GATE_CMMS';
+    EXCEPTION WHEN insufficient_privilege THEN NULL; END;
     IF EXISTS(SELECT 1 FROM cmms_audit_log WHERE operation='GATE_CMMS' AND rows_written=5)
       THEN RAISE NOTICE 'RESULT cmms_appendonly=BLOCKED';
       ELSE RAISE NOTICE 'RESULT cmms_appendonly=OPEN_VULN'; END IF;

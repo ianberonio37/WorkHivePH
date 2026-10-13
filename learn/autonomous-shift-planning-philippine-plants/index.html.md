@@ -27,7 +27,7 @@ Part of the [guide to starting digital maintenance in a Philippine factory](http
 
 ## Introduction to Autonomous Shift Planning
 
-In Philippine plants, like those in Calabarzon's industrial zones, shift planning is crucial for maintaining equipment uptime and crew productivity. Traditional shift planning involves manually writing briefs to guide technicians on what to fix first. That brief is written by whoever is free at handover, from memory, and it is the first thing dropped when the shift starts badly - so the shifts most in need of a plan are the ones that get none. WorkHive's **Shift Brain** writes it instead, on a fixed cadence, whether or not anyone has time.
+In Philippine plants, shift planning is crucial for maintaining equipment uptime and crew productivity. Traditional shift planning involves manually writing briefs to guide technicians on what to fix first. That brief is written by whoever is free at handover, from memory, and it is the first thing dropped when the shift starts badly - so the shifts most in need of a plan are the ones that get none. WorkHive's **Shift Brain** writes it instead, on a fixed cadence, whether or not anyone has time.
 
 **Shift Brain** runs on a schedule, generating briefs at 06:00, 14:00, and 22:00 PHT, one brief per shift. It uses four sub-agents to gather information: risk-ranking assets most likely to fail, listing preventive maintenance tasks due, carrying forward open work from the previous shift, and pre-staging necessary spare parts. The supervisor reviews what it drafted and publishes it to the crew with one tap, so the crew reads one ranked list instead of hearing four different answers at handover.
 
@@ -109,4 +109,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 033197d30508b2cc -->
+<!-- md-twin source-sha: c9673e9840b9af54 -->

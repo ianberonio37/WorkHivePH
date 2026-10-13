@@ -399,6 +399,12 @@ def check_fuel_anchor() -> dict:
             if table in dropped_tables: continue
             if table in registered_tables: continue
             if has_allow_in_context(sql_stripped, m.start(), "fuel", context_lines=4): continue
+            # ★THE MARKER IS A COMMENT, AND sql_stripped HAS NONE (2026-10-13). Searching only the stripped text made
+            # option (b) above unreachable - ai_reply_feedback carried its marker two lines above its CREATE TABLE
+            # from 2026-06-09 and was counted un-anchored all along. Look in the original text, at this table's CREATE.
+            _om = re.search(r"create\s+table\s+(?:if\s+not\s+exists\s+)?(?:\"?public\"?\s*\.\s*)?\"?"
+                            + re.escape(table) + r"\"?\b", sql, re.IGNORECASE)
+            if _om and has_allow_in_context(sql, _om.start(), "fuel", context_lines=4): continue
             unanchored.append({
                 "table":     table,
                 "migration": os.path.basename(path),

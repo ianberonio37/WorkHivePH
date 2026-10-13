@@ -116,7 +116,7 @@ def check_imports_shared(fn_path: str, fn_name: str) -> list:
     if content is None:
         return [{"check": f"imports_shared_{fn_name}",
                  "reason": f"{fn_path} not found"}]
-    has_import = bool(re.search(r'import\s*\{[^}]*(?:STATUS_MAP|TYPE_MAP)[^}]*\}\s*from\s*["\']\.\./_shared/mappings\.ts["\']', content))
+    has_import = bool(re.search(r'import\s*\{[^}]*(?:STATUS_MAP|TYPE_MAP|normaliseStatus|normaliseType)[^}]*\}\s*from\s*["\']\.\./_shared/mappings\.ts["\']', content))
     if not has_import:
         issues.append({
             "check":  f"imports_shared_{fn_name}",

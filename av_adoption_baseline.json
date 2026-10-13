@@ -1,13 +1,13 @@
 {
-  "_doc": "Layer AV adoption baseline. Floors forward-only.",
-  "generated": "2026-09-29T01:34:48.310772+00:00",
+  "_doc": "Layer AV adoption baselines. Floors forward-only. AV1 = offline chrome set; AV2 = session-timeout.js hygiene floor (split 2026-09-30).",
+  "generated": "2026-10-13T10:13:15.501947+00:00",
   "rows": [
     {
       "id": "AV1",
       "mode": "measured",
       "adopters_n": 33,
-      "need_n": 39,
-      "pct": 85,
+      "need_n": 33,
+      "pct": 100,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -43,17 +43,56 @@
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [
+      "gap": []
+    },
+    {
+      "id": "AV2",
+      "mode": "measured",
+      "adopters_n": 35,
+      "need_n": 35,
+      "pct": 100,
+      "adopters": [
+        "achievements.html",
+        "agentic-rag-observability.html",
+        "ai-quality.html",
+        "alert-hub.html",
+        "analytics-report.html",
+        "analytics.html",
         "architecture.html",
-        "design-system.html",
+        "asset-hub.html",
+        "assistant.html",
+        "audit-log.html",
+        "community.html",
+        "dayplanner.html",
+        "founder-console.html",
+        "hive.html",
+        "index.html",
+        "integrations.html",
+        "inventory.html",
         "llm-observability.html",
-        "offline-fallback.html",
-        "symbol-gallery.html",
-        "validator-catalog.html"
-      ]
+        "logbook.html",
+        "marketplace-admin.html",
+        "marketplace-seller-profile.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "ph-intelligence.html",
+        "plant-connections.html",
+        "platform-actions.html",
+        "pm-scheduler.html",
+        "project-manager.html",
+        "project-report.html",
+        "public-feed.html",
+        "report-sender.html",
+        "resume.html",
+        "shift-brain.html",
+        "skillmatrix.html",
+        "voice-journal.html"
+      ],
+      "gap": []
     }
   ],
   "floors": {
-    "AV1": 33
+    "AV1": 33,
+    "AV2": 35
   }
 }

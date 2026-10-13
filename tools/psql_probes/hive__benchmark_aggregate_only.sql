@@ -17,20 +17,29 @@
 -- Measured today: 5 rows, all at sample_hives = 3. The threshold below is 2 - the weakest bound that
 -- still makes "network" mean more than one - so the lock cannot be satisfied by a single hive and does
 -- not fail the board over a legitimate 2-hive category.
--- expect: rows_present \| [1-9][0-9]*
+-- 2026-10-08 - CONSENT: network_benchmarks is built only from hives whose supervisor opted in
+-- (hives.federated_benchmark_opted_in, _shared/federated-consent.ts) and benchmark-compute WITHDRAWS what it cannot
+-- republish. So an EMPTY table is now a correct state (no hive has opted in yet), "rows present" is no longer an
+-- invariant, and the new one is that no row counts more hives than have consented. The teeth below insert their
+-- own single-hive row instead of borrowing one, because there may be none to borrow.
+-- expect: rows_consistent_with_consent \| t
 -- expect: no_tenant_key_on_the_aggregate \| t
--- expect: min_sample_hives \| [2-9][0-9]*
+-- expect: no_row_counts_more_hives_than_consented \| t
 -- expect: every_row_is_over_two_or_more_hives \| t
 -- expect: detector_sees_a_single_hive_row \| t
 -- expect: rows_restored_after_rollback \| t
-SELECT 'rows_present | ' || (SELECT count(*) FROM network_benchmarks);
+SELECT 'rows_consistent_with_consent | ' || (
+  (SELECT count(*) FROM network_benchmarks) = 0
+  OR (SELECT count(*) FROM hives WHERE federated_benchmark_opted_in) >= 3);
 
 SELECT 'no_tenant_key_on_the_aggregate | ' || NOT EXISTS (
   SELECT 1 FROM information_schema.columns
    WHERE table_schema = 'public' AND table_name = 'network_benchmarks'
      AND column_name IN ('hive_id', 'auth_uid', 'worker_name'));
 
-SELECT 'min_sample_hives | ' || (SELECT min(sample_hives) FROM network_benchmarks);
+SELECT 'no_row_counts_more_hives_than_consented | ' || (
+  (SELECT count(*) FROM network_benchmarks
+    WHERE sample_hives > (SELECT count(*) FROM hives WHERE federated_benchmark_opted_in)) = 0);
 SELECT 'every_row_is_over_two_or_more_hives | ' || (
   (SELECT count(*) FROM network_benchmarks WHERE sample_hives IS NULL OR sample_hives < 2) = 0);
 
@@ -39,8 +48,8 @@ CREATE TEMP TABLE _bfx AS SELECT count(*) AS n0 FROM network_benchmarks;
 BEGIN;
 -- TEETH: a row computed over a single hive is a private figure with a public caption. The check above
 -- must see it - a k-anonymity lock that cannot detect k=1 is decoration.
-UPDATE network_benchmarks SET sample_hives = 1
- WHERE id = (SELECT id FROM network_benchmarks LIMIT 1);
+INSERT INTO network_benchmarks (equipment_category, industry, avg_mtbf_days, sample_hives, period_days, computed_at)
+VALUES ('PROBE-k1', '', 10, 1, 90, now());
 SELECT 'detector_sees_a_single_hive_row | ' || (
   (SELECT count(*) FROM network_benchmarks WHERE sample_hives IS NULL OR sample_hives < 2) > 0);
 ROLLBACK;

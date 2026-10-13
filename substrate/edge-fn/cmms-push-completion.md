@@ -2,7 +2,7 @@
 name: edge-fn-cmms-push-completion
 type: edge-fn
 source: file:supabase/functions/cmms-push-completion/index.ts
-source_sha: 7542917252d33bdc
+source_sha: 3f40ea40b419b666
 last_verified: 2026-07-13
 supersedes: null
 ---

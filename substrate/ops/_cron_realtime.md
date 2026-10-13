@@ -2,19 +2,25 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: b976c8b35c2b0312
+source_sha: 414ab5f971d907b8
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (28)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (34)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
-- `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-analytics` @ `33 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-asset-brain` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-logbook-voice` @ `42 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-project` @ `36 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-report-voice` @ `45 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
+- `ai-eval-daily-shift` @ `39 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
 - `amc-brief-0600pht` @ `0 22 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/a
 - `amc-expire-stale-0555pht` @ `55 21 * * *` → SELECT public.amc_expire_stale();
 - `batch-risk-scoring-daily` @ `0 5 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/b
+- `benchmark-compute-weekly` @ `30 21 * * 0` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/b
 - `embedding-cache-retention` @ `25 4 * * *` →        -- LRU age eviction: drop cache entries not used in 45 days. Recomputed o
 - `failure-digest-weekly` @ `0 7 * * 1` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
 - `failure-signature-scan-daily` @ `0 21 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/f

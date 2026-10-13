@@ -480,7 +480,7 @@
     .simple-card > small   { line-height:1.4; min-height:2.8em; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
-    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange-light); }   /* the AA text token, as components.css and alert-hub (2026-10-13): the fill read 4.93:1 here, borderline */
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     /* min-height reserves the height of the recommendation + its CTA, which are
@@ -685,7 +685,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="ac-label" data-i="whatnext">What to do next</div>
       <div class="ac-text" id="an-action-text">Computing recommendation...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a id="an-action-btn" class="ac-cta hidden" href="#" data-ia="ctaaria" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <a id="an-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
       <span data-i="showdetails">Show details</span>
@@ -718,7 +718,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Status bar: last updated + loading indicator -->
   <div id="status-bar" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;min-height:20px;">
     <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;display:none;"></span>
-    <span id="status-text" style="font-size:0.75rem;color:rgba(255,255,255,0.80);"></span>
+    <!-- ★THE LOADING STATE WAS VISUAL-ONLY (a11y reduced_motion finding, 2026-10-05). The prover flagged
+         #status-spinner and .spinner for ignoring prefers-reduced-motion, and the page's own Q1 note is RIGHT
+         to keep them spinning: WCAG 2.3.3 exempts essential motion, and a frozen spinner reads as "the page
+         hung" rather than "the page is working". But that defence only holds if the state ALSO exists in a
+         channel that does not depend on seeing motion - and it did not. #status-text carries the words
+         ("Loading…", then when the figures were last updated) and the JS rewrites it, yet the bar had no
+         role/aria-live, so the change was announced to nobody. A screen-reader user and a reduced-motion user
+         were both left with a spinner as the only signal.
+         role="status" carries an implicit aria-live="polite"; both are written out to match the idiom the rest
+         of the platform uses (status.html's summary, the source chips) rather than relying on the implicit one.
+         polite, not assertive: a refresh must not interrupt what someone is reading. -->
+    <span id="status-text" role="status" aria-live="polite" style="font-size:0.75rem;color:rgba(255,255,255,0.80);"></span>
     <div id="status-spinner" class="spinner" style="width:14px;height:14px;border-width:2px;border-color:var(--wh-violet-text);border-top-color:var(--wh-violet-text);display:none;"></div>
   </div>
 
@@ -738,9 +749,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Global filters: narrow every panel by criticality + discipline.
        Empty / all = no filter. State persists in localStorage. -->
   <div class="global-filters" id="global-filters">
-    <div class="filter-group">
-      <span class="filter-label" data-i="fcrit">Criticality</span>
-      <button class="filter-chip active" aria-pressed="true" data-dim="criticality" data-value="all"     onclick="setFilter(this)"><span data-i="fall1">All</span></button>
+    <!-- each group is NAMED and each "All" chip names its dimension (nav-hub MCP walk, 2026-10-06): two chips both
+         announced "All" in one region, so a screen reader user could not tell criticality from discipline -->
+    <div class="filter-group" role="group" aria-labelledby="an-filter-crit-label">
+      <span class="filter-label" id="an-filter-crit-label" data-i="fcrit">Criticality</span>
+      <button type="button" class="filter-chip active" aria-pressed="true" data-dim="criticality" data-value="all"     onclick="setFilter(this)" aria-label="All criticality levels"><span data-i="fall1">All</span></button>
       <!-- N1: criticality taxonomy deliberately stays English in FIL (canonical
            platform vocabulary — see the i18n contract comment beside _anFIL). -->
       <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Critical" onclick="setFilter(this)" translate="no" data-i="critical">🔴 Critical</button>
@@ -748,9 +761,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Medium"   onclick="setFilter(this)" translate="no" data-i="medium">🟡 Medium</button>
       <button class="filter-chip" aria-pressed="false" data-dim="criticality" data-value="Low"      onclick="setFilter(this)" translate="no" data-i="low">🟢 Low</button>
     </div>
-    <div class="filter-group">
-      <span class="filter-label" data-i="fdisc">Discipline</span>
-      <button class="filter-chip active" aria-pressed="true" data-dim="discipline" data-value="all"           onclick="setFilter(this)"><span data-i="fall2">All</span></button>
+    <div class="filter-group" role="group" aria-labelledby="an-filter-disc-label">
+      <span class="filter-label" id="an-filter-disc-label" data-i="fdisc">Discipline</span>
+      <button type="button" class="filter-chip active" aria-pressed="true" data-dim="discipline" data-value="all"           onclick="setFilter(this)" aria-label="All disciplines"><span data-i="fall2">All</span></button>
       <!-- N1: discipline taxonomy deliberately stays English in FIL (canonical
            platform vocabulary — see the i18n contract comment beside _anFIL). -->
       <!-- the contract above is why these carry NO data-i: the shared dictionary translated Mechanical and
@@ -1195,6 +1208,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _cache[phase]     = data;
       _cacheTime[phase] = Date.now();
       _snapshotPhases.delete(phase);   // this one really was recomputed just now
+      _saveSoloDayCache(phase, data);  // a hive-less person's saved copy for this tab's day (LM60); no-op for a hive
       if (typeof _refreshSourceChip === 'function') _refreshSourceChip();
       if (_phase === phase) {
         renderPhase(phase, data);
@@ -1203,6 +1217,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // narrative can be flagged in one press, recorded against the phase and data it described.
         if (typeof whAiTrustRow === 'function') {
           whAiTrustRow(document.getElementById('results-panel'), { db, agent: 'analytics-orchestrator', source: 'analysis', page: 'analytics',
+            traceId: whTraceIdOf(data),   // LM-E: the id this phase's analytics-orchestrator reply returned
             question: phase + ' analysis', answer: JSON.stringify(data).slice(0, 4000),   // cap-ok: string truncation of the feedback payload, not a list read (nothing is counted or summed from it)
             groundedOn: _t("your hive's logbook, PM completions and parts, computed just now", 'logbook, PM completion at parts ng hive mo, kinukuwenta ngayon') });
         }
@@ -1210,7 +1225,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       renderRoleQuickView(); // update role view as data arrives
     } catch (err) {
       console.warn(`[analytics] ${phase} failed:`, err.message);
-      showToast(whAiError(err, _t('Analysis failed, check console', 'Hindi natuloy ang analysis, tingnan ang console')));
+      /* ★"CHECK CONSOLE" IS A DEVELOPER TOOL, AND THIS IS THE SECOND SITE ON THIS PAGE (2026-10-06,
+         found grading this page as an assistive-tech user with PostgREST stopped). The note ~190 lines
+         above records the same lesson being fixed for the RECOMPUTE path - "Recompute failed, check
+         console sent a supervisor to a developer tool to learn they should wait an hour" - and this
+         sibling kept the wording. A maintenance supervisor has no console, and on a phone there is not
+         one to open. whAiError still maps the useful cases (429 names when it clears, 5xx says the
+         service is busy); only the FALLBACK changes, to something a person can act on. */
+      showToast(whAiError(err, _t('Could not run the analysis. Try again in a moment.',
+                                  'Hindi matakbo ang analysis. Subukan muli maya-maya.')));
       if (_phase === phase) {
         document.getElementById('results-panel')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <div class="card"><div class="empty" style="color:var(--wh-red-text);">
@@ -1253,7 +1276,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     btn.classList.add('spinning');
     document.getElementById('refresh-label').textContent = 'Refreshing...';
     document.getElementById('status-spinner').style.display = 'block';
-    document.getElementById('status-text').textContent = 'Fetching all phases in parallel...';
+    { const _st = document.getElementById('status-text');   // an EVENT: re-arm, see updateStatusBar
+      _st.setAttribute('aria-live', 'polite'); delete _st.dataset.whFreshShown;
+      _st.textContent = 'Fetching all phases in parallel...'; }
 
     showSkeleton();
     startLoadingMessages();
@@ -1285,8 +1310,51 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // reads it, because "Recomputed just now" over a page missing its snapshot content is a claim about
   // completeness that nobody checked.
   let _snapshotReadFailed = false;
+  // ★A ONE-PERSON OPERATOR PAID FOR FOUR AI CALLS ON EVERY OPEN (LM-R, LM60, 2026-10-07). A hive member's page
+  // hydrates from today's analytics_snapshots row and calls nothing; a person with no hive had no saved copy at all,
+  // so every open of this page ran analytics-orchestrator for all four phases - the prescriptive one a model call -
+  // and a refresh ran them again. Their phases are kept for the PHT day in this TAB's sessionStorage, keyed on the
+  // signed-in account (never a name), so a re-open in the same session renders the saved copy; closing the tab
+  // drops it, which keeps one person's analytics off a shared device.
+  async function _soloDayKey() {
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      const uid = session && session.user && session.user.id;
+      if (!uid) return null;
+      const phtDay = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10); // device-clock-allow: shifted +8h, so this IS the Manila date
+      return 'wh_solo_analytics:' + uid + ':' + _period + ':' + phtDay;
+    } catch (_) { return null; }
+  }
+  async function _loadSoloDayCache() {
+    if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
+    const key = await _soloDayKey();
+    if (!key) return [];
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (_) { saved = null; }
+    if (!saved || typeof saved !== 'object') return [];
+    const fresh = [];
+    for (const [phase, row] of Object.entries(saved)) {
+      if (!PHASES.includes(phase) || !row || !row.payload || row.payload.error) continue;
+      _cache[phase] = row.payload;
+      _cacheTime[phase] = row.t;
+      _snapshotPhases.add(phase);   // rendered from a SAVED copy, not recomputed
+      fresh.push(phase);
+    }
+    return fresh;
+  }
+  async function _saveSoloDayCache(phase, payload) {
+    if (HIVE_ID || _filters.criticality !== 'all' || _filters.discipline !== 'all') return;
+    const key = await _soloDayKey();
+    if (!key) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(key) || '{}') || {};
+      saved[phase] = { payload, t: Date.now() };
+      sessionStorage.setItem(key, JSON.stringify(saved));
+    } catch (_) { /* empty-catch-allow: a cache that cannot be written only costs a recompute */ }
+  }
+
   async function loadSnapshots() {
-    if (!HIVE_ID) return [];
+    if (!HIVE_ID) return _loadSoloDayCache();
     _snapshotReadFailed = false;
     loadPmOntime();  // the cached path renders without ever calling fetchPhase
     if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
@@ -1332,7 +1400,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     startLoadingMessages();
     _loading = true;
     document.getElementById('status-spinner').style.display = 'block';
-    document.getElementById('status-text').textContent = 'Loading analytics...';
+    { const _st = document.getElementById('status-text');   // an EVENT: re-arm, see updateStatusBar
+      _st.setAttribute('aria-live', 'polite'); delete _st.dataset.whFreshShown;
+      _st.textContent = 'Loading analytics...'; }
 
     // Restore any persisted global filters (criticality, discipline)
     applySavedFilters();
@@ -1371,7 +1441,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const mins = Math.round((Date.now() - t) / 60000);
     dot.style.display = 'block';
     dot.style.background = mins > 60 ? '#F7A21B' : '#4ade80';
-    txt.textContent = `${_t('Updated', 'Na-update')} ${typeof whFmtAgo === 'function' ? whFmtAgo(t) : (mins < 1 ? _t('just now', 'ngayon lang') : mins + _t(' min ago', ' min ang nakalipas'))}`; // FD1e canonical
+    /* ★ONE LIVE REGION, TWO KINDS OF WRITE (2026-10-06, analytics x assistive-tech, layer D). This region is
+       polite on purpose - the 2026-10-05 note above makes it the non-visual channel for the spinner, so
+       "Loading analytics..." and then "Updated just now" MUST be spoken. But the 60s _statusBarTimer also
+       writes here, and measured over 66s it replaced the node once with IDENTICAL text; on a freshly
+       recomputed snapshot the words change every minute for the first hour ("1 min ago", "2 min ago"...),
+       each one a polite announcement of nothing having happened. utils.js' whFreshnessChip had the same
+       shape on alert-hub and is now aria-live="off"; this one cannot simply go off, because it carries
+       real events too. So the write says which kind it is. The first "Updated" after a load is the end of
+       a state change and is spoken; every later rewrite while the same freshness line is showing is a tick
+       and is not. The marker is a data attribute, not a test on the word "Updated", so it holds in Filipino
+       too. An identical string is not written at all - no mutation, nothing to announce. */
+    const _next = `${_t('Updated', 'Na-update')} ${typeof whFmtAgo === 'function' ? whFmtAgo(t) : (mins < 1 ? _t('just now', 'ngayon lang') : mins + _t(' min ago', ' min ang nakalipas'))}`;
+    if (txt.textContent === _next) return;
+    txt.setAttribute('aria-live', txt.dataset.whFreshShown === '1' ? 'off' : 'polite');
+    txt.dataset.whFreshShown = '1';
+    txt.textContent = _next; // FD1e canonical
   }
 
   // ── Skeleton loading cards ─────────────────────────────────────────────────
@@ -1712,7 +1797,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           t.scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
       };
-      const hideCta = () => { const b = document.getElementById('an-action-btn'); if (b) b.classList.add('hidden'); };
       let text;
       if (mtbfBad) {
         const a = (worstMTBF.machine || worstMTBF.asset_name || _t('One asset','Isang asset'));
@@ -1747,7 +1831,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (oeeAvg == null) {
         text = _t('No analytics yet. Log corrective failures + a few PM completions, then refresh this page in a day or two.',
                   'Wala pang analytics. Mag-log ng mga corrective failure at ilang natapos na PM, tapos i-refresh ang pahinang ito sa loob ng isa o dalawang araw.');
-        hideCta();
+        // ★THE EMPTY STATE NAMES THE WAY OUT (UFAI W41273, 2026-10-09). A newcomer reaches this page from the MTBF and OEE
+        // learn pages with nothing logged yet; the sentence told them to log corrective failures and then HID the one
+        // button that could take them there. The way out is a press, not a hunt through the menu.
+        setCta(_t('Open the Logbook →'), { href: 'logbook.html' });
       } else {
         text = _t('KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.',
                   'Malusog ang mga KPI. Gamitin ang Predictive tab para makita kung aling asset ang tumataas ang panganib, at ang Prescriptive tab para sa mga inirerekomendang susunod na hakbang.');
@@ -3310,7 +3397,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     if (!rows.length) return '';
-    return `<div class="role-card"><div class="role-card-title">🔧 Field Tech: My Focus Today</div>${rows.join('')}</div>`;
+    // ★"TODAY" NAMES ITS CLOCK (UFAI LXP838, 2026-10-09). The card's due states come from v_pm_scope_items_truth, whose
+    // day turned at UTC midnight (08:00 PHT) until migration 20261009000066 made it the Philippine day. Now that it is,
+    // the card says so where it says "Today".
+    return `<div class="role-card"><div class="role-card-title">🔧 Field Tech: My Focus Today <span style="font-weight:500;opacity:0.8;">(PHT)</span></div>${rows.join('')}</div>`;
   }
 
   // ── Supervisor Quick View: team KPIs + overdue + training ─────────────────

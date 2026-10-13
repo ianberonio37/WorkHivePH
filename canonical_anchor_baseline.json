@@ -1,11 +1,7 @@
 {
-  "fuel_anchor": 5,
+  "fuel_anchor": 4,
   "details": {
     "fuel_anchor": [
-      {
-        "table": "ai_reply_feedback",
-        "migration": "20260609000006_ai_reply_feedback.sql"
-      },
       {
         "table": "analytics_snapshots",
         "migration": "20260610000004_analytics_snapshots.sql"
@@ -53,21 +49,22 @@
     "formula_anchor": [],
     "standard_anchor": [
       {
-        "standard": "iso_22400",
-        "n_files": 2,
+        "standard": "iso_45001",
+        "n_files": 3,
         "sample_files": [
-          "supabase\\functions\\ai-gateway\\index.ts",
-          "supabase\\functions\\voice-journal-agent\\index.ts"
+          "logbook.html",
+          "shift-brain.html",
+          "supabase\\functions\\shift-planner-orchestrator\\index.ts"
         ]
       },
       {
-        "standard": "iso_45001",
-        "n_files": 2,
+        "standard": "iso_22400",
+        "n_files": 4,
         "sample_files": [
-          "logbook.html",
-          "supabase/functions/shift-planner-orchestrator/index.ts"
-        ],
-        "_note": "LOTO/Permit-to-Work cites ISO 45001 operational control (Extension 3) \u2014 legitimate safety-standard reference"
+          "promo-poster.html",
+          "supabase\\functions\\ai-gateway\\index.ts",
+          "supabase\\functions\\ai-orchestrator\\index.ts"
+        ]
       }
     ],
     "dashboard_anchor": [

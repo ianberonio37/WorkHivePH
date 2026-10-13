@@ -19,6 +19,21 @@ async (mcpPage) => {
   if (!P.page) return { problems: ['no page in .tmp/w4_args.json'] };
   const out = { id: P.id, page: P.page, lens: 'audit', lang: P.lang || 'en', viewports: [], problems: [] };
   const page = await mcpPage.context().newPage();
+  // ★NO LIVE MODEL CALL BY ARRIVING (2026-10-07): shift-brain's first open of a shift calls shift-planner-orchestrator,
+  // an LLM briefing. A CONTEXT route, once per context; see w4_navhub_walk.body.js.
+  // ★THE PLANNER STUB CAME OFF (2026-10-12, UFAI edge walk W4785): every walk sends x-wh-walk-no-model and the planner
+  // honours it (the counts-only briefing, no model), so its fake 503 only kept the planner's own row from being walked.
+  // A context an older walk body stubbed is cleared here.
+  try { const _c = page.context(); if (_c.__whModelStub) { await _c.unroute('**/functions/v1/shift-planner-orchestrator**').catch(() => {}); _c.__whModelStub = null; } } catch (e) { void e; }
+  // NO MODEL CALL FROM ANY WALK, ON ANY PAGE - the action walker's route (2026-10-09), once per context: every edge
+  // call carries x-wh-walk-no-model: 1, which ONLY the local runtime honours (_shared/observability.ts).
+  try {
+    const _c = page.context();
+    if (!_c.__whNoModel) {
+      _c.__whNoModel = (r) => { const q = r.request(); return q.method() === 'OPTIONS' ? r.fallback() : r.fallback({ headers: Object.assign({}, q.headers(), { 'x-wh-walk-no-model': '1' }) }); };
+      await _c.route('**/functions/v1/**', _c.__whNoModel);
+    }
+  } catch (e) { void e; }
   try {
     // the shell the last walk installed must not serve this one: drop the service worker, its caches and the HTTP cache
     try { const cdp0 = await page.context().newCDPSession(page); await cdp0.send('Storage.clearDataForOrigin', { origin: 'http://localhost:5000', storageTypes: 'service_workers,cache_storage' }); out.cdpReset = 'ok'; } catch (e) { out.cdpReset = String(e && e.message || e).slice(0, 60); }

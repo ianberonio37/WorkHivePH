@@ -71,12 +71,15 @@
       background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 1rem;
-      border-left-width: 3px;
-      animation: slide-in 0.22s ease;
+      /* the stock hue stays on a 1px edge (2026-10-12, the W45941 motion walk): the craft floor refuses a coloured
+         left border thicker than 1px on a card, and utils.js already ruled 1px for the shared strips - the
+         thickness was the objection, never the colour that says how much is left. An entrance eases OUT. */
+      border-left-width: 1px;
+      animation: slide-in 0.22s ease-out;
       transition: border-color 0.2s;
     }
     .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
-    .part-card.stock-surplus  { border-left-color: rgb(56,189,248); }
+    .part-card.stock-surplus  { border-left-color: var(--wh-blue); }
     .part-card.stock-ok  { border-left-color: var(--wh-green); }
     .part-card.stock-low { border-left-color: var(--wh-orange); }
     .part-card.stock-critical { border-left-color: rgb(251,113,133); }
@@ -125,22 +128,22 @@
     .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
     .btn-danger {
-      background: rgba(239,68,68,0.1); color: var(--wh-red-text);
+      background: rgba(248,113,113,0.1); color: var(--wh-red-text);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
-      cursor: pointer; border: 1px solid rgba(239,68,68,0.2); min-height: 44px;
+      cursor: pointer; border: 1px solid rgba(248,113,113,0.2); min-height: 44px;
       transition: background 0.2s;
     }
-    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
 
     .btn-green {
-      background: rgba(34,197,94,0.12); color: var(--wh-green);
+      background: rgba(74,222,128,0.12); color: var(--wh-green);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
-      cursor: pointer; border: 1px solid rgba(34,197,94,0.25); min-height: 44px;
+      cursor: pointer; border: 1px solid rgba(74,222,128,0.25); min-height: 44px;
       transition: background 0.2s;
     }
-    .btn-green:hover { background: rgba(34,197,94,0.2); }
+    .btn-green:hover { background: rgba(74,222,128,0.2); }
 
     /* Marketplace bridge (Inventory <-> Marketplace parts-flow fabric) */
     .mkt-bridge-btn {
@@ -174,7 +177,7 @@
       font-variant-numeric: tabular-nums;
     }
     /* qty-on-hand stat numbers (Tailwind-classed) sit in a column — fixed pitch */
-    .text-3xl.font-black { font-variant-numeric: tabular-nums; }
+    .text-3xl.font-black, .text-2xl.font-black { font-variant-numeric: tabular-nums; }
 
     /* Badge */
     .badge {
@@ -304,9 +307,9 @@
           <p id="inventory-source-chip" style="margin-top:4px;"></p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">0</span> <span class="text-white/80">parts</span></span>
-          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:var(--wh-orange)">0</span> <span class="text-white/80">low</span></span>
-          <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">0</span> <span class="text-white/80">out</span></span>
+          <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">—</span> <span class="text-white/80">parts</span></span>
+          <span class="stat-pill"><span id="stat-low" class="font-bold" style="color:var(--wh-orange)">—</span> <span class="text-white/80">low</span></span>
+          <span class="stat-pill"><span id="stat-out" class="text-red-400 font-bold">—</span> <span class="text-white/80">out</span></span>
           <!-- A spare-parts register a person cannot take out is a register they do not own. This page
                offered no export of any kind - not CSV, not print - so a stock count could be read on
                screen and nowhere else: no reorder list for a supplier, no stock-take sheet, nothing an
@@ -357,7 +360,7 @@
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="inv-action-text">Computing recommendation...</div>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-      <a data-i="p_takeaction_ee0b" id="inv-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+      <a data-i="p_takeaction_ee0b" id="inv-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
       Show details
@@ -452,7 +455,7 @@
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
          style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
-      <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+      <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
       </svg>
       <span data-i="p_done_e2bc" id="toast-text">Done.</span>
@@ -572,7 +575,7 @@
           </div>
         </div>
         <div role="alert" aria-live="assertive" id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
-             style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
+             style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);"></div>
         <div class="flex gap-2 pt-1">
           <button id="part-submit-btn" class="btn-primary flex-1" data-i="savepart">Save Part</button>
           <button id="part-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
@@ -600,7 +603,7 @@
           <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" maxlength="200">
         </div>
         <div role="alert" aria-live="assertive" id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
-             style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2);"></div>
+             style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);"></div>
         <div class="flex gap-2">
           <button id="use-submit-btn" class="btn-primary flex-1" data-i="confirmuse">Confirm Use</button>
           <button id="use-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
@@ -670,6 +673,42 @@ const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 logPageView(db);
 let _authUid = null; // C3b: populated at init from Supabase Auth session
+
+/* BRP-A (2026-10-04) — "MINE" ON A READ IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE.
+   Ian hit this class on the logbook's asset picker: "in the select an asset there is nothing there, but
+   I can see it in my asset hub". worker_name is a free display string read from localStorage, and
+   bind_*_submitter freezes it for personal rows while always binding auth_uid - so one character of drift
+   empties the list and nothing errors. UNION, not swap: rows written by a service-role path still arrive
+   with auth_uid NULL and remain findable only by name (logbook was 12.2% bound before the same day's
+   backfill, so a uid-only read would have hidden 88% of history). One .or() rather than two merged
+   queries, because these callers carry deliberate ORDER BY + limit clauses that merging would discard.
+   The name is DOUBLE-QUOTED: PostgREST reads a bare space or comma inside or() as syntax, and every
+   display name here contains a space. Returns null when there is no identity yet, so a caller can fall
+   back to the name instead of sending `auth_uid.eq.null`. */
+function _mineFilter() {
+  var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
+  // JSON.stringify does the quoting: it emits a proper double-quoted string with any embedded quote or
+  // backslash already escaped. Hand-rolling that escape is how this line got written twice with its
+  // backslashes halved by a shell heredoc, producing /(["\])/ - a regex that escapes the bracket and
+  // throws "Invalid regular expression" on page load.
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  if (!_authUid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+}
+var _MINE = function () { return _mineFilter() || ('worker_name.eq."' + String(WORKER_NAME || '') + '"'); };
+
+// ★"IS THIS PART MINE" WAS STILL A NAME COMPARISON (2026-10-13, found live by the BRP16 drift walk as Ben Ocampo, a
+// hive worker). The delete guard below had been moved to auth_uid, but the three CLIENT checks around it - the Edit
+// button, the Remove button and the pre-delete refusal - still compared item.worker_name to WORKER_NAME. Drift the
+// name on the device by one character and a worker's own rejected part lost both buttons: the walk could not press
+// Remove at all. These are JS comparisons, not PostgREST filters, so the bug-repro inventory could not see them.
+// The same rule as logbook's _canWriteEntry: the identity when the row carries one, the name only for a row that
+// never had an auth_uid bound (and for a part not yet on the server). RLS stays the enforcement.
+function _ownsItem(item) {
+  if (!item) return false;
+  if (_authUid && item.auth_uid) return item.auth_uid === _authUid;
+  return (item.worker_name || '') === WORKER_NAME;
+}
 
 // ────────────────────────────────────────────
 // IDENTITY
@@ -756,6 +795,9 @@ let _assetsLoaded     = false;   // false until the first assets read resolves, 
 // Phase ML-2: active reservations from parts_staged_reservations (item_id -> qty reserved)
 let _reservations = new Map();
 function getReservedQty(itemId) { return Number(_reservations.get(itemId) || 0); }
+// item_id -> the asset names its active reservations are held FOR (see the badge note in the card renderer)
+let _reservedFor = new Map();
+function getReservedFor(itemId) { return Array.from(_reservedFor.get(itemId) || []); }
 
 function loadInventory()    { return _items; }
 function loadTransactions() { return _txns; }
@@ -805,7 +847,7 @@ function formatDate(iso) {
   if (!iso) return '';
   // FD1a: date part = canonical whFmtDate (en-PH + Asia/Manila); the ' · time' layout is kept.
   const d = new Date(iso);
-  const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
+  const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric', year:'numeric' });
   return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
 }
 
@@ -854,11 +896,15 @@ const STATUS_LABEL = { surplus: 'Surplus', ok: 'In Stock', low: 'Low Stock', cri
   // Not a stock level — a statement about what we know. Deliberately NOT worded as a quantity.
   unknown: 'Stock unknown' };
 const STATUS_COLORS = {
-  surplus:  { bg:'rgba(56,189,248,0.15)',  text:'rgb(56,189,248)', border:'rgba(56,189,248,0.25)' },
-  ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
+  // the stock scale on the platform's tokens (critique W45943, 2026-10-13): surplus was Tailwind sky-400 -> the brand
+  // blue family; ok/out were green-500/red-500 tints -> --wh-green/--wh-red channels; the red texts were #FCA5A5, the
+  // value tokens.css retired for contrast -> --wh-red-text. Critical keeps its rose, the one step with no token of its
+  // own: folding it into red would make "Critical Low" and "Out of Stock" one colour.
+  surplus:  { bg:'rgba(41,182,217,0.15)',  text:'var(--wh-blue-text, #5FCCE8)', border:'rgba(41,182,217,0.25)' },
+  ok:  { bg:'rgba(74,222,128,0.15)',  text:'#4ade80', border:'rgba(74,222,128,0.25)' },
   low: { bg:'rgba(247,162,27,0.15)', text:'#FDB94A', border:'rgba(247,162,27,0.25)' },
-  critical: { bg:'rgba(251,113,133,0.18)', text:'#FCA5A5', border:'rgba(251,113,133,0.30)' },   /* C2: AA-safe red (was #f87171 @ 3.66:1, matches 'out' below) */
-  out: { bg:'rgba(239,68,68,0.15)',  text:'#FCA5A5', border:'rgba(239,68,68,0.25)' },
+  critical: { bg:'rgba(251,113,133,0.18)', text:'var(--wh-red-text, #FDC9C9)', border:'rgba(251,113,133,0.30)' },   /* C2: AA-safe red (was #f87171 @ 3.66:1, matches 'out' below) */
+  out: { bg:'rgba(248,113,113,0.15)',  text:'var(--wh-red-text, #FDC9C9)', border:'rgba(248,113,113,0.25)' },
   // Neutral grey on purpose: "unknown" must not borrow the reassurance of green or the alarm of red.
   unknown: { bg:'rgba(255,255,255,0.07)', text:'rgba(255,255,255,0.72)', border:'rgba(255,255,255,0.14)' },
 };
@@ -869,7 +915,7 @@ const CAT_COLORS = {
   Filter:     { bg:'rgba(41,182,217,0.15)', text:'#5FCCE8',  border:'rgba(41,182,217,0.25)' },
   Electrical: { bg:'rgba(41,182,217,0.15)', text:'#5FCCE8',  border:'rgba(41,182,217,0.25)' },
   Fastener:   { bg:'rgba(255,255,255,0.08)',text:'rgba(255,255,255,0.72)', border:'rgba(255,255,255,0.12)' },
-  Lubricant:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80',  border:'rgba(34,197,94,0.25)' },
+  Lubricant:  { bg:'rgba(74,222,128,0.15)',  text:'#4ade80',  border:'rgba(74,222,128,0.25)' },
   Other:      { bg:'rgba(255,255,255,0.07)',text:'rgba(255,255,255,0.72)',border:'rgba(255,255,255,0.12)' },
 };
 
@@ -899,7 +945,7 @@ function catBadge(cat) {
 function approvalBadge(item) {
   if (!HIVE_ID) return ''; // solo: no approval flow
   if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
-  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(239,68,68,0.12);color:var(--wh-red);border:1px solid rgba(239,68,68,0.28);">Rejected</span>`;
+  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(248,113,113,0.12);color:var(--wh-red);border:1px solid rgba(248,113,113,0.28);">Rejected</span>`;
   return '';
 }
 
@@ -908,8 +954,8 @@ function assetBadge(id) {
 }
 
 function txnIcon(type) {
-  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(34,197,94,0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
-  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(239,68,68,0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
+  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(74,222,128,0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
+  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(248,113,113,0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
   if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
   return '';
 }
@@ -927,7 +973,11 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
   // SAME stockStatus() the badges use (one status function, no vocab drift).
   const invProg = document.getElementById('inv-progress');
   if (invProg) {
-    const healthy = items.filter(i => stockStatus(i) === 'ok').length;
+    // ★"4 OF 27 AT HEALTHY STOCK" BESIDE 3 LOW AND 0 OUT (critique W45943, 2026-10-13). This counted
+    // only 'ok', and stockStatus() calls a part with three times its minimum or more 'surplus' - so the twenty best-
+    // stocked parts in Hector's hive counted as NOT healthy and the bar read 15% while the tiles beside it said 24 of 27
+    // were above their minimum. Surplus is stocked; healthy is ok or surplus.
+    const healthy = items.filter(i => { const st = stockStatus(i); return st === 'ok' || st === 'surplus'; }).length;
     invProg.innerHTML = (typeof whProgressStrip === 'function')
       ? whProgressStrip('Parts at healthy stock', healthy, total) : '';
   }
@@ -1141,15 +1191,26 @@ function renderParts() {
   // are unknown right now, not zero" - two elements on one screen contradicting each other, and the
   // reason this page's fail_500 row was withdrawn today rather than left green. The heroes were already
   // fixed; the lens that banked them never enumerated these pills.
-  if (_invReadFailed) {
-    ['stat-total', 'stat-low', 'stat-out'].forEach(id => {
-      const e = document.getElementById(id); if (e) e.textContent = '—';
-    });
-  } else {
-    document.getElementById('stat-total').textContent = items.length;
-    document.getElementById('stat-low').textContent   = lowCount;
-    document.getElementById('stat-out').textContent   = outCount;
-  }
+  /* ★THE DASH NEEDED WORDS (2026-10-06, found walking the assistive-tech persona on this page with
+     PostgREST stopped). The dash is right for the eyes - it is this platform's own token for "unknown" -
+     but measured in the accessibility tree these three read "— parts", "— low", "— out" with NO accessible
+     name, so a screen reader said either "parts" with no value or "dash parts". The page announced the
+     FAILURE correctly in two live regions; it could not say WHICH figures were missing. whStatUnknown adds
+     the name ("parts: unknown, not loaded") and whStatValue REMOVES it when a real value lands, because a
+     stale aria-label would be read instead of the live number. Guarded on typeof so the page still renders
+     its figures if utils.js has not loaded. */
+  const _invStat = (id, unit, value) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (_invReadFailed) {
+      if (typeof whStatUnknown === 'function') whStatUnknown(el, unit); else el.textContent = '—';
+    } else {
+      if (typeof whStatValue === 'function') whStatValue(el, value); else el.textContent = String(value);
+    }
+  };
+  _invStat('stat-total', 'parts', items.length);
+  _invStat('stat-low',   _t('low stock', 'mababa ang stock'), lowCount);
+  _invStat('stat-out',   _t('out of stock', 'wala nang stock'), outCount);
 
   // Plain-Read summary (Layer D). Rolls up the same counts into the
   // verdict + 3 cards above the engineering list.
@@ -1194,14 +1255,14 @@ function renderParts() {
         // the REAL error when we hold one (401 -> sign in, 429 -> wait); the synthesized 500
         // only when the flag arrived as a bare boolean from an older path
         ? whReadError(_invReadFailed === true ? { _httpStatus: 500 } : _invReadFailed, 'your parts')
-        : 'Could not load your parts. This is a connection problem, not an empty inventory. Your parts are still there.';
+        : 'Could not load your parts. This is a loading problem, not an empty inventory. Your parts are still there.';
       if (typeof whListError === 'function') {
         whListError(list, _m, () => location.reload());
       } else {
         list/* xss-allow: static fallback, no interpolation */ .innerHTML =
           '<div class="text-center py-16 empty-state">' +
           '<p class="text-sm text-white/80 font-medium">' + _t("Could not load your parts.", "Hindi ma-load ang mga part mo.") + '</p>' +
-          '<p class="text-xs text-white/80 mt-1">This is a connection problem, not an empty inventory. ' +
+          '<p class="text-xs text-white/80 mt-1">This is a loading problem, not an empty inventory. ' +
           'Your parts are still there. Reload to see them.</p></div>';
       }
     } else {
@@ -1277,8 +1338,11 @@ function renderParts() {
         ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-black text-sm tracking-wide text-white">${pn}</span>
+            <!-- min-w-0 + a code that may wrap (2026-10-12, W4371 at 320): with a photo beside it this group could not
+                 shrink below its widest child, and pushed the 44px "Open item details" chevron out of its card and 6px
+                 past a 320px screen -->
+            <div class="flex items-center gap-2 flex-wrap min-w-0">
+              <span class="font-black text-sm tracking-wide text-white" style="overflow-wrap:anywhere;">${pn}</span>
               ${catBadge(item.category)}
               ${HIVE_ID && item.status && item.status !== 'approved' ? '' : statusBadge(st)}
               ${approvalBadge(item)}
@@ -1301,10 +1365,27 @@ function renderParts() {
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
-              <span class="text-3xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
+              <!-- 24px, the KPI tiles' step (critic DD1, 2026-10-13): at 30px each card's count outranked the summary above it -->
+              <span class="text-2xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
               <span class="text-xs text-white/80">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-xs text-white/80">Min: ${item.min_qty}</span>` : ''}
-              ${getReservedQty(item.id) > 0 ? `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
+              ${getReservedQty(item.id) > 0 ? (() => {
+                /* ★THE BADGE'S ONLY PROVENANCE WAS A TOOLTIP, AND THE TOOLTIP WAS NOT TRUE OF EVERY ROW (2026-10-06,
+                   inventory x assistive-tech, layer D). It read "1 reserved" with title="Pre-staged for predicted
+                   asset failures via Auto-Staging" - unreachable on touch, an optional description at best to a
+                   screen reader. Checked before surfacing it: the reservation-idempotency migration itself names
+                   "NULL recommendation_id rows (manual reservations with no source recommendation)", and all four
+                   active local rows have recommendation_id NULL - so "predicted failure via Auto-Staging" is a
+                   claim the table does not support for every row. What EVERY row does hold is asset_name: which
+                   asset the part is held for. That is the provenance a worker needs ("who is this held for?"),
+                   it is true however the reservation was made, and it now shows on the badge itself. Nothing is
+                   said about it being untouchable either: the ruling below at the issue path is that a staged
+                   reservation is a recommendation, not a lock. */
+                const _rf = getReservedFor(item.id);
+                const _tr = (typeof _t === 'function') ? _t : (en) => en;
+                const _for = _rf.length ? ' ' + _tr('for', 'para sa') + ' ' + _rf.map(escHtml).join(', ') : '';
+                return `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;">${getReservedQty(item.id)} ${_tr('reserved', 'naka-reserba')}${_for}</span>`;
+              })() : ''}
             </div>
             <div class="flex gap-2 flex-wrap">
               <!-- margin-right via INLINE style, not a Tailwind class: this page's purged Tailwind build
@@ -1406,7 +1487,7 @@ function renderAssetLinker() {
     emptyEl.textContent = !_assetsLoaded
       ? 'Loading your assets...'
       : (_assetsReadFailed
-          ? 'Could not load your assets. This is a connection problem, not an empty asset register. Reload before registering an asset you may already have.'
+          ? 'Could not load your assets. This is a loading problem, not an empty asset register. Reload before registering an asset you may already have.'
           : 'No assets registered. Register assets in the Logbook first.');
     emptyEl.classList.remove('hidden');
     return;
@@ -1547,14 +1628,13 @@ function openAddModal(prefillId) {
 
   renderAssetLinker();
   document.getElementById('part-modal').style.display = 'flex';
-  // T42: hardware Back now closes this modal instead of leaving the page (whModalHistory).
-  if (window.whModalHistory) whModalHistory.opened(function () { closePartModal(true); });
+  // T42: hardware Back closes this modal instead of leaving the page. Its ONE owner is whModalA11y,
+  // wired at DOMContentLoaded above: it pushes the entry when the modal shows, Back closes it through
+  // its Close button, and an X/Cancel/backdrop/save close gives the entry back. (A second stack,
+  // whModalHistory, pushed a second entry per open until 2026-10-12.)
 }
 
-function closePartModal(fromBack) {
-  // T42: an explicit close (X / backdrop) consumes the history entry Back would have used;
-  // a Back-driven close (fromBack) already consumed it.
-  if (!fromBack && window.whModalHistory) whModalHistory.closed();
+function closePartModal() {
   document.getElementById('part-modal').style.display = 'none';
   editingItemId    = null;
   selectedAssetIds = new Set();
@@ -1646,6 +1726,30 @@ async function submitPart() {
     if (idx === -1) return;
     const prev = items[idx];
     const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
+    // ★AN EDITED COUNT MOVED THE STOCK AND THE LEDGER NEVER HEARD (2026-10-08, UI-write recipes): qty_on_hand rode
+    // inside the part UPDATE, so the balance moved with no inventory_transactions row - an untraceable movement and a
+    // reconciliation break (restock/deduct write both in one transaction). A changed count now goes through
+    // inventory_adjust (migration 20261008000012) FIRST: the ledger row and the balance in one transaction, refused if
+    // the stock moved since this form opened. The rest of the part saves after it, without the count.
+    const _prevQty = Number(prev.qty_on_hand) || 0;
+    let _stamp = prev.updated_at;
+    if (qty !== _prevQty) {
+      const { data: _adj, error: _adjErr } = await db.rpc('inventory_adjust', {
+        p_item_id: editingItemId, p_expected_qty: _prevQty, p_new_qty: qty, p_note: 'Edited via part form',
+      });
+      if (_adjErr) {
+        showFormError(errEl, whWriteError(_adjErr, 'The stock count was not changed and nothing was saved. Try again.'));
+        return;
+      }
+      if (!_adj || !_adj.ok) {
+        showFormError(errEl, (_adj && _adj.reason === 'changed')
+          ? 'The stock count changed to ' + _adj.qty_on_hand + ' since you opened this part (someone used or restocked it). Nothing was saved; check the count and edit again.'
+          : 'This part is no longer available to you. Nothing was saved.');
+        return;
+      }
+      if (_adj.updated_at) _stamp = _adj.updated_at;
+    }
+    const { qty_on_hand: _qtyMovedByLedger, ...detail } = payload;
     // Optimistic concurrency guard (PRODUCTION_FIXES #43). Use the row's
     // last-seen updated_at to detect a parallel edit. If conflict, abort
     // and ask the user to refresh.
@@ -1666,13 +1770,13 @@ async function submitPart() {
     // SERVER-authoritative instead of trusting `new Date()` on a device whose clock may be wrong,
     // and it keeps the guard working if a future caller forgets to send the field.
     if (prev.updated_at && typeof ocUpdate === 'function') {
-      const ocRes = await ocUpdate(db, 'inventory_items', editingItemId, payload, prev.updated_at);
+      const ocRes = await ocUpdate(db, 'inventory_items', editingItemId, detail, _stamp);
       if (ocRes.conflict) {
-        showFormError(errEl, 'Another worker just edited this part. Refresh the list and try again.');
+        showFormError(errEl, (qty !== _prevQty ? 'The new stock count was saved, but ' : '') + 'Another worker just edited this part. Refresh the list and try again.');
         return;
       }
       if (!ocRes.ok && ocRes.error) {
-        showFormError(errEl, 'Save failed: ' + ocRes.error.message);
+        showFormError(errEl, (qty !== _prevQty ? 'The new stock count was saved, but the other changes were not: ' : 'Save failed: ') + ocRes.error.message);
         return;
       }
       // Update local cache from the canonical row + close modal.
@@ -1687,20 +1791,34 @@ async function submitPart() {
     items[idx] = updated;
 
     // Await the DB write: fire-and-forget causes silent revert on reload
-    const { error: editErr } = await db.from('inventory_items')
-      .update({ ...payload, photo: updated.photo })
-      .eq('id', editingItemId)
-      .eq('worker_name', HIVE_ID && HIVE_ROLE !== 'supervisor' ? WORKER_NAME : prev.worker_name || WORKER_NAME);
+    // ★THE FALLBACK EDIT WAS GUARDED BY THE DEVICE'S NAME (2026-10-13, found beside the BRP16 drift walk). This path
+    // runs when the cached part carries no updated_at (one added on this device and edited before a reload). For a
+    // hive worker it filtered `.eq('worker_name', WORKER_NAME)` - the name on the DEVICE, AND-ed with the row id - so a
+    // device whose name had drifted matched no row, PostgREST answered 204 with no error, and the page said "updated"
+    // while nothing was saved. The guard is now the one the delete above uses: the identity for a worker (RLS
+    // inventory_items_write enforces it anyway), the hive for a supervisor, the identity for a solo owner. `.select`
+    // makes a zero-row update a failure the person sees, never a silent success.
+    let _editQ = db.from('inventory_items')
+      .update({ ...detail, photo: updated.photo })
+      .eq('id', editingItemId);
+    if (HIVE_ID) {
+      _editQ = _editQ.eq('hive_id', HIVE_ID);
+      if (HIVE_ROLE !== 'supervisor') _editQ = _editQ.eq('auth_uid', _authUid);
+    } else {
+      _editQ = _editQ.eq('auth_uid', _authUid);
+    }
+    const { data: _edited, error: editErr } = await _editQ.select('id');
 
-    if (editErr) {
-      showFormError(errEl, 'Could not save edit: ' + editErr.message);
+    if (editErr || !(_edited && _edited.length)) {
+      showFormError(errEl, editErr
+        ? 'Could not save edit: ' + editErr.message
+        : 'Could not save edit: this part is no longer in your inventory, or it is not yours to change. Refresh the list and try again.');
       items[idx] = prev; // revert local cache on failure
       return;
     }
 
     _items = items;
-    const diff = qty - prev.qty_on_hand;
-    if (diff !== 0) addTransaction(editingItemId, 'adjustment', diff, qty, 'Edited via part form');
+    const diff = qty - prev.qty_on_hand;   // the ledger row was written by inventory_adjust above, with the balance
     writeAuditLog('edit_inventory_item', 'inventory_items', editingItemId, partName,
       { prev_qty: prev.qty_on_hand, new_qty: qty, qty_diff: diff, new_status: editStatus });
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
@@ -2152,7 +2270,7 @@ function openDetailModal(id) {
       <p class="text-xs font-semibold" style="color:var(--wh-orange-text);">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
     </div>` : ''}
     ${item.status === 'rejected' && HIVE_ID ? `
-    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);">
+    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.22);">
       <span class="ic ic-back" aria-hidden="true"></span>
       <p class="text-xs font-semibold text-red-400">Rejected by supervisor. Edit the part details and save to resubmit for approval.</p>
     </div>` : ''}
@@ -2187,9 +2305,9 @@ function openDetailModal(id) {
     <div class="flex gap-2 mb-4">
       <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="usestock">Use Stock</button>
       <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="restock">Restock</button>
-      ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || item.worker_name === WORKER_NAME) ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm" data-i="edit">Edit</button>` : ''}
+      ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _ownsItem(item)) ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm" data-i="edit">Edit</button>` : ''}
     </div>
-    ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && item.worker_name === WORKER_NAME)) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-xs text-red-400/40 hover:text-red-400/70 transition-colors py-1" data-i="removefrominventory">Remove from inventory</button>` : ''}
+    ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && _ownsItem(item))) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-xs text-red-400/40 hover:text-red-400/70 transition-colors py-1" data-i="removefrominventory">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-3">${escHtml(_t('Transaction History (last 20)', 'Kasaysayan ng Transaksyon (huling 20)'))}</p>
@@ -2226,7 +2344,7 @@ async function confirmDeleteItem(id) {
   // Workers can only delete their own rejected items; approved/pending items are supervisor-only
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') {
     if (item.status !== 'rejected') { showToast('Supervisors only.', 'warn'); return; }
-    if (item.worker_name !== WORKER_NAME) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
+    if (!_ownsItem(item)) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
   }
   const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`, { okLabel: 'Remove', cancelLabel: 'Keep' });
   if (!proceed) return;
@@ -2234,13 +2352,18 @@ async function confirmDeleteItem(id) {
   if (HIVE_ID) {
     // Supervisor deletes by hive scope; worker deletes own rejected item by worker_name
     let q = db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
-    if (HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
+    // BRP-A: the ownership guard is the IDENTITY, not the display name. RLS (inventory_items_write)
+    // already enforces auth_uid, so a name filter could never make this safer - only add a way to
+    // match nothing, which PostgREST answers with no error. inventory_items is 102/102 bound and the
+    // author-can-edit-own-work ratchet holds it there.
+    if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
     const { error } = await q;
     if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.'), 'error'); return; }
     _items = _items.filter(i => i.id !== id);
   } else {
+    // BRP-A: identity, not display name - see the hive branch above.
     const { error } = await db.from('inventory_items').delete()
-      .eq('id', id).eq('worker_name', WORKER_NAME);
+      .eq('id', id).eq('auth_uid', _authUid);
     if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.'), 'error'); return; }
     _items = _items.filter(i => i.id !== id);
   }
@@ -2394,7 +2517,7 @@ document.getElementById('btn-export-inventory').addEventListener('click', () => 
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = 'workhive-inventory-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = 'workhive-inventory-' + whManilaYmd() + '.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2534,7 +2657,7 @@ async function initData() {
       // the planner and free to differ on every read. A supervisor comparing two loads of the hive's
       // spares would see the list reshuffle with nothing having changed.
       ).order('created_at').order('id').limit(2000),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000)
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -2543,7 +2666,7 @@ async function initData() {
     assetsFetches = Promise.all([
       // L2: a hive's asset register is bounded-by-nature (config list); insurance cap
       db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').limit(2000),
-      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000)
+      db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).order('created_at').order('id').limit(2000)
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -2551,13 +2674,13 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
-    db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500),
+    db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500),
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
     itemsFetches,
     assetsFetches
   ]);
@@ -2600,9 +2723,9 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+      db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
       // Same window/cap as the primary fetch above — keep the two paths consistent.
-      db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500)
+      db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500)
     ]);
     _items = ir.data || [];
     _txns  = tr.data || [];
@@ -2614,7 +2737,7 @@ async function initData() {
   // Phase ML-2: load active staged reservations (consumed_at IS NULL AND released_at IS NULL)
   if (HIVE_ID) {
     const { data: resvs, error: resvErr } = await db.from('parts_staged_reservations')
-      .select('item_id, qty_reserved')
+      .select('item_id, qty_reserved, asset_name')
       .eq('hive_id', HIVE_ID)
       .is('consumed_at', null)
       .is('released_at', null)
@@ -2623,9 +2746,11 @@ async function initData() {
       console.warn('staged reservations:', resvErr.message);
     } else {
       _reservations = new Map();
+      _reservedFor = new Map();
       for (const r of (resvs || [])) {
         const key = String(r.item_id);
         _reservations.set(key, (Number(_reservations.get(key)) || 0) + Number(r.qty_reserved || 0));
+        if (r.asset_name) { if (!_reservedFor.has(key)) _reservedFor.set(key, new Set()); _reservedFor.get(key).add(String(r.asset_name)); }
       }
     }
   }
@@ -2653,7 +2778,7 @@ async function initData() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
     const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
-      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
+      .or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
     _assets = migA || [];
   } else {
     _assets = mergedAssets;
@@ -2676,7 +2801,7 @@ async function validateHiveMembership() {
     .from('hive_members')
     .select('role, status')
     .eq('hive_id', HIVE_ID)
-    .eq('worker_name', WORKER_NAME)
+    .or(_MINE())
     .maybeSingle();
   if (error) {
     console.warn('Membership validation failed (DB error), using cached role:', error.message);
@@ -2863,7 +2988,9 @@ async function validateHiveMembership() {
     }
     function tryRegister() {
       if (window.WHVoice && typeof window.WHVoice.register === 'function') {
-        window.WHVoice.register('inventory.deduct', inventoryDeductHandler);
+        // effect 'prefill' (LM-V walk, 2026-10-07): it filters the parts list; the person picks the
+        // row and taps Use, which is the deduction.
+        window.WHVoice.register('inventory.deduct', inventoryDeductHandler, { effect: 'prefill' });
         return true;
       }
       return false;

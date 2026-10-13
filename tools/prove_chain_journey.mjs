@@ -54,6 +54,7 @@ try {
   // ── HOP 1: the alert names its subject and links it ──
   await page.goto(`${SEEDER}/alert-hub.html`, { waitUntil: 'domcontentloaded' });
   let link = null;
+  let filtered = false;
   const t0 = Date.now();
   while (Date.now() - t0 < 30000 && !link) {
     link = await page.evaluate(() => {
@@ -62,6 +63,18 @@ try {
       const u = new URL(a.href);
       return { href: a.getAttribute('href'), asset: decodeURIComponent(u.searchParams.get('asset') || '') };
     });
+    // ★THE FEED SHOWS 30 ROWS, AND THE PM ALERTS WERE ON PAGE THREE (2026-10-13). Baguio's feed carried 73 alerts, 63
+    // critical or high, so every PM row sorted past the first 30 and this aborted with "no PM alert rendered" while 29
+    // were there. A supervisor looking for PM work taps the PM filter; so does the prover, once the feed has rendered.
+    if (!link && !filtered) {
+      filtered = await page.evaluate(() => {
+        const chip = document.querySelector('#filters .chip[data-kind="pm"]');
+        if (!chip || !document.querySelector('.alert-action')) return false;
+        chip.click();
+        return true;
+      });
+      if (filtered) console.log('HOP 1: PM alerts were past the first page of the feed; tapped the PM filter');
+    }
     if (!link) await page.waitForTimeout(800);
   }
   if (!link) { console.log('ABORT: no PM alert with an asset-named action link rendered.'); process.exit(2); }

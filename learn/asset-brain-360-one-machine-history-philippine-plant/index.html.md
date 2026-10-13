@@ -117,4 +117,4 @@ No, the information displayed in Asset Brain 360 is standardized based on ISO 14
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [Building an asset register from scratch](https://workhiveph.com/learn/building-asset-register-zero-budget/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) · [FMEA worked example](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/)
 
-<!-- md-twin source-sha: 8bd8f97e5ee2ec68 -->
+<!-- md-twin source-sha: 1f7bd1e064e872dc -->

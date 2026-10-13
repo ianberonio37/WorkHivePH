@@ -8,7 +8,7 @@ Septic Tank Sizing Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
 **The Septic Tank Sizing Calculator finds the liquid volume and total tank size from occupancy, wastewater rate, and desludging interval. Example: for a 50-person residential septic tank at 150 L/person/day, at 3 days retention, Liquid volume = 22500 L, Daily flow = 7500 L/day, Sludge storage = 6000 L (per Philippine Plumbing Code §P-1101).**
 How it works
-Computed from your inputs per Philippine Plumbing Code §P-1101. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
+The calculator follows Philippine Plumbing Code §P-1101. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Plumbing & Pumps)
 Inputs: a 50-person residential septic tank at 150 L/person/day, at 3 days retention.
@@ -22,14 +22,14 @@ Read the worked example. It uses a 50-person residential septic tank at 150 L/pe
 Follow the formula with your own figures: it returns Liquid volume, Daily flow, Sludge storage, computed per Philippine Plumbing Code §P-1101.
 To compute interactively, open the Septic Tank Sizing Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
-What is a septic tank sizing calculator?The Septic Tank Sizing Calculator is a free online tool that finds the liquid volume and total tank size from occupancy, wastewater rate, and desludging interval. It shows the formula and a fully worked example so you can check the method, not just the number.
+What is the Septic Tank Sizing Calculator?The Septic Tank Sizing Calculator is a free online tool that finds the liquid volume and total tank size from occupancy, wastewater rate, and desludging interval. It shows the formula and a fully worked example so you can check the method, not just the number.
 How is it calculated?The result is computed from your inputs following Philippine Plumbing Code §P-1101. The worked example on this page shows a real computation with real numbers.
 Is the calculator free?Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Septic Tank Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=septic-tank-sizing). Free, and a free sign-up saves your calculations, BOMs and scope-of-works to your account.
+[Open the interactive Septic Tank Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=septic-tank-sizing). Free to use. A free account saves the calculation, its bill of materials and its scope of works to your hive. Your team finds them under the project name it already uses. The next technician on that job reads the same numbers instead of re-deriving them.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Sanitary Drainage Calculator](https://workhiveph.com/tools/sewer-drainage-calculator/)
 [Pump TDH Calculator](https://workhiveph.com/tools/pump-tdh-calculator/)
 
-<!-- md-twin source-sha: d7f816a2b5f88350 -->
+<!-- md-twin source-sha: e9a409fddfb0e80e -->

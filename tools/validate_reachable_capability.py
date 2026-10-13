@@ -82,6 +82,11 @@ SERVER_FED_ALLOW = {
     # only READS it, to surface past repairs for the selected machine. Verified: 0 client
     # .insert/.upsert on the table across every shipped page.
     "fault_knowledge",
+    # Reviewed 2026-10-13 (critic batch static sweep). automation_log is written only by edge functions on a service
+    # role (batch-risk-scoring, benchmark-compute, parts-staging-recommender, cmms-push-completion, the report delivery
+    # path); report-sender READS it to tell a person a scheduled report did not go out. Verified: 0 client
+    # .insert/.upsert on the table across shipped pages.
+    "automation_log",
     # Reviewed 2026-08-25 (T17). achievement_xp_log is TRIGGER-fed: trg_logbook_achievement /
     # trg_pm_achievement / trg_community_achievement / trg_skill_badge_achievement write it as the
     # source rows land; the client only READS it back (the earning-moment receipts + achievements

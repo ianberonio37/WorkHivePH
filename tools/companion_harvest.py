@@ -121,6 +121,9 @@ def row_to_candidate(row: dict) -> dict:
     return {
         "id": candidate_id(question, agent),
         "source_feedback_id": row.get("id"),
+        # the call the thumbs-down judged (ai_reply_feedback.trace_id, LM-E 2026-10-08): wh_traces.trace_id for an
+        # ai-gateway answer, agentic_rag_traces.id for an agentic-RAG one; None when the rated reply had no traced call
+        "source_trace_id": row.get("trace_id"),
         "question": question,
         "answer": row.get("answer") or "",
         "agent": agent,
@@ -152,6 +155,7 @@ def merge_candidates(existing: list[dict], fresh: list[dict]) -> tuple[list[dict
             prev = by_id[cid]
             prev["answer"] = cand["answer"] or prev.get("answer", "")
             prev["created_at"] = cand["created_at"] or prev.get("created_at")
+            prev["source_trace_id"] = cand.get("source_trace_id") or prev.get("source_trace_id")
             prev["occurrences"] = int(prev.get("occurrences", 1)) + 1
         else:
             cand["occurrences"] = 1
@@ -168,7 +172,7 @@ def merge_candidates(existing: list[dict], fresh: list[dict]) -> tuple[list[dict
 
 def fetch_thumbs_down(url: str, key: str, limit: int = 1000) -> list[dict]:
     import requests
-    cols = "id,hive_id,worker_name,agent,source,page,persona,question,answer,rating,created_at"
+    cols = "id,hive_id,worker_name,agent,source,page,persona,question,answer,rating,created_at,trace_id"
     r = requests.get(
         f"{url}/rest/v1/ai_reply_feedback"
         f"?select={cols}&rating=eq.-1&order=created_at.desc&limit={limit}",

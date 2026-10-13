@@ -127,8 +127,12 @@ def validate_page(path: Path) -> list[str]:
     #    All 60 shipped with no CSS, header, footer or fonts: browser-default HTML,
     #    no branding, no way to navigate onward. Every other gate passed on them,
     #    because none of them looks at whether a human would trust the page.
-    if "cdn.tailwindcss.com" not in txt:
-        fails.append("no Tailwind — page renders unstyled")
+    # 2026-10-13: Tailwind is the compiled "ramp" sheet now, not the Play CDN (tools/tw_public_build.mjs) - the CDN
+    # was a ~400 KB render-blocking script; tw-public-sheets owns the sheet's completeness and its place in <head>.
+    if 'href="/wh-tw-pub-ramp.css"' not in txt:
+        fails.append("no Tailwind sheet (/wh-tw-pub-ramp.css) — page renders unstyled")
+    if "cdn.tailwindcss.com" in txt:
+        fails.append("still loads the Tailwind Play CDN — render-blocking; the generator emits the compiled sheet")
     if ".prose-wh" not in txt:
         fails.append("missing the shared STYLE block (.prose-wh)")
     if '<header class="border-b' not in txt:
@@ -188,18 +192,23 @@ def run() -> int:
 
 
 def self_test() -> int:
-    """Synthetic: a known-good page passes, a broken one fails."""
+    """Synthetic: a known-good page passes, a broken one fails.
+    The good page carries the page shell too (2026-10-13): check 6 grew the shell rules after this fixture was
+    written, so the CLEAN control had been failing - and a teeth test whose control fails proves nothing."""
     good = f"""<!DOCTYPE html><html><head><title>X Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>.prose-wh {{ font-family: 'Poppins', sans-serif; }}</style>
 <meta name="description" content="d"><link rel="canonical" href="{SITE}/tools/x-calculator/">
 <script type="application/ld+json">{{"@context":"https://schema.org","@graph":[
 {{"@type":"SoftwareApplication","name":"X"}},{{"@type":"HowTo","name":"h"}},
 {{"@type":"FAQPage","mainEntity":[{{"@type":"Question","name":"q","acceptedAnswer":{{"@type":"Answer","text":"a"}}}}]}}]}}</script>
-</head><body><main><h1>X Calculator</h1>
+<link rel="stylesheet" href="/wh-tw-pub-ramp.css">
+</head><body><header class="border-b"></header><main><h1>X Calculator</h1>
 <p class="answer-first"><strong>The answer is 42 m.</strong></p>
 <table><tr><td>Result 42 m</td></tr></table>
 <ul><li><a href="/learn/free-engineering-calculators-philippine-plants/">pillar</a></li>
 <li><a href="/tools/y-calculator/">sib</a></li></ul>
-<p>{'padding text ' * 200}</p></main></body></html>"""
+<p>{'padding text ' * 200}</p></main><footer class="py-10"></footer></body></html>"""
     import tempfile
     ok = True
     with tempfile.TemporaryDirectory() as d:

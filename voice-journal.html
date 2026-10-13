@@ -167,8 +167,12 @@
       transition: transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       margin: 0 auto;
     }
+    /* the microphone glyph was 14px inside a 132px disc (W46062): the disc said "press me" and nothing said what for */
+    .mic-btn > .ic { font-size: 2.75rem; }
     .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
     .mic-btn:active { transform: scale(0.96); }
+    /* the source line is placed in the full-width <main>; it belongs under the 42rem column (W46062) */
+    #vj-source-chip { max-width: 42rem; margin: 0 auto; padding: 0 1rem 1.5rem; box-sizing: border-box; }
     .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
     .mic-btn.recording {
       background: linear-gradient(135deg, var(--wh-red), var(--wh-red));
@@ -272,7 +276,10 @@
     /* The journal is a column of timestamps read downwards - 02:09 AM, 10:27 AM, 01:54 PM - and
        Poppins' proportional figures make a 1 narrower than a 0, so the colons do not line up and
        the eye re-finds the column on every row. Measured font-variant-numeric: normal on all eight. */
-    .history-meta { font-variant-numeric: tabular-nums; font-size: 0.75rem; color:rgba(255,255,255,0.80); display: flex; gap: 0.5rem; align-items: center; }
+    /* flex-wrap (2026-10-12, T113 dialog-floor gate at 320): C22 made "Speak again" keep its width and its one line, so
+       time + language pill + button outgrew the card by up to 16px at 320 and the button hung past its edge. The row
+       wraps instead: the button drops to its own line, still right-aligned, only when the three do not fit. */
+    .history-meta { font-variant-numeric: tabular-nums; font-size: 0.75rem; color:rgba(255,255,255,0.80); display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; }
     .history-text { font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.25rem; word-break: break-word; }
     .history-reply { font-size: 0.875rem; line-height: 1.5; color:rgba(255,255,255,0.80); margin-top: 0.5rem; padding-left: 0.75rem; border-left: 2px solid rgba(247,162,27,0.4); word-break: break-word; }
 
@@ -434,7 +441,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <span id="tts-toggle-label">Voice On</span>
       </button>
       <button id="sov-voice-toggle" class="btn-ghost" aria-pressed="false" title="On-device sovereign voice (Piper): the branded voice synthesizes locally and the audio never leaves the plant" style="white-space:nowrap;flex-shrink:0;">
-        <span id="sov-voice-label">Cloud voice</span>
+        <span id="sov-voice-label">Local voice: off</span>
       </button>
     </header>
 
@@ -463,7 +470,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            <strong>saved as soon as the assistant replies</strong> — there is no separate save step, and an
            entry cannot be edited or removed here afterwards, so leave out anything you would not want kept.
            To have your personal data erased, send a Data Rights Request to
-           <a href="mailto:admin@workhiveph.com?subject=Data%20Rights%20Request">admin@workhiveph.com</a>.
+           <a href="mailto:admin@workhiveph.com?subject=Data%20Rights%20Request" style="padding:15px 2px; margin:-15px -2px;">admin@workhiveph.com</a>.<!-- a 45px hit area on a 15px inline link; the line does not move (W46062) -->
            Use the voice buttons above to control spoken replies. Your past entries stay in the list below.</p>
         <!-- ★ THE PAGE RECORDED SOMEONE'S VOICE AND NEVER SAID WHAT HAPPENED TO THE AUDIO. Measured:
              with this disclosure OPEN, the rendered page contained no "audio", no "stored", no
@@ -487,7 +494,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div id="signin-gate" class="card p-5 mb-5 fade-up">
       <div class="text-sm font-semibold text-white mb-1">Sign in to journal</div>
       <p class="text-xs text-white/80 mb-3">Your spoken entries are saved privately under your account. Sign in once and they sync across devices.</p>
-      <a href="index.html?signin=1" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
+      <a href="index.html?signin=1&amp;return=voice-journal.html" class="btn-primary inline-flex" style="text-decoration:none;">Sign in</a>
     </div>
 
     <!-- Live capture panel -->
@@ -528,7 +535,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <span class="ic ic-voice" aria-hidden="true"></span>
       </button>
 
-      <div id="mic-state" class="text-center text-sm text-white/80 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
+      <!-- ★A SCREEN-READER USER WHO SPEAKS A NOTE HEARD NOTHING BACK (LM-V walk, LM494, 2026-10-07): the mic state
+           ("Listening", "Transcribing", "Composing reply") and the journal reply were plain divs. The state line is a
+           polite status; the reply is announced once, through #vj-sr-reply, when it lands. -->
+      <div id="mic-state" class="text-center text-sm text-white/80 mt-3" style="min-height:1.25rem;" role="status" aria-live="polite" aria-atomic="true">Tap to start. Tap again to stop.</div>
       <div id="mic-timer" class="text-center text-xs text-white/80 mt-1" style="min-height:1rem;"></div>
 
       <!-- ★ THE PAGE PROMISED A TYPE PATH AND DID NOT HAVE ONE. "How this works" has always said
@@ -583,6 +593,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <button id="current-replay" class="speak-btn" style="display:none;" type="button" data-i="speakagain">Speak again</button>
         </div>
         <div id="current-reply" class="reply-bubble" style="display:none;"></div>
+        <div id="vj-sr-reply" class="sr-only" role="status" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"></div>
         <div id="current-reply-loading" class="text-xs text-white/80" style="display:none;">Composing reply...</div>
       </div>
     </section>
@@ -790,7 +801,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     function setSovVoiceButton() {
       const on = isSovVoiceOn();
-      const lbl = $('sov-voice-label'); if (lbl) lbl.textContent = on ? _t('Local voice', 'Boses sa device') : _t('Cloud voice', 'Boses sa cloud');
+      // ★THE LABEL NAMED ONE THING AND aria-pressed ANOTHER (critique W46062, 2026-10-13). Pressed means "on-device
+      // voice", but the off state was labelled "Cloud voice" - so a screen reader heard "Cloud voice, toggle button, not
+      // pressed" while the cloud voice was exactly what was speaking. The label now names what pressing controls and
+      // its state in words, so the words and aria-pressed say the same thing (and the visible text stays inside the
+      // accessible name).
+      const lbl = $('sov-voice-label'); if (lbl) lbl.textContent = on ? _t('Local voice: on', 'Boses sa device') : _t('Local voice: off', 'Boses sa cloud');
       const btn = $('sov-voice-toggle'); if (btn) btn.setAttribute('aria-pressed', String(on));
     }
     function toggleSovereignVoice() {
@@ -873,10 +889,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // hezekiah persona) and en-PH-RosaNeural (under zaniah) that DO sound
     // human (Azure Speech API's en-PH catalog is a different, smaller
     // set). Free, no auth.
-    const EDGE_TTS_BASE = (window.WH_TTS_EDGE_URL || 'http://localhost:8000').replace(/\/+$/, '');
+    // ★THE DEV VOICE SERVER WAS THE PRODUCTION DEFAULT (2026-10-12, UFAI edge walk W4805): `WH_TTS_EDGE_URL ||
+    // 'http://localhost:8000'` sent every spoken reply from the person's phone to its own localhost - a request that
+    // fails, and that current Chrome meets with a local-network permission prompt. The shared wh-tts.js already runs
+    // this tier only when it is configured; so does this page now.
+    const EDGE_TTS_BASE = window.WH_TTS_EDGE_URL ? String(window.WH_TTS_EDGE_URL).replace(/\/+$/, '') : '';
 
     async function speakEdge(text, persona) {
-      if (!_ttsOn || !text) return false;
+      if (!_ttsOn || !text || !EDGE_TTS_BASE) return false;
       try {
         const resp = await fetch(EDGE_TTS_BASE + '/tts/speak', {
           method: 'POST',
@@ -908,10 +928,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            all, so a hung tts-speak left the await pending and the fallback unreachable: the reader
            got silence rather than a different voice. The page already uses fetchWithTimeout in four
            other places; this was the one raw call left. 15s is generous for a sentence of speech. */
+        // the person's session when there is one (2026-10-12, W4805): on the publishable key tts-speak limited a
+        // signed-in crew by client IP, one bucket for everyone behind the same carrier address
+        let _ttsBearer = SUPABASE_KEY;
+        try { const { data: { session } } = await db.auth.getSession(); if (session && session.access_token) _ttsBearer = session.access_token; }
+        catch (_) { /* empty-catch-allow: no session -> the anonymous bearer, as before */ }
         const _ttsOpts = {
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Authorization': 'Bearer ' + _ttsBearer,
             'apikey':        SUPABASE_KEY,
             'Content-Type':  'application/json',
           },
@@ -1014,7 +1039,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           $('mic-btn').disabled = true;
           $('history-list').innerHTML = '';
           $('history-empty').style.display = 'block';
-          $('history-empty').textContent = 'Sign in to see your journal entries.';
+          // The history sits below the capture panel, far from the gate's button, so on its own it read as a dead
+          // end (critic batch X1, 2026-10-13). It carries its own way in, and both links bring the person back here.
+          const _signIn = document.createElement('a');
+          _signIn.href = 'index.html?signin=1&return=voice-journal.html';
+          _signIn.textContent = 'Sign in';
+          _signIn.style.cssText = 'color:var(--wh-blue-text);text-decoration:underline;text-underline-offset:3px;';
+          $('history-empty').replaceChildren(_signIn, ' to see your journal entries.');
           return false;
         }
         AUTH_UID = sess.session.user.id;
@@ -1485,7 +1516,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       setStatus('Composing reply...');
       $('current-reply-loading').style.display = 'block';
 
-      const reply = await callJournalAgent(text, lang);
+      const _turn = await callJournalAgent(text, lang);
+      const reply = _turn.answer;
       $('current-reply-loading').style.display = 'none';
       if (!reply) {
         setStatus('No reply. Try again.');
@@ -1493,11 +1525,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       $('current-reply').textContent = reply;
       $('current-reply').style.display = 'block';
+      // announce the reply once (cleared first so a repeated identical reply is still spoken)
+      const _srReply = $('vj-sr-reply');
+      if (_srReply) { _srReply.textContent = ''; setTimeout(() => { _srReply.textContent = _t('Journal reply: ', 'Sagot ng journal: ') + reply; }, 60); }
       // EX-AT (2026-09-07): the shared "was this right?" row - one press records a wrong reply
       // against the note it answered, and the chip says what the reply rested on.
       if (typeof whAiTrustRow === 'function') {
         whAiTrustRow($('current-reply').parentElement || $('current-reply'), { db, agent: 'voice-journal', source: 'voice', page: 'voice-journal',
-          question: text, answer: reply, groundedOn: _t('your note and the persona you chose', 'ang note mo at ang persona na pinili mo') });
+          question: text, answer: reply, traceId: _turn.traceId, groundedOn: _t('your note and the persona you chose', 'ang note mo at ang persona na pinili mo') });
       }
       $('current-replay').style.display = 'inline-flex';
       $('current-replay').onclick = () => speak(reply, lang || 'en');
@@ -1589,15 +1624,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // it already owns the AbortController, the transport-retry policy, and returns NULL on abort.
       // 45s, because a long spoken entry over a weak uplink is legitimately slow - the bound exists
       // to end a HANG, not to cut short a slow success.
+      // ★THE WORKER WAS NEVER NAMED (2026-10-12, UFAI edge walk W4806): the bearer was the publishable key, so a signed-in
+      // worker was limited by client IP - one bucket for a whole crew behind one carrier address. Their session goes
+      // when there is one; with none the call is the IP-keyed anonymous path it always was.
+      let _vtBearer = SUPABASE_KEY;
+      try { const { data: { session } } = await db.auth.getSession(); if (session && session.access_token) _vtBearer = session.access_token; }
+      catch (_) { /* empty-catch-allow: no session -> the anonymous bearer, as before */ }
       const resp = (typeof fetchWithTimeout === 'function')
         ? await fetchWithTimeout(SUPABASE_URL + '/functions/v1/voice-transcribe', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            headers: { 'Authorization': 'Bearer ' + _vtBearer, 'apikey': SUPABASE_KEY },
             body: fd,
           }, 45000)
         : await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            headers: { 'Authorization': 'Bearer ' + _vtBearer, 'apikey': SUPABASE_KEY },
             body: fd,
           });
       // fetchWithTimeout returns null when it aborted. Say what happened and what survived: the
@@ -1634,7 +1675,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Reading flat data.answer returned undefined on every success → the page
       // showed "No reply. Try again." Unwrap .data.answer first, fall back to a
       // flat .answer for any legacy/error-flat shape.
-      return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
+      // LM-S (2026-10-07): only TEXT is an answer - String() of a structured model reply is the literal "[object Object]".
+      const _inner = data && data.data ? data.data.answer : undefined;
+      const _ans = (typeof _inner === 'string' && _inner.trim()) ? _inner : (data && data.answer);
+      // The envelope's trace_id rides with the reply so its "was this right?" row names the call (LM-E, 2026-10-08).
+      return {
+        answer:  typeof _ans === 'string' ? _ans.trim() : '',
+        traceId: (typeof whTraceIdOf === 'function') ? whTraceIdOf(data) : null,
+      };
     }
 
     // ──────────────── Bootstrap ────────────────
@@ -1707,7 +1755,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
     })();
     var el = document.getElementById('vj-source-chip');
-    if (!el) { el = document.createElement('div'); el.id = 'vj-source-chip'; var host = document.querySelector('.page') || document.body; host.appendChild(el); }
+    if (!el) { el = document.createElement('div'); el.id = 'vj-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
       // The freshness clause IS in renderSourceChip's phrase map, so it translated; the SOURCE did
       // not, and the result read 'Batay sa iyong voice journal entries, your profile & worker

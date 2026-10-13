@@ -3,11 +3,15 @@ Python mirror of supabase/functions/_shared/ai-chain.ts
 
 WHY THIS EXISTS:
 The platform's TypeScript edge functions route every AI call through a
-19-model fallback chain (6 Groq -> 3 Cerebras -> 2 Gemini -> 2 Mistral ->
-6 OpenRouter :free). The Python side previously had a 3-model
-shortcut that would blow
-through Groq's 30-req/min limit, exhaust 1 Cerebras model, and then dead-end
+free-tier fallback chain (Groq -> Gemini -> Mistral -> OpenRouter :free, code
+models last). The Python side previously had a 3-model shortcut that would blow
+through Groq's 30-req/min limit, exhaust its second provider, and then dead-end
 because OpenRouter wasn't always keyed.
+
+PACED (2026-10-08): these calls spend the SAME provider keys as the live platform. Every call goes
+through tools/lib/chain_pacer.process_pacer(): at least WH_AI_MIN_GAP_S (3 s) between calls in one
+process, at most WH_AI_MAX_CALLS (90) per process, and once every provider has answered 429 on two
+calls in a row the next calls return "{}" without sending anything ("QUOTA EXHAUSTED").
 
 This module is the SINGLE source of truth for Python AI calls. All Python
 tools (video_idea_generator, platform_pack, future agents) should import
@@ -81,43 +85,44 @@ PROVIDER_CHAIN = [
     # Groq returns today only qwen3.8-27b (above) accepts images, so there is no second Groq vision
     # model to fall back to. Mirrors _shared/ai-chain.ts.
     # GPT-OSS 20B: strict JSON-schema adherence (structured_outputs), cheapest per token.
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-20b",                        "env_key": "GROQ_API_KEY"},
+    # v9 (2026-10-08): reasoning_effort "low" on both gpt-oss entries - at the default effort the reasoning spent the
+    # whole max_tokens and Groq answered 400 json_validate_failed (failed_generation ""). Mirrors the TS chain.
+    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-20b",                        "env_key": "GROQ_API_KEY", "extra_body": {"reasoning_effort": "low"}},
     # GPT-OSS 120B: largest model on Groq free tier — last quality resort.
-    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-120b",                       "env_key": "GROQ_API_KEY"},
+    {"provider": "groq",     "base_url": "https://api.groq.com/openai/v1",  "model": "openai/gpt-oss-120b",                       "env_key": "GROQ_API_KEY", "extra_body": {"reasoning_effort": "low"}},
     # 2026-09-28 (v6): `groq/compound-mini` removed — Groq no longer serves it, and its only other
     # live general chat models are the two gpt-oss entries already above. Mirrors _shared/ai-chain.ts.
 
-    # ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ──────────
-    # NOTE 2026-05-18: both entries below returned 404 "Model X does not exist
-    # or you do not have access to it" during the skill-rule extraction run.
-    # ...and on 2026-09-10 all three were 404. Cerebras serves exactly three models and this list
-    # named none of them; these ARE that list, read from https://api.cerebras.ai/v1/models.
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "gpt-oss-120b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
-    {"provider": "cerebras", "base_url": "https://api.cerebras.ai/v1",       "model": "qwen-3.8-27b",                              "env_key": "CEREBRAS_API_KEY", "max_tokens_cap": 4096},
-    # 2026-09-28 (v6): `gemma-4-31b` removed — Cerebras now serves exactly TWO ids, the two above.
-    # The note directly overhead said "exactly three"; that count went stale the same way twice.
+    # (Tier 2 was Cerebras: REMOVED from the platform 2026-10-08 - 402 payment_required on every call since
+    # 2026-09-10. Its slots went to gemini-3.1-flash-lite and mistral-small-latest. Mirrors the TS chain.)
 
     # NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its
     # free tier is $5 of credits that expire in 30 days, not permanently free.
 
     # ── Tier 3: Google Gemini — OpenAI-compat endpoint, 250K TPM, vision ──────
     # Use an AI Studio key (aistudio.google.com), NOT a GCP Console key (limit:0).
-    {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash",      "env_key": "GEMINI_API_KEY"},
+    {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash",      "env_key": "GEMINI_API_KEY", "extra_body": {"reasoning_effort": "none"}},
+    # v10 (2026-10-08): a separate per-model free quota; "low" thinking kept a 320-token JSON answer whole.
+    {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-3.1-flash-lite", "env_key": "GEMINI_API_KEY", "extra_body": {"reasoning_effort": "low"}},
     {"provider": "google",   "base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.5-flash-lite", "env_key": "GEMINI_API_KEY"},
 
     # ── Tier 4: Mistral — 500K TPM but only 2 RPM, OpenAI-compatible ──────────
     {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-medium-latest",                      "env_key": "MISTRAL_API_KEY"},
-    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "codestral-latest",                          "env_key": "MISTRAL_API_KEY"},
+    # v9 (2026-10-08): fills a slot Cerebras held. Mirrors the TS chain.
+    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-small-latest",                       "env_key": "MISTRAL_API_KEY"},
 
     # ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ─────────────
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-super-120b-a12b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-31b-it:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3.5-lightning:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-26b-a4b-it:free",            "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     # 2026-09-28 (v6): was `nex-agi/nex-n2.5-mini:free`, which OpenRouter no longer serves; replaced
     # from its live :free list by reported input_modalities (text,image,video). Mirrors the TS chain.
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "qwen/qwen3.8-27b:free",                    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    # 2026-10-07 (v7): qwen3.8-27b:free is gone too (404); dots-3-note-preview:free answered (text,image). Mirrors the TS chain.
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "dots-studio/dots-3-note-preview:free",                    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
+    # v8 (2026-10-07): code-specialist models are last resorts for general calls (mirrors the TS chain).
+    {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "codestral-latest",                          "env_key": "MISTRAL_API_KEY"},
+    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "poolside/laguna-s-2.1:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
 ]
 
 
@@ -129,6 +134,7 @@ def call_ai_chain(
     json_mode:   bool         = False,
     timeout:     int          = 90,
     prefer_model: str | None  = None,
+    messages:    list | None  = None,
 ) -> str:
     """
     Walk the fallback chain top-to-bottom. Return the first non-empty content.
@@ -138,7 +144,7 @@ def call_ai_chain(
         prompt: user message text.
         system_prompt: optional system instruction.
         temperature: 0.0-1.0. Lower = deterministic, higher = creative.
-        max_tokens: response length cap. Cerebras hard-caps at 4096.
+        max_tokens: response length cap.
         json_mode: if True, request JSON object response (OpenAI-compatible).
         timeout: per-provider HTTP timeout in seconds.
         prefer_model: optional substring match against entry['model']; entries
@@ -146,13 +152,22 @@ def call_ai_chain(
             order. Useful when a task needs a specific model trait (e.g.,
             'gpt-oss-20b' for strict JSON-schema adherence). The rest of the
             chain still serves as fallback.
+        messages: an OpenAI-format messages list to send instead of prompt/system_prompt (multi-turn callers).
     """
-    messages = (
-        [{"role": "system", "content": system_prompt},
-         {"role": "user",   "content": prompt}]
-        if system_prompt else
-        [{"role": "user",   "content": prompt}]
-    )
+    if messages is None:
+        messages = (
+            [{"role": "system", "content": system_prompt},
+             {"role": "user",   "content": prompt}]
+            if system_prompt else
+            [{"role": "user",   "content": prompt}]
+        )
+    pm = _pacer()
+    pacer = pm.process_pacer()
+    _LAST.clear()
+    _LAST.update({"statuses": [], "served_by": None})
+    if not pacer.wait():
+        print(f"  [ai-chain] {pacer.stop_reason} - nothing sent, returning empty JSON")
+        return "{}"
 
     # Re-order chain to put preferred model entries first, preserving the
     # rest as fallbacks. Substring-match is intentional (so "gpt-oss-20b"
@@ -184,6 +199,7 @@ def call_ai_chain(
         }
         if json_mode:
             body["response_format"] = {"type": "json_object"}
+        body.update(entry.get("extra_body") or {})   # provider-specific fields, as ai-chain.ts extraBody
 
         try:
             res = requests.post(
@@ -195,7 +211,9 @@ def call_ai_chain(
         except Exception as exc:
             print(f"  [ai-chain] {entry['provider']}/{entry['model']} threw: "
                   f"{str(exc)[:80]} — trying next")
+            _LAST["statuses"].append(0)
             continue
+        _LAST["statuses"].append(res.status_code)
 
         # 429 (rate-limited), 413 (payload too large), 503 (unavailable) -> next
         if res.status_code in (429, 413, 503):
@@ -220,10 +238,37 @@ def call_ai_chain(
         content = _strip_reasoning_blocks(content or "")
         if content:
             print(f"  [ai-chain] served by {entry['provider']} / {entry['model']}")
+            _LAST["served_by"] = f"{entry['provider']}/{entry['model']}"
+            pacer.record("served")
             return content
 
         print(f"  [ai-chain] {entry['provider']}/{entry['model']} "
               f"returned empty/reasoning-only content — trying next")
 
     print("  [ai-chain] ALL providers exhausted. Returning empty JSON.")
+    pacer.record(pm.outcome_from_statuses(_LAST["statuses"], served=False))
     return "{}"
+
+
+_LAST: dict = {}
+
+
+def last_outcome() -> dict:
+    """What the most recent call_ai_chain() did: {"statuses": [HTTP status per entry asked], "served_by": "p/model"|None}."""
+    return dict(_LAST)
+
+
+def _pacer():
+    """The process-wide pacer from tools/lib/chain_pacer.py, loaded by file path so it is ONE object whichever mirror
+    (and whichever sys.path layout) the caller came through."""
+    import importlib.util
+    import sys as _sys
+    mod = _sys.modules.get("wh_chain_pacer")
+    if mod is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib", "chain_pacer.py")
+        spec = importlib.util.spec_from_file_location("wh_chain_pacer", path)
+        mod = importlib.util.module_from_spec(spec)
+        _sys.modules["wh_chain_pacer"] = mod
+        spec.loader.exec_module(mod)
+    return mod
+

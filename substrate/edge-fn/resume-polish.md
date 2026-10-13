@@ -2,7 +2,7 @@
 name: edge-fn-resume-polish
 type: edge-fn
 source: file:supabase/functions/resume-polish/index.ts
-source_sha: f48d79897f8b32b7
+source_sha: c86c6cbadae812d1
 last_verified: 2026-07-13
 supersedes: null
 ---

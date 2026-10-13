@@ -19,7 +19,7 @@
 import { chromium } from 'playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
-import { SEEDER, signIn, PAGE_QUERY, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
@@ -106,7 +106,7 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
 // ── R3 · an in-progress draft survives a reload ──────────────────────────────────────────────────
 {
   const ctx2 = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-  await signIn(ctx2);
+  await assertSignedIn(signIn(ctx2));
   let checked = 0, lost = [];
   for (const file of (ONLY ? [ONLY] : ['logbook.html', 'inventory.html', 'community.html', 'resume.html', 'voice-journal.html'])) {
     const p = await ctx2.newPage();

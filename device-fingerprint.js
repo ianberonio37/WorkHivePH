@@ -1,42 +1,42 @@
-// ─────────────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────────
 // device-fingerprint.js — Phase 2.7 of STRATEGIC_ROADMAP (cybersecurity baseline)
 //
-// First-step anomalous-login detection without third-party geolocation. On
-// every page load with an authenticated worker, computes a deterministic
-// client-side fingerprint and writes a 'new_device' audit event when the
-// fingerprint changes. The supervisor sees these in the hive audit log:
-// if a worker's identity is suddenly active from a different browser /
-// device / time zone, that's a signal worth investigating.
+// First-step anomalous-login detection without third-party geolocation. The supervisor sees a 'new_device' row in the
+// hive audit log when a worker's identity is suddenly active from a device that person has not used before - "someone
+// else is logged in as Juan from a different device" - without blocking legitimate work. This is NOT 2FA (real MFA +
+// SSO is Phase 5 Track B); it is the cheap detective control.
 //
-// What we capture (no PII, no third-party calls):
-//   - User-Agent string (truncated)
-//   - Screen size (W x H)
-//   - Color depth
-//   - Hardware concurrency (CPU cores reported)
-//   - Time zone IANA name (Intl.DateTimeFormat)
-//   - Language tag
+// ★THE CONTROL WAS INVERTED UNTIL 2026-10-13 (found by the design-lens critique of audit-log.html). It compared each
+// load's fingerprint with the previous one stored in THIS BROWSER's localStorage. A genuinely new device has empty
+// storage, so it took the first-run path and recorded itself silently - the one event the control exists for never
+// fired - while the same browser changing its window size, its monitor or its version number DID fire, so the
+// supervisor's log filled with identical false alarms ("new device" x26 in six hours, all one browser flipping between
+// 1280x720 and 390x844). "Is this device new for this PERSON" cannot be answered from the device's own storage. The
+// answer now lives on the server: note_device() (migration 20261013000001) keeps each person's known devices, decides,
+// and writes the audit row itself - its actor bound to the caller by wh_bind_audit_actor.
 //
-// Hashed with subtle.digest('SHA-256') into a hex fingerprint. The raw
-// values are stored in audit meta so the supervisor sees WHAT changed
-// (UA bump vs different timezone vs different screen) when triaging.
-//
-// This is NOT 2FA. Real MFA + SSO is deferred to Phase 5 Track B (Enterprise
-// Auth). This module's job is the cheap detective control that catches
-// "someone else is logged in as Juan from a different device" without
-// blocking legitimate worker activity.
+// What we hash - STABLE properties only, so the same device keeps one fingerprint (no PII, no third-party calls):
+//   - the User-Agent with every version number stripped (a browser update is not a new device)
+//   - whether the device has a touch screen (a phone vs a PC; screen PIXELS are gone - a window, a second monitor
+//     or a rotated phone changes them, which is how one browser became "a new device" every few minutes)
+//   - colour depth and hardware concurrency (CPU cores reported)
+//   - the time zone (IANA name) and the browser's language
+// Reported once per session per hive; the raw inputs ride in the audit row so a supervisor triaging it sees WHAT the
+// device is.
 //
 // Skills consulted:
-//   security (detective vs preventive controls; light baseline before MFA)
+//   security (detective vs preventive controls; light baseline before MFA; server-side decisions)
 //   notifications (no toast — write to audit log so supervisor reviews)
-//   multitenant-engineer (hive_id required for audit log)
-// ─────────────────────────────────────────────────────────────────────────────
+//   multitenant-engineer (hive_id required; the RPC checks the caller is in the hive it reports to)
+// ───────────────────────────────────────────────────────────────────────────
 
 (function () {
   if (typeof window === 'undefined') return;
   if (window._whDeviceFingerprintMounted) return;
   window._whDeviceFingerprintMounted = true;
 
-  const FP_KEY = 'wh_device_fp';
+  const NOTED_KEY = 'wh_device_noted';   // sessionStorage: "fp|hive" already reported in this session
+  const OLD_FP_KEY = 'wh_device_fp';     // the browser-local comparison the inverted control used; no longer read
 
   async function _sha256Hex(input) {
     try {
@@ -52,9 +52,8 @@
     let tz = '';
     try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     return {
-      ua:    (navigator.userAgent || '').slice(0, 200),
-      sw:    screen ? screen.width  : 0,
-      sh:    screen ? screen.height : 0,
+      ua:    (navigator.userAgent || '').replace(/\d+(?:[._]\d+)*/g, '').slice(0, 200),
+      touch: (navigator.maxTouchPoints || 0) > 0,
       depth: screen ? screen.colorDepth : 0,
       hc:    navigator.hardwareConcurrency || 0,
       tz,
@@ -64,9 +63,9 @@
 
   async function _computeFingerprint() {
     const inputs = _fingerprintInputs();
-    const seed = [inputs.ua, inputs.sw, inputs.sh, inputs.depth, inputs.hc, inputs.tz, inputs.lang].join('|');
+    const seed = [inputs.ua, inputs.touch ? 'touch' : 'pointer', inputs.depth, inputs.hc, inputs.tz, inputs.lang].join('|');
     const hash = await _sha256Hex(seed);
-    return { hash, inputs };
+    return { fp: hash ? hash.slice(0, 32) : null, inputs };
   }
 
   function _activeWorker() {
@@ -81,52 +80,32 @@
     } catch (_) { return ''; }
   }
 
-  // Diff helper so the audit-log meta tells the supervisor WHAT changed.
-  function _diffInputs(prev, next) {
-    const out = {};
-    for (const k of Object.keys(next)) {
-      if (!prev || prev[k] !== next[k]) {
-        out[k] = { from: prev ? prev[k] : null, to: next[k] };
-      }
-    }
-    return out;
-  }
-
   async function check() {
     const worker = _activeWorker();
     const hive   = _activeHive();
     if (!worker || !hive) return;          // no identity, nothing to protect
 
+    try { localStorage.removeItem(OLD_FP_KEY); } catch (_) { /* empty-catch-allow: legacy key cleanup is best-effort */ }
+
     const next = await _computeFingerprint();
-    if (!next.hash) return;                 // subtle.digest unavailable
+    if (!next.fp) return;                   // subtle.digest unavailable
 
-    let prev = null;
-    try { prev = JSON.parse(localStorage.getItem(FP_KEY) || 'null'); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    const stamp = next.fp + '|' + hive;
+    let noted = null;
+    try { noted = sessionStorage.getItem(NOTED_KEY); } catch (_) { /* empty-catch-allow: storage blocked - report again */ }
+    if (noted === stamp) return;            // already reported this session for this hive
 
-    const isFirst = !prev || !prev.hash;
-    if (isFirst) {
-      try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-      return;
-    }
-
-    if (prev.hash === next.hash) return;     // same device, nothing to do
-
-    const changed = _diffInputs(prev.inputs || {}, next.inputs || {});
-    try { localStorage.setItem(FP_KEY, JSON.stringify(next)); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
-
-    // Best-effort audit-log write. Schema matches hive.html writeAuditLog().
+    // The server decides whether this device is new for this PERSON and writes the audit row itself.
+    // The client is the page's shared singleton (utils.js getDb() keeps it on window._whSupabaseClient): most pages
+    // never expose a window.db, so the old `window.db` guard silently skipped them - audit-log.html among them.
     try {
-      if (!window.db || !window.db.from) return;
-      await window.db.from('hive_audit_log').insert({
-        hive_id:     hive,
-        actor:       worker,
-        action:      'new_device',
-        target_type: 'worker_profiles',
-        target_id:   null,
-        target_name: worker,
-        meta:        { changed_fields: changed, fp: next.hash.slice(0, 16) },
-      });
-    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+      const db = window._whSupabaseClient || window.db;
+      if (!db || !db.rpc) return;
+      const { error } = await db.rpc('note_device', { p_hive_id: hive, p_fp: next.fp, p_inputs: next.inputs });
+      if (!error) {
+        try { sessionStorage.setItem(NOTED_KEY, stamp); } catch (_) { /* empty-catch-allow: storage blocked */ }
+      }
+    } catch (_) { /* empty-catch-allow: a detective control never blocks the page */ }
   }
 
   // Run once after the page settles. Wait 2s so window.db has time to mount

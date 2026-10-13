@@ -292,7 +292,10 @@ const FLOWS = {
             { eval: "(() => { const b = document.querySelector('.consequence-btn[data-value]'); if (b) b.click(); })()" },
             { wait: 500 }],
     submit: '#save-entry-btn', submitVia: 'requestSubmit', submitForm: '#log-form' },
-  skillmatrix: { steps: [], submit: 'button:has-text("Save Targets")' },
+  // a REAL change first (2026-10-13, critique W46048): Save Targets now writes only when a target changed - it reads
+  // "Targets saved" and is disabled at rest. The first ENABLED stepper is a non-primary "-" (or its "+" once at the
+  // floor), so repeated runs swing one target between two values instead of walking every target to its maximum.
+  skillmatrix: { steps: [{ click: '#target-grid .step-btn:not([disabled])' }], submit: 'button:has-text("Save Targets")' },
   'asset-hub': { steps: [
       // Same three gates the double-fire flow had to learn: detail via an IN-PAGE click (a Playwright
       // click is intercepted), then the opt-in Reliability Workbench, which ships display:none.

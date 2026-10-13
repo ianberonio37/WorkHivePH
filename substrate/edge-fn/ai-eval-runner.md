@@ -2,7 +2,7 @@
 name: edge-fn-ai-eval-runner
 type: edge-fn
 source: file:supabase/functions/ai-eval-runner/index.ts
-source_sha: 069e724d27f04bbd
+source_sha: 3b6861b5ea0265be
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -10,7 +10,7 @@ supersedes: null
 
 Auth gate: **auth idiom detected in body (verify it gates the hive_id it uses)**
 
-Tables touched: `ai_quality_log`
-RPCs called: (none)
+Tables touched: `ai_quality_log`, `hive_members`, `hives`, `v_hives_truth`, `worker_profiles`
+RPCs called: `ai_eval_bench_ensure`, `ai_eval_bench_reset_memory`
 
 Links: [[project_platform_knowledge_substrate]]

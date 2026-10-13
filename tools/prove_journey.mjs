@@ -32,7 +32,7 @@
 // sign-in wall (the same reasoning the spec documents).
 import { chromium } from 'playwright';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
-import { signIn } from './live_page_journeys.mjs';
+import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 import { REASONED_EMPTY_SRC } from './session_signals.mjs';
 import { TARGETS } from './dialog_targets.mjs';
 
@@ -489,7 +489,7 @@ async function newCtx(browser, identity) {
   const who = (identity === 'supervisor' || identity === 'multi_hive') ? 'supervisor'
             : identity === 'worker' ? 'worker' : null;
   if (who) {
-    try { await signIn(ctx, who); }
+    try { await assertSignedIn(signIn(ctx, who)); }
     catch (e) { return { ctx, signInError: String(e.message || e).slice(0, 120) }; }
   }
   // anon + crawler: deliberately no session.

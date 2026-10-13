@@ -21,9 +21,11 @@ import vm from 'node:vm';
 const SRC = 'vendor/supabase-js-2.110.0.min.js';
 const SRI = 'sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil';
 
-function makeDom({ clientArrives }) {
+function makeDom({ clientArrives, storage = null }) {
   const appended = [];
   const banners = [];
+  const errorListeners = [];   // EVERY 'error' listener, as a browser keeps them (the first mock kept only one)
+  let reloads = 0;
   const originalTag = {
     src: SRC,
     getAttribute: (k) => (k === 'integrity' ? SRI : k === 'crossorigin' ? 'anonymous' : null),
@@ -43,12 +45,21 @@ function makeDom({ clientArrives }) {
       style: { cssText: '' },
     }),
   };
-  const win = { document: doc, location: { origin: 'http://127.0.0.1:5000' }, addEventListener() {} };
-  const ctx = vm.createContext({ window: win, document: doc, setTimeout, clearTimeout, console });
+  const location = { origin: 'http://127.0.0.1:5000', pathname: '/workhive/shift-brain.html', reload: () => { reloads++; } };
+  const win = { document: doc, location, addEventListener(type, fn) { if (type === 'error') errorListeners.push(fn); } };
+  const ctxGlobals = { window: win, document: doc, location, setTimeout, clearTimeout, console, Date };
+  if (storage) ctxGlobals.sessionStorage = storage;
+  const ctx = vm.createContext(ctxGlobals);
   ctx.window.document = doc;
   vm.runInContext(readFileSync('browser-floor.js', 'utf8'), ctx);
-  return { ctx, appended, banners, clientArrives };
+  // the page's own start-up throwing for lack of the client, as utils.js getDb() does
+  const startupThrows = () => errorListeners.forEach((fn) => fn({ message: 'Uncaught Error: getDb() called before @supabase/supabase-js loaded' }));
+  return { ctx, appended, banners, clientArrives, startupThrows, reloads: () => reloads };
 }
+const memStorage = (seed = {}) => {
+  const m = { ...seed };
+  return { getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, _m: m };
+};
 
 let failures = 0;
 const check = (label, cond) => { if (!cond) { failures++; console.log(`  FAIL ${label}`); } else console.log(`  ok   ${label}`); };
@@ -79,6 +90,30 @@ const before = b.appended.length;
 b.appended[0].onerror();
 check('a second failure does not queue another retry', b.appended.length === before);
 
+// ── 4b. THE RETRY BROUGHT THE CLIENT BACK AFTER THE PAGE'S START-UP HAD FAILED (2026-10-13, W3122) ────
+// shift-brain stayed at 70 characters with no message: the start-up threw on getDb(), the retry then
+// succeeded, and the success path said nothing. The page must start again ONCE - and never loop.
+const r1 = makeDom({ clientArrives: false, storage: memStorage() });
+r1.startupThrows();
+r1.ctx.window.supabase = {};
+r1.appended[0].onload();
+check('a start-up that failed for the client restarts the page once the retry brings it', r1.reloads() === 1);
+check('the restart paints no banner', r1.banners.length === 0);
+const r2 = makeDom({ clientArrives: false, storage: memStorage({ 'wh-client-restart:/workhive/shift-brain.html': String(Date.now()) }) });
+r2.startupThrows();
+r2.ctx.window.supabase = {};
+r2.appended[0].onload();
+check('restarted moments ago: no second reload, the banner says so instead', r2.reloads() === 0 && r2.banners.length === 1);
+const r3 = makeDom({ clientArrives: false, storage: null });
+r3.startupThrows();
+r3.ctx.window.supabase = {};
+r3.appended[0].onload();
+check('no storage to hold the guard: never reload, say so', r3.reloads() === 0 && r3.banners.length === 1);
+const r4 = makeDom({ clientArrives: false, storage: memStorage() });
+r4.ctx.window.supabase = {};
+r4.appended[0].onload();
+check('a late client after a start-up that never needed it: silent, no reload', r4.reloads() === 0 && r4.banners.length === 0);
+
 // ── 5. ANY dropped shell script gets one more chance, not just the client ─────────────────────────
 // W3521 (hive -> skillmatrix) and W3618 (pm-scheduler -> analytics) both reported hub=0 - no nav at
 // all - while the hops on either side kept theirs. That is nav-hub.js losing its turn at the 1-in-12
@@ -105,6 +140,9 @@ function domWithErrorListener() {
   const win = {
     document: doc,
     location: { origin: 'http://127.0.0.1:5000' },
+    // only the CAPTURE-phase listener can hear a resource error (it does not bubble); a bubble-phase one must not
+    // replace it here, as no browser would (2026-10-13: the single-slot mock let browser-floor's new runtime-error
+    // listener overwrite the shell-retry handler, and four cases failed for the mock's reason, not the code's)
     addEventListener(type, fn, capture) { if (type === 'error' && capture === true) handler = fn; },
   };
   const ctx = vm.createContext({ window: win, document: doc, setTimeout, clearTimeout, console });

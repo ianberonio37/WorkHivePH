@@ -61,7 +61,7 @@
           { "@type": "Question", "name": "What if I don't have a current resume to upload?", "acceptedAnswer": { "@type": "Answer", "text": "Start with New blank resume, or tap Auto-fill from my WorkHive data to build from your Logbook and Skill Matrix. You can also photograph a paper resume or certificates and the AI extracts the text." } },
           { "@type": "Question", "name": "How does the AI-powered Resume Builder work?", "acceptedAnswer": { "@type": "Answer", "text": "It extracts your history from uploads, photos, or your WorkHive data, then drafts wording you can polish. You review everything it found before it lands in the resume." } },
           { "@type": "Question", "name": "Can I edit my resume after it's been generated?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every line stays editable with provenance, and Undo reverses a change you did not mean to make." } },
-          { "@type": "Question", "name": "Is my resume data private?", "acceptedAnswer": { "@type": "Answer", "text": "Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline." } }
+          { "@type": "Question", "name": "Is my resume data private?", "acceptedAnswer": { "@type": "Answer", "text": "Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a copy of your data any time with Data file and keep it offline." } }
         ]
       },
       {
@@ -80,16 +80,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: {
-        orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
-        blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
-        navy:   { wh: '#162032' },
-      } } }
-    };
-  </script>
   <style>
     /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
        remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
@@ -158,8 +148,9 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}@media (prefers-reduced-motion:reduce){.cta-btn{transition:none;}.cta-btn:hover{transform:none;}}td,th{font-variant-numeric:tabular-nums;}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
+<link rel="stylesheet" href="/wh-tw-pub-article.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
@@ -184,7 +175,7 @@
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Build an ATS-Ready Resume from Your Plant Work History</h1>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.3] tracking-[-0.02em] mb-5">Build an ATS-Ready Resume from Your Plant Work History</h1>
     <div class="flex items-center gap-3 text-xs text-white/45 mb-7">
       <span>By WorkHive Editorial Team</span>
       <span class="opacity-40">·</span>
@@ -234,7 +225,7 @@
         <li><strong>Auto-fill.</strong> Tap <strong>✨ Auto-fill from my WorkHive data</strong> to pull logged work from your Logbook and verified skills from your Skill Matrix.</li>
         <li><strong>Review.</strong> The builder shows what it found. Every line stays editable, each entry shows where it came from, and <strong>↩ Undo</strong> covers mistakes.</li>
         <li><strong>Tailor.</strong> Paste a job ad into <strong>Tailor to a job</strong>, then check your match score for that posting.</li>
-        <li><strong>Export.</strong> <strong>👁 Preview &amp; Export</strong> with ATS-plain on; download a PDF or Word .docx, print it, or keep a JSON copy.</li>
+        <li><strong>Export.</strong> <strong>👁 Preview &amp; Export</strong> with ATS-plain on; download a PDF or a Word file, print it, or keep a copy of your data with <strong>Data file</strong>.</li>
       </ol>
       <figure class="article-fig">
         <img src="fig-builder-flow.svg" alt="Five-step flow diagram of the Resume Builder: upload or start from WorkHive data, auto-fill from logged work and Skill Matrix, review and edit any line, tailor to a job ad and check the match score, then preview and export an ATS-plain PDF." width="660" height="470" loading="lazy" />
@@ -266,7 +257,7 @@
         <li>plain fonts with no embedded styling for the parser to choke on</li>
         <li>the same wording you approved on screen, nothing reformatted behind your back</li>
       </ul>
-      <p>You get a PDF or Word .docx for online applications, Print for a walk-in at a Subic contractor, and a JSON copy of your data that no website can lock away from you. Saved versions live in <strong>📂 My Resumes</strong>, so you can keep one resume per target role and re-tailor each one in minutes.</p>
+      <p>You get a PDF or Word .docx for online applications, Print for a walk-in at a Subic contractor, and a data file of your own (in the open JSON Resume format) that no website can lock away from you. Saved versions live in <strong>📂 My Resumes</strong>, so you can keep one resume per target role and re-tailor each one in minutes.</p>
       <h2 id="tips">Five habits that beat a better-looking resume</h2>
       <ol>
         <li><strong>Quantify.</strong> "Cut filler changeover downtime by 18 minutes" beats "responsible for maintenance" in any shift in-charge application. Pull the numbers from your Logbook.</li>
@@ -287,7 +278,7 @@
       <details class="faq-item"><summary>What if I don't have a current resume to upload?</summary><div class="faq-answer">Start with New blank resume, or tap Auto-fill from my WorkHive data to build from your Logbook and Skill Matrix. You can also photograph a paper resume or certificates and the AI extracts the text.</div></details>
       <details class="faq-item"><summary>How does the AI-powered Resume Builder work?</summary><div class="faq-answer">It extracts your history from uploads, photos, or your WorkHive data, then drafts wording you can polish. You review everything it found before it lands in the resume.</div></details>
       <details class="faq-item"><summary>Can I edit my resume after it's been generated?</summary><div class="faq-answer">Yes. Every line stays editable with provenance, and Undo reverses a change you did not mean to make.</div></details>
-      <details class="faq-item"><summary>Is my resume data private?</summary><div class="faq-answer">Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline.</div></details>
+      <details class="faq-item"><summary>Is my resume data private?</summary><div class="faq-answer">Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a copy of your data any time with Data file and keep it offline.</div></details>
 
       <p><strong>Keep reading:</strong> <a href="/learn/ofw-engineer-portable-portfolio/">build the portable portfolio behind it</a>, or <a href="/learn/skill-matrix-for-maintenance-technicians/">ground it in a skill matrix</a>.</p>
       <h2 id="sources">Sources</h2>

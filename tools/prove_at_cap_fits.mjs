@@ -28,7 +28,7 @@
 // OUTPUT: at_cap_fits_report.json
 import { writeFileSync } from 'fs';
 import { chromium } from '@playwright/test';
-import { signIn, SEEDER } from './live_page_journeys.mjs';
+import { signIn, SEEDER, assertSignedIn } from './live_page_journeys.mjs';
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');
@@ -135,7 +135,7 @@ const results = [];
 
 for (const f of FLOWS.filter(x => !FLOW_ONLY || x.id === FLOW_ONLY)) {
   const ctx = await browser.newContext({ viewport: { width: WIDTH, height: 844 } });
-  await signIn(ctx, f.role);
+  await assertSignedIn(signIn(ctx, f.role));
   const p = await ctx.newPage();
   const errs = [];
   p.on('pageerror', e => errs.push(String(e).slice(0, 90)));

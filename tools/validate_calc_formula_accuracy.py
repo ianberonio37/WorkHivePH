@@ -200,6 +200,38 @@ def _check_hvac_tr_conversion(mod):
     return [(f"recommended_TR({tr}) == recommended_kW({kw})/3.517  [1 TR = 3.517 kW, ASHRAE]", ok, "")]
 
 
+def _check_pipe_fittings_and_rows(mod):
+    """Walked 2026-10-09 (KCW41283): the Pipe Sizing report printed "undefined" in every cell of its 5.2 comparison
+    table, the person's Fittings Allowance was never read (the engine read a key no caller sends), and "Equivalent Pipe
+    Length" came out at 3 x L because the allowance had been turned into a K factor of pct x 10. Invariants: (1) the
+    allowance is extra EQUIVALENT LENGTH, L_eq = L x (1 + pct/100), for the key the form sends; (2) the total head is
+    the per-metre gradient over that length; (3) every comparison row carries the keys the report reads; (4) a density
+    the person types reaches the pressure drop."""
+    base = {"flow_rate": 10, "pipe_length": 10, "service_type": "Chilled Water", "pipe_material": "PVC",
+            "fluid_temp_c": 7, "fluid_density": 999}
+    out = []
+    for pct in (20, 40):
+        r = mod.calculate(dict(base, fittings_allowance=pct))
+        want = 10 * (1 + pct / 100)
+        out.append((f"fittings_allowance={pct}% -> equiv_length {r.get('equiv_length')} == 10 x (1 + {pct}/100) = {want}",
+                    abs(float(r.get("equiv_length") or 0) - want) <= 0.05, ""))
+        out.append((f"hf_total({r.get('hf_total')}) == hf_per_m({r.get('hf_per_m')}) x equiv_length",
+                    abs(float(r.get("hf_total") or 0) - float(r.get("hf_per_m") or 0) * want) <= 0.01, ""))
+    rows = mod.calculate(dict(base, fittings_allowance=20)).get("size_comparison") or []
+    keys = ("dia_mm", "velocity", "hf_per_m", "press_kpa_m")
+    out.append((f"{len(rows)} size_comparison rows each carry numeric {', '.join(keys)} (the report's 5.2 columns)",
+                bool(rows) and all(all(isinstance(x.get(k), (int, float)) for k in keys) for x in rows), ""))
+    # Not "dp scales with density": a denser fluid raises Re and LOWERS the Darcy friction factor, so the drop moves by
+    # less than the density ratio (measured 1.145 for 1200/999 - the first draft of this check asserted 1.201 and was
+    # wrong). The exact statement is the identity inside one answer: dp/m = hf/m x rho x g / 1000, with the rho TYPED.
+    for rho in (999, 1200):
+        r = mod.calculate(dict(base, fittings_allowance=20, fluid_density=rho))
+        want = float(r.get("hf_per_m") or 0) * rho * 9.81 / 1000
+        out.append((f"fluid_density {rho}: press_kpa_m({r.get('press_kpa_m')}) == hf_per_m x {rho} x 9.81 / 1000 = {want:.4f}",
+                    abs(float(r.get("press_kpa_m") or 0) - want) <= 0.001, ""))
+    return out
+
+
 def _check_sprinkler_nfpa13(mod):
     """Deep-arc P7/F-1: NFPA 13 area-density method (SAFETY-CRITICAL). (1) The hazard design
     density is a FIXED code constant — Ordinary Hazard Group 1 = 6.12 mm/min (0.15 gpm/ft²); a
@@ -572,6 +604,12 @@ VECTORS = [
         "calc_type": "Fire Sprinkler Hydraulic",
         "standard": "NFPA 13 — area-density method (fixed hazard density + additive total demand)",
         "custom": _check_sprinkler_nfpa13,
+    },
+    {
+        "module": "calcs.pipe_sizing",
+        "calc_type": "Pipe Sizing (fittings + report rows)",
+        "standard": "ASHRAE Ch.22 — fittings as equivalent length L_eq = L(1 + allowance/100); Darcy-Weisbach gradient",
+        "custom": _check_pipe_fittings_and_rows,
     },
     {
         "module": "calcs.fire_pump",

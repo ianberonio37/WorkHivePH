@@ -40,11 +40,17 @@ const hive = psql(`SELECT hm.hive_id FROM hive_members hm JOIN auth.users u ON u
                    WHERE u.email='${ACCT.email}' AND hm.status='active' LIMIT 1;`).split(/\r?\n/)[0];
 if (!hive) { console.log('SKIP — no active hive for the test account'); process.exit(0); }
 
+// ★"THE HUB SAYS ENGINEER" MEANS THE PERSON CHOSE IT THERE (2026-10-13). Since 2026-09-08 (W3-JN) nav-hub re-derives
+// a stored mode from the person's role unless it was CHOSEN (wh_nav_mode_src = 'chosen', written by the hub's own
+// picker), because a mode stored before the role was known is a guess. Setting wh_nav_mode alone therefore modelled a
+// guess, and for this supervisor the hub rightly reset it to 'supervisor' before asset-hub read it: the case failed on
+// the prover's setup, not on the product. Each case now states the mode as the hub's picker leaves it.
+const CHOSEN = { wh_nav_mode_src: 'chosen' };
 const CASES = [
-  ['hub=engineer, no local choice', { wh_nav_mode: 'engineer' }, true],
-  ['hub=field, no local choice', { wh_nav_mode: 'field' }, false],
-  ['hub=engineer, local=worker', { wh_nav_mode: 'engineer', wh_asset_view: 'worker' }, false],
-  ['hub=field, local=engineer', { wh_nav_mode: 'field', wh_asset_view: 'engineer' }, true],
+  ['hub=engineer, no local choice', { wh_nav_mode: 'engineer', ...CHOSEN }, true],
+  ['hub=field, no local choice', { wh_nav_mode: 'field', ...CHOSEN }, false],
+  ['hub=engineer, local=worker', { wh_nav_mode: 'engineer', ...CHOSEN, wh_asset_view: 'worker' }, false],
+  ['hub=field, local=engineer', { wh_nav_mode: 'field', ...CHOSEN, wh_asset_view: 'engineer' }, true],
 ];
 
 const v = { cases: {} };

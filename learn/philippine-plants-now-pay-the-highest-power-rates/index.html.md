@@ -120,7 +120,7 @@ When overtime is unavoidable, the plant consumes more electricity, often at peak
 
 An energy audit identifies inefficiencies, equipment that runs longer than needed, and opportunities for load shifting. The audit’s recommendations can be implemented at once to lower consumption.
 
-### Where can I find more information about the DOE’s tariff schedule?
+### Where can I find more information about the Department of Energy’s tariff schedule?
 
 The DOE publishes rate information under 'Electricity Tariff Rates' on doe.gov.ph, which is the source to read for the current figure. Your own latest bill is the other one, and it is the one that settles what your plant actually pays.
 
@@ -129,4 +129,4 @@ The DOE publishes rate information under 'Electricity Tariff Rates' on doe.gov.p
 - Department of Energy, Electricity Tariff Rates (June 2024). https://www.doe.gov.ph/electricity-tariff-rates
 - Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285_2019.html
 
-<!-- md-twin source-sha: 2c470c3e9eda1034 -->
+<!-- md-twin source-sha: 7702c1d3ec46f0f8 -->

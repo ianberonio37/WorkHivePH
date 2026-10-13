@@ -21,7 +21,7 @@ HONESTY GUARDRAILS (so the LLM can't hallucinate the product):
   - the deterministic theme clusters are passed in as PRIORS (not gospel).
   - output = CRITIC candidates → ufai_ingest.py → disposition. NEVER auto-applied.
 
-Reuses tools/ai_chain.py (Groq→Cerebras→Gemini→Mistral→OpenRouter free chain).
+Reuses tools/ai_chain.py (Groq→Gemini→Mistral→OpenRouter free chain).
 
 USAGE:
   python tools/ia_semantic_critic.py                 # reason → write candidates + .md

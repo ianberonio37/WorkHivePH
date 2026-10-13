@@ -289,7 +289,15 @@
       }
 
       @media (max-width: 480px) {
-        .wh-fb-panel { width: 100vw; }
+        /* ledger C29 (2026-10-12, the first MCP walk of it): on a phone the panel was the whole screen edge to edge
+           (0..314 at 320), while the hub panel and the notice sit inset from both edges. It is an inset sheet now -
+           8px from every edge (the safe areas respected), round-cornered like the other panels - and its closed state
+           travels its width PLUS the inset, so no 8px sliver stays on screen. .open still wins on specificity. */
+        .wh-fb-panel {
+          top: max(8px, env(safe-area-inset-top, 0px)); right: 8px; bottom: max(8px, env(safe-area-inset-bottom, 0px)); left: 8px;
+          width: auto; max-width: none; border-radius: 16px;
+          transform: translateX(calc(100% + 16px));
+        }
         .wh-fb-fab { right: 80px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
       }
 

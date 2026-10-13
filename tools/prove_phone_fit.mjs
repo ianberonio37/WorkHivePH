@@ -20,7 +20,7 @@
 //   node tools/prove_phone_fit.mjs --pages a.html,b.html   # a subset (halves for the 10-minute background cap)
 //   node tools/prove_phone_fit.mjs --width 320 --anon --lang fil --sweep --pages tools/oee-calculator/index.html
 import { chromium } from 'playwright';
-import { SEEDER, signIn, PAGE_QUERY, DB_PAGES, VIS_JS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, DB_PAGES, VIS_JS, assertSignedIn } from './prover_harness.mjs';
 import { record, issuesOf, interactionSweep } from './phone_fit_audit.mjs';
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();   // a subset, so a full pass fits the 10-minute background cap in halves
@@ -41,7 +41,7 @@ const ctx = await b.newContext({ viewport: { width: W, height: 844 }, isMobile: 
 // Filipino reader arrives, and the record below reads document.documentElement.lang back so a page that ignored the
 // setting is visible in the receipt rather than assumed (the wave-3 lesson: "set wh_lang and never looked")
 if (LANG === 'fil') await ctx.addInitScript(() => { try { localStorage.setItem('wh_lang', 'fil'); } catch (e) { void e; } });
-if (!ANON) await signIn(ctx);
+if (!ANON) await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;
 for (const file of PAGES) {
@@ -71,9 +71,29 @@ for (const file of PAGES) {
   // comment that flipping the whole document "would be as untrue as lang='en'" with the primary-language
   // call reserved for Ian. A page whose Filipino is correctly marked part-by-part is conformant; the real
   // defect is Filipino text with NO language declared anywhere, which is what this now catches.
-  const langNote = LANG === 'fil' && a.lang && !/^fil|^tl/.test(a.lang) && !a.filParts
-    ? [`lang: page answered <html lang="${a.lang}"> to a Filipino reader and marked no part lang="fil" (WCAG 3.1.1/3.1.2: declare the page's language, or the language of each swapped part)`] : [];
-  const issues = issuesOf(a).concat(menuBad.map((s) => 'menu: ' + s), langNote, ...sweep.map((s) => issuesOf(s)));
+  // ★AND IT MUST FIRST HAVE PUT FILIPINO ON SCREEN (2026-09-29). The rule above says the defect is
+  // "Filipino text with NO language declared anywhere" and then tested the OPPOSITE - it fired when the
+  // page had no Filipino at all. offline-fallback, symbol-gallery and validator-catalog are English by
+  // design (they are in validate_i18n_coverage.py's INTERNAL_EXEMPT), so they answer lang="en" to a
+  // Filipino reader and mark no part: the page IS English and declares it truthfully, which is what
+  // 3.1.1 asks for. Having no Filipino yet is a COVERAGE gap and that gate's question, not this one's.
+  // `filSwapped` is the missing half - the appliers' own evidence that Filipino was rendered - so the
+  // finding now fires only on the state it describes, which is where architecture.html genuinely sat:
+  // "Mga Risk Column" on screen, under <html lang="en">, with no part marked.
+  const langNote = LANG === 'fil' && a.lang && !/^fil|^tl/.test(a.lang) && !a.filParts && a.filSwapped > 0
+    ? [`lang: page rendered ${a.filSwapped} Filipino string(s) but answered <html lang="${a.lang}"> and marked no part lang="fil" (WCAG 3.1.1/3.1.2: declare the page's language, or the language of each swapped part)`] : [];
+  // ★AND THE RECORD SAYS WHICH FONT IT WAS MEASURED AGAINST (2026-09-29). record() waits on
+  // document.fonts.ready under a bounded budget, because Poppins is wider than the fallback and a text-fit
+  // lens measured before it applies is measuring a different page - that race is what made this gate read
+  // 16/50, then 46/46, then 16/46 with no edit in between. The wait can still time out on a loaded host,
+  // and a reading taken against the fallback is legitimate; what is NOT legitimate is not knowing which
+  // one it was. Surfaced rather than merely recorded - a flag nothing ever reads is the
+  // [[feedback_measured_and_never_kept]] defect, and I would have shipped exactly that.
+  const fellBack = [a, ...sweep].filter((r) => r && r.fontsReady === false).length;
+  const fontNote = fellBack
+    ? [`fonts: ${fellBack} of ${1 + sweep.length} record(s) measured BEFORE the webfont applied (document.fonts.ready timed out) - text-fit findings on this page are against the fallback metrics, not the shipped ones`]
+    : [];
+  const issues = issuesOf(a).concat(menuBad.map((s) => 'menu: ' + s), langNote, fontNote, ...sweep.map((s) => issuesOf(s)));
   if (issues.length) bad++;
   console.log(`  ${issues.length ? 'BAD' : 'ok '} ${file.padEnd(34)} ${issues.length ? issues.length + ' issue(s)' : 'fits'}${a.error ? ' (' + a.error + ')' : ''}${SWEEP ? ` · ${sweep.length} interaction state(s)` : ''}`);
   for (const s of issues.slice(0, ONLY ? 40 : 6)) console.log(`        ${s.slice(0, 170)}`);

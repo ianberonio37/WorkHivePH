@@ -2,21 +2,21 @@
 name: table-rls-marketplace_watchlist
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_watchlist
-source_sha: 1bd2b824fdd87804
+source_sha: 17d434160dc975c4
 last_verified: 2026-07-13
 supersedes: null
 ---
 
-## table-rls · `marketplace_watchlist` — RLS posture (platform table — no hive_id or auth_uid)
+## table-rls · `marketplace_watchlist` — RLS posture (tenant table)
 
-RLS enabled: **True** · has hive_id: False · has auth_uid: False
+RLS enabled: **True** · has hive_id: False · has auth_uid: True
 
-Columns (*=NOT NULL): id*, worker_name*, listing_id*, created_at*
+Columns (*=NOT NULL): id*, worker_name*, listing_id*, created_at*, auth_uid
 
 Policies:
-- `mkt_watchlist_owner_rw` [ALL · roles=public] USING=`(worker_name IN ( SELECT auth_worker_names() AS auth_worker_names))` CHECK=`(worker_name IN ( SELECT auth_worker_names() AS auth_worker_names))`
+- `mkt_watchlist_owner_rw` [ALL · roles=public] USING=`(auth_uid = auth.uid())` CHECK=`((auth_uid = auth.uid()) AND (worker_name IN ( SELECT auth_worker_names() AS auth_worker_names)))`
 
-Guard triggers: `trg_daily_cap_mkt_watchlist`
+Guard triggers: `trg_bind_watchlist_owner`, `trg_daily_cap_mkt_watchlist`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

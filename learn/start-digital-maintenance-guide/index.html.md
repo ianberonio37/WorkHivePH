@@ -6,27 +6,27 @@ Source: https://workhiveph.com/learn/start-digital-maintenance-guide/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
-To go from spreadsheets to digital maintenance, do four things in order: (1) start a **digital logbook** so every job is recorded the day it happens; (2) build an **asset register** using ISO 14224 hierarchy so every record is tagged to equipment; (3) turn recurring jobs into a **preventive-maintenance schedule**; and (4) run a structured **shift handover** so nothing is lost between crews. A small plant can complete all four in about 30 days at zero software cost, and studies show a preventive programme runs about **12–18% cheaper** than running reactive, with a further 8–12% from adding predictive maintenance (US Department of Energy / PNNL).
+To go from spreadsheets to digital maintenance, do four things in order. First, start a **digital logbook**, so every job is recorded the day it happens. Second, build an **asset register** on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a **preventive-maintenance schedule**. Fourth, run a structured **shift handover**, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost. A preventive programme runs about **12–18% cheaper** than running reactive. Predictive maintenance saves a further 8–12% (US Department of Energy / PNNL).
 
 ## Why digitise maintenance at all
 
-The spreadsheet a plant inherits from a departed engineer is a liability: the formulas drift, the tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards: it is that a technician can answer “when did we last replace this seal, and why?” in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly **12-18% cheaper** than running reactive, with a further 8-12% from adding predictive maintenance, which is why the sequence below front-loads recording and scheduling.
+A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards. It is a technician answering “when did we last replace this seal, and why?” in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly **12-18% cheaper** than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.
 
 ## Step 1: the digital logbook
 
-Everything starts with capture. If a job is not written down the day it happens, the data is gone. A digital logbook takes 20 seconds per entry and immediately makes downtime, parts used, and repeat failures visible. The full rollout: including how to get technicians to actually use it: is in [start a digital logbook in a Philippine factory](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/). For plants with spotty Wi-Fi, an offline-first logbook that syncs later is essential; that is a core WorkHive design choice.
+Everything starts with capture. If a job is not written down the day it happens, the data is gone. A digital logbook takes 20 seconds per entry and immediately makes downtime, parts used, and repeat failures visible. The full rollout is in [start a digital logbook in a Philippine factory](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/). It includes how to get technicians to actually use it. For plants with spotty Wi-Fi, a logbook must work offline and sync later. That is a core WorkHive design choice.
 
 ## Step 2: the asset register (ISO 14224)
 
-A logbook is only useful if every entry is tagged to a specific asset. That means building an **asset register**: a hierarchy of plant → system → equipment → component, following the ISO 14224 taxonomy so your data is comparable to industry benchmarks. You do not need a consultant or a budget; the step-by-step method is in [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/).
+A logbook is only useful if every entry is tagged to a specific asset. That means building an **asset register**: a hierarchy of plant → system → equipment → component. Follow the ISO 14224 taxonomy, so your data can be compared with industry benchmarks. You do not need a consultant or a budget. The step-by-step method is in [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/).
 
 ## Step 3: the preventive-maintenance schedule
 
-With assets and history in place, convert the recurring jobs (lubrication, inspections, filter changes) into a real PM schedule with due dates and owners. Track completion as PM compliance: aim for the SMRP ≥90% benchmark. Start from proven [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/) rather than a blank sheet, and read how the metrics prove the schedule is working in the [maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/).
+With assets and history in place, turn the recurring jobs into a real PM schedule. Lubrication, inspections and filter changes each get a due date and an owner. Track completion as PM compliance: aim for the SMRP ≥90% benchmark. Start from proven [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/) rather than a blank sheet. The [maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) shows how to prove the schedule is working.
 
 ## Step 4: structured shift handover
 
-Most plant knowledge is lost in the 5 minutes between shifts. A structured handover: open work, abnormal conditions, pending parts: closes that gap and is the cheapest reliability win available. Use the ready-made format in [the maintenance shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/). Voice capture in Tagalog or Taglish removes the “I’ll write it later” excuse: see [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
+Most plant knowledge is lost in the 5 minutes between shifts. A structured handover closes that gap: open work, abnormal conditions, pending parts. It is the cheapest reliability win available. Use the ready-made format in [the maintenance shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/). Voice capture in Tagalog or Taglish removes the “I’ll write it later” excuse: see [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 
 ## The 30-day rollout
 
@@ -36,25 +36,25 @@ Most plant knowledge is lost in the 5 minutes between shifts. A structured hando
 
 ### Do I need to buy a CMMS to start digital maintenance?
 
-No. WorkHive is a free, offline-first maintenance platform, so a small plant can run a digital logbook, asset register, PM scheduler, and shift handover at zero software cost. The sequence and discipline matter more than the price of the tool.
+No. WorkHive is a free, offline-first maintenance platform. A small plant can run a digital logbook, asset register, PM scheduler and shift handover at zero software cost. The sequence and discipline matter more than the price of the tool.
 
 ### What is the first step to digital maintenance?
 
-Start a digital logbook so every job is recorded the day it happens. Without captured data, none of the later steps: asset register, PM schedule, metrics: have anything to work with.
+Start a digital logbook so every job is recorded the day it happens. Without captured data, none of the later steps (asset register, PM schedule, metrics) has anything to work with.
 
 ### How long does it take a small factory to go digital?
 
-About 30 days if you focus on one critical line: logbook in week 1, asset register in week 2, PM schedule in week 3, and shift handover plus first metrics review in week 4. Then expand line by line rather than attempting the whole plant at once.
+About 30 days, if you focus on one critical line. Logbook in week 1, asset register in week 2, PM schedule in week 3. Shift handover and the first metrics review in week 4. Then expand line by line rather than attempting the whole plant at once.
 
 ### Why use ISO 14224 for the asset register?
 
-ISO 14224 gives a standard plant-to-component hierarchy and failure taxonomy, so your reliability data is structured consistently and can be compared against industry benchmarks instead of being trapped in one plant's ad-hoc naming.
+ISO 14224 gives a standard plant-to-component hierarchy and failure taxonomy. Your reliability data is then structured consistently. It can be compared with industry benchmarks, instead of being trapped in one plant's ad-hoc naming.
 
 ### Does it work if the plant floor has no reliable Wi-Fi?
 
-Yes, if the tool is offline-first. WorkHive captures entries locally and syncs when a connection returns, so technicians never lose data on the floor: a key requirement for Philippine plants with patchy coverage.
+Yes, if the tool is offline-first. WorkHive captures entries locally and syncs when a connection returns. Technicians never lose data on the floor, which matters for Philippine plants with patchy coverage.
 
-**[Start your digital logbook](https://workhiveph.com/logbook.html)**: Free at the worker tier, works offline on the plant floor.
+**Start your digital logbook**: free at the worker tier, works offline on the plant floor.
 
 ## Sources
 
@@ -65,4 +65,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 32b4fc8a09f94d43 -->
+<!-- md-twin source-sha: f6c039caf76ff121 -->

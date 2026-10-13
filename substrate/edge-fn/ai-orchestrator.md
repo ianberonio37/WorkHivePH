@@ -2,7 +2,7 @@
 name: edge-fn-ai-orchestrator
 type: edge-fn
 source: file:supabase/functions/ai-orchestrator/index.ts
-source_sha: e3fab8e37b9bac13
+source_sha: d67690de9c47630d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -10,7 +10,7 @@ supersedes: null
 
 Auth gate: **auth idiom detected in body (verify it gates the hive_id it uses)**
 
-Tables touched: `pm_assets`, `v_asset_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_scope_items_truth`, `v_worker_assignment_truth`, `v_worker_skill_truth`, `v_worker_truth`, `worker_profiles`
+Tables touched: `asset_nodes`, `pm_assets`, `v_asset_truth`, `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_scope_items_truth`, `v_worker_assignment_truth`, `v_worker_skill_truth`, `v_worker_truth`, `worker_profiles`
 RPCs called: (none)
 
 Links: [[project_platform_knowledge_substrate]]

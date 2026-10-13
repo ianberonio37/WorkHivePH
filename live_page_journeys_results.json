@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-27T02:11:27.910Z",
+  "ran": "2026-10-13T10:42:17.504Z",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
   "preflight": {
@@ -97,7 +97,7 @@
       ],
       "evidence": {
         "btnTxt": "You're on the list!",
-        "email": "k1-probe-1787796697547@plant.test",
+        "email": "k1-probe-1791888147903@plant.test",
         "db_count": 1,
         "db_path": "service-role psql (anon is write-only)",
         "recoverable": true
@@ -199,7 +199,7 @@
       "page": "index.html",
       "role": "anon",
       "state": "landing-anon",
-      "title": "Ian's phone leg: the sticky mobile CTA reveals after ONE screen of scroll and its tap opens the real signup",
+      "title": "Ian's phone leg: the sticky mobile CTA reveals once the hero's own CTA has scrolled away, and its tap opens the real signup",
       "lenses": [
         "R",
         "J",
@@ -366,7 +366,7 @@
         "X"
       ],
       "evidence": {
-        "uname": "j6probe_mtaw0cfd",
+        "uname": "j6probe_mv6jyb15",
         "modalOpen": true,
         "converted": true,
         "dbCount": 1,
@@ -413,7 +413,7 @@
         "X"
       ],
       "evidence": {
-        "uname": "j6learn_mtaw0ts4",
+        "uname": "j6learn_mv6jyhg5",
         "article": true,
         "signupNav": true,
         "signinNav": true,
@@ -516,7 +516,7 @@
         "recovered": true,
         "opsShown": true,
         "mktHidden": true,
-        "navName": "Good morning, Bryan 👋\n\n",
+        "navName": "Good evening, Bryan 👋\n\n",
         "lwSet": true
       },
       "err": null
@@ -541,12 +541,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
-        "T": true,
+        "J": false,
+        "T": false,
         "C": null,
         "X": true
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -555,8 +555,6 @@
       ],
       "passed_lenses": [
         "R",
-        "J",
-        "T",
         "X"
       ],
       "evidence": {
@@ -564,33 +562,33 @@
           {
             "page": "engineering-design.html",
             "hub": true,
-            "mode": "engineer",
+            "mode": "supervisor",
             "lanePresent": true,
-            "fieldHidden": true,
+            "fieldHidden": false,
             "self": true
           },
           {
             "page": "analytics.html",
             "hub": true,
-            "mode": "engineer",
+            "mode": "supervisor",
             "lanePresent": true,
-            "fieldHidden": true,
+            "fieldHidden": false,
             "self": true
           },
           {
             "page": "asset-hub.html",
             "hub": true,
-            "mode": "engineer",
+            "mode": "supervisor",
             "lanePresent": true,
-            "fieldHidden": true,
+            "fieldHidden": false,
             "self": true
           },
           {
             "page": "project-manager.html",
             "hub": true,
-            "mode": "engineer",
+            "mode": "supervisor",
             "lanePresent": true,
-            "fieldHidden": true,
+            "fieldHidden": false,
             "self": true
           }
         ],
@@ -636,8 +634,8 @@
       "evidence": {
         "ops": true,
         "mktHidden": true,
-        "greeting": "Good morning, Bryan 👋",
-        "date": "Thursday, Aug 27 · Morning Shift",
+        "greeting": "Good evening, Bryan 👋",
+        "date": "Tuesday, Oct 13 · Afternoon Shift (PHT)",
         "hiveChip": "🐝 Baguio Textile Mills"
       },
       "err": null
@@ -680,20 +678,20 @@
       ],
       "evidence": {
         "rendered": {
-          "open": 9,
-          "risk": null,
+          "open": 10,
+          "risk": 9,
           "pm": 29,
           "low": 3
         },
         "truth": {
-          "open": 9,
-          "risk": 0,
+          "open": 10,
+          "risk": 9,
           "low": 3,
           "pm": 29
         },
         "cmp": {
-          "open": "9 vs db 9 OK",
-          "risk": "absent vs db 0 OK(calm)",
+          "open": "10 vs db 10 OK",
+          "risk": "9 vs db 9 OK",
           "pm": "29 vs db 29 OK",
           "low": "3 vs db 3 OK"
         },
@@ -724,10 +722,10 @@
         "R": null,
         "J": true,
         "T": true,
-        "C": false,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "J",
         "T",
@@ -735,7 +733,8 @@
       ],
       "passed_lenses": [
         "J",
-        "T"
+        "T",
+        "C"
       ],
       "evidence": {
         "todayCard": 1,
@@ -746,7 +745,7 @@
         "supActionOk": true,
         "anySignal": true,
         "allClear": false,
-        "today": ""
+        "today": "!\n          \n            Today · PM Overdue\n      "
       },
       "err": null
     },
@@ -773,10 +772,10 @@
         "R": true,
         "J": true,
         "T": null,
-        "C": false,
+        "C": true,
         "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -786,6 +785,7 @@
       "passed_lenses": [
         "R",
         "J",
+        "C",
         "X"
       ],
       "evidence": {
@@ -795,8 +795,8 @@
         "toolLinks": 4,
         "analyticsUrl": "http://127.0.0.1:5000/workhive/analytics.html",
         "landed": true,
-        "signedOut": false,
-        "mktBack": false
+        "signedOut": true,
+        "mktBack": true
       },
       "err": null
     },
@@ -981,8 +981,8 @@
       "evidence": {
         "reach": true,
         "cardsBefore": 20,
-        "totalTxt": 314,
-        "dbTotal": "314",
+        "totalTxt": 2277,
+        "dbTotal": "2277",
         "totalOk": true,
         "filtered": true
       },
@@ -1034,8 +1034,8 @@
       "evidence": {
         "reach": true,
         "toggleBar": true,
-        "cards": 1,
-        "teamRows": "941",
+        "cards": 0,
+        "teamRows": "6944",
         "note": "team feed query is .eq(hive_id) server-side"
       },
       "err": null
@@ -1079,7 +1079,7 @@
         "reach": true,
         "hasExport": true,
         "downloaded": true,
-        "toast": "Exported 314 entries."
+        "toast": "Exported 2277 entries."
       },
       "err": null
     },
@@ -1129,7 +1129,7 @@
       "evidence": {
         "reach": true,
         "modal": true,
-        "toast": "K2-PART-1787796946042 submitted for supervisor app",
+        "toast": "K2-PART-1791888360266 submitted for supervisor app",
         "persisted": true
       },
       "err": null
@@ -1157,12 +1157,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
+        "J": true,
         "T": true,
         "C": true,
         "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -1172,6 +1172,7 @@
       ],
       "passed_lenses": [
         "R",
+        "J",
         "T",
         "C",
         "X"
@@ -1179,7 +1180,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Done.",
+        "toast": "Used 2 pcs of K2-USE-1791888368197 → off",
         "qtyAfter": "18"
       },
       "err": null
@@ -1227,7 +1228,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Restocked 10 pcs of K2-RES-1787796977027",
+        "toast": "Restocked 10 pcs of K2-RES-1791888378920",
         "qtyAfter": "11"
       },
       "err": null
@@ -1254,10 +1255,10 @@
         "R": true,
         "J": true,
         "T": null,
-        "C": false,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -1265,11 +1266,28 @@
       ],
       "passed_lenses": [
         "R",
-        "J"
+        "J",
+        "C"
       ],
       "evidence": {
         "reach": true,
-        "before": 0,
+        "before": 8,
+        "slot": {
+          "url": "/workhive/inventory.html",
+          "kids": 8,
+          "first": "part-card stock-out p-5 mb-3",
+          "text": "BRG-6310 BEARINGS OUT OF STOCK Bearing 6310 C3 Bin 7-A AC-001 BF-001 CR-001 +3 m",
+          "sess": true,
+          "auth": true,
+          "hive": "084c113b",
+          "worker": "Bryan Garcia",
+          "role": "worker",
+          "items": 27,
+          "lsHive": "084c113b",
+          "bodyText": "Skip to main content INVENTORY MONITOR Baguio Textile Mills ← Back to Home Spare-Parts Inventory How this page works Track spare parts stock, link parts to asse",
+          "skel": false,
+          "errCard": ""
+        },
         "filtered": true
       },
       "err": null
@@ -1295,12 +1313,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
-        "C": false,
+        "J": true,
+        "T": true,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -1308,12 +1326,15 @@
         "C"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "T",
+        "C"
       ],
       "evidence": {
-        "opened": false,
-        "modal": false,
-        "content": false
+        "opened": true,
+        "modal": true,
+        "content": true
       },
       "err": null
     },
@@ -1513,7 +1534,7 @@
       "evidence": {
         "baseline": 0,
         "after": 1,
-        "verdict": "128 items overdue",
+        "verdict": "131 tasks overdue",
         "tOk": true
       },
       "err": null
@@ -1563,9 +1584,9 @@
       ],
       "evidence": {
         "reach": true,
-        "rows": 3,
-        "statTxt": 3,
-        "dbN": 3,
+        "rows": 4,
+        "statTxt": 4,
+        "dbN": 4,
         "integrity": true,
         "supTag": true
       },
@@ -1615,7 +1636,7 @@
         "X"
       ],
       "evidence": {
-        "probe": "QA-Kick-1787797086174",
+        "probe": "QA-Kick-1791888448766",
         "kickClicked": true,
         "final_status": "kicked"
       },
@@ -1665,7 +1686,7 @@
         "X"
       ],
       "evidence": {
-        "pn": "QA-K3A-1787797099275",
+        "pn": "QA-K3A-1791888459475",
         "approveClicked": true,
         "final_status": "approved"
       },
@@ -1709,7 +1730,7 @@
       ],
       "evidence": {
         "reach": true,
-        "hasResetBtn": false,
+        "hasResetBtn": true,
         "opened": true,
         "confirmShown": true,
         "note": "affordance+gate verified; actual reset = validate_password_recovery (prior arc)"
@@ -2002,7 +2023,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K-PM4-1787797180202",
+        "name": "ARC-K-PM4-1791888529738",
         "persisted": true,
         "cnt": "1"
       },
@@ -2052,7 +2073,7 @@
         "X"
       ],
       "evidence": {
-        "nonce": "ArcK-CM1-1787797195022",
+        "nonce": "ArcK-CM1-1791888544440",
         "persisted": true,
         "cnt": "1"
       },
@@ -2150,7 +2171,7 @@
       ],
       "evidence": {
         "pid": "0f78265c-602b-4c5a-b617-1e8d40e47a84",
-        "nonce": "ArcK-CM3-1787797214872",
+        "nonce": "ArcK-CM3-1791888564919",
         "replied": true,
         "cnt": "1"
       },
@@ -2200,7 +2221,7 @@
         "X"
       ],
       "evidence": {
-        "pid": "41645d5f-fd2f-446e-84af-3d1a1208cd23",
+        "pid": "9790725d-2dcd-4064-ac81-2afdae4f56d4",
         "found": true,
         "state": "deleted"
       },
@@ -2244,10 +2265,10 @@
       ],
       "evidence": {
         "verdict": "Reliability KPIs need action",
-        "oee": 87,
-        "mtbf": 0.6,
-        "pm": 76,
-        "action": "CT-001 fails every 0.6 days. C"
+        "oee": 90,
+        "mtbf": 1.6,
+        "pm": 44,
+        "action": "VFD-001 fails every 1.6 days. "
       },
       "err": null
     },
@@ -2512,8 +2533,8 @@
         "C"
       ],
       "evidence": {
-        "shown": 314,
-        "dbCnt": 314,
+        "shown": 2277,
+        "dbCnt": 2277,
         "tOk": true
       },
       "err": null
@@ -2538,22 +2559,26 @@
       "external": false,
       "verdict": {
         "R": null,
-        "J": false,
-        "T": false,
-        "C": false,
+        "J": true,
+        "T": true,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "J",
         "T",
         "C"
       ],
-      "passed_lenses": [],
+      "passed_lenses": [
+        "J",
+        "T",
+        "C"
+      ],
       "evidence": {
-        "rated": false,
-        "persisted": false,
-        "cnt": "0"
+        "rated": true,
+        "persisted": true,
+        "cnt": "1"
       },
       "err": null
     },
@@ -2639,8 +2664,8 @@
         "T"
       ],
       "evidence": {
-        "total": 25,
-        "dbTotal": 25,
+        "total": 30,
+        "dbTotal": 30,
         "critical": 6,
         "dbCrit": 6,
         "tOk": true
@@ -2763,12 +2788,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
-        "C": false,
+        "J": true,
+        "T": true,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -2776,10 +2801,13 @@
         "C"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "T",
+        "C"
       ],
       "evidence": {
-        "answered": false
+        "answered": true
       },
       "err": null
     },
@@ -2821,7 +2849,7 @@
       ],
       "evidence": {
         "verdict": "Needs your attention now",
-        "crit": 52
+        "crit": 61
       },
       "err": null
     },
@@ -2909,7 +2937,7 @@
         "X"
       ],
       "evidence": {
-        "mc": "QA-ANOM-1787797447966",
+        "mc": "QA-ANOM-1791888750532",
         "panelVisible": false,
         "clicked": false,
         "acked": false,
@@ -2956,7 +2984,7 @@
         "C"
       ],
       "evidence": {
-        "today": "2026-08-27",
+        "today": "2026-10-13",
         "briefId": null,
         "hasCard": true,
         "clicked": true,
@@ -3006,7 +3034,7 @@
       "evidence": {
         "main": true,
         "entries": 30,
-        "dbCnt": 3470,
+        "dbCnt": 28624,
         "note": "auditlog_action__hive_scoped nerve proven"
       },
       "err": null
@@ -3183,8 +3211,11 @@
       ],
       "evidence": {
         "rows": 8,
-        "count": 15,
-        "dbCnt": 15,
+        "count": 19,
+        "dbTotal": 19,
+        "dbCnt": 19,
+        "label": "19 entries",
+        "capBit": false,
         "empty": false
       },
       "err": null
@@ -3473,12 +3504,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
+        "J": true,
+        "T": true,
         "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -3487,13 +3518,15 @@
       ],
       "passed_lenses": [
         "R",
+        "J",
+        "T",
         "C"
       ],
       "evidence": {
-        "built": false,
-        "exec": false,
-        "findings": false,
-        "pdfReady": false,
+        "built": true,
+        "exec": true,
+        "findings": true,
+        "pdfReady": true,
         "noErr": true
       },
       "err": null
@@ -3531,8 +3564,8 @@
         "T"
       ],
       "evidence": {
-        "pmKpi": 76,
-        "dbPm": 76,
+        "pmKpi": 44,
+        "dbPm": 44,
         "tOk": true
       },
       "err": null
@@ -3597,12 +3630,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
+        "J": true,
         "T": null,
-        "C": false,
-        "X": false
+        "C": true,
+        "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -3610,13 +3643,16 @@
         "X"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "C",
+        "X"
       ],
       "evidence": {
         "disabledBefore": true,
-        "built": false,
-        "enabledAfter": false,
-        "printed": false
+        "built": true,
+        "enabledAfter": true,
+        "printed": true
       },
       "err": null
     },
@@ -3703,7 +3739,7 @@
         "X"
       ],
       "evidence": {
-        "tag": "ARCK-ED2-1787797693257",
+        "tag": "ARCK-ED2-1791888952981",
         "out": true,
         "persisted": true,
         "cnt": "1"
@@ -3772,12 +3808,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
-        "C": false,
+        "J": true,
+        "T": true,
+        "C": true,
         "X": null
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -3785,12 +3821,15 @@
         "C"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "T",
+        "C"
       ],
       "evidence": {
         "out": true,
-        "panel": false,
-        "items": 0
+        "panel": true,
+        "items": 10
       },
       "err": null
     },
@@ -3835,7 +3874,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K K5 PMK1 1787797765964",
+        "name": "ARC-K K5 PMK1 1791888989059",
         "persisted": true,
         "cnt": "1"
       },
@@ -3882,7 +3921,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK2-1787797775052",
+        "pname": "ARC-K-PMK2-1791888995955",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -3909,12 +3948,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": true,
-        "T": true,
+        "J": false,
+        "T": false,
         "C": null,
-        "X": true
+        "X": false
       },
-      "live": true,
+      "live": false,
       "applicable_lenses": [
         "R",
         "J",
@@ -3922,15 +3961,12 @@
         "X"
       ],
       "passed_lenses": [
-        "R",
-        "J",
-        "T",
-        "X"
+        "R"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK3-1787797786317",
+        "pname": "ARC-K-PMK3-1791889005854",
         "opened": true,
-        "final_status": "done"
+        "final_status": "pending"
       },
       "err": null
     },
@@ -3975,7 +4011,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK4-1787797799250",
+        "pname": "ARC-K-PMK4-1791889019248",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -4286,7 +4322,7 @@
       ],
       "evidence": {
         "name": "Bryan Garcia",
-        "shownLevel": 128,
+        "shownLevel": 148,
         "dbN": 60,
         "tOk": false
       },
@@ -4423,7 +4459,7 @@
         "T"
       ],
       "evidence": {
-        "tag": "K5TEST Bryan 1787797881444",
+        "tag": "K5TEST Bryan 1791889101664",
         "toast": "✓ Resume saved → backed up to ",
         "persisted": true,
         "cnt": "1"
@@ -4742,7 +4778,7 @@
         "sheet": true,
         "setOk": true,
         "toast": "Listing updated. Submitted for review.",
-        "finalTitle": "K6-MS1-1787797935452 EDITED"
+        "finalTitle": "K6-MS1-1791889151135 EDITED"
       },
       "err": null
     },
@@ -5074,8 +5110,8 @@
       ],
       "evidence": {
         "expanded": true,
-        "tables": 3,
-        "cfgN": 14
+        "tables": 2,
+        "cfgN": 2
       },
       "err": null
     }
@@ -5087,8 +5123,18 @@
       "layer": "floor",
       "rule": "cta:inert-primary",
       "severity": 1,
-      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Get Early Access: It's F\"])",
+      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Join the Hive - It's Fre\"])",
       "owner": "frontend"
+    },
+    {
+      "page": "index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "index.html",
@@ -5107,17 +5153,18 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
-      "page": "marketplace.html",
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
       "role": "anon",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/74 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "marketplace.html",
@@ -5136,7 +5183,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5176,7 +5243,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5216,6 +5303,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5237,6 +5334,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "inventory.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5295,6 +5402,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5306,6 +5423,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-inner.w-full — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5355,6 +5482,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5366,6 +5503,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-panel — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5425,6 +5572,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5459,13 +5616,13 @@
       "owner": "designer"
     },
     {
-      "page": "community.html",
-      "role": "worker",
+      "page": "analytics.html",
+      "role": "supervisor",
       "layer": "heuristic",
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div.presence-chip — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5481,11 +5638,12 @@
     {
       "page": "assistant.html",
       "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "2/14 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "assistant.html",
@@ -5524,7 +5682,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "asset-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5544,7 +5722,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5560,11 +5758,12 @@
     {
       "page": "audit-log.html",
       "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/7 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "audit-log.html",
@@ -5574,6 +5773,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "voice-journal.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5593,7 +5802,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5607,12 +5836,32 @@
       "owner": "designer"
     },
     {
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
       "page": "engineering-design.html",
       "role": "worker",
       "layer": "floor",
       "rule": "axe:color-contrast",
       "severity": 2,
-      "evidence": "4 node(s): .result-highlight > div:nth-child(1) > div:nth-child(1) | .result-highlight > d",
+      "evidence": "5 node(s): span[data-source-chip=\"\"] | .result-highlight > div:nth-child(1) > div:nth-chil",
       "owner": "qa-tester"
     },
     {
@@ -5651,6 +5900,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5691,7 +5950,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5701,7 +5960,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div.toast.error — auto-update region without role=status/alert or aria-live",
+      "evidence": "div.toast.success — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5761,7 +6020,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5783,6 +6042,16 @@
       "severity": 0,
       "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
       "owner": "qa-tester"
+    },
+    {
+      "page": "project-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "project-report.html",
@@ -5831,6 +6100,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -5852,6 +6131,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "achievements.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5901,7 +6190,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-msg — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5912,6 +6221,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5940,17 +6259,17 @@
       "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
-      "evidence": "div#sheet-edit — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
       "owner": "designer"
     },
     {
       "page": "marketplace-seller.html",
       "role": "worker",
       "layer": "heuristic",
-      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
-      "basis": "designer / WCAG-4.1.2",
-      "severity": 2,
-      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5969,7 +6288,7 @@
       "layer": "floor",
       "rule": "tap-target≥44px",
       "severity": 2,
-      "evidence": "2/17 interactive <44px",
+      "evidence": "1/19 interactive <44px",
       "owner": "mobile-maestro"
     },
     {
@@ -5979,7 +6298,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "integrations.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -5996,222 +6335,232 @@
   "summary": {
     "journeys_total": 110,
     "applicable": 109,
-    "live": 98,
+    "live": 106,
     "external": 1,
-    "live_pct": 89.9,
-    "floor_findings": 9,
-    "heuristic_findings": 83,
+    "live_pct": 97.2,
+    "floor_findings": 6,
+    "heuristic_findings": 116,
     "critic_catalog_rules": 209
   },
   "per_page": [
     {
       "page": "index.html",
-      "live": 12,
+      "live": 13,
       "applicable": 14,
       "external": 0,
-      "live_pct": 85.7
+      "live_pct": 92.9
     },
     {
       "page": "learn/start-digital-logbook-philippine-factory/index.html",
       "live": 1,
       "applicable": 1,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "marketplace.html",
       "live": 6,
       "applicable": 6,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "logbook.html",
       "live": 6,
       "applicable": 6,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "inventory.html",
-      "live": 2,
+      "live": 5,
       "applicable": 5,
       "external": 0,
-      "live_pct": 40
+      "live_pct": 100.0
     },
     {
       "page": "dayplanner.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "hive.html",
       "live": 6,
       "applicable": 6,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "pm-scheduler.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "community.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "analytics.html",
       "live": 5,
       "applicable": 5,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "assistant.html",
-      "live": 3,
+      "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 75
+      "live_pct": 100.0
     },
     {
       "page": "asset-hub.html",
-      "live": 3,
+      "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 75
+      "live_pct": 100.0
     },
     {
       "page": "alert-hub.html",
       "live": 3,
       "applicable": 4,
       "external": 0,
-      "live_pct": 75
+      "live_pct": 75.0
     },
     {
       "page": "audit-log.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "voice-journal.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "ai-quality.html",
       "live": 3,
       "applicable": 3,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "analytics-report.html",
-      "live": 2,
+      "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 50
+      "live_pct": 100.0
     },
     {
       "page": "engineering-design.html",
-      "live": 3,
+      "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 75
+      "live_pct": 100.0
     },
     {
       "page": "project-manager.html",
-      "live": 5,
+      "live": 4,
       "applicable": 5,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 80.0
     },
     {
       "page": "project-report.html",
       "live": 3,
       "applicable": 3,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "skillmatrix.html",
       "live": 2,
       "applicable": 2,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "achievements.html",
       "live": 2,
       "applicable": 2,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "resume.html",
       "live": 3,
       "applicable": 3,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "marketplace-seller.html",
       "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "integrations.html",
       "live": 1,
       "applicable": 1,
       "external": 1,
-      "live_pct": 100
+      "live_pct": 100.0
     },
     {
       "page": "plant-connections.html",
       "live": 3,
       "applicable": 3,
       "external": 0,
-      "live_pct": 100
+      "live_pct": 100.0
     }
   ],
   "per_lens": {
     "R": {
       "applicable": 96,
       "pass": 96,
-      "pct": 100
+      "pct": 100.0
     },
     "J": {
       "applicable": 99,
-      "pass": 92,
-      "pct": 92.9
+      "pass": 97,
+      "pct": 98.0
     },
     "T": {
       "applicable": 83,
-      "pass": 77,
-      "pct": 92.8
+      "pass": 80,
+      "pct": 96.4
     },
     "C": {
       "applicable": 71,
-      "pass": 63,
-      "pct": 88.7
+      "pass": 71,
+      "pct": 100.0
     },
     "X": {
       "applicable": 47,
       "pass": 45,
       "pct": 95.7
     }
-  }
+  },
+  "reruns": [
+    {
+      "id": "LA7",
+      "from": "live_page_journeys_results.journey-LA7.json",
+      "ran": "2026-10-13T11:01:37.186Z",
+      "was_live": false,
+      "now_live": true,
+      "reason": "LA7 scrolled a fixed 800px; the page now reveals the bar once the hero CTA leaves through the top (2026-10-13 fix), so the journey scrolls just past that button"
+    }
+  ]
 }

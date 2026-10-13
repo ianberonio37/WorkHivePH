@@ -38,9 +38,14 @@ PERSONA_ROLE = {
     'buyer': 'worker',             # a buyer is any hive member purchasing
     'machine-client': 'supervisor',
     'adversary': 'worker',
+    # ★"OVERSIGHT" IS A SUPERVISOR WATCHING THE WORK, NOT A PLATFORM ADMIN (2026-10-13). This persona was listed as
+    # "admin cast, ROUTE-only" and left UNRESOLVED, so 27 walks (145 rows) could never be batched - while the trajectory
+    # walks of the very same rows were cast as Hector Salvador and Christine Dizon, ordinary supervisors. The critic
+    # walk casts what the trajectory walk cast.
+    'oversight': 'supervisor',
 }
 SOLO_PERSONAS = {'solo-owner', 'solo-tech', 'solo-rider'}
-NOHIVE_PERSONAS = {'oversight', 'anon'} | SOLO_PERSONAS
+NOHIVE_PERSONAS = {'anon'} | SOLO_PERSONAS
 
 
 def psql(sql):
@@ -57,6 +62,13 @@ def rows(path):
 
 def main():
     only_normal = '--all' not in sys.argv
+    # --rewalk (2026-10-13): walk CRITIQUED rows that carry findings, as their own cast, so bank_critic_walk.py can close
+    # a row whose fixes landed (none of its findings recur -> improving). --pages a.html,b.html limits it to the rows
+    # whose path touches a fixed page. Without --rewalk the manifest is the pending queue, as before.
+    rewalk = '--rewalk' in sys.argv
+    page_filter = set()
+    if '--pages' in sys.argv:
+        page_filter = {p.strip() for p in sys.argv[sys.argv.index('--pages') + 1].split(',') if p.strip()}
     crit = rows(CRIT)
     tmap = {x['id']: x for x in rows(TRAJ)}
 
@@ -73,13 +85,22 @@ def main():
         solo_email[parts[0].strip()] = parts[1].strip() if len(parts) > 1 else ''
 
     def member_of(hive_id, role):
+        # an ORDINARY member first (a platform admin sees doors the persona does not - the J27 lesson), and a
+        # deterministic pick: `LIMIT 1` with no ORDER BY let the planner choose the cast, run to run
         out = psql("SELECT u.email FROM hive_members m JOIN auth.users u ON u.id=m.auth_uid "
-                   "WHERE m.hive_id='%s' AND m.role='%s' AND m.status='active' LIMIT 1;" % (hive_id, role))
+                   "WHERE m.hive_id='%s' AND m.role='%s' AND m.status='active' "
+                   "ORDER BY (m.worker_name IN (SELECT worker_name FROM marketplace_platform_admins)), m.worker_name "
+                   "LIMIT 1;" % (hive_id, role))
         return out[0].strip() if out else None
 
     seen = {}
     for x in crit:
-        if x.get('status') != 'pending':
+        if rewalk:
+            if x.get('status') != 'critiqued' or not (x.get('findings') or []):
+                continue
+            if page_filter and not (set(x.get('pages') or []) & page_filter):
+                continue
+        elif x.get('status') != 'pending':
             continue
         t = tmap.get(x['id'], {})
         j = t.get('journey', {}) or {}
@@ -92,7 +113,9 @@ def main():
         parts = cell.split('|')
         device = t.get('device') or (parts[0] if parts else '')
         persona = t.get('persona') or (parts[1] if len(parts) > 1 else '')
-        pages = t.get('pages') or x.get('pages') or []
+        # a RE-walk repeats the walk the row describes (its own declared path), because bank_critic_walk.py refuses a
+        # survey of a page the row does not declare; the trajectory may have grown pages since (W3351, 2026-10-13)
+        pages = ((x.get('pages') if rewalk else None) or t.get('pages') or x.get('pages') or [])
         vertical = j.get('vertical') or ''
         key = (cell, tuple(pages), lang, cond, moment)
         if key in seen:

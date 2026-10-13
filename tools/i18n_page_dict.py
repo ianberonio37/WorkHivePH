@@ -164,8 +164,21 @@ def apply(page: str) -> tuple[int, int]:
         block = ('<script id="wh-fil-page">(function(){try{if(localStorage.getItem(\'wh_lang\')!==\'fil\')return;}catch(e){return;}'
                  'fetch(\'i18n/pages/' + stem + '.fil.json\').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};})'
                  '.then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};'
+                 # ★THE SWAPPED LABEL DECLARES ITS LANGUAGE HERE TOO (2026-09-29). This is the THIRD applier on
+                 # the platform - wh-i18n-lite.js for the static public pages, utils.js whI18nApply for the app,
+                 # and this inline block for a page that loads neither. The first learned WCAG 3.1.2 on
+                 # 2026-09-11 and the other two never did, so architecture.html rendered "Mga Risk Column" under
+                 # <html lang="en"> with no part marked, and the phone-fit FIL prover said so. A fix that lands
+                 # in one of three implementations of the same contract has not landed
+                 # ([[feedback_fix_every_path_that_mutates_not_just_the_walked_one]]).
+                 # Only when the text actually CHANGED language: an identity entry ("Pump":"Pump") is the
+                 # platform's authored ruling that a term stays English, so stamping every swapped element would
+                 # declare English words Filipino. The English is captured once, before the first swap.
                  "function ap(){document.querySelectorAll('[data-i]').forEach(function(el){"
-                 "var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}"
+                 "var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v==null)return;"
+                 "if(!el.hasAttribute('data-i-en'))el.setAttribute('data-i-en',el.textContent);"
+                 "if(el.textContent!==v)el.textContent=v;"
+                 "if(v!==el.getAttribute('data-i-en'))el.lang='fil';});}"
                  "function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);})"
                  ".observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}"
                  "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>\n")

@@ -311,6 +311,23 @@ export const TARGETS = [
   // rather than looking like a substituted subject.
   // V3 (generate/refresh, the project-orchestrator invoke) is deliberately NOT added: it is an ACTION, not
   // a rendered view, and deciding what that row asks about is a grounding decision, not a probe gap.
+  // project-report V3 — the anatomy names it "generate / refresh" and cites `project-report.html:373
+  // project-orchestrator invoke`, so it is an ACTION, not a view. Registered DELIBERATELY as not-drivable
+  // rather than left absent, because the two read very differently in a report: an absent entry prints "no
+  // target registered for this view", which looks like an oversight somebody should go and fix, while this
+  // says what is actually true and why.
+  // Two reasons it stays unmeasured, and the second is the one that matters:
+  //   · a read-only probe must not fire it - `db.functions.invoke('project-orchestrator')` is a paid model
+  //     call, and the roster's whole contract is that a probe observes without spending or writing.
+  //   · there is nothing SEPARATE to observe if it did. aiGenerateNarrative() writes its result into
+  //     `$('exec-summary').querySelector('.insight-card .text')` (project-report.html:622) - inside the very
+  //     element already registered as V2. Pointing V3 at #exec-summary too would not widen coverage by one
+  //     control; it would measure V2 twice and report it as two views, which is the weaker-duplicate shape.
+  // So V3's a11y IS measured, at V2, and this entry records that rather than implying a gap.
+  { page: 'project-report', view: 'V3', modal: 'exec-summary', kind: 'section', notDrivable: true,
+    ref: 'project-report.html:373 project-orchestrator invoke is an ACTION a read-only probe must not fire '
+       + '(a paid model call); its only rendered output lands in #exec-summary at :622, which V2 already '
+       + 'measures - so this view is covered there, not uncovered' },
   { page: 'project-report', view: 'V2', modal: 'exec-summary', kind: 'section', mayStartOpen: true,
     ref: 'project-report.html:246 #exec-summary — the KPI strip the budget renders into (:612-613 Budget '
        + '(BAC) / Earned (EV) via fmtPHP), fed by the get_project_budget RPC at :426' },

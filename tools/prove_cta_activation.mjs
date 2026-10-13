@@ -45,7 +45,9 @@ const ROSTER = [
   // The local seeder serves calculator pages only under the /workhive/ prefix (learn resolves
   // both ways). The first run listed the unprefixed path, got a 404, and recorded "0 probes,
   // 0 dead" — a silent hole; the goto status check below now makes that an ERROR instead.
-  { page: 'workhive/tools/ahu-sizing-calculator/index.html', slug: 'tools-exemplar' },
+  // ...and since PATH_BASE added /workhive to every walk (2026-08-28) this entry's own prefix doubled it to
+  // /workhive/workhive/tools/..., a 404 every run (found 2026-10-13); the base supplies the prefix now.
+  { page: 'tools/ahu-sizing-calculator/index.html', slug: 'tools-exemplar' },
 ];
 
 const VIEWPORTS = [{ w: 390, h: 780, name: '390' }, { w: 1280, h: 900, name: '1280' }];

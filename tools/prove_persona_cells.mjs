@@ -26,7 +26,7 @@
 //   node tools/prove_persona_cells.mjs --cell quota-spent
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 import { VIEW_ONLY, askSurface, launcherOnlyFor } from './ai_ask.mjs';
 
 const ONLY_CELL = (() => { const i = process.argv.indexOf('--cell'); return i >= 0 ? process.argv[i + 1] : null; })();
@@ -64,7 +64,7 @@ for (const r of ROWS) {
   const [w, h] = VIEW[r.device] || VIEW.any;
   const ctx = await b.newContext({ viewport: { width: w, height: h }, serviceWorkers: 'block' });
   const signedIn = !['deep-link', 'kiosk-print'].includes(r.cell) && r.persona !== 'any' || ['first-time', 'data-volume', 'wide-pc', 'tablet', 'quota-spent', 'expiry-mid-read', 'email-arrival', 'returner'].includes(r.cell);
-  if (signedIn) await signIn(ctx);
+  if (signedIn) await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   if (r.cell === 'quota-spent') {
     await p.route('**/functions/v1/**', (rt) => rt.fulfill({ status: 429, contentType: 'application/json', body: REFUSAL })).catch(() => {});

@@ -43,8 +43,34 @@ export const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Isidro%2
 // walk is meant to be standing in for.
 export const VIS_JS = "(function (e) { return !!e && (typeof e.checkVisibility === 'function' ? e.checkVisibility({ visibilityProperty: true, opacityProperty: true, contentVisibilityAuto: true }) : e.offsetParent !== null); })";
 
+// ★A GATE SPENT A LIVE MODEL CALL BY ARRIVING (2026-10-07). shift-brain's maybeAutoGenerate invokes
+// shift-planner-orchestrator - a real LLM briefing over the provider keys in supabase/functions/.env - on the
+// first open of a shift that has no fresh shift_plans row. signIn below opens shift-brain for EVERY prover that
+// imports it, and prove_render_contract opens it again as a surface under test. Measured: a render-contract run
+// on four pages wrote a 814-character model briefing ("Signed by Zaniah...") at 17:31:40 UTC. callAI writes
+// nothing to ai_cost_log, so the meter cannot see this spend; the witness is shift_plans.briefing prose.
+// The rule (Ian): live model calls only for the LLM layer's Grounding and Routing rows, with spend stated first.
+// So every context that signs in through this helper gets the load-time model functions answered with a 503,
+// the same stub the W3 journey walker uses; the page takes its own "briefing unavailable" path. A prover that
+// is ABOUT the model's answer sets WH_LIVE_MODEL=1 and states its spend before it runs. Limit: a prover that
+// later registers its own catch-all `**/*` context route that calls route.continue() runs before this one
+// (Playwright runs the newest matching route first) and must stub these functions itself.
+export const LOAD_TIME_MODEL_FNS = ['shift-planner-orchestrator'];
+export async function stubModelCalls(ctx) {
+  if (!ctx || ctx._whModelStub || process.env.WH_LIVE_MODEL === '1') return;
+  ctx._whModelStub = { hits: 0 };
+  for (const fn of LOAD_TIME_MODEL_FNS) {
+    await ctx.route(`**/functions/v1/${fn}**`, (route) => {
+      ctx._whModelStub.hits += 1;
+      return route.fulfill({ status: 503, contentType: 'application/json',
+        body: JSON.stringify({ error: 'model call stubbed by the prover harness (WH_LIVE_MODEL unset)' }) });
+    });
+  }
+}
+
 export async function signIn(ctx, opts = {}) {
   const who = { ...WORKER, ...opts };
+  await stubModelCalls(ctx);
   const s = await ctx.newPage();
   await s.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });
   // ★THE WAIT COVERED TWO OF THE THREE THINGS THE NEXT LINE USES, AND THIS IS THE SIGN-IN FOR 48 TOOLS
@@ -78,6 +104,38 @@ export async function signIn(ctx, opts = {}) {
     } catch (e) { return false; }
   }, { hive: opts.hive || HIVE, who });
   await s.close();
+  return ok;
+}
+
+// ★A PROVER THAT DOES NOT CHECK THIS RETURN FABRICATES EVERY AUTH-GATED READING (added 2026-10-05).
+// `signIn` above RETURNS - it never throws - so `await signIn(ctx);` leaves a failed sign-in completely
+// silent. The walk then continues SIGNED OUT, every auth-gated page redirects to index, and the prover
+// measures a redirect stub: "the page said NOTHING", "0 rows", "no busy indicator". Those readings are
+// indistinguishable from real findings and they get BANKED as evidence. Measured 2026-08-20 on
+// prove_failure_injection: analytics-report (369 chars) and engineering-design (1845 chars) were both
+// reported as silently failing, and both merely redirect when signed out. A sweep on 2026-10-05 found
+// 57 unchecked call sites still live across 50 provers, the third time this class has been found
+// ([[feedback_fifty_nine_provers_discard_their_sign_in]]).
+//
+// ★WHY THIS LIVES HERE AND IS NOT live_page_journeys' assertSignedIn. THE TWO signIn FUNCTIONS HAVE
+// DIFFERENT CONTRACTS, and that difference is a loaded trap: live_page_journeys.signIn() resolves to
+// `{ok, err, anon, ...}` and its assertSignedIn reads `r.ok`. THIS one resolves to a BOOLEAN. Passing
+// `true` to that guard evaluates `!r.ok` on a primitive - undefined - so it would throw SIGN-IN FAILED
+// on a SUCCESSFUL sign-in, and the 40 provers importing from this module would all die at once while
+// looking hardened. `node --check` cannot see that; only reading both contracts can. So each module
+// carries the guard that matches its own return shape, and the names match deliberately: a call site
+// reads the same in either family and resolves to the correct implementation through its own import.
+export async function assertSignedIn(p) {
+  let ok;
+  try { ok = await p; }
+  catch (e) { throw new Error(`SIGN-IN THREW: ${e && e.message ? e.message : e}`); }
+  // tolerate the OTHER contract rather than mis-grading it, in case a caller is ever re-pointed: an
+  // object is judged by .ok, a primitive by truthiness.
+  const good = (ok && typeof ok === 'object') ? (ok.anon === true || ok.ok === true) : !!ok;
+  if (!good) {
+    throw new Error('SIGN-IN FAILED -- refusing to walk signed-out: every auth-gated page would redirect '
+      + 'and be reported as "the page said nothing", which is a fabricated finding, not a measurement');
+  }
   return ok;
 }
 

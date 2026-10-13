@@ -80,6 +80,7 @@ EXTERNAL_USE_KEYS: dict = {
 # When missing, the function should branch gracefully (CORS fallback to *,
 # feature disabled banner, etc.). Documented case-by-case.
 OPTIONAL_VARS: dict = {
+    "AI_EVAL_RUN_BUDGET_MS": "ai-eval-runner wall-clock budget; falls back to 110000 ms (floor 30000) when unset, so a run stops starting fixtures before the hosted 150 s limit (2026-10-08)",
     "ALLOWED_ORIGIN": "CORS allowlist; falls back to '*' when unset (dev)",
     "RESEND_API_KEY": "Email sends silently noop without it; report-sender shows 'email not configured'",
     "GEMINI_API_KEY": "AI fallback chain — Groq is primary; Gemini only used if explicitly configured",

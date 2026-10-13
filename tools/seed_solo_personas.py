@@ -251,9 +251,15 @@ def apply(revert: bool) -> int:
                       if got else f"  {p['worker_name']}: the profile insert did not answer")
 
     # ...and their own records, so the story they are cast for has something to be true about
+    # ★THE ACCOUNT LIVES AT ITS SIGN-IN ADDRESS (2026-10-07). This step and the resume step below looked the user
+    # up by the PERSONA address (jun.vanowner@workhive.test), which has no account - the profile step above had
+    # already learned to use auth_email(). Both returned no uid and `continue`d without a word, so Jun Salvador
+    # kept nothing and the J11 journey walk read "the chain is empty" about a person this seeder claims to seed.
     if not revert:
         for p in PERSONAS:
-            uid = psql("select id from auth.users where email = '%s'" % p["email"])
+            uid = psql("select id from auth.users where email = '%s'" % auth_email(p["email"]))
+            if not uid:
+                print(f"  {p['worker_name']}: no account at {auth_email(p['email'])} - no records written")
             if not uid:
                 continue
             have = psql("select count(*) from logbook where worker_name = '%s'" % p["worker_name"].replace("'", "''"))
@@ -289,7 +295,7 @@ def apply(revert: bool) -> int:
     # hive_id is left null, which is what a solo operator's is.
     if not revert:
         for p in PERSONAS:
-            uid = psql("select id from auth.users where email = '%s'" % p["email"])
+            uid = psql("select id from auth.users where email = '%s'" % auth_email(p["email"]))
             if not uid:
                 continue
             wn = p["worker_name"].replace("'", "''")

@@ -137,4 +137,4 @@ WorkHive does not keep your audio. The recording is sent over an encrypted conne
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: eca8da0e50421a6c -->
+<!-- md-twin source-sha: ef65f7dabb38e747 -->

@@ -26,7 +26,7 @@
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, HIVE } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, HIVE, assertSignedIn } from './prover_harness.mjs';
 
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
 const ROWS = (() => {
@@ -55,7 +55,7 @@ const say = (ok, id, page, line, detail) => {
 
 const open = async (page, momentUtc) => {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block', timezoneId: 'Asia/Manila' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.clock.install({ time: new Date(momentUtc) }).catch(() => {});
   await p.goto(`${SEEDER}/workhive/${page}${PAGE_QUERY[page] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});

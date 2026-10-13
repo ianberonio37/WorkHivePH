@@ -68,7 +68,9 @@ Most do not: they assume connectivity and degrade on a plant floor with dead spo
 
 Spreadsheets work until they do not: formulas drift, one person owns the file, and history is lost when they leave. Since capable free options exist, the spreadsheet is rarely the cheapest choice once you count the lost history.
 
-**[Try WorkHive free](https://workhiveph.com/?signup=1)**: Free at the worker tier, offline-first, built for Philippine plants. Or see it working first: the [OEE calculator](https://workhiveph.com/tools/oee-calculator/) and the [MTBF calculator](https://workhiveph.com/tools/mtbf-calculator/) are free and need no account.
+Free at the worker tier, offline-first, built for Philippine plants.
+
+Or see it working first: the [OEE calculator](https://workhiveph.com/tools/oee-calculator/) and the [MTBF calculator](https://workhiveph.com/tools/mtbf-calculator/) are free and need no account.
 
 ## Sources
 
@@ -78,4 +80,4 @@ Spreadsheets work until they do not: formulas drift, one person owns the file, a
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2c2a21118231fb21 -->
+<!-- md-twin source-sha: f59f7d70ff1e4751 -->

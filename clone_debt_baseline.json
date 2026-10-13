@@ -1,15 +1,14 @@
 {
-  "clones": 46,
-  "contentDuplicatedLines": 1167,
-  "markupLinesInformational": 1082,
-  "percentage": 14.07,
+  "clones": 45,
+  "contentDuplicatedLines": 1190,
+  "markupLinesInformational": 1111,
+  "percentage": 13.35,
   "pairs": {
-    "ai-quality.html <-> ph-intelligence.html": 553,
-    "architecture.html <-> validator-catalog.html": 318,
-    "ai-quality.html <-> plant-connections.html": 105,
-    "agentic-rag-observability.html <-> llm-observability.html": 58,
-    "engineering-design.html <-> engineering-design.html": 56,
-    "ph-intelligence.html <-> plant-connections.html": 26,
+    "ai-quality.html <-> ph-intelligence.html": 562,
+    "architecture.html <-> llm-observability.html": 338,
+    "ai-quality.html <-> plant-connections.html": 104,
+    "agentic-rag-observability.html <-> llm-observability.html": 77,
+    "engineering-design.html <-> engineering-design.html": 57,
     "design-system.html <-> offline-fallback.html": 20,
     "architecture.html <-> architecture.html": 19,
     "plant-connections.html <-> public-feed.html": 14,
@@ -18,5 +17,5 @@
     "agentic-rag-observability.html <-> plant-connections.html": 7,
     "design-system.html <-> design-system.html": 6
   },
-  "note": "forward-only ratchet on CONTENT duplicatedLines (css + javascript formats only); markup-format lines are informational: jscpd's markup tokenizer matches only the tag envelope and bills the whole line-span, so on script-heavy pages those counts grow when UNIQUE code is added inside a matched envelope (proven 2026-08-21: replacing public-feed's entire script body with junk left the 527-line project-report<->public-feed 'clone' intact). Collapse duplication then --update-baseline to lower; % informational"
+  "note": "forward-only ratchet on CONTENT duplicatedLines (css + javascript formats only); markup-format lines are informational: jscpd's markup tokenizer matches only the tag envelope and bills the whole line-span, so on script-heavy pages those counts grow when UNIQUE code is added inside a matched envelope (proven 2026-08-21: replacing public-feed's entire script body with junk left the 527-line project-report<->public-feed 'clone' intact). Collapse duplication then --update-baseline to lower; % informational | 2026-10-13 release re-baseline 1020 -> 1190 (deliberate, reason recorded): llm-observability.html adopted architecture.html's inline admin dark-theme stylesheet (one 322-line css/js span, theme reuse, not copied logic) when it was restyled this period, plus a 7-line shared snippet between agentic-rag-observability.html and plant-connections.html. Queued: extract the admin theme into one shared stylesheet linked by both admin pages, then --update-baseline to lower."
 }

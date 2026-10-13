@@ -27,7 +27,11 @@ REPORT = ROOT / "truth_view_read_isolation_report.json"
 
 # cross-hive PUBLIC by design — a member legitimately sees other hives' rows here.
 PUBLIC = {
-    "v_marketplace_listings_truth", "v_marketplace_sellers_truth",
+    "v_marketplace_sellers_truth",
+    # Reviewed 2026-10-08: the same seller DIRECTORY as v_marketplace_sellers_truth, through a definer view, and a
+    # strict subset of its columns (no id, no auth_uid); it lists a seller to a signed-in caller or when the seller has
+    # a published listing. It had never been named here, so it read as a "leak" the first time this gate reached it.
+    "v_marketplace_sellers_public",
     "v_community_posts_truth", "v_community_reputation_truth",
     # Reviewed 2026-07-29 (service-hailing). The provider DIRECTORY is the exact analog of
     # v_marketplace_sellers_truth already above: a marketplace only works if a client in one hive
@@ -47,6 +51,17 @@ PUBLIC = {
     # "public" stays a decision on the record: if it ever stops being readable that is a product
     # break, not a security win.
     "v_service_catalog_truth",
+}
+
+# PUBLIC ONLY FOR THEIR PUBLISHED ROWS (2026-10-08, migration 20261008000060). The two listing views are the marketplace
+# directory, so a buyer in any hive reads another hive's PUBLISHED listings by design - but a draft, a sold or a removed
+# listing is its owner's (and an admin's) alone. v_marketplace_listings_truth used to sit in PUBLIC whole, which held
+# nothing; v_marketplace_listings_public (a definer view) was not named at all and read 7 published rows of a foreign
+# hive as a "leak". Both are now probed on the part that is NOT public: a foreign hive's unpublished rows must read 0.
+# That is the half the name-keyed policy actually exposed - a holder of the seller's name read their drafts.
+PUBLISHED_PUBLIC = {
+    "v_marketplace_listings_truth":  "status <> 'published'",
+    "v_marketplace_listings_public": "status <> 'published'",
 }
 
 # PARTY-scoped, not hive-scoped: these carry NO hive_id column at all, so the cross-hive probe above
@@ -133,7 +148,8 @@ def main():
     # one rolled-back tx: as member A, count each private view for hive B → must be 0.
     lines = [f"BEGIN;", "SET LOCAL ROLE authenticated;", f"SET LOCAL request.jwt.claims TO {claims};", "DO $$", "DECLARE n int;", "BEGIN"]
     for v in views:
-        lines.append(f"  SELECT count(*) INTO n FROM public.{v} WHERE hive_id='{hive_b}'; RAISE NOTICE 'RESULT {v}=%', n;")
+        extra = f" AND {PUBLISHED_PUBLIC[v]}" if v in PUBLISHED_PUBLIC else ""
+        lines.append(f"  SELECT count(*) INTO n FROM public.{v} WHERE hive_id='{hive_b}'{extra}; RAISE NOTICE 'RESULT {v}=%', n;")
     lines += ["END $$;", "ROLLBACK;"]
     res = _psql_stdin("\n".join(lines))
     if res is None:

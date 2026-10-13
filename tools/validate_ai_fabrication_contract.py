@@ -25,9 +25,14 @@ moment that structure regresses:
   2. GATEWAY CENTRALIZATION — ai-gateway wires stripFalseActionClaims gated to
      ADVISORY_ANSWER_AGENTS, applied on the answer BEFORE persist + return. Every advisory
      conversational route in AGENT_ROUTES (i.e. every route that is NOT an action-executor) is
-     covered by that set. A NEW advisory route added without rail coverage FAILs. The action-
-     executor routes (voice-action / logbook-voice / report-voice / voice-journal) are DELIBERATELY
-     excluded — they genuinely persist, so their confirmations are TRUE, not fabricated.
+     covered by that set. A NEW advisory route added without rail coverage FAILs. The executor
+     route (voice-journal) and the STRUCTURED-parse routes (logbook-voice / report-voice: a JSON
+     draft, no narration, nothing saved - mislabelled executors until 2026-10-08) are excluded; a
+     structured route that starts emitting narration FAILs until it is reclassified. PROPOSAL routes
+     (voice-action, 2026-10-08) are excluded from the advisory set too, but their target fn must
+     apply the stricter proposal rail (honestProposalNarration / stripProposalDoneClaims) to its own
+     narration: voice-action-router persists NOTHING, so it was never an executor - listed as one,
+     its "Naks, you logged a 2 hour brake pad replacement" reached the worker unrailed.
 
   3. PER-FN RESOLUTION — every generative (non-infra) AI fn resolves to exactly one fabrication
      guard: self-railed (imports the rail) / gateway-advisory (behind the gateway rail) /
@@ -66,8 +71,31 @@ INFRA_AI_FNS = {
 # The gateway routes that are ACTION-EXECUTORS: they genuinely perform the write they report, so
 # the action rail must NOT strip their confirmations. Auditable list (the structural counterpart
 # of the gateway's ADVISORY_ANSWER_AGENTS). Every AGENT_ROUTES agent_id must be in exactly ONE of
-# {executor, advisory}; a route in neither FAILs check 2.
-EXECUTOR_AGENT_IDS = {"voice-action", "logbook-voice", "report-voice", "voice-journal"}
+# {executor, structured, proposal, advisory}; a route in none FAILs check 2.
+# voice-journal: the journal note it acknowledges is saved persist-first by ai-gateway itself.
+EXECUTOR_AGENT_IDS = {"voice-journal"}
+
+# STRUCTURED-PARSE routes (2026-10-08): the specialist returns a JSON draft and SAVES NOTHING, and it
+# carries no narration - so there is no prose for any action rail to check, and nothing it says can
+# claim a write. logbook-voice (voice-logbook-entry -> {ok, entry:{machine, problem, ...}}) and
+# report-voice (voice-report-intent -> {report_types, recipient_hint, ...}) were listed as EXECUTORS
+# although neither writes a row (the page decides what to save). The label mattered only on paper,
+# but a wrong label is how the next reader decides a rail is not needed. A structured route must stay
+# OUT of the advisory set (that rail would edit the JSON the page reads - their responses must pass
+# through unchanged), its target must be a STRUCTURED_PRODUCER, and the target must not start
+# narrating: the day it emits `narration` / an `answer:` it needs the proposal or advisory rail.
+STRUCTURED_AGENT_IDS = {"logbook-voice", "report-voice"}
+NARRATION_KEY = re.compile(r"\bnarration\b|\banswer\s*:")
+
+# PROPOSAL routes (2026-10-08): the specialist only CLASSIFIES - nothing is saved until the person
+# confirms on the page - so a past-tense "logged / saved / deducted" in its narration is false by
+# construction. voice-action was listed as an executor, and so its "Naks, you logged a 2 hour brake
+# pad replacement" reached the worker with nothing written. A proposal route stays OUT of the advisory
+# set (that rail's clarifier tells the person to add the record themselves) and its target fn must
+# apply the stricter proposal rail to its own narration (checked in check_per_fn_resolution).
+PROPOSAL_AGENT_IDS = {"voice-action"}
+PROPOSAL_RAILED = {"voice-action-router"}               # applies honestProposalNarration to its narration
+PROPOSAL_RAIL_CALL = re.compile(r"\b(?:honestProposalNarration|stripProposalDoneClaims)\(\s*narration\w*")
 
 # Per-fn D13 guard classification (explicit + auditable). Union must cover every generative fn.
 SELF_RAILED = {"ai-orchestrator"}                       # imports stripFalseActionClaims itself
@@ -84,13 +112,22 @@ STRUCTURED_PRODUCER = {
     "agent-memory-store", "agentic-rag-loop", "ai-eval-runner", "ai-gateway", "amc-orchestrator",
     "engineering-bom-sow", "engineering-calc-agent", "failure-signature-scan", "fmea-populator",
     "hierarchical-summarizer", "intelligence-report", "scheduled-agents", "semantic-fact-extractor",
-    "visual-defect-capture", "voice-action-router", "voice-logbook-entry", "voice-report-intent",
+    "visual-defect-capture", "voice-logbook-entry", "voice-report-intent",
     "voice-semantic-rag", "walkthrough-analyzer",
 }
 
 
 def _fail(msg, fails):
     fails.append(msg)
+
+
+def _code_only(src):
+    """Source with comments removed and single-line string literals blanked (a prompt that says
+    'summary' or a comment that says 'narration' is not the function emitting one)."""
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    src = re.sub(r"(?m)(^|[^:\"'\\])//.*$", r"\1", src)
+    src = re.sub(r"`(?:\\.|[^`\\])*`", "``", src, flags=re.S)
+    return re.sub(r"""(["'])(?:\\.|(?!\1)[^\\\n])*\1""", r"\1\1", src)
 
 
 def load_generative_fns():
@@ -178,20 +215,46 @@ def check_gateway_centralization(fails):
     if not routes:
         _fail("ai-gateway: could not parse AGENT_ROUTES", fails)
     for agent_id in sorted(routes):
+        buckets = [n for n, s in (("executor", EXECUTOR_AGENT_IDS), ("structured", STRUCTURED_AGENT_IDS),
+                                  ("proposal", PROPOSAL_AGENT_IDS)) if agent_id in s]
+        if len(buckets) > 1:
+            _fail(f"route '{agent_id}' is in more than one bucket ({', '.join(buckets)}) - it must be exactly one", fails)
         if agent_id in EXECUTOR_AGENT_IDS:
             if agent_id in advisory:
                 _fail(f"executor route '{agent_id}' wrongly in ADVISORY_ANSWER_AGENTS "
                       f"(its true confirmations would be stripped)", fails)
             continue
+        if agent_id in STRUCTURED_AGENT_IDS:
+            fn = routes[agent_id]
+            if agent_id in advisory:
+                _fail(f"structured route '{agent_id}' in ADVISORY_ANSWER_AGENTS - that rail would edit the JSON "
+                      f"draft the page reads", fails)
+            if fn not in STRUCTURED_PRODUCER:
+                _fail(f"structured route '{agent_id}' -> {fn} is not a STRUCTURED_PRODUCER fn", fails)
+            p = FN_DIR / fn / "index.ts"
+            if p.is_file():
+                code = _code_only(p.read_text(encoding="utf-8", errors="replace"))
+                if NARRATION_KEY.search(code):
+                    _fail(f"structured route '{agent_id}' -> {fn} now emits narration / an answer - a structured "
+                          f"parse that speaks needs the proposal or advisory rail (reclassify it)", fails)
+            continue
+        if agent_id in PROPOSAL_AGENT_IDS:
+            if agent_id in advisory:
+                _fail(f"proposal route '{agent_id}' in ADVISORY_ANSWER_AGENTS - that rail's clarifier tells "
+                      f"the person to add the record themselves while the page is about to apply it", fails)
+            if routes[agent_id] not in PROPOSAL_RAILED:
+                _fail(f"proposal route '{agent_id}' -> {routes[agent_id]} is not a PROPOSAL_RAILED fn", fails)
+            continue
         if agent_id not in advisory:
             _fail(f"advisory route '{agent_id}' -> {routes[agent_id]} NOT covered by the "
-                  f"action rail (add it to ADVISORY_ANSWER_AGENTS or EXECUTOR_AGENT_IDS)", fails)
+                  f"action rail (add it to ADVISORY_ANSWER_AGENTS, EXECUTOR_AGENT_IDS, STRUCTURED_AGENT_IDS or "
+                  f"PROPOSAL_AGENT_IDS)", fails)
     return routes, advisory
 
 
 def check_per_fn_resolution(fails):
     gen = load_generative_fns()
-    classified = SELF_RAILED | NUMERIC_RAILED | GATEWAY_ADVISORY | STRUCTURED_PRODUCER
+    classified = SELF_RAILED | NUMERIC_RAILED | GATEWAY_ADVISORY | STRUCTURED_PRODUCER | PROPOSAL_RAILED
     for fn in gen:
         if fn not in classified:
             _fail(f"generative fn '{fn}' is UNCLASSIFIED for D13 — assign it a fabrication "
@@ -207,6 +270,15 @@ def check_per_fn_resolution(fails):
         p = FN_DIR / fn / "index.ts"
         if p.is_file() and "numeric_provenance" not in p.read_text(encoding="utf-8", errors="replace"):
             _fail(f"NUMERIC_RAILED '{fn}' no longer imports numeric_provenance", fails)
+    for fn in sorted(PROPOSAL_RAILED):
+        p = FN_DIR / fn / "index.ts"
+        if not p.is_file():
+            continue
+        src = re.sub(r"(?m)^\s*//.*$", "", p.read_text(encoding="utf-8", errors="replace"))
+        if "action_provenance.ts" not in src or not PROPOSAL_RAIL_CALL.search(src):
+            _fail(f"PROPOSAL_RAILED '{fn}' does not run its narration through the proposal rail "
+                  f"(honestProposalNarration(narration...)) - a past-tense 'you logged ...' ships with "
+                  f"nothing saved", fails)
     return gen, stale
 
 
@@ -223,7 +295,8 @@ def main():
     print(f"  generative fns (non-infra): {len(gen)}  ·  gateway routes: {len(routes)}  ·  "
           f"advisory-railed agents: {len(advisory)}")
     print(f"  guard buckets: self-railed {len(SELF_RAILED)} · gateway-advisory {len(GATEWAY_ADVISORY)} · "
-          f"numeric-railed {len(NUMERIC_RAILED)} · structured-producer {len(STRUCTURED_PRODUCER)}")
+          f"numeric-railed {len(NUMERIC_RAILED)} · structured-producer {len(STRUCTURED_PRODUCER)} · "
+          f"proposal-railed {len(PROPOSAL_RAILED)}")
     if stale:
         print(f"  {YEL}note{RST}: classification lists {len(stale)} fn(s) not in the live seam set "
               f"(retired?) — {', '.join(sorted(stale))}")

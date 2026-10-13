@@ -102,7 +102,8 @@
 
     /* Search */
     .search-wrap { position: relative; margin-bottom: 1rem; }
-    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel-bright); pointer-events: none; }
+    /* the magnifier is placed by wh-icons.css (.ic-search followed by its input): `.search-wrap svg` matched nothing
+       once the icon became an emoji span, so it sat above the field (critique W45915, 2026-10-13) */
     .search-input {
       width: 100%; min-height: 44px; padding: 0.625rem 0.875rem 0.625rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -260,10 +261,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      panels on the Grafana "Founder / Platform Ops" dashboard. Redirect-first + REVERSIBLE:
      the original markup is preserved below (validators that scan this file still pass).
      To un-retire: delete this <div id="wh-retired-overlay"> block. -->
-<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:flex; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:none; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h2 data-i="p_marketplaceadminhasmoved_adb1" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h2>
+    <h1 data-i="p_marketplaceadminhasmoved_adb1" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h1>
     <p data-i="p_listingsellerdisputevolumesa_317d" style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
       Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve
       ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
@@ -275,7 +276,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <!-- T69 (2026-08-25): the Grafana credential POINTER ('password in infra/mcp/.env.mcp')
          is removed — this overlay renders for ANY signed-in visitor to the URL, not only the
-         founder, and a credentials location baked into page copy is a screen-share/shoulder
+         founder (until 2026-10-13: it now opens only for a platform admin), and a credentials location baked into page copy is a screen-share/shoulder
          hazard even for the right audience (T170 class). The pointer lives in the infra
          README where operators actually look. -->
     <p data-i="p_grafanaaccessseetheinfraoper_b342" style="color:var(--wh-cloud); opacity:0.38; font-size: 0.75rem; margin-top:1.6rem;">Grafana access: see the infra operator notes.</p>
@@ -742,7 +743,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     area.innerHTML = filtered.map(s => {
       const certs = (s.certifications || '').split('\n').map(c => c.trim()).filter(c => c);
       return `
-      <div class="seller-card" data-worker="${e(s.worker_name)}" style="flex-direction:column;align-items:stretch;gap:0.625rem;">
+      <div class="seller-card" data-worker="${e(s.worker_name)}" data-seller-id="${e(s.id)}" style="flex-direction:column;align-items:stretch;gap:0.625rem;">
         <div style="display:flex;align-items:center;gap:0.875rem;">
           <div class="seller-avatar">${e(initials(s.worker_name))}</div>
           <div class="seller-info">
@@ -766,17 +767,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>` : ''}
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
           ${s.kyb_verified
-            ? `<button class="btn-unverify" data-action="unverify"     data-worker="${e(s.worker_name)}" data-i="removeid">Remove ID</button>`
-            : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`}
+            ? `<button class="btn-unverify" data-action="unverify"     data-worker="${e(s.worker_name)}" data-seller-id="${e(s.id)}" data-i="removeid">Remove ID</button>`
+            : `<button class="btn-verify"   data-action="verify"       data-worker="${e(s.worker_name)}" data-seller-id="${e(s.id)}" data-i="verifyid">Verify ID</button>`}
           ${certs.length ? (s.cert_verified
-            ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}" data-i="removecert">Remove Cert</button>`
-            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--wh-violet);" data-i="verifycert">Verify Cert</button>`) : ''}
+            ? `<button class="btn-unverify" data-action="cert-unverify" data-worker="${e(s.worker_name)}" data-seller-id="${e(s.id)}" data-i="removecert">Remove Cert</button>`
+            : `<button class="btn-verify"   data-action="cert-verify"   data-worker="${e(s.worker_name)}" data-seller-id="${e(s.id)}" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--wh-violet);" data-i="verifycert">Verify Cert</button>`) : ''}
         </div>
       </div>`;
     }).join('');
 
     area.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => handleSellerAction(btn.dataset.action, btn.dataset.worker));
+      // BRP-A (2026-10-04): carry the row's PRIMARY KEY, not only its display name - see handleSellerAction.
+      btn.addEventListener('click', () => handleSellerAction(btn.dataset.action, btn.dataset.worker, btn.dataset.sellerId));
     });
   }
 
@@ -871,7 +873,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   /* ============================================================
      SELLER VERIFICATION ACTIONS (Identity + Certifications)
   ============================================================ */
-  async function handleSellerAction(action, workerName) {
+  async function handleSellerAction(action, workerName, sellerId) {
     const isCert    = action === 'cert-verify' || action === 'cert-unverify';
     const verified  = action === 'verify' || action === 'cert-verify';
     // E3 (Arc X recovery): REVOKING a verification badge is destructive + audit-logged
@@ -895,10 +897,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     try {
-      const { error } = await db
-        .from('marketplace_sellers')
-        .update(update)
-        .eq('worker_name', workerName);
+      /* ★BRP-A (2026-10-04): A TRUST BADGE MUST NOT BE WRITTEN BY DISPLAY NAME. This sets or clears
+         kyb_verified / cert_verified - the marketplace's verification badges - and it keyed on the clicked
+         row's worker_name, a mutable display string. Two sellers sharing a name, or a name that has drifted
+         from the row it was rendered from, and the badge lands on the WRONG seller or on none (PostgREST
+         answers a 0-row update with 204 and no error, so the admin is told it worked). Measured: 16 seller
+         rows with 0 duplicate worker_name today, so this is latent rather than live - the right time to fix
+         it. The primary key now comes through from the button that was clicked; the name remains only as a
+         fallback for a DOM rendered before this change, so nothing breaks mid-session. */
+      // ★BY ID ONLY (2026-10-13): the by-name fallback is gone - the buttons and this handler come from the same page load and every button carries data-seller-id, so it never ran; had it run, it would have verified EVERY seller sharing the display name. A row without an id is refused, not guessed.
+      if (!sellerId) { if (typeof showToast === 'function') showToast('This seller row has no id, so nothing was verified. Reload and try again.', 'error'); return; }
+      const { error } = await db.from('marketplace_sellers').update(update).eq('id', sellerId);
       if (error) throw error;
 
       const auditAction = isCert
@@ -1144,7 +1153,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        (201 Created), which quietly inflated the analytics of the surface that replaced it. Reading the
        overlay rather than a flag keeps the documented reversal honest: deleting the overlay to un-retire
        restores the load with it. */
-    if (document.getElementById('wh-retired-overlay')) return;
+    const _retiredOv = document.getElementById('wh-retired-overlay');
+    if (_retiredOv) {
+      // ★A RETIRED ADMIN PAGE IS STILL AN ADMIN PAGE (2026-10-13, Ian: "it seems that founder/admins function button or
+      // functions can still be seen by non-admins?"): the overlay above opened for anyone, before this gate. It now starts
+      // hidden and opens only for a platform admin; anyone else gets Platform Admins Only. The moderation load stays
+      // skipped either way.
+      if (await verifyPlatformAdmin()) {
+        _retiredOv.style.display = 'flex';
+        if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert();
+      } else {
+        document.getElementById('supervisor-gate').style.display = 'flex';
+        document.getElementById('main-content').style.display    = 'none';
+      }
+      return;
+    }
     /* Verify the worker is a platform admin via DB — supersedes HIVE_ROLE.
        Re-enabled 2026-05-17 (Layer 2 role runner found admin surfaces accessible
        to all roles when gate was commented out). */

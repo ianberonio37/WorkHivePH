@@ -1,0 +1,5 @@
+{
+ "untranslated": 0,
+ "established": "2026-10-05",
+ "note": "forward-only: author new strings in the same change that adds them. An empty value renders ENGLISH, which is the defect."
+}

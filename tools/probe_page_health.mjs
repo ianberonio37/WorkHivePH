@@ -6,13 +6,13 @@
 //   node tools/probe_page_health.mjs hive.html "#feed"
 // Exit 1 on any page error or an empty container - the number a person would notice first.
 import { chromium } from 'playwright';
-import { SEEDER, signIn, SETTLE_MS, PAGE_QUERY, DB_PAGES } from './prover_harness.mjs';
+import { SEEDER, signIn, SETTLE_MS, PAGE_QUERY, DB_PAGES, assertSignedIn } from './prover_harness.mjs';
 const ALL = process.argv.includes('--all');
 const file = ALL ? null : process.argv[2]; const sel = ALL ? null : (process.argv[3] || null);
 if (!file && !ALL) { console.log('usage: node tools/probe_page_health.mjs <page.html> [container selector] | --all'); process.exit(2); }
 const FILES = ALL ? DB_PAGES : [file];
 const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 let anyBad = 0;
 for (const f of FILES) {
 const p = await ctx.newPage(); const pageErrors = [], consoleErrors = [];

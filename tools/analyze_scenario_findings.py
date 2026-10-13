@@ -2,13 +2,13 @@
 """
 Layer 1: Failure Analysis & Finding Extraction
 
-Uses free AI (Groq/Cerebras/SambaNova/OpenRouter) to analyze scenario failures.
+Uses the free-tier platform chain (tools/ai_chain.py via loop_helpers) to analyze scenario failures.
 Categorizes by finding_type, root_cause, and suggested fix.
 
 Input: SCENARIO_RESULTS.json from Layer 0
 Output: SCENARIO_FINDINGS.jsonl (one finding per line)
 
-API Usage: Free tier only — set GROQ_API_KEY, CEREBRAS_API_KEY, SAMBANOVA_API_KEY, or OPENROUTER_API_KEY
+API Usage: Free tier only — the chain reads GROQ_API_KEY, GEMINI_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY
 """
 
 import json

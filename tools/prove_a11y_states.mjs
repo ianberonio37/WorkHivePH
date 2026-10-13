@@ -65,8 +65,44 @@ for (const pg of PAGES) {
     }
 
     // reduced_motion — after settle, under the emulated preference, what is STILL animating?
+    //
+    // ★ESSENTIAL MOTION IS EXEMPT, BUT ONLY IF THE STATE ALSO EXISTS WITHOUT MOTION (refined 2026-10-05).
+    // The first version flagged every infinite animation, which made a LOADING SPINNER a permanent finding:
+    // analytics reported "2 animation(s) ignore prefers-reduced-motion: #status-spinner, spinner". The page's
+    // own note answers that correctly - WCAG 2.3.3 exempts essential motion, and freezing a progress
+    // indicator reads as "the page hung" rather than "the page is working", which is a worse outcome than the
+    // spin. Reporting it as a defect would have pushed someone to `animation: none` and break the page.
+    // But the exemption is CONDITIONAL, and the condition is the part worth measuring: a spinner may be the
+    // only thing that MOVES, never the only thing that SPEAKS. If the progress state reaches a person who
+    // cannot see motion - a live text region, role=status/progressbar, aria-busy, or visible text beside it -
+    // then nothing is lost by letting it spin. If it does not, the spinner IS the whole signal, and that is a
+    // real finding for a reduced-motion user AND a screen-reader user at once. Checking analytics against this
+    // found exactly that: #status-text carried the words and the JS rewrote them, but the bar had no
+    // role/aria-live, so the change was announced to nobody. The page was fixed; this oracle is why.
+    // So the exemption is ASSERTED per element, never declared by name - a decorative spinning thing with no
+    // text channel is still reported, which is what an allow-list on "spinner" would have let through.
     const anims = await page.evaluate(() => {
       const bad = [];
+      const exempt = [];
+      const PROGRESS_ROLE = new Set(['progressbar', 'status', 'alert']);
+      const speaks = (el) => {
+        // walk up to a container, then ask whether this progress state is available WITHOUT motion
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          if (n.getAttribute) {
+            const r = (n.getAttribute('role') || '').toLowerCase();
+            if (PROGRESS_ROLE.has(r)) return 'role=' + r;
+            if (n.getAttribute('aria-live')) return 'aria-live=' + n.getAttribute('aria-live');
+            if (n.getAttribute('aria-busy') === 'true') return 'aria-busy';
+            if (n.getAttribute('aria-label')) return 'aria-label';
+          }
+          // a live region or readable text ANYWHERE in the same container counts: the person is told in words
+          const live = n.querySelector && n.querySelector('[role="status"],[role="progressbar"],[aria-live]');
+          if (live && live !== el) return 'sibling ' + (live.getAttribute('role') || 'aria-live');
+          const txt = n !== el && n.innerText ? n.innerText.replace(/\s+/g, ' ').trim() : '';
+          if (txt.length > 2) return 'text "' + txt.slice(0, 40) + '"';
+        }
+        return null;
+      };
       for (const a of document.getAnimations()) {
         if (a.playState !== 'running') continue;
         const t = a.effect && a.effect.getTiming ? a.effect.getTiming() : {};
@@ -74,14 +110,23 @@ for (const pg of PAGES) {
         const total = (Number(t.duration) || 0) * (iters === Infinity ? Infinity : iters);
         if (iters === Infinity || total > 1500) {
           const el = a.effect && a.effect.target;
-          bad.push((el && (el.id ? '#' + el.id : el.className && String(el.className).slice(0, 40) || el.tagName)) || 'unknown');
+          const name = (el && (el.id ? '#' + el.id : el.className && String(el.className).slice(0, 40) || el.tagName)) || 'unknown';
+          const why = el ? speaks(el) : null;
+          if (why) { exempt.push(name + ' (essential progress; also stated as ' + why + ')'); continue; }
+          bad.push(name);
         }
       }
-      return bad;
+      return { bad, exempt };
     });
-    push(pg, 'reduced_motion', anims.length === 0,
-      anims.length === 0 ? 'reduce emulated before load; no infinite or >1.5s animation still running after settle'
-        : `${anims.length} animation(s) ignore prefers-reduced-motion: ${anims.slice(0, 4).join(', ')}`);
+    // the exempt list is PRINTED in the verdict, not silently dropped: an exemption nobody reads is an
+    // exemption nobody reviews, and this one is the difference between a defect and a design decision.
+    push(pg, 'reduced_motion', anims.bad.length === 0,
+      anims.bad.length === 0
+        ? 'reduce emulated before load; no infinite or >1.5s animation still running after settle'
+          + (anims.exempt.length ? ` · ${anims.exempt.length} essential-motion exemption(s): ${anims.exempt.slice(0, 3).join('; ')}` : '')
+        : `${anims.bad.length} animation(s) ignore prefers-reduced-motion AND state nothing in words, so the `
+          + `movement is the only signal a person gets: ${anims.bad.slice(0, 4).join(', ')}`
+          + (anims.exempt.length ? ` (${anims.exempt.length} other(s) exempt as essential progress)` : ''));
 
     // icon_only_name — the calibrated clarity classifier, ancestor-aware.
     const clar = await page.evaluate(CLARITY_PROBE);
@@ -166,9 +211,19 @@ for (const pg of PAGES) {
     const t = TARGETS.find((x) => x.page === pg && x.view === view);
     const fams = ['focus_visible', 'reduced_motion', 'icon_only_name', 'no_raw_enum'];
     if (!t || t.kind === 'state' || t.notDrivable || t.unreachable) {
-      const why = !t ? 'no target registered for this view'
+      // ★AN UNGRADED CELL MUST SAY WHY IN THE ROSTER'S OWN WORDS (2026-10-05). These three strings were the
+      // whole explanation, and the difference between them matters to whoever reads the report: "no target
+      // registered" looks like an oversight somebody should go and close, while "not drivable read-only" is a
+      // stated fact — and neither told the reader WHICH fact. project-report V3 printed the first one for four
+      // families, and the truth was specific and worth carrying: the anatomy names V3 "generate / refresh",
+      // which is a PAID project-orchestrator invoke a read-only probe must not fire, and whose only output
+      // renders into #exec-summary — the element V2 already measures. So the view is covered, not uncovered.
+      // Appending the entry's own `ref` turns an ungraded cell from a shrug into an auditable claim, and it
+      // costs nothing: every roster entry already carries one.
+      const why = (!t ? 'no target registered for this view'
         : t.kind === 'state' ? 'state view — its a11y is the page state, measured by the state provers'
-        : 'not drivable read-only (roster fact)';
+        : 'not drivable read-only (roster fact)')
+        + (t && t.ref ? ` — ${t.ref}` : '');
       for (const f of fams) push(`${pg}·${view}`, f, null, why);
       continue;
     }
@@ -204,8 +259,32 @@ for (const pg of PAGES) {
 
       const scoped = await vp.evaluate(({ id, probeSrc }) => {
         const root = document.getElementById(id);
-        // reduced_motion — animations whose target sits inside the view root
+        // reduced_motion — animations whose target sits inside the view root.
+        // ★THE SAME ESSENTIAL-MOTION CONDITION AS THE PAGE-LEVEL PROBE ABOVE, and it is applied here too on
+        // purpose: fixing one path and leaving its sibling is the shape this repo has paid for repeatedly
+        // (one signIn call site converted while the one nine lines down stayed swallowed). A modal is in fact
+        // MORE likely to hold a spinner than the page body - it is where a save or a load is awaited - so an
+        // oracle that exempted essential motion only at page level would have gone on reporting every dialog
+        // spinner as a defect. Exempt only when the state is ALSO stated in words; a spinner may be the only
+        // thing that moves, never the only thing that speaks.
         const anims = [];
+        const animsExempt = [];
+        const PROGRESS_ROLE2 = new Set(['progressbar', 'status', 'alert']);
+        const speaks2 = (el) => {
+          for (let n = el; n && n !== root.parentElement; n = n.parentElement) {
+            if (n.getAttribute) {
+              const r = (n.getAttribute('role') || '').toLowerCase();
+              if (PROGRESS_ROLE2.has(r)) return 'role=' + r;
+              if (n.getAttribute('aria-live')) return 'aria-live';
+              if (n.getAttribute('aria-busy') === 'true') return 'aria-busy';
+            }
+            const live = n.querySelector && n.querySelector('[role="status"],[role="progressbar"],[aria-live]');
+            if (live && live !== el) return 'sibling live region';
+            const txt = n !== el && n.innerText ? n.innerText.replace(/\s+/g, ' ').trim() : '';
+            if (txt.length > 2) return 'text "' + txt.slice(0, 32) + '"';
+          }
+          return null;
+        };
         for (const a of document.getAnimations()) {
           if (a.playState !== 'running') continue;
           const el = a.effect && a.effect.target;
@@ -213,7 +292,10 @@ for (const pg of PAGES) {
           const t2 = a.effect.getTiming ? a.effect.getTiming() : {};
           const iters = t2.iterations === undefined ? 1 : t2.iterations;
           if (iters === Infinity || (Number(t2.duration) || 0) * iters > 1500) {
-            anims.push(el.id ? '#' + el.id : el.tagName);
+            const name = el.id ? '#' + el.id : el.tagName;
+            const why = speaks2(el);
+            if (why) { animsExempt.push(name + ' (essential progress; also stated as ' + why + ')'); continue; }
+            anims.push(name);
           }
         }
         // icon_only — CLARITY_PROBE logic, but querying inside the root only
@@ -226,12 +308,16 @@ for (const pg of PAGES) {
         const clone = root.cloneNode(true);
         clone.querySelectorAll('code, pre, script, style').forEach((n) => n.remove());
         const enums = [...new Set(((clone.innerText || '').match(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g) || []))].slice(0, 6);
-        return { anims, iconOnly: clar.icon_only_unlabeled || 0, enums };
+        return { anims, animsExempt, iconOnly: clar.icon_only_unlabeled || 0, enums };
       }, { id: t.modal, probeSrc: CLARITY_PROBE.toString() });
 
       push(`${pg}·${view}`, 'reduced_motion', scoped.anims.length === 0,
-        scoped.anims.length === 0 ? `no animation inside #${t.modal} ignores reduce`
-          : `${scoped.anims.length} animation(s) in the open view ignore reduce: ${scoped.anims.slice(0, 3).join(', ')}`);
+        scoped.anims.length === 0
+          ? `no animation inside #${t.modal} ignores reduce`
+            + ((scoped.animsExempt || []).length ? ` · ${scoped.animsExempt.length} essential-motion exemption(s): ${scoped.animsExempt.slice(0, 2).join('; ')}` : '')
+          : `${scoped.anims.length} animation(s) in the open view ignore reduce AND state nothing in words, so `
+            + `the movement is the only signal: ${scoped.anims.slice(0, 3).join(', ')}`
+            + ((scoped.animsExempt || []).length ? ` (${scoped.animsExempt.length} exempt as essential progress)` : ''));
       push(`${pg}·${view}`, 'icon_only_name', scoped.iconOnly === 0,
         scoped.iconOnly === 0 ? `every visible control inside #${t.modal} carries an accessible name`
           : `${scoped.iconOnly} icon-only control(s) inside the open view lack a name`);

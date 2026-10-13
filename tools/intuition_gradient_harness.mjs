@@ -186,7 +186,10 @@ async function scorePage(context, slug, role) {
       // CONSTANT affordances, not the page's CONTENT — counting them as "overwhelm" inflates
       // every page by ~10 and makes the progressive-disclosure budget meaningless. L3 measures
       // CONTENT cognitive load, so exclude them (calibrate the instrument to its stated intent).
-      const CHROME_SEL = '[id^="wh-"], .back-btn, .wf-back, .wf-crumb, #wh-wayfinding';
+      // ★<main> IS NOT CHROME (2026-10-13). wayfinding.js names the page's <main> `wh-main-content` at runtime, and
+      // `[id^="wh-"]` then matched every control's ancestor, so the first-paint count read 1-3 on 22 of 42 pages: the
+      // overwhelm ceiling measured the header. Shell chrome keeps its wh- ids; the page's own main is not one of them.
+      const CHROME_SEL = '[id^="wh-"]:not(main):not(#wh-main-content), .back-btn, .wf-back, .wf-crumb, #wh-wayfinding';
       const isChrome = (el) => !!el.closest(CHROME_SEL);
       // L3 — first-paint interactive CONTENT elements (chrome excluded)
       const interactives = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"],[role="tab"],[onclick]')]
@@ -289,7 +292,7 @@ async function inspectFirstPaint(slug, role) {
     const vh = window.innerHeight, vw = window.innerWidth;
     const isVisible = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width>0 && r.height>0 && s.display!=='none' && s.visibility!=='hidden' && Number(s.opacity)>0.05; };
     const inFP = (el) => { const r = el.getBoundingClientRect(); return r.top < vh && r.bottom > 0 && r.left < vw && r.right > 0; };
-    const isChrome = (el) => !!el.closest('[id^="wh-"], .back-btn, .wf-back, .wf-crumb, #wh-wayfinding');
+    const isChrome = (el) => !!el.closest('[id^="wh-"]:not(main):not(#wh-main-content), .back-btn, .wf-back, .wf-crumb, #wh-wayfinding');
     return [...document.querySelectorAll('a,button,input,select,textarea,[role="button"],[role="tab"],[onclick]')]
       .filter(e => isVisible(e) && inFP(e) && !isChrome(e))
       .map(e => {

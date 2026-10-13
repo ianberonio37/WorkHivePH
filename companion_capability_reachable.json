@@ -1,6 +1,6 @@
 {
-  "guarded": 281,
-  "uncalled_in_file": 138,
+  "guarded": 286,
+  "uncalled_in_file": 137,
   "uncalled_anywhere": [
     "_appendStreamingChunk",
     "_attachVisibilityHandler",

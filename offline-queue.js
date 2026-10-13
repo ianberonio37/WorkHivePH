@@ -114,34 +114,57 @@
       return (Date.now() - item.last_error_at) >= _backoff(item.retry_count || 0);
     };
 
+    // ★A CONNECTION THE BROWSER CLOSED WAS CACHED FOREVER, SO THE QUEUE DIED WITH IT (critique W45908, 2026-10-13).
+    // The browser closes an open IndexedDB connection on its own when the site's data is cleared, when storage is
+    // evicted on a full phone, or when another tab deletes or upgrades the database. _dbRef kept the dead handle, and
+    // every later transaction threw InvalidStateError "the database connection is closing": the 60 s drain raised an
+    // unhandled rejection each minute, and ENQUEUE failed too - the next offline save on that page could not be queued
+    // until a reload, the one failure this file exists to prevent. Measured on dayplanner after the walker cleared
+    // storage under the open page; reproduced by tools/prove_offline_queue_forced_close.js. Now the handle is dropped
+    // on close, released on versionchange (so another tab's delete or upgrade is not blocked by this one), and a
+    // transaction that still meets a closing connection retries once on a fresh one (_run).
     async function _idb() {
       if (_dbRef) return _dbRef;
-      _dbRef = await _openDB(cfg.db, cfg.store);
-      return _dbRef;
+      const db = await _openDB(cfg.db, cfg.store);
+      db.onclose = () => { if (_dbRef === db) _dbRef = null; };
+      db.onversionchange = () => {
+        if (_dbRef === db) _dbRef = null;
+        try { db.close(); } catch (_) { /* empty-catch-allow: the connection is already closing */ }
+      };
+      _dbRef = db;
+      return db;
+    }
+
+    // one transaction on the queue's store; a connection found closing is dropped and the transaction retried ONCE
+    async function _run(mode, op) {
+      const idb = await _idb();
+      try {
+        return await _idbReq(idb, cfg.store, mode, op);
+      } catch (e) {
+        if (!e || e.name !== 'InvalidStateError') throw e;
+        if (_dbRef === idb) _dbRef = null;
+        return await _idbReq(await _idb(), cfg.store, mode, op);
+      }
     }
 
     async function enqueue(item) {
       if (!item || !item.id) throw new Error('enqueue: item.id required');
-      const idb = await _idb();
-      await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(item));
+      await _run('readwrite', (s) => s.put(item));
       try { channel && channel.postMessage({ type: 'enqueue' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
       return item;
     }
 
     async function getPending() {
-      const idb = await _idb();
-      return await _idbReq(idb, cfg.store, 'readonly', (s) => s.getAll());
+      return await _run('readonly', (s) => s.getAll());
     }
 
     async function remove(id) {
-      const idb = await _idb();
-      await _idbReq(idb, cfg.store, 'readwrite', (s) => s.delete(id));
+      await _run('readwrite', (s) => s.delete(id));
       try { channel && channel.postMessage({ type: 'drain' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
     }
 
     async function clear() {
-      const idb = await _idb();
-      await _idbReq(idb, cfg.store, 'readwrite', (s) => s.clear());
+      await _run('readwrite', (s) => s.clear());
       try { channel && channel.postMessage({ type: 'clear' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
     }
 
@@ -152,7 +175,6 @@
       try {
         const pending = await getPending();
         if (!pending.length) return { drained: 0, errors: 0 };
-        const idb = await _idb();
 
         for (const item of pending) {
           if (!_due(item)) continue;   // Arc S D-002: stalled (dead-letter) or still in backoff
@@ -298,7 +320,7 @@
             const upd = { ...item, retry_count: rc, last_error_at: Date.now(),
                           last_error: 'changed 0 rows: the target row is gone, or not permitted for this identity' };
             if (rc >= MAX_RETRIES) upd.status = 'stalled';
-            try { await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(upd)); }
+            try { await _run('readwrite', (s) => s.put(upd)); }
             catch (_) { /* empty-catch-allow: best-effort persist of retry meta */ }
             errors += 1;
           } else {
@@ -308,7 +330,7 @@
             const upd = { ...item, retry_count: rc, last_error_at: Date.now(),
                           last_error: (error && error.message) ? String(error.message).slice(0, 200) : 'unknown' };
             if (rc >= MAX_RETRIES) upd.status = 'stalled';
-            try { await _idbReq(idb, cfg.store, 'readwrite', (s) => s.put(upd)); }
+            try { await _run('readwrite', (s) => s.put(upd)); }
             catch (_) { /* empty-catch-allow: best-effort persist of retry meta */ }
             errors += 1;
           }
@@ -325,8 +347,16 @@
 
     function startAutoSync(supabase, periodMs) {
       if (!supabase) return;
+      // a drain that cannot read its own database is reported ONCE per page (the error logger keeps it), not as an
+      // unhandled rejection every minute; a successful drain re-arms the report
+      let _drainFailed = false;
       const tick = () => {
-        if (navigator.onLine) drain(supabase);
+        if (!navigator.onLine) return;
+        drain(supabase).then(() => { _drainFailed = false; }, (e) => {
+          if (_drainFailed) return;
+          _drainFailed = true;
+          if (typeof window.whLogError === 'function') window.whLogError('offline-queue drain: ' + cfg.table, e);
+        });
       };
       window.addEventListener('online', tick);
       // Initial drain on page load (covers the page-reload-after-brownout case)

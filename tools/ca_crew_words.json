@@ -1,0 +1,14 @@
+{
+ "_doc": "THE crew's own words - the CA lens's vocabulary ('The platform must speak, on this page, the words a Philippine maintenance crew uses'). ONE list for the three readers that apply it (tools/lx_walk.body.js, tools/w4_action_walk.body.js, tools/prove_w4_layer_ca.mjs), written into each by tools/sync_ca_crew_words.py; --check fails on drift. SINGULAR forms only: every matcher accepts a plural 's'/'es', so 'job' and 'jobs' would count one word twice. 2026-10-09: the TRADE vocabulary was added after the LX walk read the skill matrix - Mechanical, Electrical, Instrumentation, MV Switchgear, Production Lines - as 'two crew words', and the plurals ('assets', 'repairs', 'shifts') had never counted at all.",
+ "words": [
+  "preventive maintenance", "work order", "breakdown", "downtime", "spare part", "spares", "lockout", "loto", "permit",
+  "ptw", "shift", "handover", "checklist", "mtbf", "mttr", "oee", "supervisor", "technician", "crew", "hive", "logbook",
+  "asset", "machine", "inspection", "repair", "fault", "plant", "maintenance", "pm schedule", "pm task", "root cause",
+  "failure", "safety", "calibration", "equipment", "job", "task", "team", "worker", "report", "alert", "log", "entry",
+  "record", "schedule", "part", "tool", "inventory", "stock", "restock", "fix", "work", "workshop", "factory",
+  "operator", "foreman", "engineer", "manual", "sop", "procedure", "compliance", "incident", "hazard",
+  "mechanical", "electrical", "instrumentation", "skill", "discipline", "switchgear", "facilities", "production line",
+  "pump", "motor", "bearing", "compressor", "conveyor", "boiler", "generator", "lubrication", "vibration", "welding",
+  "electrician", "mechanic", "certification"
+ ]
+}

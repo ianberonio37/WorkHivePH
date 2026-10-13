@@ -1414,6 +1414,15 @@ def cron_tenant_isolation():
         if not touched:
             continue
         checked += 1
+        # ★A TABLE ONLY WRITTEN TO IS NOT AGGREGATED OVER (2026-10-13). refresh_v_kpi_truth counts v_kpi_truth and
+        # INSERTs one ops row into automation_log; naming automation_log made it read as pooling tenants. Only a
+        # scoped table the function READS (after FROM or JOIN) can be pooled by its aggregate.
+        read_scoped = {t for t in touched
+                       if re.search(r"\b(?:from|join)\s+(?:public\.)?" + re.escape(t) + r"\b", body, re.I)}
+        if not read_scoped:
+            perrow += 1
+            continue
+        touched = read_scoped
         if not agg.search(body):
             perrow += 1
             continue                                   # per-row work: safe by construction

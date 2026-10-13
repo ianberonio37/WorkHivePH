@@ -52,6 +52,20 @@ CLAUSES = [
     ("name-read-is-deferred", r"setTimeout\(\s*function\s*\(\)\s*\{\s*_showHiveSwitchNotice",
      "the notice is built synchronously on the ID event, so wh_hive_name is read before the switch "
      "has written it and the notice names the same hive twice"),
+    # 2026-09-30 (LXP-AU x assistive-tech). activeWorker() is the single read the WHOLE guard hinges
+    # on: maybeShow() and the hard-clear tick both bail on `if (!name) return`. It used to call
+    # whWorker(), which utils.js defines - and utils.js is NOT in SHELL_FILES, the one dependency a
+    # service worker can never guarantee. Absent, the call THROWS, the catch returns '', and the guard
+    # is mounted, not disabled, and permanently INERT: no 15-minute prompt and no 60-minute hard
+    # identity clear, while localStorage holds a real signed-in name. Measured live on
+    # architecture.html at 390 and 1280 - mounted=true, disabled=false, wh_last_worker="Gloria Tan",
+    # typeof whWorker="undefined", overlay never appeared. This file's own header already forbids the
+    # dependency ("inline rather than via utils.js: this file is precached shell and must not depend
+    # on load order"); this clause holds it to that, so a revert to the indirection reddens.
+    ("identity-read-is-inline",
+     r"function activeWorker\(\)[\s\S]{0,700}?localStorage\.getItem\(\s*['\"]wh_last_worker['\"]",
+     "activeWorker() does not read wh_last_worker DIRECTLY - it depends on a symbol from utils.js, "
+     "which is not precached, so one dropped request makes the whole idle guard silently inert"),
 ]
 
 FORBIDDEN = [

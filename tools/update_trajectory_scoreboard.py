@@ -61,11 +61,47 @@ except Exception:
 # Without this the table renderer raised KeyError on the first LX row - a generated document must not
 # depend on someone remembering to add a title when a wave lands.
 try:
-    from seed_layer_ux_wave import WAVES as _LX_WAVES
-    _LX_TITLES = {"CI": "CI/CD & Version Control", "L": "Error Tracking & Logs",
-                  "LB": "Load Balancing & Scaling", "H": "Hosting & Deployment",
-                  "RL": "Rate Limiting", "S": "Security & RLS"}
-    WAVE_NAMES.update({spec["wave"]: f"Layer-UX: {_LX_TITLES.get(code, code)} - what a person feels"
+    # ★AND IT NAMES EVERY LAYER, NOT THE SIX THAT EXISTED WHEN THIS WAS WRITTEN (2026-09-30). The note
+    # above is right that a generated document must not wait for someone to remember a title - and this
+    # block still did, because the six titles were typed here while the waves were declared in
+    # seed_layer_ux_wave.WAVES. The moment the persona-depth pass seeded LX-F, LX-D, LX-A, LX-CA, LX-AU,
+    # LX-C and LX-AV, render() raised KeyError: 'LX-F' on a registry that was perfectly valid.
+    # The titles now come from the ONE place that names all thirteen layers
+    # (tools/backfill_trajectory_layers.NAMES), and a wave is named for every layer whether or not that
+    # layer has an entry in the seeder's WAVES - so a future layer wave needs no edit here at all.
+    from backfill_trajectory_layers import NAMES as _LAYER_NAMES
+    WAVE_NAMES.update({f"LX-{code}": f"Layer-UX: {title} - what a person feels"
+                       for code, title in _LAYER_NAMES.items()})
+    # LXP = the persona-depth pass over the same thirteen layers (2026-09-30): the same felt question
+    # asked as a NAMED person rather than as "any", walked at phone-390 and desktop-1280.
+    WAVE_NAMES.update({f"LXP-{code}": f"Layer-UX x persona: {title} - what THIS person feels"
+                       for code, title in _LAYER_NAMES.items()})
+except Exception:
+    pass
+# LXC = the persona x layer floor and LM = the LLM layer's sub-layers (2026-10-06). Named here from the seeder's
+# own tables in the same change, or the wave table's render raises KeyError on the first new row.
+try:
+    from backfill_trajectory_layers import NAMES as _LN2
+    from seed_expansion_wave4 import LM_SUBLAYERS as _LMS
+    WAVE_NAMES.update({f"LXC-{code}": f"Layer floor: {title} - every signed-in persona to 12 rows"
+                       for code, title in _LN2.items()})
+    WAVE_NAMES.update({f"LM-{sub}": f"LLM layer · {name} - what a person feels when a page's AI misbehaves"
+                       for sub, (name, _ask, _dims) in _LMS.items()})
+except Exception:
+    pass
+# BRP = the BUG-REPRO wave (2026-10-04). Derived from the seeder's own class table rather than retyped
+# here, so the three names cannot drift from the classes that produce the rows - the same reason the
+# layer names above are imported instead of listed.
+try:
+    from seed_expansion_wave4 import BRP_CLASS as _BRP_CLASS
+    WAVE_NAMES.update({f"BRP-{cls}": f"Bug-repro ({layer}): {mech} - reproduced, fixed, gated"
+                       for cls, (layer, _persona, mech, _repro, _fix) in _BRP_CLASS.items()})
+except Exception:
+    pass
+try:
+    from seed_layer_ux_wave import WAVES as _LX_WAVES   # any wave whose key is not a layer code
+    WAVE_NAMES.update({spec["wave"]: WAVE_NAMES.get(spec["wave"],
+                                                    f"Layer-UX: {code} - what a person feels")
                        for code, spec in _LX_WAVES.items()})
 except Exception:
     pass
@@ -141,28 +177,31 @@ def render() -> str:
         # page rather than an intention: seeding a layer's rows moves the denominator, the closed
         # percentage above DROPS, and it climbs back as each layer is deepwalked. That drop is the
         # honest direction and the generator computes it - nobody types it.
-        _NAMES = {"F": "Frontend", "CA": "Caching & CDN", "D": "Database & Storage",
-                  "A": "APIs & Backend Logic", "C": "Cloud & Compute", "AU": "Auth & Permissions",
-                  "AV": "Availability & Recovery", "S": "Security & RLS", "RL": "Rate Limiting",
-                  "LB": "Load Balancing & Scaling", "H": "Hosting & Deployment",
-                  "L": "Error Tracking & Logs", "CI": "CI/CD & Version Control"}
-        _TARGET = 90
-        _lc = Counter()
-        for _t in scoped:
-            for _x in (_t.get("layers") or []):
-                _lc[_x] += 1
-        _untagged = sum(1 for _t in scoped if not _t.get("layers"))
-        _deficit = {k: max(0, _TARGET - _lc.get(k, 0)) for k in _NAMES}
-        _to_build = sum(_deficit.values())
+        # ★LAYER HEALTH REPLACES THE FLAT 90-ROW LINE (Ian, 2026-10-06: "I have to see those all layers for its
+        # percentage, then you have to decide which open we have to close first"). Every layer had passed the
+        # 90-row target 7-50x, so "0 still to build" was true and useless. The table below is computed by
+        # backfill_trajectory_layers.layer_health from the SAME closed predicate as the headline
+        # (live_walk_manifest.row_closed), so its percentages cannot disagree with the number above them.
+        from backfill_trajectory_layers import layer_health as _layer_health, walk_order as _walk_order
+        from live_walk_manifest import row_closed as _row_closed
+        _closed_ids = {r["id"] for r in _m["rows"] if _row_closed(r)}
+        _health = _layer_health(scoped, _closed_ids)
         lines.append("")
-        lines.append(f"**BY FULL-STACK LAYER** (target {_TARGET} rows each · **{_to_build} still to build** "
-                     f"across {sum(1 for v in _deficit.values() if v)} layer(s)"
-                     + (f" · {_untagged} row(s) carry no layer" if _untagged else "")
-                     + "): "
-                     + " · ".join(f"{k} {_lc.get(k, 0)}/{_TARGET}"
-                                  + (f" (+{_deficit[k]})" if _deficit[k] else " ✓")
-                                  for k in sorted(_NAMES, key=lambda z: -_lc.get(z, 0)))
-                     + " — `python tools/backfill_trajectory_layers.py --report`")
+        lines.append(f"**LAYER HEALTH** ({len(_health)} layers, weakest closure first · closed = the headline's own "
+                     "rule · landed = of walked product rows, the share that recorded a fix · thin = signed-in "
+                     "personas under 12 rows on the layer) — `python tools/backfill_trajectory_layers.py --report`")
+        lines.append("")
+        lines.append("| layer | closed | open product | open public | landed | thin cells |")
+        lines.append("|---|---|---|---|---|---|")
+        for _h in sorted(_health, key=lambda h: h["pct"]):
+            lines.append(f"| **{_h['code']}** {_h['name']} | {_h['closed']}/{_h['active']} · **{_h['pct']:.1f}%** "
+                         f"| {_h['open_product']} | {_h['open_public']} | {_h['landed_pct']}% | {len(_h['thin'])} |")
+        _prod, _pub = _walk_order(_health)
+        lines.append("")
+        lines.append("**WALK ORDER** (close first = fix-landed × open product rows; public lanes after every "
+                     "product lane): " + " → ".join(f"{h['code']} {h['open_product']}" for h in _prod)
+                     + (" · then public: " + " → ".join(f"{h['code']} {h['open_public']}" for h in _pub) if _pub else "")
+                     + " — `python tools/live_walk_manifest.py --layer <code>`")
         _fam = list(_m["open_by_family"].items())[:5]
         if _fam:
             lines.append("")
@@ -334,12 +373,28 @@ def render() -> str:
     except Exception as _e:                                  # the header must still render if the ledger breaks
         lines.append(f"**CLOSED/OPEN unavailable — run `python tools/live_walk_manifest.py` ({str(_e)[:60]})**")
         lines.append("")
-    lines.append(f"**PROGRAM: {overall:.1f}% overall"
-                 + (f" (of {len(scoped)} in-scope; {descoped_n} descoped = future org-federation tier)" if descoped_n else "")
-                 + f" · {len(ts)} trajectories · "
+    # ★ONE ROADMAP, ONE PERCENTAGE — AND IT IS THE MCP-DEEPWALK ONE (Ian, 2026-10-05: "you are confusing
+    # me again, it should be closed and open only, the percentage completion are the MCPs deepwalk
+    # trajectories"). This line used to emit a SECOND, DIFFERENT headline - "PROGRAM: 52.9% overall" from
+    # the per-row status mix - directly beneath the CLOSED/OPEN line's 69.0% from the live-walk ledger.
+    # Two percentages for one roadmap, differing by 16 points, with five status buckets beside two: the
+    # reader cannot tell which is the answer, and the five-bucket enumeration (locking / specced / locked /
+    # descoped / fixing) is internal bookkeeping about how a row is progressing, not about whether it is
+    # DONE. Done has one definition here and the CLOSED line above states it: walked live against the
+    # running system, held by a registered gate, with the instrument its own lens demands, and not
+    # contradicted by its own receipt. So this line keeps the registry's SIZE and what is out of scope -
+    # facts the CLOSED line does not carry - and points at that line for completion instead of competing
+    # with it. The per-row pct legend stays because a row's basis cites it, but it is labelled as what it
+    # is: in-flight bookkeeping, never a completion figure.
+    lines.append(f"**REGISTRY: {len(ts)} trajectories"
+                 + (f" · {len(scoped)} in scope · {descoped_n} descoped (out of the denominator, each with"
+                    f" its reason in the row's basis)" if descoped_n else f" · {len(scoped)} in scope")
+                 + f"** — `trajectory_registry.json` (updated {reg['updated']}). "
+                 "**Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** "
+                 "A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping "
+                 "cited by its basis, not a completion figure; "
                  + " · ".join(f"{v} {k}" for k, v in sorted(statuses.items(), key=lambda x: -x[1]))
-                 + f"** — registry `trajectory_registry.json` (updated {reg['updated']}). "
-                 "pct: specced 5 · walked 25 · fixed 60 · locked 100; in-flight carries a basis.")
+                 + ".")
     # THE CRITIC-DEEPWALK POINTER (Ian, 2026-09-02: "put it in your pointer in the header of roadmap
     # with percentage completion") — the UI/UX extension's live % sits HERE, in the first thing every
     # session reads, generated from critic_registry.json exactly like the line above (never typed).
@@ -368,11 +423,25 @@ def render() -> str:
     # percentage for the same reason the percentage is: the rule that governs how a number is EARNED
     # belongs next to the number, not in a section a session can skip.
     lines.append("")
-    lines.append("**↳ HOW EVERY OPEN ROW IS WALKED: through the MCPs, in real time — playwright for a "
-                 "surface, postgres for the effect, invoke + PostgREST for a contract (§LW.2).** A headless "
-                 "batch is the EXCEPTION, taken only when a sweep is uniform and nothing in it needs "
-                 "deciding mid-flight; it is never the default, because triage that arrives hours later "
-                 "arrives after the rows were already banked wrong.")
+    # ★AND HOW FAST WE MOVE, beside it, for the same reason (Ian, 2026-10-06: "you have to remember in this
+    # roadmap, that we use the MCP walk, and we run only relevant gates so that we can move fast to close the
+    # open trajectories"). The same session I had started the whole --fast board for a batch close; Ian stopped
+    # it. Twenty-two gates covered every file that batch touched, ran in minutes, and found the only two real
+    # reds (a stale md twin, a stale substrate chunk). The cadence is a rule about how a number is EARNED, so
+    # it is generated next to the number, not left in memory a session may not read.
+    # The instrument wording also changed: the chrome-devtools MCP is the surface instrument for a viewport-
+    # bearing row because it sets a TRUE CSS viewport through CDP; asked for 390 the playwright MCP renders 585.
+    lines.append("**↳ HOW EVERY OPEN ROW IS WALKED: through the MCPs, in real time — the chrome-devtools MCP "
+                 "for a surface (a TRUE 390 and 1280 through CDP), postgres for the effect, invoke + PostgREST "
+                 "for a contract (§LW.2).** A headless batch is the EXCEPTION, taken only when a sweep is "
+                 "uniform and nothing in it needs deciding mid-flight; it is never the default, because triage "
+                 "that arrives hours later arrives after the rows were already banked wrong.")
+    lines.append("")
+    lines.append("**↳ HOW FAST WE MOVE: walk and bank continuously; after a batch run ONLY the gates that cover "
+                 "the files it changed (plus `trajectory-registry` and `live-walk-manifest`), never the whole "
+                 "board — the full board is Ian's gate.** Batch close, in this order: regenerate the header → "
+                 "`build_md_twins` → `build_substrate` → bump `sw.js` once if a precached shell file changed → "
+                 "the relevant gates.")
     # ★THE NEXT POINTER (Ian, 2026-09-05: "anti-drift percentage completion on the upper header +
     # a pointer on what's next"). It is GENERATED from the registry's `next` field for the same
     # reason the percentages are: a pointer someone types by hand goes stale the moment the work

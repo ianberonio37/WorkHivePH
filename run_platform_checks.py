@@ -245,7 +245,7 @@ VALIDATORS = [
         "id":      "modal-back-contract",
         "script":  "tools/validate_modal_back_contract.py",
         "args":    [],
-        "label":   "T42 (critic deepwalk): MODALS TRAP BACK. Walked live: opening inventory's Add-Part modal pushed no history entry, so the phone hardware-Back gesture navigated away from the WHOLE page mid-form (inventory -> logbook, task + typed input gone); no page implemented modal-back-to-close. Fixed in the ONE shared primitive every hand-rolled modal already opts into (whModalA11y/whSheetA11y): activate() pushes {whModalBack:true}, a shared popstate handler closes the TOP open modal via its OWN close path (the same logic Escape uses), and deactivate() consumes the entry with a suppressed history.back() when the modal closed any other way (X/backdrop/save) so no ghost states accumulate. Proven live on the walked defect: Back dismissed the modal and STAYED on inventory; after an X-close the stack drained (next Back exits cleanly). This gate asserts the contract's three legs in utils.js; self-test reddens on each leg's removal.",
+        "label":   "T42 (critic deepwalk): MODALS TRAP BACK. Walked live: opening inventory's Add-Part modal pushed no history entry, so the phone hardware-Back gesture navigated away from the WHOLE page mid-form (inventory -> logbook, task + typed input gone); no page implemented modal-back-to-close. Fixed in the ONE shared primitive every hand-rolled modal already opts into (whModalA11y/whSheetA11y): activate() pushes {whModalBack:true}, a shared popstate handler closes the TOP open modal via its OWN close path (the same logic Escape uses), and deactivate() consumes the entry with a suppressed history.back() when the modal closed any other way (X/backdrop/save) so no ghost states accumulate. Proven live on the walked defect: Back dismissed the modal and STAYED on inventory; after an X-close the stack drained (next Back exits cleanly). 2026-10-12 (UFAI W4791): the give-back history.back() reached every OTHER popstate listener as if the person pressed Back - skillmatrix's Take Exam opened the exam and two listeners closed it at once (the exam could not be taken); teaching only those sent the click to index.html, because Chrome resolves the back() before the exam's push. Now: the give-back is deferred a task and issued as ONE counted whBookkeepingBack(n), a modal opening in the same turn takes the entry over, and EVERY popstate listener in a shipped page asks whIsBookkeepingBack() first (or is marked wh-popstate-reconciler). Gate: 5 utils legs + a scan of every shipped popstate listener; self-test reddens on each leg and on a planted naked or named listener.",
         "group":   "Platform",
         "skip_if_fast": False,
         "severity": "fail",
@@ -317,7 +317,7 @@ VALIDATORS = [
         "id":      "modal-back-helper",
         "script":  "tools/validate_modal_back_helper.py",
         "args":    [],
-        "label":   "Critic-deepwalk T42 lock: hardware Back closes an open modal instead of leaving the page. Walked live at 390: inventory's Add-Part modal pushed NO history entry, so the phone Back gesture navigated inventory -> logbook, losing the worker's mid-form input; no page wired Back to modal state. Fixed 2026-09-02: utils.js ships whModalHistory (opened() pushes one entry; popstate closes the top modal; closed() consumes on explicit close - re-entrancy safe) with inventory's part-modal the first wired consumer. Verified live both directions: Back closed the modal and STAYED on inventory; X-close balanced history. sw v249 (utils.js is shell-precached). Teeth: missing helper + unwired open both redden.",
+        "label":   "Critic-deepwalk T42 lock: hardware Back closes an open modal instead of leaving the page, through ONE owner per modal. Walked live at 390 (2026-09-02): inventory's Add-Part modal pushed NO history entry, so the phone Back gesture navigated inventory -> logbook, losing the worker's mid-form input. 2026-10-12 (UFAI W4791 follow-through): two owners was the next defect - whModalHistory AND whModalA11y each pushed an entry for that modal (its X/Cancel never gave whModalHistory's back), whOverlayBackDismiss pushed a third kind for every overlay whSheetA11y also wires (an X-close left a Back that did nothing), and marketplace's empty backdrop divs were wired as dialogs (one Back closed only the backdrop; the sheet stayed open). Now: whModalHistory retired, inventory wired by whModalA11y alone, whOverlayBackDismiss owns only unwired overlays, and an empty scrim hands its role and entry to its sibling .sheet. Measured live on skillmatrix, inventory and marketplace. Teeth: each of the five shapes reddens alone.",
         "group":   "Platform",
         "skip_if_fast": False,
         "severity": "fail",
@@ -386,6 +386,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "swallowed-placeholder-tags",
+        "script":  "tools/validate_no_swallowed_placeholder_tags.py",
+        "args":    [],
+        "label":   "No placeholder written as a bare tag in served markup (critic batch, 2026-10-13). marketplace-seller's hint said buyers reach you at m.me/<your-handle>: the parser read <your-handle> as an element and rendered nothing, so sellers read 'opens m.me/ directly' while the source looked right to every reviewer. Every start tag in the 229 served pages must be an HTML, SVG or MathML element (the platform defines no custom elements); scripts, styles and comments are skipped. Teeth: HEAD's marketplace-seller fails at line 453. Markup built in JS strings is not covered.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "risk-pm-linkage",
         "script":  "tools/validate_risk_pm_linkage.py",
         "args":    [],
@@ -426,6 +435,15 @@ VALIDATORS = [
         "script":  "tools/validate_one_clock_per_string.py",
         "args":    [],
         "label":   "Cluster 1 (critic deepwalk): every rendered timestamp keeps ONE clock, and the ops-home shift line is plant-anchored + labeled. Walked live 2026-09-02 at GMT+12: logbook's card read 'Sep 1, 2026 - 12:09 AM' for a save made at 20:09 Manila - whFmtDate pinned the DATE to Asia/Manila while toLocaleTimeString (no timeZone) floated the TIME on the viewer's clock: a pair no clock on earth shows, and any worker east of UTC logging after local midnight filed under yesterday. Meanwhile ops-home derived 'Morning Shift' from viewer-local hours while shift-brain used the plant clock - three answers to 'what shift is it' in one moment. Fixed: formatDate's both halves pin Asia/Manila (whFmtDate + its timeOnly variant); index's _dateStr derives wholly from Asia/Manila and carries '(PHT)' beside the figure (the asset-hub '13:00 PHT' precedent - a shift belongs to the plant, a greeting to the person). This gate reddens on the concatenation shape (pinned date + floating time) anywhere, and on index dropping the Manila derivation or the PHT label. Resurrection: the pre-fix shape matches in self-test.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "device-clock-day",
+        "script":  "tools/validate_device_clock_day.py",
+        "args":    [],
+        "label":   "A ratchet on DEVICE-CLOCK day boundaries (2026-10-13). WorkHive's day is the Manila day, and four critique rows the same day found code taking 'today', 'now', a greeting or 'since midnight' from the device instead (dayplanner 8 sites, hive 3, pm-scheduler, project-report) - on Ian's own New Zealand host, and on the home page itself, whose 'today' window for get_hive_dashboard opened at 19:00 Manila the day before (fixed and walked on an Auckland and a London clock: p_day_start is Manila midnight on both). Counts, in code with comments stripped, on every production page and root shared script: setHours(0,0,0,0), toISOString().slice(0,10), toLocaleDateString with no timeZone, new Date().getHours/getDay/getDate. 150 sites in 20 files on the day it was built (89 were engineering-design.js report date stamps), all cleared the same day - pinned to Manila through the new utils.js whManilaYmd / whManilaMidnight, or marked device-clock-allow where the math was already Manila or pure UTC date arithmetic; the baseline is 0, so ANY new device-clock day boundary fails. 'device-clock-allow: <why>' marks a site that really means the viewer's clock, or local-field math on a date already shifted to Manila. Teeth: the pre-fix pm-scheduler daysLabel reddens; each pattern bites its own shape; Manila-pinned, commented and allow-marked forms do not.",
         "group":   "Platform",
         "skip_if_fast": False,
         "severity": "fail",
@@ -617,6 +635,15 @@ VALIDATORS = [
         "label":   "T138: a concurrency guard that says nothing is a LOST EDIT. An optimistic-concurrency guard filters an UPDATE on the row's updated_at so a write loses if somebody else changed the record first - that is the easy half. The half that decides whether it HELPS is what happens next: if nothing checks that ZERO ROWS changed, the update silently does nothing, the form closes, and the person walks away believing they saved work that no longer exists. A guard that returns without speaking is WORSE than no guard, because it converts a visible conflict into an invisible loss. \u2605THE CENSUS CORRECTED THIS TRAJECTORY'S OWN RECORD: the basis read that logbook amends, community post edits and PM scope edits were 'presumed LAST-WRITE-WINS'. They are not. There are TEN hand-rolled guards across EIGHT pages (asset-hub, community, founder-console, integrations, logbook, platform-actions, pm-scheduler, project-manager x3) plus inventory through the central ocUpdate - eleven protected edit surfaces, not two - and every one of the ten detects the zero-row case AND tells the person. The gate does NOT demand migration to ocUpdate: that is ten rewrites of live edit paths for a refactor, and the property that protects a person is 'the guard SPEAKS', not 'the guard is shared'. The install-the-guard lesson still governs anything NEW - reach for ocUpdate first - and this exists so a hand-rolled one cannot ship silent. \u2605IT WOULD RATHER MISS THAN LIE: the window is the 40 lines after the filter, so a guard whose reporting lives further away reads as a miss, which is the safe direction for a gate whose other failure mode is a false accusation about working code. Teeth-proven with an injected silent guard.",
         "group":   "Platform",
         "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "oc-guard-speaks-selftest",
+        "script":  "tools/validate_oc_guard_speaks.py",
+        "args":    ["--self-test"],
+        "label":   "oc-guard-speaks' own teeth (2026-10-13): its window is now the rest of the handler that holds the guard (brace-matched, at most 150 lines) instead of a fixed 40 - logbook's offline replay notices zero rows at +3 lines and says so at +63. Pinned three ways: a guard that speaks 60 lines later in the same handler passes, the same handler with no message fails, and a message in the NEXT function does not count.",
+        "group":   "Platform",
+        "skip_if_fast": True,
         "severity": "fail",
     },
     {
@@ -2722,6 +2749,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "your-own-message-is-visible-selftest",
+        "script":  "tools/validate_your_own_message_is_visible.py",
+        "args":    ["--selftest"],
+        "label":   "T96's own teeth (2026-10-13): six synthetic negatives - the pre-fix answered-only filter, the pending branch removed, the sent date dropped, the buyer scope removed (whichever one the page uses: .eq('from_me', true), the signed-in identity, or the older .eq('buyer_name', WORKER_NAME)), the panel deleted - each must be caught, and the real page must be clean. The scope case had gone vacuous when the page moved to from_me: its replace matched nothing.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "reload-mid-flow",
         "script":  "tools/prove_reload.mjs",
         "args":    [],
@@ -3466,6 +3501,24 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        # ★WHETHER A FILIPINO WORKER ACTUALLY READS FILIPINO (2026-10-05). The i18n-coverage gate below counts
+        # i18n MARKERS as an adoption proxy - it says so itself - and is advisory. Neither it nor anything else
+        # asserted that the AUTHORED dictionary behind a page has a value for every key it declares, and an empty
+        # value is not neutral: wh-i18n-lite finds no translation and renders the ENGLISH, so the page ships a
+        # Filipino skip link, Filipino buttons and an English heading between them, silently. Measured while
+        # driving the CA layer: 1,069/1,338 (79.9%), with hive.json - the most-used page on the platform - at
+        # 2 of 78. Now 1,440/1,440 across all 37 dicts, and this ratchet holds it: the baseline counts
+        # UNTRANSLATED strings and may only fall, so a new string must be authored in the change that adds it,
+        # which is the one moment whoever wrote the English still knows what it means. BLOCKING on purpose -
+        # an advisory ratchet is how 269 strings accumulated. Teeth: --selftest.
+        "id":      "fil-dict-completeness",
+        "script":  "tools/validate_fil_dict_completeness.py",
+        "args":    ["--check"],
+        "label":   "Filipino dictionary completeness — every authored string in every page dict has a Filipino value (an empty value renders English); forward-only ratchet",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "i18n-coverage",
         "script":  "tools/validate_i18n_coverage.py",
         "args":    [],
@@ -4134,13 +4187,23 @@ VALIDATORS = [
     },
     {
         # 2026-07-17 (FULLSTACK_COMPONENT_LIBRARY_ROADMAP Layer AV) — the offline canonical
-        # set (banner/queue/connectivity/session-timeout/device-fingerprint) ships as ONE
-        # unit on every non-exempt family page (29/29 at wave completion). A page dropping
-        # any of the five, or carrying a partial set, fails.
+        # set ships as ONE unit on every non-exempt family page. SPLIT IN TWO on 2026-09-30
+        # (LXP-AU x assistive-tech walk), because the all-or-nothing five let ONE per-page
+        # ruling — "founder-only, chrome-less by design" — exempt the four scripts that ARE
+        # visible chrome AND the one that is a security floor:
+        #   AV1  offline CHROME set (banner/queue/connectivity/device-fingerprint), one unit, 33/33
+        #   AV2  session-timeout.js — the 15-min prompt + 60-min HARD identity clear — on every
+        #        page whose own code shows an identity or tenant-row signal, 35/35
+        # A page carrying SOME of AV1 fails, and so now does a page carrying NONE: the old
+        # `elif have:` branch made the all-or-nothing case invisible, so six pages sat in that
+        # hole while the report printed ok:true beside adopters 33 / need 39. Presence is matched
+        # as a real <script src=...> TAG, never a bare filename — the fix comments that walk added
+        # name session-timeout.js in prose, and a substring test would let a page satisfy a
+        # security floor with a comment ABOUT the security floor.
         "id":      "av-adoption",
         "script":  "validate_av_adoption.py",
         "args":    [],
-        "label":   "AV Adoption (offline canonical set per page: full 5-script unit; forward-only floor + no-partial rule)",
+        "label":   "AV Adoption (AV1 offline chrome set as one unit + AV2 session-hygiene floor keyed to each page's identity signals; tag-matched, no-partial AND no-zero, forward-only floors)",
         "group":   "Platform",
         "report":  "av_adoption_gate_report.json",
         "skip_if_fast": False,
@@ -4653,6 +4716,9 @@ VALIDATORS = [
     {"id":"unbounded-query","script":"validate_unbounded_query.py","args":[],
      "label":"Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)",
      "group":"Platform","report":"unbounded_query_report.json","skip_if_fast":False},
+    {"id":"unbounded-query-selftest","script":"validate_unbounded_query.py","args":["--selftest"],
+     "label":"unbounded-query's own teeth (2026-10-13): an unbounded read is caught, and each bounded shape it credits - a bound behind comment lines, on the query variable, after a parenthesised ternary of builders, through a second variable - is pinned in both directions (with the bound it passes, without it it is still caught). The self-test calls the same helpers main() does.",
+     "group":"Platform","skip_if_fast":True},
     {"id":"heading-hierarchy","script":"validate_heading_hierarchy.py","args":[],
      "label":"Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)",
      "group":"Platform","report":"heading_hierarchy_report.json","skip_if_fast":False},
@@ -4726,6 +4792,55 @@ VALIDATORS = [
     {"id":"select-placeholder","script":"validate_select_placeholder.py","args":[],
      "label":"<select> Placeholder (every <select> has explicit selected/value=''/disabled-placeholder first option; forward-only ratchet)",
      "group":"Platform","report":"select_placeholder_report.json","skip_if_fast":False},
+    # A <select>'s options are a FAMILY: the reader compares them to each other, so the language is a
+    # property of the whole list. Nothing compared siblings before, so dayplanner shipped three Filipino
+    # options among four English ones. Identity ("Pump":"Pump") counts as an authored "stays English"
+    # ruling — the logbook convention — so a split closes without anyone inventing Filipino.
+    # ★THE FIRST ROW OF THE LAYER-UX x PERSONA WAVE, LOCKED (LXP619, 2026-09-30). The AU ask - "keep this
+    # page's identity honest when a session ends" - asked as the assistive-tech persona, which the program
+    # had never asked on 12 of 13 layers. The idle prompt that signs a person out was invisible without
+    # sight: role=null, no name, no aria-live, focus on BODY. Fixed in session-timeout.js; this holds it.
+    {"id":"lxp-au-session-identity","script":"tools/prove_lxp_au_session_identity.mjs","args":[],
+     "label":"LXP-AU x assistive-tech: the session-ending idle prompt is announced (role=alertdialog), named (aria-labelledby) and takes focus, measured live at phone-390 AND desktop-1280",
+     "group":"Platform","skip_if_fast":False},
+    # Ian, 2026-10-04: "in my logbook, in the select an asset, there is nothing there, but I can see it
+    # in my asset hub". The picker found "mine" with worker_name = <the localStorage display name>;
+    # asset-hub.html finds the same rows with auth_uid and its own comment says why — "the name is
+    # display text, the uid is the identity the row was bound to on insert (bind_asset_nodes_submitter)".
+    # That trigger ALWAYS binds auth_uid but only overwrites worker_name when a hive_members row matches
+    # on hive_id = NEW.hive_id, which is never true for a PERSONAL asset (hive_id NULL) — so the name is
+    # frozen at whatever the client sent while the uid stays correct. Measured live: drift the display
+    # name by one character and the owner's own vehicle disappears from the picker while the identity
+    # query still returns it. The prover carries a VACUITY GUARD (the old name-keyed query must really
+    # return 0 under the drift) so it cannot go green on a drift the column happens to match.
+    # Found while fixing the picker, and far worse than it: logbook's write policies are
+    # `auth.uid() IS NOT NULL AND auth_uid = auth.uid()`, and 27,420 of 31,241 entries (87.8%) carried
+    # auth_uid NULL - so `NULL = auth.uid()` was never true and those entries were READABLE and
+    # permanently un-amendable and un-deletable BY THE PEOPLE WHO WROTE THEM. Proven by impersonation:
+    # the author read 1 row, UPDATE returned 0, DELETE returned 0 - and a 0-row UPDATE raises no error,
+    # so the amendment vanished silently. Migration 20261004000002 bound the author from the roster
+    # where (hive_id, worker_name) resolved to exactly one uid (logbook + inventory_items now 100%;
+    # 19 asset_nodes left unbound because their stored name matches no roster row, not guessed). This
+    # ratchets the unbound count forward-only AND asserts the policies still key on auth_uid, so it
+    # cannot go vacuous by measuring a count that stopped mattering.
+    # The §BRP wave's own ratchet: the measured defect-site count may FALL, never rise. Each class-A fix
+    # is a few characters in one page (a name filter becomes `.or(auth_uid…,worker_name…)` on a read, or
+    # `.eq('auth_uid', …)` on a write guard) and nothing else would stop the next edit putting the name
+    # back - while the symptom is invisible: an empty list for a renamed person, or a 0-row update that
+    # raises nothing. Per-class floors, because a view migration clears a block of B at once while A
+    # falls page by page (B went 21 -> 2 when 20261004000001 landed).
+    {"id":"bug-repro-ratchet","script":"validate_bug_repro_ratchet.py","args":[],
+     "label":"Bug-repro ratchet (the measured ownership-by-display-name site count is forward-only, per class)",
+     "group":"Platform","report":"bug_repro_ratchet_report.json","skip_if_fast":False},
+    {"id":"author-can-edit-own-work","script":"validate_author_can_edit_own_work.py","args":[],
+     "label":"Author can edit own work (every row carries the identity its write policy keys on; forward-only ratchet + the policy still names auth_uid)",
+     "group":"Platform","report":"author_can_edit_own_work_report.json","skip_if_fast":False},
+    {"id":"logbook-asset-picker-identity","script":"tools/prove_logbook_asset_picker_identity.mjs","args":[],
+     "label":"Logbook asset picker finds MY assets by auth_uid, not by display name (a renamed or re-signed-in person must not lose their own registered assets; vacuity-guarded)",
+     "group":"Platform","skip_if_fast":False},
+    {"id":"i18n-family-consistency","script":"validate_i18n_family_consistency.py","args":[],
+     "label":"i18n Family Consistency (no dropdown mixes translated and undecided options; identity = an authored 'stays English' ruling; forward-only ratchet)",
+     "group":"Platform","report":"i18n_family_report.json","skip_if_fast":False},
     # Flywheel turns 21-25 (2026-05-21): 5 more bug-class L0 ratchets.
     {"id":"rls-open-policy","script":"validate_rls_open_policy.py","args":[],
      "label":"RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)",
@@ -6216,7 +6331,7 @@ VALIDATORS = [
         "id":      "admin-gates",
         "script":  "validate_admin_gates.py",
         "args":    [],
-        "label":   "Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)",
+        "label":   "Admin Gate Enforcement (all 8 admin surfaces verify admin; loopback opt-in; retired overlays gated)",
         "group":   "Platform",
         "report":  "admin_gates_report.json",
         "skip_if_fast": False,
@@ -7667,6 +7782,24 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "ai-eval-answers-real",
+        "script":  "tools/validate_ai_eval_answers_are_real.py",
+        "args":    [],
+        "label":   "AI EVAL ANSWERS ARE REAL - the nightly ai-eval-runner had never measured an answer: all 1,765 graded ai_quality_log rows were '[gateway error: 401]' (it sent the service-role key to ai-gateway, which refuses a non-user bearer for every agent but voice-journal) and the judge graded the error strings, while ai-eval-coverage stayed green because it only checks that fixtures/cron/table EXIST. L1 reads the gateway's own refusal rule and FAILs a runner bearer it refuses (the fix: a dedicated eval account + eval hive whose own JWT the gateway verifies like a person's - no gateway exception, Pillar P intact); L1b FAILs a runner that reads the answer outside the gateway's envelope (data.answer - the second hidden cause); L2 FAILs unless a non-answer is recorded outcome=infra_error and the judge only runs on a real answer; L3 (live, SKIPs without the DB) FAILs when the LATEST run (run_id/run_at) is mostly infra errors, graded nothing, or any row grades a gateway-error answer. --self-test: 5 mutants + the pre-fix fetch block FAIL, 4 synthetic runs judged as expected.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "answer-cache-is-tenant-keyed",
+        "script":  "tools/validate_answer_cache_is_tenant_keyed.py",
+        "args":    [],
+        "label":   "ANSWER CACHE IS TENANT-KEYED - ai-gateway's adaptive cache (served with usage.served_from='adaptive_cache' instead of a 429 or the org-budget refusal) was keyed on agent+message ONLY, so a rate-limited person in hive B was served hive A's grounded answer (another plant's machines, failures, people) and an anonymous voice-journal caller could be served a signed-in person's. R1 every ai_cache call site in supabase/functions is classified; R2 a tenant-free site (the three routers) needs a constant system prompt and a key of caller input only; R3 the answer cache is reached only through _shared/cache.ts answerCacheLookup/answerCacheStore; R4 behavioural on the REAL cache.ts under Node with a stubbed db: tenant B, a hive-mate, the same person in another hive, and no-tenant are never served tenant A's row, a row at A's key that does not NAME tenant A (pre-fix shape) is never served, no-tenant writes nothing, A still gets A's; R5 the gateway's tenant is answerCacheTenant(verifiedHiveId, authUid) - resolveTenancy's proven hive + the verified uid, never the client hive_id - and every adaptive reply comes from such a read; R6 agentic-rag-loop's Grader/Checker keys carry tenantScope. --self-test: the pre-fix HEAD sources and 10 mutants FAIL, the current sources PASS. Static + Node, no DB, no browser.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "voice_kb_context",
         "script":  "tools/validate_voice_kb_context.py",
         "args":    [],
@@ -7949,6 +8082,33 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # The SOLO lane of the same property (2026-10-07): a hive-less person's fault_knowledge rows were written by
+        # the outbox drain and readable by NOBODY (policy + searches + view all filtered hive_id = <hive>), so the
+        # logbook past-repairs panel was always empty for a solo owner. Mig 20261007000014. Live, rolled back.
+        "id":      "hiveless-knowledge-is-owner-read",
+        "script":  "tools/validate_hiveless_knowledge_is_owner_read.py",
+        "args":    [],
+        "label":   "HIVE-LESS KNOWLEDGE IS OWNER-READ - a solo owner's fault_knowledge rows (hive_id NULL) were written by the outbox drain and readable by nobody: fault_knowledge_read admitted only `hive_id IN my hives`, and search_fault_knowledge / search_all_knowledge / v_knowledge_truth filtered hive_id = <hive>, so logbook.html's past-repairs panel was always empty for a solo owner and 6 of 12 rows carried no owner. Live, as the real roles, inside BEGIN..ROLLBACK: R1 each hive-less owner reads ALL their rows (table + view); R2 no other owner, hive member or anon reads ANY of them; R3 every row is bound to its entry's author and tg_bind_owner_fault_knowledge rebinds an omission; R4 own-scope searches (match_hive_id NULL) return only the caller's rows even when the caller names someone else in match_owner, service_role naming the owner gets exactly theirs, a member's own-hive search still answers; R5 v_knowledge_truth stays security_invoker; R6 the panel's solo reads are .is('hive_id', null) + _MINE(). --self-test: 7 mutants (pre-fix policy, owner-less hive-less branch, search without own scope, search ignoring a server's match_owner, definer view, trigger dropped, panel scope removed) each FAIL their rule. Needs the live DB, no browser.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # The same plan trap, platform-wide (2026-10-08). A search RPC whose scope filter (hive, person, family) sits
+        # beside `ORDER BY embedding <=> q LIMIT k` let Postgres serve the ORDER BY from ivfflat (probes=1, one list of
+        # 50) or hnsw (40 candidates) and filter AFTER: search_pm_knowledge returned 0-1 of a 147-row hive's 10 nearest,
+        # search_fault_knowledge 0 of 10 for the 7,700-row hive under a custom plan, platform facts / bom / calc likewise,
+        # and semantic_search_kb errored for every member. Mig 20261008000002 fences each scope (OFFSET 0). Live, as the
+        # real principals, PREPAREd with bound params (generic AND custom), vs the exact truth; rolled back; self-tested.
+        "id":      "vector-search-recall",
+        "script":  "tools/validate_vector_search_recall.py",
+        "args":    [],
+        "label":   "VECTOR SEARCH RECALL - every SQL/plpgsql vector search (13 today; a new one with no case FAILS) returns its scope's TRUE top-k under the plan PostgREST runs: each is PREPAREd with bound parameters under force_generic_plan AND force_custom_plan, as the real principal (a member's JWT, or service_role where the edge function calls it), for the largest and smallest scope (empty tables seeded inside the rolled-back transaction), and compared with the same call after DISCARD PLANS + enable_indexscan=off. recall@10 must be 1.0. Before mig 20261008000002 the approximate index (ivfflat probes=1 / hnsw ef_search=40) served the ORDER BY and the scope was applied after: search_pm_knowledge 0.00, search_fault_knowledge 0.00 (7,700-row hive, custom plan), search_all_knowledge 0.33, platform facts 0.00, bom 0.20, calc 0.10, semantic_search_kb ERROR for every member. Self-test recreates the pre-fix bodies and proves they FAIL.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # Arc G G1 — non-RLS hive-scoped table detector (RLS entirely disabled). DOWN ratchet @0;
         # a NEW non-RLS hive table regresses. Needs live DB.
         "id":      "rls_coverage",
@@ -7992,6 +8152,124 @@ VALIDATORS = [
         "group":   "AI Validation",
         "report":  None,
         "skip_if_fast": True,
+    },
+    {
+        # LM-X (2026-10-07): an edge function that takes a hive id from the request must prove MEMBERSHIP, not
+        # identity. voice-transcribe primed its ASR with a caller-named hive's asset tags on resolveIdentity alone,
+        # and its code-repair step put those tags in the transcript. validate_edge_fn_auth_gate accepts identity as
+        # a gate, so it could not see this. Static, fast, baseline 0, self-test proves the teeth.
+        "id":      "client_hive_is_proven",
+        "script":  "tools/validate_client_hive_is_proven.py",
+        "args":    [],
+        "label":   "LM-X: a caller-named hive is proven by membership before an edge fn reads it",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # LM-G (2026-10-07): a per-person AI limit is keyed on the VERIFIED caller. voice-journal-agent keyed on
+        # body.auth_uid, which the gateway never sends, so every companion question platform-wide shared the gateway
+        # container's IP bucket; three more functions let any caller name someone else's bucket. Static, self-tested.
+        # 2026-10-08: marketplace-listing-assist wrote a hive-less seller's AUTH UID into ai_rate_limits.hive_id (FK to
+        # hives) - every upsert failed unread and the limit never counted; checkUserRateLimit wrote hive_id "" for
+        # hive-less callers (22P02); every limiter discarded its read/write errors. Rules U/N/E/H added.
+        "id":      "rate_limit_key_is_verified",
+        "script":  "tools/validate_rate_limit_key_is_verified.py",
+        "args":    [],
+        "label":   "LM-G: an AI rate limit is keyed on the verified caller (K: never a body field), in a column that can hold it (U: no auth uid as a hive limiter's key - a hive-less person is limited per user; N: never \"\" into ai_user_rate_limits.hive_id; Z: no empty hive key, which admits uncounted - five functions served hive-less callers that way, three to anyone), every limiter read/write checks its error and REFUSES on it (E: fail closed), and every refusal reads the verdict's scope so a limiter that could not count says so (H: 503, not 'limit reached'). --selftest: fixtures + the real tree mutated back to each defect",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # 2026-10-08: voice-action-router (1) narrated "Naks, you logged a 2 hour brake pad replacement" with nothing
+        # saved - it only classifies, and the false-done rail never ran on it (listed as an executor) - and (2) skipped
+        # its own limiter whenever the BODY said `gateway: true`, which any direct caller can send. Now: a proposal
+        # rail on the narration + a gateway-minted HMAC header (_shared/gateway-trust.ts) for the skip. Static + node
+        # behaviour on the real modules (no browser, no DB); --self-test fails the pre-fix sources and kills 5 mutants.
+        # S5 (same day): every ai-gateway target skips a limiter that re-counts the gateway's own bucket ONLY under
+        # isTrustedGatewayForward - nine targets counted each forwarded turn twice (a person ran out at ~half rate).
+        "id":      "voice_router_honesty",
+        "script":  "tools/validate_voice_router_honesty.py",
+        "args":    [],
+        "label":   "Voice router: narration is a proposal (never 'logged/saved'), only ai-gateway can skip a limiter (no body flag), and no gateway target re-counts the gateway's bucket",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # 2026-10-07 eval run: the analytics answer repeated persona.ts's narrated-specialist SAMPLE word for word
+        # ("71% OEE", "PMP-101", "Conveyor 2") for a hive with none of them. A prompt example's tags, figures, counts
+        # and dates must be <placeholder> slots, persona.ts + wh-persona.js must state "EXAMPLES ARE STYLE, NEVER
+        # DATA" / "EVERY FIGURE COMES FROM THIS REQUEST", and edge-fn prompt samples may name only traceable or
+        # standards tokens. Static, self-tested (--selftest), 41 findings before the fix, 0 after.
+        "id":      "prompt_example_grounding",
+        "script":  "tools/validate_prompt_example_grounding.py",
+        "args":    [],
+        "label":   "A prompt example never carries a fact a model can pass off as data (placeholders + style-not-data rule)",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        "id":      "ai_answer_is_text",
+        "script":  "tools/validate_ai_answer_is_text.py",
+        "args":    [],
+        "label":   "LM-S: a model's answer reaches the screen only when it IS text - String()/textContent/value/escHtml/.replace of a model field needs a typeof check (14 pre-fix hits, 0 now)",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # LM-E (2026-10-08): the STATIC twin of the browser gate `ai-trust`. That gate's roster is the ten pages one wave
+        # named, so it read "10/10" while analytics-report, alert-hub, project-report, project-manager, ph-intelligence,
+        # resume's cover letter, hive's coach, report-sender, the logbook photo/voice notes and engineering-design all
+        # showed AI prose with no "was this right?". Here the surface list is DERIVED: every edge-function call in every
+        # production page/script is discovered and must be classified (reading -> whAiTrustRow with agent/page/source +
+        # question/answer/groundedOn; prefill/approval -> a reason; own-row -> its marker). 5/18 at HEAD, 18/18 after;
+        # --selftest removes each row in turn and must fail.
+        "id":      "ai-trust-row-coverage",
+        "script":  "tools/validate_ai_trust_row_coverage.py",
+        "args":    [],
+        "label":   "LM-E: every AI answer a person READS carries the shared \"was this right?\" row (whAiTrustRow) - surfaces derived from every edge-fn call; pre-fills skip with a reason; an unclassified AI call fails",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # LM-E (2026-10-08): ai_reply_feedback had no call id, so a "wrong" could be matched to the call it judged only
+        # by its words. Static, no DB, no browser -> runs in --fast.
+        "id":      "ai_feedback_carries_trace",
+        "script":  "tools/validate_ai_feedback_carries_trace.py",
+        "args":    [],
+        "label":   "LM-E: a 'was this right?' rating names the call it judged - every ai_reply_feedback writer sends trace_id (the id the answering endpoint RETURNED, never client-minted), whAiTrustRow forwards opts.traceId, every whAiTrustRow caller passes the id its PRODUCER returned (the function its agent names when the page calls it, else what the page calls) - a producer that returns no id FAILS the row instead of being listed as 'cannot', and only a stored answer whose table keeps no id may pass null, declared with a `trace-allow: <why>` note; traced functions are computed from the sources (an ok() envelope, a trace_id reply literal, or serveObserved(fn, tracedReply(fn, ...)) while _shared/trace-reply.ts mints the id once and stamps trace_id on every JSON reply, R8, and the wrapped function mints no second id); a migration adds the column, and ai-gateway answers only through ok() and stamps ctx.trace_id on every refusal (jsonResponse 4th arg / withTrace around the shared 429 helpers) and on the specialist forward (x-wh-trace). Pre-fix source: 21 findings (4 writers, 2 callers, schema, 14 gateway); the 13 direct-specialist surfaces before tracedReply: 15 R4 findings (3 of 18 rows passed); --selftest 21 bad / 11 good fixtures; --root DIR or --rev REV runs the rules over another copy of the tree.",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # 2026-10-08: hives.federated_benchmark_opted_in was a declared consent nothing read or set - every hive (and a
+        # synthetic eval hive) fed the network benchmarks, the PH Intelligence report and the external intelligence API.
+        "id":      "federated-consent",
+        "script":  "tools/validate_federated_consent.py",
+        "args":    [],
+        "label":   "Cross-hive figures come only from hives that consented: _shared/federated-consent.ts reads hives.federated_benchmark_opted_in and fails closed; benchmark-compute computeNetwork, intelligence-report gatherData and intelligence-api limit every hive-owned read to consenting hives (3 minimum) and withdraw network rows they cannot republish; hive.html gives supervisors the switch (set_federated_benchmark_opt_in, supervisor-only, audited). --selftest 7 fixtures",
+        "group":   "Security",
+        "report":  None,
+    },
+    {
+        # LM-O (2026-10-08): an answer left no record an operator could read - analytics-orchestrator imported
+        # logAICost and never called it, and 19 of 29 model-calling functions wrote no row. Static, no DB,
+        # no browser -> runs in --fast. The JSON it checks is what tools/lm_walk.body.js reads instead of a
+        # hand-typed table.
+        "id":      "ai_call_sinks",
+        "script":  "tools/validate_ai_call_sinks.py",
+        "args":    [],
+        "label":   "LM-O: every model call leaves ONE durable per-call record when it answers - the chain reports each served call (every success path of callAI / callAIMultimodal; a function that calls a provider itself calls reportModelCall), serveObserved collects them per request (AsyncLocalStorage) and writes one ai_cost_log row per call with fn, hive, user, provider, model, tokens, latency, outcome and the trace id the reply returned; logAICost annotates instead of writing a second row; every model-calling function returns a trace id (tracedReply / the gateway envelope) and notes a hand-verified hive; tools/ai_call_sinks.json is derived from source (tools/build_ai_call_sinks.py) and FAILs when stale. 2026-10-08: a walk that EXHAUSTS every provider is one failed row (reportModelCallFailed; logAICost annotates it, never a second row); embedding / rerank / transcription / speech calls are recorded with their kind (embedding-chain.ts, audio-chain.ts, and functions that call such a provider directly); a model call raced against a deadline uses raceModelCall (recorded once, late, under the reply's trace id). --selftest: 23 mutants + tools/test_model_call_records.mjs (the collector's ROWS, run under node) and its teeth (a served-only absorb filter writes two rows)",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
+        # §LM.11 (2026-10-09): the Work Assistant answers with ONE model call. Static, no browser - runs in --fast.
+        "id":      "assistant-one-model-call",
+        "script":  "tools/validate_assistant_one_model_call.py",
+        "args":    [],
+        "label":   "Work Assistant: ONE model call per question (UFAI §LM.11). ai-orchestrator used to spend a router call + one call per specialist (2-4 of seven) + a synthesis call - about 5 calls and 11.7K tokens - and each specialist call only restated data the function had already read. The specialists now compute their JSON, routeQuestion() picks them from the question's own words, and the synthesis (chat) or coach synthesis is the only call; measured live: 1 generation call, 1,335 tokens. The synthesis input is redacted (redactPIIWithMap by key + redactKnownNames over the hive roster for names in prose) and the answer re-filled. Fails on a third model-call site, a model router, or an unredacted synthesis input. --selftest plants a specialist call and a model router.",
+        "group":   "AI Validation",
+        "report":  None,
     },
     {
         # Arc J keystone — Realtime subscription isolation (read-path twin of the DEFINER/view IDOR).
@@ -8126,6 +8404,18 @@ VALIDATORS = [
         "group":   "AI Validation",
         "report":  None,
         "skip_if_fast": True,
+    },
+    {
+        # ONE crew vocabulary (2026-10-09): the CA lens's word list was three hand-copied literals that had drifted
+        # and knew no maintenance trade (the skill matrix read as two crew words). tools/ca_crew_words.json is the
+        # list; tools/sync_ca_crew_words.py writes it into the three readers and --check fails on any drift.
+        "id":      "ca_crew_words",
+        "script":  "tools/sync_ca_crew_words.py",
+        "args":    ["--check"],
+        "label":   "CA lens: the three readers carry the one crew vocabulary (tools/ca_crew_words.json)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
     },
     {
         "id":      "gate_milestone_ratchet",
@@ -10377,6 +10667,20 @@ VALIDATORS = [
         "report":  "ai_chain_mirror_report.json",
         "skip_if_fast": False,
     },
+    {
+        # 2026-10-08: the chain answered from its LAST resort (codestral) on nearly every call of a grounding eval.
+        # Both Cerebras entries had answered 402 payment_required since 2026-09-10 (480 times, 0 answers) and the
+        # liveness check that should have said so is network-optional, so offline board runs proved nothing.
+        "id":      "ai-chain-models-snapshot",
+        "script":  os.path.join("tools", "validate_ai_chain_models_snapshot.py"),
+        "args":    [],
+        "label":   "AI CHAIN NAMES ONLY MODELS ITS PROVIDERS SERVE US - offline, every run: each model named by _shared/ai-chain.ts PROVIDER_CHAIN, its two Python mirrors and voice-model-call's private chain must appear in tools/ai_provider_models_snapshot.json (each provider's own models list, OpenRouter zero-priced only, written by tools/snapshot_ai_provider_models.py from the list endpoints - no generation) and must not be recorded there as unavailable_on_key (listed but refused to this key) or rejected_for_chain (listed but unable to serve the chain's request shape). A provider under removed_providers - Cerebras, taken off the platform 2026-10-08 after answering 402 payment_required to every call for a month - FAILs as a chain entry AND as a side door: its API host, key variable or a provider entry anywhere in live code (supabase/functions/**/*.ts, tools/**/*.py, tools/*.mjs, root *.py, comments excepted, two named detector/self files allowed). The live liveness check in validate_groq_fallback SKIPS without keys or network; this is its offline half. A chain copy that parses to 0 entries FAILs rather than reading clean. --selftest: a retired Groq name, a key-refused name, a removed provider's entry, an unknown provider, a non-free OpenRouter slug and a removed provider's key read / URL in live code are caught, a commented-out entry is not, and the real chain with one entry swapped for a retired id FAILs.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+        "severity": "fail",
+        "parallel_safe": True,
+    },
 
     # ── P1 Roadmap (turns 5-7, re-registered after revert 2026-05-27) ────────
     {"id": "truth-view-contract",          "script": "validate_truth_view_contract.py",          "args": [], "label": "Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)",                       "group": "P1 Roadmap", "report": "truth_view_contract_report.json",          "skip_if_fast": False, "severity": "blocker",    "parallel_safe": True},
@@ -10476,6 +10780,13 @@ VALIDATORS = [
     {"id": "no-future-timestamps",         "script": os.path.join("tools", "validate_no_future_timestamps.py"), "args": [], "label": "T437 (backfill future timestamp): every public table with a created_at holds only past/near-now values (135 tables checked) - no backfill or clock bug left a future-dated row that would poison time-ordered reads / recent-activity windows / MTBF-OEE. SKIPs if DB unreachable.", "group": "Platform",   "report": None,                                          "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
     {"id": "game-day-capstone", "script": os.path.join("tools", "validate_game_day_capstone.py"), "args": [], "label": "T200 (the full-platform game day, the programs proof): the game day composes as the UNION of the five degradation lanes (cc_failure_injection, offline-queued, cg_offline_views, auto-read-retry, media-fails-alone) under a DECLARED precedence (degradation_precedence.md) with a shift-completes north star; reddens if any lane is missing/red or the precedence is undeclared.", "group": "Platform", "report": None, "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
     {"id": "year-walk-capstone", "script": os.path.join("tools", "validate_year_walk_capstone.py"), "args": [], "label": "T196 (the complete story: one hive, one year): the year-compression material exists (grow_hive_fixture + age_hive_fixture + seed_5y_synthetic_history) AND every cross-year invariant is gated (ledger/FK/soft-delete/cache-freshness/membership/RLS/shift-window/deferral/shutdown-skip) - the one-hive-one-year story composes and holds.", "group": "Platform", "report": None, "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
+    {"id": "queue-count-honours-refusal", "script": os.path.join("tools", "validate_queue_count_honours_refusal.py"), "args": [], "label": "LXP223 (a refused read counted as zero): RLS answers a non-admin with ZERO ROWS AND NO ERROR, so every counter on the platform-actions governance console computed 0 and printed it - measured as \"New 0\" while platform_feedback held 10 rows with status new, directly beside the page's own list saying \"Not visible with this session. Sign in as a platform admin\". The page had ALREADY learned this in 2026-08-03 (its comment: \"a false all-clear is the most expensive empty state the platform can show\") and taught only its LISTS; _sessionLimited now also gates setCount and the five feedback tab pills. Verified BOTH ways live: a worker sees 11 dashes, Leandro Marquez (a seeded platform admin) sees 10 new / 10 all / badge 10, exactly the database.", "group": "Frontend", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "retired-page-inert", "script": os.path.join("tools", "validate_retired_page_inert.py"), "args": [], "label": "LXP209 (a retired page covered the eyes, not the Tab key): the 4 pages retired behind #wh-retired-overlay keep their old page in the DOCUMENT, and the opaque z-100000 overlay never removed it from the tab order - measured 30 invisible focusable controls on founder-console and 65 on marketplace-admin, each confirmed covered by elementFromPoint. The shared whInertBehindRetiredOverlay in utils.js sets inert + aria-hidden (inert alone has already been measured insufficient for a role query here), spares the overlay's own exit links, and re-applies through a BOUNDED observer because the skip link, the hub FAB and wayfinding mount after DOMContentLoaded. Also asserts every overlay-carrying page actually loads utils.js.", "group": "Frontend", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "no-zero-default-stat-pills", "script": os.path.join("tools", "validate_no_zero_default_stat_pills.py"), "args": [], "label": "LXP213 (a confident zero before the read): no read-backed counter ships `0` as its MARKUP default. inventory.html read \"0 parts / 0 low / 0 out\" from first paint until the read resolved at ~51-83s during an outage, with no failure language until ~30s - on a spare-parts register that tells a storeman the register is empty and nothing needs reordering. The page's ERROR handling was already correct (it dashes and says \"unknown right now, not zero. Do not order or issue parts from these numbers\"), which is why no walk had caught it: the lie was in the static default, before any error existed, and equally a lie on a healthy-but-slow load. 17 pills across 4 pages now default to an em dash; 3 client-side selection counters are exempt BY NAME, and the gate fails closed on a new one.", "group": "Frontend", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "list-cap-not-a-total", "script": os.path.join("tools", "validate_list_cap_not_a_total.py"), "args": [], "label": "LXP215 (a row cap shown as the size of a person's data): logbook mine-mode printed \"Showing 20 of 200 entries\" under a header pill reading 2277 - 200 is the .limit() - and Load More HID at the cap, so entries 201..2277 had no route to the screen. T9 had already fixed this exact defect on this page for the progress strip (_mineTrueTotal, count:exact) and the label beside it was never taught. Also pins BOTH pagers to an INCLUSIVE keyset cursor: `date` is not unique (527 tied dates on one worker, largest 7), the ordering is date desc/id asc, and .lt(date) silently dropped a real entry at boundary 600 - verified after the fix by hashing 640 loaded ids against the database's own ordering (identical, dropped row back at position 601).", "group": "Frontend", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "membership-read-failure-distinct", "script": os.path.join("tools", "validate_membership_read_failure_distinct.py"), "args": [], "label": "LXP199 (an outage reported as revoked access): every edge-fn membership gate on v_worker_truth captures the read's error and answers 503 ('your membership could not be CHECKED') BEFORE it may conclude 403 ('you are not a MEMBER'). Four gates discarded the error, so a read that never ran became a statement about the person's standing - measured: an active member whose full report had generated two minutes earlier was told 'you are not an active member of this hive, switch or rejoin a hive' during a pure service outage. A read has THREE outcomes - a row, no row, and no answer.", "group": "Platform", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "outage-copy-honesty", "script": os.path.join("tools", "validate_outage_copy_honesty.py"), "args": [], "label": "LXP203 (what an outage is allowed to SAY): every 5xx reaches the transport notice - a stopped service behind Kong answers 503 WITH a response, which the rejected-fetch path cannot see, so without the route nothing was ever named and the 6s slow hint still read 'still loading' at 102s with 0 reads in flight - while the 4xx family is deliberately NOT routed; the settle pass ALIASES window._t instead of a bare _t whose ReferenceError its empty catch would swallow, deleting the whole pass; and 'Retry when you are back online' stays retired, with both honest branches (offline / the service did not answer) present in EN and FIL.", "group": "Frontend", "report": None, "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    {"id": "slow-hint-reads-only", "script": os.path.join("tools", "validate_slow_hint_reads_only.py"), "args": [], "label": "LXP153 (an AI call held a page-wide still-loading over a finished page, and the notice blamed a connection it never measured): edge-function calls neither raise nor hold the slow hint; its text names no cause", "group": "Frontend"},
     {"id": "worker-drift-visible", "script": os.path.join("tools", "validate_worker_drift_visible.py"), "args": [], "label": "T186 (week-one habit / drift): a worker drifting away is VISIBLE to a supervisor while there is time to help - hive.html Team Pulse reads v_worker_assignment_truth (last_job_at + last_pm_at, row-per-member so never-engaged workers count too) and renders #pulse-quiet-workers naming workers quiet 7+ days, with an honest-degraded path (unread != all-active).", "group": "Platform", "report": None, "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
     {"id": "pull-help-coverage", "script": os.path.join("tools", "validate_pull_help_coverage.py"), "args": [], "label": "T174 (the help system: pull-help everywhere): every core worker-facing tool page has a pull-help guide entry (learn_links.json) and every guide slug resolves to a real /learn/ article - no uncovered core page, no dangling guide link.", "group": "Platform", "report": None, "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
     {"id": "pm-shutdown-skip-honesty", "script": os.path.join("tools", "validate_pm_shutdown_skip_honesty.py"), "args": [], "label": "T189 (seasonal shutdown: the plant sleeps): a shutdown does not read as a false compliance cliff - a PM that could not run is recorded skipped (CHECK-constrained, distinct from done/overdue), counted in v_pm_compliance_truth, and surfaced on asset-hub tile, so a supervisor can explain the dip. Paired with a-deferral-is-not-a-completion.", "group": "Platform", "report": None, "skip_if_fast": True, "severity": "regression", "parallel_safe": True},
@@ -10599,6 +10910,30 @@ VALIDATORS = [
         "script":  os.path.join("tools", "test_browser_floor_retry.mjs"),
         "args":    [],
         "label":   "Client-missing retry (10 cases): browser-floor.js told a person 'a file it needs did not arrive' on the FIRST dropped request, and three journey rows died on that banner (W3559/J9, W3521/J25, W3618/J22) under the offline-3g condition, which aborts about one request in twelve - so the file was not unavailable, that attempt was just the unlucky one. It now asks once more before warning. Both directions pinned, because a retry that always warns and one that never warns are equally broken: the second request carries the SAME src and KEEPS its integrity + crossorigin (a retry that drops SRI is a downgrade dressed as resilience), no banner paints while it is in flight, a success stays silent, a genuine failure still warns in both languages, and a second failure does not queue a third request. Mutation-tested: remove the pin carry-over or disable the retry and this reddens.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "fn-error-reads-the-sentence",
+        "script":  os.path.join("tools", "test_fn_error_reads_the_sentence.mjs"),
+        "args":    [],
+        "label":   "whFnError reads the SENTENCE (8 shapes + teeth): it read `body.error || body.message`, but functions refuse in three shapes and only one keeps the sentence in `error` - {error: sentence} (most), {error: code, message: sentence} (login, supervisor-reset-password, 19 refusals) and the envelope's {ok:false, error:{code, message}} (6 functions, 37 refusals). Measured live 2026-10-12 on the hive roster: a supervisor pressing Reset PW past the limit read the bare code 'rate_limited' while the function had sent 'Too many password resets. Try again later.', and an envelope refusal's sentence was never read at all. Loads the REAL function from utils.js into a sandbox, asserts every shape (a bare code and the supabase-js placeholder fall to the status taxonomy, never shown as words), then puts the old selection back and requires the four cases it got wrong to fail.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "cmms-normalisation",
+        "script":  os.path.join("tools", "test_cmms_normalisation.mjs"),
+        "args":    [],
+        "label":   "CMMS codes clamp and a connector's field map has defaults (UFAI edge walk W4331, 2026-10-12): `MAP[...] ?? raw ?? default` never reached its default because every caller passes a string, so an unmapped STATUS went to external_sync raw and one SAP 'TECO' failed cmms-sync's whole 200-row batch against the Open/Closed/Cancelled CHECK; the same line stored '' or 'PM04' as a logbook maintenance type no KPI counts; and cmms-sync read `config.field_map || {}` while the column defaults to '{}' and the page never sets it, so every connector a person made synced nothing and reported success. Imports the REAL _shared/mappings.ts (type-stripped), pins every status/type/field-map case, and requires the pre-fix expressions to fail all three teeth.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "cache-keeps-no-no-answer",
+        "script":  os.path.join("tools", "test_cache_keeps_no_no_answer.mjs"),
+        "args":    [],
+        "label":   "The shared response cache never files 'no model answered' (UFAI edge walk W4745, 2026-10-12): _shared/cache.ts cached() stored whatever its fetcher returned, and when every provider failed callAI answers \"{}\" - so agentic-rag-loop's router/grader/checker, voice-action-router and voice-report-intent filed a minute-long outage as THE answer to the prompt for 2-6 hours, served to everyone who repeated it after the providers recovered (local ai_cache held an agentic-rag-router \"{}\" from 2026-09-07). Loads the REAL cached() with the REAL aiAnswered() against an in-memory ai_cache: a no-answer is returned and never stored, one already stored is a miss and asked again, a real reply is cached and served as before; then puts the pre-fix wrapper back and requires both teeth to fail.",
         "group":   "Platform",
         "skip_if_fast": False,
     },
@@ -10914,6 +11249,24 @@ VALIDATORS = [
         # every in-scope row's own basis by the KIND of evidence it holds (live probe / board-inherited / gate-derived /
         # prose) and is the single definition the header, this gate and every walk's skip-list share, so the three can
         # never disagree. It reddens the moment the ledger and the registry drift apart.
+        # *NO TRAJECTORY MAY BE COUNTED CLOSED ON AN INSTRUMENT IAN RETRACTED (2026-10-05). On 2026-09-15 he
+        # retracted every row banked on a Playwright-LIBRARY prover - "I thought we are using relevant live
+        # MCPs?" - and that was enforced inside ONE banker while the ledger, which decides whether a basis
+        # COUNTS, knew nothing about it: its `playwright` marker accepts the bare prefix "prove_", so every
+        # library prover satisfied the instrument test. Measured: 916 rows read CLOSED on a retracted prover,
+        # each with the retracted run as its NEWEST claim, not superseded history. The headline said 8,909
+        # closed / 75.7%; honest, it was 8,480 / 72.0%.
+        # Ten tools under tools/bank_*.py advance a status and two knew the word "retracted", so this gates the
+        # STATE rather than each producer - the eleventh banker will not know either, and a hand-written basis
+        # bypasses all of them. It reads the ledger's own classification instead of re-deriving the rules.
+        "id":      "no-retracted-evidence",
+        "script":  os.path.join("tools", "validate_no_retracted_evidence.py"),
+        "args":    ["--check"],
+        "label":   "No retracted evidence - a library prover may WALK to find defects but may not CLOSE a row reserved for an MCP walk (916 rows were counted closed on one)",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "live-walk-manifest",
         "script":  os.path.join("tools", "live_walk_manifest.py"),
         "args":    ["--check"],
@@ -10954,6 +11307,10 @@ VALIDATORS = [
         # a down-vote, and - provoked with the platform's own 429 body on every AI front door - admit a
         # spent quota on screen. Before this wave only the Assistant chat and the launcher had the 👍/👎;
         # whAiTrustRow (utils.js) is the shared row the other five surfaces now render.
+        # ★ITS ROSTER IS THE EX-AT WAVE'S PAGE LIST, NOT THE PLATFORM'S AI SURFACES (LM-E, 2026-10-08): "10/10" held while
+        # thirteen reading surfaces had no row. Coverage is certified statically by `ai-trust-row-coverage`
+        # (tools/validate_ai_trust_row_coverage.py), whose list is derived from every edge-fn call; this gate keeps the
+        # live half (T4: a provoked 429 admitted on screen) for the pages it walks.
         "id":      "ai-trust",
         "script":  os.path.join("tools", "prove_ai_trust.mjs"),
         "args":    [],
@@ -11112,6 +11469,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # The wave-4 WRITE rows (and the rpc rows whose function mutates) are lived by the PERSON'S OWN CONTROL,
+        # never by a walker writing through PostgREST or calling a mutating rpc itself. tools/w4_write_recipes.json
+        # says, per open subject, which page control a seeded local persona presses, the request it must produce,
+        # and the postgres SQL that finds and exactly reverses the persisted effect (seeding what a delete deletes).
+        # A recipe that names a selector the page does not have, a page outside the repo, a delete with nothing
+        # seeded, or a "step" that is really a direct call would bank a lie or destroy real data - this refuses each
+        # from files, with its own failure fixtures run first, and opens no browser.
+        "id":      "w4-write-recipes",
+        "script":  os.path.join("tools", "validate_w4_write_recipes.py"),
+        "args":    [],
+        "label":   "W4 write recipes (every open write/mutating-rpc subject is lived by a real page control, seeded and reversible)",
+        "group":   "QA",
+        "skip_if_fast": False,
+    },
+    {
         # Eight pages carry "let a person take their record and go, and be honest to those who remain". The
         # lens holding them looked for the WORD export on the page. This exercises the PDPA Article 16 right
         # for real, as a supervisor who is not a platform admin, and checks the bound on it: a plain worker
@@ -11180,6 +11552,25 @@ VALIDATORS = [
         "script":  os.path.join("tools", "prove_consumption_bound.py"),
         "args":    [],
         "label":   "Consumption bounds (a page that caps what it loads says so where a reader can see it)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # (*)THE PUBLIC PAGES LEFT THE TAILWIND PLAY CDN (2026-10-13). The learn articles, the 60 calculators
+        # and their staging copies, the learn hub, about / privacy / terms and the public roadmap loaded a ~400 KB
+        # script that blocked render and built the CSS on the reader's phone: read through the audit lens (Slow 4G,
+        # CPU 4x, a 390 phone) a learn article painted its largest element at ~4.7 s, ~2.2 s of it the CDN.
+        # tools/tw_public_build.mjs compiled one sheet per tailwind.config family (/wh-tw-pub-<family>.css, 7-9 KB),
+        # proved parity page by page (same stylesheet order, every rule the CDN wrote present, the computed style of
+        # every element and pseudo-element identical at 390 and 1280) and swapped. A compiled sheet rots silently -
+        # a missing CSS rule raises no error anywhere - so this fails a page back on the CDN, a class its sheet never
+        # compiled, anything placed after the link (Tailwind stays LAST in <head>, where the CDN's style landed),
+        # a leftover tailwind.config script, and a sheet built from a config the manifest no longer records.
+        # Self-test: `python tools/validate_tw_public_sheets.py --self-test` (7 cases, incl. a clean control).
+        "id":      "tw-public-sheets",
+        "script":  os.path.join("tools", "validate_tw_public_sheets.py"),
+        "args":    [],
+        "label":   "Public pages on compiled Tailwind (no Play CDN; every class compiled; the sheet last in <head>)",
         "group":   "Performance",
         "skip_if_fast": False,
     },
@@ -11377,6 +11768,21 @@ VALIDATORS = [
         "label":   "Deploy headers, local substitute (vercel.json applied by tools/serve_vercel_headers.py: CSP, Permissions-Policy mic+camera, HTML no-cache, asset caching, sw.js no-store, on every deploy-gated row's page)",
         "group":   "DevOps",
         "skip_if_fast": False,
+    },
+    {
+        # ★A FLOATING IMPORT IS A BUILD THAT DEPENDS ON THE MINUTE (2026-10-07 incident): after a deno cache clear
+        # every edge function failed to BOOT - 74 imports said `https://esm.sh/@supabase/supabase-js@2`, which
+        # resolved to 2.117.3, published to npm 4 minutes earlier and not yet built by esm.sh. A production deploy
+        # bundles at deploy time and floats the same way. All supabase-js imports are now pinned to ONE exact version
+        # (2.110.0, the browser vendor client) in the URL itself - not an import map: CLI 2.90's global fallback map
+        # is deprecated, 6 fns' own deno.json shadow it, and the local runtime bakes importMapPath at container create.
+        "id":      "edge-imports-pinned",
+        "script":  os.path.join("tools", "validate_edge_imports_pinned.py"),
+        "args":    [],
+        "label":   "Edge imports pinned: every remote specifier in supabase/functions/** (esm.sh, deno.land, jsr:, npm:, import maps) names an exact version, and @supabase/supabase-js is one version across the tree (static, no DB, no browser; --self-test proves it catches the incident specifier)",
+        "group":   "DevOps",
+        "skip_if_fast": False,
+        "severity": "fail",
     },
     {
         # ★FOUR MOMENTS THE PLATFORM DOES NOT CONTROL (T100/T123/T192/T197, 2026-09-07): an AI writes on
@@ -11971,10 +12377,97 @@ VALIDATORS = [
         # either too late for the plan or rolled back with the read-only transaction), and the harness's default
         # persona LEANDRO MARQUEZ is a marketplace platform admin, whose legitimate reads looked like seven leaks.
         # `--teeth` drops the by-design exemptions and must FAIL, which is what keeps this from becoming a green light.
+        # ★WHAT A CALCULATOR PAGE IS *FOR*, in the crew's own words (CA layer, 2026-10-05). The CA-layer walk reads
+        # each page's VISIBLE copy and asks whether it uses the words a Philippine maintenance crew uses. 57 of the
+        # 60 generated calculator pages scored 1-3 against a floor of 4, all reporting the SAME count - which is
+        # what pointed at one shared CTA rather than at 57 pages. The sentence now names the hive, the project and
+        # the next technician, and every clause of it was checked against `engineering_calcs` first: the draft I had
+        # before checking claimed an asset_id and a project_id that table does not have. It also guards the PAIRED
+        # half - the 60 `index.html.md` llms.txt twins carry the same prose to every agent that fetches them, so a
+        # fix in the HTML alone would leave the twins asserting the old copy. Measured after: 2 -> 6 crew terms on
+        # pump-tdh-calculator, confirmed by the prover itself, not by a static count.
+        "id":      "calc-cta-crew-context",
+        "script":  os.path.join("tools", "fix_calc_cta_crew_context.py"),
+        "args":    ["--check"],
+        "label":   "Calculator CTAs say what the calculation is FOR (the hive, the project, the next technician) - not just what it saves - in sentences of 20 words or fewer, and their markdown twins agree",
+        "group":   "SEO/Content",
+        "skip_if_fast": True,
+    },
+    {
+        # The calculators' method note joined two facts with a semicolon into one 23-word sentence, the longest and
+        # hardest on 57 pages in the critic batch (B3, 2026-10-13). Split at the semicolon; the twins follow.
+        "id":      "calc-method-defaults-split",
+        "script":  os.path.join("tools", "fix_calc_method_defaults_split.py"),
+        "args":    ["--check"],
+        "label":   "Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree",
+        "group":   "SEO/Content",
+        "skip_if_fast": True,
+    },
+    {
+        # *A PROVER THAT DOES NOT CHECK ITS SIGN-IN FABRICATES EVERY AUTH-GATED READING (2026-10-05, the THIRD
+        # time this class has been found). `signIn()` RETURNS on failure - it never throws - so
+        # `await signIn(ctx);` and `signIn(ctx).catch(() => {})` both leave the walk SIGNED OUT. Every auth-gated
+        # page then redirects to index and the prover measures a redirect stub: "the page said NOTHING", "0 rows",
+        # "no busy indicator". Those readings are indistinguishable from real findings and they get BANKED as the
+        # evidence a trajectory row rests on. Measured 2026-08-20: analytics-report (369 chars) and
+        # engineering-design (1845 chars) were both reported as silently failing; both merely redirect.
+        # The project had already recorded "59 call sites across 48 files" and fixed ONE - and inside that one
+        # file, one site was converted while its sibling nine lines down stayed swallowed. This sweep found 48
+        # still live across 42 provers and fixed them all, every file re-parsed.
+        # *TWO CONTRACTS, TWO GUARDS, and that distinction is the trap: live_page_journeys.signIn resolves to
+        # {ok,...} while prover_harness.signIn resolves to a BOOLEAN, so one shared guard would have thrown
+        # SIGN-IN FAILED on every SUCCESSFUL harness sign-in - 40 provers dying while looking hardened, and
+        # `node --check` cannot see a contract mismatch. Each module now exports the guard matching its own
+        # return shape. 13 sites that CAPTURE the result are reported for a human read, never rewritten.
+        "id":      "prover-signin-guard",
+        "script":  os.path.join("tools", "fix_prover_signin_guard.py"),
+        "args":    ["--check"],
+        "label":   "Prover sign-in guard - no prover can report a walk taken from a signed-out session (a failed signIn RETURNS, so an unchecked call fabricates every auth-gated reading)",
+        "group":   "QA",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "tenant-refusal",
         "script":  os.path.join("tools", "prove_tenant_refusal.mjs"),
         "args":    [],
         "label":   "Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE OTHER HALF OF THE SAME BOUNDARY: NOT "may a stranger read it" BUT "does a REVOKED member stop"
+        # (LAYER-UX §LX, AU layer, 2026-10-05). An access token is a signed bearer string with its own expiry, so
+        # revoking a membership does not revoke it. The only thing between a dismissed worker and their old hive is
+        # that every relation re-derives entitlement from the CURRENT membership on every read - and no browser
+        # test can see a failure here, because the browser would have to be holding the stale token.
+        # It replays ONE unexpired token across: active -> kicked -> deactivated -> supervisor -> worker, and
+        # grades four properties, each measured rather than declared:
+        #   · the hive's work must go to zero (logbook 6,944 -> 0 on the same token)
+        #   · hive_members must keep EXACTLY the person's own row, so the page can say "you were removed" and
+        #     still tell that apart from an outage - 0 there would be a silent sign-out
+        #   · a relation may keep rows only if ALL of them are the person's own (pm_completions 552 -> 202, every
+        #     one his; voice_journal 16 -> 16) - a departure must not show up as an ABSENCE
+        #   · a role change must change what the SAME token may do (one PATCH: supervisor accepted, worker refused)
+        # The subject is a seeded persona, its membership row is captured first and restored in a finally with the
+        # restoration VERIFIED. `--teeth` perturbs the expectations and must FAIL.
+        "id":      "lxp-au-identity-after-change",
+        "script":  os.path.join("tools", "prove_lxp_au_identity_after_change.mjs"),
+        "args":    [],
+        "label":   "Identity after revocation (a still-valid token stops vouching the moment the membership ends; a role change changes what it may do)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A PLATFORM ADMIN IS AN ACCOUNT, NEVER A NAME A PERSON CAN CHOOSE (2026-10-08, found by the LXC-S reading as
+        # the solo owner). is_platform_admin() matched an editable worker_profiles.display_name and
+        # is_marketplace_admin() matched names from hive_members, which anyone can found a hive and write - so one
+        # rename, or two inserts, made a stranger an admin (238,232 analytics rows; every order). Migration
+        # 20261008000031 keys the allowlist on auth_uid; this re-runs both attacks as a non-admin, rolled back, beside a
+        # control that the real admin stays one, and holds the solo owner's right to read his own XP rows.
+        "id":      "admin-is-an-account",
+        "script":  os.path.join("tools", "validate_admin_is_an_account.py"),
+        "args":    [],
+        "label":   "Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)",
         "group":   "Security",
         "skip_if_fast": False,
     },
@@ -12265,8 +12758,37 @@ VALIDATORS = [
         "id":      "rubric-teeth",
         "script":  "tools/prove_rubric_teeth.mjs",
         "args":    ["--self-test"],
-        "label":   "Rubric teeth: V1 occlusion + R6 element-overflow bite on synthetic pages (FAB over Save; 420px box in a 300px hidden card) and stay quiet on a clean page / under an open modal",
+        "label":   "Rubric teeth: V1 occlusion + R6 element-overflow bite on synthetic pages (FAB over Save; 420px box in a 300px hidden card) and stay quiet on a clean page / under an open modal. Since 2026-10-13 also: V1 names the veil, never the page's <main>, and ignores controls hidden inside a closed (nested) disclosure; B3 reads a <br> as a line break; B4 reads a middot meta line as a list yet fails a real 38-word sentence; J1 spares a CTA link and a modal-opening button yet fails an unguarded delete. Each new case fails on the pre-fix lens.",
         "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        # ★A REMEMBERED TURN SAYS WHEN IT WAS SAID (2026-10-13, voice-journal audio walk W4812). A returning worker said
+        # "Maintenance" and was told "you've asked this four times today" - the four questions were SIX DAYS old: the
+        # memory block's "Recent turns" carried no time and no prompt states the current date. Every turn, summary and
+        # recalled journal entry now carries a duration ("6 days ago", true in every timezone). This runs the REAL
+        # formatters under Node (remote imports stubbed, types stripped), feeds the block through the gateway's own PII
+        # scrub, and kills three mutants (each formatter without its age; an ageLabel that says nothing). Pure Node, ~1 s.
+        "id":      "memory-age",
+        "script":  "tools/prove_memory_age.mjs",
+        "args":    [],
+        "label":   "AI memory says WHEN: every remembered turn, summary and recalled journal entry a model reads carries how long ago it was said (a six-day-old question once read as 'four times today'); and in what ORDER (a question before its answer; a summary never cuts a pair); runs the real code with ties returned in the worst order, WHOSE (read back by the account, never the display name - a newcomer under a freed name inherited nothing); and durable memory written with and read by the account (no hive = solo); survives the PII scrub, 11/11 mutants killed",
+        "group":   "AI Validation",
+    },
+    {
+        # ★WHO MAY READ OR WRITE A PERSON'S AI MEMORY (2026-10-13, proven live BEFORE the fix). agent-memory-store
+        # (verify_jwt = false) checked tenancy only when a hive was claimed: with nothing but the public anon key, a
+        # recall naming anyone and no hive returned their durable memories from every hive (HTTP 200, a marker came
+        # back) and a store wrote under any name. agentic-rag-loop forwarded the body's name to it with the SERVICE key
+        # and read the solo logbook lane by that name with no hive filter. Live REST checks with marker rows only (no
+        # model): anonymous -> 401; a member naming someone else -> 403; a member's own recall returns their own marker
+        # (positive control); the loop makes no memory call for an anonymous question naming someone, and one for a
+        # signed-in question (the oracle can see a recall). The key it calls "anonymous" is proven anon by its claims.
+        "id":      "memory-identity",
+        "script":  "tools/prove_memory_identity.py",
+        "args":    [],
+        "label":   "AI memory WHOSE (live): anonymous recall/store of a person's durable memory is refused (401), a member cannot read or write under someone else's name (403), a member's own recall returns their own marker, and agentic-rag-loop never recalls for an anonymous question naming someone - marker rows only, no model",
+        "group":   "Security",
         "skip_if_fast": True,
     },
     {
@@ -12577,6 +13099,80 @@ VALIDATORS = [
         "script":  "tools/fix_learn_chrome.py",
         "args":    ["--check"],
         "label":   "all 54 learn articles carry the shared chrome: bilingual labels and 44px standalone header/footer/breadcrumb tap targets",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★The two contrast fixers reached 51 of 54 and nothing noticed (critic batch C5, 2026-10-13). The three
+        # pillar guides were built after both ran, so their prose stayed at 0.78 white (APCA Lc 70, floor 75), their
+        # byline at Lc 40 and their back link at Lc 46, while the same markup rendered at 0.8-0.85 on the other 51.
+        # Both dry runs exited 0 with work pending. Same three pages as learn-shared-chrome's own miss above.
+        "id":      "learn-contrast-remap",
+        "script":  "tools/fix_learn_contrast_remap.py",
+        "args":    ["--check"],
+        "label":   "every learn article carries the platform's white-opacity remap (text-white/45-75 -> 0.8/0.85, as wh-tw.css)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The rubric lens's PP3 decides "this page writes" from its source and read any rpc without a get_/list_/fetch_/
+        # v_/my_ prefix as a write: audit-log (a read-only viewer whose one call is the STABLE audit_filter_vocab) graded
+        # 0% for "no instant acknowledgment" on every walk (critic batch, 2026-10-13). The lens carries the database's
+        # answer instead (_READ_RPCS: STABLE/IMMUTABLE functions the pages call); this fails when that list drifts.
+        "id":      "lens-read-rpcs",
+        "script":  "tools/sync_lens_read_rpcs.py",
+        "args":    ["--check"],
+        "label":   "the rubric lens's read-only RPC list matches the database (STABLE/IMMUTABLE functions the pages call)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★The critic closer would have moved 2,299 rows to improving on the day they were banked (2026-10-13): it never
+        # asked whether the sweep it read was NEWER than the finding, or whether it saw the same SCREEN (a signed-out walk
+        # of hive.html lands on the home page). Synthetic rows in a temp dir, dry run: an older sweep must not clear a
+        # finding, a newer one must; a signed-out row must ignore a signed-in sweep and accept a newer signed-out one.
+        "id":      "critic-rewalk-close",
+        "script":  "tools/test_bank_critic_rewalk.py",
+        "args":    [],
+        "label":   "a critiqued row re-walked as its own cast with no findings moves to improving; anything less stays critiqued",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "critic-closer-guards",
+        "script":  "tools/test_close_critic_findings_guards.py",
+        "args":    [],
+        "label":   "the critic closer clears a finding only with a sweep newer than its bank, of the same signed-in/out screen; a descoped dim (N1) stops blocking and is receipted as descoped, never as clean",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # The receipts said "lock = family-rubric-ratchet on the full board" and nothing ever checked it: no tool moved a
+        # critic row past improving (85%), and a clean critique sat at 70% for good. critic_lock_promote.py is that step;
+        # this holds its rule (2026-10-13): full board only, after the row's evidence, every named gate PASS.
+        "id":      "critic-lock-promote",
+        "script":  "tools/critic_lock_promote.py",
+        "args":    ["--self-test"],
+        "label":   "a critic row locks only on a FULL board that ran after its evidence, with every gate its receipt names PASS (improving and clean critiques; never one with open findings)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # T3 on the public reading surface: 54 learn guides plus about, feedback, privacy-policy and terms-of-service.
+        # The fixer only ever looked in learn/, and its dry run exited 0, so the four public pages graded T3 0% in the
+        # critic batch (2026-10-13) and the three pillar guides had shipped without it until fixed by hand.
+        "id":      "public-touch-action",
+        "script":  "tools/fix_learn_touch_action.py",
+        "args":    ["--check"],
+        "label":   "every learn guide and public page sets touch-action: manipulation (no 300 ms tap delay on a phone)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        "id":      "learn-literal-alpha",
+        "script":  "tools/fix_learn_literal_alpha.py",
+        "args":    ["--check"],
+        "label":   "no learn article's own <style> writes text below the platform contrast ramp (rgba(244,246,250,<0.8) -> 0.8/0.85)",
         "group":   "Platform",
         "skip_if_fast": False,
     },
@@ -13510,7 +14106,15 @@ def main():
             print(f"    {_f}")
         print("  A report nobody writes is a pointer to nothing. Either write the artifact or drop the field.")
         return 1
-    print(f"  {len(VALIDATORS)} gates registered · ids unique · scripts resolve · reports unclaimed twice · "
+    # ★EVERY ENTRY CARRIES WHAT THE SUMMARY READS (2026-10-13). One registration without `group` ran with the other
+    # 695 gates and then crashed the summary (KeyError: 'group'): the board exited 1 with no summary and no saved
+    # result after the whole run. A shape fault is refused here, before any gate spends its time.
+    _no_group = [_v.get("id") for _v in VALIDATORS if not _v.get("group")]
+    if _no_group:
+        print(red(f"\n  REGISTRY ERROR — {len(_no_group)} gate(s) registered without a `group` (the summary groups by it): "
+                  f"{', '.join(map(str, _no_group[:8]))}"))
+        return 1
+    print(f"  {len(VALIDATORS)} gates registered · ids unique · scripts resolve · reports unclaimed twice · every entry grouped · "
           f"{len(_fiction)}/{_FICTIONAL_REPORT_CEILING} unwritten report declarations (forward-only)")
 
     baseline = load_baseline()

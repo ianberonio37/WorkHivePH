@@ -2,7 +2,7 @@
 name: edge-fn-send-report-email
 type: edge-fn
 source: file:supabase/functions/send-report-email/index.ts
-source_sha: c62b43245acfcabd
+source_sha: b0eb50af11e5c511
 last_verified: 2026-07-13
 supersedes: null
 ---

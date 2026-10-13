@@ -32,8 +32,15 @@ let counter = 0;
 function neutralizeImport(src) {
   // Replace the single type-only runtime import so node can load the module offline. SupabaseClient is used
   // only as a type annotation, so `type SupabaseClient = any` is behaviourally identical after type-stripping.
-  const out = src.replace(/^import\s*\{\s*SupabaseClient\s*\}\s*from\s*"[^"]*";/m, 'type SupabaseClient = any;');
+  let out = src.replace(/^import\s*\{\s*SupabaseClient\s*\}\s*from\s*"[^"]*";/m, 'type SupabaseClient = any;');
   if (out.indexOf('esm.sh') !== -1) throw new Error('failed to neutralize the SupabaseClient import');
+  // ★THE HELPER GAINED A SECOND IMPORT AND THE RUNNER DID NOT (2026-10-13). tenant-context.ts now records the verified
+  // caller for the per-call model record (`noteModelCaller` from ./model-calls.ts, LM-O). The temp copy has no
+  // model-calls.ts beside it, so node threw ERR_MODULE_NOT_FOUND and the gate read "the runner errored" - the contract
+  // never ran at all. The recorder is telemetry with no bearing on who may act, so it is a no-op here.
+  out = out.replace(/^import\s*\{\s*noteModelCaller\s*\}\s*from\s*"\.\/model-calls\.ts";/m,
+    'const noteModelCaller = (_c: unknown): void => {};');
+  if (/^import\s.*from\s*"\.\//m.test(out)) throw new Error('tenant-context.ts gained a local import the runner does not stub');
   return out;
 }
 

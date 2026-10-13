@@ -79,18 +79,20 @@ def _instrument_of(res: dict, kind: str) -> str:
 # the gate. A prover may WALK to find defects and produce receipts - it may not BANK a row reserved for an MCP
 # walk, and the newest-wins receipt store means its receipt is always one banker call away from doing so.
 # See memory feedback_a_library_batch_is_not_an_mcp_walk (both occurrences).
-RETRACTED_INSTRUMENTS = (
-    "tools/prove_w4_actions.mjs",
-    "tools/prove_w4_navhub.mjs",
-    "tools/prove_w4_confusions.mjs",
-    "tools/prove_w4_layer_ca.mjs",
-    "tools/prove_full_journeys.mjs",
-)
+# ★ONE LIST, IN THE LEDGER, IMPORTED HERE (2026-10-05). This tuple used to be declared in this file while
+# live_walk_manifest.py had no notion of it - and that split cost exactly what a split costs: the banker
+# refused to CREATE a basis on a retracted prover while the ledger happily COUNTED 916 existing rows that
+# already named one. Two hand-kept copies of a rule is the defect, not the safeguard
+# ([[feedback_two_stale_lists_agreeing_is_not_a_check]]), so the ledger owns it and this importer follows.
+def _retracted_instruments() -> tuple:
+    """Read the list from the ledger, lazily - this module imports live_walk_manifest inside main()."""
+    import live_walk_manifest as _m
+    return tuple(getattr(_m, "RETRACTED_INSTRUMENTS", ()))
 
 
 def _is_retracted(res: dict) -> bool:
     inst = str(res.get("instrument") or "")
-    return any(inst == r or inst.endswith(r) for r in RETRACTED_INSTRUMENTS)
+    return any(inst == r or inst.endswith(r) for r in _retracted_instruments())
 
 
 def _axis_of(t: dict) -> str:

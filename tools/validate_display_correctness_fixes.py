@@ -81,8 +81,17 @@ CHECKS = [
      "inventory P6: Restock routes through the ATOMIC inventory_restock RPC (mig 20260713000008), not a client-computed absolute qty upsert (concurrent-Restock lost-update fix)"),
     ("asset-hub.html", "sub", "eq('status', 'pending').select('id')", 2,
      "P6-C1 sibling: approve/rejectAssetNode optimistic-lock on status='pending' (no cross-page concurrent re-flip)"),
-    ("asset-hub.html", "sub", "is('acted_at', null)", 2,
-     "P6-C1 sibling: staging accept/dismiss guard on acted_at (no double-act re-flip)"),
+    # MOVED, not dropped (2026-10-13). Accepting a staging recommendation became ONE write on 2026-10-08: the
+    # accept_parts_staging RPC (mig 20261008000011) stages the parts and marks the card in one transaction, and refuses
+    # a card that is already acted on (`already_acted`) under a row lock. So the accept half of this guard now lives in
+    # the database; the page keeps the dismiss half. Both halves stay obligations, each where it is enforced.
+    ("asset-hub.html", "sub", "is('acted_at', null)", 1,
+     "P6-C1 sibling: staging DISMISS guard on acted_at (no double-act re-flip)"),
+    ("asset-hub.html", "sub", "rpc('accept_parts_staging'", 1,
+     "P6-C1 sibling: staging ACCEPT goes through accept_parts_staging (one transaction, refuses an acted card)"),
+    ("supabase/migrations/20261008000011_accepting_a_staging_recommendation_is_one_write.sql", "sub",
+     "IF v_rec.acted_at IS NOT NULL THEN", 1,
+     "P6-C1 sibling: accept_parts_staging refuses a recommendation already acted on (no double-act re-flip)"),
     ("project-manager.html", "sub", "eq('status', 'pending').select('id')", 2,
      "P6-C1 sibling: approveCO/rejectCO optimistic-lock (no reversal of an already-decided, cost-impacting change order)"),
     # RETIRED 2026-08-03, and deliberately INVERTED rather than deleted.

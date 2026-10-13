@@ -109,10 +109,10 @@ end $$;
 set local workhive.row_cap_system_write = 'off';
 insert into external_sync(hive_id, system_type, external_id, entity_type, workhive_table, status, sync_payload, sync_status)
 values('{hive}','generic','CMMSGATE-WO-1','work_order','logbook','Open','{{"probe":true}}'::jsonb,'active')
-on conflict (system_type,external_id,entity_type) do update set status=excluded.status, sync_payload=excluded.sync_payload, sync_status=excluded.sync_status;
+on conflict (hive_id,system_type,external_id,entity_type) do update set status=excluded.status, sync_payload=excluded.sync_payload, sync_status=excluded.sync_status;
 insert into external_sync(hive_id, system_type, external_id, entity_type, workhive_table, status, sync_payload, sync_status)
 values('{hive}','generic','CMMSGATE-WO-1','work_order','logbook','Closed','{{"probe":true,"v":2}}'::jsonb,'active')
-on conflict (system_type,external_id,entity_type) do update set status=excluded.status, sync_payload=excluded.sync_payload, sync_status=excluded.sync_status;
+on conflict (hive_id,system_type,external_id,entity_type) do update set status=excluded.status, sync_payload=excluded.sync_payload, sync_status=excluded.sync_status;
 select 'SYNC|'||count(*)||'|'||max(status) from external_sync where external_id='CMMSGATE-WO-1';
 select 'DUPGUARD|'||count(*) from v_external_sync_truth where hive_id='{hive}' and entity_type='work_order' and external_id='CMMSGATE-WO-1';
 insert into logbook(id, worker_name, auth_uid, date, machine, category, problem, action, knowledge, status, created_at, maintenance_type, root_cause, downtime_hours, hive_id, closed_at, parts_used)

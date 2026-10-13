@@ -116,7 +116,21 @@ const before = await page.evaluate((s) => ({
 
 await signOut(page);
 await page.waitForTimeout(600);
+// ★THE SECOND SIGN-IN WAS CAPTURED AND NEVER CHECKED, AND ON THIS PROVER THAT FAILS OPEN (2026-10-05).
+// Its sibling twelve lines up aborts on `inA !== 'ok'`; this one assigned `inB` and read it nowhere - the
+// same one-path-fixed-sibling-missed shape found across this family today. Here the direction is the one
+// that matters: everything after this line asks whether worker B can see worker A's draft, so if B's
+// sign-in fails the page is SIGNED OUT, the sentinel is absent for that reason alone, and the prover
+// reports NO LEAK. A leak test that passes because nobody was logged in is a false green on exactly the
+// property it exists to defend, and it would have been banked as evidence that the boundary holds.
 const inB = await signIn(page, B);
+if (inB !== 'ok') {
+  console.log(`FAIL shared-handover - could not sign in as ${B.name}: ${inB}. ABORTING rather than `
+    + `reporting "no leak": every check below would read a signed-out page, which looks identical to a `
+    + `clean hand-off and is the one direction this prover must never guess in.`);
+  await browser.close();
+  process.exit(1);
+}
 await page.goto(`${ORIGIN}/logbook.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
 await page.waitForTimeout(3200);
 const after = await page.evaluate((s) => ({

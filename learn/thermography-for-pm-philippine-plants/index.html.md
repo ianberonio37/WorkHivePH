@@ -134,4 +134,4 @@ To integrate thermography into your plant's PM Scheduler, identify critical equi
 - ISO 14224:2016, **Collection and exchange of reliability and maintenance data for equipment** (the failure taxonomy the scan results are recorded against).
 - SMRP, **Body of Knowledge**: predictive-maintenance practice.
 
-<!-- md-twin source-sha: 700a9e6c70d4d41b -->
+<!-- md-twin source-sha: 73d83abacd2e1105 -->

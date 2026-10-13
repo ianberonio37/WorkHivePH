@@ -304,7 +304,7 @@ const TRUTHS = {
         // A basis affordance ("Based on your logbook") says where the DATA came from. The oracle asks
         // for the RULE — the threshold or comparison that produced this conclusion rather than another.
         const rule = has(t, /because [^\n]{0,60}|threshold[^\n]{0,40}|below [^\n]{0,40}|at or below[^\n]{0,40}/i);
-        const basis = has(t, /How this is computed|Based on your [^\n]{0,40}/i);
+        const basis = has(t, /How (?:this is computed|we compute[^\n]{0,40})|Based on your [^\n]{0,40}/i);
         return { ok: !!rule, saw: rule ? `${rule}` : `${basis || 'verdict'} — basis named, but not the rule that fired` };
       } },
   ],

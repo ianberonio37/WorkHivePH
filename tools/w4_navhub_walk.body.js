@@ -43,6 +43,24 @@ async (page) => {
   } catch (e) { void e; }
   // a route handler left by an earlier call would answer this walk's requests - clear them all
   try { if (typeof page.unrouteAll === 'function') await page.unrouteAll({ behavior: 'ignoreErrors' }); } catch (e) { void e; }
+  // ★NO LIVE MODEL CALL BY ARRIVING (2026-10-07). shift-brain's first open of a shift with no fresh plan invokes
+  // shift-planner-orchestrator, an LLM briefing, and this walk's hub links reach shift-brain. Model briefings were
+  // written for every seeded hive at 21:35-21:42 and four at 00:04-00:08 Manila time while this walker ran with no
+  // stub. A CONTEXT route (it survives the page.unrouteAll above), installed once per context. The witness is
+  // shift_plans.briefing: callAI writes no ai_cost_log row.
+  // ★THE PLANNER STUB CAME OFF (2026-10-12, UFAI edge walk W4785): every walk sends x-wh-walk-no-model and the planner
+  // honours it (the counts-only briefing, no model), so its fake 503 only kept the planner's own row from being walked.
+  // A context an older walk body stubbed is cleared here.
+  try { const _c = page.context(); if (_c.__whModelStub) { await _c.unroute('**/functions/v1/shift-planner-orchestrator**').catch(() => {}); _c.__whModelStub = null; } } catch (e) { void e; }
+  // NO MODEL CALL FROM ANY WALK, ON ANY PAGE - the action walker's route (2026-10-09), once per context: every edge
+  // call carries x-wh-walk-no-model: 1, which ONLY the local runtime honours (_shared/observability.ts).
+  try {
+    const _c = page.context();
+    if (!_c.__whNoModel) {
+      _c.__whNoModel = (r) => { const q = r.request(); return q.method() === 'OPTIONS' ? r.fallback() : r.fallback({ headers: Object.assign({}, q.headers(), { 'x-wh-walk-no-model': '1' }) }); };
+      await _c.route('**/functions/v1/**', _c.__whNoModel);
+    }
+  } catch (e) { void e; }
   const stops = P.stops || ['hive.html', 'assistant.html', 'logbook.html'];
   const records = [];
   const A = async (step) => { const a = await page.evaluate((s) => { if (!window.__W4_AUDIT) return { step: s, error: 'audit not installed' }; const r = window.__W4_AUDIT(null, { step: s }); return { step: s, vw: innerWidth, findings: r.findings || 0, overflow: r.overflow, occlusion: (r.occlusion || []).slice(0, 4), overflowEl: (r.overflowEl || []).slice(0, 3), outside: (r.outside || []).slice(0, 2), clipped: (r.clipped || []).slice(0, 2), wrapped: (r.wrapped || []).slice(0, 3), spill: (r.spill || []).slice(0, 2), ambiguity: (r.ambiguity || []).slice(0, 4), unactionable: (r.unactionable || []).slice(0, 3), confusions: r.confusions || 0 }; }, step); records.push(a); return a; };

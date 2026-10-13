@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 191,
-    "total_refs": 369,
+    "files_scanned": 198,
+    "total_refs": 398,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 50
+    "env_names_known": 53
   },
   "per_file": [
     {
@@ -17,6 +17,10 @@
     },
     {
       "file": "supabase/functions/_shared/ai-chain.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/asset-codes.ts",
       "missing": []
     },
     {
@@ -68,7 +72,15 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/federated-consent.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/followups.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/gateway-trust.ts",
       "missing": []
     },
     {
@@ -100,11 +112,23 @@
       "missing": []
     },
     {
+      "file": "supabase/functions/_shared/memory_age.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/model-calls.ts",
+      "missing": []
+    },
+    {
       "file": "supabase/functions/_shared/numeric_provenance.ts",
       "missing": []
     },
     {
       "file": "supabase/functions/_shared/observability.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/own-knowledge.ts",
       "missing": []
     },
     {
@@ -149,6 +173,10 @@
     },
     {
       "file": "supabase/functions/_shared/tenant-context.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/trace-reply.ts",
       "missing": []
     },
     {

@@ -2,7 +2,7 @@
 name: edge-fn-vehicle-doc-extract
 type: edge-fn
 source: file:supabase/functions/vehicle-doc-extract/index.ts
-source_sha: fcf146323e9517af
+source_sha: 4e970f147ed950c6
 last_verified: 2026-07-13
 supersedes: null
 ---

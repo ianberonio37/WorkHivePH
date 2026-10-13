@@ -158,7 +158,8 @@
     .gate-card h2 { font-size: 1.125rem; margin-bottom: 8px; }
     .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
     .gate-btn {
-      display: inline-block; padding: 10px 24px;
+      /* 44px tap floor (critic F1/K2, 2026-10-13): "Open Hive Board" measured 152x39 on the no-hive gate */
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 24px;
       background: rgba(41,182,217,0.15); color: var(--blue);
       /* ★THE 2026-09-06 NOTE HERE SAID "R3 press = 12px" AND IT WAS WRONG ABOUT THIS PAGE.
          Measured 2026-09-10 by replicating R3's own roleOf/shapeV against the page root: this
@@ -174,8 +175,14 @@
       text-decoration: none; font-size: 0.8rem; font-weight: 700;
     }
 
+    /* ★A PHONE RULE THAT DELETED A FACT (2026-10-06, found on audit-log x assistive-tech and swept here). This
+       read `.alert-time { display: none; }`, so on every phone each alert lost WHEN it fired - for sighted
+       readers and, because display:none leaves the accessibility tree too, for screen readers - in a feed
+       where "which of these is new?" is the first question. .alert-head already wraps, so the time takes its
+       own line instead of leaving. A static sweep of every page for phone rules hiding time/author/source
+       selectors found exactly two: audit-log's .entry-time and this one. */
     @media (max-width: 480px) {
-      .alert-time { display: none; }
+      .alert-time { flex-basis: 100%; }
     }
 
     /* AMC daily brief card (Autonomous Maintenance Crew). Distinct from
@@ -244,8 +251,11 @@
     .simple-card .sc-sub   { font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; }   /* 12px floor, sentence case, on the 4px grid (design lens slop + craft, 2026-09-15) */
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
-    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
-    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red); }
+    /* the AA TEXT tokens, as in components.css (axe-live, 2026-10-13): this page carries its own copy of the tile rules
+       and kept the FILL tokens, so "Stacking up" read #f87171 on the tinted card at 3.95:1 - the exact ratio
+       components.css records fixing. It shows only when critical alerts pile up, which is why it hid until today. */
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange-light); }
+    .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
     .action-card .ac-label { font-size:0.75rem; font-weight:700; color:var(--wh-blue-text); }
@@ -334,7 +344,7 @@
         <div class="ac-label" data-i="ah_whatnext">What to do next</div>
         <div class="ac-text" id="ah-action-text">Computing recommendation...</div>
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
-        <a id="ah-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+        <a id="ah-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
       </div>
       <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" aria-label="Show how these numbers are computed" data-i="showdetails">
         Show details
@@ -578,6 +588,14 @@
   // The active AMC brief (today's pending row, if any). Loaded by loadAmc()
   // and refreshed via realtime + the 60s poll.
   let _amcBrief = null;
+  // ★THE OPEN PAGE COMPOSED THE BRIEF AGAIN EVERY MINUTE (LM-L walk, LM510, 2026-10-07): loadAll runs every 60 s
+  // and re-renders the AMC card, and every render started a NEW prescriptive analytics-orchestrator compose - an AI
+  // call per minute per open tab (measured: a second compose at +60 s while the first was still pending, two
+  // "Refreshing" hints on screen). The live action plan is now remembered per hive + brief for 15 minutes; a render
+  // inside that window redraws it with no call, and a render while one compose is in flight shares it.
+  const _LIVE_BRIEF_TTL_MS = 15 * 60 * 1000;
+  // trace = the id the compose that produced `ap` returned (LM-E, 2026-10-08), so a "wrong" on the live brief names it
+  let _liveBrief = { key: null, at: 0, ap: null, trace: null, inflight: null };
   let _amcChannel = null;
   let _alerts = [];
   // A FAILED READ IS INVISIBLE ON THIS PAGE TWICE OVER, which is why it rendered 450 characters and
@@ -737,6 +755,99 @@
     };
   }
 
+  // STREAMLINE S6: the unified Action Brief (analytics prescriptive engine + horizon=today) - the SAME engine
+  // shift-brain + analytics render as their slices. With a stored brief it is a background UPGRADE of the instant
+  // fallback (the approval workflow stays the stored row's); with NO stored brief - midnight to 6 am PHT, before the
+  // cron writes today's row - it is the only brief the night shift gets, and a failed compose leaves the honest
+  // "no brief for this shift" text standing. opts.stored says which of the two this is.
+  async function loadUnifiedAmcBrief(summaryEl, _key, opts) {
+    const e = escHtml;   // shorthand used by the slice renderers below (top_assets/pm_due maps) — was undeclared in this IIFE scope (ReferenceError)
+    if (!summaryEl || !HIVE_ID || typeof renderActionBrief !== 'function') return;
+    // PP2: the prescriptive analytics-orchestrator is a >10s AI compose. The stored brief is already
+    // shown (instant fallback), so this is a background UPGRADE — surface an honest "refreshing with
+    // live data…" hint so the >10s wait isn't silent, and clear it when the live brief lands/fails.
+    const _refreshHint = document.createElement('div');
+    _refreshHint.className = 'ah-brief-refreshing';
+    _refreshHint.setAttribute('role', 'status');
+    _refreshHint.style.cssText = 'font-size:0.8rem;color:var(--muted,rgba(255,255,255,0.8));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
+    _refreshHint.textContent = (opts && opts.stored === false)
+      ? '↻ Composing a live brief for this shift…'   // nothing stored to refresh: say what is happening
+      : _t('↻ Refreshing this brief with live data…', '↻ Nire-refresh ang brief na ito gamit ang live na data…');
+    const _fresh = _liveBrief.key === _key && _liveBrief.ap && (Date.now() - _liveBrief.at) < _LIVE_BRIEF_TTL_MS;
+    // one hint on screen, however many renders share the compose (two stacked during the walk)
+    document.querySelectorAll('.ah-brief-refreshing').forEach((x) => x.remove());
+    if (!_fresh) { try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_refreshHint, summaryEl); } catch (_) { /* empty-catch-allow */ } }
+    try {
+      let ap = _fresh ? _liveBrief.ap : null;
+      if (!_fresh) {
+        if (!(_liveBrief.key === _key && _liveBrief.inflight)) {
+          _liveBrief = { key: _key, at: 0, ap: null, trace: null, inflight: db.functions.invoke('analytics-orchestrator', {
+            body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
+          }).then(({ data }) => {
+            // an EMPTY plan (no model answered) is no plan: the stored brief - or the honest "no brief" text - stays
+            const _planRaw = data && data.action_plan;
+            const plan = (typeof whActionPlanHasContent === 'function' ? whActionPlanHasContent(_planRaw) : !!_planRaw) ? _planRaw : null;
+            if (plan && _liveBrief.key === _key) { _liveBrief.ap = plan; _liveBrief.at = Date.now(); _liveBrief.trace = data.trace_id; }
+            return plan || null;
+          }).finally(() => { if (_liveBrief.key === _key) _liveBrief.inflight = null; }) };
+        }
+        ap = await _liveBrief.inflight;
+      }
+      // a plan built from the records (no model answered - analytics-orchestrator deterministicActionPlan) fills an EMPTY
+      // slot - the night shift's, before the 06:00 brief exists - but never displaces a model-written stored brief that
+      // is already on screen with its own approval workflow
+      if (ap && ap._engine && ap._engine.deterministic && !(opts && opts.stored === false)) ap = null;
+      // the card may have re-rendered while the compose ran: draw into the summary that is on screen now
+      const _liveSummary = document.getElementById('amc-summary') || summaryEl;
+      if (ap && _liveSummary) {
+        const summaryEl = _liveSummary;
+        summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
+          renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
+        // LM-E (2026-10-08): the live Action Brief replaced the stored one (and its row) - it gets its own row,
+        // recording the words renderActionBrief shows: summary (or narration), today's list, the watch list.
+        if (typeof whAiTrustRow === 'function') {
+          const _w = (x) => (typeof x === 'string') ? x.trim() : (x && typeof x === 'object')
+            ? [x.action || x.task || x.item || x.title, x.why || x.reason || x.detail].filter((v) => typeof v === 'string' && v.trim()).join(' - ') : '';
+          const _apText = [_w(ap.summary) || _w(ap.narration)]
+            .concat(Array.isArray(ap.this_week) ? ap.this_week.map(_w) : [], Array.isArray(ap.watch_list) ? ap.watch_list.map(_w) : [])
+            .filter(Boolean).join('\n');
+          if (_apText) {
+            whAiTrustRow(summaryEl, { db, agent: 'analytics-orchestrator', source: 'action-brief', page: 'alert-hub',
+              // the id is attributed only while the remembered plan IS the plan on screen (a superseded compose: none)
+              traceId: whTraceIdOf(_liveBrief.ap === ap ? _liveBrief.trace : null),
+              question: 'Action brief for today', answer: _apText,
+              groundedOn: 'your hive\'s live risk ranking, PM intervals, parts reorder and crew assignments' });
+          }
+        }
+        // T39 (2026-08-26): the meta above this summary is stamped "stored brief, generated <6am>"
+        // by renderAmcCard, which is exactly right while the stored copy is what is showing. The
+        // upgrade REPLACES that summary with a live compose and left the stamp untouched, so a
+        // supervisor reading a freshly computed brief was told it came from this morning's stored
+        // row. The failure path is honest by construction - it keeps the stored summary AND the
+        // stored stamp, which now agree - so only the success path needed saying.
+        try {
+          const _meta = document.getElementById('amc-shift-meta');
+          const _now = new Date(_liveBrief.at || Date.now());
+          const _hm = _now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          if (opts && opts.stored === false) {
+            // ★NO STORED BRIEF, STILL A BRIEF (2026-10-08): the card said "no brief for this shift" and the compose
+            // just landed - so it now says what it IS: composed live, because the 6 am brief has not run yet.
+            if (_meta) _meta.textContent = 'no stored brief for this shift · composed live ' + _hm;
+            const _pill = document.getElementById('amc-status-pill');
+            if (_pill) { _pill.textContent = 'live'; _pill.className = 'alert-tag tag-info'; }
+            const _head = document.getElementById('amc-headline');
+            if (_head) { _head.textContent = 'Live Action Brief (the 6 am brief has not run yet)'; _head.removeAttribute('data-ai-generated'); }
+          } else if (_meta && /stored brief/i.test(_meta.textContent || '')) {
+            _meta.textContent = (_meta.textContent || '').replace(
+              /·\s*stored brief[^·]*/i,
+              '· refreshed live ' + _hm + ' ');
+          }
+        } catch (_) { /* empty-catch-allow: a stamp must never break the brief it labels */ }
+      }
+    } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored amc_briefings.brief summary as the fallback */ }
+    finally { _refreshHint.remove(); }
+  }
+
   function renderAmcCard(brief, historic) {
     const e = escHtml;
     const card = document.getElementById('amc-card');
@@ -776,6 +887,10 @@
       });
       card.style.display = 'block';
       _amcBrief = null;
+      // ★THE NIGHT SHIFT HAD NO BRIEF (2026-10-08, §LM.11): the stored brief is written at 06:00 PHT, so from midnight
+      // until then this branch was the whole answer. The live Action Brief does not need the stored row - only the
+      // hive - so it is composed here too, under a key of its own; if it fails, the text above stays, and it is true.
+      if (_sum && HIVE_ID) loadUnifiedAmcBrief(_sum, HIVE_ID + '|live|' + todayPhtIso(), { stored: false });
       return;
     }
     _amcBrief = brief;
@@ -816,53 +931,34 @@
     const b = brief.brief || {};
     const headlineEl = document.getElementById('amc-headline');
     const summaryEl  = document.getElementById('amc-summary');
-    if (headlineEl) headlineEl.textContent = String(b.headline || _t('(no headline)', '(walang headline)'));
-    if (summaryEl)  summaryEl.textContent  = String(b.summary  || '');
+    // LM-S (2026-10-07): the stored brief is model output - only TEXT is shown; String() of a structured field is
+    // the literal "[object Object]".
+    const _txt = (v) => (typeof v === 'string' ? v.trim() : '');
+    if (headlineEl) headlineEl.textContent = _txt(b.headline) || _t('(no headline)', '(walang headline)');
+    if (summaryEl)  summaryEl.textContent  = _txt(b.summary);
+    // the stored brief's words are model output (amc-orchestrator): marked while they are what the card shows, so
+    // the copy lenses grade them as AI output, not as this page's copy (critic B3, 2026-10-13)
+    if (headlineEl) headlineEl.toggleAttribute('data-ai-generated', !!_txt(b.headline));
+    if (summaryEl)  summaryEl.toggleAttribute('data-ai-generated', !!_txt(b.summary));
+    // ★A BRIEF A SUPERVISOR APPROVES FOR THE CREW HAD NO WAY TO BE CALLED WRONG (LM-E walk, 2026-10-08). Approve /
+    // Reject decides whether the crew acts on it; neither tells anyone the brief's words were wrong. The shared row
+    // records the exact headline + summary shown. It lives inside #amc-summary, so the next textContent write (a
+    // re-render) or the live upgrade below (innerHTML) removes it - one row per brief on screen, never stacked.
+    if (summaryEl && (_txt(b.headline) || _txt(b.summary)) && typeof whAiTrustRow === 'function') {
+      // trace-allow: this rates the STORED amc_briefings row the morning run wrote; that table keeps no trace id and this
+      // page never calls amc-orchestrator, so there is no id of the producing call to send (LM-E, 2026-10-08)
+      whAiTrustRow(summaryEl, { db, agent: 'amc-orchestrator', source: 'amc-brief', page: 'alert-hub', traceId: null,
+        question: 'AMC daily brief for shift ' + (brief.shift_date || 'unknown'),
+        answer: [_txt(b.headline), _txt(b.summary)].filter(Boolean).join('\n'),
+        groundedOn: 'the 6 am snapshot of your hive\'s risk scores, PMs due, parts and crew' });
+    }
 
     // STREAMLINE S6: upgrade the brief body to the unified Action Brief (analytics
     // prescriptive engine + horizon=today) — the SAME engine shift-brain + analytics
     // render as their slices. The stored amc_briefings.brief stays as the instant
     // fallback, and the APPROVAL workflow (approve/reject buttons + amc_briefings.status)
     // is untouched — the engine fuses the BRAIN, the surface keeps its workflow.
-    (async function loadUnifiedAmcBrief(){
-      const e = escHtml;   // shorthand used by the slice renderers below (top_assets/pm_due maps) — was undeclared in this IIFE scope (ReferenceError)
-      if (!summaryEl || !HIVE_ID || typeof renderActionBrief !== 'function') return;
-      // PP2: the prescriptive analytics-orchestrator is a >10s AI compose. The stored brief is already
-      // shown (instant fallback), so this is a background UPGRADE — surface an honest "refreshing with
-      // live data…" hint so the >10s wait isn't silent, and clear it when the live brief lands/fails.
-      const _refreshHint = document.createElement('div');
-      _refreshHint.className = 'ah-brief-refreshing';
-      _refreshHint.setAttribute('role', 'status');
-      _refreshHint.style.cssText = 'font-size:0.8rem;color:var(--muted,rgba(255,255,255,0.8));margin:4px 0 8px;display:flex;align-items:center;gap:6px;';
-      _refreshHint.textContent = _t('↻ Refreshing this brief with live data…', '↻ Nire-refresh ang brief na ito gamit ang live na data…');
-      try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_refreshHint, summaryEl); } catch (_) { /* empty-catch-allow */ }
-      try {
-        const { data } = await db.functions.invoke('analytics-orchestrator', {
-          body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
-        });
-        const ap = data && data.action_plan;
-        if (ap) {
-          summaryEl./* xss-allow: renderActionBrief escHtml's every field (utils.js) */ innerHTML =
-            renderActionBrief(ap, { title: 'Action Brief', horizon: 'today', ragTile: 'alert-hub:action_brief' });
-          // T39 (2026-08-26): the meta above this summary is stamped "stored brief, generated <6am>"
-          // by renderAmcCard, which is exactly right while the stored copy is what is showing. The
-          // upgrade REPLACES that summary with a live compose and left the stamp untouched, so a
-          // supervisor reading a freshly computed brief was told it came from this morning's stored
-          // row. The failure path is honest by construction - it keeps the stored summary AND the
-          // stored stamp, which now agree - so only the success path needed saying.
-          try {
-            const _meta = document.getElementById('amc-shift-meta');
-            if (_meta && /stored brief/i.test(_meta.textContent || '')) {
-              const _now = new Date();
-              _meta.textContent = (_meta.textContent || '').replace(
-                /·\s*stored brief[^·]*/i,
-                '· refreshed live ' + _now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ');
-            }
-          } catch (_) { /* empty-catch-allow: a stamp must never break the brief it labels */ }
-        }
-      } catch (_) { /* empty-catch-allow: engine action-brief render failed → intentionally keep the stored amc_briefings.brief summary as the fallback */ }
-      finally { _refreshHint.remove(); }
-    })();
+    loadUnifiedAmcBrief(summaryEl, HIVE_ID + '|' + String(brief.id || brief.shift_date || ''), { stored: true });
 
     const setStat = (id, n) => {
       const el = document.getElementById(id);
@@ -1348,10 +1444,18 @@
       // pre-canonical version of this query returned nulls and the low-stock
       // alert never fired. Bonus: is_low_stock + is_critical_low arrive
       // already-derived so the consumer drops the threshold math.
+      // ★STOCK ALERTS READ AN ARBITRARY 150 PARTS (2026-10-08, UI-write recipes): the read was unordered and capped,
+      // and the low-stock test ran on whatever 150 came back - a hive with more parts could simply miss its empty
+      // shelf. It now asks only for the parts that ARE at risk (the same three flags whStockSeverity reads, plus a
+      // count at or below zero), lowest stock first, so the cap can only ever drop the least urgent.
       db.from('v_inventory_items_truth')
         .select('part_name, qty_on_hand, reorder_point, min_qty, is_low_stock, is_critical_low, is_out_of_stock, updated_at')
         .eq('hive_id', HIVE_ID)
-        .limit(150),   // cap-ok: rows only (inventory alerts)
+        .or('is_out_of_stock.eq.true,is_critical_low.eq.true,is_low_stock.eq.true,qty_on_hand.lte.0')
+        .order('qty_on_hand', { ascending: true })
+        .order('part_name')   // MR4 tiebreaker: the sort above is not total on its own
+        .order('id')          // ...and neither is a name: two bins can hold a part of the same name at the same count
+        .limit(500),   // cap-ok: rows only (at-risk parts, most urgent first)
 
       // Canonical (2026-06-09): frequency-aware overdue per SCOPE ITEM via
       // v_pm_scope_items_truth.is_overdue — the SAME source the Hive Board + PM
@@ -1602,7 +1706,7 @@
         all.push({
           kind: 'system',
           severity: 'info',
-          title: l.job_name || _t('Automation job', 'Automation job'),
+          title: l.job_name || _t('Automation job', 'Trabaho ng automation'),
           msg: (l.detail || '').slice(0, 120) || _t('Automation run failed', 'Nabigo ang automation run'),
           time: l.triggered_at,
           href: '#',
@@ -1637,7 +1741,10 @@
       }
       renderAmcCard(amcRes.todayBrief, amcRes.historic);
       for (const b of (amcRes.historic || [])) {
-        const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : _t('(no headline)', '(walang headline)');
+        // LM-S (2026-10-07, LM200 re-walk): the feed is the brief's SECOND render path - String() of a non-text
+        // headline printed "[object Object] (expired)" once per past brief. Only TEXT is a headline here too.
+        const _hd = (b.brief && typeof b.brief.headline === 'string') ? b.brief.headline.trim() : '';
+        const head = _hd || _t('(no headline)', '(walang headline)');
         // ★A BRIEF STILL AWAITING A DECISION WAS FILED AS NEWS. The map sent anything not rejected or expired
         // to 'info' - the lowest severity - which includes PENDING. And the approve/reject pair lives only on
         // the TODAY card, while this loop renders the neq.today rows, so once the Manila day rolls over a
@@ -1664,6 +1771,7 @@
           time: b.generated_at,
           href: '#',
           actionLabel: '',
+          aiHead: _hd,   // the agent's own words, marked in the feed (critic B3, 2026-10-13)
         });
       }
     } catch (err) {
@@ -2255,7 +2363,22 @@
     var _cap = (document.activeElement && feed.contains(document.activeElement)) ? _feedFocusCapture(feed) : window._feedFocusCap;
     window._feedFocusCap = null;
     if (_cap) setTimeout(function () { _feedFocusRestore(feed, _cap); }, 0);
+    // ★ONE ASSET, TWO ALERTS, ONE NAME (nav-hub MCP walk, 2026-10-06): the C33 fix named each control by its
+    // alert's TITLE - the asset tag - so a risk alert and a repeat-failure alert on BLR-001 both offered
+    // "Mark handled: BLR-001". A screen reader user heard the same name twice and could not tell which alert
+    // a press would close. When a tag repeats in the list, the name adds the alert's own lead phrase
+    // ("BLR-001, Risk score 95%" / "BLR-001, 3x repeat failure"); a tag that appears once keeps its short name.
+    const _titleCount = {};
+    visible.forEach(function (x) { _titleCount[x.title] = (_titleCount[x.title] || 0) + 1; });
+    const _alertName = function (x) {
+      if ((_titleCount[x.title] || 0) < 2) return x.title;
+      let lead = String(x.msg || '').split(',')[0].split(' (')[0].trim();
+      const tail = ' on ' + x.title;
+      if (lead.endsWith(tail)) lead = lead.slice(0, -tail.length).trim();
+      return lead ? x.title + ', ' + lead : x.title;
+    };
     feed.innerHTML = visible.map(a => {
+      const nm = _alertName(a);
       const sev = a.severity || 'medium';
       // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
       // renders as the least-severe style instead of silently borrowing tag-medium.
@@ -2274,18 +2397,20 @@
             ${isSeen ? '<span class="alert-seen-badge" data-i="ah_seen">Seen</span>' : ''}
             <span class="alert-time">${e(fmtRelative(a.time))}</span>
           </div>
-          <div class="alert-msg">${e(a.msg || '')}</div>
+          <div class="alert-msg">${(a.aiHead && String(a.msg || '').startsWith(a.aiHead))
+            ? '<span data-ai-generated>' + e(a.aiHead) + '</span>' + e(String(a.msg).slice(a.aiHead.length))
+            : e(a.msg || '')}</div>
           <div class="alert-actions"><!-- every control names ITS alert (ledger C33, 2026-09-15): thirty identical names in one region were one name to a screen reader -->
             ${a.actionLabel && a.href !== '#'
-              ? `<a class="alert-action" href="${e(a.href)}" aria-label="${e(a.actionLabel)}: ${e(a.title)}">${e(a.actionLabel)} →</a>`
+              ? `<a class="alert-action" href="${e(a.href)}" aria-label="${e(a.actionLabel)}: ${e(nm)}">${e(a.actionLabel)} →</a>`
               : ''}
             ${a.hailHref
-              ? `<a class="alert-action" href="${e(a.hailHref)}" aria-label="${e(_t('Hail an outside specialist for', 'Kumuha ng labas na specialist para sa'))} ${e(a.title)}">🔧 ${e(_t('Hail a specialist', 'Kumuha ng specialist'))} →</a>`
+              ? `<a class="alert-action" href="${e(a.hailHref)}" aria-label="${e(_t('Hail an outside specialist for', 'Kumuha ng labas na specialist para sa'))} ${e(nm)}">🔧 ${e(_t('Hail a specialist', 'Kumuha ng specialist'))} →</a>`
               : ''}
             ${a.dedupeKey
-              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? e(_t('Mark not seen:', 'Markahang hindi pa nakita:')) + ' ' + e(a.title) : e(_t('Mark as seen (keeps it, dims it):', 'Markahang nakita (mananatili, mangungupas lang):')) + ' ' + e(a.title)}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
-                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="${e(_t('Snooze for 7 days:', 'I-snooze ng 7 araw:'))} ${e(a.title)}" data-i="ah_snooze">&#9203; Snooze 7d</button>
-                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="${e(_t('Mark handled:', 'Markahang naasikaso na:'))} ${e(a.title)}" data-i="ah_handled">&#10003; Handled</button>`
+              ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? e(_t('Mark not seen:', 'Markahang hindi pa nakita:')) + ' ' + e(nm) : e(_t('Mark as seen (keeps it, dims it):', 'Markahang nakita (mananatili, mangungupas lang):')) + ' ' + e(nm)}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>
+                 <button type="button" class="alert-dismiss" data-snooze-key="${e(a.dedupeKey)}" aria-label="${e(_t('Snooze for 7 days:', 'I-snooze ng 7 araw:'))} ${e(nm)}" data-i="ah_snooze">&#9203; Snooze 7d</button>
+                 <button type="button" class="alert-dismiss" data-dismiss-key="${e(a.dedupeKey)}" aria-label="${e(_t('Mark handled:', 'Markahang naasikaso na:'))} ${e(nm)}" data-i="ah_handled">&#10003; Handled</button>`
               : ''}
           </div>
         </div>

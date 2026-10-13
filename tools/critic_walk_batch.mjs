@@ -13,12 +13,17 @@
 // BOTH wh_hive_id and wh_active_hive_id (+ role/worker/lang) - pages read one or the other.
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
+import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
+import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync } from 'fs';
 import { execFileSync } from 'child_process';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
+// the lens THIS run grades with, hashed from the same bytes it loaded - passed to the banker so a lens edited
+// mid-run can never be stamped onto rows the old lens graded (2026-10-13)
+import { createHash } from 'crypto';
+const LENS_SHA = createHash('sha256').update(readFileSync('survey_ufai_rubric.js')).digest('hex').slice(0, 12);
 const MANIFEST = '.tmp/critic_walk_manifest.json';
 const OUTDIR = '.tmp/batchsurvey';
 
@@ -49,7 +54,6 @@ function pageIdOf(p) {
   if (base === 'index.html' && parts.length > 1) return parts[parts.length - 2];
   return base.replace(/\.html$/, '');
 }
-const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20Garcia' };
 const PAGE_SETTLE = { 'analytics.html': 3000, 'project-report.html': 2500 };
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
@@ -100,6 +104,14 @@ async function signIn(context, w) {
   return r;
 }
 
+// ★ONE SURVEY PER SCREEN PER RUN (2026-10-13, Ian: "do not repeat what you already done"). 706 anonymous walks
+// re-surveyed index.html at the same width hundreds of times - about a minute a walk, twelve hours for the set, nearly
+// all of it re-measuring a screen already measured in this run. A screen is the same screen when the same cast (or
+// an anonymous visitor) opens the same page at the same device, language and condition, so its survey is taken once
+// per run and REUSED - and every bank note says how many of its page surveys were reused, so a reader can always
+// tell a walk that rendered each page from one that inherited a reading. --no-reuse turns it off.
+const REUSE = !args.includes('--no-reuse');
+const SURVEY_CACHE = new Map();
 const release = await takeBrowserSlot('critic_walk_batch');
 const browser = await chromium.launch({ headless: !HEADED });
 let banked = 0, surveyed = 0, failed = 0;
@@ -135,15 +147,34 @@ try {
       } catch (e) { failed++; console.log(`  FAIL ${w.ids[0]} offline-prime: ${String(e).slice(0, 80)}`); await ctx.close(); continue; }
     }
 
+    // ★A WALK'S OLD SURVEY FILES GO BEFORE ITS NEW ONES ARRIVE (2026-10-13). The banker globs `${OUTDIR}/<id>_*.json`;
+    // a re-walk on a shorter path left the previous run's W3351_learn.json beside the new files, and the banker (rightly)
+    // refused to bank a survey of a page the row does not declare. `<id>_` so W33 never sweeps up W3351's files.
+    try { for (const f of readdirSync(OUTDIR)) if (f.startsWith(w.ids[0] + '_')) rmSync(`${OUTDIR}/${f}`); } catch (_) { /* empty-catch-allow: a fresh OUTDIR has nothing to clear */ }
     const files = [];
-    let anyDenied = false, pageErr = null;
+    let anyDenied = false, pageErr = null, reused = 0;
     for (const rel of w.pages) {
+      const cacheKey = [isAnon(w) ? 'anon' : (w.email || ''), w.device, w.language, COND, w.moment || 'present', rel].join('|');
+      if (REUSE && SURVEY_CACHE.has(cacheKey)) {
+        const hit = SURVEY_CACHE.get(cacheKey);
+        const pid = pageIdOf(rel);
+        const f = `${OUTDIR}/${w.ids[0]}_${pid.replace(/[^a-z0-9-]/gi, '_')}.json`;
+        writeFileSync(f, JSON.stringify({ ...hit.survey, _reusedFrom: hit.from }));
+        if (hit.survey._denied) anyDenied = true;
+        files.push({ f, pid, failing: (hit.survey.failing || []).length, denied: hit.survey._denied, reused: true });
+        reused++;
+        continue;
+      }
       const page = await ctx.newPage();
       const url = `${SEEDER}/workhive/${rel}${PAGE_QUERY[rel] || ''}`;
       try {
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
         await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
         await page.waitForTimeout(PAGE_SETTLE[rel] || 1500);
+        // ★THE WORKED STATE, NOT THE SHELL (2026-10-13). The first batch graded project-report's empty state as the report
+        // on every walk (E3, O2, C3, S1). The reveal lives once in page_walk_state.mjs, shared with the sweep, and one
+        // that finds nothing to act on is reported, never silent.
+        if (PAGE_REVEAL[rel] && !(await revealWorkedState(page, rel))) console.log(`    note ${w.ids[0]}: ${rel} reveal found nothing to act on`);
         const pid = pageIdOf(rel);
         const survey = await page.evaluate(({ src, pid }) => {
           eval('(' + src + ')')();
@@ -156,6 +187,7 @@ try {
         const f = `${OUTDIR}/${w.ids[0]}_${pid.replace(/[^a-z0-9-]/gi, '_')}.json`;
         writeFileSync(f, JSON.stringify(survey));
         files.push({ f, pid, failing: (survey.failing || []).length, denied: survey._denied });
+        if (REUSE) SURVEY_CACHE.set(cacheKey, { survey, from: w.ids[0] });
       } catch (e) { pageErr = `${rel}: ${String(e).slice(0, 80)}`; }
       await page.close();
     }
@@ -182,12 +214,24 @@ try {
       const note = `${w.ids.length}-row critic walk (batch, critic_walk_batch.mjs): ${w.persona} at ${w.device} in ${w.language}, `
         + `vertical ${w.vertical || 'n/a'}, cast ${(w.email || 'anon').split('@')[0]}${isAnon(w) ? '' : ' pinned to live-membership hive'}. `
         + condNote + momentNote
-        + `${w.pages.length} page(s) surveyed live, denied=false on all. ${totFail} failing dim(s).`;
-      try {
-        execFileSync('python', ['tools/bank_critic_walk.py', '--ids', w.ids.join(','),
-          '--surveys', `${OUTDIR}/${w.ids[0]}_*.json`, '--note', note, '--apply'], { encoding: 'utf8', shell: false });
-        banked++;
-      } catch (e) { console.log(`    BANK FAILED ${w.ids[0]}: ${String((e.stdout || '') + (e.stderr || '') || e).slice(0, 240)}`); }
+        + `${w.pages.length} page(s) surveyed live, denied=false on all. ${totFail} failing dim(s).`
+        + (reused ? ` ${reused} of ${w.pages.length} page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run.` : '');
+      // ★ONE RETRY, AND THE ERROR'S END (2026-10-13). Two banks in a 700-walk run failed with only "Traceback (most
+      // recent call last):" printed - the first 240 characters of the error, never its cause - and re-banked by hand
+      // they went through: a transient lock on critic_registry.json while it was being replaced. One retry after a
+      // pause clears that; if it fails again, the LAST lines (where Python puts the cause) are what gets printed.
+      const bankArgs = ['tools/bank_critic_walk.py', '--ids', w.ids.join(','),
+        '--surveys', `${OUTDIR}/${w.ids[0]}_*.json`, '--note', note, '--lens-sha', LENS_SHA, '--apply'];
+      let bankErr = null;
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try { execFileSync('python', bankArgs, { encoding: 'utf8', shell: false }); bankErr = null; break; }
+        catch (e) {
+          bankErr = String((e.stdout || '') + (e.stderr || '') || e);
+          if (attempt === 1) await new Promise((r) => setTimeout(r, 1500));
+        }
+      }
+      if (bankErr === null) banked++;
+      else console.log(`    BANK FAILED ${w.ids[0]}: ${bankErr.trim().split('\n').slice(-3).join(' | ').slice(0, 300)}`);
     }
   }
 } finally {

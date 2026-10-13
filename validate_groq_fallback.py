@@ -54,7 +54,7 @@ LLM_FUNCTIONS = [
     "analytics-orchestrator",
 ]
 
-MIN_CHAIN_ENTRIES = 6   # 6 Groq + Cerebras + SambaNova + Gemini + OpenRouter + DeepSeek
+MIN_CHAIN_ENTRIES = 6   # Groq + Gemini + Mistral + OpenRouter today; fewer than six leaves no resilience
 
 # Models that must never appear in the chain
 BANNED_MODELS = {
@@ -181,7 +181,6 @@ def _env_value(key):
 # `None` as the key means the list is public (OpenRouter), not that the check is skipped.
 LIVE_LIST_ENDPOINTS = {
     "groq":       ("https://api.groq.com/openai/v1/models",                          "GROQ_API_KEY"),
-    "cerebras":   ("https://api.cerebras.ai/v1/models",                              "CEREBRAS_API_KEY"),
     "google":     ("https://generativelanguage.googleapis.com/v1beta/openai/models", "GEMINI_API_KEY"),
     "mistral":    ("https://api.mistral.ai/v1/models",                               "MISTRAL_API_KEY"),
     "openrouter": ("https://openrouter.ai/api/v1/models",                            None),

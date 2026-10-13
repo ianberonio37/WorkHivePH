@@ -2,20 +2,22 @@
 name: table-rls-marketplace_platform_admins
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_platform_admins
-source_sha: 3aecb2452ba460b7
+source_sha: aef19670452b0955
 last_verified: 2026-07-13
 supersedes: null
 ---
 
-## table-rls · `marketplace_platform_admins` — RLS posture (platform table — no hive_id or auth_uid)
+## table-rls · `marketplace_platform_admins` — RLS posture (tenant table)
 
-RLS enabled: **True** · has hive_id: False · has auth_uid: False
+RLS enabled: **True** · has hive_id: False · has auth_uid: True
 
-Columns (*=NOT NULL): worker_name*, granted_at*, granted_by*
+Columns (*=NOT NULL): worker_name*, granted_at*, granted_by*, auth_uid
 
 Policies:
 - `mkt_admins_write` [ALL · roles=public] USING=`is_marketplace_admin()` CHECK=`is_marketplace_admin()`
-- `mkt_admins_read_self` [SELECT · roles=public] USING=`(worker_name IN ( SELECT wp.display_name FROM worker_profiles wp WHERE (wp.auth_uid = auth.uid())))` CHECK=`∅`
+- `mkt_admins_read_self` [SELECT · roles=public] USING=`((auth_uid IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`
+
+Guard triggers: `trg_bind_platform_admin_account`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

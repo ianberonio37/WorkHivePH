@@ -2,7 +2,7 @@
 name: edge-fn-sensor-readings-ingest
 type: edge-fn
 source: file:supabase/functions/sensor-readings-ingest/index.ts
-source_sha: c86be7064ae2a91e
+source_sha: e9ff854fefcb6357
 last_verified: 2026-07-13
 supersedes: null
 ---

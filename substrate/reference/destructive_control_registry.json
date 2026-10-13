@@ -6,289 +6,305 @@
   "controls": {
     "alert-hub.html": [
       {
-        "line": 986,
+        "line": 1082,
         "message_head": "Reject today's AMC brief? The crew will not act on it."
       },
       {
-        "line": 989,
+        "line": 1085,
         "message_head": "Approve today's brief? The crew suggestions go out to your whole hive under your name."
       }
     ],
     "asset-hub.html": [
       {
-        "line": 1739,
+        "line": 1761,
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3333,
+        "line": 3380,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3537,
+        "line": 3584,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
     "community.html": [
       {
-        "line": 2722,
+        "line": 2259,
+        "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
+      },
+      {
+        "line": 2854,
         "message_head": "Copy this link:"
       }
     ],
     "dayplanner.html": [
       {
-        "line": 2928,
+        "line": 3038,
         "message_head": "Remove this scheduled item?"
+      },
+      {
+        "line": 3177,
+        "message_head": "A link wants to add \""
       }
     ],
     "engineering-design.js": [
       {
-        "line": 28567,
+        "line": 28670,
         "message_head": "Delete this calculation?"
       },
       {
-        "line": 28720,
+        "line": 28823,
         "message_head": "Remove ${label} from the BOM?"
       }
     ],
     "founder-console.html": [
       {
-        "line": 2149,
+        "line": 2169,
         "message_head": "Reject this top-up? The provider paid for it, so no credits are minted. Tell them why,"
       },
       {
-        "line": 2265,
+        "line": 2285,
         "message_head": "Mint voucher"
       },
       {
-        "line": 2409,
+        "line": 2429,
         "message_head": "Reject this listing. Tell the seller why:"
       }
     ],
     "hive.html": [
       {
-        "line": 2886,
+        "line": 2977,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will lose"
       },
       {
-        "line": 2900,
+        "line": 2991,
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 2985,
+        "line": 3115,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 2999,
+        "line": 3129,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3026,
+        "line": 3156,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3211,
+        "line": 3360,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 4755,
+        "line": 4970,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 4773,
-        "message_head": "Temporary password for ${escHtml(workerName)}:\\n\\n${escHtml(data.temp_password)}\\n\\nGive this to ${escHtml(workerName)} now; it won't be sho"
+        "line": 4997,
+        "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 5958,
+        "line": 6225,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
     "index.html": [
       {
-        "line": 3324,
+        "line": 3461,
         "message_head": "Enter the email on your account for a reset link. No email on file (most field workers)? Ask your hive supervisor to reset your password for"
       },
       {
-        "line": 3337,
+        "line": 3474,
         "message_head": "Could not send the reset link. Ask your hive supervisor to reset your password."
       },
       {
-        "line": 3346,
+        "line": 3483,
         "message_head": "Set a new password (at least 8 characters):"
       },
       {
-        "line": 3349,
+        "line": 3486,
         "message_head": "Password must be at least 8 characters. Reopen the reset link to try again."
       },
       {
-        "line": 3482,
+        "line": 3620,
         "message_head": "Enter your company email domain (e.g. acmecorp.com):"
       },
       {
-        "line": 4030,
+        "line": 4193,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will"
       }
     ],
     "integrations.html": [
       {
-        "line": 1377,
+        "line": 1399,
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 2732,
+        "line": 2871,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 2776,
+        "line": 2930,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
     "inventory.html": [
       {
-        "line": 1880,
+        "line": 1998,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2231,
+        "line": 2349,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? This cannot be undone."
       }
     ],
     "logbook.html": [
       {
-        "line": 2546,
+        "line": 2273,
+        "message_head": "Discard this offline save? It was never saved to the server, so it will be gone."
+      },
+      {
+        "line": 2952,
         "message_head": "Delete this entry? This cannot be undone, and any XP it earned is taken back."
       },
       {
-        "line": 2868,
+        "line": 3333,
         "message_head": "Remove this asset from the registry? Its reliability history goes with it: Weibull fits,"
       }
     ],
     "marketplace-admin.html": [
       {
-        "line": 802,
+        "line": 804,
         "message_head": "${_verb} \"${(listing && listing.title) || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 881,
+        "line": 883,
         "message_head": "Remove ${workerName}'s ${noun}? They lose the verified badge until re-verified."
       },
       {
-        "line": 1054,
+        "line": 1063,
         "message_head": "${verb} for this dispute? This resolves the escrow and cannot be undone."
       }
     ],
     "marketplace-seller.html": [
       {
-        "line": 1936,
+        "line": 2045,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3001,
+        "line": 3124,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
     "marketplace.html": [
       {
-        "line": 1925,
+        "line": 1957,
         "message_head": "Delete this saved search? This cannot be undone."
       },
       {
-        "line": 4515,
+        "line": 4695,
         "message_head": "You already hailed this at the same address in the last few minutes, and providers are still being notified about it. Hail a second one?"
       },
       {
-        "line": 5154,
+        "line": 5318,
         "message_head": "What went wrong with this job?"
       },
       {
-        "line": 5183,
+        "line": 5347,
         "message_head": "Cancel this request?"
       }
     ],
     "platform-actions.html": [
       {
-        "line": 1072,
+        "line": 1186,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1346,
+        "line": 1484,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
     "pm-scheduler.html": [
       {
-        "line": 2259,
+        "line": 2306,
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3009,
+        "line": 3059,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3284,
+        "line": 3327,
         "message_head": "Delete \"${currentAsset.asset_name}\"? This removes ${_blast}. This cannot be undone."
       }
     ],
     "project-manager.html": [
       {
-        "line": 1827,
+        "line": 1865,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2081,
+        "line": 2155,
         "message_head": "Hide project"
       },
       {
-        "line": 2699,
+        "line": 2773,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3001,
+        "line": 3093,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3117,
+        "line": 3217,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3139,
+        "line": 3243,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3168,
+        "line": 3273,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3372,
+        "line": 3501,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],
     "report-sender.html": [
       {
-        "line": 1385,
+        "line": 1407,
         "message_head": "Send this report to ${_who}? This address is not a saved contact, and a sent report cannot be recalled."
       },
       {
-        "line": 1680,
+        "line": 1702,
         "message_head": "Remove ${_c && _c.name ? _c.name : 'this contact'} from your report recipients?"
       }
     ],
     "shift-brain.html": [
       {
-        "line": 1231,
+        "line": 1307,
+        "message_head": "Publish this shift plan to your crew? They will see it and work from it, released under your name."
+      },
+      {
+        "line": 1348,
         "message_head": "Archive this shift plan? It will be hidden from the active view but kept for history."
       }
     ],
     "utils.js": [
       {
-        "line": 4695,
+        "line": 5361,
         "message_head": "Delete X?"
       },
       {
-        "line": 4698,
+        "line": 5364,
         "message_head": "Enter name"
       }
     ]
   },
   "total_files": 20,
-  "total_controls": 61
+  "total_controls": 65
 }

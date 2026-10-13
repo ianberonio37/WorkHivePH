@@ -23,6 +23,7 @@
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
   <link rel="stylesheet" href="tokens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet" /><!-- the platform typeface: this page asked for Poppins and never loaded it, so it alone rendered in the system font (critique W45985/W45992, 2026-10-13) -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -119,6 +120,11 @@
       font-size: 0.75rem; font-weight: 800; color: var(--blue); letter-spacing: normal;
     }
     .action-card .ac-text { font-size: 0.875rem; line-height: 1.5; margin-top: 8px; color: rgba(255,255,255,0.85); }
+    /* the shared Action Brief button (components.css .action-card .ac-cta - this page does not link that sheet, so the
+       rule is carried here verbatim in effect: orange, 44px, ease-out press) */
+    .action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:8px 16px; background:var(--wh-orange); color:var(--wh-navy); font-size:0.8rem; font-weight:800; border-radius:var(--wh-radius-sm, 8px); text-decoration:none; transition:background-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+    .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
+    .action-card .ac-cta:active { transform:scale(0.98); }
 
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
@@ -156,10 +162,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
         <!-- A1: a monitoring board's primary action is re-pulling the latest sync/gateway state.
              Filled so the 5-second scan lands on one clear CTA; a real reload, not a dead button. -->
-        <button type="button" onclick="location.reload()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.75rem; cursor:pointer;">↻ Refresh</button>
+        <button type="button" onclick="whPcRefresh()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.75rem; cursor:pointer;">↻ Refresh</button>
         <span data-i="p_supervisoronly_d045" class="role-pill">Supervisor only</span>
       </div>
     </header>
+    <!-- ★A REFRESH THAT CHANGED NOTHING LOOKED LIKE ONE THAT DID NOTHING (2026-10-12, W4592). The button reloads the page,
+         and every "as of" on it has minute resolution - so a refresh within the same minute came back identical and the
+         supervisor could not tell it had run. The reloaded page now says when it re-read. -->
+    <p id="pc-refreshed" role="status" aria-live="polite" hidden style="margin:4px 0 0; font-size:0.75rem; color:rgba(255,255,255,0.8);"></p>
+    <script>
+      function whPcRefresh() {
+        try { sessionStorage.setItem('wh_pc_refreshed_at', String(Date.now())); } catch (e) { /* empty-catch-allow: private mode - the reload still happens, unannounced */ }
+        location.reload();
+      }
+      (function () {
+        var at = 0;
+        try { at = Number(sessionStorage.getItem('wh_pc_refreshed_at')) || 0; sessionStorage.removeItem('wh_pc_refreshed_at'); } catch (e) { /* empty-catch-allow: no storage, no announcement */ }
+        if (!at || Date.now() - at > 60000) return;
+        var el = document.getElementById('pc-refreshed');
+        if (!el) return;
+        var hhmmss = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+        el.textContent = 'Refreshed at ' + hhmmss + ' PHT - showing the latest sync and gateway state.';
+        el.hidden = false;
+      })();
+    </script>
 
     <h2 class="wh-section-title" data-i="pc_content_heading" style="margin-top:1rem;">Connected systems</h2>
     <div id="content">
@@ -195,9 +221,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     function renderDenied() {
       document.getElementById('content').innerHTML = `
-        <div class="denied">
+        <div class="denied" data-wh-gate="supervisor-only">
           <h2 data-i="pc_sup_only">Supervisor access only</h2>
-          <p>${escHtml(_t('Plant Connections is a supervisor surface for managing CMMS integrations, sensor topics, and gateway audits. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
+          <p>${escHtml(_t('Supervisors manage CMMS integrations, sensor topics and gateway audits here. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
         </div>
       `;
     }
@@ -222,7 +248,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // E2 consistent states: inline error + Retry (shared whListError) plus the
         // platform toast, never a blank panel or a stuck skeleton.
         if (typeof whListError === 'function') {
-          whListError(host, _t("Couldn’t load your plant connections. Check your connection and try again.", "Hindi ma-load ang plant connections mo. Suriin ang koneksyon at subukan muli."), () => renderAll());
+          // 2026-10-06 (plant-connections x assistive-tech, PostgREST stopped): blamed the connection while
+          // navigator.onLine was TRUE and the service was what failed.
+          whListError(host, (navigator.onLine === false)
+            ? _t("You are offline, so your plant connections could not be read. They will load when your connection is back.", "Offline ka, kaya hindi mabasa ang plant connections mo. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.")
+            : _t("Couldn’t load your plant connections - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang plant connections mo - hindi sumagot ang WorkHive. Subukan muli maya-maya."), () => renderAll());
         }
         if (typeof showToast === 'function') showToast(_t('Plant connections failed to load. Tap Retry.', 'Hindi na-load ang plant connections. Pindutin ang Retry.'), 'warn');
         return;
@@ -266,10 +296,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const f = freshness(top.last_sync_at);
         const tone = f.days == null ? 'grey' : f.days > 7 ? 'red' : f.days > 1 ? 'amber' : 'green';
         const tag  = f.days == null ? 'NEVER SYNCED' : f.days > 7 ? 'STALE' : f.days > 1 ? 'CATCH UP' : 'FRESH';
-        const others = s.cfgs.length - 1;
+        // "1 system - synced never synced" (critique W45985, 2026-10-13): the freshness label already says "never synced",
+        // and this line prefixed it with "synced" whatever it said
         cmms = {
           hero: top.label || top.system_type,
-          sub: `${s.cfgs.length} system${s.cfgs.length === 1 ? '' : 's'} · synced ${f.label}` + (others > 0 ? '' : ''),
+          sub: `${s.cfgs.length} system${s.cfgs.length === 1 ? '' : 's'} · ${f.days == null ? f.label : 'synced ' + f.label}`,
           tag, tone,
         };
       }
@@ -328,7 +359,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // CMMS + API + sensors are healthy AND compliance is set or active.
       const tones = [cards.cmms.tone, cards.sensors.tone, cards.api.tone, cards.comp.tone];
       if (tones.includes('red'))   return { tone: 'attn',    label: 'Plant connections need attention' };
-      if (tones.includes('amber')) return { tone: 'watch',   label: 'Plant connections mostly healthy' };
+      // ★AMBER IS "LOOK HERE", NOT "MOSTLY HEALTHY" (2026-10-13, the W45982 copy walk): an amber card is as often a thing
+      // NOT SET UP - "no sensors mapped", "compliance defaults" - as a thing degraded, and calling that state "mostly
+      // healthy" told a plant with nothing connected that it was nearly fine. The watch list under the headline says why.
+      if (tones.includes('amber')) return { tone: 'watch',   label: 'Plant connections: worth a look' };
       if (tones.every(t => t === 'green')) return { tone: 'healthy', label: 'Plant connections are healthy' };
       return { tone: 'empty', label: 'Plant connections not yet configured' };
     }
@@ -398,8 +432,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // breakage (red) > missing wiring (grey) > nudges (amber) > steady.
       const cards = computeCardStates(s);
       let text;
+      // ★THE NEXT STEP NAMED A PLACE AND GAVE NO WAY THERE (critique W45985, 2026-10-13). "Open CMMS Integration" and "The
+      // Sensor and CMMS Gateway Operations guide sets up the bridge" were sentences with no link - the guide exists
+      // (learn/sensor-cmms-gateway-operations, the page's own entry in learn_links.json). The two branches that send the
+      // supervisor somewhere now carry the platform's Action Brief button to it.
+      let cta = null;
       if (!s.cfgs.length) {
         text = 'You have not linked a CMMS yet. Most hives start with SAP PM or a weekly spare-parts CSV drop. Open CMMS Integration under Operations.';
+        cta = { href: 'integrations.html', label: 'Open CMMS Integration' };
       } else if (cards.cmms.tone === 'red') {
         text = 'A CMMS integration has not synced in over a week. Open Show details below, then click into the stale row to check API credentials and the endpoint URL.';
       } else if (cards.api.tone === 'red') {
@@ -415,6 +455,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // 2.0, OPC-UA / MQTT, logbook, PM signals and the guide's exact name are terms this reader
         // already knows, and simplifying them would cost meaning rather than buy clarity.
         text = 'No sensors here yet. Anomaly Engine 2.0 still runs on logbook and PM signals alone. Point your plant edge gateway (OPC-UA / MQTT) at WorkHive. Topics then appear here on their own. The Sensor and CMMS Gateway Operations guide sets up the bridge.';
+        cta = { href: 'learn/sensor-cmms-gateway-operations/', label: 'Open the gateway guide' };
       } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
         text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
       } else if (cards.comp.tone === 'amber' && !s.retention) {
@@ -428,6 +469,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="action-card">
           <div class="ac-label" data-i="pc_whatnext">What to do next</div>
           <div class="ac-text">${escHtml(text)}</div>
+          ${cta ? `<a class="ac-cta" href="${escHtml(cta.href)}">${escHtml(cta.label)} &rarr;</a>` : ''}
         </div>
       `;
     }
@@ -688,7 +730,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <td>${escHtml(t.unit || '-')}</td>
         </tr>
       `).join('');
-      const moreNote = topics.length > CAP ? `<p class="meta" style="margin-top:6px;">Showing the first ${CAP} of ${topics.length} topics.</p>` : '';
+      const moreNote = topics.length > CAP ? `<p class="meta" style="margin-top:6px;">Showing the first ${CAP} of ${topics.length} topic${topics.length === 1 ? '' : 's'}.</p>` : '';
       return `
         <div class="card">
           <h3>Sensor topic map <span class="pill pill-grey">${topics.length}</span></h3>

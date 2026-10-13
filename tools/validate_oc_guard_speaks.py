@@ -58,6 +58,37 @@ ZERO = re.compile(r"length\s*===?\s*0|!\s*data\b|!\s*updated\b|count\s*===?\s*0|
                   r"!\s*[A-Za-z_]\w*\.length\b|[A-Za-z_]\w*\s*&&\s*[A-Za-z_]\w*\.length")
 SAYS = re.compile(r"showToast|whWriteError|setStatus|textContent\s*=|whConfirm|alert\(")
 
+# ★THE WINDOW IS THE HANDLER, NOT 40 LINES (2026-10-13). The assertion above is "within the same handler", and a
+# fixed 40 lines stood in for it. logbook's offline-queue replay notices zero rows at +3 lines and says so in the
+# toast after its loop, at +63: a guard that speaks, read as silent. The window is now the rest of the function
+# that holds the filter - found by brace-matching the nearest enclosing `function` / arrow body - capped at 150
+# lines, and 40 lines when no enclosing function is found. A message in the NEXT function never counts.
+_FN_HEAD = re.compile(r"\bfunction\b[^{;]*\{|=>\s*\{")
+_STRIP = re.compile(r"//.*$|'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"")
+
+
+def _braces(line):
+    code = _STRIP.sub("", line)
+    return code.count("{") - code.count("}")
+
+
+def handler_window(lines, i, cap=150, fallback=40):
+    """Lines from the filter at i to the end of the innermost function that encloses it."""
+    for j in range(i, max(-1, i - 400), -1):
+        m = _FN_HEAD.search(lines[j])
+        if not m:
+            continue
+        depth = _braces(lines[j][m.start():])
+        k = j
+        while depth > 0 and k + 1 < len(lines) and k - i < cap:
+            k += 1
+            depth += _braces(lines[k])
+        if depth <= 0 and k >= i:          # this function closes at or after the filter: it encloses it
+            return "\n".join(lines[i: k + 1])
+        if depth > 0:                       # ran past the cap without closing: too long to call one handler
+            break
+    return "\n".join(lines[i: i + fallback])
+
 
 def main() -> int:
     silent, total = [], 0
@@ -78,7 +109,7 @@ def main() -> int:
             if stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("/*"):
                 continue
             total += 1
-            window = "\n".join(lines[i: i + 40])
+            window = handler_window(lines, i)
             if not (ZERO.search(window) and SAYS.search(window)):
                 silent.append(f"{Path(f).name}:{i + 1}")
 
@@ -104,5 +135,29 @@ def main() -> int:
     return 0
 
 
+def self_test() -> int:
+    def verdict(src):
+        lines = src.split("\n")
+        i = next(n for n, l in enumerate(lines) if FILTER.search(l))
+        w = handler_window(lines, i)
+        return bool(ZERO.search(w) and SAYS.search(w))
+    body = "\n".join("      x = x + 1;" for _ in range(55))
+    speaks_late = ("async function replay() {\n  let unconfirmed = false;\n  for (const p of q) {\n"
+                   "    const r = await db.from('t').update(u).eq('id', p.id)\n      .eq('updated_at', s).select('id');\n"
+                   "    if (Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;\n" + body + "\n  }\n"
+                   "  if (unconfirmed) showToast('1 edit could not be applied.');\n}\n")
+    silent = speaks_late.replace("showToast('1 edit could not be applied.')", "console.warn('x')")
+    next_fn = (speaks_late.replace("  if (unconfirmed) showToast('1 edit could not be applied.');\n", "")
+               + "function other() {\n  showToast('unrelated');\n}\n")
+    cases = [("a guard that speaks 60 lines later, in the same handler, passes", verdict(speaks_late)),
+             ("...and the same handler with no message fails", not verdict(silent)),
+             ("...and a message in the NEXT function does not count", not verdict(next_fn))]
+    for n, ok in cases:
+        print(("  PASS  " if ok else "  FAIL  ") + n)
+    ok = all(v for _, v in cases)
+    print("  self-test: " + ("teeth intact" if ok else "VACUOUS"))
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(self_test() if "--self-test" in sys.argv else main())

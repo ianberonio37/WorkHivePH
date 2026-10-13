@@ -8,7 +8,7 @@
 //   node tools/prove_db_pages_degradation.mjs --shared   # every shared script fails
 //   ... --page alert-hub.html
 import { chromium } from 'playwright';
-import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';   // shared preamble (2026-09-05)
+import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const MODE = process.argv.includes('--shared') ? 'shared' : 'data';
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();   // a subset, so a 34-page roster fits the background cap
@@ -36,7 +36,7 @@ const STATUS_SEL = '[role="status"], [role="alert"], .wh-source-chip, .honest-em
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;
 for (const file of (LIST || PAGES)) {

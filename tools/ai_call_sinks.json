@@ -1,0 +1,1239 @@
+{
+  "schema": "ai_call_sinks/v2",
+  "generated_by": "tools/build_ai_call_sinks.py",
+  "record_table": "ai_cost_log",
+  "record_fields": [
+    "fn",
+    "kind",
+    "trace_id",
+    "auth_uid",
+    "hive_id",
+    "worker_name",
+    "provider",
+    "model",
+    "prompt_tokens",
+    "output_tokens",
+    "tokens_estimated",
+    "latency_ms",
+    "status",
+    "schema_compliance",
+    "prompt_hash",
+    "providers_tried",
+    "audio_seconds",
+    "late"
+  ],
+  "mechanism": {
+    "collector": {
+      "file": "supabase/functions/_shared/model-calls.ts",
+      "ok": true,
+      "findings": []
+    },
+    "writer": {
+      "file": "supabase/functions/_shared/observability.ts",
+      "ok": true,
+      "findings": []
+    },
+    "chain": {
+      "file": "supabase/functions/_shared/ai-chain.ts",
+      "ok": true,
+      "findings": [],
+      "success_paths": 3,
+      "reports": 3,
+      "exhausted_reports": 2
+    },
+    "embedding": {
+      "file": "supabase/functions/_shared/embedding-chain.ts",
+      "ok": true,
+      "findings": []
+    },
+    "audio": {
+      "file": "supabase/functions/_shared/audio-chain.ts",
+      "ok": true,
+      "findings": []
+    },
+    "cost_log": {
+      "file": "supabase/functions/_shared/cost-log.ts",
+      "ok": true,
+      "findings": []
+    },
+    "trace": {
+      "file": "supabase/functions/_shared/trace-reply.ts",
+      "ok": true,
+      "findings": []
+    },
+    "schema": {
+      "ok": true,
+      "columns": {
+        "trace_id": true,
+        "auth_uid": true,
+        "kind": true,
+        "providers_tried": true,
+        "late": true,
+        "audio_seconds": true
+      }
+    },
+    "ok": true
+  },
+  "summary": {
+    "model_calling_functions": 37,
+    "per_call_record": 37,
+    "no_per_call_record": [],
+    "returns_trace_id": 37,
+    "functions_with_findings": [],
+    "by_kind": {
+      "generation": [
+        "agentic-rag-loop",
+        "ai-eval-runner",
+        "ai-gateway",
+        "ai-orchestrator",
+        "amc-orchestrator",
+        "analytics-orchestrator",
+        "asset-brain-query",
+        "engineering-bom-sow",
+        "engineering-calc-agent",
+        "failure-signature-scan",
+        "fmea-populator",
+        "hierarchical-summarizer",
+        "intelligence-report",
+        "marketplace-listing-assist",
+        "project-orchestrator",
+        "resume-extract",
+        "resume-polish",
+        "scheduled-agents",
+        "semantic-fact-extractor",
+        "shift-planner-orchestrator",
+        "temporal-rag-orchestrator",
+        "vehicle-doc-extract",
+        "visual-defect-capture",
+        "voice-action-router",
+        "voice-journal-agent",
+        "voice-logbook-entry",
+        "voice-model-call",
+        "voice-report-intent",
+        "walkthrough-analyzer"
+      ],
+      "embedding": [
+        "agent-memory-store",
+        "ai-gateway",
+        "embed-entry",
+        "pdf-ingest",
+        "semantic-fact-extractor",
+        "semantic-search",
+        "visual-defect-capture",
+        "voice-embeddings",
+        "voice-semantic-rag"
+      ],
+      "transcription": [
+        "voice-transcribe"
+      ],
+      "speech": [
+        "tts-speak"
+      ]
+    }
+  },
+  "functions": {
+    "agent-memory-store": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 0,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "6a27f590a3e9bf88"
+    },
+    "agentic-rag-loop": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 5
+      },
+      "model_call_sites": 5,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 5,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "agentic_rag_traces",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "ai_rate_limits",
+          "op": "update",
+          "provenance_keys": []
+        },
+        {
+          "table": "ai_rate_limits",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "3494072ad020b365"
+    },
+    "ai-eval-runner": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "ai_quality_log",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "hive_members",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "hive_members",
+          "op": "update",
+          "provenance_keys": []
+        },
+        {
+          "table": "hives",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "worker_profiles",
+          "op": "insert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "ffa82c9331eb5a80"
+    },
+    "ai-gateway": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 3
+      },
+      "model_call_sites": 3,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)",
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "ok() envelope + refusals stamped with ctx.trace_id (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "ecb88f9ff7efcb1a"
+    },
+    "ai-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "noteModelCaller at the line that verifies",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "d67690de9c47630d"
+    },
+    "amc-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 2,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "amc_briefings",
+          "op": "insert",
+          "provenance_keys": [
+            "model_version"
+          ]
+        }
+      ],
+      "findings": [],
+      "source_sha256": "22dca3c8c6a1a6ef"
+    },
+    "analytics-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 2
+      },
+      "model_call_sites": 2,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "noteModelCaller at the line that verifies",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "analytics_snapshots",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "ef8d1476a91605fa"
+    },
+    "asset-brain-query": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "noteModelCaller at the line that verifies",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "5b2d970e9323bd70"
+    },
+    "embed-entry": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 0,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [
+        {
+          "table": "pm_knowledge",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "pm_knowledge",
+          "op": "update",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "8e370db5e722718e"
+    },
+    "engineering-bom-sow": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "993bd7f772a19665"
+    },
+    "engineering-calc-agent": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "22b87319d8015c71"
+    },
+    "failure-signature-scan": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "withModelCaller per hive (fan-out)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "automation_log",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "failure_signature_alerts",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "9561c09a49152d8f"
+    },
+    "fmea-populator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "rcm_fmea_modes",
+          "op": "insert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "d397a2d55fad10c4"
+    },
+    "hierarchical-summarizer": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "noteModelCaller at the line that verifies",
+        "withModelCaller per hive (fan-out)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 1,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "canonical_period_summaries",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "aa4c05116b8c7787"
+    },
+    "intelligence-report": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "automation_log",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "ph_intelligence_reports",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "eee4d89036ebf926"
+    },
+    "marketplace-listing-assist": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 2,
+        "callAIMultimodal": 1
+      },
+      "model_call_sites": 3,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)",
+        "_shared/ai-chain.ts callAIMultimodal (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 1,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "a91c10541a0899d8"
+    },
+    "pdf-ingest": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 0,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [
+        {
+          "table": "kb_chunks",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "kb_documents",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "kb_documents",
+          "op": "update",
+          "provenance_keys": []
+        },
+        {
+          "table": "pdf_jobs",
+          "op": "update",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "cda8702b89d97865"
+    },
+    "project-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 3
+      },
+      "model_call_sites": 3,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "96ff4a3b9ca7edb3"
+    },
+    "resume-extract": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 2,
+        "callAIMultimodal": 1
+      },
+      "model_call_sites": 3,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)",
+        "_shared/ai-chain.ts callAIMultimodal (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "08ac88b7c81fe6b6"
+    },
+    "resume-polish": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 5
+      },
+      "model_call_sites": 5,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "c86c6cbadae812d1"
+    },
+    "scheduled-agents": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "withModelCaller per hive (fan-out)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "ai_reports",
+          "op": "insert",
+          "provenance_keys": []
+        },
+        {
+          "table": "automation_log",
+          "op": "insert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "97a8b455fb46c32b"
+    },
+    "semantic-fact-extractor": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)",
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "noteModelCaller at the line that verifies",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 1,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [
+        {
+          "table": "knowledge_graph_facts",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "0aa50ab1a9577828"
+    },
+    "semantic-search": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 0,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "7bcc39e05e71ae58"
+    },
+    "shift-planner-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "withModelCaller per hive (fan-out)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "shift_plans",
+          "op": "upsert",
+          "provenance_keys": [
+            "generated_by"
+          ]
+        }
+      ],
+      "findings": [],
+      "source_sha256": "46945d0ed62ae77a"
+    },
+    "temporal-rag-orchestrator": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 2
+      },
+      "model_call_sites": 2,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 2,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [
+        {
+          "table": "ai_rate_limits",
+          "op": "update",
+          "provenance_keys": []
+        },
+        {
+          "table": "ai_rate_limits",
+          "op": "upsert",
+          "provenance_keys": []
+        }
+      ],
+      "findings": [],
+      "source_sha256": "e2700932f141e66e"
+    },
+    "tts-speak": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "this function's own reportModelCall() / reportModelCallFailed() after its speech provider fetch"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "speech"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "75d3801b92efd688"
+    },
+    "vehicle-doc-extract": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "4e970f147ed950c6"
+    },
+    "visual-defect-capture": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAIMultimodal": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAIMultimodal (success path)",
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 3,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [
+        {
+          "table": "fault_knowledge",
+          "op": "insert",
+          "provenance_keys": [
+            "ai_model"
+          ]
+        }
+      ],
+      "findings": [],
+      "source_sha256": "cdc2d10f9e0facc9"
+    },
+    "voice-action-router": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "3460e064b67462cd"
+    },
+    "voice-embeddings": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "this function's own reportModelCall() / reportModelCallFailed() after its embedding provider fetch"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "f4a906b4148e05d0"
+    },
+    "voice-journal-agent": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 4
+      },
+      "model_call_sites": 4,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "noteModelCaller at the line that verifies",
+        "claimed hive, verified by the writer against v_worker_truth",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 2,
+      "own_logAICost_role": "annotates the served call it follows (schema_compliance / prompt_hash / status) - no second row; a failed attempt with nothing served is one 'failed' row",
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "f4eab5fa5c590a34"
+    },
+    "voice-logbook-entry": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "5477bc46a6a9f6b7"
+    },
+    "voice-model-call": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "direct provider fetch": 4
+      },
+      "model_call_sites": 4,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "this function's own reportModelCall() after its provider fetch"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "09ba51f9b0eb905a"
+    },
+    "voice-report-intent": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 1
+      },
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "8e72b3be5af7560e"
+    },
+    "voice-semantic-rag": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 1,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "this function's own reportModelCall() / reportModelCallFailed() after its embedding provider fetch"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "embedding"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "79b48a8fefd611a7"
+    },
+    "voice-transcribe": {
+      "calls_model": true,
+      "model_call_kinds": {},
+      "model_call_sites": 0,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/audio-chain.ts transcribeAudio (kind transcription)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "tenant-context resolveTenancy/resolveContext (verified hive + user)",
+        "tenant-context resolveIdentity (verified user)",
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [
+        "transcription"
+      ],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "9f8dad18dc4ed199"
+    },
+    "walkthrough-analyzer": {
+      "calls_model": true,
+      "model_call_kinds": {
+        "callAI": 2,
+        "callAIMultimodal": 1
+      },
+      "model_call_sites": 3,
+      "per_call_record": true,
+      "record_table": "ai_cost_log",
+      "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
+      "reported_by": [
+        "_shared/ai-chain.ts callAI (success path)",
+        "_shared/ai-chain.ts callAIMultimodal (success path)"
+      ],
+      "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
+      "caller_attribution": [
+        "fallback: the bearer, verified by auth at write time"
+      ],
+      "own_logAICost_calls": 0,
+      "own_logAICost_role": null,
+      "non_generation_model_calls": [],
+      "output_writes": [],
+      "findings": [],
+      "source_sha256": "ba8b225606aa1b58"
+    }
+  },
+  "sources": {
+    "audio": "90269617fcdcb96e",
+    "chain": "8b6277c3f892a92e",
+    "collector": "5a52e22834c12a00",
+    "cost_log": "974b18019517c9b1",
+    "embedding": "9dc4a75b54d4e7c2",
+    "tenant": "989b4c4f63ba8408",
+    "trace": "92e691909061665a",
+    "writer": "1a3ba6e8c7bc5620"
+  }
+}

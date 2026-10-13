@@ -120,25 +120,42 @@ def check_ledger_present():
     return issues, report
 
 
+def _per_call_recorded() -> set[str]:
+    """LM-O (2026-10-08): functions whose every served model call is recorded by the shared collector
+    (_shared/model-calls.ts + serveObserved), derived from source by tools/build_ai_call_sinks.py. A function in this
+    set needs no logAICost of its own - one would only annotate the row the collector already writes."""
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+        import build_ai_call_sinks as sinks
+        doc = sinks.build()
+        if not doc["mechanism"]["ok"]:
+            return set()
+        return {fn for fn, r in doc["functions"].items() if r["per_call_record"]}
+    except Exception:
+        return set()
+
+
 def check_callai_logs_cost(fns):
     issues, report = [], []
     if COST_LEDGER_DEFERRED:
         return issues, report   # forward-looking ratchet
+    recorded = _per_call_recorded()
     for name, path in fns:
         if name in AI_COST_OK:
             continue
         src = read_file(path) or ""
         if not CALLAI_RE.search(src):
             continue
-        if fn_logs_cost(src):
+        if name in recorded or fn_logs_cost(src):
             continue
         report.append({"fn": name})
         issues.append({
             "check": "callai_logs_cost", "skip": True,
             "reason": (
-                f"{name}/index.ts calls callAI() but does not log cost. "
-                f"Add an insert into ai_cost_log or call logAICost() "
-                f"after each callAI."
+                f"{name}/index.ts calls callAI() and its served calls are not "
+                f"recorded: serve it through serveObserved(fn, ...) so the shared "
+                f"collector writes one ai_cost_log row per call (see "
+                f"tools/validate_ai_call_sinks.py)."
             ),
         })
     return issues, report

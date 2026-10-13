@@ -145,6 +145,12 @@ def _select_pipe(flow_m3s: float, roughness_m: float, rho: float, mu: float,
             "pressure_drop_kpa_per_m": round(dp / length_m, 4),
             "in_velocity_range": in_range,
             "recommended": False,  # flagged below
+            # ★THE REPORT READS THESE (2026-10-09, walked KCW41283): its 5.2 comparison table printed "undefined" in
+            # every cell - the top-level fields had renderer aliases, the rows never did.
+            "dia_mm":      ps["nominal"],
+            "velocity":    round(v, 2),
+            "hf_per_m":    round(hf / length_m, 5) if length_m > 0 else 0.0,
+            "press_kpa_m": round(dp / length_m, 4) if length_m > 0 else 0.0,
         })
 
     # Flag the smallest pipe whose velocity is within the target range
@@ -173,7 +179,9 @@ def calculate(inputs: dict) -> dict:
     pipe_mat    = str  (inputs.get("pipe_material",   "PVC"))
     temp_c      = float(inputs.get("fluid_temp_c",    25))
     service     = str  (inputs.get("service_type",    "General"))
-    fittings_pct= float(inputs.get("fittings_allowance_pct", 20))
+    # ★THE FORM SENDS fittings_allowance (2026-10-09, walked KCW41283). This read only fittings_allowance_pct, which no
+    # caller sends, so every report used 20% whatever the person typed. The legacy key still counts when it is the one given.
+    fittings_pct= float(inputs.get("fittings_allowance", inputs.get("fittings_allowance_pct", 20)) or 20)
 
     if flow_lpm <= 0:
         raise ValueError("Flow rate must be greater than 0 L/min.")
@@ -184,6 +192,11 @@ def calculate(inputs: dict) -> dict:
 
     # ── Fluid properties ──────────────────────────────────────────────────────
     rho, mu = _water_props(temp_c)
+    # The form auto-fills density by service type and invites a change for a special fluid; that change was ignored.
+    # Viscosity stays the water value at the operating temperature - the form asks for no viscosity.
+    user_rho = float(inputs.get("fluid_density") or 0)
+    if user_rho > 0:
+        rho = user_rho
 
     # ── Pipe size selection table ─────────────────────────────────────────────
     size_table = _select_pipe(flow_m3s, roughness_m, rho, mu, service, length_m)
@@ -200,15 +213,23 @@ def calculate(inputs: dict) -> dict:
         )
 
     id_m       = chosen["id_mm"] / 1000
-    fittings_k = fittings_pct / 100 * 10   # rough K equivalent
-    h_total, h_f, h_minor, velocity, Re = _pipe_head_loss(
-        flow_m3s, id_m, length_m, roughness_m, rho, mu, fittings_k
+    # ★THE ALLOWANCE IS EXTRA EQUIVALENT LENGTH (2026-10-09). The form defines it so ("extra pipe length equivalent to
+    # cover all elbows, tees, valves") and the report prints L_eq = L x (1 + allowance/100). It was turned into a K
+    # factor of allowance x 10 - no standard behind it - so "20%" added about half again to a 10 m run and about a
+    # twentieth to a 100 m one, and the report's "Equivalent Pipe Length" came out at 3 x L. Now the fittings are the
+    # stated share of extra length at the same Darcy-Weisbach friction, for every length.
+    equiv_m    = length_m * (1 + fittings_pct / 100)
+    h_total, _, _, velocity, Re = _pipe_head_loss(
+        flow_m3s, id_m, equiv_m, roughness_m, rho, mu, 0.0
     )
+    h_f     = h_total * length_m / equiv_m      # the straight run's share
+    h_minor = h_total - h_f                     # the fittings' equivalent length
 
-    # Pressure drop in kPa
+    # Pressure drop in kPa - over the same equivalent length as the head loss, so the two totals agree; the per-metre
+    # gradient is the same either way (it was the straight run alone, which left the fittings out of the total).
     eD = roughness_m / id_m
     f  = friction_factor(Re=Re, eD=eD) if Re > 1 else 0
-    dp_kpa = f * (length_m / id_m) * (rho * velocity ** 2 / 2) / 1000
+    dp_kpa = f * (equiv_m / id_m) * (rho * velocity ** 2 / 2) / 1000
 
     # Velocity zone
     targets = VELOCITY_TARGETS.get(service, VELOCITY_TARGETS["General"])
@@ -242,7 +263,7 @@ def calculate(inputs: dict) -> dict:
         "friction_head_m":     round(h_f, 3),
         "minor_losses_m":      round(h_minor, 3),
         "pressure_drop_kpa":   round(dp_kpa, 3),
-        "pressure_drop_kpa_per_m": round(dp_kpa / length_m, 4),
+        "pressure_drop_kpa_per_m": round(dp_kpa / max(equiv_m, 1e-6), 4),
 
         # Fluid properties
         "fluid_density_kgm3":  round(rho, 2),
@@ -271,13 +292,13 @@ def calculate(inputs: dict) -> dict:
         "reynolds_number":     round(Re, 0),           # lowercase alias
         "flow_regime":         ("Turbulent" if Re > 4000 else "Laminar" if Re < 2300 else "Transitional"),
         "hf_total":            round(h_total, 3),
-        "hf_per_m":            round(h_f / max(length_m, 1), 5),
+        "hf_per_m":            round(h_total / max(equiv_m, 1e-6), 5),
         "press_drop_total":    round(dp_kpa, 3),
-        "press_drop_per_m":    round(dp_kpa / max(length_m, 1), 4),
-        "press_kpa_m":         round(dp_kpa / max(length_m, 1), 4),
+        "press_drop_per_m":    round(dp_kpa / max(equiv_m, 1e-6), 4),
+        "press_kpa_m":         round(dp_kpa / max(equiv_m, 1e-6), 4),
         "velocity_head":       round(velocity**2 / (2 * 9.81), 4),
         "velocity_min":        targets["min"],
         "velocity_max":        targets["max"],
-        "equiv_length":        round(length_m * (1 + fittings_k), 1),
+        "equiv_length":        round(equiv_m, 1),
         "size_comparison":     size_table,   # renderer alias for size_table
     }

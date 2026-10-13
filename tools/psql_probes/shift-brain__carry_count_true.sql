@@ -32,8 +32,21 @@ SELECT 'carry_is_always_an_array | ' || (
 -- is checked only against the NEWEST plan per hive - an older plan legitimately differs because an
 -- entry closed after it was generated, and comparing a point-in-time snapshot to today's table would
 -- manufacture failures out of the product working correctly.
+--
+-- ★AND AN ENTRY OPENED AFTER THE PLAN BROKE IT, EIGHT DAYS LATER (2026-10-06). The comparison above was
+-- against TODAY's open count, and the note on _newest_plan guards only against an entry CLOSING after the
+-- plan was generated. The other direction is just as ordinary: a technician logs a new open job. Measured
+-- when this recipe went red - five hives matched their stored array exactly and Tan Delivery Vans stored 0
+-- against 1 open today, because a walk logged a real entry against TDV after that hive's newest plan was
+-- generated on 2026-09-28 and no plan has been generated for it since. The product was right; the
+-- instrument was comparing a snapshot to a later world.
+-- So openness is now evaluated AS OF generated_at - created on or before it, and not closed before it -
+-- which is the only count the stored array could ever have been equal to. Re-measured across all six
+-- hives: every stored length equals its as-of count, including TDV's 0. This is the same discipline the
+-- note below already applies to concurrent writers: an assertion must not move because the platform was
+-- used between two readings.
 CREATE TEMP VIEW _newest_plan AS
-SELECT DISTINCT ON (hive_id) hive_id, payload
+SELECT DISTINCT ON (hive_id) hive_id, payload, generated_at
 FROM shift_plans WHERE payload IS NOT NULL
 ORDER BY hive_id, generated_at DESC;
 
@@ -41,7 +54,10 @@ SELECT 'no_silent_truncation | ' || NOT EXISTS (
   SELECT 1 FROM _newest_plan np
    WHERE coalesce(np.payload->'caps'->>'carry_forward', 'false') = 'false'
      AND jsonb_array_length(np.payload->'carry_forward')
-         < (SELECT count(*) FROM logbook l WHERE l.hive_id = np.hive_id AND l.status = 'Open'));
+         < (SELECT count(*) FROM logbook l
+             WHERE l.hive_id = np.hive_id
+               AND l.created_at <= np.generated_at
+               AND (l.closed_at IS NULL OR l.closed_at > np.generated_at)));
 
 -- non-vacuity: if every hive's maximum were the same number, a global ceiling would be the simpler
 -- explanation and the check above would be measuring a constant
@@ -65,11 +81,14 @@ UPDATE shift_plans SET payload = jsonb_set(
              WHERE jsonb_array_length(p.payload->'carry_forward') > 1 LIMIT 1);
 
 SELECT 'detector_sees_a_silent_truncation | ' || EXISTS (
-  SELECT 1 FROM (SELECT DISTINCT ON (hive_id) hive_id, payload FROM shift_plans
+  SELECT 1 FROM (SELECT DISTINCT ON (hive_id) hive_id, payload, generated_at FROM shift_plans
                   WHERE payload IS NOT NULL ORDER BY hive_id, generated_at DESC) np
    WHERE coalesce(np.payload->'caps'->>'carry_forward', 'false') = 'false'
      AND jsonb_array_length(np.payload->'carry_forward')
-         < (SELECT count(*) FROM logbook l WHERE l.hive_id = np.hive_id AND l.status = 'Open'));
+         < (SELECT count(*) FROM logbook l
+             WHERE l.hive_id = np.hive_id
+               AND l.created_at <= np.generated_at
+               AND (l.closed_at IS NULL OR l.closed_at > np.generated_at)));
 ROLLBACK;
 
 -- ★A COUNT-BASED RESTORATION CHECK IS BROKEN BY ANY CONCURRENT WRITER (2026-09-10). Comparing
@@ -80,9 +99,12 @@ ROLLBACK;
 -- writer cannot move them.
 -- the teeth truncate a payload rather than inserting, so restoration means the invariant holds again.
 SELECT 'rows_restored_after_rollback | ' || NOT EXISTS (
-  SELECT 1 FROM (SELECT DISTINCT ON (hive_id) hive_id, payload FROM shift_plans
+  SELECT 1 FROM (SELECT DISTINCT ON (hive_id) hive_id, payload, generated_at FROM shift_plans
                   WHERE payload IS NOT NULL ORDER BY hive_id, generated_at DESC) np
    WHERE coalesce(np.payload->'caps'->>'carry_forward','false') = 'false'
      AND jsonb_array_length(np.payload->'carry_forward')
-         < (SELECT count(*) FROM logbook l WHERE l.hive_id = np.hive_id AND l.status = 'Open'));
+         < (SELECT count(*) FROM logbook l
+             WHERE l.hive_id = np.hive_id
+               AND l.created_at <= np.generated_at
+               AND (l.closed_at IS NULL OR l.closed_at > np.generated_at)));
 DROP TABLE _cfix;

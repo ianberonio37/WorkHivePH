@@ -138,6 +138,14 @@ def grade(reply: str, markers, anti) -> str:
     return "PASS" if hit >= 1 else "WEAK"
 
 
+import time  # noqa: E402
+_HERE = __import__("pathlib").Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE / "lib"))
+from chain_pacer import GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES, ChainPacer, edge_window_outcome  # noqa: E402
+# paced (2026-10-08): 8 s between companion calls, a 30-call cap, stop on two all-429 windows - never a failure
+PACER = ChainPacer("voice-family", GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES)
+
+
 async def main():
     print(f"VOICE family probe — ASR={ASR_URL}  companion={'ON' if JWT else 'OFF (set WH_JWT)'}\n")
     # health check the indigenous ASR
@@ -160,7 +168,12 @@ async def main():
         heard = res.get("text", "")
         detected = res.get("lang", "")
         fidelity = wer_recall(p["text"], heard)
-        reply = companion_reply(heard, p.get("agent", "voice-journal"))
+        if JWT and PACER.wait():
+            _t0 = time.time()
+            reply = companion_reply(heard, p.get("agent", "voice-journal"))
+            PACER.record(edge_window_outcome(_t0, time.time()))
+        else:
+            reply = f"(not asked: {PACER.stop_reason})" if PACER.stop_reason else companion_reply(heard, p.get("agent", "voice-journal"))
         g = grade(reply, p["markers"], p["anti"]) if reply else "-"
         # voice-out proof: synth the reply back to audio
         voice_out = 0

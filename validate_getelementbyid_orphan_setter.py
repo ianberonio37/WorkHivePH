@@ -39,6 +39,9 @@ PAGES = [
 GET_RE = re.compile(r"""\bgetElementById\(\s*['"`](?P<id>[a-z][\w-]+)['"`]\s*\)""", re.IGNORECASE)
 QS_RE  = re.compile(r"""\bquerySelector(?:All)?\(\s*['"`]#(?P<id>[a-z][\w-]+)['"`]\s*\)""", re.IGNORECASE)
 HTML_ID_RE = re.compile(r"""\bid\s*=\s*['"`](?P<id>[a-z][\w-]+)['"`]""", re.IGNORECASE)
+# A JS-built element whose id has a literal fallback: `wrap.id = (opts && opts.id) || 'typing-indicator'`
+# (assistant, 2026-10-13). Same statement only: the fallback literal must follow `||` before the next ; or newline.
+FALLBACK_ID_RE = re.compile(r"""\.id\s*=\s*[^;\n]*?\|\|\s*['"`](?P<id>[a-z][\w-]+)['"`]""", re.IGNORECASE)
 # Dynamic id construction: getElementById('prefix-' + var + '-suffix')
 DYN_RE = re.compile(r"""\bgetElementById\(\s*['"`]([a-z][\w-]*?)['"`]\s*\+""", re.IGNORECASE)
 ALLOW_RE = re.compile(r"gid-allow", re.IGNORECASE)
@@ -69,7 +72,7 @@ def main() -> int:
         body = HTML_COMMENT_RE.sub("", raw)
 
         # All HTML ids declared anywhere on the page
-        page_ids = {m.group("id") for m in HTML_ID_RE.finditer(body)}
+        page_ids = {m.group("id") for m in HTML_ID_RE.finditer(body)} | {m.group("id") for m in FALLBACK_ID_RE.finditer(body)}
         # Dynamic prefixes used by setCard-style dispatch — collect them so we
         # can match `id="prefix-X"` HTML elements as "covered" by dynamic JS.
         dyn_prefixes = {m.group(1) for m in DYN_RE.finditer(body)}

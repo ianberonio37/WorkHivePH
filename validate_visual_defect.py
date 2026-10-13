@@ -10,6 +10,14 @@ Layers:
   L3  fault_knowledge insert is fire-and-forget (no await on the .then())
   L4  logAICost call present (cost observability mandate)
   L5  asset auto-link via OCR (matched_asset path)
+  L6  a signed-in person with NO hive is served on their VERIFIED identity (LM-V walk, LM479, 2026-10-07):
+      no hive_id refusal for a non-service caller; an anonymous caller is 401 "Sign in to analyze a photo.";
+      the solo rate-limit key is the uid from resolveIdentity (never a body field); the asset match reads
+      their own register (hive_id NULL + auth_uid); the analyze-time fault_knowledge row is hive-only
+      (a hive-less row has no reader - RLS and every knowledge search filter on hive_id).
+  L7  logbook.html's photo path (vdcAnalyze) does not refuse a person for having no hive.
+
+Self-test:  python validate_visual_defect.py --self-test   (8 mutants of L6/L7 must each FAIL; current files PASS)
 
 Skills consulted:
   ai-engineer (multimodal cost, rate-limit FIRST, fire-and-forget embed)
@@ -27,6 +35,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 EDGE_FN = ROOT / "supabase" / "functions" / "visual-defect-capture" / "index.ts"
+PAGE = ROOT / "logbook.html"
 
 LAYERS = [
     {"layer": "L1", "label": "edge fn exists AND uses callAIMultimodal"},
@@ -34,14 +43,105 @@ LAYERS = [
     {"layer": "L3", "label": "fault_knowledge insert is fire-and-forget"},
     {"layer": "L4", "label": "logAICost call present"},
     {"layer": "L5", "label": "asset auto-link via OCR (matched_asset returned)"},
+    {"layer": "L6", "label": "a hive-less signed-in caller is served on the verified uid; anon is 401"},
+    {"layer": "L7", "label": "logbook's photo path does not refuse a person for having no hive"},
 ]
 
 
 def _read(p: Path) -> str:
     try:
-        return p.read_text(encoding="utf-8")
+        return p.read_text(encoding="utf-8-sig")
     except (OSError, UnicodeDecodeError):
         return ""
+
+
+def _strip_comments(src: str) -> str:
+    """Drop /* */ and // comments so a rule quoted in a comment can neither satisfy nor trip a check."""
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    return re.sub(r"(?m)(^|[^:\"'\\])//.*$", r"\1", src)
+
+
+def hiveless_issues(fn_src: str, page_src: str) -> list[dict]:
+    """L6 + L7: the photo path serves a signed-in person with no hive, on their verified identity.
+
+    ★WHY (LM-V walk, LM479, 2026-10-07): a solo owner pressed Photo defect capture and was told "Join a hive to
+    analyze defects with AI." - the page refused before calling, and the function would have answered 400
+    "Missing required field: hive_id" anyway. Each clause below is the one a regression would remove."""
+    out: list[dict] = []
+    s = _strip_comments(fn_src)
+
+    # L6a - no hive_id refusal for a person: the old `if (!hive_id) return 400` is gone, and any remaining
+    # "Missing required field: hive_id" answer sits inside a service-role branch.
+    if re.search(r"if\s*\(\s*!\s*hive_id\s*\)\s*\{?\s*return\b", s):
+        out.append({"check": "l6_no_hive_refusal", "layer": "L6",
+                    "reason": "visual-defect-capture returns early when hive_id is missing - a signed-in solo owner "
+                              "is refused a photo draft that needs no hive data (LM479)."})
+    for m in re.finditer(r"Missing required field: hive_id", s):
+        if "isServiceRole" not in s[max(0, m.start() - 400):m.start()]:
+            out.append({"check": "l6_no_hive_refusal", "layer": "L6",
+                        "reason": "a 'Missing required field: hive_id' answer is reachable outside the service-role "
+                                  "branch - only a service-role caller (who names nobody) may be refused for no hive."})
+            break
+
+    # L6b - an anonymous caller is refused 401 with the sign-in sentence, before any model call.
+    m401 = re.search(r"Sign in to analyze a photo\.", s)
+    if not m401 or not re.search(r"status\s*:\s*401", s[m401.end():m401.end() + 300]):
+        out.append({"check": "l6_anon_401", "layer": "L6",
+                    "reason": "no 401 'Sign in to analyze a photo.' for an anonymous caller - with hive-less callers "
+                              "served, identity is the only thing standing between the public URL and a vision call."})
+
+    # L6c - the solo bucket is keyed on the VERIFIED uid: soloRateLimitKey(<v>, ...) where <v> is assigned only from
+    # authUid, and authUid is destructured from `await resolveIdentity(...)`.
+    key = re.search(r"checkSoloRateLimit\(\s*\w+\s*,\s*soloRateLimitKey\(\s*([A-Za-z_$][\w$]*)\s*,", s)
+    verified_uid = re.search(r"\{[^}]*\bauthUid\b[^}]*\}\s*=\s*await\s+resolveIdentity\(", s)
+    if not key or not verified_uid:
+        out.append({"check": "l6_solo_key_verified", "layer": "L6",
+                    "reason": "no checkSoloRateLimit(db, soloRateLimitKey(<verified uid>, ip)) for the hive-less caller "
+                              "(or authUid is not taken from resolveIdentity) - a hive-less vision call must draw on "
+                              "the person's own solo bucket."})
+    else:
+        var = key.group(1)
+        assigns = [a.group(1).strip() for a in
+                   re.finditer(r"(?<![\w$.])" + re.escape(var) + r"\s*(?::\s*[^=;]+)?=(?!=)\s*([^;]+);", s)]
+        tainted = [a for a in assigns if re.search(r"\bbody\b|_whBody|\bpayload\b|req\.json", a)]
+        from_uid = [a for a in assigns if re.fullmatch(r"authUid", a)]
+        if tainted or not from_uid:
+            out.append({"check": "l6_solo_key_verified", "layer": "L6",
+                        "reason": f"the solo rate-limit key `{var}` is not the verified authUid "
+                                  f"(assignments: {assigns[:3]}) - a body-named id lets any caller spend, or "
+                                  f"escape, someone else's budget (Pillar P)."})
+        # L6d - the asset match reads the same person's own register, never an unscoped one.
+        if not re.search(r"matchAssetByTag\([^)]*\b" + re.escape(var) + r"\b[^)]*\)", s):
+            out.append({"check": "l6_own_assets", "layer": "L6",
+                        "reason": f"matchAssetByTag is not given the hive-less caller's verified uid `{var}` - their "
+                                  f"OCR'd tag can never match their own registered assets."})
+    if len(re.findall(r"\.is\(\s*[\"']hive_id[\"']\s*,\s*null\s*\)\s*\.eq\(\s*[\"']auth_uid[\"']", s)) < 2:
+        out.append({"check": "l6_own_assets", "layer": "L6",
+                    "reason": "both asset reads (explicit asset_id + OCR tag match) must scope a hive-less caller to "
+                              "hive_id IS NULL AND auth_uid = <verified uid> - this runs on the service-role client."})
+
+    # L6e - the analyze-time knowledge row is hive-only (a hive_id NULL row has no reader).
+    if "fault_knowledge" in s and not re.search(r"if\s*\(\s*(?:verifiedHiveId|hive_id)\s*&&[^)]*draft\.confidence\s*>=", s):
+        out.append({"check": "l6_knowledge_hive_only", "layer": "L6",
+                    "reason": "the analyze-time fault_knowledge write is not gated on a hive - a hive-less row would be "
+                              "an embedding spent on a model draft no RLS policy or knowledge search can ever read."})
+
+    # L7 - the page's analyze handler never refuses for a missing hive.
+    p = page_src or ""
+    fn = re.search(r"async function vdcAnalyze\s*\([\s\S]*?(?=\n(?:async\s+)?function\s)", p)
+    if not fn:
+        out.append({"check": "l7_client_no_hive_refusal", "layer": "L7",
+                    "reason": "logbook.html has no vdcAnalyze() - the photo path this gate protects must exist."})
+    else:
+        body = _strip_comments(fn.group(0))
+        if re.search(r"!\s*HIVE_ID\b", body) or re.search(r"Join a hive", body, re.I):
+            out.append({"check": "l7_client_no_hive_refusal", "layer": "L7",
+                        "reason": "vdcAnalyze() refuses (or tells the person to join a hive) when HIVE_ID is empty - a "
+                                  "solo owner is turned away from a draft the server now serves them (LM479)."})
+        if "visual-defect-capture" not in body:
+            out.append({"check": "l7_client_no_hive_refusal", "layer": "L7",
+                        "reason": "vdcAnalyze() no longer calls visual-defect-capture."})
+    return out
 
 
 def run() -> dict:
@@ -55,6 +155,7 @@ def run() -> dict:
                 "layers": LAYERS, "issues": issues, "warnings": []}
 
     src = _read(EDGE_FN)
+    issues.extend(hiveless_issues(src, _read(PAGE)))
 
     # L1
     if "callAIMultimodal" not in src:
@@ -136,5 +237,53 @@ def main() -> int:
     return 1 if out["failed"] else 0
 
 
+def self_test() -> int:
+    """Teeth for L6/L7: the current files pass, and each regression below must FAIL. A mutant whose replacement no
+    longer applies to the source is itself a failure (a STALE mutant would read as a kill while testing nothing)."""
+    fn, pg = _read(EDGE_FN), _read(PAGE)
+    if not fn or not pg:
+        print("SELF-TEST FAIL: visual-defect-capture/index.ts or logbook.html is missing")
+        return 1
+    old_guard = "if (!hive_id) {\n      return new Response(JSON.stringify({ error: \"Missing required field: hive_id\" }), { status: 400 });\n    }\n"
+    mutants = [
+        ("client refuses a hive-less person again", "pg",
+         "if (!_vdcDataUrl) { showToast('Capture a photo first.'); return; }",
+         "if (!_vdcDataUrl) { showToast('Capture a photo first.'); return; }\n  if (!HIVE_ID) { showToast('Join a hive to analyze defects with AI.'); return; }"),
+        ("server restores the hive_id 400 for everyone", "fn",
+         "    let soloUid: string | null = null;\n", "    let soloUid: string | null = null;\n    " + old_guard),
+        ("solo bucket keyed on a body field", "fn",
+         "soloRateLimitKey(soloUid,", "soloRateLimitKey(body.auth_uid,"),
+        ("solo uid taken from the body", "fn",
+         "soloUid = authUid;", "soloUid = String(body.auth_uid || \"\");"),
+        ("anonymous caller no longer refused", "fn",
+         "Sign in to analyze a photo.", "Please try again."),
+        ("tag match ignores the person's own register", "fn",
+         "matchAssetByTag(db, verifiedHiveId, draft.asset_tag_extracted, soloUid)",
+         "matchAssetByTag(db, verifiedHiveId, draft.asset_tag_extracted)"),
+        ("explicit asset read unscoped for a hive-less caller", "fn",
+         "_assetBase.is(\"hive_id\", null).eq(\"auth_uid\", soloUid as string)", "_assetBase"),
+        ("analyze-time knowledge row written with no hive", "fn",
+         "if (verifiedHiveId && draft.confidence >= 0.4", "if (draft.confidence >= 0.4"),
+    ]
+    ok = True
+    base = hiveless_issues(fn, pg)
+    print(f"  [{'ok' if not base else 'WRONG'}] current files: {'pass' if not base else 'fail ' + str([i['check'] for i in base])}")
+    ok &= not base
+    for label, which, old, new in mutants:
+        src = fn if which == "fn" else pg
+        if old not in src:
+            print(f"  [STALE] {label}: the text it mutates is gone - update the mutant")
+            ok = False
+            continue
+        mf, mp = (src.replace(old, new, 1), pg) if which == "fn" else (fn, src.replace(old, new, 1))
+        got = hiveless_issues(mf, mp)
+        killed = bool(got)
+        ok &= killed
+        print(f"  [{'ok' if killed else 'SURVIVED'}] {label}: "
+              f"{'fail ' + str(sorted({i['check'] for i in got})) if killed else 'pass (want fail)'}")
+    print(("SELF-TEST PASS" if ok else "SELF-TEST FAIL") + f": current passes, {len(mutants)} mutants")
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(self_test() if "--self-test" in sys.argv else main())

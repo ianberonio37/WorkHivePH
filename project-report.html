@@ -60,8 +60,8 @@
   body { padding-top: 60px; min-height: 100vh; }
 
   .toolbar {
-    position: sticky; top: 60px; z-index: 50;
-    background: rgba(15,25,35,0.96); border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: static; z-index: 50;   /* sticky from 768px only - see the @media below */
+    background: rgba(22,32,50,0.96); border-bottom: 1px solid rgba(255,255,255,0.08);   /* --wh-navy's channel (was #0f1923's), W46013 */
     padding: 12px 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;   /* 10px x2 was off-grid (W46008) */
   }
   .toolbar h1 { font-size: 1.05rem; font-weight: 700; }
@@ -71,15 +71,37 @@
   @media (max-width: 420px) { #exec-summary .empty-section { min-height: 150px; } }
   .toolbar h2#tb-title { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.05rem; font-weight: 700; margin: 0; }
   .toolbar .grow { flex: 1; min-width: 0; }
+  /* At a phone the five actions wrap to a 162px bar; kept sticky it would hold a fifth of an 844px screen for the
+     whole read. From 768px the bar is one 69px row, and sticky keeps Print and Save as PDF in reach (2026-10-09). */
+  @media (min-width: 768px) { .toolbar { position: sticky; top: 60px; } }
+  /* Above the report now, the bar's height is the report's starting line: "Loading project…" -> a long project name
+     re-wrapped the phone rows (Back 76->113, AI 132->113) and moved the whole report 18px, measured 2026-10-09. The
+     title owns the first row at any length, so the buttons wrap the same way before and after the data. */
+  @media (max-width: 767px) { .toolbar h2#tb-title { flex: 1 1 100%; } .toolbar .grow { display: none; } }
+  /* NOTHING LOADED, SO THERE IS NO REPORT TO FRAME (2026-10-09, walked as a worker of another hive on a foreign
+     project link). The message was right - "Project not found or not visible to you" - but it sat inside an empty
+     report: "TYPE status", "Owner: - Period: - Generated: -", six section headings over nothing, the standards
+     appendix, and a source line claiming "Based on your project items" that were never read. When nothing loaded
+     (no project named, not found, refused, failed) only the cover title and the message under it stay. */
+  #ar-print-wrapper.pr-unloaded .doc-cover > :not(h1),
+  #ar-print-wrapper.pr-unloaded > h2,
+  #ar-print-wrapper.pr-unloaded > div:not(#exec-summary):not(.doc-cover) { display: none; }
   .toolbar button, .toolbar a.btn {
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
-    background: #1d2e44; color: var(--shell-text);
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+    background: var(--wh-navy-mid); color: var(--shell-text);   /* was #1d2e44, one unit off the token (W46013) */
+    border: 1px solid rgba(255,255,255,0.08); border-radius: var(--wh-radius, 12px);   /* was 10px, off the 8/12/16 scale (critic batch S1) */
     padding: 8px 16px; min-height: 44px; display: inline-flex;   /* 14px was off the 4px rhythm on all five toolbar controls (W46008) */ align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-decoration: none;
   }
   .toolbar button:hover, .toolbar a.btn:hover { background: #243a55; }
-  .toolbar .primary { background: var(--wh-orange); color: #1a1208; border-color: var(--wh-orange); }
+  .toolbar .primary { background: var(--wh-orange); color: var(--wh-navy); border-color: var(--wh-orange); }
   .toolbar .primary:hover { background: var(--wh-orange); }
+  /* ★DISABLED, BUT DRAWN AS LIVE (critique W46013, 2026-10-13). With no project chosen - or one not found, refused or
+     failed - prMarkUnloaded() disables AI: Narrative, Print, Save as PDF and CSV, and nothing in the CSS said so: full
+     opacity, full gold, a pointer cursor. The two gold buttons looked like the most pressable things on the page and
+     did nothing when pressed. */
+  .toolbar button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .toolbar button:disabled:hover { background: var(--wh-navy-mid); }
+  .toolbar button.primary:disabled:hover { background: var(--wh-orange); }
 
   #ar-print-wrapper {
     background: var(--paper); color: var(--ink);
@@ -155,28 +177,35 @@
      copy never got it, so the component had drifted rather than being newly broken. */
   @media (max-width: 720px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
   .kpi-strip > * { min-width: 0; }
-  .kpi { background: var(--cell-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+  .kpi { background: var(--cell-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; }   /* 10px top/bottom was off the 4px rhythm (W46013) */
   .kpi-label { font-size: 9pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .kpi-value { font-size: 18pt; font-weight: 800; color: var(--ink); margin-top: 2px; line-height: 1.05; }
+  .kpi-value { font-size: 18pt; font-weight: 800; color: var(--ink); margin-top: 2px; line-height: 1.05; font-variant-numeric: tabular-nums; }   /* 52% / 18 / 33 / 0.52 in tabular figures (W46013) */
   .kpi-sub   { font-size: 9pt; color: var(--muted); margin-top: 2px; }
   .kpi.green .kpi-value { color: var(--green); }
   .kpi.amber .kpi-value { color: var(--amber); }
   .kpi.red   .kpi-value { color: var(--red); }
 
-  .insight-card { background: linear-gradient(135deg, #FBEED2 0%, #FFFCF0 100%);
-                  border-left: 4px solid var(--accent); padding: 12px 16px;
+  /* the hero card keeps its warm paper and loses the 4px side stripe and the gradient (critique W46013, 2026-10-13):
+     DESIGN.md - "accent borders are 1px tints ... NEVER a thick coloured border-left" - and analytics-report, the other
+     printable report, already draws its insight cards with a 1px border on a flat fill. The static detector could not
+     see this one because the card is rendered by script. */
+  .insight-card { background: #FDF6E6;
+                  border: 1px solid #E8D6A8; padding: 12px 16px;
                   border-radius: 6px; margin: 12px 0; }
   .insight-card .label { font-size: 9pt; color: var(--muted); font-weight: 700;
                          text-transform: uppercase; letter-spacing: 0.04em; }
   .insight-card .text { font-size: 11pt; color: var(--ink); margin-top: 4px; }
 
-  table.doc-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6px 0 10px; }
+  table.doc-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 8px 0 12px; }   /* 6/10px were off the 4px rhythm (W46013) */
   table.doc-table th, table.doc-table td { text-align: left; padding: 6px 8px;
                                             border-bottom: 1px solid var(--rule); vertical-align: top; }
   table.doc-table th { font-size: 9pt; color: var(--muted); text-transform: uppercase;
                        letter-spacing: 0.04em; font-weight: 700; background: var(--cell-bg); }
   table.doc-table tr.done td { color: var(--muted); text-decoration: line-through; }
   .nowrap { white-space: nowrap; }
+  /* a WBS code is a code: DESIGN.md's one exception to Poppins (ui-monospace for codes), marked up as <code> so the
+     document says what it is. The generic `monospace` fell back to the device's default face (critic batch S1). */
+  .wbs-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: inherit; background: none; }
   .right  { text-align: right; }
 
   .phase-tag { display: inline-block; font-size: 9pt; padding: 1px 7px; border-radius: 999px;
@@ -189,7 +218,7 @@
 
   .signoff-block { border: 1px solid var(--rule); border-radius: 6px; padding: 16px;
                    margin-top: 12px; background: var(--cell-bg); }
-  .signoff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 18px; }
+  .signoff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }   /* 30/18px were off the 4px rhythm (W46013) */
   .signoff-line { border-top: 1px solid var(--ink); padding-top: 4px; font-size: 9pt; color: var(--muted); }
   .signoff-line strong { color: var(--ink); display: block; font-size: 10pt; margin-bottom: 1px; }
 
@@ -202,6 +231,9 @@
      printout. Both are deliberately plain so they read as the document's own voice, not chrome. */
   .clip-mark { color: var(--muted); font-style: italic; white-space: nowrap; }
   .clip-note { margin: 6px 2px 0; font-size: 9pt; color: var(--muted); font-style: italic; }
+  /* the shared "was this right?" row (utils.js) draws its ring in var(--border), which this paper page never defines -
+     its dark-app fallback is a white ring on white. The paper's own --muted (#5B6878, 5.9:1 on white) is the ring. */
+  .wh-ai-trust { --border: var(--muted); }
 
   @media print {
     /* @page margin: 0 collapses the area where Chrome / Edge render the
@@ -213,8 +245,9 @@
        default for client-facing PDFs. */
     @page { size: A4; margin: 0; }
     html, body { background: white; padding: 0; margin: 0; }
-    .toolbar, nav, header, .nav-hub, #wh-nav, [data-nav-hub], #floating-ai-root, #floating-ai-fab, #wh-ai-widget, #wh-ai-fab { display: none !important; }
-    body > *:not(#ar-print-wrapper) { display: none !important; }
+    .toolbar, nav, header, .nav-hub, #wh-nav, [data-nav-hub], #floating-ai-root, #floating-ai-fab, #wh-ai-widget, #wh-ai-fab, .wh-ai-trust { display: none !important; }
+    body > *:not(main), main > *:not(#ar-print-wrapper) { display: none !important; }
+    main { padding: 0 !important; margin: 0 !important; }
     #ar-print-wrapper { box-shadow: none; max-width: none; margin: 0; padding: 14mm 12mm; }
     h2 { page-break-after: avoid; }
     /* `avoid` belongs on things that are SHORT BY CONSTRUCTION. The signoff block is one of those.
@@ -242,9 +275,15 @@
      The signoff block is the same shape: two 1fr columns with a 30px gap pushed the owner's name past
      its own column at 390. A signature block is exactly what a phone reader scrolls to confirm, so it
      stacks rather than squeezes. */
+  /* 15pt = 20px, the arm's-length bar (critic K2, 2026-10-13): 14pt read every phone KPI as not glanceable. The
+     10-character peso figure measured 157px at 18pt, so ~131px at 15pt - inside the 140px cell at 390. Below 360px a
+     two-column cell is narrower than the figure at any readable size, so the strip stacks in one column there. */
   @media (max-width: 720px) {
-    .kpi-value { font-size: 14pt; }
+    .kpi-value { font-size: 15pt; }
     .signoff-row { grid-template-columns: 1fr; gap: 18px; }
+  }
+  @media (max-width: 360px) {
+    .kpi-strip { grid-template-columns: 1fr; }
   }
   .hidden { display: none !important; }
 </style>
@@ -263,10 +302,36 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 </head>
 <body>
 
-<!-- role=region + label: this report wrapper must stay a direct body child (print
-     CSS body > *:not(#ar-print-wrapper)), so it can't be wrapped in <main>; and a
-     <main> is injected dynamically by the shell, so role="main" here duplicates it.
-     A labelled region is a valid landmark that satisfies axe 'region'. -->
+<!-- ★THE REPORT WAS OUTSIDE THE PAGE'S <main> (2026-10-09, UFAI LXP387/423, walked as a Lucena worker). <main>
+     held only the toolbar and the source line, and it sat AFTER the report: measured at 390px the report ran
+     80-4281px and the toolbar - Back, AI Narrative, Print, Save as PDF, CSV - rendered at 4297 of 4575. So the
+     skip link and a screen reader's "main" landed on five buttons, every main-scoped reading saw one crew word
+     ("report") in a pump-overhaul report, and on a phone the actions were a whole report away. The old note
+     said the wrapper could not sit in <main> because print shows body > #ar-print-wrapper only; the print rule
+     now scopes one level deeper (main > *:not(#ar-print-wrapper)), so ONE <main> holds the toolbar, the report
+     and its source line in reading order. The wrapper keeps its labelled region inside it. -->
+<main>
+  <div class="toolbar">
+    <h2 data-i="p_loadingproject_d3b8" id="tb-title">Loading project&hellip;</h2>
+    <div class="grow"></div>
+    <a data-i="p_back_c32a" href="project-manager.html" class="btn">&larr; Project Manager</a>
+    <button class="btn" onclick="aiGenerateNarrative()" id="ai-narrative-btn" title="AI-drafted hero finding + executive summary, strict-only mode">🤖 AI: Narrative</button>
+    <!-- the wait was only the button label ("Drafting…"), which a screen reader does not announce (LM-L walk, LM521, 2026-10-08) -->
+    <span id="ai-narrative-status" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"></span>
+    <!-- one amber action (W46013): Print was a second, gradient-gold primary beside Save as PDF; both open the print
+         dialog, and Save as PDF also names the file, so it keeps the accent -->
+    <button class="btn" onclick="window.print()" data-i="print">Print</button>
+    <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
+    <!-- Print and Save-as-PDF both make a picture of this report. A project report is also the record a
+         client, an auditor or the next project manager works FROM - the scope items, the linked
+         evidence, the progress logs with their blockers - and none of that could leave the page as
+         data. Same export shape as the analytics report: one row per figure, with its section and
+         field naming what it is. -->
+    <button class="btn" onclick="saveAsCsv()" id="pr-csv-btn"
+            title="Export this project's records to CSV" aria-label="Export this project's records to CSV"><span data-i="csv">CSV</span></button>
+    <!-- FCh3: the report BODY is EN-by-design (formal engineering document, translate="no"
+         headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
+  </div>
 <div id="ar-print-wrapper" role="region" aria-label="Project report">
   <div class="doc-cover">
     <span class="pcode" id="cov-code">PROJECT</span>
@@ -322,28 +387,10 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
   </div>
 </div>
 
-<main>
-  <div class="toolbar">
-    <h2 data-i="p_loadingproject_d3b8" id="tb-title">Loading project&hellip;</h2>
-    <div class="grow"></div>
-    <a data-i="p_back_c32a" href="project-manager.html" class="btn">&larr; Back</a>
-    <button class="btn" onclick="aiGenerateNarrative()" id="ai-narrative-btn" title="AI-drafted hero finding + executive summary, strict-only mode">🤖 AI: Narrative</button>
-    <button class="btn" onclick="window.print()" style="background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy); border:none; font-weight:700;" data-i="print">Print</button>
-    <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
-    <!-- Print and Save-as-PDF both make a picture of this report. A project report is also the record a
-         client, an auditor or the next project manager works FROM - the scope items, the linked
-         evidence, the progress logs with their blockers - and none of that could leave the page as
-         data. Same export shape as the analytics report: one row per figure, with its section and
-         field naming what it is. -->
-    <button class="btn" onclick="saveAsCsv()" id="pr-csv-btn"
-            title="Export this project's records to CSV" aria-label="Export this project's records to CSV"><span data-i="csv">CSV</span></button>
-    <!-- FCh3: the report BODY is EN-by-design (formal engineering document, translate="no"
-         headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
-    <script src="browser-floor.js"></script>
-  <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
-  </div>
   <!-- I1 CLS (EX-PF F07, 2026-09-07): the provenance chip used to be appended here after the data loaded, pushing every section down 16px; it now has its place from first paint -->
-  <div id="pr-source-chip" style="min-height:16px;"></div>
+  <div id="pr-source-chip" style="min-height:16px; max-width:980px; margin:0 auto 16px; padding:0 16px;"></div>   <!-- under the sheet, not at the viewport edge (W46013) -->
+  <script src="browser-floor.js"></script>
+  <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
 </main>
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
@@ -375,10 +422,34 @@ if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
 logPageView(db);
 const e = typeof escHtml === 'function' ? escHtml : (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function $(id) { return document.getElementById(id); }
+// No report loaded (no project named, not found, refused, failed): fold the empty report frame away and take back the
+// source line, which names reads this state never made. __prUnloaded tells the load-time chip handler (bottom of the
+// page) not to paint it, whichever of the two runs first. (2026-10-09)
+function prMarkUnloaded() {
+  window.__prUnloaded = true;
+  const w = document.getElementById('ar-print-wrapper');
+  if (w) w.classList.add('pr-unloaded');
+  const c = document.getElementById('pr-source-chip');
+  if (c) c.innerHTML = '';
+  // the chooser state (no project named) left Print / Save as PDF / CSV / AI live over an empty report
+  document.querySelectorAll('.toolbar button').forEach((b) => {
+    b.disabled = true;
+    b.setAttribute('title', 'Nothing has loaded, so there is nothing to print, export or summarise yet');
+  });
+}
+
 function fmtDate(d) {
   if (!d) return '-';
   return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
+// The calendar day of an instant in Asia/Manila - the platform's one clock (critique W46013, 2026-10-13).
+function _phtParts(d) {
+  const o = {};
+  for (const x of new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(d)) o[x.type] = +x.value;
+  return o;
+}
+function _phtDayNum(d) { const o = _phtParts(d); return Date.UTC(o.year, o.month - 1, o.day) / 86400000; }
+function _phtYmd(d) { const o = _phtParts(d); return o.year + '-' + String(o.month).padStart(2, '0') + '-' + String(o.day).padStart(2, '0'); }
 // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): null→'-', whole-peso en-PH, never ₱NaN.
 function fmtPHP(n) { return n == null ? '-' : whFmtPeso(n, { decimals: 0 }); }
 
@@ -398,8 +469,8 @@ function getPhase(it) {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project_id');
   if (!projectId) {
-    $('tb-title').textContent = 'No project specified';
-    $('exec-summary').innerHTML = '<div class="empty-section">Open this page from the Project Manager (Detail &rarr; Print Report).<br><a href="project-manager.html" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">Go to Project Manager</a></div>';
+    $('tb-title').textContent = 'Choose a project';   // was "No project specified" - an error's words for a choice (W46013)
+    $('exec-summary').innerHTML = '<div class="empty-section" data-wh-gate="choose-project">Each report covers one project. Open it from Project Manager: Detail, then Print Report.<br><a href="project-manager.html" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">Go to Project Manager</a></div>';
     // EX-PX returner (2026-09-07): a person coming back to this page from history arrives with no ?project_id and
     // met "No project specified" and a back link - a cold start on a page they had used. The report is FOR a
     // project, so the honest warm return is the hive's recent projects, each one a link to its own report.
@@ -416,7 +487,7 @@ function getPhase(it) {
         // as their "recent" work is exactly the two-surfaces-two-answers problem the view exists to
         // end. (Identical result today - raw 12, non-deleted 12, view 12 - so this changes the
         // CONTRACT, not the current screen.) The view names the key `project_id`, not `id`.
-        const { data: recent } = await db.from('v_project_truth')
+        const { data: recent, error: recentErr } = await db.from('v_project_truth')
           .select('project_id, project_code, name, status, updated_at')
           .eq('hive_id', HIVE_ID)
           .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
@@ -425,10 +496,29 @@ function getPhase(it) {
         box.setAttribute('role', 'region');
         box.setAttribute('aria-label', T('Recent projects', 'Mga kamakailang project'));
         if (recent && recent.length) {
-          box.innerHTML = '<p style="margin:0 0 .5rem;font-weight:600;">' + e(T("Your hive's recent projects", 'Mga kamakailang project ng hive mo')) + '</p><ul style="list-style:none;padding:0;margin:0;">'
-            + recent.map((r) => '<li><a href="project-report.html?project_id=' + encodeURIComponent(r.project_id) + '" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">'
-              + e((r.project_code ? r.project_code + ' · ' : '') + (r.name || r.project_id)) + (r.status ? ' <span style="opacity:.7;">· ' + e(r.status) + '</span>' : '') + '</a></li>').join('')
+          // ★THE CHOOSER BROKE AT 390 (critique W46013, 2026-10-13). Each link is inline-flex (for its 44px height), which
+          // made the name's text and the status <span> two flex ITEMS: the space between them collapsed ("Overhaul· active"),
+          // and at 390 the status became its own column - "·" on one line, "active" on the next, beside the wrong half of
+          // the name. One inner span keeps each link a single run of text that wraps as a sentence. The list is a set of
+          // choices, so it reads upright and left-aligned (it inherited the placeholder's centred italic); the status is
+          // the sheet's muted ink in words ("on hold", not the enum "on_hold") - at opacity .7 the link blue measured
+          // ~3.6:1 on the paper.
+          box.style.cssText = 'font-style:normal;text-align:left;max-width:36rem;margin:0 auto;';
+          box.innerHTML = '<p style="margin:0 0 .5rem;font-weight:600;">' + e(T("Or choose one of your hive's recent projects", 'Mga kamakailang project ng hive mo')) + '</p><ul style="list-style:none;padding:0;margin:0;">'
+            + recent.map((r) => '<li><a href="project-report.html?project_id=' + encodeURIComponent(r.project_id) + '" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;"><span>'
+              + e((r.project_code ? r.project_code + ' · ' : '') + (r.name || r.project_id)) + (r.status ? ' <span style="color:var(--muted);">· ' + e(String(r.status).replace(/_/g, ' ')) + '</span>' : '') + '</span></a></li>').join('')
             + '</ul>';
+        } else if (recentErr) {
+          /* ★A FAILED READ IS NOT AN EMPTY HIVE, AND THIS ONE ALSO PRESCRIBED AN ACTION (2026-10-06, found
+             walking LXP226 with PostgREST stopped). The read's error was destructured away, so zero rows
+             read as zero projects and the page said "No projects in this hive yet. Create one in the
+             Project Manager and its report will build here." - to a supervisor of a hive holding FOUR
+             projects, with the shared notice "The server could not be reached" visible on the same screen.
+             Two elements contradicting each other, and the empty state was the one giving instructions.
+             Saying "create one" is the part that makes this worse than a wrong number: acted on, it makes
+             a duplicate project because the real ones were invisible for a minute. */
+          box.textContent = T('Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.',
+                              'Hindi ma-load ang mga project mo, kaya hindi ipinapakita sila dito - hindi ibig sabihin na wala ang hive. Subukan muli maya-maya.');
         } else {
           box.textContent = T('No projects in this hive yet. Create one in the Project Manager and its report will build here.',
                               'Wala pang project sa hive na ito. Gumawa ng isa sa Project Manager at dito mabubuo ang report nito.');
@@ -436,6 +526,7 @@ function getPhase(it) {
         $('exec-summary').appendChild(box);
       }
     } catch (_) { /* empty-catch-allow: the chooser is a courtesy; the back link above still stands */ }
+    prMarkUnloaded();
     return;
   }
   await loadAndRender(projectId);
@@ -503,6 +594,9 @@ async function loadAndRender(projectId) {
     const _msg    = _e ? String(_e.message || '') : '';
     // 42501 = insufficient_privilege: the caller WAS identified and refused, so it is access, not a fault.
     const _refused  = _status === '403' || _code === '42501' || /permission denied/i.test(_msg);
+    // A malformed id (22P02) is the server ANSWERING "there is no such project" - not an outage. Reported as "WorkHive did not
+    // answer" it sent the reader to wait for something that will never load (2026-10-06, project-report x adversary).
+    const _malformed = _code === '22P02' || /invalid input syntax/i.test(_msg);
     const _expired  = typeof whIsAuthFailure === 'function' ? whIsAuthFailure(_e) : _status === '401';
     const _back = ' <a href="project-manager.html" style="color: var(--accent);">Back to Project Manager</a>';
     let _title, _body;
@@ -512,7 +606,7 @@ async function loadAndRender(projectId) {
     } else if (_refused) {
       _title = 'No access to this project';
       _body  = 'You do not have access to this project. Ask its manager to add you.' + _back;
-    } else if (_e) {
+    } else if (_e && !_malformed) {
       _title = 'Could not load this report';
       _body  = e(whReadError(_e, 'this report')) + ' The report is unknown right now, '
              + 'not empty, so do not report status from this page yet. '
@@ -530,8 +624,20 @@ async function loadAndRender(projectId) {
              + 'PDF, or ask the project’s supervisor to add you to their hive.' + _back;
     }
     $('tb-title').textContent = _title;
+    // ★THE FAILURE WAS PAINTED, NOT SAID, AND THE REPORT COULD STILL BE PRINTED (2026-10-06, project-report x
+    // assistive-tech, PostgREST stopped). The sentence below already tells the reader "the report is unknown right now,
+    // not empty, so do not report status from this page yet" - in a plain div, so a screen reader heard the shared
+    // notice and then nothing from the page itself; and Print, Save as PDF, CSV and the AI narrative stayed enabled on a
+    // report with no data in it, inviting exactly the status report the sentence forbids. A failure the reader can act
+    // on is an alert; a report that did not load has nothing to print, export or narrate.
+    const _alerting = !!((_e && !_malformed) || _expired);
     $('exec-summary')/* xss-allow: static branch strings, no user input */.innerHTML =
-      '<div class="empty-section">' + _body + '</div>';
+      '<div class="empty-section"' + (_alerting ? ' role="alert"' : '') + '>' + _body + '</div>';
+    document.querySelectorAll('.toolbar button').forEach((b) => {
+      b.disabled = true;
+      b.setAttribute('title', 'Nothing has loaded, so there is nothing to print, export or summarise yet');
+    });
+    prMarkUnloaded();
     return;
   }
   const project = projRes.data;
@@ -612,15 +718,41 @@ async function aiGenerateNarrative() {
   if (!_projectCache?.project) { showToast('Project not loaded yet'); return; }
   const btn = $('ai-narrative-btn');
   btn.disabled = true; btn.textContent = '🤖 Drafting…';
+  const _nStat = $('ai-narrative-status');
+  if (_nStat) _nStat.textContent = _t('Drafting the project narrative… this can take up to a minute.', 'Ginagawa ang salaysay ng proyekto… maaaring umabot ng isang minuto.');
   try {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'narrative', project_id: _projectCache.project.id, hive_id: _projectCache.project.hive_id },
     });
     if (error) { showToast(whAiError(error, 'AI failed'), 'error'); return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
+    // ★ONLY TEXT IS A NARRATIVE (LM-S walk, LM211, 2026-10-07): an object in executive_summary threw on .replace()
+    // inside a try with no catch - nothing was shown and the error went nowhere - and a missing summary appended an
+    // empty "AI-drafted executive summary" box. Each part is taken only when it is text, and when none is, the person
+    // is told the narrative did not come back.
+    const _txt = (v) => (typeof v === 'string' ? v.trim() : '');
+    const _hero = _txt(data?.hero_finding), _exec = _txt(data?.executive_summary), _lessons = _txt(data?.lessons_synthesis);
+    if (!_hero && !_exec && !_lessons) { showToast("AI didn't send back a narrative this time. Please try again.", 'error'); return; }
     // Replace the rule-based hero finding + exec summary with AI versions, tagged
     const insightCard = $('exec-summary').querySelector('.insight-card .text');
-    if (insightCard && data.hero_finding) insightCard.textContent = data.hero_finding;
+    if (insightCard && _hero) insightCard.textContent = _hero;
+    // ★A SECOND PRESS STACKED A SECOND "AI-DRAFTED EXECUTIVE SUMMARY" (LM-E walk, 2026-10-08): every press appended a
+    // new #pr-ai-exec-summary, so two drafts - two ids - sat one above the other on a report meant for sign-off. The
+    // previous draft is replaced, never kept beside the new one.
+    const _prevAi = document.getElementById('pr-ai-exec-summary');
+    if (_prevAi) _prevAi.remove();
+    // The shared "was this right?" row, recording exactly the narrative shown (hero + summary + lessons). It is the
+    // LAST child of #exec-summary, right under the AI box (or under the hero when only a hero came back); a re-render of
+    // the section (renderExecSummary) or the next press replaces it. Screen-only: @media print hides .wh-ai-trust.
+    const _trustNarrative = () => {
+      if (typeof whAiTrustRow !== 'function') return;
+      whAiTrustRow($('exec-summary'), { db, agent: 'project-orchestrator', source: 'narrative', page: 'project-report',
+        traceId: whTraceIdOf(data),   // LM-E: the id the project-orchestrator narrative reply returned
+        question: 'Report narrative for project ' + projField(_projectCache.project),
+        answer: [_hero && ('Hero finding: ' + _hero), _exec && ('Executive summary: ' + _exec), _lessons && ('Lessons synthesis: ' + _lessons)].filter(Boolean).join('\n'),
+        groundedOn: "this project's record, scope items and progress logs" });
+    };
+    if (!_exec && !_lessons) { _trustNarrative(); return; }
     // Append AI executive summary + lessons synthesis below the KPI strip
     const summaryDiv = document.createElement('div');
     // id: this block makes an AI-AUTHORED claim ("AI-drafted executive summary") and had no id at all, so
@@ -638,13 +770,15 @@ async function aiGenerateNarrative() {
     summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 6px; margin: 12px 0;';
     summaryDiv.innerHTML = `
       <div style="font-size: 9pt; color: #5B6878; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700;">🤖 AI-drafted executive summary</div>
-      <div style="font-size: 11pt; margin-top: 6px;">${(data.executive_summary || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      ${data.lessons_synthesis ? `<div style="font-size: 10pt; margin-top: 8px; color: #1F2A37;"><strong>Lessons synthesis:</strong> ${data.lessons_synthesis.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+      ${_exec ? `<div style="font-size: 11pt; margin-top: 6px;">${_exec.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+      ${_lessons ? `<div style="font-size: 10pt; margin-top: 8px; color: #1F2A37;"><strong>Lessons synthesis:</strong> ${_lessons.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
       <div style="font-size: 9pt; color: #5B6878; margin-top: 6px;">AI-drafted ${whFmtDate(new Date(), { time: true })}: review before sign-off.</div>`;
     $('exec-summary').appendChild(summaryDiv);
+    _trustNarrative();
   } finally {
     btn.disabled = false;
     btn.textContent = '🤖 AI: Narrative';
+    if (_nStat) _nStat.textContent = '';
   }
 }
 
@@ -660,7 +794,9 @@ function renderCover(p) {
   $('cov-period').textContent = (p.start_date && p.end_date)
     ? `${fmtDate(p.start_date)} → ${fmtDate(p.end_date)}`
     : (p.start_date ? `from ${fmtDate(p.start_date)}` : 'not set');
-  $('cov-generated').textContent = whFmtDate(new Date(), { time: true });
+  // every figure in this report is as of THIS instant, and a report travels (a PDF to a client, an auditor abroad):
+  // whFmtDate pins Asia/Manila but never said so, so "11:53 AM" named no clock (2026-10-09, UFAI LXP864/937/966/1003)
+  $('cov-generated').textContent = whFmtDate(new Date(), { time: true }) + ' PHT';
   $('cov-hive').textContent = HIVE_NAME || '-';
 }
 
@@ -684,10 +820,25 @@ function renderExecSummary(p, items, logs) {
   const blockers  = items.filter(i => i.status === 'blocked').length;
   const recentBlockers = logs.filter(l => (l.blockers || '').trim()).length;
 
+  // ★THE BUDGET GATE HID THE SCHEDULE (critique W46013, 2026-10-13). SPI and "Behind schedule" lived inside the budget
+  // block below, and the budget is shown to hive supervisors only - so a worker's report on SHD-2026-001, twelve weeks
+  // past its planned finish with four scope items open, said "52% complete with 4 scope items remaining" and nothing
+  // about the date. Schedule performance needs no money: SPI = EV / PV = (BAC x actual%) / (BAC x planned%), and BAC
+  // cancels. The money stays withheld; the schedule comes from the dates and the progress every reader already sees.
+  // Before the start date nothing is planned yet, so there is no SPI to judge (the old block printed 0.00 "Behind
+  // schedule" for a project starting next week).
+  const _days = (a, b) => a && b ? Math.max(1, Math.ceil((new Date(b) - new Date(a)) / 86400000)) : 0;
+  const plannedPct = (p.start_date && p.end_date && Date.now() >= new Date(p.start_date).getTime())
+    ? Math.min(1, _days(p.start_date, new Date().toISOString()) / (_days(p.start_date, p.end_date) || 1)) : null;
+  const schedSpi = plannedPct ? (pctExact / 100) / plannedPct : null;
+  const openItems = items.length - itemsDone;
+  const pastFinish = !!(p.end_date && p.status !== 'complete' && pct < 100 && _phtDayNum(new Date()) > _phtDayNum(new Date(p.end_date)));
+
   let hero;
   const subject = projLabel(p);
   if (p.status === 'complete')      hero = `${subject} is complete: ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
   else if (blockers > 0)            hero = `${subject} has ${blockers} blocked scope item${blockers === 1 ? '' : 's'} requiring attention.`;
+  else if (pastFinish)              hero = `${subject} is ${pct}% complete and past its planned finish of ${fmtDate(p.end_date)}: ${openItems} scope item${openItems === 1 ? '' : 's'} still open.`;
   else if (pct >= 95)               hero = `${subject} is ${pct}% complete: closeout phase.`;
   else if (pct >= 50)               hero = `${subject} is ${pct}% complete with ${items.length - itemsDone} scope items remaining.`;
   else                              hero = `${subject} is ${pct}% complete: ${items.length} scope items defined, ${itemsDone} done.`;
@@ -699,9 +850,19 @@ function renderExecSummary(p, items, logs) {
   if (!p.budget_php && (p._budget_withheld || p.start_date)) {
     evHtml = `<p class="muted" style="margin:0 0 12px; font-size:10pt;">${
       p._budget_withheld
-        ? 'Cost performance (budget, earned value, CPI) is not shown: the budget is visible to hive supervisors only, and this report was opened by a non-supervisor.'
-        : 'Cost performance (budget, earned value, CPI) is not shown: no budget has been set for this project.'
+        ? 'This report leaves out cost performance (budget, earned value, CPI). Only hive supervisors see the budget. A non-supervisor opened this report.'
+        : 'This report leaves out cost performance (budget, earned value, CPI). Nobody has set a budget for this project.'
     }</p>`;
+    // the schedule half of EVM without the money (see "THE BUDGET GATE HID THE SCHEDULE" above)
+    if (schedSpi != null && p.status !== 'complete') {
+      const sCls = schedSpi >= 0.95 ? 'green' : schedSpi >= 0.85 ? 'amber' : 'red';
+      const sLabel = sCls === 'green' ? 'On schedule' : sCls === 'amber' ? 'At risk' : 'Behind schedule';
+      evHtml += `
+      <div class="kpi-strip">
+        <div class="kpi ${sCls}"><div class="kpi-label">SPI</div><div class="kpi-value">${e(schedSpi.toFixed(2))}</div><div class="kpi-sub">schedule performance</div></div>
+        <div class="kpi ${sCls}"><div class="kpi-label">Schedule Status</div><div class="kpi-value" style="font-size: 14pt;">${e(sLabel)}</div><div class="kpi-sub">from the dates and progress &middot; no budget used</div></div>
+      </div>`;
+    }
   }
   if (p.budget_php && p.start_date && p.end_date) {
     const BAC = Number(p.budget_php);
@@ -728,7 +889,7 @@ function renderExecSummary(p, items, logs) {
     // nobody signs a cost conclusion believing it came from their payroll.
     const AC_LABOUR_RATE_PHP_PER_HOUR = 200;
     const labourCost = hoursAct * AC_LABOUR_RATE_PHP_PER_HOUR;
-    const SPI = PV > 0 ? (EV / PV).toFixed(2) : '-';
+    const SPI = (PV > 0 && schedSpi != null) ? (EV / PV).toFixed(2) : '-';   // '-' before the start date, as above (W46013)
 
     // CPI IS DELIBERATELY NOT PRINTED, and this is the honest call rather than the cautious one.
     //
@@ -769,10 +930,9 @@ function renderExecSummary(p, items, logs) {
       <p class="muted" style="margin:-4px 0 12px; font-size:9.5pt;">
         Labour logged to date: <strong>${e(fmtPHP(labourCost))}</strong>
         (${e(hoursAct.toFixed(0))} hours &times; an assumed ${e(fmtPHP(AC_LABOUR_RATE_PHP_PER_HOUR))}/hour).
-        This is labour only: it excludes materials, equipment and contractors, and it is not
-        drawn from a cost ledger. A cost performance index (CPI) is not shown for that reason:
-        comparing a whole-project budget against labour-only spend would overstate cost performance
-        by whatever share of the budget is not labour.
+        This is labour only. It leaves out materials, equipment and contractors. It does not come
+        from a cost ledger. So the report shows no cost performance index (CPI). Set against the
+        whole budget, labour alone would make the cost look better than it is.
       </p>`;
   }
 
@@ -807,7 +967,7 @@ function renderScope(items) {
         <thead><tr><th>WBS</th><th>Title</th><th>Owner</th><th>Status</th><th class="right">Est h</th><th class="right">Actual h</th><th class="nowrap">Due</th></tr></thead>
         <tbody>${list.map(it => `
           <tr class="${it.status === 'done' ? 'done' : ''}">
-            <td class="nowrap" style="font-family: monospace;">${e(it.wbs_code || '')}</td>
+            <td class="nowrap"><code class="wbs-code">${e(it.wbs_code || '')}</code></td>
             <td>${e(it.title)}</td>
             <td>${e(it.owner_name || '-')}</td>
             <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e((it.status || '').replace('_', ' '))}</span></td>
@@ -876,8 +1036,9 @@ function renderProgress(logs) {
     ? `<p class="clip-note">${_clipped} entr${_clipped === 1 ? 'y was' : 'ies were'} shortened to ${LOG_TEXT_CAP} characters to fit this table. Open the project in WorkHive to read them in full.</p>`
     : '';
   $('progress-section').innerHTML = `
+    <p class="muted" style="margin:0 0 8px; font-size:9.5pt;">Each row is one day's report; its percentage is that reporter's own estimate. The project's progress in &sect;1 comes from its scope items.</p>
     <!-- table-name-allow: project-report data table --> <div class="wh-scroll-x"><table class="doc-table">
-      <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% complete</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
+      <thead><tr><th class="nowrap">Date</th><th>Reported by</th><th style="width:110px;">% reported</th><th class="right">Hours</th><th>Notes</th><th>Blockers</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>${clipNote}`;
 }
@@ -888,7 +1049,7 @@ function renderLessons(p) {
     $('lessons-section').innerHTML = `
       <div class="empty-section" style="text-align: left;">
         <p>No lessons recorded for this project yet.</p>
-        <p style="font-size: 9pt; margin-top: 6px;">To capture lessons learned: open the project in Project Manager &rarr; Sign-off tab &rarr; Lessons Learned text area.</p>
+        <p style="font-size: 9pt; margin-top: 6px;">To add lessons learned, open the project in Project Manager. Then go to Sign-off, Lessons Learned.</p>
       </div>`;
     return;
   }
@@ -903,8 +1064,9 @@ function renderSignoff(p) {
   $('signoff-section').innerHTML = `
     <div class="signoff-block">
       <p style="font-size: 9.5pt; line-height: 1.5;">
-        By signing below, the parties acknowledge that the scope items in &sect;2 have been
-        ${p.status === 'complete' ? 'completed and accepted' : 'reviewed for the period covered by this report'}.
+        By signing below, both parties confirm ${p.status === 'complete'
+          ? 'that the scope items in &sect;2 are complete and accepted.'
+          : 'they reviewed the scope items in &sect;2. This covers the period of this report.'}
         ${isContractor ? 'Final acceptance triggers retention release per the contract terms.' : ''}
       </p>
       <div class="signoff-row">
@@ -965,7 +1127,7 @@ function saveAsCsv() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'workhive-project-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = 'workhive-project-' + whManilaYmd() + '.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -975,8 +1137,12 @@ function saveAsCsv() {
 
 function saveAsPdf() {
   const code = ($('cov-code').textContent || 'project').trim();
-  const filename = `${code}_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+  // Manila's date, not UTC's: toISOString() dated a PDF saved before 08:00 PHT with yesterday (critique W46013)
+  const filename = `${code}_report_${_phtYmd(new Date())}.pdf`;
+  const before = document.title;
   document.title = filename.replace(/\.pdf$/, '');
+  // the tab kept the file name after the dialog closed; the page's own title comes back
+  window.addEventListener('afterprint', () => { document.title = before; }, { once: true });
   setTimeout(() => window.print(), 50);
 }
 </script>
@@ -987,10 +1153,11 @@ function saveAsPdf() {
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {
+    if (window.__prUnloaded) return;   // nothing was read - see prMarkUnloaded()
     var el = document.getElementById('pr-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'pr-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      freshness: 'Recomputed when this report is generated',
+      freshness: 'Recomputed each time you generate this report',
       source: 'v_project_items_truth + v_project_progress_truth + project_links',
     });
   });

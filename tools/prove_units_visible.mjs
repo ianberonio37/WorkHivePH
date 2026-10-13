@@ -236,6 +236,30 @@ const run = async () => {
         console.log(`  ABSTAIN ${(t.page + ' ' + t.view).padEnd(24)} unreachable by design of the record`);
         continue;
       }
+      // ★THE ROSTER'S OTHER NO-DRIVE FLAG WAS NOT TAUGHT TO THIS CONSUMER (2026-10-05). This file iterates
+      // EVERY entry in TARGETS and honours `unreachable` directly above, but never looked at `notDrivable` -
+      // and the two mean different things the roster is careful to distinguish: `unreachable` is "no entry
+      // point exists", `notDrivable` is "it opens, but not by a probe like this one". Seven entries carry one
+      // of the two. The one that matters is assistant V3, whose own record reads "driving it unstubbed spends
+      // a real model call per run and writes a row" - it is measurable ONLY by a prover that route-stubs
+      // ai-gateway. This file stubs nothing, so it was scanning the chat area in its EMPTY state and recording
+      // that as the view: a real reading of the wrong subject, which is worse than an abstention because it
+      // looks like coverage. (It spends nothing today only because that entry has no opener to click - the
+      // protection was luck, not contract.)
+      // This is the shared-roster rule the project has already paid for once: a consumer that does not
+      // recognise a flag must ABSTAIN loudly, never default into another flag's contract
+      // ([[feedback_a_new_roster_kind_must_teach_every_consumer]]).
+      if (t.notDrivable) {
+        rec.ok = null;
+        rec.notDrivable = t.notDrivable;
+        rec.why = 'the roster records this view as not drivable by a plain read-only probe (dialog_targets.mjs)'
+                + ' - ABSTAINS rather than scanning whatever state it happens to be in, which would be a real'
+                + ' reading of the wrong subject';
+        await page.close();
+        out.views.push(rec);
+        console.log(`  ABSTAIN ${(t.page + ' ' + t.view).padEnd(24)} not drivable read-only (roster fact)`);
+        continue;
+      }
       // ★NOT EVERY "VIEW" IS A DIALOG. analytics-report's ar-exec and ar-predictive are SECTIONS of a
       // document that is always fully rendered — its primary output is PAPER, so nothing about it
       // opens. Trying to open them produced "ar-exec did not open", which sounds like a broken panel

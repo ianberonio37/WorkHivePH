@@ -211,6 +211,11 @@ def main(argv: list[str]) -> int:
         print(f"  NOT in the ramp, left alone: {uniq} — extend RAMP deliberately, do not guess")
     if not apply:
         print("\n  dry run — re-run with --apply")
+    # ★--check FAILS WHEN A DECLARATION IS PENDING (2026-10-13, critic batch C5). The dry run always exited 0 and was
+    # never registered, so the three pillar guides kept their prose at 0.78 (Lc 70, floor 75) and their formulas at
+    # #FDB94A after this tool had fixed the other 51. Registered as `learn-literal-alpha`.
+    if "--check" in argv and total:
+        return 1
     return 0
 
 

@@ -202,16 +202,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {{
-      theme: {{ extend: {{ colors: {{
-        orange: {{ wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' }},
-        blue:   {{ wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' }},
-        navy:   {{ wh: '#162032' }},
-      }} }} }}
-    }};
-  </script>
   <style>
     /* T3 (2026-09-10): every NEW article ships tap-responsive. Found by walking the RA 11285 guide in
        Filipino on a 390px phone - it graded T3 0% ("legacy ~300ms click delay + double-tap-zoom not
@@ -220,10 +210,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
        The 53 were repaired by tools/fix_learn_touch_action.py; this line is why the 55th will not need
        repairing. Changes no geometry - it only tells the browser not to wait for a possible second tap. */
     html, body, a, button {{ touch-action: manipulation; }}
-    /* wh-learn-contrast-remap (C2, 2026-09-10): these pages load Tailwind from the CDN, so they miss the
+    /* wh-learn-contrast-remap (C2, 2026-09-10): these pages load a stock compiled Tailwind sheet (wh-tw-pub-article.css), so they miss the
        white-opacity remap wh-tw.css applies app-wide - the byline's 12px text-white/45 measured 4.27:1
        against the 4.5:1 it owes. Same seven values as wh-tw.css; body-scoped (0,1,1) so it beats the
-       CDN utility whatever the injection order, with no !important. Applied to the existing 54 by
+       utility whatever the sheet order, with no !important. Applied to the existing 54 by
        tools/fix_learn_contrast_remap.py; this is why the 55th ships correct. */
     body .text-white\\/45 {{ color: rgb(255 255 255 / 0.8); }}
     body .text-white\\/50 {{ color: rgb(255 255 255 / 0.8); }}
@@ -272,6 +262,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .sources-list {{ list-style: none; padding: 0; }}
     .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }}
   </style>
+<link rel="stylesheet" href="/wh-tw-pub-article.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
@@ -293,7 +284,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">{TITLE}</h1>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.3] tracking-[-0.02em] mb-5">{TITLE}</h1>
     <div class="flex items-center gap-3 text-xs text-white/45 mb-7">
       <span>By WorkHive Editorial Team</span>
       <span class="opacity-40">·</span>

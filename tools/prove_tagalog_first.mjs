@@ -21,7 +21,7 @@
 //   node tools/prove_tagalog_first.mjs --page inventory.html
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const read = (f) => { try { return readFileSync(f, 'utf8'); } catch { return ''; } };
@@ -135,7 +135,7 @@ for (const file of (ONLY ? [ONLY] : ROSTER)) {
 
   // the live walk: the same page, en then fil, in one signed-in context
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   const url = `${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`;
   const grab = async () => p.evaluate((VIS_JS) => {

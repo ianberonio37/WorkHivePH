@@ -89,12 +89,25 @@ HIVE_LOCAL_KEYS = ["wh_hive_id", "wh_active_hive_id", "wh_hive_role", "wh_hive_n
 
 # ── Layer 1: Query scope ──────────────────────────────────────────────────────
 
+def _ownership_helpers(content):
+    """Zero-argument functions on the page whose body builds a PostgREST owner clause (2026-10-13). logbook and
+    pm-scheduler read a solo worker's rows with `.or(_MINE())`, where _MINE() returns 'auth_uid.eq.<uid>,
+    worker_name.eq."<name>"' - stricter than the old `.eq('worker_name', ...)`, and invisible to a word search
+    of the 8-line window. Only a helper whose own opening lines build such a clause counts."""
+    out = set()
+    for m in re.finditer(r"function\s+([A-Za-z_$][\w$]*)\s*\(\s*\)\s*\{", content):
+        if re.search(r"(?:worker_name|auth_uid|hive_id)\.eq\.", content[m.end():m.end() + 400]):
+            out.add(m.group(1))
+    return out
+
+
 def check_select_filters(pages, tables):
     issues = []
     for page in pages:
         content = read_file(page)
         if not content:
             continue
+        owner_helpers = _ownership_helpers(content)
         lines = content.splitlines()
         for i, line in enumerate(lines):
             table = next((t for t in tables
@@ -117,6 +130,7 @@ def check_select_filters(pages, tables):
                 re.search(r'\.in\s*\(["\']id["\']',        window),
                 re.search(r'\.in\s*\(["\']asset_id["\']',  window),
                 re.search(r'\.in\s*\(["\']worker_name["\']', window),
+                any(re.search(r"\.or\(\s*" + re.escape(h) + r"\s*\(\s*\)\s*\)", window) for h in owner_helpers),
             ])
             if not has_filter:
                 issues.append({"check": "select_filters", "page": page, "table": table, "line": i + 1,

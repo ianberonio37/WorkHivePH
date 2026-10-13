@@ -65,6 +65,65 @@ BOUNDED_MARKERS = re.compile(
 CHECK_NAMES = ["unbounded_query"]
 
 
+_BOUND_CALL = r"\.(?:limit|single|maybeSingle|range)\("
+
+
+def _var_bounded(code, start, var, hops=2):
+    """A bound applied to `var` in the stretch of code after `start` - directly, through a re-assignment of the same
+    name, or (one hop on) through a variable assigned FROM it: `const scoped = cond ? base.eq(..) : base.is(..);`
+    then `await scoped.or(..).limit(1)` (visual-defect-capture, voice-action-router, 2026-10-13)."""
+    after = code[start: start + 4000]
+    v = re.escape(var)
+    if re.search(r"\b" + v + r"\b\s*(?:\.\s*\w+\([^;]*\)\s*)*\.\s*(?:limit|single|maybeSingle|range)\(", after, re.S):
+        return True
+    if re.search(r"\b" + v + r"\b[^;]{0,600}?" + _BOUND_CALL, after, re.S):
+        return True
+    if hops > 1:
+        for a in re.finditer(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^;]*?\b" + v + r"\b", after):
+            if a.group(1) != var and _var_bounded(code, start + a.end(), a.group(1), hops - 1):
+                return True
+    return False
+
+
+def _ternary_bounded(code, m):
+    """`(cond ? db.from('t')... : db.from('t')...).limit(n)` (hive, achievements, 2026-10-13): the bound after the
+    group's closing paren applies to whichever branch ran. Credited only when the `.from(` sits directly inside a
+    parenthesised group holding a ternary, and the chain right after that group's `)` carries a bound before the
+    statement or the argument ends."""
+    depth, i = 0, m.start() - 1
+    while i >= 0:
+        ch = code[i]
+        if ch == ")":
+            depth += 1
+        elif ch == "(":
+            if depth == 0:
+                break
+            depth -= 1
+        elif ch == ";" and depth == 0:
+            return False
+        i -= 1
+    if i < 0:
+        return False
+    depth, j = 0, i
+    while j < len(code):
+        ch = code[j]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                break
+        j += 1
+    if j >= len(code):
+        return False
+    group = code[i + 1: j]
+    if "?" not in group or ":" not in group:
+        return False
+    tail = re.split(r";|\n\s*[^\s.]", code[j + 1: j + 600], maxsplit=1)[0]
+    return bool(BOUNDED_MARKERS.search(tail))
+
+
+
 # Both windows in main() are FIXED SIZES, and both were being spent on PROSE:
 #   - public-feed.html:240 has a 10-line comment inside the chain, so .limit(PAGE_SIZE)
 #     landed past the 1200-char chain window and a BOUNDED query read as unbounded.
@@ -134,8 +193,9 @@ def selftest() -> int:
                 continue
             assign = _re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?[A-Za-z_$][\w$.]*$",
                                 code[max(0, m.start() - 120):m.start()])
-            if assign and _re.search(r"\b" + _re.escape(assign.group(1)) + r"\b[^;]{0,600}?\.(?:limit|single|maybeSingle|range)\(",
-                                     code[m.end(): m.end() + 4000], _re.S):
+            if assign and _var_bounded(code, m.end(), assign.group(1)):
+                continue
+            if _ternary_bounded(code, m):
                 continue
             hits.append(m.group("t"))
         return hits
@@ -146,10 +206,26 @@ def selftest() -> int:
     deferred_none = ("let q = db.from('logbook').select('*');" + chr(10)
                      + "  q = q.eq('status','Open');" + chr(10)
                      + "  const { data } = await q.order('id');" + chr(10))
+    # ★2026-10-13: a bound after a parenthesised ternary of two builders, and a bound reaching the query through a
+    # second variable. Both directions pinned again: with the bound they pass, without it they are still caught.
+    ternary = ("const r = await (c ? db.from('logbook').select('*').or(x)" + chr(10)
+               + "  : db.from('logbook').select('*').or(y)).order('id').limit(5);" + chr(10))
+    ternary_none = ("const r = await (c ? db.from('logbook').select('*').or(x)" + chr(10)
+                    + "  : db.from('logbook').select('*').or(y)).order('id');" + chr(10))
+    two_hop = ("const base = db.from('v_asset_truth').select('a');" + chr(10)
+               + "const scoped = h ? base.or(f) : base.or(g);" + chr(10)
+               + "const { data } = await scoped.order('a').limit(1);" + chr(10))
+    two_hop_none = ("const base = db.from('v_asset_truth').select('a');" + chr(10)
+                    + "const scoped = h ? base.or(f) : base.or(g);" + chr(10)
+                    + "const { data } = await scoped.order('a');" + chr(10))
     cases = [("a genuinely unbounded read is still caught", bool(flagged(unbounded))),
              ("a bounded read behind 40 comment lines is not", not flagged(prose)),
              ("a bound applied to the query VARIABLE counts", not flagged_full(deferred)),
-             ("...and a variable that never gets one is still caught", bool(flagged_full(deferred_none)))]
+             ("...and a variable that never gets one is still caught", bool(flagged_full(deferred_none))),
+             ("a bound after a parenthesised ternary of builders counts", not flagged_full(ternary)),
+             ("...and the same ternary with no bound is still caught", bool(flagged_full(ternary_none))),
+             ("a bound reaching the query through a second variable counts", not flagged_full(two_hop)),
+             ("...and the same two variables with no bound are still caught", bool(flagged_full(two_hop_none)))]
     ok = all(v for _n, v in cases)
     for name, v in cases:
         print(("  PASS  " if v else "  FAIL  ") + name)
@@ -212,14 +288,10 @@ def main() -> int:
             # equals sign and the `.from`, so the pattern has to allow for it
             assign = re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?[A-Za-z_$][\w$.]*$",
                                code[max(0, m.start() - 120):m.start()])
-            if assign:
-                var = assign.group(1)
-                after = code[m.end(): m.end() + 4000]
-                if re.search(r"\b" + re.escape(var) + r"\b\s*(?:\.\s*\w+\([^;]*\)\s*)*\.\s*(?:limit|single|maybeSingle|range)\(", after, re.S):
-                    continue
-                # ...and a bound applied through a re-assignment of the same name counts too
-                if re.search(r"\b" + re.escape(var) + r"\b[^;]{0,600}?\.(?:limit|single|maybeSingle|range)\(", after, re.S):
-                    continue
+            if assign and _var_bounded(code, m.end(), assign.group(1)):
+                continue
+            if _ternary_bounded(code, m):
+                continue
 
             key = (name, t, o_start)
             if key in seen: continue

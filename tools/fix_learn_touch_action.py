@@ -31,6 +31,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PUBLIC = ["about", "feedback", "privacy-policy", "terms-of-service"]   # tools/fix_public_pages_chrome.py's PAGES
 RULE = ("    html, body, a, button { touch-action: manipulation; }"
         "   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */")
 
@@ -57,6 +58,9 @@ def apply_rule(src: str) -> str:
 def main() -> int:
     apply = "--apply" in sys.argv
     files = sorted(glob.glob(str(ROOT / "learn" / "*" / "index.html")))
+    # ★AND THE FOUR PUBLIC PAGES (2026-10-13, critic batch T3): about, feedback, privacy-policy and terms-of-service
+    # are read by the same search arrivals, on the same phones, and graded T3 0% - this file only ever looked in learn/.
+    files += [str(ROOT / p / "index.html") for p in PUBLIC if (ROOT / p / "index.html").is_file()]
     if not files:
         print("refused: no learn articles found - a fixer that matches nothing is not a no-op, it is a "
               "broken path")
@@ -85,6 +89,11 @@ def main() -> int:
         print("   SKIPPED (no <style>): " + rel(f))
     if not apply and changed:
         print("  re-run with --apply to write")
+    # ★--check FAILS WHEN A PAGE IS PENDING (2026-10-13). The dry run always exited 0 and nothing ran it, so the three
+    # pillar guides built after this tool shipped without the rule, and the public pages were never in scope.
+    # Registered as `public-touch-action`.
+    if "--check" in sys.argv and changed:
+        return 1
     return 0
 
 

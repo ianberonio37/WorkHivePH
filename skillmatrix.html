@@ -83,9 +83,12 @@
 
     .disc-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07);
+      /* a 1px tint of the discipline's colour all round, not a 4px stripe down the left (critique W46048, 2026-10-13):
+         DESIGN.md - "accent borders are 1px tints ... NEVER a thick coloured border-left". The badge, the dots and the bar
+         already carry the colour. --disc-tint is that colour at 40% as a plain rgba(), set per card (color-mix() was
+         unknown to older Android WebViews and computes to color(srgb ...)). */
+      border: 1px solid var(--disc-tint, rgba(255,255,255,0.07));
       border-radius: 1rem;
-      border-left: 4px solid var(--disc-color);
       padding: 1rem 1.25rem;
       cursor: pointer;
       transition: transform 0.15s, border-color 0.15s;
@@ -125,7 +128,7 @@
     .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
     @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
-    #header-sub { color: #94A3B8; }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); slate-400 passes */
+    #header-sub { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); then slate-400 #94A3B8 (passes, off-token); now the platform's muted-text token, brighter than both (W46048) */
     .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
     .target-name { font-size: 0.75rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
@@ -336,7 +339,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 
 <!-- Toast -->
 <div id="toast" role="alert" aria-live="polite">
-  <span id="toast-icon">✓</span>
+  <span id="toast-icon" aria-hidden="true">✓</span>
   <span id="toast-text"></span>
 </div>
 
@@ -364,8 +367,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
          policies, not assumed. -->
     <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: 0.75rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
-      Private to you: your skills, badges and exam attempts are visible only to you, not to your
-      supervisor or teammates.
+      Private to you. No one else sees your skills, badges or exam attempts: not your
+      supervisor, not your teammates.
     </p>
     <!-- T51 (2026-08-26): the current-hive chip. This page's own profile data is PRIVATE (above);
          the chip answers the multi-hive contractor's separate question - which hive am I acting in
@@ -378,8 +381,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
       <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
       <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
-      <!-- This page says, in its own words, "Private to you: your skills, badges and exam attempts are
-           visible only to you" - and offered no way to take that record anywhere. A competence record a
+      <!-- This page says, in its own words, that a worker's skills, badges and exam attempts are private to
+           them - and offered no way to take that record anywhere. A competence record a
            worker cannot carry is not really theirs: it is the evidence behind a job application, a
            licence renewal, or an OFW portfolio, and it lived on one screen. Same export shape as the
            logbook and the inventory, scope preamble included. -->
@@ -431,7 +434,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          Text tagged in spans around the anchor keeps the link and lets both halves turn Filipino. -->
     <p class="text-xs" style="color:var(--muted); margin:-0.35rem 0 0.9rem;">
       <span data-i="growthladder_pre">Your growth path: pass a quiz &rarr; earn the skill badge &rarr; it lands on your</span>
-      <a href="resume.html" style="color:var(--wh-orange-text); font-weight:700; text-decoration:underline;">Resume</a><span data-i="growthladder_post"> automatically.</span>
+      <!-- a 44px hit area on an 18px inline link (W46048): vertical padding on an inline box widens what a finger can hit
+           without moving the line it sits in; the negative margin keeps the text where it was. 14px, not 13: at this
+           12px size the 13px pad measured 43 tall (critic batch F1, 2026-10-13) -->
+      <a href="resume.html" style="color:var(--wh-orange-text); font-weight:700; text-decoration:underline; padding:14px 2px; margin:-14px -2px;">Resume</a><span data-i="growthladder_post"> automatically.</span>
     </p>
     <!-- U5 heading-order (§11 deepwalk): the sc-label KPI tiles are H3 under the page H1 — a WCAG
          heading-level skip. A screen-reader H2 section heading restores H1→H2→H3, no visual change. -->
@@ -458,16 +464,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     </div>
     <!-- Service-hailing bridge (SERVICE_HAILING_ROADMAP.md P3 / §1c): the skill matrix IS the
          provider capability profile — earn here, get hailed there. Plain link, 44px target. -->
-    <div class="simple-card" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;padding:12px 16px;">
+    <!-- ONE CARD TREATMENT (critic R3, 2026-10-13): a banner, not a KPI tile, so it takes list-row (no 154px tile
+         floor) and the component's own padding rather than an inline 12px 16px. -->
+    <div class="simple-card list-row" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;">
       <div>
         <strong data-i="p_yourskillscanearnontheside_ac29">Your skills can earn on the side</strong>
         <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
       </div>
-      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
+      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:transparent;border:1px solid rgba(247,162,27,0.55);color:var(--wh-orange-text, #FDB94A);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
     </div>
     <div class="action-card">
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="sm-action-text">Computing recommendation...</div>
+      <a class="ac-cta" id="sm-action-btn" href="#discipline-cards" hidden></a>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
       Show details
@@ -636,6 +645,23 @@ const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 logPageView(db);
 let _authUid = null; // C3b: populated at init from Supabase Auth session
 
+/* BRP-A (2026-10-04) — "MINE" IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE. WORKER_NAME is
+   localStorage text; the stored worker_name on a row is whatever was written when the row was created.
+   Diverge by one character and a name-only read returns nothing, with no error to show anyone. UNION, not
+   swap: rows written by a service-role path arrive with auth_uid NULL and are findable only by name.
+   One .or() rather than merged queries so each caller keeps its ORDER BY / limit. Quoting via
+   JSON.stringify - a hand-rolled escape was halved by a shell heredoc twice in this wave and became a
+   regex that throws on load. ONLY for MY OWN rows: a lookup of a NAMED teammate must not use this. */
+function _mineFilter() {
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (!uid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+}
+function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
+  (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
+
 // ─── Identity ─────────────────────────────────────────────────────────────────
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
 // C4: redirect deferred to async init — checks auth session first
@@ -643,6 +669,32 @@ const HIVE_ID = whHiveId();
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let _profile   = null;   // { primary_skill, targets }
+// ★A SAVE WITH NOTHING TO SAVE, AND CHANGES THAT LOOKED SAVED (critique W46048, 2026-10-13). "Save Targets" was always
+// gold and live: pressed with nothing changed it still upserted a fresh updated_at and fired five background embeds;
+// and a stepper redrew the cards and the radar at once, so an unsaved target looked saved and was lost on leaving. The
+// button now compares against the targets last read or written: live only when something changed ("Save Targets"),
+// otherwise "Targets saved", and a press with nothing changed returns before the write.
+let _savedTargetsJson = null;
+// Compared as the grid SHOWS them: every discipline, a missing key at the grid's own default (5 primary, 2 otherwise),
+// as a number. A stored profile can lack a discipline (Gloria's had no "Mechanical"), and one step down and back up
+// then added the key - the same targets on screen, a "change" to a raw JSON comparison.
+function _smTargetsKey(t) {
+  const o = {};
+  for (const d of DISCIPLINES) {
+    const isP = !!_profile && d === _profile.primary_skill;
+    o[d] = (t && t[d] != null) ? Number(t[d]) : (isP ? 5 : 2);
+  }
+  return JSON.stringify(o);
+}
+function _smTargetsDirty() { return !!_profile && _smTargetsKey(_profile.targets) !== _savedTargetsJson; }
+function _smMarkTargetsSaved() { _savedTargetsJson = _profile ? _smTargetsKey(_profile.targets) : null; }
+function _smSyncSaveBtn() {
+  const btn = document.getElementById('target-save-btn');
+  if (!btn) return;
+  const dirty = _smTargetsDirty();
+  btn.disabled = !dirty;
+  btn.textContent = dirty ? 'Save Targets' : 'Targets saved';
+}
 let _badges    = {};     // { Mechanical: [1,2,3], Electrical: [1], ... }
 let _radarChart = null;
 
@@ -751,12 +803,12 @@ async function init() {
   let profileRes, badgesRes;
   try {
     [profileRes, badgesRes] = await Promise.all([
-      db.from('skill_profiles').select('*').eq('worker_name', WORKER_NAME).maybeSingle(),
+      db.from('skill_profiles').select('*').or(_MINE()).maybeSingle(),
       // cap-ok: bounded and unreachable - this reads ONE worker's badges, and a worker holds at most
       // one badge per (discipline, level) across 6 fixed disciplines. Measured 2026-09-09: the busiest
       // worker in the data holds 19. The 500 is insurance, not a window, so it cannot silently shorten
       // anything; unlike the weekly-XP read on achievements.html, nothing here is summed (W3-AR).
-      db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', WORKER_NAME).limit(500),
+      db.from('v_skill_badges_truth').select('discipline, level').or(_MINE()).limit(500),
     ]);
   } catch (err) {
     // E2 consistent states: a failed profile/badges fetch surfaces a toast
@@ -805,6 +857,7 @@ async function init() {
   }
 
   _profile = profileRes.data || null;
+  _smMarkTargetsSaved();
 
   // Build badges map
   _badges = {};
@@ -899,7 +952,7 @@ function showOnboarding() {
     // replaces the pending row, idempotent) and drains on reconnect. Honest label, never false-success.
     if (!navigator.onLine && _ensureSmQueue()) {
       await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _profileRow });
-      _profile = { primary_skill: selectedPrimary, targets };
+      _profile = { primary_skill: selectedPrimary, targets }; _smMarkTargetsSaved();
       document.getElementById('onboarding-section').style.display = 'none';
       showToast('Saved offline. Will sync when you reconnect.', '📴');
       showMatrix();
@@ -910,7 +963,7 @@ function showOnboarding() {
     if (error) {
       if (_ensureSmQueue() && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
         await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _profileRow });
-        _profile = { primary_skill: selectedPrimary, targets };
+        _profile = { primary_skill: selectedPrimary, targets }; _smMarkTargetsSaved();
         document.getElementById('onboarding-section').style.display = 'none';
         showToast('Network issue: saved offline, will retry automatically.', '📴');
         showMatrix();
@@ -921,7 +974,7 @@ function showOnboarding() {
       return;
     }
 
-    _profile = { primary_skill: selectedPrimary, targets };
+    _profile = { primary_skill: selectedPrimary, targets }; _smMarkTargetsSaved();
     document.getElementById('onboarding-section').style.display = 'none';
     showToast('Profile saved! Welcome to Skill Matrix.', '🎯');
     showMatrix();
@@ -952,13 +1005,16 @@ function renderTargetGrid() {
     const current = _profile.targets[d] ?? (isPrimary ? 5 : 2);
     const min = isPrimary ? 5 : 1;
     const max = isPrimary ? 5 : 4;
+    // ★TEN BUTTONS, TWO NAMES (nav-hub MCP walk, 2026-10-07): every stepper said "Decrease target" /
+    // "Increase target", so a screen reader user heard the same pair five times with no discipline and no
+    // value. Each now names its discipline and the target it holds right now.
     return `
       <div class="target-item" style="--disc-color:${DISCIPLINE_COLORS[d]}">
         <div class="target-name" style="color:${DISCIPLINE_COLORS[d]}">${escHtml(d.split(' ')[0])}</div>
         <div class="stepper">
-          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="-1" ${current <= min ? 'disabled' : ''} aria-label="${escHtml(_t('Decrease target', 'Bawasan ang target'))}">−</button>
+          <button type="button" class="step-btn" data-disc="${escHtml(d)}" data-dir="-1" ${current <= min ? 'disabled' : ''} aria-label="${escHtml(_t('Decrease target', 'Bawasan ang target') + ': ' + d + ', ' + current)}">−</button>
           <span class="step-val" id="step-val-${escHtml(d.replace(/ /g,'_'))}">${current}</span>
-          <button class="step-btn" data-disc="${escHtml(d)}" data-dir="1" ${current >= max ? 'disabled' : ''} aria-label="${escHtml(_t('Increase target', 'Dagdagan ang target'))}">+</button>
+          <button type="button" class="step-btn" data-disc="${escHtml(d)}" data-dir="1" ${current >= max ? 'disabled' : ''} aria-label="${escHtml(_t('Increase target', 'Dagdagan ang target') + ': ' + d + ', ' + current)}">+</button>
         </div>
       </div>`;
   }).join('');
@@ -974,15 +1030,23 @@ function renderTargetGrid() {
       const next = Math.min(max, Math.max(min, current + dir));
       _profile.targets[disc] = next;
       renderTargetGrid(); // re-render to update disabled states
+      // the rebuild destroyed the pressed button: put focus back on the same control (or its sibling once
+      // this one hits its limit and is disabled), so a keyboard user can keep stepping and hears the new value
+      const _sel = (dd) => '.step-btn[data-disc="' + (window.CSS && CSS.escape ? CSS.escape(disc) : disc) + '"][data-dir="' + dd + '"]';
+      const _again = grid.querySelector(_sel(dir)) || null;
+      const _back = (_again && !_again.disabled) ? _again : grid.querySelector(_sel(-dir));
+      if (_back && !_back.disabled) _back.focus();
       renderDisciplineCards();
       renderRadarChart();
       renderSkillSummary();
     });
   });
+  _smSyncSaveBtn();
 }
 
 document.getElementById('target-save-btn').addEventListener('click', async () => {
   const btn = document.getElementById('target-save-btn');
+  if (!_smTargetsDirty()) { _smSyncSaveBtn(); return; }   // nothing changed: no write, no re-embed
   btn.disabled = true; btn.textContent = 'Saving…';
 
   const _targetRow = {
@@ -996,7 +1060,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
   if (!navigator.onLine && _ensureSmQueue()) {
     await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _targetRow });
     showToast('Saved offline. Will sync when you reconnect.', '📴');
-    btn.disabled = false; btn.textContent = 'Save Targets';
+    _smMarkTargetsSaved(); _smSyncSaveBtn();
     return;
   }
   const { error } = await db.from('skill_profiles').upsert(_targetRow, { onConflict: 'worker_name' });
@@ -1005,7 +1069,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     if (_ensureSmQueue() && /fetch|network|load failed|connection|timeout/i.test(error.message || '')) {
       await window._whSmQueue.enqueue({ id: WORKER_NAME, op: 'upsert', payload: _targetRow });
       showToast('Network issue: saved offline, will retry automatically.', '📴');
-      btn.disabled = false; btn.textContent = 'Save Targets';
+      _smMarkTargetsSaved(); _smSyncSaveBtn();
       return;
     }
     showToast(_t('Could not save targets. Please try again.', 'Hindi ma-save ang mga target. Pakisubukan muli.'), '✗');
@@ -1017,6 +1081,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     // is not an end in itself: it is what the gap analysis measures against and what decides which quizzes
     // a person can take, which is the thing they came to this page to move.
     showToast('Targets saved → your skill gaps and available quizzes update now.', '✓');
+    _smMarkTargetsSaved();
     // Embed each discipline skill level in background
     Object.entries(_profile.targets).forEach(([discipline, level]) => {
       embedSkillEntry({
@@ -1027,8 +1092,16 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
       });
     });
   }
-  btn.disabled = false; btn.textContent = 'Save Targets';
+  _smSyncSaveBtn();
 });
+
+// a discipline colour (#RRGGBB) as an rgba() tint - the card's 1px edge (W46048)
+function _rgbaOf(hex, a) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return 'rgba(255,255,255,0.07)';
+  const n = parseInt(m[1], 16);
+  return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+}
 
 // ─── Discipline Cards ─────────────────────────────────────────────────────────
 function getActualLevel(disc) {
@@ -1071,12 +1144,12 @@ function renderDisciplineCards() {
     const ctaText = actual >= target
       ? 'Target reached ✓'
       : canAttempt
-        ? `Start Level ${nextLevel} →`
+        ? `Start Level ${nextLevel}`   // the ic-next icon beside it is the arrow (it read "→ →", W46048)
         : `Improve target to unlock`;
 
     return `
-      <div class="disc-card ${isPrimary ? 'primary-badge' : ''}" style="--disc-color:${color}"
-           data-disc="${escHtml(disc)}" role="button" tabindex="0" aria-label="Open ${escHtml(disc)}">
+      <div class="disc-card ${isPrimary ? 'primary-badge' : ''}" style="--disc-color:${color};--disc-tint:${_rgbaOf(color, 0.4)}"
+           data-disc="${escHtml(disc)}" role="button" tabindex="0" aria-label="Open ${escHtml(disc)}, level ${actual} of target ${target}">
         <div class="disc-card-header">
           <div class="disc-card-name">
             <span class="disc-icon" aria-hidden="true">${DISCIPLINE_EMOJI[disc] || '🔧'}</span>
@@ -1188,7 +1261,7 @@ function renderSkillSummary() {
   } else {
     tone = 'healthy'; label = _t(`Every discipline at or above target (${totalBadges} badges)`,
                                  `Bawat discipline ay nasa target o mas mataas (${totalBadges} badge)`);
-    sub  = _t('Want to push further? Raise a target via the "Target Adjustment" controls below.',
+    sub  = _t('Want to push further? Raise a target in "Your Targets" below.',
               'Gusto mo pang itulak? Itaas ang target sa "Target Adjustment" na kontrol sa ibaba.');
   }
   const vBox = document.getElementById('sm-verdict');
@@ -1200,26 +1273,50 @@ function renderSkillSummary() {
   // Action
   const actBox = document.getElementById('sm-action-text');
   if (actBox) {
-    let text;
+    // ★THE NEXT STEP POINTED AT THINGS THAT WERE NOT THERE (critique W46048, 2026-10-13): "the radar above" (it is
+    // below this card), "Take quiz" (the button says "Take Exam"), "Target Adjustment" (the section reads "Your
+    // Targets"), and "Click" on a phone. It also had no button, while the cards it sends you to sit ~900px down.
+    let text, ctaHref = null;
     if (totalBadges === 0) {
-      text = _t('Click the easiest discipline card below and take its Level 1 quiz. 5 questions, ~5 minutes. The radar above starts filling in immediately.',
+      ctaHref = '#discipline-cards';
+      text = _t('Open the discipline you know best below and take its Level 1 quiz. It is 5 questions, about 5 minutes. The Skill Overview radar fills in as soon as you pass.',
                 'Pindutin ang pinakamadaling discipline card sa ibaba at kunin ang Level 1 quiz nito. 5 tanong, ~5 minuto. Agad na magsisimulang mapuno ang radar sa itaas.');
     } else if (primaryGap >= 2) {
+      ctaHref = '#discipline-cards';
       // C-BR: two sentences in both halves, each inside the 20-word bar. Filipino expands, so the
       // split is kept rather than translated as one long clause.
       text = _t(`Take a ${primaryDisc} quiz first: your primary discipline is ${primaryGap} levels behind. The next level unlocks once you pass.`,
                 `Mag-quiz muna sa ${primaryDisc}: ${primaryGap} level ang agap ng primary discipline mo. Bubukas ang susunod na level kapag pumasa ka.`);
     } else if (quizzesAvail > 0) {
-      text = _t(`${quizzesAvail} discipline${quizzesAvail === 1 ? ' has a quiz' : 's have quizzes'} available right now. Tap a discipline card below and "Take quiz" to push one level.`,
+      ctaHref = '#discipline-cards';
+      text = _t(`${quizzesAvail} discipline${quizzesAvail === 1 ? ' has a quiz' : 's have quizzes'} available right now. Open a discipline card below and press "Take Exam" to push one level.`,
                 `${quizzesAvail} discipline ang may available na quiz ngayon. Pindutin ang discipline card sa ibaba at "Take quiz" para umangat ng isang level.`);
     } else if (!anyBehind) {
-      text = _t('Every discipline is on target. Raise a target via the "Target Adjustment" section if you want to push higher, or wait for cooldowns to unlock more quizzes.',
+      ctaHref = '#target-grid';
+      text = _t('Every discipline is on target. Raise a target in "Your Targets" below if you want to push higher, or wait for cooldowns to unlock more quizzes.',
                 'Nasa target ang bawat discipline. Itaas ang target sa "Target Adjustment" kung gusto mong umangat pa, o hintayin ang cooldown para mabuksan ang iba pang quiz.');
     } else {
       text = _t('Some quizzes are on cooldown right now. Check back later or work on disciplines that are still ready.',
                 'May ilang quiz na naka-cooldown ngayon. Bumalik mamaya o magtrabaho sa mga discipline na handa pa.');
     }
     actBox.textContent = text;
+    const _cta = document.getElementById('sm-action-btn');
+    if (_cta) {
+      if (ctaHref) {
+        _cta.setAttribute('href', ctaHref);
+        _cta.textContent = ctaHref === '#target-grid' ? 'Raise a target \u2193' : 'Go to your disciplines \u2193';
+        _cta.hidden = false;
+        _cta.onclick = (e) => {
+          const t = document.querySelector(ctaHref);
+          if (!t) return;                        // no target: the href does its job
+          e.preventDefault();
+          const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+          t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        };
+      } else {
+        _cta.hidden = true;
+      }
+    }
   }
 }
 
@@ -1260,7 +1357,7 @@ function renderRadarChart() {
             min: 0, max: 5, ticks: { stepSize: 1, display: false },
             grid: { color: 'rgba(255,255,255,0.07)' },
             angleLines: { color: 'rgba(255,255,255,0.07)' },
-            pointLabels: { color: '#94A3B8', font: { family: 'Poppins', size: 11 }, padding: 6 },  /* was #7B8794 4.46:1 (fails AA); slate-400 passes, matches #header-sub */
+            pointLabels: { color: 'rgba(255,255,255,0.80)', font: { family: 'Poppins', size: 11 }, padding: 6 },  /* was #7B8794 4.46:1 (fails AA), then slate-400; now --wh-text-muted's value (a canvas cannot read a CSS variable), matches #header-sub (W46048) */
           }
         },
         plugins: { legend: { display: false } },
@@ -1294,7 +1391,7 @@ async function openDiscipline(disc) {
   // Check retake cooldown from DB
   const { data: lastAttempt } = await db.from('skill_exam_attempts')
     .select('attempted_at, passed')
-    .eq('worker_name', WORKER_NAME)
+    .or(_MINE())
     .eq('discipline', disc)
     .eq('level', nextLevel)
     .order('attempted_at', { ascending: false })
@@ -1415,7 +1512,7 @@ document.getElementById('btn-export-skills').addEventListener('click', () => {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = 'workhive-skills-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = 'workhive-skills-' + whManilaYmd() + '.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

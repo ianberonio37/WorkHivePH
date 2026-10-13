@@ -18,7 +18,7 @@
 //   node tools/prove_expiry_midwrite.mjs
 //   node tools/prove_expiry_midwrite.mjs --page logbook.html
 import { chromium } from 'playwright';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -35,7 +35,7 @@ const b = await chromium.launch();
 let bad = 0, n = 0, skipped = [];
 for (const file of (ONLY ? [ONLY] : (LIST || ROSTER))) {
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(SETTLE_MS);

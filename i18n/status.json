@@ -1,20 +1,21 @@
 {
  "_doc": "status.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
- "← Home": "",
- "WorkHive Gateway — Status": "",
+ "← Home": "Balik sa Home",
+ "WorkHive Gateway — Status": "WorkHive Gateway — Status",
  "How this page works": "Paano gumagana ang page na ito",
  "Each row is one live health check. Green means the service answers within its target. Press Refresh to re-check now.": "Bawat row ay isang live health check. Berde ang ibig sabihin ay sumasagot ang serbisyo sa loob ng target nito. Pindutin ang Refresh para suriin muli ngayon.",
  "Which browsers WorkHive supports": "Aling mga browser ang sinusuportahan ng WorkHive",
  "2020-or-newer browser engine": "Browser engine na 2020 o mas bago",
- "On a supported browser, everything else here degrades gracefully: offline entries queue and\n     sync, and failed reads say what failed rather than showing empty screens.": "",
  "Checking…": "Sinusuri…",
  "Gateway status": "Status ng gateway",
  "checking edge functions…": "sinusuri ang mga edge function…",
  "SLO targets (28-day window)": "Mga SLO target (28-araw na window)",
  "Gateway availability": "Availability ng gateway",
- "Interactive latency (p95)": "",
- "Voice surface latency (p95)": "",
- "RAG / background latency (p95)": "",
+ "Interactive latency (p95)": "Interactive latency (p95)",
+ "Voice surface latency (p95)": "Latency ng voice surface (p95)",
+ "RAG / background latency (p95)": "Latency ng RAG / background (p95)",
  "Error rate (excludes sign-in & rate-limit responses)": "Error rate (hindi kasama ang sign-in at rate-limit na response)",
- "Provider-chain success before fallback": "Tagumpay ng provider-chain bago mag-fallback"
+ "Provider-chain success before fallback": "Tagumpay ng provider-chain bago mag-fallback",
+ "If a check is red you can still work. New logbook entries, inventory moves and PM task completions are\n     saved on this device and sync by themselves once the gateway answers again, so a brownout or a dead\n     cell signal does not lose a shift's records. What needs the gateway right now is anything that has to\n     read fresh data from the plant - reports, the assistant, and search.": "Kung pula ang isang check, maaari ka pa ring magtrabaho. Ang mga bagong tala sa logbook, paggalaw ng imbentaryo at natapos na PM task ay naka-save sa device na ito at kusang nag-sync kapag sumagot na muli ang gateway, kaya hindi nawawala ang mga tala ng isang turno kapag may brownout o patay ang signal. Ang kailangan ng gateway ngayon ay ang mga bagay na kailangang magbasa ng bagong datos mula sa planta - mga report, ang assistant, at ang paghahanap.",
+ "On a supported browser a failed read says what failed, rather than showing an empty screen.": "Sa suportadong browser, sinasabi ng nabigong pagbasa kung ano ang nabigo, hindi lang basta nagpapakita ng blangkong screen."
 }

@@ -7010,7 +7010,7 @@
       "path": "error",
       "lane": "sql",
       "oracle": "refusal",
-      "status": "owed",
+      "status": "banked",
       "layers": [
         "S1-ui",
         "S3-data",
@@ -7059,7 +7059,7 @@
       "path": "happy",
       "lane": "sql",
       "oracle": "db-truth",
-      "status": "owed",
+      "status": "banked",
       "layers": [
         "S9-knowledge",
         "S4-db"

@@ -102,14 +102,48 @@
 (function () {
   'use strict';
   if (!document.querySelectorAll || !document.addEventListener) return;   // pre-ES5 DOM: the floor banner above owns that case
+  /* ★THE RETRY BROUGHT THE CLIENT BACK, AND THE PAGE STAYED BLANK AND SAID NOTHING (2026-10-13, W3122: the J16
+     journey on a dropping connection, shift-brain.html at 70 characters - the header and nothing else). The retry
+     below runs at DOMContentLoaded, AFTER the page's own inline start-up has already run; when the client was the
+     dropped file, that start-up threw "getDb() called before @supabase/supabase-js loaded" and never runs again. The
+     retry then succeeded, `window.supabase` existed, the success path said nothing - and the person looked at an
+     empty page with no message, which is worse than the banner the retry was written to make rarer. Reproduced by
+     losing vendor/supabase-js once: re-requested and recovered, page still 73 characters, PAGEERROR on getDb.
+     So the floor now notices a start-up that failed for lack of the client, and when the retry brings the client
+     it starts the page again - ONCE per page per two minutes, and only when sessionStorage can hold that guard (no
+     guard, no reload: a reload loop is worse than a banner). A start-up that never needed the client yet loses
+     nothing and is left alone. If the reload's own load fails the same way, the banner says so. */
+  var startupNeededClient = false;
+  // a script's RUNTIME error is dispatched at window itself, so the bubble phase hears it (unlike a resource error,
+  // which the capture-phase listener above exists for)
+  window.addEventListener('error', function (ev) {
+    var m = String((ev && (ev.message || (ev.error && ev.error.message))) || '');
+    if (/getDb\(\) called before @supabase\/supabase-js loaded|supabase is not defined|reading 'createClient'/.test(m)) {
+      startupNeededClient = true;
+    }
+  }, false);
+  function restartOnce() {
+    var key = 'wh-client-restart:' + location.pathname;
+    try {
+      var last = Number(sessionStorage.getItem(key) || 0);
+      if (Date.now() - last < 120000) return false;                      // restarted moments ago: do not loop
+      var stamp = String(Date.now());
+      sessionStorage.setItem(key, stamp);
+      if (sessionStorage.getItem(key) !== stamp) return false;           // the guard did not hold: never reload
+    } catch (e) { return false; }                                         // no storage, no guard, no reload
+    location.reload();
+    return true;
+  }
   function check() {
     try {
       // Only pages that ASK for the client can be missing it - the public learn/ and tools/ pages
       // legitimately never load it, and warning there would be a false alarm on 114 surfaces.
       var tags = document.querySelectorAll('script[src*="supabase-js"], script[src*="supabase.min.js"]');
       if (!tags.length) return;
-      if (window.supabase) return;                                        // it arrived; nothing to say
+      if (window.supabase && !startupNeededClient) return;                // it arrived in time; nothing to say
       if (document.getElementById('wh-client-missing')) return;
+      // it arrived, but after a start-up that needed it had already failed: start again, or say so
+      if (window.supabase) { if (!restartOnce()) paint(); return; }
       // ★ASK ONCE MORE BEFORE TELLING THE PERSON IT FAILED (2026-09-10, W3-JN). Three journey rows
       // died on this banner - W3559 (J9), W3521 (J25) and W3618 (J22), all on the `offline-3g`
       // condition, which delays every request and ABORTS about one in twelve. On a line like that a
@@ -133,11 +167,18 @@
         if (integ) again.setAttribute('integrity', integ);
         var cross = orig.getAttribute('crossorigin');
         if (cross) again.setAttribute('crossorigin', cross);
-        again.onload = function () { if (!window.supabase) check(); };    // arrived but still no global: say so
+        // arrived: check() decides between "nothing to say", "start the page again" and "say so"
+        again.onload = function () { check(); };
         again.onerror = function () { check(); };                         // genuinely gone: paint the banner
         document.head.appendChild(again);
         return;                                                           // decide after the second answer
       }
+      paint();
+    } catch (e) { /* empty-catch-allow: a banner that cannot be built must not become a second failure */ }
+  }
+  function paint() {
+    try {
+      if (document.getElementById('wh-client-missing')) return;
       var d = document.createElement('div');
       d.id = 'wh-client-missing';
       d.setAttribute('role', 'alert');

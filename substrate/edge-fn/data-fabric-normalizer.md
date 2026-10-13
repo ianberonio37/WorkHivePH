@@ -2,7 +2,7 @@
 name: edge-fn-data-fabric-normalizer
 type: edge-fn
 source: file:supabase/functions/data-fabric-normalizer/index.ts
-source_sha: c8d53b19febe3f14
+source_sha: e490a6ed5da0cc09
 last_verified: 2026-07-13
 supersedes: null
 ---

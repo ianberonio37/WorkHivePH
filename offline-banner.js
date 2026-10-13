@@ -50,6 +50,19 @@
     .wh-offline-banner.show { transform: translateY(0); }
     .wh-offline-banner.offline { background: #c53030; }
     .wh-offline-banner.online  { background: #2f855a; }
+    /* ★A THIRD KIND: SLOW, WHICH IS NOT OFFLINE AND MUST NOT LOOK LIKE IT (2026-10-05). Measured by walking
+       LXP195 through the chrome-devtools MCP with PostgREST genuinely stopped: the page showed "Loading…" with
+       no failure language for ~42 SECONDS before it could say anything. The cause is not the page - its error
+       path fires the instant an error arrives - it is that the gateway takes 41.8s to give up (measured: Kong
+       connects in 0.02s, returns 500 at 41.8s) and utils.js's platform-wide transport timeout is 45s. That 45s
+       is deliberate and must NOT be lowered: its own comment explains it "leaves legit slow ops (2G upload, big
+       RPC) room to finish", and 2G is exactly who this platform is for.
+       So the fix separates INFORMING from ABORTING: the read keeps its full budget, and after a few seconds the
+       person is simply told the connection is slow. Amber, not the offline red - this is a wait, not a failure,
+       and dressing a wait as a failure teaches people to ignore the red one. Navy text because amber at this
+       weight needs a dark foreground to clear 4.5:1 (#fff on #D97706 is 2.8:1 and would have been a contrast
+       regression on a strip that exists to be read). */
+    .wh-offline-banner.slow    { background: #D97706; color: #1A202C; }
     /* ★AND PUSH THE PAGE'S OWN TOP CONTENT DOWN, not only the wayfinding chrome (2026-09-14). The var
        --wh-offline-banner-h offsets the fixed wayfinding pill; an IN-FLOW top control (hive's own "Back"
        link at the very top) still sat under the banner. While the banner is up, the body drops by the
@@ -101,17 +114,27 @@
     } catch (_) { /* empty-catch-allow: the offset is best-effort */ }
   }
 
+  /* ★HIDDEN FOR THE EYE, STILL READ ALOUD (2026-10-06, achievements x assistive-tech, PostgREST stopped). hide() only
+     slid the banner off-screen (translateY to y=-58): it stayed display:block, visible, role=alert, with its last
+     sentence inside - so a screen-reader user moving through the page met "Still loading..." or "You are offline"
+     that no sighted person could see. The same lesson as a closed sheet left in layout. hide() now takes it out of
+     the accessibility tree and show() puts it back.
+     ★AND THE KINDS MUST NOT STACK. show() cleared 'offline'/'online' but never 'slow', so a slow hint followed by
+     going offline left class="slow offline" - and whSlowRead.clear(), which hides whenever 'slow' is present, would
+     then hide the OFFLINE banner when the reads settled. Every kind is cleared before the new one is set. */
   function show(kind, text) {
     if (!banner) banner = inject();
-    banner.classList.remove('offline', 'online');
+    banner.classList.remove('offline', 'online', 'slow');
     banner.classList.add(kind);
     banner.textContent = text;
+    banner.removeAttribute('aria-hidden');
     requestAnimationFrame(() => { banner.classList.add('show'); requestAnimationFrame(_publishHeight); });
   }
 
   function hide() {
     if (!banner) return;
     banner.classList.remove('show');
+    banner.setAttribute('aria-hidden', 'true');
     _publishHeight();
   }
 
@@ -138,4 +161,43 @@
     window.addEventListener('offline', onOffline);
     window.addEventListener('online',  onOnline);
   }
+
+  // ★THE SLOW-READ HOOK, EXPOSED SO utils.js CAN DRIVE IT FROM THE ONE PLACE EVERY READ PASSES (2026-10-05).
+  // utils.js wraps the supabase client's transport for every db.from()/rpc()/auth/storage call and already
+  // owns the 45s timeout; this lets that same wrapper say "it is slow" without touching 26 pages, which is the
+  // argument its own comment makes for living there ("no page reinvents it").
+  //
+  // ★WHAT THIS IS NOT, stated because this file's history is exactly that mistake: it is a PASSIVE NOTICE and
+  // it does NOT gate anything. Two gates once proved the offline banner was adopted on every page while 14 of
+  // 17 user-triggered WRITES fired into a dead network - a passive warning does not stop a button
+  // ([[feedback_banner_adoption_is_not_write_refusal]]). Guarding a write is whRequireOnline's job and remains
+  // so. This only answers "why has this been spinning for ten seconds", which is a READ, already handled
+  // correctly, whose only defect was silence.
+  //
+  // never shown when the device is simply offline - that banner is more specific and already up.
+  window.whSlowRead = {
+    show: function () {
+      try {
+        if (!navigator.onLine) return;
+        if (banner && banner.classList.contains('offline')) return;
+        // ★AND IT YIELDS TO THE MORE SPECIFIC NOTICE, the way it yields to the offline banner (2026-10-06, achievements
+        // x assistive-tech, PostgREST stopped). After the page's own read failed, shared chrome kept issuing
+        // background reads (companion follow-ups, the Community unread count, identity) that stayed in flight to
+        // ~94s - so "Still loading ... Nothing is lost" stood beside "Couldn't load your achievements - Try again":
+        // wait, or retry? Once utils.js has said the server could not be reached (#wh-connection-notice - removed when
+        // the service that failed answers again, or after its 30s lifetime), a generic wait hint only contradicts it.
+        if (document.getElementById('wh-connection-notice')) return;
+        // ★IT NEVER KNEW THE CONNECTION WAS SLOW (2026-10-06). This notice only shows while navigator.onLine is TRUE
+        // (the guard above), so "the connection is slow" was a cause the code never measured - and on the walk that
+        // found this, the network was fine and a server function was the slow part. It now says only what it knows.
+        show('slow', _tt('Still loading - this is taking longer than usual. Nothing is lost.',
+                         'Naglo-load pa - mas matagal kaysa karaniwan. Walang nawawala.'));
+      } catch (_) { /* empty-catch-allow: a hint must never break the read it is describing */ }
+    },
+    clear: function () {
+      try {
+        if (banner && banner.classList.contains('slow')) hide();
+      } catch (_) { /* empty-catch-allow */ }
+    }
+  };
 })();

@@ -7,10 +7,10 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **36**
-- Display anchors found:   **121**
+- Display anchors found:   **124**
 - Contracted ✅:           **22** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
-- Raw (counts/dates):      **94** (no contract needed)
+- Raw (counts/dates):      **97** (no contract needed)
 - Unknown:                 **5** (couldn't classify from id alone)
 - Formula registry:        **24** entries
 
@@ -18,11 +18,11 @@ each as contracted / uncontracted / raw / unknown.
 
 | Page | Anchors | Contracted | Uncontracted | Raw | Unknown |
 |---|---:|---:|---:|---:|---:|
-| `hive.html` | 12 | 1 | 0 | 11 | 0 |
+| `hive.html` | 13 | 1 | 0 | 12 | 0 |
 | `logbook.html` | 11 | 1 | 0 | 10 | 0 |
 | `inventory.html` | 3 | 1 | 0 | 2 | 0 |
 | `pm-scheduler.html` | 5 | 0 | 0 | 5 | 0 |
-| `analytics.html` | 6 | 1 | 0 | 5 | 0 |
+| `analytics.html` | 8 | 1 | 0 | 7 | 0 |
 | `analytics-report.html` | 0 | 0 | 0 | 0 | 0 |
 | `skillmatrix.html` | 3 | 2 | 0 | 1 | 0 |
 | `community.html` | 8 | 0 | 0 | 8 | 0 |

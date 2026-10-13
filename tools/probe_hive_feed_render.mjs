@@ -3,11 +3,11 @@
 // insert a tagged row, call the page's own loadFeed(), then report whether the row is in the feed read's response, in
 // the page's state, and in #feed's text - and what the first card actually paints.
 import { chromium } from 'playwright';
-import { SEEDER, HIVE, WORKER, signIn, psql } from './prover_harness.mjs';
+import { SEEDER, HIVE, WORKER, signIn, psql, assertSignedIn } from './prover_harness.mjs';
 const TAG = 'PRB-FEEDRENDER-' + Date.now();
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 const p = await ctx.newPage();
 const feedReads = [];
 p.on('response', async (r) => { if (/v_logbook_truth/.test(r.url()) && /limit=40/.test(r.url())) { try { const j = await r.json(); feedReads.push({ status: r.status(), n: Array.isArray(j) ? j.length : -1, hasTag: JSON.stringify(j).includes(TAG), first: Array.isArray(j) && j[0] ? Object.keys(j[0]).slice(0, 12).join(',') : '' }); } catch (e) { feedReads.push({ status: r.status(), err: e.message }); } } });

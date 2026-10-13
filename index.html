@@ -185,6 +185,7 @@
           "Hive Live Board",
           "PM Scheduler",
           "Community",
+          "Public Feed",
           "Analytics Report",
           "Analytics Engine",
           "AI Quality + ROI",
@@ -478,10 +479,24 @@
     }
     .btn-primary:active { transform: translateY(0) scale(0.98); }
     .btn-primary:focus-visible { outline: 3px solid var(--wh-orange); outline-offset: 3px; }
+    /* ★36px OF PADDING EACH SIDE LEFT THE FILIPINO LABEL A QUARTER OF A PIXEL (phone-fit@320 FIL,
+       2026-09-29). "Tingnan Lahat ng Tool" needs 151.75px and the 224px button offers 152px once its
+       72px of horizontal padding is taken out - so the platform's main call to action sat 0.25px from
+       breaking onto two lines, and across runs it did both. Filipino runs ~25-35% longer than the
+       English it replaces ("See All Tools"), which is the documented expectation on this platform, so a
+       margin this thin is not a margin: it is the English measurement with no room made for the other
+       language the product ships in.
+       36px is also disproportionate on a 320px phone - it is a desktop button's padding. 20px at narrow
+       widths returns 32px to the label, which is real headroom rather than a coin flip, and leaves the
+       control comfortably past the 44px tap floor (a.btn-primary min-height, further down). The copy is
+       untouched: this is a layout fix, and the wording is Ian's.
+       After the base rule on purpose - a media query adds no specificity, so source order is what wins
+       ([[feedback_a_media_query_adds_no_specificity]]). */
+    @media (max-width: 400px) { .btn-primary { padding: 16px 20px; } }
 
     .btn-secondary {
       background: transparent;
-      color: var(--wh-blue);
+      color: var(--wh-blue-text);   /* the label: --wh-blue is APCA Lc 53 on navy, under the Lc 60 a 14px label needs; this is 65.5 */
       font-weight: 600;
       padding: 12px 36px;
       border-radius: var(--wh-radius-sm);
@@ -525,13 +540,20 @@
       position: absolute;
       bottom: -3px;
       left: 0;
-      width: 0;
+      /* the underline grows on TRANSFORM, not width (2026-10-12, W45927): width is a layout property and
+         re-runs layout and paint on every frame; scaleX stays on the compositor. Hover motion is gated to
+         a fine pointer because a tap fires a false hover on touch. */
+      width: 100%;
+      transform: scaleX(0);
+      transform-origin: left center;
       height: 2px;
       background: var(--wh-orange);
-      transition: width 0.25s ease;
+      transition: transform 0.25s ease;
     }
     .nav-link:hover { color: var(--wh-cloud); }
-    .nav-link:hover::after { width: 100%; }
+    @media (hover: hover) and (pointer: fine) {
+      .nav-link:hover::after { transform: scaleX(1); }
+    }
 
     /* ---- stat numbers ----
        THESE ARE SOLID, AND THE TOKEN IS A MEASURED CHOICE, NOT A PREFERENCE.
@@ -552,6 +574,9 @@
        Fills, icons and borders KEEP the brand hues; text takes the -text stop. */
     .stat-orange { color: var(--wh-orange-text); }
     .stat-blue   { color: var(--wh-blue-text); }
+    /* the stat figures (35-50%, 60-80%, 4-8x...) sit in a grid and are read against each other: tabular numerals keep
+       their digits on one width (critic batch C4, 2026-10-13: 0 of 6 were tabular) */
+    .stat-orange, .stat-blue, .stat-figure, .step-dot { font-variant-numeric: tabular-nums; }
 
     /* ---- section divider hex ---- */
     .hex-divider {
@@ -766,6 +791,9 @@
       background: radial-gradient(circle, rgba(247,162,27,.05) 0%, rgba(41,182,217,.025) 45%, transparent 70%);
       mix-blend-mode: screen; will-change: transform; transition: opacity .4s ease;
     }
+    /* a touch screen has no cursor to follow: the script never moves the glow there, so it was a fixed 440px composited
+       layer for nothing at the top-left of every phone (critique W45929, 2026-10-13) */
+    @media (pointer: coarse) { #cursor-glow { display: none; } }
 
     /* ── Logo float (the one authored moment; the shimmer it used to layer on is gone) ── */
     @keyframes logo-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
@@ -887,7 +915,7 @@
 
     /* ── Nav active link ── */
     .nav-link.active { color: var(--wh-orange) !important; }
-    .nav-link.active::after { width: 100% !important; background: var(--wh-orange); }
+    .nav-link.active::after { transform: scaleX(1) !important; background: var(--wh-orange); }
 
     /* ── Hero badge pulse ── */
     @keyframes badge-pulse { 0%,100%{opacity:.75} 50%{opacity:1} }
@@ -1170,6 +1198,9 @@
        (the beams sit behind content, off the hit-test path) and the viewport-only view crops the
        band almost entirely. This is the Whole-Artifact rule in one line — a swap is defined by what
        it DELETES as much as by what it reveals. -->
+  <!-- while the analytics card is shown it clears the fixed nav itself (wh-consent.js), so the signed-in home below it
+       does not need its own 64px nav padding - without this the greeting sat ~125px under the card (critique W45929) -->
+  <style>#wh-consent:not([hidden]) ~ #ops-home{padding-top:0.5rem !important;} #wh-consent:not([hidden]) ~ #mkt-wrap > section:first-child{padding-top:0.5rem !important;}</style>
   <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;} html.wh-signed-in #aurora-scene{display:none !important;}
   /* W45926: the nav and mobile-menu Sign Up ANCHORS live in the shared header, outside
      #mkt-wrap, so the rule above never reached them and a signed-in worker saw "Sign Up"
@@ -1286,12 +1317,24 @@
 <div id="ops-home" style="display:none; padding-top:calc(64px + env(safe-area-inset-top, 0px)); background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
+    /* #oh-stats height reserve, per width - measured 154 (one row, desktop) / 191 (two rows, 390) / 209 (320);
+       see the note at #oh-stats in the markup. */
+    #oh-stats { min-height: 154px; }
+    @media (max-width: 679px) { #oh-stats { min-height: 191px; } }
+    @media (max-width: 359px) { #oh-stats { min-height: 209px; } }
+    /* #oh-today (the verdict hero) the same way - measured 100 / 136 / 208; see its note in the markup. */
+    #oh-today { min-height: 100px; }
+    @media (max-width: 679px) { #oh-today { min-height: 136px; } }
+    @media (max-width: 359px) { #oh-today { min-height: 208px; } }
     #ops-home .oh-sec-lbl { font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 12px; }
     #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:12px 16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
     #ops-home .oh-badge { font-size: 0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:0.25rem .5rem; border-radius:var(--wh-radius-sm); }
-    #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:var(--wh-orange); }
+    /* status tints are the tokens' channels (critique W45929, 2026-10-13): open/high were Tailwind orange-400 (251,146,60)
+       beside --wh-orange text - 20 off-token reads on the home - and the Voice Journal action was rose-400 beside
+       --wh-red-text. Now --wh-orange (247,162,27) and --wh-red (248,113,113) at the same alphas. */
+    #ops-home .oh-badge-open { background:rgba(247,162,27,.15); color:var(--wh-orange); }
     #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:var(--wh-red-text); }
-    #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:var(--wh-orange); }
+    #ops-home .oh-badge-high { background:rgba(247,162,27,.15); color:var(--wh-orange); }
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
     #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
@@ -1365,7 +1408,9 @@
         <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:var(--wh-cloud); margin:0 0 4px;"></h1>
         <p id="oh-date" style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:0;"></p>
       </div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+      <!-- start-aligned, not flex-end (critique W45929, 2026-10-13): this group always wraps below the greeting, and
+           right-aligning each wrapped line left three ragged rows under a left-aligned heading at 390 (one at 1280) -->
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-start;">
         <!-- Persona Contract Phase 5: WorkHive companion picker. Persists
              to localStorage and syncs to worker_profiles.preferred_persona
              so ai-gateway routes the same persona on every device. -->
@@ -1403,14 +1448,45 @@
          this block settles at 97px ("TODAY · CRITICAL RISK ..." wraps to a second line), so the old 76
          left 21px to be inserted at ~500ms — a second shift on top of the greeting's. A short
          reservation is not a partial fix: it still shifts everything below it. -->
-    <div id="oh-today" style="margin-bottom:16px; min-height:97px;"></div>
+    <!-- ...AND A RESERVATION MEASURED AT ONE WIDTH IS SHORT AT EVERY OTHER (2026-10-06). The 97px above was right
+         for the width it was measured at. Re-measured today with the same critical-risk verdict: 100px at a
+         true 1280, 136px at 390 (the text wraps), 208px at 320 (the "Open Asset Hub" button drops below) - so
+         every phone load still inserted 39-111px at ~600ms and moved "Today at a Glance" and everything under
+         it (CLS 0.002 at 390 once the tile strip below was fixed, measured from the shift's own
+         previousRect/currentRect: the label went from y=610 to y=649). The reserve now lives in the head
+         stylesheet beside #oh-stats', stepped at the same breakpoints. -->
+    <div id="oh-today" style="margin-bottom:16px;"></div>
 
     <!-- Stat tiles. Only non-zero counts render; container hides entirely
          when all four are zero. Reads v_logbook_truth + v_risk_truth +
          v_inventory_items_truth directly; PM Overdue comes via the
          get_hive_dashboard RPC (declared in chip inside More). -->
     <h2 class="oh-sec-lbl" data-i="todayglance">Today at a Glance</h2>
-    <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; min-height:154px;"></div>
+    <!-- The tile strip's height reserve is per WIDTH (2026-10-06, measured while moving #oh-source-chip below it).
+         It was one inline min-height:154px - exactly right at desktop, where the four tiles sit in ONE row at
+         154px each. Below ~680px they wrap to TWO rows, and the second row's label "PM OVERDUE (N OF N ASSETS)"
+         wraps too: measured 191px at a true 390 and 209px at 320. So every phone load pushed everything under
+         the strip down 37-55px when the tiles filled (CLS 0.0075 at 390, its listed sources being the victims
+         below - the chip and the Quick Actions label - not the cause). The reserve moves into the head stylesheet
+         beside the other #ops-home rules so it can follow the width; an over-reserve between the measured
+         points leaves a few px of space, never a shift. -->
+    <div id="oh-stats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;"></div>
+    <!-- ★THE HOME'S PROVENANCE WAS FOLDED AWAY (2026-10-06, index x assistive-tech, layer D). This chip used to
+         live inside <details id="oh-more"> "so it doesn't compete with the verdict but stays inspectable". But
+         #oh-more ships COLLAPSED, and the J11 note above already learned what that means for a route - markup
+         a person cannot see is not a route - and it holds for provenance too: the four tiles and the hero
+         "BLR-001: risk 95% - Inspect now" sat at the top of the signed-in home while the one sentence saying
+         where those numbers come from, and that risk is a DAILY SNAPSHOT rather than live, sat folded under a
+         summary reading only "More". Measured at a true 1280: checkVisibility false, inner rect at y=2493.
+         It now sits directly under the tiles it describes, which is where every other app page puts its
+         chip, and the original worry - competing with the verdict - is answered by keeping it SHORT: the
+         visible line is sources plus the risk-snapshot caveat (without which "Live data" would overclaim for
+         the risk tile and the hero), and the counting rules collapse into the chip's own disclosure. The
+         min-height is the measured filled height, because this page loads tokens.css but not
+         components.css, so .wh-source-chip's 62px reserve does not apply here and an empty <p> filled late
+         would push Quick Actions down. The outer opacity:.75 is gone with the move: it stacked on the chip's
+         own muted colour, which every other page shows unstacked. -->
+    <p id="oh-source-chip" style="margin:-8px 0 16px; min-height:82px;"></p>
 
     <!-- Two primary actions chosen by role; everything else lives in More. -->
     <!-- min-height reserves the 1 row of 2 .oh-action buttons (min-height:48px each)
@@ -1486,7 +1562,7 @@
               <span class="ic ic-message" aria-hidden="true"></span>
               <span data-i="askai">Ask AI</span>
             </a>
-            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:var(--wh-red-text); border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
+            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(248,113,113,.08); color:var(--wh-red-text); border-color:rgba(248,113,113,.25); grid-column:1 / -1;">
               <span class="ic ic-voice" aria-hidden="true"></span>
               <span data-i="voicejournal">Voice Journal</span>
             </a>
@@ -1497,11 +1573,6 @@
             </button>
           </div>
         </div>
-
-        <!-- Source/window chip: declares the 4 canonical truth views the
-             tiles read. Lives inside More so it doesn't compete with the
-             verdict but stays inspectable. -->
-        <p id="oh-source-chip" style="margin:0; opacity:.75;"></p>
 
       </div>
     </details>
@@ -1552,7 +1623,7 @@
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-16 items-center">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
       <!-- Left copy (mobile-first; desktop puts the worker-evolution card on the right) -->
       <div class="order-1 lg:order-2">
@@ -1664,8 +1735,11 @@
                    read as generated whether or not it is. Each commitment is genuine and checkable (the
                    platform really does withhold predictions until it has enough history, really does let a
                    hive work its own way, really does run offline without a server), so the words stayed and
-                   the rhythm went: one sentence that says all three and can be argued with. -->
-              <p class="text-xs text-white/80 mt-2 leading-relaxed">It will not predict from data it does not have yet, it does not make you work its way, and it runs on the phone already in your pocket rather than on infrastructure you would have to buy. Free at the worker tier forever.</p>
+                   the rhythm went: one sentence that says all three and can be argued with.
+                   ...AND THEN ONE SENTENCE WAS 38 WORDS (critic B3, 2026-10-13): the longest and hardest sentence on
+                   every signed-out screen, since each one lands here. Two sentences of 17 words now, the same three
+                   commitments, still no run of fragments. -->
+              <p class="text-xs text-white/80 mt-2 leading-relaxed">It will not predict from data it does not have yet, or make you work its way. It runs on the phone already in your pocket, not on infrastructure you would have to buy. Free at the worker tier forever.</p>
             </div>
 
             <!-- Stage Cards Grid -->
@@ -1688,6 +1762,25 @@
                    on the next run - a shadow is one of the things that makes a div read as a card, and
                    this one sits inside the stage panel. The rule is gone entirely rather than emptied,
                    since with no animation left the card's own border and fill are the whole treatment. */
+                /* ★TWO CARDS DID NOT FIT A 320px PHONE, AND `1fr` COULD NOT SHRINK THEM (2026-09-29).
+                   This grid was inline `grid-template-columns:1fr 1fr`, and `1fr` means `minmax(auto, 1fr)`
+                   - its MINIMUM is min-content, so the track grows past its own container rather than
+                   shrinking. Measured at 320: the container is 256px while the two tracks resolved to
+                   135.64 + 134.95 + 10px gap = 280.6, so the right-hand card ran to x=310 while the
+                   section's content box ends at 300, on every page that renders the signed-out landing.
+                   `minmax(0, 1fr)` alone would stop the overflow and buy a worse defect: the cards'
+                   min-content widths are 135.64 / 130.28 / 112.94 / 134.95 and two tracks at 320 give
+                   only 123px each, so three of the four would be CLIPPED - and `.stage-card` sets
+                   `overflow: clip`, so the text would silently disappear rather than spill.
+                   Two 123px cards on a 320px phone is a bad column anyway, so below 380px they stack:
+                   one full-width track of 256px, comfortably past every card's min-content. Above it the
+                   two-column layout is unchanged, with the `minmax(0, …)` floor so the track can never
+                   again outgrow its container as the copy changes.
+                   The rule lives here rather than inline because a media query cannot override an inline
+                   style, and the narrow rule is placed AFTER the base one - a media query adds no
+                   specificity, so source order is what decides ([[feedback_a_media_query_adds_no_specificity]]). */
+                .stage-grid { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:10px; }
+                @media (max-width: 380px) { .stage-grid { grid-template-columns: minmax(0,1fr); } }
                 .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
@@ -1733,7 +1826,7 @@
                    caught it, which is exactly the split live-state-runner.js documents. */
               </style>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="stage-grid">
 
                 <!-- Card 1: Paper-to-Digital -->
                 <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
@@ -1794,7 +1887,9 @@
 
             <!-- CTA -->
             <div class="px-6 py-5 border-t border-white/[0.07]">
-              <button onclick="openAllToolsPopup()" class="btn-primary text-sm w-full text-center block" data-i="seealltools">See All Tools</button>
+              <!-- secondary, not primary (critic batch G3, 2026-10-13): browsing the tools sat in the same filled amber as
+                   "Join the Hive" a few lines above it, so the landing offered a signed-out visitor two equal first steps. -->
+              <button onclick="openAllToolsPopup()" class="btn-secondary text-sm w-full text-center block" data-i="seealltools">See All Tools</button>
             </div>
 
           </div>
@@ -1998,11 +2093,11 @@
                  beside this one already carries the cost claim (4-8x, the same ratio the paragraph above
                  states), so the duplication goes with the contradiction. Figure corrected to the guide's
                  35-50 with the hero. -->
-            <p class="text-orange-wh font-bold text-xl">35-50%</p>
+            <p class="text-orange-wh font-bold text-xl stat-figure">35-50%</p>
             <p class="text-white/80 text-xs mt-0.5">Less Unplanned Downtime</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl">4-8x</p>
+            <p class="text-orange-wh font-bold text-xl stat-figure">4-8x</p>
             <p class="text-white/80 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
           </div>
         </div>
@@ -2023,11 +2118,11 @@
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl">15-25%</p>
+            <p class="text-blue-wh font-bold text-xl stat-figure">15-25%</p>
             <p class="text-white/80 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl">Data</p>
+            <p class="text-blue-wh font-bold text-xl stat-figure">Data</p>
             <p class="text-white/80 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
           </div>
         </div>
@@ -2048,11 +2143,11 @@
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl">60-80%</p>
+            <p class="text-blue-wh font-bold text-xl stat-figure">60-80%</p>
             <p class="text-white/80 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl">∞</p>
+            <p class="text-blue-wh font-bold text-xl stat-figure">∞</p>
             <p class="text-white/80 text-xs mt-0.5">Compounding Organizational Memory</p>
           </div>
         </div>
@@ -2073,11 +2168,11 @@
         </p>
         <div class="grid grid-cols-2 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl">35%</p>
+            <p class="text-orange-wh font-bold text-xl stat-figure">35%</p>
             <p class="text-white/80 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
           </div>
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl">4 Pillars</p>
+            <p class="text-orange-wh font-bold text-xl stat-figure">4 Pillars</p>
             <p class="text-white/80 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
           </div>
         </div>
@@ -2096,7 +2191,7 @@
        style="background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(247,162,27,0.07) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 100% 50%, rgba(41,182,217,0.07) 0%, transparent 60%);"></div>
 
   <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 items-center">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
       <div class="reveal">
         <div class="hex-divider"><span></span><span style="background:var(--wh-orange); width:6px; height:6px;"></span><span></span></div>
@@ -2232,7 +2327,9 @@
         where it becomes real jobs and trades.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="public-feed.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-navy-wh" style="background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); min-height:44px;">
+        <!-- secondary, like "See All Tools" (critic batch G3, 2026-10-13): a filled blue button here made browsing the feed a
+             third filled call to action beside the two amber "Join" buttons; joining is the one filled step. -->
+        <a href="public-feed.html" class="btn-secondary inline-flex items-center gap-2 font-bold" style="min-height:44px; padding:12px 24px; white-space:nowrap;">
           See the community feed
           <span class="ic ic-back" aria-hidden="true"></span>
         </a>
@@ -2493,6 +2590,9 @@
         />
         <button type="submit" class="btn-ghost text-sm whitespace-nowrap">Get updates</button>
       </div>
+      <!-- 2026-10-12 (W4244 walk): the only answer to this form was the button's own text changing while it was
+           disabled - a screen reader announced neither "You're on the list!" nor "Try again". -->
+      <p id="join-status" role="status" aria-live="polite" class="sr-only"></p>
     </form>
 
     <p class="text-xs text-white/80 mb-12 max-w-lg mx-auto">Adds you to the updates list, not an account · Philippines-first · No spam, ever</p>
@@ -2650,7 +2750,27 @@
   });
 
   // Back with the menu open closes the menu instead of navigating away.
-  window.addEventListener('popstate', () => { if (menuOpen) _closeMobileMenu(); });
+  window.addEventListener('popstate', () => {
+    if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a modal gave its entry back; the person did not press Back
+    if (menuOpen) _closeMobileMenu();
+  });
+
+  // ★AND ESCAPE CLOSES IT TOO (2026-09-29). The comment above already establishes what this is -
+  // "opening the menu covers the page" - and every other overlay on the platform closes on Escape.
+  // This one had Back and a link-tap and nothing else, so a keyboard reader who opened it had no way
+  // to dismiss it without either navigating or reaching for the mouse. It also left the menu OPEN
+  // underneath anything opened next: the phone-fit sweep taps each menu-ish trigger in turn and
+  // presses Escape between steps, so with the menu stuck open the nav hub opened ON TOP of it and
+  // every menu link reported as covered by #wh-hub-panel - a state a person can reach too, by
+  // opening the menu and then tapping the hub.
+  // Routed through history.back() when the entry is ours so the Back button does not need pressing
+  // twice afterwards - the same consume-the-entry path the hamburger's own close takes. popstate
+  // (just above) then performs the close, so the menu is never closed twice.
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape' || !menuOpen) return;
+    if (history.state && history.state.whMenu) history.back();
+    else _closeMobileMenu();
+  });
 
   // Close mobile menu on nav link click
   mobileMenu.querySelectorAll('a').forEach(link => {
@@ -2716,16 +2836,19 @@
     btn.disabled = true;
     input.disabled = true;
 
+    const status = document.getElementById('join-status');
     try {
       await window._supabaseSignup(input.value, 'join_updates_block');
 
       btn.textContent = "You're on the list!";
       btn.style.background = 'linear-gradient(135deg, #29B6D9 0%, #1A9ABF 100%)';
       btn.style.color = '#162032';
+      if (status) status.textContent = "You're on the list. We'll send updates to " + input.value + '.';
     } catch (err) {
       btn.textContent = _t('Try again', 'Subukan muli');
       btn.disabled = false;
       input.disabled = false;
+      if (status) status.textContent = 'That did not go through, so you are not on the list yet. Try again.';
     }
   }
 
@@ -3181,10 +3304,24 @@
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
         <p style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
+        <!-- ★THE LABEL MISSED ITS OWN BOX BY ONE PIXEL (phone-fit@320 FIL, 2026-09-29). "Enterprise SSO
+             (Okta / Azure AD)" measures ~231px at 14px/600 Poppins and the button is 230px wide at a 320
+             viewport, so the parenthetical broke to a second line mid-phrase - and only once the webfont
+             applied, which is why the same page reported it on one run and not the next.
+             The provider names are a QUALIFIER, not the action: the control names its action ("Enterprise
+             SSO") and says underneath which providers that means. Making the second line DELIBERATE fixes
+             the squeeze at every width instead of buying one pixel back, and reads as designed rather than
+             as text that ran out of room. The wording is unchanged - the button still claims exactly what
+             it claimed ([[feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie]]).
+             ★THE JS RESTORES THIS SAME STRUCTURE, NOT A FLAT STRING. Both SSO error paths used to write
+             `btn.textContent = 'Enterprise SSO (Okta / Azure AD)'`, which would flatten the qualifier away
+             the first time a domain had no IdP - the markup undone by its own script
+             ([[feedback_the_js_overwrote_its_own_correct_markup]]). They call setSsoLabel() now. -->
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
           class="w-full rounded-xl py-3 text-sm font-semibold"
           style="min-height:44px; background:rgba(41,182,217,0.08); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,0.25);" translate="no">
-          Enterprise SSO (Okta / Azure AD)
+          Enterprise SSO
+          <span class="block text-xs font-normal" style="opacity:.78; margin-top:2px;">Okta / Azure AD</span>
         </button>
       </div>
       <!-- T1 (Ian verbatim): "when you face the sign in, there should also be a sign up." The tab
@@ -3468,6 +3605,7 @@
   // bfcache, DOM state intact) with the modal still up, ignoring the gesture a person uses to
   // dismiss it. Close on popstate, and on a bfcache restore (pageshow persisted).
   window.addEventListener('popstate', () => {
+    if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a modal gave its entry back; the person did not press Back
     const m = document.getElementById('signin-modal');
     if (m && !m.classList.contains('hidden')) closeSignIn();
   });
@@ -3487,12 +3625,26 @@
       t.textContent = msg;
       t.setAttribute('role', 'alert');
       t.setAttribute('aria-live', 'polite');
-      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;white-space:pre-line;' + (kind === 'error' ? 'border-left:3px solid #f87171;' : '');
+      t.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.88);color:#fff;padding:0.75rem 1.25rem;border-radius:0.5rem;font-size:0.875rem;z-index:9999;max-width:90vw;text-align:center;white-space:pre-line;' + (kind === 'error' ? 'border-left:1px solid #f87171;' : '');
       document.body.appendChild(t);
       setTimeout(() => t.remove(), 5000);
     };
 
     const btn = document.getElementById('si-sso-btn');
+    // Restores the button's TWO-PART label - the action plus its provider qualifier - so an SSO failure
+    // leaves the control exactly as the markup declares it. A flat textContent here would delete the
+    // qualifier permanently for anyone whose domain has no IdP registered, which is the common path.
+    // Built with DOM nodes rather than innerHTML: nothing here is interpolated, and the platform's
+    // escHtml rule stays trivially satisfied.
+    const setSsoLabel = () => {
+      btn.textContent = 'Enterprise SSO';
+      const qualifier = document.createElement('span');
+      qualifier.className = 'block text-xs font-normal';
+      qualifier.style.opacity = '.78';
+      qualifier.style.marginTop = '2px';
+      qualifier.textContent = 'Okta / Azure AD';
+      btn.appendChild(qualifier);
+    };
     btn.disabled = true;
     btn.textContent = 'Redirecting to your identity provider...';
     try {
@@ -3506,7 +3658,7 @@
       // whoever is debugging, and the person gets the same sentence either way.
       if (error) {
         console.error('index enterprise-SSO refused:', error);
-        btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
+        btn.disabled = false; setSsoLabel();
         showToast(_t('SSO is not set up for this domain yet. Ask your IT team to register WorkHive as an SSO application in your identity provider.',
                      'Hindi pa naka-set up ang SSO para sa domain na ito. Ipa-register sa IT team ninyo ang WorkHive bilang SSO application sa inyong identity provider.'), 'error');
         return;
@@ -3514,7 +3666,7 @@
       if (data?.url) window.location.href = data.url;
     } catch (e) {
       console.error('index enterprise-SSO failed:', e);
-      btn.disabled = false; btn.textContent = 'Enterprise SSO (Okta / Azure AD)';
+      btn.disabled = false; setSsoLabel();
       showToast(_t('SSO not available for this domain. Contact your IT administrator.', 'Hindi available ang SSO para sa domain na ito. Makipag-ugnayan sa IT administrator ninyo.'), 'error');
     }
   }
@@ -3528,6 +3680,13 @@
   // It ALWAYS clears the hive keys first, so identity B never inherits identity A's
   // hive, then sets them only from B's own membership truth (solo mode if none).
   async function resolveActiveHiveContext(db, displayName, authUid) {
+    // ★THE PREFERENCE BELOW READ A KEY THIS LINE HAD ALREADY DELETED (W4 write walk, 2026-10-08). The clear
+    // ran first, so `_prev` further down was always null and a member of two hives landed in the first by NAME
+    // on every sign-in - never the one they were working in, which is what the comment there promises. The
+    // previous hive is read HERE, before the clear, and is still honoured only when THIS identity is a member
+    // of it (hives.find below), so another identity's tenant can never be inherited.
+    let _prevHive = null;
+    try { _prevHive = localStorage.getItem('wh_active_hive_id'); } catch (_) { _prevHive = null; } /* empty-catch-allow: storage blocked = no preference */
     // Clear up front: never inherit the previous identity's tenant context.
     ['wh_active_hive_id','wh_hive_id','wh_hive_name','wh_hive_role','wh_hive_code','wh_hives']
       .forEach(k => localStorage.removeItem(k));
@@ -3590,7 +3749,7 @@
       // Prefer the hive this person was already working in, when they are still a member of it: a
       // deterministic ORDER BY alone would silently move a two-hive worker to whichever sorts first,
       // which is stable but not what they were doing. Falls back to the first by the total order.
-      const _prev = localStorage.getItem('wh_active_hive_id');
+      const _prev = _prevHive;   // read before the clear at the top of this function
       const first = (_prev && hives.find(h => h.id === _prev)) || hives[0];
       const m = memberships.find(x => x.hive_id === first.id);
       const role = m ? m.role : 'worker';
@@ -3699,7 +3858,11 @@
     } catch (_e) {
       console.error('index sign-in failed:', _e);
       btn.textContent = 'Sign In'; btn.disabled = false;
-      errEl.textContent = _t('Sign-in failed. Check your connection and try again.', 'Hindi natuloy ang sign-in. Suriin ang koneksyon at subukan muli.');
+      // 2026-10-06 (index x assistive-tech, PostgREST stopped): this blamed the connection for every thrown failure,
+      // including a sign-in service that did not answer while navigator.onLine was TRUE.
+      errEl.textContent = (navigator.onLine === false)
+        ? _t('You are offline, so you could not be signed in. Try again when your connection is back.', 'Offline ka, kaya hindi ka ma-sign in. Subukan muli kapag bumalik ang koneksyon mo.')
+        : _t('Sign-in failed - WorkHive did not answer. Try again in a moment.', 'Hindi natuloy ang sign-in - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
       errEl.classList.remove('hidden'); return;
     }
 
@@ -4495,15 +4658,29 @@
        so observe THAT element, at threshold 0. */
     const heroCta = document.querySelector('section .cta-pulse') || document.querySelector('section');
     if (!heroCta) return;
-    /* The bar's visibility is driven ENTIRELY by this observer; with none, leave it in its
-       default visible state rather than throwing and taking the rest of this script with it. */
-    if (typeof IntersectionObserver !== 'function') return;
-    new IntersectionObserver(function(entries) {
-      var hidden = entries[0].isIntersecting;
+    /* ★THE BAR COVERED THE HERO AT FIRST PAINT (2026-10-13, critic batch V1 at 320 and 390). At 320x854 the hero's
+       own "Join the Hive" sits BELOW the first screen, so "not intersecting" was true at load and the bar slid up
+       over the hero paragraph ("Free industrial tools...") before the reader had scrolled at all - two copies of
+       one action, one of them covering the sentence that explains it. The bar's job is the moment the hero CTA
+       scrolls AWAY, which is upward: it shows only once that button has left through the TOP of the viewport.
+       ★...AND A JUMP NEVER TOLD THE OBSERVER (2026-10-13, cta-activation: the bar inert after its reveal scroll).
+       An IntersectionObserver reports a CHANGE of intersection, and a scroll that jumps from above the button to
+       below it - "See How It Works", End, Page Down, a scroll position restored on reload - never passes through
+       "intersecting", so no callback came and the bar stayed hidden and inert for the visit. The same rule is read
+       from the button's position instead: once at start, then on each scroll, one read per animation frame. */
+    var update = function () {
+      var hidden = heroCta.getBoundingClientRect().bottom > 0;
       cta.style.transform = hidden ? 'translateY(100%)' : 'translateY(0)';
       cta.setAttribute('aria-hidden', hidden ? 'true' : 'false');
       cta.inert = hidden;  // WCAG 4.1.2: a hidden CTA must not be Tab-focusable (axe aria-hidden-focus)
-    }, { threshold: 0 }).observe(heroCta);
+    };
+    var queued = false;
+    window.addEventListener('scroll', function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; update(); });
+    }, { passive: true });
+    update();
   })();
 
   /* ── Stage cards: keyboard a11y (WCAG 2.1.1 - onclick divs need role + key) + micro-bounce ── */
@@ -4808,7 +4985,13 @@
       ? ['Linggo','Lunes','Martes','Miyerkoles','Huwebes','Biyernes','Sabado']
       : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const shift = ph.getHours() < 12 ? _t('Morning','Umaga') : ph.getHours() < 17 ? _t('Afternoon','Hapon') : _t('Evening','Gabi');
+    // ★TWO SHIFT MODELS ON TWO PAGES (critique W45929, 2026-10-13). The clock above is Manila's, but the BOUNDARIES were
+    // this line's own - Morning before 12, Afternoon to 17, then "Evening" - while shift-brain plans by 06-14 Morning,
+    // 14-22 Afternoon, 22-06 Night. So at 00:13 PHT the home said "Morning Shift" during the night shift, at 13:00 it said
+    // Afternoon while the morning shift still ran, and at 18:00 it named an "Evening" shift that exists nowhere else.
+    // The windows are shift-brain's now; the greeting word above stays a greeting.
+    const _phH = ph.getHours();
+    const shift = (_phH >= 6 && _phH < 14) ? _t('Morning','Umaga') : (_phH >= 14 && _phH < 22) ? _t('Afternoon','Hapon') : _t('Night','Gabi');
     return `${days[ph.getDay()]}, ${months[ph.getMonth()]} ${ph.getDate()} · ${shift} ${_t('Shift','Shift')} (PHT)`;
   }
 
@@ -4914,8 +5097,10 @@
       _ohChipEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
         freshness: HIVE_ID ? 'Live data' : 'Live (solo mode)',
         source:    'v_logbook_truth + v_risk_truth + v_inventory_items_truth · PM overdue via get_hive_dashboard',
-        notes:     [
-          'Risk: daily snapshot at 13:00 PHT',
+        // visible: the one caveat that stops "Live data" overclaiming for the risk tile and the hero
+        notes:     ['Risk: daily snapshot at 13:00 PHT'],
+        // collapsed: counting rules, behind the chip's own disclosure (see the note at #oh-source-chip)
+        method:    [
           'PM overdue: counted once per asset (30-day window)',
           'Click any tile to open the dedicated surface',
         ],
@@ -4937,10 +5122,31 @@
     }
 
     // Fetch all data in parallel (narrow selects, .limit() enforced)
-    const scopeFilter = HIVE_ID ? { col: 'hive_id', val: HIVE_ID }
-                                 : { col: 'worker_name', val: workerName };
+    // ★A SOLO HOME ASKED BY NAME ALONE (2026-10-13, found live by the BRP33 drift walk as a solo van owner: the home
+    // read `pm_assets?worker_name=eq.Jun Salvador`). In solo mode this filter keyed open jobs, their count, low stock and
+    // PM overdue on the DISPLAY NAME only - through a variable (`col: 'worker_name'`) that the bug-repro inventory, which
+    // matches literal name filters, could not see. Drift the name by one character and a solo worker's home reads empty.
+    // The union every other page took on 2026-10-04: the account OR the name (rows a service-role path wrote still carry
+    // no auth_uid and are findable only by name). One .or() string serves both modes: a single condition in a hive.
+    let _soloUid = null;
+    if (!HIVE_ID) {
+      try { const { data: { session } } = await db.auth.getSession(); _soloUid = (session && session.user && session.user.id) || null; }
+      catch (_e) { /* empty-catch-allow: the name half of the filter below still answers */ }
+    }
+    const _nameEq = 'worker_name.eq.' + JSON.stringify(String(workerName || ''));
+    const _scopeOr = HIVE_ID ? ('hive_id.eq.' + HIVE_ID) : (_soloUid ? 'auth_uid.eq.' + _soloUid + ',' + _nameEq : _nameEq);
 
-    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
+    // ★THE HOME'S "TODAY" WAS THE DEVICE'S DAY (2026-10-13, the device-clock-day ratchet's first sweep). This window
+    // goes to get_hive_dashboard as p_day_start and to the "closed today" / "PM done today" reads - and it was the
+    // DEVICE's midnight. On Ian's own host (New Zealand time) the hive's "today" began at 19:00 Manila the day before,
+    // so yesterday evening's closures counted as today's; on a London clock it began at 07:00 and the morning's work
+    // vanished. WorkHive's day is the Manila day, so the window opens at Manila midnight whatever the device says, and
+    // the pending-brief filter below takes the same date instead of UTC's (before 08:00 Manila UTC is still yesterday).
+    const _phParts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' })
+      .formatToParts(new Date());
+    const _phPart = (t) => (_phParts.find((x) => x.type === t) || {}).value;
+    const _phYmd = _phPart('year') + '-' + _phPart('month') + '-' + _phPart('day');
+    const startOfDay = new Date(Date.UTC(Number(_phPart('year')), Number(_phPart('month')) - 1, Number(_phPart('day'))) - 8 * 3600 * 1000);
 
     // ── Fan-out collapse (2026-06-06): in hive mode, one get_hive_dashboard
     // RPC returns all 11 home signals in a single round-trip (previously 11
@@ -4981,7 +5187,7 @@
       // jobs.length here silently capped the home tile at 5.
       db.from('v_logbook_truth')
         .select('id, machine, category, maintenance_type, status, created_at, date')
-        .eq(scopeFilter.col, scopeFilter.val)
+        .or(_scopeOr)
         .eq('status', 'Open')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -5006,7 +5212,7 @@
       // before the canonical view landed. Low-stock counts now actually fire.
       db.from('v_inventory_items_truth')
         .select('part_name, qty_on_hand, reorder_point, is_low_stock')
-        .eq(scopeFilter.col, scopeFilter.val)
+        .or(_scopeOr)
         .limit(100), // limit-as-count-allow: low-stock tile is rare; 100 covers typical PH plant inventory. TODO: head-count if a hive ever exceeds.
 
       // PM overdue via the frequency-aware canonical PER-SCOPE-ITEM view in a
@@ -5025,7 +5231,7 @@
         // canonical-allow: solo-mode fallback (truth views are hive-scoped only)
         : db.from('pm_assets')
             .select('id, asset_name, category')
-            .eq(scopeFilter.col, scopeFilter.val)
+            .or(_scopeOr)
             .limit(100),
 
       // Hive Activity Today: jobs closed today (hive-scoped, count only)
@@ -5053,7 +5259,7 @@
       // count even when there are >5 open jobs.
       db.from('v_logbook_truth')
         .select('id', { count: 'exact', head: true })
-        .eq(scopeFilter.col, scopeFilter.val)
+        .or(_scopeOr)
         .eq('status', 'Open'),
 
       // True Risk Alerts count (head-only, hive-scoped — solo mode is 0).
@@ -5257,12 +5463,12 @@
         el.style.display = 'block';
         el/* xss-allow: static strings built in this file */ .innerHTML = `
           <a href="hive.html" class="oh-card"
-             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-orange);">
+             style="display:flex; align-items:center; gap:12px; padding:16px; text-decoration:none; border-left:1px solid var(--wh-orange);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); display:flex; align-items:center; justify-content:center; flex:none; font-size:1.05rem;">&#128029;</div>
             <div style="flex:1; min-width:0;">
               <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('You are not in a hive yet','Wala ka pang hive')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('Join one with a code, or start your own.','Sumali gamit ang code, o gumawa ng sarili mo.')}</p>
-              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t('Your own records stay yours either way. A hive adds the people you work with.','Sa iyo pa rin ang sarili mong records. Ang hive ay nagdadagdag ng mga kasama mo sa trabaho.')}</p>
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:4px 0 0;">${_t('Your own records stay yours either way. A hive adds the people you work with.','Sa iyo pa rin ang sarili mong records. Ang hive ay nagdadagdag ng mga kasama mo sa trabaho.')}</p>
             </div>
             <span style="font-size: 0.75rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
@@ -5291,7 +5497,7 @@
         sigAlert      = _dash.signature_alert || null;
       } else if (HIVE_ID) {
         try {
-          const todayIso = new Date().toISOString().slice(0, 10);
+          const todayIso = _phYmd;   // the Manila date (see startOfDay above), not UTC's
           const [amcRes, anomRes, sigRes] = await Promise.allSettled([
             // Supervisor sees AMC brief. Canonical: v_amc_truth (latest-per-shift).
             // summary + headline are extracted from the JSONB brief into top-level cols.
@@ -5367,12 +5573,16 @@
         // from the JSONB brief by the view). headline is a fallback when
         // summary is empty.
         const amcSummary = amcPending.summary || amcPending.headline || '';
+        // the summary is the brief's model-written text: stop at a word with an ellipsis (a hard 120-character slice
+        // ended mid-word, "...so focus on clearing t") and mark it as AI output for the copy lenses (2026-10-13)
+        const _clip = (s, n) => (s.length <= n ? s : s.slice(0, n).replace(/\s+\S*$/, '') + '…');
         candidates.push({
           rank: 95,
           tone: 'critical', accent: '#C4B5FD',  // was #a78bfa, Lc 47.3 -> 65.9
           label: 'AMC Brief Awaiting Approval',
           headline: 'Approve today\'s autonomous maintenance brief',
-          detail: (amcSummary || 'Open Alert Hub to review the day plan and sign off.').slice(0, 120),
+          detail: amcSummary ? _clip(amcSummary, 120) : 'Open Alert Hub to review the day plan and sign off.',
+          aiDetail: !!amcSummary,
           cta: 'Open Alert Hub',
           href: 'alert-hub.html#amc-card',   // T1 link-gate find: #amc was nobody's id; the AMC brief card is #amc-card
         });
@@ -5517,12 +5727,12 @@
         el.style.display = 'block';
         el/* xss-allow: only static strings from _signalsUnread, built in this file */ .innerHTML = `
           <a href="alert-hub.html" class="oh-card"
-             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-orange);">
+             style="display:flex; align-items:center; gap:12px; padding:16px; text-decoration:none; border-left:1px solid var(--wh-orange);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#9888;</div>
             <div style="flex:1; min-width:0;">
               <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('Could not check','Hindi ma-check')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('This is not an all-clear.','Hindi ito all-clear.')}</p>
-              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t(
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:4px 0 0;">${_t(
                 'Could not read: ' + _signalsUnread.join(', ') + '. Reload, or open Alert Hub directly.',
                 'Hindi mabasa: ' + _signalsUnread.join(', ') + '. I-reload, o buksan ang Alert Hub.')}</p>
             </div>
@@ -5536,12 +5746,12 @@
         el.style.display = 'block';
         el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <a href="${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? 'alert-hub.html' : ((jobs.length === 0 && closedToday === 0) ? 'logbook.html' : 'pm-scheduler.html')}" class="oh-card"
-             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-green);">
+             style="display:flex; align-items:center; gap:12px; padding:16px; text-decoration:none; border-left:1px solid var(--wh-green);">
             <div style="width:36px; height:36px; border-radius:50%; background:rgba(74,222,128,0.12); color:var(--wh-green); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#10003;</div>
             <div style="flex:1; min-width:0;">
               <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-green); margin:0 0 2px;">${_t('All clear','Malinaw lahat')}</p>
               <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('Nothing urgent right now.','Walang urgent ngayon.')}</p>
-              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
+              <p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:4px 0 0;">${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? _t('Review the alert feed or the AMC daily brief.','Tingnan ang alert feed o ang AMC daily brief.') : ((jobs.length === 0 && closedToday === 0) ? _t('Log your first job to get started.','Mag-log ng unang trabaho para makapagsimula.') : _t('Plan your shift in the Day Planner.','Planuhin ang shift mo sa Day Planner.'))}</p>
             </div>
             <span style="font-size: 0.75rem; color:rgba(255,255,255,.6);">&#8594;</span>
           </a>`;
@@ -5551,12 +5761,12 @@
       el.style.display = 'block';
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <a href="${escHtml(pick.href)}" class="oh-card"
-           style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid ${pick.accent};">
+           style="display:flex; align-items:center; gap:12px; padding:16px; text-decoration:none; border-left:1px solid ${pick.accent};">
           <div style="width:36px; height:36px; border-radius:50%; background:${pick.accent}1f; color:${pick.accent}; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; flex-shrink:0;">!</div>
           <div style="flex:1; min-width:0;">
             <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:${pick.accent}; margin:0 0 2px;">${_t('Today','Ngayon')} &middot; ${escHtml(_tv(pick.label))}</p>
             <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escHtml(pick.headline)}</p>
-            <p style="font-size: 0.75rem; color:rgba(255,255,255,.55); margin:3px 0 0;">${escHtml(_tv(pick.detail))}</p>
+            <p style="font-size: 0.75rem; color:rgba(255,255,255,.55); margin:4px 0 0;"${pick.aiDetail ? ' data-ai-generated' : ''}>${escHtml(_tv(pick.detail))}</p>
           </div>
           <span style="font-size: 0.75rem; font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
         </a>`;
@@ -5604,8 +5814,8 @@
 
       el.style.display = 'block';
       el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="oh-card" style="padding:16px 18px; border-left:3px solid var(--wh-orange);">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+        <div class="oh-card" style="padding:16px; border-left:1px solid var(--wh-orange);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
             <div>
               <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange); margin:0;">${_t('Getting Started','Pagsisimula')} &middot; ${done} ${_t('of','ng')} ${steps.length}</p>
               <p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,.7); margin:2px 0 0;">${_t('Finish these three steps to unlock the platform.','Tapusin ang tatlong hakbang para ma-unlock ang platform.')}</p>
@@ -5616,11 +5826,11 @@
             </button>
           </div>
           <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:16px;">
-            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); transition:width .4s ease;"></div>
+            <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));"></div>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             ${steps.map(s => `
-              <a ${s.done ? '' : `href="${escHtml(s.href)}"`} style="display:flex; align-items:center; gap:12px; padding:10px 12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
+              <a ${s.done ? '' : `href="${escHtml(s.href)}"`} style="display:flex; align-items:center; gap:12px; padding:12px; min-height:44px; background:rgba(255,255,255,${s.done ? '.02' : '.04'}); border-radius:8px; text-decoration:none; ${s.done ? 'opacity:.55;' : ''}">
                 <div style="width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; ${s.done ? 'background:rgba(74,222,128,.18); color:var(--wh-green);' : 'background:rgba(247,162,27,.15); color:var(--wh-orange); border:1px solid rgba(247,162,27,.4);'} font-size: 0.75rem; font-weight:800;">
                   ${s.done ? '&#10003;' : s.id}
                 </div>
@@ -5699,11 +5909,11 @@
     if (stockEl && lowStock.length > 0) {
       stockEl.style.display = 'block';
       stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div class="oh-card" style="padding:12px 16px; border-left:3px solid var(--wh-orange);">
+        <div class="oh-card" style="padding:12px 16px; border-left:1px solid var(--wh-orange);">
           <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length} ${_t(lowStock.length === 1 ? 'part' : 'parts', 'piyesa')})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
-              <div style="font-size: 0.75rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
+              <div style="font-size: 0.75rem; font-weight:600; background:rgba(247,162,27,.08); border:1px solid rgba(247,162,27,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
                 ${escHtml(i.part_name)} <span style="color:var(--wh-orange-text);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
             ${lowStock.length > 8 ? `<div style="font-size: 0.75rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
@@ -5750,9 +5960,11 @@
               background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;
               padding:1rem;box-shadow:0 8px 28px rgba(0,0,0,.42);font-size:0.875rem;line-height:1.5">
     <strong id="wh-consent-t" style="display:block;font-size:1rem;margin-bottom:0.25rem">Analytics on this page</strong>
-    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:rgba(244,246,250,0.80)">
-      We would like to count anonymous page views to see which guides are useful. No names, emails or
-      phone numbers are collected. Nothing is measured until you choose.
+    <!-- 0.85, not 0.80 (2026-10-13, critic batch C5): at 14px on the navy panel 0.80 measured APCA Lc 72.9 against a
+         floor of 75 on every anonymous arrival; 0.85 is Lc 79.4, the muted-text level the learn guides already use. -->
+    <p id="wh-consent-d" style="margin:0 0 0.75rem;color:rgba(244,246,250,0.85)">
+      We would like to count anonymous page views to see which guides are useful. We collect no names,
+      emails or phone numbers. We measure nothing until you choose.
     </p>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
       <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;

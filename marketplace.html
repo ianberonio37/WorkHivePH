@@ -149,7 +149,8 @@
     /* Search + filter */
     .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .search-wrap { flex: 1; position: relative; }
-    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel-bright); pointer-events: none; }
+    /* the magnifier is placed by wh-icons.css (.ic-search followed by its input): `.search-wrap svg` matched nothing
+       once the icon became an emoji span, so it sat above the field (critique W45915, 2026-10-13) */
     .search-input {
       width: 100%; min-height: 44px; padding: 0.5rem 0.75rem 0.5rem 2.25rem;   /* 0.6rem was 9.6px; min-height:44px drives the height (W45965) */
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -251,7 +252,7 @@
     /* Price pill over image */
     .card-price-pill {
       position: absolute; bottom: 0.5rem; right: 0.5rem;
-      background: rgba(15,25,35,0.9); border: 1px solid rgba(247,162,27,0.3);
+      background: rgba(22,32,50,0.9); border: 1px solid rgba(247,162,27,0.3);
       border-radius: 999px; padding: 0.25rem 0.6rem;
       font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
     }
@@ -265,7 +266,7 @@
     .listing-card.compare-selected { border-color: var(--wh-orange); box-shadow: 0 0 0 2px rgba(247,162,27,0.4); }
     .compare-check {
       position: absolute; top: 0.5rem; left: 0.5rem; width: 24px; height: 24px;
-      border-radius: 50%; background: rgba(15,25,35,0.85); border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 50%; background: rgba(22,32,50,0.85); border: 2px solid rgba(255,255,255,0.4);
       display: flex; align-items: center; justify-content: center; color: transparent;
       transition: all 0.15s; pointer-events: none;
     }
@@ -277,12 +278,12 @@
     .heart-btn {
       position: absolute; top: 0.5rem; right: 0.5rem;
       width: 44px; height: 44px; border-radius: 50%; border: none; /* D1 U2: 32→44 gloved-field tap target */
-      background: rgba(15,25,35,0.7);
+      background: rgba(22,32,50,0.7);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: background 0.15s, transform 0.15s;
       color: var(--wh-cloud);
     }
-    .heart-btn:hover { background: rgba(15,25,35,0.95); transform: scale(1.08); }
+    .heart-btn:hover { background: rgba(22,32,50,0.95); transform: scale(1.08); }
     .heart-btn.saved { color: var(--wh-red); background: rgba(248,113,113,0.15); }
     .heart-btn.saved:hover { background: rgba(248,113,113,0.25); }
 
@@ -309,14 +310,17 @@
     .cond-chip { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(74,222,128,0.1); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.2); }
     .cond-chip.used  { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.1); }
-    .cond-chip.refurb { background: rgba(251,191,36,0.1); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.2); }
+    .cond-chip.refurb { background: rgba(247,162,27,0.1); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.2); }   /* was amber-400 tints beside --wh-orange text (W45971) */
 
     /* Card footer */
+    /* the footer wraps rather than cut the seller's name: a long name takes the line and the rating + View drop below it
+       (critique W45971, 2026-10-13 - measured, the name's own 80px cap cut "Leandro Marquez" even on a 390 phone) */
     .card-footer {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 0.25rem;
       padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05);   /* 0.625rem was 10px (W45965) */
     }
-    .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; flex: 1 1 auto; }
+    .card-footer > div:last-child { margin-left: auto; }   /* rating + View stay at the right edge when the footer wraps */
     .seller-link { min-height: 44px; } /* D1 U2: the card's seller-profile link is a real tap target → 44px */
     .star-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; } /* D1 U2: review rating-input stars → 44px tap targets */
     .seller-avatar {
@@ -325,7 +329,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
     }
-    .seller-name { font-size: 0.75rem; color: var(--wh-steel-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .seller-name { font-size: 0.75rem; color: var(--wh-steel-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
     .stars { color:var(--wh-orange-text); font-size: 0.75rem; letter-spacing: -1px; }
     .rating-val { font-size: 0.75rem; color: var(--wh-steel-bright); }
     .btn-view {
@@ -369,7 +373,19 @@
          "Online" chip (bottom:5.5rem right), so they overlapped. Move to the bottom-LEFT page-FAB
          convention (pm-scheduler's fork), clear of the whole bottom-right chrome stack + below the
          raised guide-link (learn-link.js @132px). */
-      position: fixed; bottom: calc(68px + env(safe-area-inset-bottom)); left: 1.25rem; right: auto; z-index: 80;
+      /* ★V2: THE BOTTOM-LEFT OF A PHONE IS THE CONTENT COLUMN (phone-fit@320 FIL, 2026-09-29). V1 solved
+         the widget collision and created a content one: at 320 this sat on the leftmost category chip
+         ("Electrical", 16,708 75x44 under the FAB at 20,724 52x52), because left is where the page's own
+         controls live. V1 escaped the bottom-right STACK by leaving the corner; the cheaper move was to
+         stay in the corner and go ABOVE the stack, which is what the guide-link itself did at 132px.
+         At 190px it clears the "Online" chip (88px) and the raised guide-link (132px) with room, and the
+         hub FAB keeps the corner below it. Measured at 320 AND 390 with every piece of fixed chrome on
+         screen: #fab-post 570..622, #wh-guide-link 650..712, #wh-hub 764..820 - ZERO pairwise overlap,
+         and the 320 FIL interaction sweep passes.
+         Why not move the action into the page instead: that was built and measured first, and it put a
+         primary CTA 1312px down a phone page - trading an always-visible control for a buried one to fix
+         one collision. A raised corner keeps both. */
+      position: fixed; bottom: calc(190px + env(safe-area-inset-bottom)); right: 1.25rem; left: auto; z-index: 80;
       width: 52px; height: 52px; border-radius: 50%;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -516,6 +532,11 @@
       letter-spacing: 0.05em; margin-bottom: 0.5rem;
     }
     .detail-description { font-size: 0.82rem; color: #b0b8c4; line-height: 1.6; }
+    /* the AI-drafted note (UFAI §LM.11): the description's own colour (already at the floor), one step smaller, the
+       platform's drawn ai icon - a fact about the text above it, not an alert */
+    .detail-ai-note { display: flex; align-items: flex-start; gap: 0.4rem; margin: 0.5rem 0 0; font-size: 0.75rem;
+                      color: #b0b8c4; line-height: 1.5; max-width: 65ch; }
+    .detail-ai-note .ic { flex-shrink: 0; margin-top: 0.15rem; }
 
     /* Seller card in detail */
     .seller-card {
@@ -646,7 +667,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        DOMContentLoaded check below (utils.js whWorker loads after this markup). -->
   <div id="mk-anon-masthead" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;background:rgba(22,32,50,0.7);border:1px solid rgba(247,162,27,0.25);border-radius:var(--wh-radius-lg, 16px);padding:10px 16px;">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-      <a href="index.html" style="display:inline-flex;align-items:center;min-height:44px;"><img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive home" style="height:26px;width:auto;" /></a>
+      <!-- flex-shrink:0 + a 44px box (critic batch F1, 2026-10-13): beside the long guest sentence the row squeezed this
+           link to 24px wide at 390 and 18px at 320, so the square 26px logo was drawn narrower than it is tall. -->
+      <a href="index.html" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:44px;min-height:44px;"><img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive home" style="height:26px;width:26px;" /></a>
       <span data-i="p_browsingasaguestsignintobuys_ec38" style="font-size:0.78rem;color:rgba(255,255,255,0.8);">Browsing as a guest. Sign in to buy, sell, or hail services</span>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -913,7 +936,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </button>
 
 <!-- Compare action bar (only visible in Compare mode with selections) -->
-<div id="compare-bar" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:0.875rem 1rem calc(0.875rem + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(15,25,35,0.85),rgba(15,25,35,0.98));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(247,162,27,0.2);">
+<div id="compare-bar" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:0.875rem 1rem calc(0.875rem + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(22,32,50,0.85),rgba(22,32,50,0.98));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(247,162,27,0.2);">
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
     <div style="font-size:0.85rem;font-weight:700;color:var(--wh-cloud);">
       <span id="compare-count">0</span> <span style="color:var(--wh-steel-bright);font-weight:600;">selected</span>
@@ -989,7 +1012,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <script>document.getElementById('post-desc').addEventListener('input', function () {
         document.getElementById('post-desc-count').textContent = this.value.length + ' / 2000';
       });</script>
-      <div data-i="p_aidraftsacategoryanddescript_2f4e" id="post-ai-assist-hint" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
+      <div data-i="p_aidraftsacategoryanddescript_2f4e" id="post-ai-assist-hint" role="status" aria-live="polite" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -1468,11 +1491,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return (name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
+  /* ★THE STARS WERE READ AS GLYPHS (2026-10-06, marketplace x assistive-tech, layer D). Every caller printed this
+     string bare, so a screen reader announced "black star, black star, black star, black star, white star" before
+     each rating. Two of the three callers already print the number beside it (the grid's "4.0", the detail's
+     "4.0 (2 seller reviews)"), so the glyphs are decoration there and are hidden here, once, at the source. The
+     review list has no number beside its stars - that caller names its span as an image instead. */
   function renderStars(rating) {
     const r = Math.round(Number(rating) || 0);
     let s = '';
     for (let i = 1; i <= 5; i++) s += i <= r ? '★' : '☆';
-    return s;
+    return '<span aria-hidden="true">' + s + '</span>';
   }
 
   function condClass(c) {
@@ -1720,8 +1748,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'parts'),
         db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'training'),
         db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('status', 'published').eq('section', 'jobs'),
-        WORKER_NAME ? db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('seller_name', WORKER_NAME) : zero,
-        WORKER_NAME ? db.from('marketplace_saved_searches').select('id', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('active', true) : zero,
+        WORKER_NAME ? db.from('v_marketplace_listings_public').select('id', { count: 'exact', head: true }).eq('is_mine', true) : zero,   // mine by account (20261008000060), not by a name a namesake also holds
+/* BRP-C -> RESOLVED WITHOUT A MIGRATION (2026-10-04). These two tables carry no auth_uid column, so the wave first classified them as needing one. They do not: their RLS policy is
+   USING / CHECK (worker_name IN (SELECT auth_worker_names()))
+and auth_worker_names() is a SECURITY DEFINER function returning the worker_name values that belong to auth.uid(), read from hive_members and marketplace_sellers. The DATABASE already bridges identity to name, using the name IT stores - so a client-side equality filter on the display name adds no safety at all and subtracts correctness: WORKER_NAME is localStorage text, and once it drifts from the stored name the filter narrows RLS's correct answer down to nothing. On a read that is an empty watchlist; on a delete it is a no-op PostgREST answers with 204 and no error, so the person is told their action worked. Measured: achievement_xp_log holds 31,941 rows across 29 names, RLS alone returned exactly the 2,553 belonging to the signed-in person and 0 belonging to anyone else. So the filter is REMOVED and RLS left to scope, which it was already doing. The policy now carries the whole weight, and validate_author_can_edit_own_work asserts it still names auth_worker_names so this cannot silently become an unscoped read. */
+        WORKER_NAME ? db.from('marketplace_saved_searches').select('id', { count: 'exact', head: true }).eq('active', true) : zero,
       ]);
       // Same absent-vs-zero trap as the tab badges, and worse here: a head:true COUNT returns
       // {count:null, error} rather than throwing, so an unreachable database used to ground the
@@ -1764,7 +1795,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db
         .from('marketplace_saved_searches')
         .select('id,search_name,section,category,query_text,price_min,price_max,email,created_at')
-        .eq('worker_name', WORKER_NAME)
+        // BRP-C: RLS (mkt_saved_searches_owner_rw) already scopes this to the signed-in person via
+        // auth_worker_names(); the client name filter only added a way to narrow it to nothing.
         .eq('active', true)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
@@ -1924,16 +1956,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!svcRequireOnline('Deleting this saved search')) return;
     if (!(await window.whConfirm('Delete this saved search? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
     try {
-      const { error } = await db
+      const { data: _gone, error } = await db
         .from('marketplace_saved_searches')
         .delete()
+        // BRP-C: RLS's USING *and* CHECK both require worker_name IN auth_worker_names(), so ownership is
+        // enforced by the database. The client name filter turned a drifted display name into a silent
+        // no-op delete (204, no error) - the person was told the saved search was removed.
         .eq('id', id)
-        .eq('worker_name', WORKER_NAME);
+        .select('id');
       if (error) throw error;
+      // ★A refused delete is a 0-row success, not an error (RLS filters, it does not raise). Without this the
+      // person was told "Saved search removed." while the row stayed.
+      if (!_gone || !_gone.length) {
+        showToast('Nothing was removed: that saved search is not yours, or it was already deleted. The list has been refreshed.', 'info');
+        openSavedSearchesSheet();
+        return;
+      }
       showToast('Saved search removed.', 'info');
       openSavedSearchesSheet(); /* reload */
     } catch (_err) {
-      console.error('marketplace saved-search delete failed:', _);
+      // ★THE ERROR HANDLER CRASHED ON ITS FIRST LINE (2026-10-08, UI-write recipes): it logged `_`, which is
+      // declared nowhere on this page, so `console.error(..., _)` threw ReferenceError and the toast below never
+      // ran - a failed delete said nothing at all. Log the error the catch actually bound.
+      console.error('marketplace saved-search delete failed:', _err);
       showToast(whWriteError(_err, _t('Could not delete. Try again.', 'Hindi ma-delete. Subukan muli.')), 'error');
     }
   }
@@ -1958,7 +2003,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('listing_id').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
         
         // bounded-by-nature: one worker's saved-listing IDs (≤ dozens); .limit(500) is safe insurance — a personal watchlist never reaches 500.
-        .eq('worker_name', WORKER_NAME)
+        // BRP-C: RLS (mkt_watchlist_owner_rw) already scopes this to the signed-in person via
+        // auth_worker_names(); the client name filter only added a way to narrow it to nothing.
         .limit(500);
       _watchlist = new Set((data || []).map(r => r.listing_id));
     } catch (_) { _watchlist = new Set(); }
@@ -1992,7 +2038,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db.from('v_marketplace_inquiries_truth')
         .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
         
-        .eq('buyer_name', WORKER_NAME)
+        .eq('from_me', true)
         /* T96 (2026-08-27): SHOW THE UNANSWERED ONES TOO. This read filtered
            .not('reply_text','is',null), so a buyer saw a thread only once the SELLER had got
            round to answering it. Measured with two accounts on this same code: Romeo Beltran
@@ -2007,7 +2053,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (error || !data || !data.length) return;
       const e = escHtml;
       slot.innerHTML =
-        '<div class="simple-card" style="padding:12px 16px;border-left:3px solid var(--wh-orange);">' +
+        // one card treatment (critic R3, 2026-10-13): a list, not a KPI tile - list-row, the component's padding
+        '<div class="simple-card list-row" style="border-left:3px solid var(--wh-orange);">' +
         '<div style="font-size: 0.75rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
         'Your inquiries &middot; ' + data.length + '</div>' +
         data.map(function (r) {
@@ -2052,7 +2099,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { error } = await db
           .from('marketplace_watchlist')
           .delete()
-          .eq('worker_name', WORKER_NAME)
+          // BRP-C: ownership is RLS's (auth_worker_names); the name filter only broke on drift, turning
+          // an un-save into a 204 no-op the person was told had succeeded.
           .eq('listing_id', listingId);
         if (error) throw error;
         showToast('Removed from watchlist.', 'info');
@@ -2185,7 +2233,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           const _liveIds = new Set(items.map(i => i.id));
           const _dead = ids.filter(id => !_liveIds.has(id));
           if (_dead.length) {
-            await db.from('marketplace_watchlist').delete().in('listing_id', _dead).eq('worker_name', WORKER_NAME);
+            await db.from('marketplace_watchlist').delete().in('listing_id', _dead);  // BRP-C: RLS scopes it
             _dead.forEach(id => _watchlist.delete(id));
             syncHeartIcons();
             updateCountBadges();
@@ -2262,7 +2310,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ? `<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>`
               : ''}
             ${_communityTrustedSellers.has(item.seller_name)
-              ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.375rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(41,182,217,0.9);color:#04212b;">🐝 Trusted</span>`
+              ? `<span title="Voice of the Hive in the WorkHive community" style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.375rem;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(41,182,217,0.9);color:var(--wh-navy, #162032);">🐝 Trusted</span>`
               : ''}
           </div>
           <button class="heart-btn ${_watchlist.has(item.id) ? 'saved' : ''}" data-listing="${e(item.id)}"
@@ -2293,7 +2341,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             </a>
             <div style="display:flex;align-items:center;gap:0.4rem;">
               ${item.rating_avg
-                ? `<span class="stars">${renderStars(item.rating_avg)}</span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}</span>`
+                /* ★"ROM..." WAS THE SELLER (critique W45971, 2026-10-13). In a 220px card at 1280 the footer gave five star
+                   glyphs (letter-spacing -1px), the number and View 127px, and the seller's NAME 39 of the 80px it needs -
+                   "Romeo Beltran" read "Rom...", the one fact a buyer checks before trusting a listing. One star beside the
+                   number says the same thing in a fifth of the width; the stars-out-of-five string stays on the detail view. */
+                ? `<span class="stars"><span aria-hidden="true">★</span></span><span class="rating-val">${Number(item.rating_avg).toFixed(1)}<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"> out of 5</span></span>`
                 : ''}
               <button class="btn-view" data-id="${e(item.id)}" aria-label="View ${e(item.title)}" data-i="view">View</button>
             </div>
@@ -2360,7 +2412,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? `The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
         : _authExpired
         ? 'Your sign-in is no longer valid, so the figures above are unknown rather than zero, not an empty marketplace. Sign in again using the button below. Nothing you did was lost.'
-        : _t('The marketplace could not be reached, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below; if it keeps failing, check your connection.', 'Hindi maabot ang marketplace, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Gamitin ang Retry sa grid sa ibaba; kung patuloy na bumibigo, suriin ang koneksyon mo.');
+        : (navigator.onLine === false)
+        ? _t('You are offline, so the figures above are unknown rather than zero, not an empty marketplace. They will load when your connection is back.', 'Offline ka, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.')
+        // 2026-10-06 (marketplace x assistive-tech, PostgREST stopped): "if it keeps failing, check your connection" was
+        // the advice for a SERVICE outage with navigator.onLine TRUE - the one check that cannot help.
+        : _t('WorkHive did not answer, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below in a moment.', 'Hindi sumagot ang WorkHive, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Gamitin ang Retry sa grid sa ibaba maya-maya.');
       return;
     }
 
@@ -2549,7 +2605,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ? `The marketplace is limiting how often it can be read right now. Your connection is fine: wait about ${_rateLimited}, then retry.`
             : _authExpired
             ? 'The marketplace could not be read because your sign-in is no longer valid. Retrying will not help until you sign in again. Nothing you did was lost.'
-            : 'Something went wrong reaching the marketplace. Check your connection and try again.'}</p>
+            : (navigator.onLine === false)
+            ? _t('You are offline, so the marketplace could not be read. Retry when your connection is back.', 'Offline ka, kaya hindi mabasa ang marketplace. Subukan muli kapag bumalik ang koneksyon mo.')
+            : _t('WorkHive did not answer, so the listings could not be read. This is not an empty marketplace. Try again in a moment.', 'Hindi sumagot ang WorkHive, kaya hindi mabasa ang mga listing. Hindi ito walang-laman na marketplace. Subukan muli maya-maya.')}</p>
           ${_authExpired
             ? `<button class="btn-primary" id="btn-signin-again" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;" data-i="signinagain">Sign in again</button>`
             : `<button class="btn-primary" id="btn-retry-load" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;"><span class="ic ic-refresh" aria-hidden="true"></span>Retry</button>`}
@@ -2706,7 +2764,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       let q = db
         .from('v_marketplace_listings_public')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
@@ -2810,7 +2868,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ? _t('Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.', 'Nag-expire ang session mo, kaya hindi mabasa ang marketplace. Mag-sign in muli para magpatuloy. Walang nawala sa ginawa mo.')
           : _accessDenied
           ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.'
-          : _t("Couldn't load listings. Check your connection and try again.", "Hindi ma-load ang mga listing. Suriin ang koneksyon at subukan muli."), 'error');
+          : (navigator.onLine === false)
+          ? _t("You are offline, so the listings could not be loaded.", "Offline ka, kaya hindi ma-load ang mga listing.")
+          : _t("Couldn't load listings - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang mga listing - hindi sumagot ang WorkHive. Subukan muli maya-maya."), 'error');
       }
     }
 
@@ -2845,6 +2905,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      LOAD COUNTS
   ============================================================ */
   async function loadCounts() {
+    // PENDING HAS WORDS TOO (2026-10-06, assistive-tech walk): the markup dash sits inside each tab's accessible name,
+    // so before any count answered the tabs read "Parts", "Training", "Hiring" with nothing after them. While the read
+    // is in flight each still-unread pill carries "count not loaded yet"; updateCountBadges replaces it either way.
+    try {
+      ['count-parts', 'count-training', 'count-jobs', 'count-services'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el || el.querySelector('.wh-sr-unknown') || el.textContent.trim() !== '—') return;
+        const w = document.createElement('span');
+        w.className = 'wh-sr-unknown sr-only';
+        w.textContent = 'count not loaded yet';
+        el.appendChild(w);
+      });
+    } catch (_) { /* empty-catch-allow: the dash still renders */ }
     try {
       // Arc L/L2: 3 per-section head:true COUNT queries (count-only, zero row egress)
       // instead of streaming every published row's `section` to tally client-side.
@@ -2880,7 +2953,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .from('v_marketplace_listings_public')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'published')
-          .eq('seller_name', WORKER_NAME);
+          .eq('is_mine', true);   // mine by account (20261008000060), not by a name a namesake also holds
         _mineAllSections = (mineErr || mineCount === null || mineCount === undefined) ? null : mineCount;
       }
       updateCountBadges();
@@ -2890,22 +2963,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   function updateCountBadges() {
+    // The Services count is read only when its tab opens, so until then its markup dash stood bare inside the tab's
+    // name ("Services" and nothing after it). It is genuinely not loaded yet, and now says so.
+    try {
+      const _cs = document.getElementById('count-services');
+      if (_cs && _cs.querySelector('.wh-sr-unknown') && typeof whStatUnknown === 'function') {
+        whStatUnknown(_cs, _t('count', 'bilang'));
+        // ★NOT FAILED - NOT ASKED YET (2026-10-13, the W45968 copy walk): the shared words are for a read that FAILED
+        // ("count: unknown, not loaded"), and this tab's count is fetched on purpose only when the tab opens - so a
+        // listener heard "Services, count unknown, not loaded" on every visit as if something had gone wrong.
+        const _sr = _cs.querySelector('.wh-sr-unknown');
+        if (_sr) _sr.textContent = 'count shows when this tab opens';
+      }
+    } catch (_) { /* empty-catch-allow */ }
     const cp = document.getElementById('count-parts');
     const ct = document.getElementById('count-training');
     const cj = document.getElementById('count-jobs');
     const tt = document.getElementById('txt-total-listings');
     if (!_counts) {                       // unread, which is not the same as none
       const GAP = '—';
-      if (cp) cp.textContent = GAP;
-      if (ct) ct.textContent = GAP;
-      if (cj) cj.textContent = GAP;
+      // The count sits INSIDE each tab's accessible name, so a bare dash made the tabs read "Parts", "Training",
+      // "Hiring" with nothing after them (2026-10-06, assistive-tech walk). The shared pair puts words beside it.
+      const _gap = (el) => { if (!el) return; if (typeof whStatUnknown === 'function') whStatUnknown(el, _t('count', 'bilang')); else el.textContent = GAP; };
+      _gap(cp); _gap(ct); _gap(cj);
       if (tt) tt.textContent = _t('listing count unavailable', 'walang bilang ng listing');
       return;
     }
     const total = _counts.parts + _counts.training + _counts.jobs;
-    if (cp) cp.textContent = _counts.parts;
-    if (ct) ct.textContent = _counts.training;
-    if (cj) cj.textContent = _counts.jobs;
+    const _val = (el, v) => { if (!el) return; if (typeof whStatValue === 'function') whStatValue(el, v); else el.textContent = v; };
+    _val(cp, _counts.parts); _val(ct, _counts.training); _val(cj, _counts.jobs);
     // C-BT: its FAILED-read sibling two lines up was already bilingual ('walang bilang ng listing') and
     // the SUCCESS path was not - the ordinary case was the untranslated one. Filipino takes no plural -s.
     if (tt) tt.textContent = _t(total + ' listing' + (total !== 1 ? 's' : ''), total + ' listing');
@@ -2914,6 +3000,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   /* ============================================================
      DETAIL SHEET
   ============================================================ */
+  /* ★A BUYER SEES WHAT AN AI DRAFTED (UFAI §LM.11, decided 2026-10-08; migration 20261008000065). The listing assistant
+     can draft a listing's title, description, category, condition or price, and ai_assisted_fields records which of
+     those drafts the seller kept. A buyer weighing a stranger's words is owed knowing which of them a model wrote, so
+     the detail sheet says so under the description - quietly, in plain words, only when something WAS drafted. It
+     states what is recorded (the AI drafted, the seller kept the draft), not what is not (whether they checked it). */
+  function _aiDraftedNote(item) {
+    const NAMES = { title: 'title', description: 'description', category: 'category', condition: 'condition',
+                    price: 'price', part_number: 'part number', location: 'location' };
+    const f = Array.isArray(item && item.ai_assisted_fields)
+      ? [...new Set(item.ai_assisted_fields.filter((x) => typeof x === 'string' && x))] : [];
+    if (!f.length) return '';
+    const names = f.map((x) => NAMES[x] || x.replace(/_/g, ' '));
+    const list = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+    return `<p class="detail-ai-note"><span class="ic ic-ai" aria-hidden="true"></span>`
+      + `<span>AI helped draft the ${escHtml(list)}. The seller kept that draft.</span></p>`;
+  }
+
   async function openDetailSheet(id) {
     const item = _listings.find(l => l.id === id);
     if (!item) return;
@@ -2989,7 +3092,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div style="display:flex;align-items:center;gap:0.4rem;">
                 <span class="review-author">${e(rv.reviewer_name)}</span>
                 ${rv.verified_purchase ? `<span class="badge-verified" style="font-size: 0.75rem;padding:0.1rem 0.4rem;"><span class="ic ic-check" aria-hidden="true"></span>Verified</span>` : ''}
-                <span class="stars" style="font-size:0.75rem;">${renderStars(rv.rating)}</span>
+                <span class="stars" style="font-size:0.75rem;" role="img" aria-label="${Math.round(Number(rv.rating) || 0)} out of 5 stars">${renderStars(rv.rating)}</span>
               </div>
               <span class="review-date">${e(timeAgo(rv.created_at))}</span>
             </div>
@@ -3012,7 +3115,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // moment the standing check was added.
         const { count } = await db.from('v_marketplace_inquiries_truth')
           .select('id', { count: 'exact', head: true })
-          .eq('listing_id', id).eq('buyer_name', WORKER_NAME);
+          .eq('listing_id', id).eq('from_me', true);
         _canReview = (count || 0) > 0;
       }
     } catch (_) { /* empty-catch-allow: best-effort — without standing we simply do not offer the form */ }
@@ -3087,6 +3190,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="cat-chip">${e(timeAgo(item.created_at))}</span>
         </div>
         <p class="detail-description">${e(item.description || 'No description provided.')}</p>
+        ${_aiDraftedNote(item)}
       </div>
 
       <div class="detail-section">
@@ -3388,7 +3492,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.body.style.overflow = '';
   }
   window.addEventListener('pageshow', function (e) { if (e.persisted) _releaseSheets(); });
-  window.addEventListener('popstate', _releaseSheets);
+  /* ★NO popstate RELEASE HERE (2026-10-12, W4791). Every sheet and overlay on this page is owned by
+     whModalA11y (wireSheetA11y below, and utils' whSheetA11y for each .sheet-overlay), which closes the TOP
+     sheet on Back through closeSheet. Stripping .open from every sheet on popstate closed both layers behind
+     its back, so each gave its history entry back as if closed by X - one Back then left the marketplace -
+     and it also closed a sheet opened in the same tap whenever a closing sheet gave its entry back. utils.js
+     releases anything nobody owns, a task after a real Back (__whSheetRelease). */
+
+  /* ★THE URL FOLLOWS THE SHEET ON EVERY ENTRY (2026-10-12, measured on the W4791 follow-through walk).
+     openDetailSheet writes ?listing= on the entry that is current when the detail opens, and the sheet then
+     gets an entry of its own. closeSheet('detail') drops the param from the CURRENT entry - but an X-close
+     hands the sheet's entry back, landing on the earlier one, which still named the listing: after closing
+     the detail the URL said ?listing=<id>, so a refresh reopened it and a share sent it. This listener only
+     reconciles the URL, it closes nothing, so it runs on every history move including a give-back
+     (wh-popstate-reconciler). */
+  window.addEventListener('popstate', function () {
+    setTimeout(function () {
+      if (document.getElementById('sheet-detail')?.classList.contains('open')) return;
+      try {
+        const u = new URL(location.href);
+        if (u.searchParams.has('listing')) { u.searchParams.delete('listing'); history.replaceState(history.state, '', u); }
+      } catch (_) { /* empty-catch-allow: the URL is a convenience; the sheet state is already right */ }
+    }, 0);
+  });
 
   function closeSheet(name) {
     document.getElementById('overlay-' + name)?.classList.remove('open');
@@ -3748,10 +3874,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const partNumber = (document.getElementById('post-part-number')?.value  || '').trim();
     const condition  = (document.getElementById('post-condition')?.value    || '').trim();
     if (!title && !partNumber) { showToast('Add a title or part number first, then AI can help.', 'error'); return; }
-    if (!HIVE_ID)              { whAuthRequiredToast('use AI assist'); return; }   // T1
+    // ★A SIGNED-IN SOLO OWNER WAS TOLD TO "SIGN IN" (LM-A walk, LM389, 2026-10-07): this guard read the hive, not
+    // the session. Only a person with no session is sent to sign in; a person with no hive is served on their own
+    // identity (marketplace-listing-assist rate-limits on the verified user id).
+    const { data: { session: _aiSess } } = await db.auth.getSession();
+    if (!_aiSess)              { whAuthRequiredToast('use AI assist'); return; }   // T1
 
     const prev = label ? label.textContent : '';
     btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.style.opacity = '0.6'; if (label) label.textContent = 'Thinking…';
+    // ★THE WAIT WAS ONLY ON THE BUTTON (LM-L walk, LM517, 2026-10-08): "Thinking…" replaced the button's label, which a
+    // screen reader does not announce. The hint under the button is a polite status; it says what is happening for the
+    // wait and goes back to its usual sentence after.
+    const _hint = document.getElementById('post-ai-assist-hint');
+    const _hintPrev = _hint ? _hint.textContent : '';
+    if (_hint) _hint.textContent = _t('AI is drafting a category and description from your title…', 'Gumagawa ang AI ng kategorya at paglalarawan mula sa pamagat mo…');
     try {
       /* Reuse the already-compressed photo (small payload) for a vision refine. */
       let imageDataUrl = '';
@@ -3761,31 +3897,53 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         catch (_) { /* empty-catch-allow: image optional, fall back to text-only */ }
       }
 
-      const body = { hive_id: HIVE_ID, section, title, part_number: partNumber, condition };
+      const body = { section, title, part_number: partNumber, condition };
+      if (HIVE_ID) body.hive_id = HIVE_ID;
       if (imageDataUrl && imageDataUrl.length <= 5 * 1024 * 1024) body.image_data_url = imageDataUrl;
 
       const { data, error } = await db.functions.invoke('marketplace-listing-assist', { body });
       if (error || !data || data.error) {
-        showToast((data && data.error) || _t('AI assist is busy right now. Fill the listing manually or try again shortly.', 'Busy ang AI assist ngayon. Punan ang listing nang manu-mano o subukan muli mamaya.'), 'error');
+        // "busy" was a cause nobody measured (a timeout, a 5xx or a refusal all landed here); the function's own
+        // sentence when it sent one, else the shared mapper, else a neutral fallback (LM517, 2026-10-08)
+        const _fallback = _t('AI assist could not answer just now. Fill the listing manually or try again shortly.', 'Hindi nakasagot ang AI assist ngayon. Punan ang listing nang manu-mano o subukan muli mamaya.');
+        let _why = (data && data.error) || '';
+        if (!_why && error) { try { _why = (typeof window.whFnError === 'function') ? await window.whFnError(error, _fallback) : ''; } catch (_e) { _why = ''; } }
+        showToast((_why && !/non-2xx/i.test(_why)) ? _why : _fallback, 'error');
         return;
       }
 
+      // ★NO MODEL ANSWERED (2026-10-12, W4580): the function says so now, and "No suggestion this time" would be a verdict
+      // nobody reached - say what happened, as the failure path above does.
+      if (data.answered === false) {
+        showToast(_t('AI assist could not answer just now. Fill the listing manually or try again shortly.', 'Hindi nakasagot ang AI assist ngayon. Punan ang listing nang manu-mano o subukan muli mamaya.'), 'error');
+        return;
+      }
+      // ★AN OBJECT WHERE THE DRAFT BELONGS WENT INTO THE SELLER'S FORM AS "[object Object]" (LM-S walk, LM207,
+      // 2026-10-07): a model that returned structured output for `description` was assigned to the textarea, which
+      // stringifies it. Only TEXT is a draft; anything else is treated as no suggestion.
+      const _sugDesc = (typeof data.description === 'string') ? data.description.trim() : '';
+      const _sugCat  = (typeof data.category === 'string') ? data.category.trim() : '';
       const filled = [];
       const catSel = document.getElementById('post-category');
-      if (data.category && catSel) {
+      if (_sugCat && catSel) {
         const opts = [...catSel.options].map(o => o.value);
-        if (opts.includes(data.category)) { catSel.value = data.category; filled.push('category'); }
+        if (opts.includes(_sugCat)) { catSel.value = _sugCat; filled.push('category'); }
       }
       const descEl = document.getElementById('post-desc');
-      if (data.description && descEl && !descEl.value.trim()) { descEl.value = data.description; filled.push('description'); }
+      if (_sugDesc && descEl && !descEl.value.trim()) { descEl.value = _sugDesc; filled.push('description'); }
 
+      // LM-A (2026-10-07): remember exactly what the AI put in the form, so the posted listing records which of its
+      // fields the AI drafted and the seller kept (marketplace_listings.ai_assisted_fields)
+      window._mktAiFilled = Object.assign(window._mktAiFilled || {},
+        filled.includes('description') ? { description: _sugDesc } : {}, filled.includes('category') ? { category: _sugCat } : {});
       if (filled.length)                                   showToast('AI filled ' + filled.join(' and ') + '. Review and edit before posting.', 'success');
-      else if (data.description && descEl && descEl.value.trim()) showToast('Category suggested. Your description was kept as is.', 'info');
+      else if (_sugDesc && descEl && descEl.value.trim()) showToast('Category suggested. Your description was kept as is.', 'info');
       else                                                 showToast('No suggestion this time. Please fill the listing manually.', 'info');
     } catch (_) {
       showToast(whAiError(_, _t('AI assist could not run. Please fill the listing manually.', 'Hindi tumakbo ang AI assist. Pakipunan ang listing nang manu-mano.')), 'error');
     } finally {
       btn.disabled = false; btn.removeAttribute('aria-busy'); btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
+      if (_hint) _hint.textContent = _hintPrev;
     }
   }
 
@@ -3931,7 +4089,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         completed_sales: 0,
         rating_avg:      null,
         part_number:              partNumber,     // X keystone: part identity (buyer search + reorder match)
-        source_inventory_item_id: sourceItemId    // X keystone: provenance when listed from inventory
+        source_inventory_item_id: sourceItemId,   // X keystone: provenance when listed from inventory
+        // ★WHICH WORDS THE AI WROTE (LM-A, LM332, 2026-10-07): the fields the listing assist filled that the seller
+        // kept unchanged - a buyer-facing description a model drafted was saved as if the seller typed it
+        ai_assisted_fields: Object.entries(window._mktAiFilled || {})
+          .filter(([k, v]) => v && String(k === 'description' ? desc : category || '').trim() === String(v).trim())
+          .map(([k]) => k)
       }]);
       if (error) throw error;
 
@@ -3941,6 +4104,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast('✓ Listing submitted for review → in your Seller dashboard now · goes live to buyers in the Marketplace once approved', 'success');
       closeSheet('post');
       document.getElementById('form-post')?.reset();
+      window._mktAiFilled = {};
       document.querySelectorAll('.section-toggle-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
       const hiddenSec = document.getElementById('post-section');
       if (hiddenSec) hiddenSec.value = 'parts';
@@ -4101,7 +4265,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const mine = (mineRes.data || []).filter(r => r.client_auth_uid === _authUid);
       const badge = document.getElementById('count-services');
       // A badge must not assert a count from a read that failed — the stale-count class again.
-      if (badge) badge.textContent = partial.mine ? '—' : String(mine.filter(r => SVC_OPEN.includes(r.status)).length);
+      if (badge) {
+        const _openN = String(mine.filter(r => SVC_OPEN.includes(r.status)).length);
+        if (partial.mine && typeof whStatUnknown === 'function') whStatUnknown(badge, _t('count', 'bilang'));
+        else if (!partial.mine && typeof whStatValue === 'function') whStatValue(badge, _openN);
+        else badge.textContent = partial.mine ? '—' : _openN;
+      }
       renderClientServices(pane, cats, mine, partial);
       // The client's chip must keep up with the provider (2026-07-30, found by the two-context walk
       // TB-SJ07-ui-the-watcher-sees-the-job-advance). The tracker map already polls every 10s, so on a
@@ -4127,7 +4296,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // The pane says it could not load; the TAB BADGE beside it must not keep asserting a count
       // from an earlier read. A number that outlives the data behind it is the stale-count class.
       const badgeErr = document.getElementById('count-services');
-      if (badgeErr) badgeErr.textContent = '—';
+      if (badgeErr) { if (typeof whStatUnknown === 'function') whStatUnknown(badgeErr, _t('count', 'bilang')); else badgeErr.textContent = '—'; }
     }
   }
 
@@ -4136,7 +4305,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      depends on nothing the catalogue read provides, which is exactly why it can still be offered
      when that read fails: describing a job in words needs no rate card. */
   function _svcQuoteFormHtml(e) {
-    return '<div class="simple-card list-row" style="margin-top:0.8rem;padding:0.9rem 1rem;">' +
+    return '<div class="simple-card list-row" style="margin-top:0.8rem;">' +
       '<strong>Bigger or unusual job?</strong>' +
       '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Describe it' +
       '<textarea id="svc-quote-scope" aria-label="Describe the job" rows="3" maxlength="600" placeholder="e.g. Rewind or replace a 75kW motor, bearing noise, need insulation test" style="' + _svcInputC + 'resize:vertical;"></textarea></label>' +
@@ -4181,7 +4350,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          into a handler string. */
       mine.forEach(r => {
         _svcPayTo[r.id] = { name: r.provider_name || '', contact: r.provider_contact || '' };
-        html += '<div class="simple-card list-row" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+        html += '<div class="simple-card list-row" style="margin-bottom:0.6rem;">' +
           '<strong>' + e(r.catalog_name || r.custom_scope || 'Service request') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0.4rem;">' + e(SVC_CHIP[r.status] || r.status) +
           (r.provider_name ? ' · ' + e(r.provider_name) + (r.provider_contact ? ' (' + e(r.provider_contact) + ')' : '') : '') +
@@ -4196,8 +4365,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               '<button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' +
               '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="reportaproblem">Report a problem</button>' : '') +
           (['completed', 'settled'].includes(r.status)
-            ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="rateprovider">Rate provider</button>' +
-              '<span style="display:inline-flex;gap:0.3rem;align-items:center;flex-wrap:wrap;"><input id="svc-vcode-' + e(r.id) + '" type="text" maxlength="24" placeholder="Voucher code" aria-label="Voucher code for ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;"><button type="button" onclick="svcApplyVoucher(\'' + e(r.id) + '\')" aria-label="Apply voucher to ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + '" data-i="apply">Apply</button></span>' : '') +
+            ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="rateprovider">Rate provider</button>' : '') +
           (SVC_OPEN.slice(0, 5).includes(r.status)
             ? '<button type="button" onclick="svcClientCancel(\'' + e(r.id) + '\')" style="' + _svcGhostC + '" data-i="cancelrequest">Cancel request</button>' : '') +
           '</div>';
@@ -4220,7 +4388,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Filled async by svcLoadPresence(); stays silent when nobody is online rather than printing a
     // discouraging zero.
     html += '<div id="svc-presence" style="margin:0 0 0.5rem;"></div>';
-    html += '<div class="simple-card list-row" style="padding:0.9rem 1rem;">' +
+    html += '<div class="simple-card list-row">' +
       '<label style="display:block;font-size:0.8rem;font-weight:600;">What do you need?' +
       '<select id="svc-hail-item" aria-label="Which service do you need" style="' + _svcInputC + '">' +
       '<option value="">Choose a service…</option>' +
@@ -4456,7 +4624,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return 'Too many requests' + tail + '. Try again in ' + (secs ? secs[1] + ' seconds' : 'a moment') + '.';
     }
     if (/failed to fetch|network|load failed/i.test(msg)) {
-      return 'Couldn\'t reach WorkHive' + tail + '. Check your connection and try again.';
+      return (navigator.onLine === false)
+        ? 'You are offline' + tail + '. Try again when your connection is back.'
+        : 'Couldn\'t reach WorkHive' + tail + '. Try again in a moment.';
     }
     /* THE FALLBACK WAS RETURNING THE SERVER'S OWN WORDS. Measured 2026-08-05: a 500 on the services
        read rendered "Couldn't load your service requests. The rest of this page is still live."
@@ -4469,6 +4639,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        carrying prose rather than PostgREST's stock grant text. Everything else is machinery, and
        machinery goes to the console where it is still diagnosable. Same rule the moderation console
        got today, from the opposite direction. */
+    /* ★"SOMETHING WENT WRONG" FOR AN OUTAGE (2026-10-06, marketplace x assistive-tech, PostgREST stopped). The gateway
+       answered 503 "name resolution failed" and this fell to the generic line, so the services pane told a buyer only
+       that something, somewhere, had gone wrong. A 5xx or an unreachable upstream has one true sentence: WorkHive did
+       not answer - and that sentence carries the one useful instruction, which is to wait. */
+    const _st5 = Number((error && (error.status || error._httpStatus)) || 0);
+    if ((_st5 >= 500 && _st5 <= 504) || /name resolution|service unavailable|bad gateway|gateway time|timed? ?out/i.test(msg)) {
+      return (navigator.onLine === false)
+        ? 'You are offline' + tail + '. Try again when your connection is back.'
+        : _t('WorkHive did not answer', 'Hindi sumagot ang WorkHive') + tail + '. ' + _t('Try again in a moment.', 'Subukan muli maya-maya.');
+    }
     const _authored = (code === '23514' || code === 'P0001'
       || (code === '42501' && msg && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)));
     if (_authored && msg && msg.length < 300) return msg;
@@ -4996,25 +5176,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     loadClientServices();
   }
 
-  /* P6b (D7/D8): voucher redemption on a finished job - the RPC enforces everything
-     (own party, completed, limits); the provider gets the discount reimbursed as credits. */
-  async function svcApplyVoucher(requestId) {
-    const code = ((document.getElementById('svc-vcode-' + requestId) || {}).value || '').trim();
-    if (!code) { showToast('Enter your voucher code first'); return; }
-    if (!svcRequireOnline('Applying a voucher')) return;
-    const { data, error } = await db.rpc('redeem_service_voucher', { p_code: code, p_request_id: requestId });
-    if (error) { showToast(_svcWriteError(error), 'error'); return; }
-    if (data && data.redeemed) {
-      showToast('Voucher applied: ₱' + Number(data.discount).toLocaleString() + ' off. Pay the provider the discounted amount; the platform covers the rest.');
-    } else {
-      const why = { unknown_or_inactive_code: 'That code isn\'t active', expired: 'That voucher has expired',
-        job_not_completed: 'Vouchers apply once the job is completed', wrong_segment: 'That voucher is for a different service type',
-        fully_used: 'That voucher is fully used up', limit_reached: 'You\'ve already used this voucher',
-        already_redeemed_on_this_job: 'A voucher is already applied to this job' }[(data && data.reason) || ''] || 'Couldn\'t apply that voucher';
-      showToast(why);
-    }
-  }
-  window.svcApplyVoucher = svcApplyVoucher;
+  /* ★A VOUCHER FIELD FOR A RETIRED RPC (2026-10-08, UI-write recipes): redeem_service_voucher only answers
+     {ok:false, reason:'Vouchers are retired...'} and writes nothing, yet every completed job still showed a
+     voucher field and an Apply button - a control that could only fail. Both, and this handler, are gone. */
 
   /* P7: AI triage through the ONE front door (ai-gateway agent 'service-triage',
      the coach-fold pattern). The suggestion APPLIES to the composers: urgency select,
@@ -5138,7 +5302,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // rather than printing a negative countdown.
     if (msLeft <= 0) return 'Marked done. This job settles automatically now unless you report a problem.';
     const days = Math.ceil(msLeft / 86400000);
-    const when = d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+    const when = d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' });
     return 'Marked done by the provider. Confirm payment, or report a problem by ' + when
          + ' (' + days + ' day' + (days === 1 ? '' : 's') + ' left). After that it settles automatically.';
   }
@@ -5307,6 +5471,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     el/* xss-allow: static strings only, no interpolated data */ .innerHTML = renderSourceChip(svc ? {
       freshness: 'Live · refreshed on each tab switch',
       source:    'service_requests + service_providers + v_service_area_presence',
+      // half yours, half not - so the words say which (see renderSourceChip's 2026-10-06 note on "your")
+      possessive: false,
+      sourceLabel: 'your own hails and the providers near you',
       notes:     [
         'Your own hails, and providers currently online near you',
         'You pay the provider directly; WorkHive handles no payment',
@@ -5314,6 +5481,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } : {
       freshness: 'Live · refreshed on each tab switch',
       source:    'marketplace_listings + v_marketplace_sellers_truth',
+      // not "your": a buyer is browsing OTHER sellers' listings (see renderSourceChip's 2026-10-06 note)
+      possessive: false,
+      sourceLabel: 'listings from sellers across WorkHive',
       notes:     [
         'Tabs: Parts / Training / Jobs',
         /* THE CHIP CLAIMED A FILTER THAT DOES NOT EXIST. It read "ID-verified sellers only in results
@@ -5330,6 +5500,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         'Free, contact-only: no platform fees',
       ],
     });
+    // ★THE CHIP SAID "LIVE" AT EVERY TAB SWITCH DURING AN OUTAGE (2026-10-06, marketplace x assistive-tech, PostgREST
+    // stopped). This re-render paints the static 'Live · refreshed on each tab switch' clause into a role=status chip;
+    // the shared settle pass rewrites it to 'Read failed' - but only on its own debounce, so a screen reader heard "Live"
+    // and then "Read failed", and after the settle observer's 90s window a later tab switch left "Live" standing. While a
+    // read failure is still unresolved, settle the chip in the same tick it is painted.
+    try {
+      const _failing = window._whConnFailedSvcs && Object.keys(window._whConnFailedSvcs).length > 0;
+      if (_failing && typeof window._whSettleStuckLoaders === 'function') window._whSettleStuckLoaders();
+    } catch (_) { /* empty-catch-allow: the settle observer still corrects it */ }
   }
 
   function _setListingsChrome(show) {
@@ -5464,7 +5643,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         try {
           const { data } = await db
             .from('v_marketplace_listings_public')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
             .eq('id', payload.new.id)
             .eq('status', 'published')
             .eq('section', _section)
@@ -5685,7 +5864,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_listings.some(l => l.id === lid)) {
         try {
           const { data: one } = await db.from('v_marketplace_listings_public')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
             .eq('id', lid).eq('status', 'published').maybeSingle();
           if (one) _listings.push(one);
         } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
@@ -5732,16 +5911,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const deepListing = new URLSearchParams(window.location.search).get('listing');
       if (deepListing) {
+        let _dlErr = null;
         if (!_listings.some(l => l.id === deepListing)) {
-          const { data: one } = await db
+          const { data: one, error: _oneErr } = await db
             .from('v_marketplace_listings_public')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
             .eq('id', deepListing)
             .eq('status', 'published')
             .maybeSingle();
+          _dlErr = _oneErr || null;
           if (one) _listings.push(one);
         }
-        openDetailSheet(deepListing);
+        // ★A SHARED LINK TO A LISTING THAT IS GONE OPENED NOTHING AND SAID NOTHING (2026-10-06, marketplace x adversary,
+        // layer F). A sold, removed or mistyped ?listing= left the person on the catalogue with no word that the thing
+        // they were sent to see is not there - they scroll looking for it. A malformed id (22P02) is "not found" too;
+        // only a real failure to read is reported as one.
+        if (!_listings.some(l => l.id === deepListing)) {
+          const _malformed = _dlErr && /22P02|invalid input syntax/i.test(String(_dlErr.code || '') + ' ' + String(_dlErr.message || ''));
+          if (typeof showToast === 'function') {
+            showToast((_dlErr && !_malformed)
+              ? _t('That listing could not be loaded - WorkHive did not answer.', 'Hindi ma-load ang listing - hindi sumagot ang WorkHive.')
+              : _t('That listing is gone - sold or taken down.', 'Wala na ang listing - naibenta o tinanggal.'),
+              (_dlErr && !_malformed) ? 'error' : 'info');
+          }
+        } else {
+          openDetailSheet(deepListing);
+        }
       }
     } catch (_) { /* empty-catch-allow: best-effort deep-link; list view still renders */ }
 

@@ -32,6 +32,28 @@ PAIR_RE = re.compile(r"_t\(\s*'((?:[^'\\]|\\.)*)'\s*,\s*'((?:[^'\\]|\\.)*)'\s*\)
 # shapes that legitimately read the same in EN and FIL
 EXEMPT_RE = re.compile(r"^[A-Z0-9 %./:+&()\-]*$")
 
+# ★THE DELIBERATE SAME-IN-BOTH STRINGS, EACH WITH ITS REASON (2026-10-05). The baseline file carried the count
+# "4" plus a prose note naming them, which means the gate could not tell a reviewed exception from new debt: any
+# string that happened to be identical was indistinguishable from an EN-only regression, and the number alone
+# gave a reader no way to check. EXEMPT_RE cannot carry these either - it is a SHAPE test (short, or all-caps),
+# and "thumbs up" is lowercase prose that is nonetheless the same word in both languages.
+# A string earns a place here only when a Filipino speaker would actually say the English - a gesture name, an
+# industrial loanword, a product name, a unit label - never because translating it is inconvenient. Anything
+# else is debt and must be translated; the ratchet below still counts it.
+DELIBERATE = {
+    # reviewed at the 2026-08-26 baseline, now machine-readable instead of a sentence in the baseline file
+    "Avg DT": "an abbreviation on a dense KPI tile; spelled out it no longer fits the column",
+    "rows": "a unit label sitting beside a product noun ('12 rows'); Filipino UI keeps it",
+    "hives": "the product's own noun, pluralised - 'hive' is never translated anywhere in this platform",
+    "Shift": "PH-workplace Taglish norm: crews say 'shift', not 'turno', when naming the roster slot",
+    # added 2026-10-05, each checked at its call site rather than assumed from the string
+    "thumbs up": "the GESTURE's name, beside a literal thumbs-up emoji in a feedback counter; PH usage keeps it",
+    "thumbs down": "same gesture pair as above",
+    "WorkHive Analytics AI": "a product name - translating it would name a thing that does not exist",
+    "Min / Reorder": "stock-control column header; 'reorder point' is the term PH storerooms actually use",
+    "Shutdown / Turnaround": "PH plant jargon for the planned-outage window; both words are used untranslated",
+}
+
 
 def scan() -> list[tuple[str, str]]:
     hits = []
@@ -43,7 +65,7 @@ def scan() -> list[tuple[str, str]]:
             continue
         for m in PAIR_RE.finditer(s):
             en, fil = m.group(1), m.group(2)
-            if en == fil and len(en) > 3 and not EXEMPT_RE.fullmatch(en):
+            if en == fil and len(en) > 3 and not EXEMPT_RE.fullmatch(en) and en not in DELIBERATE:
                 hits.append((Path(f).name, en))
     return hits
 
@@ -56,6 +78,11 @@ def main() -> int:
         per_file[f] = per_file.get(f, 0) + 1
     for f, n in sorted(per_file.items(), key=lambda kv: -kv[1])[:12]:
         print(f"  {f}: {n}")
+    # ★AN EXCLUSION THAT IS NOT PRINTED IS AN EXCLUSION NOBODY REVIEWS. Say how many were waved through and why
+    # they are allowed to be, every run, so the allow-list stays an argument rather than a hiding place.
+    print(f"  {len(DELIBERATE)} string(s) deliberately same-in-both (gesture names, PH loanwords, product "
+          f"names, unit labels) - each with its reason in tools/validate_fil_parity.py: "
+          f"{', '.join(sorted(DELIBERATE)[:5])}...")
     if BASELINE.exists():
         base = json.loads(BASELINE.read_text(encoding="utf-8")).get("count", 0)
     else:

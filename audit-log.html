@@ -224,8 +224,17 @@
       text-decoration: none; font-size: .82rem; font-weight: 700;
     }
 
+    /* ★THE AUDIT LOG HID ITS "WHEN" ON EVERY PHONE (2026-10-06, audit-log x assistive-tech, layer D). This rule
+       read `.entry-time { display: none; }`, presumably to stop the head crowding at narrow width. Measured
+       at a true 390: eight entries, four of them reading "LEANDRO MARQUEZ · new device · Leandro Marquez
+       (Worker Profile)" and nothing else - identical sentences with no way to tell them apart, on the one
+       page whose own heading says it is "on the record" for "compliance checks". display:none also removes
+       the time from the accessibility tree, so a screen reader heard the same row four times; and the
+       expanded details carry the meta fields, not the time, so there was no second place to find it.
+       .entry-head already wraps, so the time takes its own line under the actor and action instead of
+       leaving: the crowding the rule avoided is solved by wrapping, not by deleting the fact. */
     @media (max-width: 480px) {
-      .entry-time { display: none; }
+      .entry-time { flex-basis: 100%; margin-left: 0; }
       .filter-summary { width: 100%; margin-left: 0; }
     }
     /* T124 (2026-08-26) - THE PRINTABLE SET, decided by what a plant actually carries on paper:
@@ -347,7 +356,7 @@
         <datalist id="action-filter-options"></datalist>
         <input id="target-filter" list="target-filter-options" type="text" class="filter-select" aria-label="Filter by target type" data-ia="al_ia_target" placeholder="All targets" data-ip="al_ip_target" autocomplete="off" />
         <datalist id="target-filter-options"></datalist>
-        <input id="search-input" class="filter-input" type="search" placeholder="Search target name or actor..." data-ip="al_ip_search" aria-label="Search audit entries" data-ia="al_ia_search" />
+        <input id="search-input" class="filter-input" type="search" placeholder="Search a name…" data-ip="al_ip_search" aria-label="Search audit entries" data-ia="al_ia_search" />
       </div>
       <div class="filter-row">
         <div class="filter-actions">
@@ -817,6 +826,21 @@
   // it is best-effort: if it fails the dropdowns fall back to the capped set rather than emptying,
   // because a short list beats no list.
   async function fetchFilterVocab() {
+    // ★THE "LIGHT" PASS WAS THE PAGE'S HEAVIEST WORK (critique, 2026-10-13). Paging the whole trail meant 58 sequential
+    // requests and 28,609 rows to the phone on the Baguio hive - for 7 actors, 29 actions and 14 target types - and it
+    // grows every day the hive runs. audit_filter_vocab() returns the same complete vocabulary in ONE request, computed
+    // where the rows are, under the same RLS (migration 20261013000002). The paged read below stays as the fallback.
+    try {
+      const { data, error } = await db.rpc('audit_filter_vocab', { p_hive_id: HIVE_ID });
+      if (!error && data) {
+        const v = {
+          actors:  (data.actors  || []).slice().sort(),
+          actions: (data.actions || []).slice().sort(),
+          targets: (data.targets || []).slice().sort(),
+        };
+        if (v.actors.length || v.actions.length || v.targets.length) return v;
+      }
+    } catch (_) { /* empty-catch-allow: fall back to the paged read below */ }
     const PAGE = 500;
     const actors = new Set(), actions = new Set(), targets = new Set();
     try {
@@ -879,18 +903,25 @@
     const targets = (_filterVocab && _filterVocab.targets)
       || Array.from(new Set(_entries.map(e => e.target_type).filter(Boolean))).sort();
 
-    function fillSelect(id, items) {
+    function fillSelect(id, items, labelOf) {
       // Populate the <datalist> for a filter combobox. The <input> keeps its OWN value across
       // re-renders (we NEVER set it here — doing so would clobber active typing); only the option
       // list is refreshed. Items are data-derived, so build via createElement (XSS-safe via .value).
       const dl = document.getElementById(id + '-options');
       if (!dl) return;
       dl.innerHTML = '';
-      for (const v of items) { const o = document.createElement('option'); o.value = v; dl.appendChild(o); }
+      for (const v of items) {
+        const o = document.createElement('option'); o.value = v;
+        // The rows say "new device" and "(Worker Profile)"; the filter offered "new_device" and "worker_profiles"
+        // (critique, 2026-10-13). The value stays the stored identifier - the match, the URL and the saved filter
+        // all compare on it - and the label carries the rows' own words beside it in the suggestion list.
+        if (labelOf) { const l = labelOf(v); if (l && l !== v) o.label = l; }
+        dl.appendChild(o);
+      }
     }
     fillSelect('actor-filter',  actors);
-    fillSelect('action-filter', actions);
-    fillSelect('target-filter', targets);
+    fillSelect('action-filter', actions, (v) => String(v).replace(/_/g, ' '));
+    fillSelect('target-filter', targets, humanizeTargetType);
   }
 
   function applyFilters() {
@@ -984,6 +1015,8 @@
       // dropped from the scannable row and surfaced in Show-details instead, so the
       // audit trail stays complete without a "58f0bf52-…" wall in the feed.
       const nameIsUuid = !!(en.target_name && UUID_RE.test(en.target_name));
+      const isSelf = !!(en.target_name && en.actor && en.target_type === 'worker_profiles'
+                        && en.target_name.trim().toLowerCase() === en.actor.trim().toLowerCase());
       const detail = Object.assign({}, meta || {}, nameIsUuid ? { id: en.target_id || en.target_name } : {});
       const hasDetail = Object.keys(detail).length > 0;
 
@@ -997,8 +1030,12 @@
            +     '<div class="entry-head">'
            +       '<span class="entry-actor">' + e(en.actor || 'unknown') + '</span>'
            +       '<span class="entry-action">' + e(prettyAction) + '</span>'
-           +       (en.target_name && !nameIsUuid ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
-           +       (en.target_type ? '<span class="entry-target-type">(' + e(humanizeTargetType(en.target_type)) + ')</span>' : '')
+           /* An entry about the actor THEMSELF named them twice: "CHRISTINE DIZON · new device · Christine Dizon
+              (Worker Profile)" (critique, 2026-10-13) - the eye reads two people where there is one. The target
+              collapses to "(own profile)" when it is the actor; the record keeps both fields and Show details. */
+           +       (isSelf ? '<span class="entry-target-type">(own profile)</span>'
+                     : ((en.target_name && !nameIsUuid ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
+                      + (en.target_type ? '<span class="entry-target-type">(' + e(humanizeTargetType(en.target_type)) + ')</span>' : '')))
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'
            +     (hasDetail
@@ -1134,7 +1171,7 @@
     const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    const stamp = new Date().toISOString().slice(0, 10);
+    const stamp = whManilaYmd();
     a.href = url;
     a.download = 'audit-log-' + (HIVE_NAME || 'hive').replace(/[^A-Za-z0-9_-]/g, '_') + '-' + stamp + '.csv';
     document.body.appendChild(a); a.click();

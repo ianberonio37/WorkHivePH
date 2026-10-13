@@ -29,7 +29,7 @@ Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](ht
 
 ## Overview of RA 11285
 
-The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, consuming more than 500,000 kWh a year, is a DOE Designated Establishment and must comply - Type 1 below 4 million kWh a year, Type 2 at or above it. Conducting an energy audit is a crucial step in identifying areas for improvement.
+The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, consuming more than 500,000 kWh a year, is a DOE Designated Establishment and must comply - Type 1 below 4 million kWh a year, Type 2 at or above it.
 
 The law's purpose is to reduce energy consumption and greenhouse gas emissions. It applies to establishments that use a significant amount of energy, such as industrial plants, commercial buildings, and government institutions. In the Philippines, a shift in-charge at a plant in Pampanga, working a rotating shift, may be responsible for monitoring energy usage and reporting any issues to the plant supervisor. Failure to comply carries penalties that scale with the size of the establishment and with whether the lapse is repeated.
 
@@ -133,4 +133,4 @@ The WorkHive Audit Log captures the energy-related ACTIONS: a reading recorded, 
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 9fab196cd8f5a9e7 -->
+<!-- md-twin source-sha: f51e9137cc86e579 -->

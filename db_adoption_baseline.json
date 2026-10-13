@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-09-29T01:34:47.842132+00:00",
-  "surfaces": 244,
+  "generated": "2026-10-13T10:16:58.260248+00:00",
+  "surfaces": 245,
   "rows": [
     {
       "id": "D1",
@@ -256,9 +256,9 @@
       "name": "auth_uid ownership policy",
       "satisfies": "write attribution",
       "mode": "measured",
-      "adopters_n": 32,
-      "need_n": 34,
-      "pct": 94,
+      "adopters_n": 37,
+      "need_n": 42,
+      "pct": 88,
       "adopters": [
         "agent_memory",
         "ai_reply_feedback",
@@ -268,6 +268,7 @@
         "avatar_state",
         "client_errors",
         "community_posts",
+        "community_reactions",
         "community_replies",
         "data_deletion_requests",
         "engineering_calcs",
@@ -275,7 +276,11 @@
         "inventory_items",
         "inventory_transactions",
         "logbook",
+        "marketplace_listings",
+        "marketplace_platform_admins",
+        "marketplace_saved_searches",
         "marketplace_sellers",
+        "marketplace_watchlist",
         "platform_feedback",
         "pm_assets",
         "pm_completions",
@@ -294,8 +299,11 @@
         "worker_profiles"
       ],
       "gap": [
+        "ai_cost_log",
         "credit_starter_grants",
-        "embedding_outbox"
+        "embedding_outbox",
+        "fault_knowledge",
+        "worker_known_devices"
       ]
     },
     {
@@ -384,7 +392,7 @@
       "name": "bind_* attribution triggers",
       "satisfies": "attribution pin",
       "mode": "census-only",
-      "adopters_n": 15,
+      "adopters_n": 23,
       "adopters": [
         "analytics_events",
         "asset_nodes",
@@ -394,6 +402,14 @@
         "engineering_calcs",
         "inventory_items",
         "logbook",
+        "marketplace_disputes",
+        "marketplace_inquiries",
+        "marketplace_listings",
+        "marketplace_orders",
+        "marketplace_platform_admins",
+        "marketplace_reviews",
+        "marketplace_saved_searches",
+        "marketplace_watchlist",
         "parts_records",
         "platform_feedback",
         "pm_assets",
@@ -407,7 +423,7 @@
   "floors": {
     "D1": 112,
     "D2": 106,
-    "D3": 32,
+    "D3": 37,
     "D4": 59
   }
 }

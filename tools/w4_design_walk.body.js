@@ -21,11 +21,16 @@ async (mcpPage) => {
     try { await page.close(); } catch (e) { void e; }
   }
   async function walkOn(page) {
+  // ★A BATCH ROW'S ARGS ARE WHOLE (2026-10-12, the action walker's 2026-10-08 lesson): merging the single-walk file
+  // UNDER injected args let a signed-out row inherit the last walk's user/pass. The file is read only when no loader
+  // injected args.
   let P = globalThis.__W4 || {};
-  try {
-    const ar = await page.request.get('http://localhost:5000/workhive/.tmp/w4_args.json', { timeout: 5000 });
-    if (ar.ok()) P = Object.assign({}, await ar.json(), P);
-  } catch (e) { void e; }
+  if (!globalThis.__W4) {
+    try {
+      const ar = await page.request.get('http://localhost:5000/workhive/.tmp/w4_args.json', { timeout: 5000 });
+      if (ar.ok()) P = Object.assign({}, await ar.json(), P);
+    } catch (e) { void e; }
+  }
   const origin = P.origin || 'http://localhost:5000/workhive';
   const LANG = P.lang || 'en';
   const VPS = [{ name: 'phone-390', w: 390, h: 844 }, { name: 'desktop-1280', w: 1280, h: 800 }];
@@ -41,11 +46,87 @@ async (mcpPage) => {
     }
   } catch (e) { void e; }
   try { if (typeof page.unrouteAll === 'function') await page.unrouteAll({ behavior: 'ignoreErrors' }); } catch (e) { void e; }
+  // ★NO LIVE MODEL CALL BY ARRIVING (2026-10-07): shift-brain's first open of a shift calls shift-planner-orchestrator,
+  // an LLM briefing. A CONTEXT route (survives the unrouteAll above), once per context; see w4_navhub_walk.body.js.
+  // ★THE PLANNER STUB CAME OFF (2026-10-12, UFAI edge walk W4785): every walk sends x-wh-walk-no-model and the planner
+  // honours it (the counts-only briefing, no model), so its fake 503 only kept the planner's own row from being walked.
+  // A context an older walk body stubbed is cleared here.
+  try { const _c = page.context(); if (_c.__whModelStub) { await _c.unroute('**/functions/v1/shift-planner-orchestrator**').catch(() => {}); _c.__whModelStub = null; } } catch (e) { void e; }
+  // NO MODEL CALL FROM ANY WALK, ON ANY PAGE - the action walker's route (2026-10-09), once per context: every edge
+  // call carries x-wh-walk-no-model: 1, which ONLY the local runtime honours (_shared/observability.ts).
+  try {
+    const _c = page.context();
+    if (!_c.__whNoModel) {
+      _c.__whNoModel = (r) => { const q = r.request(); return q.method() === 'OPTIONS' ? r.fallback() : r.fallback({ headers: Object.assign({}, q.headers(), { 'x-wh-walk-no-model': '1' }) }); };
+      await _c.route('**/functions/v1/**', _c.__whNoModel);
+    }
+  } catch (e) { void e; }
 
-  const read = () => page.evaluate(() => ({ url: location.pathname.split('/').pop(), worker: localStorage.getItem('wh_last_worker'), lang: document.documentElement.lang, chars: (document.body.innerText || '').replace(/\s+/g, ' ').trim().length }));
+  // a read can land between two documents (a signed-in visitor sent to ?signin=1 is navigated straight on): no body yet,
+  // or the context destroyed mid-evaluate - so it waits for the next document instead of failing the walk (2026-10-13)
+  const read1 = () => page.evaluate(() => ({ url: location.pathname.split('/').pop(), worker: localStorage.getItem('wh_last_worker'), lang: document.documentElement.lang, chars: ((document.body && document.body.innerText) || '').replace(/\s+/g, ' ').trim().length }));
+  const read = async () => {
+    for (let i = 0; ; i++) {
+      try { return await read1(); } catch (e) {
+        if (i >= 4) throw e;
+        await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {}); await page.waitForTimeout(800);
+      }
+    }
+  };
   const A = async (step) => page.evaluate((s) => { if (!window.__W4_AUDIT) return { step: s, error: 'audit not installed', findings: 0 }; const r = window.__W4_AUDIT(null, { step: s }); return Object.assign({ step: s }, r); }, step);
   const compact = (f) => f ? { findings: f.findings || 0, occlusion: (f.occlusion || []).slice(0, 4), overflowEl: (f.overflowEl || []).slice(0, 2), wrapped: (f.wrapped || []).slice(0, 2), outside: (f.outside || []).slice(0, 2), error: f.error } : { findings: 0 };
   // the live measures every lens reads from the RENDERED page (the detector reads the source; this reads the eyes)
+  // ★THEMING IS READ FROM WHAT IS PAINTED, NOT FROM HEX IN SOURCE (2026-10-13). Two audit receipts scored theming on
+  // "103 raw hex values remain", and 69% of those were var(--token, #fallback) pairs - the robust pattern, counted as
+  // drift ([[feedback_the_raw_hex_count_was_mostly_correct_code]]). This reads every colour the page actually paints
+  // on a visible element - text, background, each drawn border - and classifies it against the brand tokens in
+  // tokens.css (resolved through their var() references): ON a token (same RGB, any alpha - a 0.18 orange wash is still
+  // the orange), NEUTRAL (white / black at any alpha), or OFF, with the off colours named and an element for each.
+  // The token list is fetched by the walker, not read from the page, because the public pages do not load tokens.css.
+  const TOKENS = await (async () => {
+    try {
+      const t = await (await page.request.get(`${origin}/tokens.css`, { timeout: 5000 })).text();
+      const raw = {};
+      for (const mm of t.matchAll(/(--wh-[\w-]+)\s*:\s*([^;]+);/g)) if (!(mm[1] in raw)) raw[mm[1]] = mm[2].trim();
+      const res = (v, d = 0) => (d > 6 ? v : v.replace(/var\((--[\w-]+)(?:\s*,\s*([^)]+))?\)/g, (_, n, f) => (raw[n] ? res(raw[n], d + 1) : (f || ''))));
+      return Object.entries(raw).map(([k, v]) => [k, res(v)]).filter(([, v]) => /^(#[0-9a-f]{3,8}|rgba?\(|hsla?\()/i.test(v));
+    } catch (e) { return []; }
+  })();
+  const themeRead = () => page.evaluate((toks) => {
+    const probe = document.createElement('i'); probe.style.display = 'none'; document.body.appendChild(probe);
+    const rgb = (v) => { probe.style.color = ''; probe.style.color = v; const m = getComputedStyle(probe).color.match(/[\d.]+/g); return m ? m.map(Number) : null; };
+    const tokenOf = new Map();
+    for (const [n, v] of toks) { const c = rgb(v); if (c) { const k = c.slice(0, 3).join(','); if (!tokenOf.has(k)) tokenOf.set(k, n); } }
+    probe.remove();
+    const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0; };
+    const seen = new Map();   // rgb key -> { reads, cls, token, el }
+    let reads = 0;
+    const take = (val, el) => {
+      const m = String(val).match(/[\d.]+/g); if (!m || m.length < 3) return;
+      const a = m.length > 3 ? +m[3] : 1; if (a === 0) return;
+      const k = m.slice(0, 3).map((x) => Math.round(+x)).join(',');
+      reads++;
+      if (!seen.has(k)) {
+        const cls = tokenOf.has(k) ? 'on' : (k === '255,255,255' || k === '0,0,0') ? 'neutral' : 'off';
+        seen.set(k, { reads: 0, cls, token: tokenOf.get(k) || '', el: el.tagName.toLowerCase() + (el.id ? '#' + el.id : (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/)[0] : '')) });
+      }
+      seen.get(k).reads++;
+    };
+    for (const e of document.querySelectorAll('body *')) {
+      if (/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(e.tagName) || !vis(e)) continue;
+      const cs = getComputedStyle(e);
+      if ([...e.childNodes].some((n) => n.nodeType === 3 && n.nodeValue.trim())) take(cs.color, e);
+      take(cs.backgroundColor, e);
+      for (const s of ['Top', 'Right', 'Bottom', 'Left']) if (parseFloat(cs['border' + s + 'Width']) > 0 && cs['border' + s + 'Style'] !== 'none') take(cs['border' + s + 'Color'], e);
+    }
+    const by = (c) => [...seen.entries()].filter(([, v]) => v.cls === c);
+    const off = by('off').sort((x, y) => y[1].reads - x[1].reads);
+    const hex = (k) => '#' + k.split(',').map((x) => (+x).toString(16).padStart(2, '0')).join('');
+    return { tokens: tokenOf.size, reads, distinct: seen.size, on: by('on').length, neutral: by('neutral').length, off: off.length,
+      offReads: off.reduce((a, [, v]) => a + v.reads, 0),
+      offSample: off.slice(0, 6).map(([k, v]) => `${hex(k)} x${v.reads} ${v.el}`),
+      onSample: by('on').sort((x, y) => y[1].reads - x[1].reads).slice(0, 4).map(([, v]) => `${v.token} x${v.reads}`) };
+  }, TOKENS);
   const measure = () => page.evaluate(() => {
     const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none'; };
     const texts = []; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let n;
@@ -55,6 +136,22 @@ async (mcpPage) => {
     const small = ctl.filter((e) => { const r = e.getBoundingClientRect(); return r.width < 44 || r.height < 44; });
     const all = [...document.querySelectorAll('body *')].filter(vis);
     const motion = []; for (const e of all) { const cs = getComputedStyle(e); const slow = (cs.transitionDuration || '0s').split(',').some((d) => parseFloat(d) > 0.3); const easeIn = /(^|,)\s*ease-in\s*(,|$)/.test(cs.transitionTimingFunction || ''); const anim = cs.animationName && cs.animationName !== 'none'; if (slow || easeIn || anim) motion.push({ el: e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : ''), slow, easeIn, anim: anim ? cs.animationName : null }); }
+    // ★LAYOUT PROPERTIES DO NOT ANIMATE (2026-10-12, W45927): the standards allow transform and opacity only. The
+    // measure above flags slow / ease-in timings, so a 0.25s WIDTH underline passed it - on a ::after it was never
+    // read at all. Each transitioned property is paired with its own duration (the lists cycle); a layout property
+    // that actually animates is counted, on the element and on its ::before / ::after.
+    const LAYOUT_RX = /^(width|height|min-width|min-height|max-width|max-height|top|right|bottom|left|inset|margin(-[a-z]+)?|padding(-[a-z]+)?|gap|row-gap|column-gap|flex-basis|font-size|line-height|border(-[a-z]+)?-width)$/;
+    const layoutMotion = [];
+    const layoutHit = (cs) => { const props = (cs.transitionProperty || '').split(',').map((x) => x.trim()); const durs = (cs.transitionDuration || '0s').split(',').map((d) => parseFloat(d) || 0); return props.filter((p, i) => LAYOUT_RX.test(p) && durs[i % durs.length] > 0); };
+    for (const e of all) {
+      const name = e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') + (e.className && typeof e.className === 'string' ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
+      for (const pseudo of [null, '::before', '::after']) {
+        const cs = getComputedStyle(e, pseudo);
+        if (pseudo && (cs.content === 'none' || cs.content === 'normal')) continue;
+        const hit = layoutHit(cs);
+        if (hit.length) layoutMotion.push(name + (pseudo || '') + ' ' + hit.join('/'));
+      }
+    }
     const para = [...document.querySelectorAll('main p, article p, section p, p')].filter(vis).sort((a, b) => b.textContent.length - a.textContent.length)[0];
     let measureCh = 0; if (para) { const r = para.getBoundingClientRect(); measureCh = Math.round(r.width / (parseFloat(getComputedStyle(para).fontSize) * 0.55)); }   // Poppins "0" is ~0.55em: the ch unit, not half an em
     // the words a person reads on the controls and in the page's states - the copy lens's evidence (en and fil walks)
@@ -128,14 +225,22 @@ async (mcpPage) => {
       under11: under11.length, under11Sample: under11.slice(0, 4).map((t) => `${t.px}px "${t.t}"`),
       under12: under12.length, controls: ctl.length, tapUnder44: small.length,
       tapUnder44Sample: small.slice(0, 4).map((e) => { const r = e.getBoundingClientRect(); return `${e.tagName.toLowerCase()} "${(e.getAttribute('aria-label') || e.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 24)}" ${Math.round(r.width)}x${Math.round(r.height)}`; }),
-      motion: motion.length, motionSample: motion.slice(0, 5), bodyMeasureCh: measureCh, headings: hs.length, headingSkips: skips,
+      motion: motion.length, motionSample: motion.slice(0, 5), layoutMotion: layoutMotion.length, layoutMotionSample: layoutMotion.slice(0, 5), bodyMeasureCh: measureCh, headings: hs.length, headingSkips: skips,
       contrastLow, contrastSample, contrastSampled: sampled, gradientText: gradText, gradientTextSample: gradSample, controlNames, stateTexts,
       fonts: Object.entries(fams).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([f, c]) => `${f} x${c}`),
       craft,
       spill: document.documentElement.scrollWidth - innerWidth, innerW: innerWidth, h1: (document.querySelector('h1') || {}).textContent ? document.querySelector('h1').textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : '' };
   });
   const atPath = (h) => new RegExp('/' + h.split('.').join('[.]') + '(?:[?#]|$)');
-  const gated = !/^(index|about|feedback|privacy-policy|terms-of-service)/.test(P.page) && !/^(tools|learn)\//.test(P.page) && P.gated !== false;
+  // ★index.html WITH A CAST IS THE SIGNED-IN HOME, AND IS SIGNED INTO, NOT INHERITED (2026-10-13). index.html was never
+  // gated here, so a row naming David Velasco walked whatever session the MCP's browser still held: the 2026-10-12 index
+  // rows read his signed-in home (~830 chars, onward to hive.html) only because an earlier walk had left him signed in,
+  // and the first walk after the profile was wiped read the signed-OUT landing (14,554 chars) under his name, with no
+  // identity check because ungated pages skip it. A row that names a user arrives through the wall like any gated page:
+  // the wall step is recorded and the stored worker is checked against the cast. A row with no user (the anonymous
+  // visitor) still walks the landing.
+  const gated = (P.page === 'index.html' && !!P.user) ||
+    (!/^(index|about|feedback|privacy-policy|terms-of-service)/.test(P.page) && !/^(tools|learn)\//.test(P.page) && P.gated !== false);
 
   // ── measure the SHIPPED shell, not the one this browser installed last time ───────────────────
   // ★THE SERVICE WORKER SERVED THE PREVIOUS WALK'S SHELL (2026-09-15, W45839 x3): utils.js edits made after a
@@ -146,7 +251,11 @@ async (mcpPage) => {
   // installed shell on purpose - that is what a person mid-update sees; C28 is verified by its own predicate.)
   // ...and through CDP FIRST, on the blank page, so the first navigation is never intercepted by a worker mid-update:
   // two 1800 s hangs today (W45854, W45855) began at this goto, each right after sw.js changed, at 0.33 GB free.
-  try { const cdp0 = await page.context().newCDPSession(page); await cdp0.send('Storage.clearDataForOrigin', { origin: origin.replace(/\/workhive\/?$/, ''), storageTypes: 'service_workers,cache_storage' }); out.cdpReset = 'ok'; }
+  // ★EVERY WALK ARRIVES SIGNED OUT (2026-10-13): the MCP browser keeps one context, so a session left by the previous
+  // row survived into the next - a cast already signed in never met the wall (no arrival step), and a different
+  // previous user would have been caught only by the identity check. The session (local storage, cookies, IndexedDB)
+  // is cleared with the worker and its caches, before the first navigation; each walk then signs in as its own cast.
+  try { const cdp0 = await page.context().newCDPSession(page); await cdp0.send('Storage.clearDataForOrigin', { origin: origin.replace(/\/workhive\/?$/, ''), storageTypes: 'service_workers,cache_storage,local_storage,cookies,indexeddb' }); out.cdpReset = 'ok'; }
   catch (e) { out.cdpReset = String(e.message || e).slice(0, 60); }
   await page.goto(`${origin}/index.html`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   try {
@@ -180,15 +289,22 @@ async (mcpPage) => {
       await page.fill('#si-username', P.user || 'christinedizon', { timeout: 8000 });
       await page.fill('#si-password', P.pass || 'test1234', { timeout: 8000 });
       await page.click('#si-btn', { timeout: 10000 }).catch(async () => { out.problems.push('the sign-in submit did not become clickable in 10s; pressed Enter instead'); await page.press('#si-password', 'Enter', { timeout: 4000 }).catch(() => {}); });
-      try { await page.waitForURL(atPath(P.page), { timeout: 25000 }); }
+      // the wall's return= carries the bare page, so a page that needs its parameter is re-opened WITH it once the
+      // sign-in lands (2026-10-12: the seller profile read 193 chars - its empty shell - through this door)
+      // index.html IS the wall's page, so its URL "arrives" before the sign-in does: wait for the cast's identity instead
+      if (P.page === 'index.html') {
+        await page.waitForFunction((c) => { try { return localStorage.getItem('wh_last_worker') === c; } catch (e) { return false; } },
+          P.castName || 'Christine Dizon', { timeout: 25000 }).catch(() => out.problems.push('sign-in did not store the cast as the worker in 25s'));
+      }
+      try { await page.waitForURL(atPath(P.page), { timeout: 25000 }); if (P.query) await page.goto(`${origin}/${P.page}${P.query}`, { waitUntil: 'load' }); }
       catch (e) { out.problems.push('sign-in did not reach the page in 25s: ' + await page.evaluate(() => (document.querySelector('#signin-modal') || {}).innerText || '').then((t) => String(t).replace(/\s+/g, ' ').slice(0, 120))); return out; }
     } else if (!atPath(P.page).test(page.url())) {
-      await page.goto(`${origin}/${P.page}`, { waitUntil: 'load' });
+      await page.goto(`${origin}/${P.page}${P.query || ''}`, { waitUntil: 'load' });
     }
   } else {
-    await page.goto(`${origin}/${P.page}`, { waitUntil: 'load' });
+    await page.goto(`${origin}/${P.page}${P.query || ''}`, { waitUntil: 'load' });
   }
-  if (LANG === 'fil') await page.goto(`${origin}/${P.page}`, { waitUntil: 'load' });
+  if (LANG === 'fil') await page.goto(`${origin}/${P.page}${P.query || ''}`, { waitUntil: 'load' });
   await page.waitForTimeout(4000);
   let r = await read(); let looks = 0;
   while (r.chars < 300 && looks < 3) { await page.waitForTimeout(3000); r = await read(); looks++; }
@@ -203,6 +319,7 @@ async (mcpPage) => {
     r = await read();
     const fit = compact(await A(`${P.page} at ${vp.name}`));
     const m = await measure();
+    m.theme = await themeRead();
     let shot = null;
     if (P.shotDir) { shot = `${P.shotDir}/${P.id}_${vp.name}.png`; try { await page.screenshot({ path: shot, fullPage: true, timeout: 20000 }); } catch (e) { out.problems.push(`screenshot at ${vp.name} failed: ${String(e.message || e).slice(0, 80)}`); shot = null; } }
     out.steps.push({ page: P.page, viewport: vp.name, chars: r.chars, identityKept: gated ? r.worker === (P.castName || 'Christine Dizon') : true, lang: r.lang, fit, measures: m, screenshot: shot });
@@ -213,7 +330,9 @@ async (mcpPage) => {
   // navigation goes next - which is also what the row's story says ("through the platform's own navigation").
   // Read off the RENDERED page, followed, and measured; never asserted. Recording the index.html load the walker
   // performs to drop the stale service worker would describe a walk mechanic as the person's journey.
-  if (!gated) {
+  // The signed-in home hops too (2026-10-13): its wall IS index.html, so the arrival adds no second page - the ledger
+  // read "no arrival step before the page" - and the honest second page is where the home's own navigation goes next.
+  if (!gated || P.page === 'index.html') {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(600);
     // ★A ROOT-ABSOLUTE LINK MEANS "THIS SITE'S /x", AND LOCALLY THAT IS /workhive/x (2026-09-16, W46283). These
@@ -252,8 +371,21 @@ async (mcpPage) => {
       if (rel === P.page) continue;
       rels.push({ rel, raw: f.raw, text: f.text, sameSection: !!section && rel.indexOf(section) === 0 });
     }
-    const pick = rels.filter((x) => x.sameSection)[0] || rels[0] || null;
-    if (pick) {
+    // ★A HOP THAT LANDS BACK ON THE PAGE UNDER STUDY IS NOT A SECOND PAGE (2026-10-12, W45923-W45929). index.html IS
+    // the sign-in wall's page: every gated link on it (the tools list - hive.html, logbook.html ...) lands a signed-out
+    // visitor on index.html?signin=1&return=<page>, the product working as designed, but the receipt then held ONE
+    // distinct page and the ledger read "no arrival step before the page" for all six index rows. The candidates are
+    // walked in order (the row's own section first) and the first that lands on a page OTHER than the one under study
+    // is taken, at most six tries. A gated link followed from any other page still records the wall as before, and a
+    // hop that does not land is still a problem that refuses the bank.
+    const order = rels.filter((x) => x.sameSection).concat(rels.filter((x) => !x.sameSection));
+    const tried = new Set();
+    let done = false;
+    let sameLanding = 0;
+    for (const pick of order) {
+      if (done || tried.size >= 6) break;
+      if (tried.has(pick.rel)) continue;
+      tried.add(pick.rel);
       const url = `${origin.replace(/\/$/, '')}/${pick.rel}`;
       let status = 0;
       const resp = await page.goto(url, { waitUntil: 'load', timeout: 30000 }).catch((e) => { out.problems.push('the onward hop to ' + pick.rel + ' did not load: ' + String(e.message || e).slice(0, 80)); return null; });
@@ -270,25 +402,25 @@ async (mcpPage) => {
           wall: vis(document.querySelector('#si-username')) };
       });
       const ok = status === 200 && ident.path.indexOf(pick.rel.replace(/index[.]html$/, '')) >= 0 && ident.shell;
-      // ★THE SIGN-IN WALL IS AN ARRIVAL, NOT A FAILED HOP (2026-09-17, W45923). A PUBLIC page's own navigation
-      // routinely points at GATED pages - index.html's tools list links straight to hive.html, logbook.html and
-      // the rest - and the product's correct answer to a signed-out visitor following one is to land them on
-      // index.html?signin=1&return=<that page> with the wall open and the destination remembered. Measured: the
-      // modal is visible, #si-username is focusable, and return=hive.html is preserved. The old check compared
-      // only the landed PATH to the requested one, so it wrote the product working as designed up as "did not
-      // land on the app" - a problem entry, which refuses the bank. It is a step now, and the step SAYS it is a
-      // gate rather than the page. The guard does not widen: the wall must actually be VISIBLE and the return
-      // parameter must name the page we asked for, so the case this check exists to catch - a link that silently
-      // dumps a visitor back on the home page with no explanation - still fails exactly as before.
+      // ★THE SIGN-IN WALL IS AN ARRIVAL, NOT A FAILED HOP (2026-09-17, W45923): a public page's navigation points at
+      // gated pages, and the product's correct answer to a signed-out visitor is index.html?signin=1&return=<page>
+      // with the wall open and the destination remembered. The wall must be VISIBLE and the return must name the
+      // page asked for, so a link that silently dumps a visitor on the home page still fails.
       const gateOk = !ok && status === 200 && ident.shell && ident.wall &&
         /(^|[?&])signin=1(&|$)/.test(ident.search) &&
         ident.search.indexOf('return=' + pick.rel) >= 0;
+      // where the hop actually landed, relative to the app's base
+      let landedRel = ident.path.replace(/^[/]/, '');
+      if (baseRel && landedRel.indexOf(baseRel) === 0) landedRel = landedRel.slice(baseRel.length);
+      landedRel = landedRel.replace(/(^|[/])$/, '$1index.html');
+      if (gateOk && landedRel === P.page) { sameLanding++; continue; }   // the wall on the very page under study
+      done = true;
       if (!ok && !gateOk) {
         out.problems.push('the onward hop to ' + pick.rel + ' did not land on the app: HTTP ' + status +
           ' at ' + ident.path + ' "' + String(ident.title).slice(0, 40) + '"' + (ident.shell ? '' : ' (no app shell)'));
       } else if (gateOk) {
         const rg = await read();
-        out.steps.push({ page: 'index.html', viewport: 'phone-390', onward: true, onwardFrom: P.page,
+        out.steps.push({ page: landedRel, viewport: 'phone-390', onward: true, onwardFrom: P.page,
           gatedTarget: pick.rel, linkHref: pick.raw, linkText: pick.text, title: ident.title,
           signInWall: true, returnPreserved: pick.rel, chars: rg.chars, identityKept: true, lang: rg.lang,
           fit: compact(await A('the sign-in wall reached by following ' + pick.rel + ' from ' + P.page + ' at phone-390')) });
@@ -298,10 +430,16 @@ async (mcpPage) => {
           linkHref: pick.raw, linkText: pick.text, title: ident.title, chars: ro.chars, identityKept: true, lang: ro.lang,
           fit: compact(await A(pick.rel + ' (onward from ' + P.page + ') at phone-390')) });
       }
-      await page.goto(`${origin}/${P.page}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
-      await page.waitForTimeout(1500);
-    } else {
+    }
+    if (!tried.size) {
       out.noOnwardLink = true;
+    } else {
+      if (!done) {
+        out.problems.push('no onward link from ' + P.page + ' reached a page other than itself in ' + tried.size +
+          ' tries (' + sameLanding + ' landed on its own sign-in wall)');
+      }
+      await page.goto(`${origin}/${P.page}${P.query || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
+      await page.waitForTimeout(1500);
     }
   }
   // ── the copy lens's passes: the other language, and the page with its reads ABORTED (harden.md's error handling) ─
@@ -321,7 +459,7 @@ async (mcpPage) => {
       try { await page.evaluate(async () => { const rs = navigator.serviceWorker ? await navigator.serviceWorker.getRegistrations() : []; await Promise.all(rs.map((r) => r.unregister())); const ks = (typeof caches !== 'undefined') ? await caches.keys() : []; await Promise.all(ks.map((k) => caches.delete(k))); }); } catch (e) { void e; }
       await page.route(/\/rest\/v1\/|\/functions\/v1\//, abortReads);
     }
-    await page.goto(`${origin}/${P.page}`, { waitUntil: 'load' }).catch(() => {});
+    await page.goto(`${origin}/${P.page}${P.query || ''}`, { waitUntil: 'load' }).catch(() => {});
     await page.waitForTimeout(x.degraded ? 7000 : 4500);
     await page.evaluate(() => window.scrollTo(0, 0));
     const r2 = await read();
@@ -342,6 +480,19 @@ async (mcpPage) => {
     const res = await page.request.post(`${base}/api/w4/steps`, { data: { id: P.id || 'walk', steps: out.steps, records: [] } });
     out.wrote = res.ok() ? (await res.json()).path : `POST /api/w4/steps -> ${res.status()}`;
   } catch (e) { out.writeError = String(e.message || e).slice(0, 120); }
+  // compact (2026-10-12): what a lens is judged on, per viewport - the full record is on disk for the bank
+  if (P.compact) {
+    const mini = (s) => { const m = s.measures || {}; const c = m.craft || {};
+      return [s.viewport || 'arrival', s.chars, s.fit ? (s.fit.findings || 0) : null, s.fit ? (s.fit.occlusion || []).length : null,
+        m.minFontPx, m.under12, m.tapUnder44, m.contrastLow, m.headingSkips, m.motion, m.gradientText, c.nestedCards, m.spill,
+        (m.motionSample || []).slice(0, 2).map((x) => (typeof x === 'string' ? x : [x.el, x.slow ? 'slow' : '', x.easeIn ? 'ease-in' : '', x.anim || ''].filter(Boolean).join(' '))).join(' | ').slice(0, 120), (m.contrastSample || []).slice(0, 1).join('').slice(0, 90), m.layoutMotion, (m.layoutMotionSample || []).slice(0, 2).join(' | ').slice(0, 120),
+        m.theme ? `${m.theme.on}/${m.theme.neutral}/${m.theme.off} of ${m.theme.distinct} (${m.theme.reads} reads, ${m.theme.offReads} off)${m.theme.offSample.length ? ': ' + m.theme.offSample.slice(0, 4).join('; ') : ''}`.slice(0, 260) : '']; };
+    return { id: P.id, lens: P.lens, page: P.page, problems: out.problems, wrote: !!out.wrote,
+      cols: 'viewport,chars,findings,occlusion,minFont,under12,tap<44,contrastLow,headingSkips,motion,gradientText,nestedCards,spill,motionSample,contrastSample,layoutMotion,layoutMotionSample,theme(on/neutral/off)',
+      steps: out.steps.filter((s) => s.viewport).map(mini),
+      words: P.lens === 'copy' ? { controls: [...new Set(out.steps.flatMap((s) => (s.measures || {}).controlNames || []))].slice(0, 60),
+                                   states: [...new Set(out.steps.flatMap((s) => (s.measures || {}).stateTexts || []))].slice(0, 12) } : undefined };
+  }
   return { id: P.id, page: P.page, lens: P.lens, wrote: out.wrote, writeError: out.writeError, problems: out.problems, shellReset: out.shellReset, httpCache: out.httpCache,
     steps: out.steps.map((s) => ({ page: s.page, viewport: s.viewport || 'arrival', lang: s.langWalked || s.lang, degraded: s.degraded || false, chars: s.chars, identityKept: s.identityKept, findings: s.fit && s.fit.findings, occlusion: s.fit && s.fit.occlusion, overflowEl: s.fit && s.fit.overflowEl, measures: s.measures, screenshot: s.screenshot })) };
 }

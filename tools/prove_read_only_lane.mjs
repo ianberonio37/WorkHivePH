@@ -31,7 +31,7 @@
 // OUTPUT: read_only_lane_report.json  (narrowed runs write their own)
 import { writeFileSync } from 'fs';
 import { chromium } from '@playwright/test';
-import { signIn, SEEDER } from './live_page_journeys.mjs';
+import { signIn, SEEDER, assertSignedIn } from './live_page_journeys.mjs';
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');
@@ -105,7 +105,7 @@ function findingsFor(obs, errors) {
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: WIDTH, height: 900 } });
-await signIn(ctx, 'supervisor');
+await assertSignedIn(signIn(ctx, 'supervisor'));
 
 // ── --teeth: each clause must actually FIRE ──────────────────────────────────────────────────
 // A gate that locks behaviour which is ALREADY correct has never once been seen to go red, so

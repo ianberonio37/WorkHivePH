@@ -65,7 +65,7 @@ There is no single “portfolio” button. There are **three exports**, each fro
 
 - **Skill Matrix → CSV.** Your skill record: primary discipline, each discipline you have been assessed in and the level you reached, with a note of the rule used to work the level out. Saves as `workhive-skills-<date>.csv`.
 - **Logbook → Export to CSV.** Your entries: the date, the asset, the fault and what you did about it. Saves as `workhive-logbook-<your name>-<date>.csv`.
-- **Resume Builder → .docx, .json or a cover letter.** The document you actually send. It fills itself from the skill badges you have earned, so passing a quiz puts the badge on your resume without you retyping anything.
+- **Resume Builder → a Word file, a data file or a cover letter.** The document you actually send. It fills itself from the skill badges you have earned, so passing a quiz puts the badge on your resume without you retyping anything.
 
 A maintenance planner at a petrochemical plant in Calabarzon takes all three: the skills CSV says what they are qualified in, the logbook CSV shows what they did to the pumps and compressors that plant runs on, and the resume is what goes in the email.
 
@@ -123,7 +123,7 @@ You can include Logbook entries, maintenance records, and other relevant documen
 
 ### How do I export my portfolio and what does it include?
 
-There are three exports rather than one: the Skill Matrix gives you a CSV of your skill record, the Logbook gives you a CSV of your entries, and the Resume Builder produces the document you send (.docx, JSON or a cover letter), filled from the skill badges you have earned. Take all three before you leave a hive.
+There are three exports rather than one: the Skill Matrix gives you a CSV of your skill record, the Logbook gives you a CSV of your entries, and the Resume Builder produces the document you send (a Word file, a data file or a cover letter), filled from the skill badges you have earned. Take all three before you leave a hive.
 
 ### What do overseas employers look for in a maintenance portfolio?
 
@@ -142,4 +142,4 @@ While the portfolio is designed for OFW-track engineers, you can still use it to
 - DOLE OSHS, 'Occupational Safety and Health Standards'
 - IIEE Code, 'Code of Ethics for Electrical Engineers'
 
-<!-- md-twin source-sha: c25c53f15801cd4d -->
+<!-- md-twin source-sha: 0ca74fa7bef30a65 -->

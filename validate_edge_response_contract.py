@@ -294,6 +294,14 @@ def _extract_function_return_shape(func_name: str) -> dict:
             if id_m and id_m.group(0) not in {"null", "true", "false"}:
                 opaque = True
     error_only = bool(literal_returns) and all("error" in keys for keys in literal_returns)
+    # A handler wrapped by the shared tracedReply (_shared/trace-reply.ts, 2026-10-08) has trace_id stamped onto
+    # EVERY JSON reply by stampTraceId - success and refusal alike - so a caller reading data.trace_id reads a real
+    # field the function's own literals never spell out. Only the wrapper's presence grants it, not a guess.
+    # ...but it only EXTENDS a shape the reader could already see: a function whose replies are built elsewhere
+    # (no detectable literal) stays "nothing detectable", or one wrapper field would turn it into a known shape
+    # and flag every real field its callers read.
+    if literal_keys and re.search(r"\btracedReply\s*\(", src):
+        literal_keys |= {"trace_id"}
     return {
         "literal_keys": literal_keys,
         "opaque":       opaque,

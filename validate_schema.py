@@ -349,7 +349,14 @@ def check_pages_in_scope():
                                      "_battery"]):  # QA test batteries (companion/ufai/journey) — injected for testing, not live pages
             continue
         content = read_file(fname)
-        if content and "db.from(" in content:
+        # ★A COMMENT IS NOT A CALL (2026-10-13): offline-banner.js was flagged for a comment that EXPLAINS that utils.js
+        # wraps "every db.from()/rpc()/auth/storage call" - it makes no query. The scan reads code with the comments
+        # stripped (block, line - not the "//" inside a URL - and HTML), and looks for a call, not a substring.
+        if content:
+            content = re.sub(r"/\*[\s\S]*?\*/", "", content)
+            content = re.sub(r"<!--[\s\S]*?-->", "", content)
+            content = re.sub(r"(^|[^:\"'\\])//[^\n]*", r"\1", content)
+        if content and re.search(r"\bdb\s*\.\s*from\s*\(", content):
             issues.append({"check": "pages_in_scope", "page": fname,
                            "reason": f"{fname} uses db.from() but is not in validate_schema.py LIVE_PAGES — schema checks never run on it"})
     return issues

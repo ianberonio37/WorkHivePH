@@ -22,6 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="wh-help.css"><!-- the inline-help contract, styled before first paint: without it utils.js injected .wh-help after paint and "How this page works" grew 24 -> 44px, a 0.035 shift at 1280 (critique W45915, 2026-10-13) -->
   <style>
     /* Reserve the scrollbar gutter. This page carries a `position: fixed; inset: 0` decorative
        layer, so when async data makes the content exceed the viewport, the scrollbar narrows the
@@ -494,7 +495,7 @@
       body * { visibility: hidden; }
       #report-output, #report-output * { visibility: visible; }
       #report-output { position: absolute; left: 0; top: 0; width: 100%; margin: 0; }
-      #report-output button { display: none !important; }
+      #report-output button, #report-output .wh-ai-trust { display: none !important; }
       .aurora-bg, #toast, #hive-gate { display: none !important; }
       #report-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }
     }
@@ -542,11 +543,8 @@
     #calc-search:focus { border-color: rgba(247,162,27,0.5); }
     #calc-search::placeholder { color: rgba(255,255,255,0.80); }
     .search-wrap { position: relative; margin-bottom: 1rem; }
-    .search-icon {
-      position: absolute; left: 0.75rem; top: 50%;
-      transform: translateY(-50%); pointer-events: none;
-      color: rgba(255,255,255,0.3);
-    }
+    /* the search magnifier is placed by wh-icons.css (.ic-search followed by its input); the .search-icon rule that
+       stood here matched nothing after the emoji migration, so the icon sat above the field (critique W45915) */
 
     /* Recent calc chips */
     #recent-calcs-row { margin-bottom: 1rem; }
@@ -629,20 +627,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="relative z-10 min-h-screen pb-24">
 
   <!-- Header -->
-  <!-- padding-top: sticky at top:0, so once the page scrolls this tab bar pins to the viewport edge
-       and its tabs land under the notch. The body padding-top in <style> reserves the wayfinding
-       band, not this — an ancestor's padding cannot displace a viewport-pinned box. -->
-  <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);" class="sticky top-0 z-40">
+  <!-- ★PINNED UNDER THE BAND (critique W45915, 2026-10-13). This bar was sticky at top:0, with padding-top for the notch.
+       But the wayfinding band (Back + breadcrumb) is position:fixed at z-index 9000 and always on screen, so once the page
+       scrolled - Run Calculation scrolls to the report - the pills covered the page title and two of the three tabs
+       (measured at 390). The band's line is already reserved in flow (body padding-top below); the bar pins on that same
+       line, plus the offline banner's height that the band itself is pushed down by, and the notch sits inside the
+       band's reserve rather than in this bar. -->
+  <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);top:calc(64px + env(safe-area-inset-top, 0px) + var(--wh-offline-banner-h, 0px));" class="sticky z-40" id="ed-pinned-header">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-y-2">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <a data-i="p_back_c32a" href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.75rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
           <h1 class="font-bold text-sm" style="color:var(--wh-orange-text);margin:0;" data-i="ed_title">Engineering Design</h1>
           <div data-i="p_designcalculationtool_b1ec" class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
-          <!-- Arc L/L1 CLS: filled by renderSourceChip() in init() (deterministic
-               freshness+source+2 notes ≈ 161px @390). Reserve it so the header doesn't
-               grow and push #tab-calculator down (residual CLS source after the grid fix). -->
-          <p id="eng-source-chip" style="margin-top:2px;min-height:161px;"></p>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -651,6 +648,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button class="page-tab" data-tab="guide" onclick="switchTab('guide')" data-i="ed_guide">Guide</button>
       </div>
     </div>
+  </div>
+
+  <!-- ★THE PINNED HEADER HELD 29% OF A PHONE SCREEN (critique W45915, 2026-10-13). This chip lived inside the sticky
+       header above, beside the tab group: at 390 the title column was squeezed to 139 px, the chip wrapped to 15 lines
+       (182 px) and the pinned header was 245 px of 844 while a person scrolled the calc list and filled inputs - with a
+       phone keyboard up, about 300 px were left for the form. At 1280 it was 224 px of 800, 92 px of it an unused
+       reserve. The header was pinned for its TAB BAR (see the note above it), so the title and tabs stay pinned and the
+       provenance chip reads here, in the flow, at its full width.
+       Arc L/L1 CLS: renderSourceChip() fills it in init() with deterministic text, so the reserve is what that text
+       renders at full width: 69 px at 390 and at 1280 (the chip's own max-width sets the wrap at both). -->
+  <div class="max-w-7xl mx-auto px-4" style="padding-top:0.5rem;">
+    <p id="eng-source-chip" style="margin:0;min-height:69px;"></p>
   </div>
 
   <!-- ══════════════════════ TAB: CALCULATOR ══════════════════════ -->
@@ -742,7 +751,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
           <div data-i="p_noreportyet_51a2" class="font-semibold text-lg mb-2">No Report Yet</div>
-          <div class="text-sm" style="color:rgba(255,255,255,0.80);">Fill in the inputs on the left and click<br><strong data-i="p_runcalculation_c16b" style="color: var(--wh-orange-text);">Run Calculation</strong> to generate your report.</div>
+          <!-- device-neutral (2026-10-13, the W45912 copy walk): "on the left and click" pointed a phone user at a column
+               that stacks ABOVE this card, with a verb a finger does not do -->
+          <div class="text-sm" style="color:rgba(255,255,255,0.80);">Fill in the inputs, then press<br><strong data-i="p_runcalculation_c16b" style="color: var(--wh-orange-text);">Run Calculation</strong> to generate your report.</div>
         </div>
 
         <!-- Loading state -->
@@ -775,7 +786,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             </div>
           </div>
           <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
-          <div class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.80);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
+          <!-- #ed-ai-note: the shared "was this right?" row for the AI-drafted summary attaches here (engineering-design.js
+               _edTrustNarrative), beside the sentence that says which part is AI-drafted (LM-E, 2026-10-08) -->
+          <div id="ed-ai-note" class="text-xs mb-3" role="note" style="color:rgba(255,255,255,0.80);background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.22);border-radius:0.5rem;padding:0.5rem 0.75rem;">
             ⓘ Computed values follow the cited standards. The written summary (objective, assumptions, recommendations) is <strong data-i="p_aidraftedreviewbeforeuse_4874" style="color:var(--wh-blue);">AI-drafted; review before use</strong>.
           </div>
           <div id="report-panel"></div>

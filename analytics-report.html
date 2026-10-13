@@ -314,6 +314,10 @@
     .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
     .doc-panel .sow-clause-no { color: #7c3aed; min-width: 2.5rem; flex-shrink: 0; }
     .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
+    .doc-panel .ai-plan-summary { margin: 0.2rem 0 0.5rem; color: #333; }
+    /* the shared "was this right?" row (utils.js) is styled for the dark app; on this white paper its grey and its
+       ring need paper inks - #555 text is 7.4:1 on white, the #6b7280 ring 4.8:1 (a control boundary needs 3:1) */
+    .doc-panel .wh-ai-trust { --muted: #555; --border: #6b7280; }
     .doc-panel .sow-meta {
       display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem;
       font-size: 0.8rem; color: #6b7280; margin: 0.25rem 0 0 3rem;
@@ -615,7 +619,7 @@
       body > *:not(#ar-print-wrapper) { display: none !important; }
       #ar-print-wrapper { display: block !important; }
       .doc-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }
-      .tip-banner, .no-print { display: none !important; }
+      .tip-banner, .no-print, .wh-ai-trust { display: none !important; }
       .doc-panel h2 { page-break-after: avoid; }
       /* Same correction as project-report (T124, 2026-08-27): `avoid` belongs on things that are
          SHORT BY CONSTRUCTION — a clause, a result tile — and a generated report TABLE is not one.
@@ -693,14 +697,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- P280 (2026-09-05): before a report is generated the page carried ONE heading (the h1); the toolbar is a real section a screen-reader user lands in, so it names itself. -->
       <h2 id="ar-toolbar-title" data-i="ar-build" style="font-size:0.8rem; font-weight:600; margin:0 0.5rem 0 0; opacity:0.85;">Build a report</h2>
       <span class="toolbar-label" data-i="arperiod">Period</span>
-      <button type="button" class="pill-btn period-btn" data-days="30" data-i="ar-30d"  onclick="setPeriod(30)">30d</button>
-      <button type="button" class="pill-btn period-btn active" data-days="90" data-i="ar-90d"  onclick="setPeriod(90)">90d</button>
-      <button type="button" class="pill-btn period-btn" data-days="180" data-i="ar-180d" onclick="setPeriod(180)">180d</button>
-      <button type="button" class="pill-btn period-btn" data-days="365" data-i="ar-365d" onclick="setPeriod(365)">365d</button>
+      <button type="button" class="pill-btn period-btn" aria-pressed="false" data-days="30" data-i="ar-30d"  onclick="setPeriod(30)">30d</button>
+      <button type="button" class="pill-btn period-btn active" aria-pressed="true" data-days="90" data-i="ar-90d"  onclick="setPeriod(90)">90d</button>
+      <button type="button" class="pill-btn period-btn" aria-pressed="false" data-days="180" data-i="ar-180d" onclick="setPeriod(180)">180d</button>
+      <button type="button" class="pill-btn period-btn" aria-pressed="false" data-days="365" data-i="ar-365d" onclick="setPeriod(365)">365d</button>
 
       <span class="toolbar-label" style="margin-left: 0.5rem;" data-i="araud">Audience</span>
-      <button type="button" class="pill-btn role-btn active" id="role-supervisor" onclick="setRole('supervisor')"><span data-i="arsup">Supervisor</span></button>
-      <button type="button" class="pill-btn role-btn" id="role-worker" onclick="setRole('worker')"><span data-i="arwork">Worker</span></button>
+      <button type="button" class="pill-btn role-btn active" aria-pressed="true" id="role-supervisor" onclick="setRole('supervisor')"><span data-i="arsup">Supervisor</span></button>
+      <button type="button" class="pill-btn role-btn" aria-pressed="false" id="role-worker" onclick="setRole('worker')"><span data-i="arwork">Worker</span></button>
 
       <span class="toolbar-spacer"></span>
 
@@ -801,6 +805,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _period = days;
       document.querySelectorAll('.period-btn').forEach(function(b){
         b.classList.toggle('active', Number(b.dataset.days) === days);
+        // 2026-10-06 (analytics-report x assistive-tech): the chosen period was shown by colour only, so a
+        // screen reader heard four identical buttons and could not tell which one the report would use.
+        b.setAttribute('aria-pressed', Number(b.dataset.days) === days ? 'true' : 'false');
       });
     };
     window.setRole = function(role){
@@ -808,6 +815,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _role = role;
       document.querySelectorAll('.role-btn').forEach(function(b){
         b.classList.toggle('active', b.id === 'role-' + role);
+        b.setAttribute('aria-pressed', b.id === 'role-' + role ? 'true' : 'false');
       });
       // Re-render if we already have data
       if (_data) renderReport(_data);
@@ -822,13 +830,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return String(v);
     }
     function fmtDate(d){
-      try { return new Date(d).toLocaleDateString('en-PH', {year:'numeric', month:'short', day:'numeric'}); }
+      try { return new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric', month:'short', day:'numeric'}); }
       catch(_) { return String(d || ''); }
     }
-    function todayISO(){ return new Date().toISOString().slice(0,10); }
+    function todayISO(){ return whManilaYmd(); }
     function periodStartISO(days){
-      var d = new Date(); d.setDate(d.getDate() - Number(days || 0));
-      return d.toISOString().slice(0,10);
+      // the Manila date N days ago (it was UTC's date of a device-local shift - device-clock-day ratchet)
+      return whManilaYmd(new Date(Date.now() - Number(days || 0) * 86400000));
     }
 
     // ── Fetch — bundles all 4 phases from the orchestrator ─
@@ -905,6 +913,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _loading = true;
       var genBtn = document.getElementById('generate-btn');
       var pdfBtn = document.getElementById('pdf-btn');
+      var _genHadFocus = (document.activeElement === genBtn);
       genBtn.disabled = true;
       pdfBtn.disabled = true;
 
@@ -931,6 +940,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('ar-cancel-btn')?.addEventListener('click', function () {
         try { if (_arAbort) _arAbort.abort(); } catch (_) { /* empty-catch-allow: abort on a settled run is a no-op */ }
       });
+      // Generate is disabled for the whole wait, so the person who pressed it would otherwise wait on <body>;
+      // Cancel is the one control the wait offers, so that is where their focus goes.
+      if (_genHadFocus) { try { document.getElementById('ar-cancel-btn')?.focus(); } catch (_) { /* empty-catch-allow */ } }
 
       try {
         var hivePromise = loadHiveName();
@@ -951,7 +963,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // and offers the retry.
         if (err && !_arTimedOut
             && (err.name === 'AbortError' || /abort/i.test(String(err.message || '')))) {
-          mount.innerHTML = '<div class="ar-status">Generation cancelled. Generate again whenever you are ready.</div>';
+          mount.innerHTML = '<div class="ar-status" role="status">Generation cancelled. Generate again whenever you are ready.</div>';
           return;
         }
         if (_arTimedOut) {
@@ -963,9 +975,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // T40 (2026-08-25): the failure painted but offered nothing to PRESS - the last silent
         // corner of the 500-storm sweep. The retry re-issues the GENERATION (generateReport),
         // never a re-render of the failed state.
+        // ★THE FAILURE PAINTED AND WAS NEVER SAID (2026-10-06, analytics-report x assistive-tech, PostgREST stopped).
+        // The sentence above is right ("Your membership could not be checked just now - the service did not answer"),
+        // but it replaced the role=status node and sat in a plain <div>, so a screen reader heard "Compiling..." stop
+        // and then nothing. role=alert is what whListError gives the same moment on twenty other pages.
         mount.innerHTML =
-          '<div class="ar-error">' +
-            escHtml(whAiError(err, 'Could not generate report: ' + (err && err.message ? err.message : String(err)))) +
+          '<div class="ar-error" role="alert">' +
+            // ★THE PAGE'S OWN TIMEOUT SENTENCE WAS REWRITTEN AS 'NETWORK PROBLEM' (LM-L walk, LM511, 2026-10-08): the
+            // 90 s sentence names 'your connection' as one possibility, and the shared mapper matched that word. A
+            // timeout is shown in the page's own words; every other failure still goes through the mapper.
+            escHtml(_arTimedOut ? err.message : whAiError(err, 'Could not generate report: ' + (err && err.message ? err.message : String(err)))) +
             '<div style="margin-top:0.75rem;"><button type="button" id="ar-retry-btn" ' +
               'style="min-height:44px;padding:0 1.25rem;border-radius:8px;font-weight:700;cursor:pointer;' +
               'background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);" data-i="retry">Retry</button></div>' +
@@ -975,6 +994,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } finally {
         _loading = false;
         genBtn.disabled = false;
+        // ★AND DISABLING THE FOCUSED BUTTON THREW FOCUS TO <body> (same walk). A keyboard or screen-reader user who
+        // pressed Generate was left at the top of the document when the run ended, with the result somewhere below.
+        // Only when focus was actually lost: someone who tabbed elsewhere during the wait keeps their place. The
+        // result decides where it lands - the report's own heading, the Retry, or back on Generate.
+        try {
+          var _ae = document.activeElement;
+          if (!_ae || _ae === document.body || _ae === document.documentElement) {
+            var _land = document.getElementById('ar-retry-btn') || mount.querySelector('#ar-cover h1');
+            if (_land && _land.tagName === 'H1') _land.setAttribute('tabindex', '-1');
+            (_land || genBtn).focus();
+          }
+        } catch (_) { /* empty-catch-allow: focus restore is best-effort */ }
       }
     };
 
@@ -995,6 +1026,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           renderFooter(data) +
         '</article>';
       mount.innerHTML = html;
+      // EX-AT / LM-E (2026-10-08): the shared "was this right?" row under the AI-written action plan (4.1) - the only
+      // AI reading text in this report; every other section is computed from the phases. It records the exact words
+      // shown. It is screen-only: @media print hides .wh-ai-trust, so the PDF a supervisor hands over carries no buttons.
+      // A new Generate replaces #ar-report-mount whole, so a row can never stack.
+      var _aiAnchor = document.getElementById('ar-ai-synthesis');
+      var _aiAnswer = aiPlanText(data);
+      if (_aiAnchor && _aiAnswer && typeof whAiTrustRow === 'function') {
+        whAiTrustRow(_aiAnchor, { db: db, agent: 'analytics-orchestrator', source: 'report-action-plan', page: 'analytics-report',
+          traceId: whTraceIdOf(data),   // LM-E: the id the analytics-orchestrator report reply returned
+          question: 'Action plan for the analytics report, last ' + _period + ' days',
+          answer: _aiAnswer,
+          groundedOn: 'this report\'s logbook, PM, parts and risk figures for the last ' + _period + ' days' });
+      }
     }
 
     // ─── AR-COVER ──────────────────────────────────────────
@@ -1066,7 +1110,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ? '<div class="ar-provenance" style="margin:0.35rem 0 0.5rem;">' +
                 renderSourceChip({
                   freshness: 'Recomputed when this report was generated',
-                  source:    'your hive logbook, PM records and asset history', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
+                  // CANONICAL TOKENS, NOT PROSE - the prose version rendered as the two words "Based on your" and
+                  // nothing else (2026-10-06, found by walking LXP199). renderSourceChip() takes a MACHINE source
+                  // string ('v_logbook_truth + v_risk_truth via Postgres RPCs') and translates each segment's leading
+                  // identifier through WH_SOURCE_LABELS; handed the sentence 'your hive logbook, PM records and asset
+                  // history' it matched the leading identifier 'your', found no label, humanised it to 'your', and
+                  // emitted the dangling possessive. On THE one artifact that leaves the platform and is handed to a
+                  // client, the provenance line named no source at all - the exact defect E3 was opened to fix.
+                  source:    'v_logbook_truth + pm_completions + v_asset_truth + v_risk_truth via Postgres RPCs', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
                   window:    'Period: last ' + _period + ' days',
                   method:    ['MTBF / MTTR per ISO 14224, OEE per ISO 22400-2 (Nakajima 3-factor), PM compliance per SMRP 2.1.1',
                               'Risk and predictive figures come from the daily risk snapshot, refreshed on demand'],
@@ -1767,9 +1818,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // ─── AR-ACTION (SOW clauses, optionally enriched by Groq AI) ─
-    function renderActionPlan(data){
+    // ★THE AI'S ACTION PLAN WAS COMPUTED, PAID FOR, AND NEVER SHOWN (LM-E walk, 2026-10-08). The orchestrator's
+    // synthesis follows the analytics_action_plan_v1 contract - { summary, this_week[], watch_list[] } - and this
+    // renderer only looked for actions / recommendations / next_steps, which that contract never sends. So section
+    // 4.1 never rendered, and the one piece of AI-written reading text in this report could not be read, let alone
+    // called wrong. The contract's own keys are read now (the older keys still work), and aiPlanText() is the text the
+    // "was this right?" row records - exactly the words on the page, never the raw payload.
+    function aiPlanParts(data){
       var presc = pickPhase(data, 'prescriptive');
       var aiPlan = (data && data.action_plan) || presc.action_plan || null;
+      if (!aiPlan || typeof aiPlan !== 'object') return { summary: '', actions: [] };
+      var summary = (typeof aiPlan.summary === 'string') ? aiPlan.summary.trim() : '';
+      var actions = arr(aiPlan.actions || aiPlan.recommendations || aiPlan.next_steps || aiPlan.this_week)
+        .filter(function(a){ return (typeof a === 'string') ? a.trim() : (a && typeof a === 'object'); });
+      return { summary: summary, actions: actions };
+    }
+    function aiActionTitle(a, i){
+      if (typeof a === 'string') return a.trim();
+      return a.title || a.action || a.summary || ('Action ' + (i+1));
+    }
+    function aiActionBody(a){
+      if (typeof a === 'string') return '';
+      return a.detail || a.description || a.rationale || a.why || '';
+    }
+    function aiPlanText(data){
+      var p = aiPlanParts(data);
+      if (!p.actions.length) return '';
+      return [p.summary].concat(p.actions.map(function(a, i){
+        var b = safeText(aiActionBody(a));
+        return (i + 1) + '. ' + safeText(aiActionTitle(a, i)) + (b ? ' - ' + b : '');
+      })).filter(Boolean).join('\n');
+    }
+
+    function renderActionPlan(data){
+      var presc = pickPhase(data, 'prescriptive');
+      var aiParts = aiPlanParts(data);
       var ranking     = rankingItems(presc);     // presc.priority_ranking.ranking
       var pmIntervals = pmRecommendations(presc); // presc.pm_interval_optimization.recommendations
 
@@ -1777,14 +1860,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // We DON'T pre-assign sub-section numbers; subSections array below counts
       // what's actually rendering and numbers sequentially (5.1, 5.2, ...).
       var aiClausesBody = '';
-      if (aiPlan && (aiPlan.actions || aiPlan.recommendations || aiPlan.next_steps)) {
-        var actions = arr(aiPlan.actions || aiPlan.recommendations || aiPlan.next_steps);
+      if (aiParts.actions.length) {
+        var actions = aiParts.actions;
         if (actions.length) {
-          aiClausesBody = '' +
+          // #ar-ai-synthesis is the anchor the "was this right?" row attaches to (renderReport)
+          aiClausesBody = '<div id="ar-ai-synthesis">' +
+            (aiParts.summary ? '<p class="ai-plan-summary">' + escHtml(aiParts.summary) + '</p>' : '') +
             actions.map(function(a, i){
               var no = String(i + 1).padStart(2, '0');
-              var title = a.title || a.action || a.summary || ('Action ' + (i+1));
-              var body  = a.detail || a.description || a.rationale || '';
+              var title = aiActionTitle(a, i);
+              var body  = aiActionBody(a);
               var owner = a.owner || a.assignee || '';
               var due   = a.due || a.deadline || a.eta || '';
               var prio  = a.priority || a.tier || '';
@@ -1802,7 +1887,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                     '</div>'
                   : '') +
               '</div>';
-            }).join('');
+            }).join('') +
+            '</div>';
         }
       }
 
@@ -2108,7 +2194,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'workhive-analytics-' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.download = 'workhive-analytics-' + whManilaYmd() + '.csv';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

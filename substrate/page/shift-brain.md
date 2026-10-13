@@ -2,19 +2,19 @@
 name: page-shift-brain
 type: page
 source: file:shift-brain.html
-source_sha: 5e17a3eec532101a
+source_sha: f11ee8ac28f8c6b2
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `shift-brain.html` — Shift Brain | WorkHive
 
-Size: 92KB · 27 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 104KB · 30 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `shift_plans.update`
 **RPC calls**: (none)
 **Edge invokes**: `analytics-orchestrator`, `shift-planner-orchestrator`
 **Truth views read**: `v_worker_truth`
 
-**Functions**: _cap, _planIsFresh, _setShiftVerdict, archivePlan, currentShiftWindow, fmtDate, init, loadPlan, loadUnifiedBrief, markCappedCounts, maybeAutoGenerate, publishPlan, renderPartsShared, renderPlan, renderPmsShared, renderRiskShared, renderRows, renderShiftSummary, rerunPlan, revealBoardEarly, rowCarry, setCard, setCta, setShiftWindow, showToast, unreachable, validateHiveMembership
+**Functions**: _cap, _planIsFresh, _sbNoteGenerated, _sbTraceFor, _setShiftVerdict, _w, archivePlan, currentShiftWindow, fmtDate, init, loadPlan, loadUnifiedBrief, markCappedCounts, maybeAutoGenerate, publishPlan, renderPartsShared, renderPlan, renderPmsShared, renderRiskShared, renderRows, renderShiftSummary, rerunPlan, revealBoardEarly, rowCarry, setCard, setCta, setShiftWindow, showToast, unreachable, validateHiveMembership
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

@@ -78,13 +78,41 @@ def _atomic_write(path: Path, text: str) -> None:
     os.replace(tmp, path)
 
 
+def prune_descoped(critic: dict, traj: dict) -> tuple[list[str], list[str]]:
+    """★THE BANK GREW WITH THE REGISTRY AND NEVER SHRANK WITH IT (2026-10-13). R3 also requires every DESCOPED id to be
+    ABSENT, and nothing removed one: descoping BRP9/BRP36/BRP37 (and earlier LXP1000/LXP1026) left their pending critic
+    rows behind and the gate went red - the preservation rule held on one side of a paired write only. A row is removed
+    only when it holds NOTHING (pending, no graded dims, no findings); a descoped row that carries evidence is reported
+    and kept, because deleting a critique is a decision, not housekeeping. Returns (removed ids, kept-with-evidence ids)."""
+    descoped = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"}
+    keep, removed, held = [], [], []
+    for r in critic.get("rows") or []:
+        if r.get("id") in descoped:
+            empty = r.get("status") == "pending" and not (r.get("dims_graded") or []) and not (r.get("findings") or [])
+            if empty:
+                removed.append(r["id"]); continue
+            held.append(r["id"])
+        keep.append(r)
+    critic["rows"] = keep
+    return removed, held
+
+
 def seed_missing(dry_run: bool = False) -> int:
     critic = json.loads(io.open(CRITIC, encoding="utf-8").read())
     traj = json.loads(io.open(TRAJ, encoding="utf-8").read())
+    removed, held = prune_descoped(critic, traj)
+    if removed or held:
+        print(f"critic_seed_missing: {'would remove' if dry_run else 'removing'} {len(removed)} empty row(s) whose "
+              f"trajectory is descoped: {', '.join(removed[:12])}{' ...' if len(removed) > 12 else ''}")
+        if held:
+            print(f"  KEPT {len(held)} descoped row(s) that hold evidence (a decision, not housekeeping): {', '.join(held[:12])}")
     missing = build_missing(critic, traj)
     by_wave = Counter(r["wave"] for r in missing)
     if not missing:
         print("critic_seed_missing: every in-scope trajectory already has a critic row - nothing to add")
+        if removed and not dry_run:
+            _atomic_write(CRITIC, json.dumps(critic, indent=2, ensure_ascii=False) + "\n")
+            print(f"  wrote {CRITIC.name}: {len(critic['rows'])} rows")
         return 0
     print(f"critic_seed_missing: {'would add' if dry_run else 'adding'} {len(missing)} pending critic row(s) - "
           + " | ".join(f"{k} {v}" for k, v in sorted(by_wave.items())))

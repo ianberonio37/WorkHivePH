@@ -2,7 +2,7 @@
 name: table-rls-marketplace_disputes
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_disputes
-source_sha: befe169aa73b7c35
+source_sha: 3d23fe6a0fde38a0
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,14 +11,16 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: False · has auth_uid: False
 
-Columns (*=NOT NULL): id*, order_id, listing_id, opened_by*, seller_name*, reason*, evidence_urls, status*, seller_reply, seller_replied_at, admin_decision, admin_decided_at, resolved_at, created_at*, description, updated_at*
+Columns (*=NOT NULL): id*, order_id, listing_id, opened_by*, seller_name*, reason*, evidence_urls, status*, seller_reply, seller_replied_at, admin_decision, admin_decided_at, resolved_at, created_at*, description, updated_at*, opened_by_auth_uid
 
 Policies:
 - `mkt_disp_delete` [DELETE · roles=public] USING=`is_marketplace_admin()` CHECK=`∅`
-- `mkt_disp_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) AND ((EXISTS ( SELECT 1 FROM marketplace_inquiries i `
+- `mkt_disp_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((opened_by_auth_uid = auth.uid()) AND (opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) AND ((EXISTS ( `
 - `marketplace_disputes_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `mkt_disp_read` [SELECT · roles=public] USING=`((opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS au` CHECK=`∅`
-- `mkt_disp_update` [UPDATE · roles=public] USING=`((opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS au` CHECK=`((opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS au`
+- `mkt_disp_read` [SELECT · roles=public] USING=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)` CHECK=`∅`
+- `mkt_disp_update` [UPDATE · roles=public] USING=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)` CHECK=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)`
+
+Guard triggers: `trg_bind_dispute_opener`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

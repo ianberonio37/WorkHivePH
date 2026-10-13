@@ -173,7 +173,11 @@ The research is one-directional: **GEO is ~80% earned off-site; brand mentions b
 - **M1 ✅ DONE + VERIFIED (2026-07-19)** — 5 answer-first openers (from the pre-verified P2 drafts) → `extractability` 0/0; comparison table on what-is-workhive; schema-keep decision (harvest flip). All gates green.
 - **M2-M5 ✅ SCAFFOLDED (2026-07-19)** — every remaining phase is skeletoned in **`seo_assets/`** (see `seo_assets/README.md`) so execution is fill-in-the-blank:
   1. `entity_schema_scaffold.md` — the #1 lever: drop-in `sameAs` + E-E-A-T Person + LocalBusiness. **Blocks on Ian's profile URLs + bio + address.**
-  2. `m2_cold_lcp_fix_plan.md` — kill the Tailwind Play CDN. **Blocks on Ian's approach OK (no-build-step site).**
+  2. `m2_cold_lcp_fix_plan.md` — kill the Tailwind Play CDN. ~~Blocks on Ian's approach OK (no-build-step site).~~
+     **Done locally 2026-10-13, no build step added — awaiting Ian's deploy.** The CDN compiles each config family's
+     classes once (`tools/tw_public_build.mjs`), giving four 7–9 KB sheets linked last in `<head>`; every public page
+     proved at parity with the CDN (stylesheet order, every rule, every element's computed style at 390 and 1280)
+     before the swap; generators emit the link; gate `tw-public-sheets` fails a class a sheet never compiled.
   3. `layer_b_playbook_assets.md` — G2/Capterra, YouTube, Reddit, digital-PR, Wikidata skeletons. **I prep; Ian executes.**
   4. `m5_weekly_sov_ritual.md` — first live `geo_sov` run = the Layer-B baseline.
 

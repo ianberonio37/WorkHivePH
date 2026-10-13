@@ -2,19 +2,19 @@
 name: page-inventory
 type: page
 source: file:inventory.html
-source_sha: 7c5e473dbc07e971
+source_sha: c791ffbb61cd5683
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `inventory.html` — Spare-Parts Inventory: WorkHive
 
-Size: 181KB · 53 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 191KB · 57 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (7): `asset_nodes.upsert`, `hive_audit_log.insert`, `inventory_items.delete`, `inventory_items.update`, `inventory_items.upsert`, `inventory_transactions.insert`, `project_links.insert`
-**RPC calls**: `inventory_deduct`, `inventory_restock`
+**RPC calls**: `inventory_adjust`, `inventory_deduct`, `inventory_restock`
 **Edge invokes**: (none)
 **Truth views read**: `v_inventory_items_truth`, `v_inventory_transactions_truth`
 
-**Functions**: _autoLinkInventoryToProject, _b64bytes, _buildAssetNodeMaps, _ensureInvQueue, _invSyncUrlQ, addTransaction, approvalBadge, assetBadge, catBadge, closeDetailModal, closePartModal, closeRestockModal, closeUseModal, confirmDeleteItem, findOnMarketplace, formatDate, getReservedQty, hasQty, highlight, initData, inventoryDeductHandler, loadAssets, loadInventory, loadMoreInventory, loadTransactions, mergeById, openAddModal, openDetailModal, openRestockModal, openUseModal, qtyText, renderAssetLinker, renderInventorySummary, renderParts, saveInventory, saveTransactions, sellSurplus, setCard, setCta, setInventoryCompanionContext, showFormError, showToast, signal, statusBadge, stockStatus, submitPart, submitRestock, submitUse, subscribeInventoryRealtime, tryRegister, txnIcon, validateHiveMembership, writeAuditLog
+**Functions**: _autoLinkInventoryToProject, _b64bytes, _buildAssetNodeMaps, _ensureInvQueue, _invStat, _invSyncUrlQ, _mineFilter, _ownsItem, addTransaction, approvalBadge, assetBadge, catBadge, closeDetailModal, closePartModal, closeRestockModal, closeUseModal, confirmDeleteItem, findOnMarketplace, formatDate, getReservedFor, getReservedQty, hasQty, highlight, initData, inventoryDeductHandler, loadAssets, loadInventory, loadMoreInventory, loadTransactions, mergeById, openAddModal, openDetailModal, openRestockModal, openUseModal, qtyText, renderAssetLinker, renderInventorySummary, renderParts, saveInventory, saveTransactions, sellSurplus, setCard, setCta, setInventoryCompanionContext, showFormError, showToast, signal, statusBadge, stockStatus, submitPart, submitRestock, submitUse, subscribeInventoryRealtime, tryRegister, txnIcon, validateHiveMembership, writeAuditLog
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

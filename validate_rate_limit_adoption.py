@@ -43,6 +43,9 @@ EXEMPT = {
     "trigger-ml-retrain",     # batch trigger; no per-call cost
     "cron-runner",            # internal
     "semantic-fact-extractor",# pg_cron batch extractor; self-caps fan-out (MAX_GROUPS=6); no per-user request path
+    "ai-eval-runner",         # SERVICE-ROLE only since 2026-10-07 (403 internal_only to every other caller, verified in
+                              # its handler): cron + CI start it, and its answers go through ai-gateway, which limits
+                              # the eval identity on the verified eval hive and user like any person
 }
 
 

@@ -40,6 +40,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -117,8 +118,22 @@ def collect_links() -> dict:
     return out
 
 
-def classify(url: str, timeout: int = 12) -> tuple[str, str]:
-    """(state, detail) where state is alive | shielded | dead."""
+def classify(url: str, timeout: int = 12, _retry: bool = True) -> tuple[str, str]:
+    """(state, detail) where state is alive | shielded | dead.
+
+    ★A DEAD VERDICT IS CONFIRMED BY A SECOND FETCH, BECAUSE ONE READING FAILED THE WHOLE BOARD ON A
+    FINDING THAT WOULD NOT REPRODUCE (2026-10-06). This gate ran in a --fast board and reported FAIL,
+    "a citation newly points at a missing page". Re-run three times immediately afterwards it reported
+    DEAD 0 every time - and the alive/shielded split itself moved between those runs (15/4, then 14/5),
+    so the instrument is measurably non-deterministic against these hosts. The board's own FAIL count
+    was therefore a claim about that RUN, not about the citations.
+    This function was already careful in the direction it had been bitten before: a DNS/TLS/timeout
+    error is never DEAD, and a bare 403 is never DEAD. The one verdict that could still condemn on a
+    single reading was the 404/410 - and a CDN edge under load serves a transient 404 perfectly
+    happily. So the one verdict with teeth now has to happen TWICE, with a pause between, and the
+    detail says so ("404 twice") - which is also the receipt a reader needs before deleting a claim
+    whose only source appears to be gone. An alive or shielded reading is not retried: those cost
+    nothing and fail nothing."""
     req = urllib.request.Request(url, headers={"User-Agent": UA,
                                                "Accept": "text/html,*/*"})
     try:
@@ -138,6 +153,14 @@ def classify(url: str, timeout: int = 12) -> tuple[str, str]:
             # exists to avoid. Report it, never fail on it.
             return "shielded", f"{e.code} blocked"
         if e.code in (404, 410):
+            if _retry:
+                time.sleep(1.5)
+                st2, d2 = classify(url, timeout=timeout, _retry=False)
+                if st2 != "dead":
+                    # One 404 then a different answer is a flap, not a deletion. Reported as
+                    # shielded so it is VISIBLE in the NOTE without failing the board.
+                    return "shielded", f"{e.code} once, then {d2}"
+                return "dead", f"{e.code} twice"
             return "dead", str(e.code)
         return "shielded", str(e.code)
     except Exception as e:
@@ -219,7 +242,13 @@ def self_test() -> int:
     # the distinction this gate exists for, asserted without touching the network
     ck(any(m in "just a moment..." for m in CHALLENGE),
        "Cloudflare's 'Just a moment...' is recognised as a challenge, not a dead page")
-    st, _ = classify("https://httpbin.org/status/404", timeout=8)
+    st, detail = classify("https://httpbin.org/status/404", timeout=8)
+    # ★the CONFIRMATION must be observable, or "we retry before condemning" is just a comment.
+    # A persistent 404 must come back labelled "twice": that word is the only proof the second
+    # fetch happened. Skipped when the network is down, because then nothing reached the host at
+    # all and the label would be describing a fetch that never ran (the gate's own first rule).
+    ck(st != "dead" or "twice" in detail,
+       "a DEAD verdict is confirmed by a second fetch and says so: %r" % detail)
     ck(st in ("dead", "shielded"), "a 404 classifies as dead (or shielded if the net is down): %s" % st)
     print("  self-test", "PASS" if ok else "FAIL")
     return 0 if ok else 1

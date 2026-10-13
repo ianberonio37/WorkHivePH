@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" href="tokens.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=optional" rel="stylesheet" /><!-- the platform typeface: this page asked for Poppins and never loaded it, so it alone rendered in the system font (critique W45985/W45992, 2026-10-13) -->
   <meta charset="UTF-8" />
   <meta name="wh-page-kind" content="console">   <!-- single-operator console (2026-09-05): ships in the operating language; the rubric records label coverage but does not grade N1 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -61,6 +62,14 @@
     .gate { max-width:520px; margin:12vh auto; text-align:center; background:var(--card); border:1px solid var(--border);
             border-radius:1rem; padding:2rem; }
     .gate a { color:var(--blue); }
+    /* the refusal's ONE action was 125x21 (2026-10-13, the W45990 walk as a worker): class="btn" with no rule for it on
+       this page - founder-console met the same bare .btn on 2026-07-29 and this is its rule, so the two consoles' gates
+       now look and measure the same: a 44px target that reads as the way out. */
+    .gate a.btn {
+      display:inline-flex; align-items:center; min-height:44px; margin-top:.75rem; padding:0 1.25rem;
+      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4); border-radius:var(--wh-radius, 0.75rem);
+      color:var(--wh-orange-text, #f7a21b); font-weight:700; text-decoration:none;
+    }
       /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
          bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
          Found by auditing every toast rule on the platform after the layout lens reported
@@ -74,9 +83,20 @@
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }
     .toast-msg.error { border-color:rgba(248,113,113,0.5); }
-    .row-controls { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
+    /* ★THE ROW COULD NOT WRAP, SO THE BUTTON'S LABEL DID (phone-fit@320 FIL, 2026-09-29). This is a
+       nowrap flex row holding the refresh button and the last-sync stamp, so at 320 the button was
+       squeezed to 176px - 144px of text room once its 1rem side padding is taken - and its Filipino
+       label "↻ I-refresh ang mga queue" (~160px) broke across two lines inside the control. The English
+       "↻ Refresh queues" fits, which is the recurring shape: the row was sized in English only, and
+       Filipino runs ~25-35% longer here.
+       A flex item whose text can wrap has a min-content of its longest WORD, so it shrinks happily and
+       breaks the label; `nowrap` makes the button's min-content the whole label, and letting the ROW
+       wrap gives the stamp somewhere to go. The label keeps one line at every width and the copy is
+       untouched. */
+    .row-controls { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; flex-wrap:wrap; }
     .refresh-btn { padding:0.5rem 1rem; border-radius:0.5rem; background:rgba(41,182,217,0.12); color:var(--blue);
-                   border:1px solid rgba(41,182,217,0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px; }
+                   border:1px solid rgba(41,182,217,0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px;
+                   white-space:nowrap; }
 
     /* Feedback triage — lifted 2026-08-03 from the retired founder-console. Written in THIS page's
        idiom (.card / .mod-row / .mod-btn) rather than porting the console's fb-* stylesheet: two
@@ -149,8 +169,9 @@
    onfocus="this.style.transform='translateY(0)'"
    onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
   <!-- Gate: not signed in or not admin -->
-  <div id="no-access-gate" class="gate" hidden>
-    <h2>Platform Actions</h2>
+  <div id="no-access-gate" class="gate" data-wh-gate="no-access" hidden>
+    <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the console) -->
+    <h1 style="font-size:1.5em; margin:0.83em 0;">Platform Actions</h1>
     <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
          the one thing they can do nothing with. Say who can let them in instead. -->
     <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
@@ -270,11 +291,11 @@
       <div class="card-hdr"><h2 data-i="p_feedbackfromusers_1e7b">Feedback from users</h2><span id="fb-count-badge" class="count">-</span></div>
       <div data-i="p_bugsideasquestionsreviewsand_7673" class="sub" style="margin:-0.4rem 0 0.75rem;">Bugs, ideas, questions, reviews and praise sent from the widget on any page. Open one to triage, note or reply.</div>
       <div class="fb-tabs" role="tablist" aria-label="Filter feedback by status">
-        <button class="fb-tab" type="button" data-status="new"         role="tab" aria-selected="true">New <span id="fb-count-new">0</span></button>
-        <button class="fb-tab" type="button" data-status="triaged"     role="tab" aria-selected="false">Triaged <span id="fb-count-triaged">0</span></button>
-        <button class="fb-tab" type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span id="fb-count-in_progress">0</span></button>
-        <button class="fb-tab" type="button" data-status="resolved"    role="tab" aria-selected="false">Resolved <span id="fb-count-resolved">0</span></button>
-        <button class="fb-tab" type="button" data-status="*"           role="tab" aria-selected="false">All <span id="fb-count-all">0</span></button>
+        <button class="fb-tab" type="button" data-status="new"         role="tab" aria-selected="true">New <span id="fb-count-new">—</span></button>
+        <button class="fb-tab" type="button" data-status="triaged"     role="tab" aria-selected="false">Triaged <span id="fb-count-triaged">—</span></button>
+        <button class="fb-tab" type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span id="fb-count-in_progress">—</span></button>
+        <button class="fb-tab" type="button" data-status="resolved"    role="tab" aria-selected="false">Resolved <span id="fb-count-resolved">—</span></button>
+        <button class="fb-tab" type="button" data-status="*"           role="tab" aria-selected="false">All <span id="fb-count-all">—</span></button>
       </div>
       <div class="fb-filters">
         <select class="fb-filter" id="fb-filter-kind" aria-label="Filter feedback by kind"
@@ -298,12 +319,47 @@
        (20260905000002) were wired into founder-console.html, which the 2026-07-18 Grafana arc RETIRED behind a
        redirect overlay - so nothing a person can open could call them. They belong on the live single-operator
        console, which is this page. -->
-  <div class="card" id="usage-card">
+  <!-- ★GATED LIKE THE REST OF THE CONSOLE (2026-10-13, the W45990 motion walk as a worker). This card was placed AFTER
+       #actions closes, so a person refused by the gate saw "This page is for platform admins only" and, under it,
+       "Platform usage - Loading..." - the console's scaffolding on the one screen meant to show none of it. It starts
+       hidden and the gate reveals it with #actions. -->
+  <div class="card" id="usage-card" hidden>
     <div class="card-hdr">
       <h2 data-i="p_platformusage_c12d">Platform usage</h2>
       <span class="mod-empty" id="usage-updated">-</span>
     </div>
     <div id="usage-body" aria-live="polite"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
+    <script>
+      /* ★A 60s REFRESH RE-READ THE WHOLE FEEDBACK LIST (2026-10-06, platform-actions x assistive-tech, layer D).
+         #fb-list and #usage-body are polite live regions ON PURPOSE - a filter or search change re-renders the
+         list and should be heard. But the 60-second refresh rebuilds both with the same markup: measured over
+         66s, #fb-list was replaced once (10 nodes, 929 characters) and #usage-body once, with ZERO text change.
+         Replacing nodes in a live region is an announcement, so a screen-reader user could be re-read the
+         whole queue every minute while nothing had happened. Same shape as analytics' status bar and
+         alert-hub's freshness strip, so the same rule: a rewrite that changes nothing is not written.
+         Five call sites write these two regions, several as multi-statement templates, so the skip lives on
+         the two ELEMENTS rather than at each call: their own innerHTML setter returns early when the new string
+         equals the last one written AND the DOM still serialises to what that write produced - so if anything
+         else touched the region since (an optimistic row change, a click handler), the write goes through. */
+      (function () {
+        var d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+        if (!d || !d.set || !d.get) return;
+        ['fb-list', 'usage-body'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          Object.defineProperty(el, 'innerHTML', {
+            configurable: true,
+            get: function () { return d.get.call(this); },
+            set: function (html) {
+              if (this.__whLastHtml === html && this.__whLastDom === d.get.call(this)) return;
+              d.set.call(this, html);
+              this.__whLastHtml = html;
+              this.__whLastDom = d.get.call(this);
+            }
+          });
+        });
+      })();
+    </script>
     <!-- NAME THE SOURCE, NOT THE METHOD. This chip used to read "Live · rolled up in the database over
          the last 30 days" — true, and uncheckable: a reader could not tell WHAT was rolled up, and the
          source_chip_true probe correctly reported a chip naming a source the page never requested. The
@@ -458,6 +514,15 @@
         return 'This account is not allowed to load this queue. Your session is fine, so signing in '
              + 'again will not change it. This queue needs moderator access.';
       }
+      // ★"COULDN'T LOAD THIS QUEUE: NAME RESOLUTION FAILED" (2026-10-06, platform-actions x assistive-tech, PostgREST
+      // stopped). The fallthrough appended the raw message, so an admin read the gateway's DNS words for an upstream
+      // that was down. A 5xx or an unreachable upstream has one honest sentence, and this page's own retry control is
+      // "Refresh queues", so the sentence names it.
+      if ((st >= 500 && st <= 504) || /name resolution|service unavailable|bad gateway|timed? ?out|failed to fetch|network/i.test(raw)) {
+        return (navigator.onLine === false)
+          ? "You are offline, so this queue could not be loaded. Press Refresh queues when your connection is back."
+          : "Couldn't load this queue - WorkHive did not answer. Press Refresh queues in a moment.";
+      }
       return "Couldn't load this queue: " + raw;
     }
 
@@ -469,7 +534,7 @@
             .select('id,title,section,category,price,seller_name,created_at')
             .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
           db.from('v_marketplace_sellers_truth')
-            .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
+            .select('id,worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
         ]);
         /* CARRY THE CODE AND STATUS, NOT JUST THE SENTENCE. supabase-js reports a PostgREST failure
@@ -523,10 +588,22 @@
          not outlive the attempt" — and the same reason the logbook ships its empty state hidden so
          only a successful render may assert it. A dash for an unknown count is right; a timestamp
          and a liveness chip over those dashes are not. */
+      /* ★...AND A NON-ADMIN SESSION READS FIVE ZEROS THAT ARE NOT ZEROS (action-row MCP walk, 2026-10-07). The
+         founder rollups run as the caller, and analytics_events only lets a platform admin read it, so on the
+         local bypass every rollup answers 200 with 0 - and this card printed "Active hives 0 · People 0" under a
+         "Live" chip, one block below queues that already said "Not visible with this session". Same rule here. */
+      if (_sessionLimited) {
+        host.innerHTML = '<div class="mod-empty">Not visible with this session. Sign in as a platform admin to see platform usage.</div>';
+        if (st0) st0.textContent = 'Not updated';
+        if (chip) chip.style.display = 'none';
+        return;
+      }
       const rollups = [u.hives, u.mau, u.anon, u.dau, u.heat];
       if (rollups.every((v) => v === null || v === undefined)) {
-        host.innerHTML = '<div class="mod-empty">Could not read platform usage. That is a connection '
-          + 'or permission problem, not a quiet month - press Refresh queues to try again.</div>';
+        // It guessed "a connection or permission problem" - and in the outage that found this it was neither: the
+        // device was online and the account was the same one that reads it on a good day. Say what is known.
+        host.innerHTML = '<div class="mod-empty">Could not read platform usage, so these figures are unknown - '
+          + 'not a quiet month. Press Refresh queues to try again.</div>';
         if (st0) st0.textContent = 'Not updated';
         if (chip) chip.style.display = 'none';
         return;
@@ -676,7 +753,39 @@
     function setCount(id, n, level) {
       const el = document.getElementById(id);
       if (!el) return;
-      el.textContent = n;
+      /* ★A QUEUE YOU MAY NOT READ HAS AN UNKNOWN SIZE, NOT A SIZE OF ZERO (2026-10-06, found walking
+         LXP223 as a worker). Every counter here already dashes on `m._error` - but an RLS refusal is not an
+         error: it returns ZERO ROWS and no error at all, so the counts computed 0 and printed it. Measured
+         against the database: platform_feedback holds 10 rows with status 'new' while this page's New tab
+         read 0, directly beside its own list saying "Not visible with this session. Sign in as a platform
+         admin to see what is waiting." The list was honest and the counters contradicted it on the same
+         screen - the same two-elements-disagreeing shape logbook and inventory each had.
+         `_sessionLimited` is the page's OWN existing signal for this state (emptyText() keys on it), so the
+         fix is to make the counters obey the verdict the page has already reached, in the one function they
+         all pass through rather than at ten call sites. */
+      if (typeof _sessionLimited !== 'undefined' && _sessionLimited) {
+        /* ...and the dash carries WORDS, because it means "unknown" to the eyes only. Measured on
+           inventory.html the same day: three pills reading "— parts" with no accessible name, which a
+           screen reader announces as "parts" with no value at all. whStatUnknown names it; whStatValue
+           below REMOVES that name when a real figure lands, so a stale label can never be read instead of
+           the live number. The id is the only label available here (setCount is generic), so it is
+           humanised - 'fb-count-new' reads as 'new'. */
+        if (typeof whStatUnknown === 'function') {
+          whStatUnknown(el, String(id || '').replace(/^.*?-count-?/, '').replace(/[-_]/g, ' ').trim().replace(/^badge$/, 'feedback waiting') || null);
+        } else {
+          el.textContent = '\u2014';
+        }
+        el.className = 'count';
+        return;
+      }
+      if ((n === '—' || n === '-') && typeof whStatUnknown === 'function') {
+        // A failed read passes the dash in as a VALUE (applyFeedbackView's error path does); routing it through
+        // whStatValue printed a bare dash a screen reader cannot speak (2026-10-06, assistive-tech walk).
+        whStatUnknown(el, String(id || '').replace(/^.*?-count-?/, '').replace(/[-_]/g, ' ').trim().replace(/^badge$/, 'feedback waiting') || null);
+        el.className = 'count';
+        return;
+      }
+      if (typeof whStatValue === 'function') whStatValue(el, n); else el.textContent = n;
       el.className = 'count' + (n > 0 && level ? ' ' + level : '');
     }
 
@@ -740,8 +849,8 @@
             // translation pass at all - measured: zero data-i-aria, no whI18nApply, no dictionary
             // entry for verifyid - and declaring an i18n hook nothing implements is the
             // mechanism-that-is-not-a-mechanism this bank records.
-            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" aria-label="Verify ID for ${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`);
-            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" aria-label="Verify certifications for ${e(s.worker_name)}" data-i="verifycerts">Verify certs</button>`);
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" data-seller-id="${e(s.id)}" aria-label="Verify ID for ${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" data-seller-id="${e(s.id)}" aria-label="Verify certifications for ${e(s.worker_name)}" data-i="verifycerts">Verify certs</button>`);
             if (!parts.length) return '';
             sellerCount++;
             return `
@@ -809,7 +918,12 @@
         card.hidden = true;
         return;
       }
-      if (m._error) { card.hidden = false; box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`; return; }
+      if (m._error) {
+        card.hidden = false; box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
+        const _gc = document.getElementById('gcash-receipts-count');
+        if (_gc && typeof whStatUnknown === 'function') whStatUnknown(_gc, 'receipts');
+        return;
+      }
       if (!rows.length) { card.hidden = true; return; }
       card.hidden = false;
       const WHY = {
@@ -1106,7 +1220,19 @@
             const upd = act === 'verify-kyb'
               ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }
               : { cert_verified: true, cert_verified_at: nowIso, updated_at: nowIso };
-            const { error } = await db.from('marketplace_sellers').update(upd).eq('worker_name', btn.dataset.name);
+            // ★BRP-A (2026-10-04): A TRUST BADGE MUST NOT BE WRITTEN BY DISPLAY NAME. This update sets
+        // kyb_verified / cert_verified - the marketplace's verification badges - and it keyed on
+        // btn.dataset.name, a mutable display string. Two sellers sharing a name, or a name that has
+        // drifted from the row it was rendered from, and the verification lands on the WRONG seller or
+        // on none at all (PostgREST answers a 0-row update with 204 and no error, so the admin is told
+        // it worked). Measured: marketplace_sellers holds 16 rows with 0 duplicate worker_name today,
+        // so this is latent rather than live - which is the right time to fix it. The row's PRIMARY KEY
+        // is carried in the dataset instead, falling back to the name only if an older rendered DOM has
+        // no id attribute, so nothing breaks mid-session.
+        const _sellerId = btn.dataset.sellerId || '';
+        // ★BY ID ONLY (2026-10-13): the by-name fallback is gone - the buttons and this handler come from the same page load and every button carries data-seller-id, so it never ran; had it run, it would have verified EVERY seller sharing the display name. A row without an id is refused, not guessed.
+        if (!_sellerId) { showToast('This seller row has no id, so nothing was verified. Reload the queue and try again.', 'error'); return; }
+        const { error } = await db.from('marketplace_sellers').update(upd).eq('id', _sellerId);
             if (error) throw error;
             writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
@@ -1151,7 +1277,7 @@
       if (d < 3600) return Math.floor(d / 60) + 'm ago';
       if (d < 86400) return Math.floor(d / 3600) + 'h ago';
       if (d < 86400 * 7) return Math.floor(d / 86400) + 'd ago';
-      return new Date(iso).toLocaleDateString();
+      return new Date(iso).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' });
     }
 
     async function fetchFeedback() {
@@ -1183,6 +1309,10 @@
         // so an unread feedback queue reads as an empty one. The gap says it does not know.
         list.innerHTML = `<div class="mod-empty">${e(_queueErr({ _error: _fb.error, _code: _fb.code, _status: _fb.status }))}</div>`;
         setCount('fb-count-badge', '—', '');
+        ['new', 'triaged', 'in_progress', 'resolved', 'all'].forEach((k) => {
+          const _el = document.getElementById('fb-count-' + k);
+          if (_el && typeof whStatUnknown === 'function') whStatUnknown(_el, 'count');
+        });
         return;
       }
 
@@ -1190,9 +1320,17 @@
       // in the search box would make "3 new" unreadable as a workload.
       const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.rows.length >= 500 ? '500+' : _fb.rows.length };   // cap is not a total (2026-09-05): the read is .limit(500)
       _fb.rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+      // The tab pills are written directly rather than through setCount (which would impose its own
+      // `count` class on a span that has none), so they carry the same guard explicitly. Without it the
+      // five tabs read "New 0 / Triaged 0 / ..." for a reader the page has just told it cannot show the
+      // queue to - and 10 'new' rows existed in the database at the moment that was measured.
+      const _unknown = (typeof _sessionLimited !== 'undefined' && _sessionLimited);
       Object.entries(counts).forEach(([k, v]) => {
         const el = document.getElementById('fb-count-' + k);
-        if (el) el.textContent = v;
+        if (!el) return;
+        if (_unknown && typeof whStatUnknown === 'function') whStatUnknown(el, 'count');
+        else if (!_unknown && typeof whStatValue === 'function') whStatValue(el, v);
+        else el.textContent = _unknown ? '\u2014' : v;
       });
       // The header badge counts what is WAITING (new + triaged + in progress), not the archive:
       // this page exists to answer "is anything owed", and 500 resolved items is not owed.
@@ -1458,7 +1596,9 @@
 
     // ── Admin gate (localhost bypass for the founder's own machine; server RLS still gates writes) ──
     // Runs LAST so every function + `let` above is fully initialized before it fires.
-    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
+    // ★OPT-IN ON THE MACHINE TOO (2026-10-09): see founder-console.html - set localStorage wh_local_founder = '1' once.
+    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname)
+      && (() => { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })();
     (async () => {
       const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
       const ok = realAdmin || IS_LOCAL_FOUNDER;
@@ -1501,6 +1641,8 @@
       } finally {
         document.getElementById('checking-gate').hidden = true;
         document.getElementById('actions').hidden = false;
+        // the usage card sits after #actions in the markup, so the gate reveals it here too (2026-10-13)
+        document.getElementById('usage-card').hidden = false;
       }
       document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
       const _refreshTimer = setInterval(refreshQueues, 60000);
@@ -1521,7 +1663,9 @@
       if (!el) {
         el = document.createElement('div');
         el.id = 'pa-source-chip';
-        var host = document.querySelector('main') || document.querySelector('.page') || document.body;
+        // inside the GATED container (2026-10-13): there is no <main> here - #actions carries role=main - so the chip fell
+        // through to <body> and told a refused worker the console reads credit ledgers and GCash receipts
+        var host = document.getElementById('actions') || document.querySelector('main') || document.querySelector('.page') || document.body;
         host.appendChild(el);
       }
       // W45981 audit: this wrapper used to set role=status + aria-live=polite ITSELF, and renderSourceChip() emits a <p class="wh-source-chip" role="status" aria-live="polite"> into it - so the page carried a live region INSIDE a live region and announced the same provenance sentence twice on arrival. The G1 reasoning was right (this chip IS the page's status region) and is now satisfied by the chip itself, which is where the role belongs: one element, one announcement.

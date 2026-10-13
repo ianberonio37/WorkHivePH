@@ -54,10 +54,15 @@ def main() -> int:
         print("FAIL findability-benchmark - no score line in output (runner crashed?)")
         return 1
     got, total = int(m.group(1)), int(m.group(2))
+    # the benchmark counts the questions a recorded decision moved one page deeper (2026-10-13: Resume Builder, hidden
+    # from the worker hub on 2026-09-10 for the nav budget); the verdict says so instead of claiming two taps for all
+    deep = re.search(r"\((\d+) by a recorded three-tap route\)", out)
+    nd = int(deep.group(1)) if deep else 0
+    how = (f"{total - nd} in <=2 interactions, {nd} by a recorded three-tap route" if nd else "in <=2 interactions")
     if got != total:
-        print(f"FAIL findability-benchmark - {got}/{total} questions answered in <=2 interactions")
+        print(f"FAIL findability-benchmark - {got}/{total} questions answered ({how})")
         return 1
-    print(f"PASS findability-benchmark - {got}/{total} questions answered in <=2 interactions.")
+    print(f"PASS findability-benchmark - {got}/{total} questions answered ({how}).")
     return 0
 
 

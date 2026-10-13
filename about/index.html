@@ -62,16 +62,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: {
-      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
-      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
-      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
-      steel: '#7B8794', cloud: '#F4F6FA',
-    } } } };
-  </script>
   <style>
+    html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     * { font-family: 'Poppins', sans-serif; } body { background: #162032; color: #F4F6FA; }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
     .prose-wh { color: rgba(244,246,250,0.78); font-size: 1.05rem; line-height: 1.8; }
@@ -147,6 +139,7 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <style data-wh-public-chrome>/* W46593 audit: the four public pages are the platform's legal and identity surface and their    footer links measured 16px TALL - less than half the 44px floor - with the brand link at 36px    and the header nav 31-42px wide. inline-flex + min-height gives a real target and moves no    text, because each of these rows is already items-center. min-width covers the short header    words ('Home', 'Learn', 'Sign In') whose HEIGHT was fixed by an earlier repair and whose width    was not. */footer a,header a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;}header nav a{min-width:44px;}.breadcrumb a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
+<link rel="stylesheet" href="/wh-tw-pub-site.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
@@ -159,10 +152,10 @@
       <span class="font-black text-lg tracking-tight wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/?signin=1" class="nav-link">Sign In</a>
-      <a href="/?signup=1" class="nav-link">Sign Up Free</a>
+      <a href="/" class="nav-link" data-i="home">Home</a>
+      <a href="/learn/" class="nav-link" data-i="learn">Learn</a>
+      <a href="/?signin=1" class="nav-link" data-i="signin">Sign In</a>
+      <a href="/?signup=1" class="nav-link" data-i="signup">Sign Up Free</a>
     </nav>
   </div>
 </header>
@@ -221,8 +214,8 @@
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
     <div class="flex items-center gap-6">
-      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
-      <a href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>
+      <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
+      <a href="/learn/" class="hover:text-white/60 transition-colors" data-i="learn">Learn</a>
       <a href="/about/" class="hover:text-white/60 transition-colors">About</a>
       <a href="/privacy-policy/" class="hover:text-white/60 transition-colors">Privacy</a>
       <a href="/terms-of-service/" class="hover:text-white/60 transition-colors">Terms</a>
@@ -230,6 +223,15 @@
   </div>
 </footer>
 
+<!-- CHROME i18n, the pattern all 55 learn articles already use (2026-09-29). This page loaded NO i18n
+     layer, so a Filipino reader met it entirely in English and phone-fit@320 fil said so. wh-i18n-lite.js
+     swaps the [data-i] chrome from its shared WH_FIL_PUBLIC dictionary and stamps each swapped element
+     lang="fil" — WCAG 3.1.2, the language of the parts that changed. The `data-wh-chrome-i18n` attribute
+     is only a marker; the call below is what does the work.
+     ★THE PAGE'S OWN PROSE IS DELIBERATELY NOT TRANSLATED, the same call the learn articles make: this is
+     477 words of mission and brand voice, and that is Ian's to write, not something to infer. -->
+<script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
+<script data-wh-chrome-i18n>if (typeof whI18nApply === "function" && window.WH_LANG === "fil") whI18nApply(window.WH_FIL_PUBLIC || {});</script>
 <script defer src="../wh-feedback-fab.js"></script>
 </body>
 </html>

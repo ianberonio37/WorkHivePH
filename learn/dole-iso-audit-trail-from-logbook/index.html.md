@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
+**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and keeps that history for 3 years by default (1,095 days), adjustable up to 10 years. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
 
 Who this is for
 
@@ -81,7 +81,7 @@ The tool this guide is about
 
 ### WorkHive Audit Log makes DOLE and ISO audits a 1-hour exercise
 
-Server-side timestamps, authenticated authorship, append-only edits, 10-year default retention. Date-range, asset-history and compliance-mapping exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only; there is no separate compliance-reporting tier above it, so what an inspector can be shown is what you see today.
+Server-side timestamps, authenticated authorship, append-only edits, audit history kept 3 years by default and adjustable up to 10. Date-range, asset-history and compliance-mapping exports. Direct mapping to ISO 9001 / 14001 / 45001 clauses and DOLE OSHS rules. Free at the worker tier. The full audit log is supervisor-only; there is no separate compliance-reporting tier above it, so what an inspector can be shown is what you see today.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 22aef7a190f89160 -->
+<!-- md-twin source-sha: 9f0ab130e41393fb -->

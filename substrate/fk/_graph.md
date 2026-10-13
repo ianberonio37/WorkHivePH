@@ -2,15 +2,15 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: 8b59c774b0486001
+source_sha: a006d8616f750836
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (205 foreign keys)
+## fk · relational-integrity graph (211 foreign keys)
 
-**UNINDEXED FK columns (40)** — slow joins + table-locking cascade deletes; add an index on the child column:
-- `agent_episodic_memory`.`auth_uid` -> `auth.users`
+**UNINDEXED FK columns (39)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
+- `ai_cost_log`.`auth_uid` -> `auth.users`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
 - `asset_edges`.`auth_uid` -> `auth.users`
 - `auth_session_events`.`auth_uid` -> `auth.users`
@@ -28,7 +28,6 @@ supersedes: null
 - `knowledge_graph_facts`.`superseded_by` -> `knowledge_graph_facts`
 - `logbook`.`pm_completion_id` -> `pm_completions`
 - `marketplace_disputes`.`listing_id` -> `marketplace_listings`
-- `marketplace_inquiries`.`buyer_auth_uid` -> `auth.users`
 - `marketplace_inquiries`.`hive_id` -> `hives`
 - `marketplace_listings`.`sold_to_inquiry_id` -> `marketplace_inquiries`
 - `marketplace_orders`.`hive_id` -> `hives`
@@ -50,7 +49,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (136)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (138)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`

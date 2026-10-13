@@ -32,7 +32,7 @@ const atPath = (h) => new RegExp('/' + h.split('.').join('[.]') + '(?:[?#]|$)');
 const CREW_MIN = 4, FIL_MIN = 6;
 // the crew's everyday words, not only the standards' - a page that says "job", "team", "report", "alert" and "log" speaks
 // to a technician as surely as one that says "MTBF" (the smoke read ai-quality as 2 terms because the list began too formal)
-const CREW = ['preventive maintenance', 'work order', 'breakdown', 'downtime', 'spare part', 'spares', 'lockout', 'loto', 'permit', 'ptw', 'shift', 'handover', 'checklist', 'mtbf', 'mttr', 'oee', 'supervisor', 'technician', 'crew', 'hive', 'logbook', 'asset', 'machine', 'inspection', 'repair', 'fault', 'plant', 'maintenance', 'philippine', 'pinoy', 'barangay', 'pm schedule', 'pm task', 'root cause', 'failure', 'safety', 'calibration', 'equipment', 'job', 'jobs', 'task', 'team', 'worker', 'workers', 'report', 'alert', 'alerts', 'log', 'entry', 'record', 'schedule', 'part', 'parts', 'tool', 'tools', 'inventory', 'stock', 'restock', 'fix', 'fixes', 'work', 'workshop', 'factory', 'operator', 'foreman', 'engineer', 'manual', 'sop', 'procedure', 'compliance', 'incident', 'hazard'];
+const CREW = ['preventive maintenance', 'work order', 'breakdown', 'downtime', 'spare part', 'spares', 'lockout', 'loto', 'permit', 'ptw', 'shift', 'handover', 'checklist', 'mtbf', 'mttr', 'oee', 'supervisor', 'technician', 'crew', 'hive', 'logbook', 'asset', 'machine', 'inspection', 'repair', 'fault', 'plant', 'maintenance', 'pm schedule', 'pm task', 'root cause', 'failure', 'safety', 'calibration', 'equipment', 'job', 'task', 'team', 'worker', 'report', 'alert', 'log', 'entry', 'record', 'schedule', 'part', 'tool', 'inventory', 'stock', 'restock', 'fix', 'work', 'workshop', 'factory', 'operator', 'foreman', 'engineer', 'manual', 'sop', 'procedure', 'compliance', 'incident', 'hazard', 'mechanical', 'electrical', 'instrumentation', 'skill', 'discipline', 'switchgear', 'facilities', 'production line', 'pump', 'motor', 'bearing', 'compressor', 'conveyor', 'boiler', 'generator', 'lubrication', 'vibration', 'welding', 'electrician', 'mechanic', 'certification'];
 const FIL = ['trabaho', 'sira', 'ayusin', 'makina', 'gawain', 'piyesa', 'turno', 'kagamitan', 'inspeksyon', 'pag-aayos', 'tsek', 'planta', 'manggagawa', 'superbisor', 'pahintulot', 'iskedyul', 'tala', 'ngayon', 'linggo', 'buwan', 'mga', 'ang', 'sa iyong', 'hindi', 'pang-araw-araw', 'balik', 'bumalik', 'ipakita', 'itago', 'i-save', 'maghanap', 'tulong', 'mag-sign'];
 
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8', timeout: 30000 }).trim(); } catch (e) { return ''; } };
@@ -69,7 +69,10 @@ const READ = () => ({ url: location.pathname.split('/').pop() + location.search,
 const VOCAB = ({ CREW, FIL }) => {
   const text = ' ' + (document.body.innerText || '').replace(/\s+/g, ' ').toLowerCase() + ' ';
   const has = (w) => new RegExp('(^|[^a-z\\u00C0-\\u024F])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z\\u00C0-\\u024F]|$)', 'i').test(text);
-  const crew = CREW.filter(has);
+  // crew words only: a plural counts as its word (the list, tools/ca_crew_words.json, holds singulars); the Filipino
+  // match below keeps the exact form - Filipino plurals are "mga", not a suffix
+  const hasCrew = (w) => new RegExp('(^|[^a-z\\u00C0-\\u024F])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:s|es)?([^a-z\\u00C0-\\u024F]|$)', 'i').test(text);
+  const crew = CREW.filter(hasCrew);
   const dict = (window.WH_FIL_COMMON && typeof window.WH_FIL_COMMON === 'object') ? Object.values(window.WH_FIL_COMMON).filter((v) => typeof v === 'string' && v.length > 3).map((v) => v.toLowerCase()) : [];
   const fil = [...new Set([...FIL, ...dict])].filter(has);
   return { stamps: document.querySelectorAll('[data-i]').length, dictSize: dict.length, crew: crew.slice(0, 12), crewCount: crew.length, fil: fil.slice(0, 12), filCount: fil.length, htmlLang: document.documentElement.lang || '', whLang: (() => { try { return localStorage.getItem('wh_lang') || ''; } catch (e) { return ''; } })() };

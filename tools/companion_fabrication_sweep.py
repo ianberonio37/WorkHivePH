@@ -28,6 +28,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from chain_pacer import GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES, ChainPacer, edge_window_outcome  # noqa: E402
+
+
+class QuotaStop(RuntimeError):
+    """The run's pacer stopped it (cap reached, or every provider answered 429 twice running)."""
+
+
+# PACED (2026-10-08). This sweep ran 8 concurrent workers 0.4 s apart over up to 15 families x 100 probes - the
+# largest burst any tool aims at the free-tier chain, which shares its keys with the live platform. Every gateway
+# call now passes ONE shared, thread-safe pacer: --gap (default 8 s), --max-calls (default 30), and a stop once the
+# edge runtime log shows every provider answering 429 twice in a row. A stopped run raises QuotaStop and exits 0 with
+# the reason - a partial sweep is never graded, so it can never report a fabrication rate it did not measure.
+_PACER = ChainPacer("fabrication-sweep", GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES)
 try:
     import psycopg2
 except Exception:
@@ -361,10 +376,13 @@ def call(token: str, hive_id: str, persona: str, message: str, agent: str = "voi
             "context": {"persona": persona, "page": "hive", "source": "floating-launcher"}}
     headers = {"Content-Type": "application/json", "apikey": ANON_KEY,
                "Authorization": f"Bearer {token}"}
+    if not _PACER.wait():
+        raise QuotaStop(_PACER.stop_reason)
     t0 = time.time()
     try:
         resp = requests.post(GATEWAY, json=body, headers=headers, timeout=60)
         ms = int((time.time() - t0) * 1000)
+        _PACER.record(edge_window_outcome(t0, time.time()))
         try: payload = resp.json()
         except Exception: payload = {"raw": resp.text}
         return {"ok": resp.ok, "status": resp.status_code, "ms": ms, "body": payload}
@@ -1965,6 +1983,8 @@ def main() -> int:
     ap.add_argument("--family", default="all", help="A..O | all | behaviour(A-I) | wiring(J-O)")
     ap.add_argument("--per", type=int, default=100)
     ap.add_argument("--pace", type=float, default=0.4)
+    ap.add_argument("--gap", type=float, default=GAP_EDGE_INVOKE_S, help="min seconds between gateway calls, all workers")
+    ap.add_argument("--max-calls", type=int, default=RUN_CAP_EDGE_INVOKES, help="per-run cap on gateway calls")
     ap.add_argument("--label", default="run", help="pre | post | <tag>")
     ap.add_argument("--workers", type=int, default=8, help=">1 = concurrent (dedicated reset thread)")
     ap.add_argument("--regrade", default=None, help="path to a saved sweep JSON to re-grade with the current grader")
@@ -1979,6 +1999,8 @@ def main() -> int:
 
     if args.self_test:
         return self_test()
+    global _PACER
+    _PACER = ChainPacer("fabrication-sweep", args.gap, args.max_calls)
     if args.regrade:
         return regrade(Path(args.regrade))
 
@@ -2103,4 +2125,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except QuotaStop as _stop:
+        print(f"{YEL}fabrication-sweep: {_stop} - the sweep stopped early and was NOT graded (not a failure){RESET}")
+        sys.exit(0)

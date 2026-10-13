@@ -92,14 +92,14 @@
       /* C2 (rubric sweep 2026-09-05): --wh-blue-light #5FCCE8 on this badge's composited background
          measured 4.44:1 on "PRC Registered" — under the 4.5:1 AA floor for 0.7rem text. A brighter
          SCOPED tint of the same hue clears it; the brand token is left alone (C2 fix pattern). */
-      background: rgba(41,182,217,0.15); color: #8fdcf0; border: 1px solid rgba(41,182,217,0.3);
+      background: rgba(41,182,217,0.15); color: var(--wh-blue-text, #5FCCE8); border: 1px solid rgba(41,182,217,0.3);   /* was #8fdcf0, off the blue family (critique W45957) */
     }
     .hero-cta {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px;  /* D1 U2: was 41px tap target */
       padding: 0.75rem 1.25rem;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       border: none; border-radius: 0.625rem;
-      color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700;
+      color: var(--wh-navy, #162032); font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700;
       cursor: pointer; text-decoration: none;
       margin-top: 1rem;
       transition: opacity 0.2s;
@@ -151,7 +151,7 @@
       margin: 1.5rem 0 0.75rem;
     }
     .section-heading h2 { font-size: 1rem; font-weight: 700; }
-    .section-heading .count { font-size: 0.75rem; color: #8b97a4; }  /* D1 U5: --wh-steel var(--wh-steel) = 4.34:1 on the #112430 card (just under AA); lighter steel clears 4.5:1 for this 11.5px count */
+    .section-heading .count { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); }   /* the muted-text token, ~9:1 (was #8b97a4, critique W45957) */  /* D1 U5: --wh-steel var(--wh-steel) = 4.34:1 on the #112430 card (just under AA); lighter steel clears 4.5:1 for this 11.5px count */
 
     /* Reviews */
     .reviews-card {
@@ -181,7 +181,7 @@
       padding: 0.25rem 0.75rem; border-radius: 999px; min-height: 44px; min-width: 44px;
       display: inline-flex; align-items: center; justify-content: center;  /* D1 U2: was 30px tap target */
       border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(22,32,50,0.5); color: #8b97a4;  /* D1 U5: --wh-steel var(--wh-steel) = 4.4:1 on the #142231 chip; lighter clears AA (active state uses --wh-orange) */
+      background: rgba(22,32,50,0.5); color: var(--wh-text-muted, rgba(255,255,255,0.80));  /* D1 U5: --wh-steel var(--wh-steel) = 4.4:1 on the #142231 chip; lighter clears AA (active state uses --wh-orange) */
       font-size: 0.75rem; font-family: 'Poppins', sans-serif; font-weight: 600;
       cursor: pointer; transition: all 0.15s;
     }
@@ -221,7 +221,7 @@
     }
     .card-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; }
     .meta-chip {
-      padding: 0.12rem 0.5rem; border-radius: 999px;
+      padding: 0.125rem 0.5rem; border-radius: 999px;   /* 2px: 0.12rem rendered 1.92px, off the scale (2026-10-13) */
       font-size: 0.75rem; font-weight: 600;
       background: rgba(255,255,255,0.06); color: var(--wh-steel-bright);
       border: 1px solid rgba(255,255,255,0.08);
@@ -306,7 +306,10 @@
          numbers it shows and said neither what follows an action nor what anything costs -- on a
          SHAREABLE, indexable URL a buyer may arrive at first, from a search or a link, without ever
          passing the marketplace grid where "Free, contact-only: no platform fees" is stated. -->
-    <p style="margin:0.9rem 0 0;font-size:0.78rem;color:rgba(255,255,255,0.82);line-height:1.5;">
+    <!-- craft, walked WITH ?worker= (2026-10-13, W45952): at 1280 this note ran 116 characters to the line - small text
+         across the whole 880px column - so it is held to a reading measure; its 0.9rem (14.4px) top margin was off the
+         page's 4/8/12/16/24 scale and is 1rem. -->
+    <p style="margin:1rem 0 0;max-width:68ch;font-size:0.78rem;color:rgba(255,255,255,0.82);line-height:1.5;">
       <!-- 22 words at grade 9.6 AND passive ("is measured"), the page's only sentence over the B3 bar -
            split into two active ones, which answers all three of the dim's complaints at once. This is
            the page's own trust copy, not anybody's editorial prose, so it is a single-path fix. -->
@@ -344,10 +347,10 @@
          copy earlier today, which is exactly why this check reads the WHOLE surface rather than the
          part that was just edited. -->
     <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div data-i="p_avgreply_f3ab" class="stat-lbl">Avg Reply</div></div>
-    <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div data-i="p_rating_6437" class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal seller-quality composite). -->
-  <div data-i="p_statsperworkhivemarketplaces_d68e" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:-0.5rem 0 1rem;text-align:center;">Stats per WorkHive Marketplace Seller Score · platform-internal composite</div><!-- D1 a11y: text was rgba(255,255,255,0.4)=3.81:1 on #0f1923 (<4.5:1, WCAG 1.4.3); 0.5=5.23:1 -->
+  <div data-i="p_thesefigurescomefromthissell_b336" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:-0.5rem 0 1rem;text-align:center;">These figures come from this seller’s listings, replies and verified purchases.</div><!-- 2026-10-06 (seller-profile x assistive-tech, layer D): this read "Stats per WorkHive Marketplace Seller Score · platform-internal composite" - provenance in the platform's voice, naming an internal score a buyer never sees. Rewritten to say where each figure comes from, which is what a provenance line is for. D1 a11y: text was rgba(255,255,255,0.4)=3.81:1 on #0f1923 (<4.5:1, WCAG 1.4.3); 0.5=5.23:1 -->
 
   <!-- X-axis bridge (Community PDDA 7th): Marketplace -> Community reverse cross-link. Shows the seller's
        community standing (trust built by helping) and links back to the forum where they earned it. -->
@@ -415,6 +418,7 @@
   let _avgResponseHours = null;
   let _replyCount       = 0;
   let _replyCapped      = false;  // the response-time read returned its full cap, so the average is over a slice (W3-AR 2026-09-09)
+  let _replyReadFailed  = false;  // the replies read failed: the average is unknown, not "none yet" (critique W45957)
   // How many reviews this page shows. Named so the query cap and the label that discloses the cap
   // can never drift apart (MK10: a truncated list has to say so).
   const REVIEWS_SHOWN   = 20;
@@ -454,6 +458,7 @@
 
   /* ── Auth gate ──────────────────────────────────────────────────────── */
   if (!WORKER_VIEW) {
+    window.__mspState = 'none';   // nothing is read in this state, so whMspChip (below) shows no source chip
     document.querySelector('.page').innerHTML = `
       <a href="marketplace.html" class="back-link">
         <span class="ic ic-back" aria-hidden="true"></span>
@@ -530,7 +535,7 @@
     el.style.display = 'block';
     el.innerHTML = `
       <div style="background:linear-gradient(135deg,rgba(41,182,217,0.10),rgba(247,162,27,0.08));border:1px solid rgba(41,182,217,0.25);border-radius:0.75rem;padding:1rem;margin-bottom:1rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:0.6rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:0.5rem;">
           <span style="font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:6px;">🐝 ${escHtml(_t('Community standing', 'Katayuan sa Komunidad'))}</span>
           ${_posts ? `<a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">${escHtml(_t('View in forum', 'Tingnan sa forum'))} →</a>` : ''}
         </div>
@@ -539,22 +544,29 @@
           <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size: 0.75rem;text-transform:uppercase;letter-spacing:0.04em;color:rgba(255,255,255,0.80);">${escHtml(_t('Public posts', 'Pampublikong post'))}</div></div>
           <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-text);">${escHtml(tierLabel)}</span></div>
         </div>
-        <p style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0.6rem 0 0;line-height:1.45;">${escHtml(_note)}</p>
+        <p style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0.5rem 0 0;line-height:1.45;">${escHtml(_note)}</p>
       </div>`;
   }
 
   /* ── Load seller profile ────────────────────────────────────────────── */
   async function loadSeller() {
+    // ★A FAILED READ SAID "SELLER NOT FOUND" (2026-10-06, seller-profile x assistive-tech, PostgREST stopped). Both reads
+    // below resolve a failure as { data: null, error } and neither error was looked at, so an outage was rendered as the
+    // page's ONLY h1: "Seller not found - We could not find a seller named "Bryan Garcia"" - a seller with five live
+    // listings. "Not found" is a claim that a read SUCCEEDED and came back empty; when neither read succeeded the honest
+    // state is "could not load", with a way to try again.
+    let _readFailed = false, _rpcFailed = false;
     try {
       // Canonical: marketplace_sellers_truth — bridges in active_listings_count
       // and is_verified_public so the hero card avoids a follow-up query.
-      const { data } = await db
+      const { data, error: _sErr } = await db
         .from('v_marketplace_sellers_public')
         .select('worker_name, hive_id, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at, active_listings_count, is_verified_public, last_listed_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
+      if (_sErr) _readFailed = true;
       _seller = data;
-    } catch (_) { _seller = null; }
+    } catch (_) { _seller = null; _readFailed = true; }
 
     // J19/MK7 (deepwalk 2026-07-24): ANON fallback. marketplace_sellers RLS is authenticated-only
     // (mkt_sellers_read USING auth.uid() IS NOT NULL) and the truth view is security_invoker, so the
@@ -565,9 +577,10 @@
     // contact button — display:none unless messenger_username exists — simply stays hidden for anon.
     if (!_seller) {
       try {
-        const { data: pub } = await db.rpc('get_marketplace_seller_public', { p_worker_name: WORKER_VIEW });
+        const { data: pub, error: _pErr } = await db.rpc('get_marketplace_seller_public', { p_worker_name: WORKER_VIEW });
+        if (_pErr) _rpcFailed = true;
         _seller = (pub && pub[0]) || null;
-      } catch (_) { /* empty-catch-allow: public fallback is best-effort; the not-found state below still renders */ }
+      } catch (_) { _rpcFailed = true; /* the unread state below renders instead of "not found" */ }
     }
 
     // X-axis bridge (Community PDDA 7th): pull this seller's PORTABLE community reputation
@@ -600,14 +613,36 @@
     if (!_seller) {
       const pageEl = document.querySelector('.page');
       if (pageEl) {
-        // THE SOURCE CHIP MUST SURVIVE THIS REPLACEMENT. It is appended by a load-time handler, and
-        // this branch resolves AFTER load (it awaits a DB read), so a bare innerHTML assignment wipes
-        // it - costing E3 (provenance) and G1 (status region) together, since one
-        // <p class="wh-source-chip" role="status"> carries both. The sibling auth-gate state keeps its
-        // chip only because it runs synchronously, before load: that accident is what made the two
-        // terminal states read 0% and 100% on the same dims. Carried across explicitly so neither
-        // order matters; if the chip does not exist yet, the load handler still appends it later.
-        const _chip = document.getElementById('msp-source-chip');
+        // THE SOURCE CHIP MUST SAY WHAT THIS STATE READ (2026-10-09, UFAI LXP378/415/451). It used to be carried
+        // across unchanged so the replacement could not wipe it (E3 provenance + G1 status region, one
+        // <p class="wh-source-chip" role="status">). But unchanged it lied: "Live · refreshed on load · Based on this
+        // seller's listings, replies and verified-purchase reviews" sat beside "Couldn't load this seller" (nothing was
+        // read) and beside "Seller not found" (there is no seller). whMspChip (bottom of the page) now renders the
+        // chip for the state: the seller list that came back empty for not-found, and no chip at all when the read
+        // failed (the role="alert" state names the outage). __mspState makes the order with the load handler not matter.
+        if (_readFailed && _rpcFailed) {
+          window.__mspState = 'failed';
+          const _off = (navigator.onLine === false);
+          pageEl.innerHTML = `
+      <a href="marketplace.html" class="back-link">
+        <span class="ic ic-back" aria-hidden="true"></span>
+        ${escHtml(_t('Back to Marketplace', 'Bumalik sa Marketplace'))}
+      </a>
+      <div class="empty-state" role="alert">
+        <span class="ic ic-back" aria-hidden="true"></span>
+        <h1>${escHtml(_t('Couldn’t load this seller', 'Hindi ma-load ang seller na ito'))}</h1>
+        <p>${escHtml(_off
+          ? _t(`You are offline, so the profile of "${WORKER_VIEW}" could not be read. It will load when your connection is back.`,
+               `Offline ka, kaya hindi mabasa ang profile ni "${WORKER_VIEW}". Maglo-load ito kapag bumalik ang koneksyon mo.`)
+          : _t(`WorkHive did not answer, so the profile of "${WORKER_VIEW}" could not be read. This does not mean the seller is gone.`,
+               `Hindi sumagot ang WorkHive, kaya hindi mabasa ang profile ni "${WORKER_VIEW}". Hindi ibig sabihin na wala na ang seller.`))}</p>
+        <button type="button" id="msp-seller-retry" style="min-height:44px;margin-top:0.75rem;padding:0 1.25rem;border-radius:8px;font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);">${escHtml(_t('Retry', 'Subukan ulit'))}</button>
+      </div>`;
+          document.getElementById('msp-seller-retry')?.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+          if (window.whMspChip) window.whMspChip('failed');
+          return;
+        }
+        window.__mspState = 'notfound';
         pageEl.innerHTML = `
       <a href="marketplace.html" class="back-link">
         <span class="ic ic-back" aria-hidden="true"></span>
@@ -625,7 +660,7 @@
         <p>${escHtml(_t(`We could not find a seller named "${WORKER_VIEW}" on the marketplace.`,
                         `Hindi namin natagpuan sa marketplace ang seller na "${WORKER_VIEW}".`))}</p>
       </div>`;
-        if (_chip) pageEl.appendChild(_chip);
+        if (window.whMspChip) window.whMspChip('notfound');
       }
       return;
     }
@@ -710,7 +745,7 @@
       if (certStatus) certStatus.style.color = _seller?.cert_verified ? '#c4b5fd' : 'var(--wh-steel)';
       if (certList) {
         certList.innerHTML = certs.map(c =>
-          `<span style="padding:0.4rem 0.75rem;border-radius:999px;font-size:0.75rem;background:${_seller?.cert_verified ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'};color:${_seller?.cert_verified ? '#c4b5fd' /* C2 2026-09-05: --wh-violet read 4.44:1 here; scoped brighter tint, token untouched */ : 'var(--wh-steel)'};border:1px solid ${_seller?.cert_verified ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.08)'};">${escHtml(c)}</span>`
+          `<span style="padding:0.375rem 0.75rem;border-radius:999px;font-size:0.75rem;background:${_seller?.cert_verified ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'};color:${_seller?.cert_verified ? '#c4b5fd' /* C2 2026-09-05: --wh-violet read 4.44:1 here; scoped brighter tint, token untouched */ : 'var(--wh-steel)'};border:1px solid ${_seller?.cert_verified ? 'rgba(167,139,250,0.3)' : 'rgba(255,255,255,0.08)'};">${escHtml(c)}</span>`
         ).join('');
       }
     }
@@ -878,7 +913,11 @@
           msg = 'This account does not have access to this seller’s listings. Your session is fine, so '
               + 'signing in again will not change it. Ask a supervisor if you need access.';
         } else {
-          msg = _t('Couldn’t load this seller’s listings. Check your connection and try again.', 'Hindi ma-load ang mga listing ng seller na ito. Suriin ang koneksyon at subukan muli.');
+          // 2026-10-06 (seller-profile x assistive-tech, PostgREST stopped): the fallthrough is every OTHER failure,
+          // and it blamed the connection while navigator.onLine was TRUE and the service was what failed.
+          msg = (navigator.onLine === false)
+            ? _t('You are offline, so this seller’s listings could not be read. They will load when your connection is back.', 'Offline ka, kaya hindi mabasa ang mga listing ng seller na ito. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.')
+            : _t('Couldn’t load this seller’s listings - WorkHive did not answer. Try again in a moment.', 'Hindi ma-load ang mga listing ng seller na ito - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
         }
         whListError(grid, msg, () => loadListings());
         return;
@@ -1009,7 +1048,16 @@
     const ratedCount = Number(_seller?.rating_count || 0);
     if (ratingEl) {
       if (avg && ratedCount) {
-        ratingEl.textContent = avg.toFixed(1) + '★';
+        /* ★THE RATING'S BASIS LIVED IN A TOOLTIP (2026-10-06, seller-profile x assistive-tech, layer D). "5.0★" was
+           shown alone and "2 verified purchases rated this seller" only as a title - never seen on touch, read as
+           an optional description at best - while a 5.0 from two buyers and a 5.0 from two hundred are different
+           claims. Its neighbour already does this right: "Avg Reply" sits beside "2 Inquiries Replied", so its n
+           is on screen. The count now sits beside the figure as "(2)", and a screen reader hears "5.0 out of 5,
+           from 2 verified purchases" instead of "5.0 black star". Numbers only, so innerHTML is safe here. */
+        ratingEl/* xss-allow: avg.toFixed(1) and ratedCount are Numbers; every other byte is a static literal */ .innerHTML =
+          avg.toFixed(1) + '<span aria-hidden="true">★ <span style="font-size:0.6em;font-weight:600;opacity:0.85;">(' + ratedCount + ')</span></span>'
+          + '<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;"> out of 5, from '
+          + ratedCount + ' verified ' + (ratedCount === 1 ? 'purchase' : 'purchases') + '</span>';
         ratingEl.title = `${ratedCount} verified ${ratedCount === 1 ? 'purchase' : 'purchases'} rated this seller`;
       } else {
         // Honest over decorative: a bare "-" reads as broken. Say which it is.
@@ -1022,9 +1070,16 @@
     // A truncated list must say it is truncated, and a ranked one must say how it is ranked.
     if (countEl) {
       const shown = _reviews.length;
-      countEl.textContent = shown === 1 ? '1 review'
+      const _base = shown === 1 ? '1 review'
         : shown >= REVIEWS_SHOWN ? `${shown} most recent reviews`
         : `${shown} reviews`;
+      // ★"5.0★ (2)" ABOVE "1 REVIEW" (critique W45957, 2026-10-13). The rating counts verified purchases that RATED; this
+      // list holds the reviews that were WRITTEN - two true numbers, and a buyer comparing them saw a contradiction with
+      // the reason only in a screen-reader span. Where they differ, the header says both.
+      const _rated = Number(_seller?.rating_count || 0);
+      countEl.textContent = (shown && shown < REVIEWS_SHOWN && _rated && _rated !== shown)
+        ? `${shown} written review${shown === 1 ? '' : 's'} · ${_rated} verified rating${_rated === 1 ? '' : 's'}`
+        : _base;
     }
 
     if (!_reviews.length) {
@@ -1071,8 +1126,8 @@
         <div class="review-head">
           <div style="display:flex;align-items:center;gap:0.4rem;">
             <span class="review-author">${e(rv.reviewer_name)}</span>
-            <span class="stars">${renderStars(rv.rating)}</span>
-            ${rv.verified_purchase ? `<span class="badge-verified" style="font-size: 0.75rem;padding:0.1rem 0.4rem;">Verified</span>` : ''}
+            <span class="stars" role="img" aria-label="${Math.round(Number(rv.rating) || 0)} out of 5 stars">${renderStars(rv.rating)}</span>
+            ${rv.verified_purchase ? `<span class="badge-verified" style="font-size: 0.75rem;padding:0.125rem 0.5rem;">Verified</span>` : ''}
           </div>
           <span class="review-date">${e(timeAgo(rv.created_at))}</span>
         </div>
@@ -1102,7 +1157,7 @@
       return;
     }
     try {
-      const { data } = await db
+      const { data, error } = await db
         .from('v_marketplace_inquiries_truth')
         .select('created_at, replied_at, status')
         .eq('seller_name', WORKER_VIEW)
@@ -1120,6 +1175,8 @@
         .order('id')
         .limit(50);
 
+      if (error) throw error;   // a refused or failed read is not "no replies" - it was answered as none before (W45957)
+      _replyReadFailed = false;
       const replied = data || [];
       _replyCount = replied.length;
       _replyCapped = replied.length >= 50;
@@ -1136,15 +1193,20 @@
     } catch (_) {
       _replyCount = 0;
       _avgResponseHours = null;
+      _replyReadFailed = true;
     }
 
     const repEl = document.getElementById('stat-replies');
     const resEl = document.getElementById('stat-response');
-    if (repEl) repEl.textContent = _replyCount;
+    if (repEl) repEl.textContent = _replyReadFailed ? 'Not loaded' : _replyCount;   // a failed read is not 0 replies (W45957)
     if (resEl) {
-      resEl.textContent = _avgResponseHours == null
-        ? '-'
-        : (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h');
+      // ★A BARE GREEN DASH (critique W45957, 2026-10-13): with no replied inquiry yet the average is not a number, and
+      // it was painted "-" in the success green - read as "good" or as broken, and identical to a read that failed. The
+      // rating beside it already says "Not rated"; this says which of its two states it is, in neutral text.
+      resEl.textContent = _avgResponseHours != null
+        ? (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h')
+        : (_replyReadFailed ? 'Not loaded' : 'None yet');
+      resEl.classList.toggle('green', _avgResponseHours != null);
       // W3-AR: if the read came back at its cap this is an average over the most recent 50 replies,
       // not over all of them. The figure stays (it is still the best answer available); the title
       // stops implying it covers everything, which is the half a bounded number owes its reader.
@@ -1203,15 +1265,30 @@
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 <script>
-  // E3 provenance (FAMILY F3): sources = this page's verified reads.
-  window.addEventListener('load', function () {
+  // E3 provenance (FAMILY F3): sources = this page's verified reads - and ONLY the reads this state made
+  // (2026-10-09): no seller named = nothing read = no chip; the read failed = no chip (the alert says so);
+  // not found = the seller list that came back empty; otherwise the profile's own reads.
+  window.whMspChip = function (state) {
     var el = document.getElementById('msp-source-chip');
+    if (state === 'none' || state === 'failed') { if (el) el.remove(); return; }
     if (!el) { el = document.createElement('div'); el.id = 'msp-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
-    if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      freshness: 'Live · refreshed on load',
-      source: 'v_marketplace_listings_public + v_marketplace_inquiries_truth + marketplace_reviews',
-    });
-  });
+    if (typeof renderSourceChip !== 'function') return;
+    el.innerHTML = state === 'notfound'
+      ? renderSourceChip({
+          freshness: 'Live · refreshed on load',
+          source: 'v_marketplace_sellers_public + get_marketplace_seller_public',
+          possessive: false,
+          sourceLabel: "the marketplace's seller list, which has no seller by this name",
+        })
+      : renderSourceChip({
+          freshness: 'Live · refreshed on load',
+          source: 'v_marketplace_listings_public + v_marketplace_inquiries_truth + marketplace_reviews',
+          // not "your": this is ANOTHER person's public profile (see renderSourceChip's 2026-10-06 note)
+          possessive: false,
+          sourceLabel: "this seller's listings, replies and verified-purchase reviews",
+        });
+  };
+  window.addEventListener('load', function () { window.whMspChip(window.__mspState || 'profile'); });
 </script>
 
 <script>window.WH_FIL_PAGE={msp_back:'Bumalik sa Marketplace',msp_reviews:'Mga Review',msp_listings:'Mga Listing',f_all:'Lahat',f_parts:'Parts',f_training:'Pagsasanay',f_jobs:'Trabaho'};</script>

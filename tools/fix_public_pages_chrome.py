@@ -42,6 +42,18 @@ import re
 import sys
 from pathlib import Path
 
+
+# Where "the end of <head>" is (2026-10-13). The public pages' compiled Tailwind link (tools/tw_public_build.mjs) must
+# stay the LAST thing in <head>, because that is where the Play CDN used to inject its style: a block appended BELOW it
+# would start winning the ties Tailwind used to win. So an append lands above that link when a page has one.
+_TW_PUB_LINK = re.compile(r'^<link rel="stylesheet" href="/wh-tw-pub-[\w-]+\.css">', re.M)
+
+
+def _head_end(html: str) -> int:
+    m = _TW_PUB_LINK.search(html)
+    end = html.find("</head>")
+    return m.start() if m and (end == -1 or m.start() < end) else end
+
 ROOT = Path(__file__).resolve().parents[1]
 
 for _s in (sys.stdout, sys.stderr):
@@ -151,7 +163,7 @@ def patch(html):
             out = out[:cur.start()] + CSS + out[cur.end():]
             did.append("targets-refreshed")
     else:
-        idx = out.rfind("</head>")
+        idx = _head_end(out)
         if idx != -1:
             out = out[:idx] + CSS + "\n" + out[idx:]
             did.append("targets")

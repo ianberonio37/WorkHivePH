@@ -2,7 +2,7 @@
 """
 Shared helpers for AI self-improvement loop layers.
 
-Common utilities: Free AI calls (Groq/Cerebras/SambaNova), logging, file operations.
+Common utilities: free-tier AI calls through the platform chain (tools/ai_chain.py), logging, file operations.
 Uses free tier providers ONLY — no paid APIs.
 """
 
@@ -21,120 +21,24 @@ RESET = "\033[0m"
 
 def call_claude_free(prompt: str, max_tokens: int = 2000) -> str:
     """
-    Call free-tier AI via Groq (primary) or fallback providers.
+    Free-tier AI through the platform's chain: tools/ai_chain.call_ai_chain, the Python mirror of
+    supabase/functions/_shared/ai-chain.ts (free models only, paced, falls through every provider).
 
-    Priority order:
-    1. Groq (GROQ_API_KEY) — free tier, fast
-    2. Cerebras (CEREBRAS_API_KEY) — free tier
-    3. SambaNova (SAMBANOVA_API_KEY) — free tier
-    4. OpenRouter (OPENROUTER_API_KEY) — has free tier options
-
-    Uses environment variables only — no hardcoded keys.
+    REROUTED 2026-10-08. This used to call providers itself and took only the FIRST one with a key, so a single
+    429 ended the call - and every model it named was gone: Groq llama-3.3-70b-versatile (retired 2026-09-10),
+    Cerebras (402 payment_required on every call; the provider is now off the platform), SambaNova (no key; credits
+    expire, so never a candidate) and an OpenRouter llama-2 slug that no longer exists.
+    Returns "" when nothing answered, as before.
     """
-
-    # Try Groq first (recommended free tier)
-    groq_key = os.getenv("GROQ_API_KEY")
-    if groq_key:
-        return _call_groq(prompt, groq_key, max_tokens)
-
-    # Try Cerebras
-    cerebras_key = os.getenv("CEREBRAS_API_KEY")
-    if cerebras_key:
-        return _call_cerebras(prompt, cerebras_key, max_tokens)
-
-    # Try SambaNova
-    sambanova_key = os.getenv("SAMBANOVA_API_KEY")
-    if sambanova_key:
-        return _call_sambanova(prompt, sambanova_key, max_tokens)
-
-    # Try OpenRouter
-    openrouter_key = os.getenv("OPENROUTER_API_KEY")
-    if openrouter_key:
-        return _call_openrouter(prompt, openrouter_key, max_tokens)
-
-    print(f"{RED}ERROR: No free AI provider configured.{RESET}")
-    print("Set one of: GROQ_API_KEY, CEREBRAS_API_KEY, SAMBANOVA_API_KEY, OPENROUTER_API_KEY")
-    return ""
-
-def _call_groq(prompt: str, api_key: str, max_tokens: int) -> str:
-    """Call Groq API (free tier)."""
-    try:
-        from groq import Groq
-    except ImportError:
-        print(f"{YELLOW}Groq not installed. Run: pip install groq{RESET}")
+    root = str(Path(__file__).resolve().parent.parent)
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    from tools.ai_chain import call_ai_chain
+    out = call_ai_chain(prompt, max_tokens=max_tokens, json_mode=False)
+    if out == "{}":
+        print(f"{RED}ERROR: every free model in the chain was rate-limited, refused or unkeyed.{RESET}")
         return ""
-
-    try:
-        client = Groq(api_key=api_key)
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Free tier, current model (May 2026)
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"{RED}Groq error: {e}{RESET}")
-        return ""
-
-def _call_cerebras(prompt: str, api_key: str, max_tokens: int) -> str:
-    """Call Cerebras API (free tier)."""
-    try:
-        from openai import OpenAI
-    except ImportError:
-        print(f"{YELLOW}OpenAI SDK not installed. Run: pip install openai{RESET}")
-        return ""
-
-    try:
-        client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
-        response = client.chat.completions.create(
-            model="cerebras/llama-2-70b-chat",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"{RED}Cerebras error: {e}{RESET}")
-        return ""
-
-def _call_sambanova(prompt: str, api_key: str, max_tokens: int) -> str:
-    """Call SambaNova API (free tier)."""
-    try:
-        from openai import OpenAI
-    except ImportError:
-        print(f"{YELLOW}OpenAI SDK not installed. Run: pip install openai{RESET}")
-        return ""
-
-    try:
-        client = OpenAI(api_key=api_key, base_url="https://api.sambanova.ai/v1")
-        response = client.chat.completions.create(
-            model="Meta-Llama-3.1-70B-Instruct",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"{RED}SambaNova error: {e}{RESET}")
-        return ""
-
-def _call_openrouter(prompt: str, api_key: str, max_tokens: int) -> str:
-    """Call OpenRouter API (has free tier models)."""
-    try:
-        from openai import OpenAI
-    except ImportError:
-        print(f"{YELLOW}OpenAI SDK not installed. Run: pip install openai{RESET}")
-        return ""
-
-    try:
-        client = OpenAI(api_key=api_key, base_url="https://openrouter.ai/api/v1")
-        response = client.chat.completions.create(
-            model="meta-llama/llama-2-70b-chat",  # Free tier option
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        print(f"{RED}OpenRouter error: {e}{RESET}")
-        return ""
+    return out
 
 def load_json_file(path: str) -> dict:
     """Load JSON file, return empty dict if not found or invalid."""
@@ -238,13 +142,14 @@ def verify_environment() -> bool:
     all_good = True
 
     # Check for at least one free AI provider
-    providers = ["GROQ_API_KEY", "CEREBRAS_API_KEY", "SAMBANOVA_API_KEY", "OPENROUTER_API_KEY"]
+    # the keys the platform chain (tools/ai_chain.py) uses; it also reads .env and supabase/functions/.env itself
+    providers = ["GROQ_API_KEY", "GEMINI_API_KEY", "MISTRAL_API_KEY", "OPENROUTER_API_KEY"]
     has_provider = any(os.getenv(p) for p in providers)
 
     if not has_provider:
         print(f"{YELLOW}[WARN]{RESET} No free AI provider configured")
-        print("       Set ONE of: GROQ_API_KEY, CEREBRAS_API_KEY, SAMBANOVA_API_KEY, OPENROUTER_API_KEY")
-        print("       Free tiers: https://groq.com, https://cerebras.ai, https://sambanova.ai, https://openrouter.ai")
+        print("       Set ONE of: GROQ_API_KEY, GEMINI_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY")
+        print("       Free tiers: https://console.groq.com, https://aistudio.google.com, https://console.mistral.ai, https://openrouter.ai")
         all_good = False
     else:
         for provider in providers:

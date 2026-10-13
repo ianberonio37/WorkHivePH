@@ -2,7 +2,7 @@
 name: table-rls-project_roles
 type: table-rls
 source: db:pg_policies+pg_trigger:project_roles
-source_sha: b5ed7825859f3e47
+source_sha: a653ec14623fe23e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, project_id*, hive_id*, worker_name*, role*, assigned_
 Policies:
 - `project_roles_supervisor_all` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = project_roles.hive_id) AND (h` CHECK=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = project_roles.hive_id) AND (h`
 
-Guard triggers: `trg_text_caps_project_roles`
+Guard triggers: `tg_guard_project_role_assignee`, `trg_text_caps_project_roles`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

@@ -20,7 +20,13 @@
     // loopback = founder dev bypass; any public host requires isPlatformAdmin
     // (marketplace_platform_admins). Fail-CLOSED on any load/check error.
     (function () {
-      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1) return;
+      // ★THE LOOPBACK BYPASS OPENED THIS PAGE TO EVERY SIGNED-IN PERSON ON A LOCAL STACK (2026-10-13, Ian: "it seems that
+      // founder/admins function button or functions can still be seen by non-admins?" - a driver persona read this page
+      // in full). founder-console.html made its bypass opt-in on 2026-10-09; this copy of the same gate never followed.
+      // Opt-in now, the same way: localStorage.setItem('wh_local_founder', '1') on the founder's own machine. Seeded
+      // local admins (marketplace_platform_admins) pass the real check below and need nothing.
+      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1
+          && (function () { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })()) return;
       document.documentElement.style.visibility = 'hidden';
       function deny() {
         document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);">&larr; Back to WorkHive</a></p></div></div>';
@@ -199,7 +205,7 @@
        rubric scored it N/A, "no token source to conform TO" (class S / NN/g #4). Static and
        render-blocking in <head>: a late/JS-injected token FOUCs the first paint. -->
   <link rel="stylesheet" href="tokens.css">
-<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/symbol-gallery.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
+<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/symbol-gallery.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v==null)return;if(!el.hasAttribute('data-i-en'))el.setAttribute('data-i-en',el.textContent);if(el.textContent!==v)el.textContent=v;if(v!==el.getAttribute('data-i-en'))el.lang='fil';});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
 </head>
 <body>
 <main>

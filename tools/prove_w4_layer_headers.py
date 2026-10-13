@@ -37,9 +37,43 @@ GREEN, RED, RST = "\033[92m", "\033[91m", "\033[0m"
 
 def h_rows() -> list[dict]:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
-    return [t for t in reg["trajectories"]
-            if (t.get("w4") or {}).get("kind") == "layer" and (t.get("w4") or {}).get("layer") == "H"
-            and t.get("status") != "descoped"]
+    # ★THE LXP-H ROWS ASK THE IDENTICAL QUESTION OF THE IDENTICAL INSTRUMENT (2026-10-05). 120 LAYER-UX x PERSONA
+    # rows carry the same lens - "the platform must serve this page correctly from the edge" - and sat in the
+    # re-walk queue wanting a raw-http reading, while this prover was already taking exactly that reading for the
+    # W4 rows and was simply not looking at them: it selected on `w4.kind == layer`, and an LXP row carries its
+    # layer under `lx`. Reusing this prover is the move rather than writing a second one, because a second reader
+    # of the same headers is how two gates come to disagree about one fact. An `lx` row is in fact the easier
+    # subject - `lx.page` names its surface outright, so no inference from the title is needed.
+    # ★AND THE LXC FLOOR ROWS ASK IT TOO (2026-10-08). The persona x layer floor (seed_expansion_wave4.layer_floor_rows)
+    # writes the SAME H sentence on the same `lx` block with kind "layer-floor" - so 33 LXC-H rows sat open wanting a
+    # raw-http reading this prover already takes, for the same reason the LXP rows once did: it was not looking.
+    out = []
+    for t in reg["trajectories"]:
+        if t.get("status") == "descoped":
+            continue
+        w4, lx = t.get("w4") or {}, t.get("lx") or {}
+        if w4.get("kind") == "layer" and w4.get("layer") == "H":
+            out.append(t)
+        elif lx.get("kind") in LX_KINDS and lx.get("layer") == "H" and lx.get("page"):
+            out.append(t)
+    return out
+
+
+LX_KINDS = ("layer-ux", "layer-floor")
+
+
+def conditional_rules() -> list[str]:
+    """vercel.json header rules that only apply to SOME requests (a `has` / `missing` condition on a cookie, a header
+    or a query). ★AN LX ROW IS ASKED AS A NAMED PERSONA, AND ONE READING ANSWERS EVERY PERSONA ONLY IF NOTHING THE
+    PERSON SENDS CAN CHANGE THE HEADERS. The session lives in localStorage and travels to Supabase, never to this
+    origin; but a rule conditioned on a cookie or a header WOULD make the served headers differ by who asks, and then
+    one bare fetch could not speak for a signed-in supervisor. So the claim is read from the config on every run
+    rather than assumed - an empty list is what lets the witness say the reading is the persona's own."""
+    try:
+        cfg = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+    except Exception as e:  # an unreadable config cannot vouch for anything
+        return [f"vercel.json unreadable: {e}"]
+    return [str(r.get("source")) for r in (cfg.get("headers") or []) if r.get("has") or r.get("missing")]
 
 
 def _first_root_page(row: dict) -> str | None:
@@ -49,6 +83,10 @@ def _first_root_page(row: dict) -> str | None:
     that is not index/hive/a continuation - the last of the route's own-page segment. Simplest robust pick:
     the page whose short name appears in the title, else the last non-continuation page."""
     import re
+    # an lx row states its own surface; nothing to infer
+    lx_page = (row.get("lx") or {}).get("page")
+    if lx_page:
+        return lx_page
     title = row.get("title") or ""
     for p in (row.get("pages") or []):
         short = p.replace("/index.html", "").replace("learn/", "").replace("tools/", "").replace(".html", "").replace("-", " ")
@@ -126,6 +164,7 @@ def main() -> int:
     check_only = "--check" in sys.argv
     page_cache: dict[str, tuple[bool, list[str], str]] = {}
     bad = 0
+    cond = conditional_rules()
     try:
         for row in rows:
             page = _first_root_page(row)
@@ -134,6 +173,16 @@ def main() -> int:
             if page not in page_cache:
                 page_cache[page] = check_page(page)
             ok, issues, witness = page_cache[page]
+            persona = (row.get("lx") or {}).get("persona")
+            if persona:
+                # the persona half of an LX row: one reading speaks for this person only if no rule is conditional
+                if cond:
+                    ok, issues = False, issues + [f"vercel.json has conditional header rule(s) {cond[:3]} - the "
+                                                  f"headers may differ for {persona}; one bare reading cannot answer"]
+                else:
+                    witness = (witness + f"; as {persona}: none of vercel.json's header rules carries a has/missing "
+                               f"condition, so no cookie, header or query this person sends can change what the edge "
+                               f"serves - the reading above is the one {persona} receives")
             if not ok:
                 bad += 1
             if not check_only:

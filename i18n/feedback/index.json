@@ -1,0 +1,21 @@
+{
+ "_doc": "feedback/index.html: English visible text -> Filipino, authored. Empty = not yet translated. tools/i18n_page_dict.py --apply tags the element and emits WH_FIL_PAGE.",
+ "Skip to main content": "Lumaktaw sa pangunahing nilalaman",
+ "WorkHive": "WorkHive",
+ "Roadmap": "Roadmap",
+ "Public roadmap": "Pampublikong roadmap",
+ "Filipino plant workers": "Mga Pilipinong manggagawa sa planta",
+ "All": "Lahat",
+ "🐞 Bug": "🐞 Bug",
+ "💡 Idea": "💡 Ideya",
+ "❓ Question": "❓ Tanong",
+ "⭐ Review": "⭐ Review",
+ "💛 Praise": "💛 Papuri",
+ "Community-submitted feedback · public items, sorted by votes then newest · top 200 · loaded when you open this page": "Feedback na isinubmit ng komunidad · mga pampublikong item, nakasunod sa boto kasunod ang pinakabago · top 200 · naglo-load kapag binuksan mo ang page",
+ "Loading roadmap…": "Nag-lo-load ng roadmap…",
+ "© 2026 WorkHive Engineering Services · DTI 8080496": "© 2026 WorkHive Engineering Services · DTI 8080496",
+ "About": "Tungkol Sa",
+ "Privacy": "Privacy",
+ "Terms": "Mga Tuntunin",
+ "Vote on bug reports and feature ideas. They come from the crew running WorkHive on the job — technicians, supervisors and plant engineers — sent with the floating feedback button on any page and published here once the admin marks them public. Top-voted items get prioritized, so what slows a shift is what gets looked at first.": "Bumoto sa mga bug report at ideya para sa bagong feature. Galing ang mga ito sa crew na gumagamit ng WorkHive sa trabaho — mga technician, superbisor at plant engineer — ipinadala sa pamamagitan ng floating feedback button sa kahit anong page at inilalabas dito kapag namarkahan na itong pampubliko ng admin. Inuuna ang mga item na pinakamataas ang boto, kaya ang nagpapabagal sa isang turno ang unang tinitingnan."
+}

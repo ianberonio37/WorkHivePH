@@ -2,7 +2,7 @@
 name: edge-fn-parts-staging-recommender
 type: edge-fn
 source: file:supabase/functions/parts-staging-recommender/index.ts
-source_sha: 8d864257eadff426
+source_sha: 37ec42e90d67e3a2
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: edge-fn-equipment-label-ocr
 type: edge-fn
 source: file:supabase/functions/equipment-label-ocr/index.ts
-source_sha: 72e4379148a45dcb
+source_sha: eb1d35cedf79ace4
 last_verified: 2026-07-13
 supersedes: null
 ---

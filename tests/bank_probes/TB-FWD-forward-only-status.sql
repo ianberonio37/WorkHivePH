@@ -36,8 +36,11 @@ begin
 end $p$;
 
 -- ── shift_plans: rank cannot go backward ──
-insert into public.shift_plans(id, hive_id, shift_window, status)
-  values ('e2000000-0000-4000-8000-0000000000b1','b4f7fe63-92e1-4f8d-b96e-625c3f85ba61','06-14','published');
+-- A FIXED PAST shift_date (2026-10-13): shift_plans is unique per (hive, date, window), and with the default date
+-- (today) the fixture collided with the plan Shift Brain had already generated for today's 06-14 window - the insert
+-- failed, the transaction aborted, and both shift results came back empty. No generator writes 1999.
+insert into public.shift_plans(id, hive_id, shift_window, status, shift_date)
+  values ('e2000000-0000-4000-8000-0000000000b1','b4f7fe63-92e1-4f8d-b96e-625c3f85ba61','06-14','published','1999-01-04');
 do $p$
 declare n int;
 begin

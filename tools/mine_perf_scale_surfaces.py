@@ -501,17 +501,29 @@ def mine():
         })
 
     # the render-blocking Tailwind CDN — ONE shared surface (owns the render-block once,
-    # not 16x per page); S=fix while a sync <head> CDN script exists, E=fix (in-browser
-    # CDN compiler vs a purged build).
+    # not 16x per page). MEASURED, not asserted (2026-10-13): both lenses read the pages
+    # that still load the Play CDN - the app pages and every public page (learn, calculators,
+    # hub, about/privacy/terms, roadmap). E had been hard-coded "fix", so it kept reporting an
+    # in-browser compiler after the app pages moved to wh-tw.css (tools/tw_extract_build.mjs),
+    # and it would have gone on reporting one after the public pages moved to their compiled
+    # /wh-tw-pub-<family>.css sheets (tools/tw_public_build.mjs). A lens that cannot change
+    # is a label, not a measurement.
+    _cdn_tag = re.compile(r"""<script[^>]*\bsrc\s*=\s*["']https?://cdn\.tailwindcss\.com""", re.I)
+    _scope = [ROOT / n for n in USER_FACING_PAGES] + sorted(ROOT.glob("learn/**/index.html")) \
+        + sorted(ROOT.glob("tools/*/index.html")) \
+        + [ROOT / d / "index.html" for d in ("about", "privacy-policy", "terms-of-service", "feedback")]
+    _scope = [p for p in _scope if p.exists()]
+    cdn_pages = [p for p in _scope if _cdn_tag.search(_read(p))]
     add("asset::cdn-tailwind", {
         "layer": "L5", "type": "cdn-lib", "detail": "cdn.tailwindcss.com sync <head> script",
-        "render_block_pages": len(rb_pages),
+        "render_block_pages": len(cdn_pages),
         "lenses": {
-            "S": _lens(True, "fix" if rb_pages else "pass",
-                       measured=f"render-blocking sync <head> script on {len(rb_pages)}/{len(USER_FACING_PAGES)} pages",
+            "S": _lens(True, "fix" if cdn_pages else "pass",
+                       measured=f"the Play CDN's render-blocking <head> script on {len(cdn_pages)}/{len(_scope)} pages",
                        why="no render-blocking external script in <head> (defer/async, or self-host a purged build)"),
-            "E": _lens(True, "fix",
-                       measured="full Tailwind runtime compiled in-browser (CDN dev build)",
+            "E": _lens(True, "fix" if cdn_pages else "pass",
+                       measured=(f"full Tailwind runtime compiled in-browser on {len(cdn_pages)}/{len(_scope)} pages" if cdn_pages
+                                 else f"0/{len(_scope)} pages compile Tailwind in the browser - app pages on wh-tw.css, public pages on /wh-tw-pub-<family>.css"),
                        why="ship a purged/built CSS, not the in-browser CDN compiler"),
             "R": _lens(False, why="N/A"), "B": _lens(False, why="N/A"),
         },

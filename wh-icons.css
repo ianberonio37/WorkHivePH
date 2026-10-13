@@ -23,6 +23,17 @@
 .ic::before{ display:inline-block }
 .ic-lg{ font-size:1.4em }
 .ic-xl{ font-size:2.4em }
+/* An icon INSIDE a field (critique W45915, 2026-10-13). The emoji migration swapped each search field's positioned SVG
+   (`absolute left-3 top-1/2 -translate-y-1/2`, or a page's `.search-wrap svg` / `.search-icon` rule) for this span, and
+   the positioning did not come along: on engineering-design, inventory, logbook, marketplace and marketplace-admin the
+   magnifier sat ABOVE its input at both widths, beside the 36-40px left padding the field still reserves for it. An
+   icon immediately followed by its input sits in that padding again; each field's wrapper is already positioned. */
+.ic-search:has(+ input){ position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); pointer-events:none }
+/* ...and the field keeps its text clear of it. The pages reserved that room with their own padding, and on two of the five
+   it never applied: inventory and logbook ask for `pl-9` while their `.wh-input` rule sets padding 0.75rem 1rem later, so the
+   text started at 16px and the icon - placed above the field until this rule moved it in - now sat on the placeholder's first
+   letter ("(icon)earch machine"). Measured first, fixed here: class + element outranks both page rules. */
+.ic-search + input{ padding-left:2.5rem }
 
 /* -- Trust / status -------------------------------------------------------- */
 .ic-verified::before { content:"✅" }
@@ -92,7 +103,9 @@
 .ic-growth::before      { content:"🌱" }
 .ic-resume::before      { content:"📝" }
 .ic-integrations::before{ content:"🔌" }
-.ic-apps::before        { content:"🔲" }
+/* the navigation hub's button (2026-10-13, critique): "🔲" is a STOP square in every chat product, and on the assistant it sat
+   beside a stoppable answer - recognition by glyph alone, with no visible label at rest. A compass says "go somewhere". */
+.ic-apps::before        { content:"🧭" }
 .ic-eye::before         { content:"👁️" }
 .ic-link::before        { content:"🔗" }
 .ic-pin::before         { content:"📌" }

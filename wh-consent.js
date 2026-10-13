@@ -53,6 +53,21 @@
       box.style.maxWidth = '34rem';
       box.style.margin = '0 auto 1rem';
       if (host.firstElementChild !== box) host.insertBefore(box, host.firstChild);
+      // ★THE CARD SAT UNDER THE FIXED NAV (critique W45929, 2026-10-13, as David Velasco on the signed-in home, both
+      // widths). <main> carries no top padding - each section clears the fixed nav for itself (#ops-home pads 64px) -
+      // so at the top of <main> the card's heading "Analytics on this page" and its first line were painted UNDER the
+      // nav: the person was asked to Allow or decline below a sentence whose beginning they could not read. The card
+      // now clears whatever is pinned across the top of the viewport; index.html lets the section after it drop the
+      // nav padding it no longer needs while the card is shown.
+      var pinBottom = 0;
+      Array.prototype.forEach.call(document.querySelectorAll('nav, header, main > *, body > *'), function (el) {
+        if (el === box) return;
+        var cs = getComputedStyle(el);
+        if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
+        var r = el.getBoundingClientRect();
+        if (r.top <= 1 && r.height > 0 && r.height < 160 && r.width >= window.innerWidth * 0.8) pinBottom = Math.max(pinBottom, Math.ceil(r.bottom));
+      });
+      if (pinBottom) box.style.marginTop = (pinBottom + 8) + 'px';
     }
     // ★THE 361px+ SENTENCE ABOVE WAS AN ASSUMPTION, AND THE CONFUSION WALK MEASURED IT FALSE (C13 lived again at
     // phone-390, 2026-09-14): "behind the modal" was true for the accessibility tree (inert) and false for the

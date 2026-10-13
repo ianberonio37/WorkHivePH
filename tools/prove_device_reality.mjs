@@ -24,7 +24,7 @@
 //   node tools/prove_device_reality.mjs
 //   node tools/prove_device_reality.mjs --page logbook.html
 import { chromium } from 'playwright';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const ROSTER = ['hive.html', 'logbook.html', 'inventory.html', 'alert-hub.html', 'marketplace.html', 'analytics.html'];
@@ -40,7 +40,7 @@ const say = (ok, id, line, detail) => {
 // the layout question, asked at two real viewports
 const measure = async (file, w, h) => {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(SETTLE_MS);
@@ -96,7 +96,7 @@ const measure = async (file, w, h) => {
 // ── W3 · continuity, and W4 · the shared device ──────────────────────────────────────────────────
 {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/hive.html`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(SETTLE_MS);
@@ -145,7 +145,7 @@ const measure = async (file, w, h) => {
 // ── W5 · paste, and W6 · the unattended screen ───────────────────────────────────────────────────
 {
   const ctx = await b.newContext({ viewport: { width: 1920, height: 1080 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/logbook.html${PAGE_QUERY['logbook.html'] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(SETTLE_MS);

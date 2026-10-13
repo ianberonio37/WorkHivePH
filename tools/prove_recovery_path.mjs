@@ -21,7 +21,7 @@
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, HIVE } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, HIVE, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
@@ -203,7 +203,7 @@ const notReached = [];
 for (const [file, heads] of Object.entries(ROSTER)) {
   if (ONLY && file !== ONLY) continue;
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   let dialogs = 0, lastDialog = '';
   p.on('dialog', async (d) => { dialogs++; lastDialog = d.message(); await d.dismiss().catch(() => {}); });   // always cancel a native dialog

@@ -21,7 +21,13 @@
     // loopback = founder dev bypass; any public host requires isPlatformAdmin
     // (marketplace_platform_admins). Fail-CLOSED on any load/check error.
     (function () {
-      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1) return;
+      // ★THE LOOPBACK BYPASS OPENED THIS PAGE TO EVERY SIGNED-IN PERSON ON A LOCAL STACK (2026-10-13, Ian: "it seems that
+      // founder/admins function button or functions can still be seen by non-admins?" - a driver persona read this page
+      // in full). founder-console.html made its bypass opt-in on 2026-10-09; this copy of the same gate never followed.
+      // Opt-in now, the same way: localStorage.setItem('wh_local_founder', '1') on the founder's own machine. Seeded
+      // local admins (marketplace_platform_admins) pass the real check below and need nothing.
+      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1
+          && (function () { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })()) return;
       document.documentElement.style.visibility = 'hidden';
       function deny() {
         document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);">&larr; Back to WorkHive</a></p></div></div>';

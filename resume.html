@@ -59,7 +59,7 @@
     .card > p { max-width: 68ch; }
     .page-header { margin-bottom: 1rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; } /* Arc-W focal: heading ≥2.3× body median (was 1.5rem/1.83×) */
-    .page-header p { font-size: 0.75rem; color: #9AA8B6; margin-top: 0.25rem; }
+    .page-header p { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 0.25rem; }
     .ctx-pill { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--wh-blue);
       background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.25rem 0.5rem; margin-top: 0.5rem; }
 
@@ -159,7 +159,9 @@
     .wh-input:focus { outline: none; border-color: rgba(41,182,217,0.6); }
     .field-hint { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
     textarea.wh-input { resize: vertical; min-height: 64px; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+    /* minmax(0, 1fr), not 1fr: a bare 1fr column cannot shrink below its content's minimum, so one long provenance chip
+       in a label pushed the second column to x 321-596 on a 390 phone (walk W4772, 2026-10-13) */
+    .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
 
     /* ── Item card (one repeatable entry) ── */
     .item { background: rgba(22,32,50,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius:0.75rem;
@@ -167,13 +169,15 @@
     .item-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
 
     /* ── Provenance chips ── */
+    /* A chip can carry a whole filename ("Uploaded: aviation-technician-resume-sample.pdf"). It wraps inside its field
+       rather than run off the screen (52-327 at 320, walk W4773); the filename is the attribution, so it is never cut. */
     .src-chip { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; padding: 0.12rem 0.45rem; border-radius: 999px;
-      white-space: nowrap; border: 1px solid; }
+      display: inline-block; max-width: 100%; white-space: normal; overflow-wrap: anywhere; border: 1px solid; }
 
     /* ── Keyword-gap score (Tailor to JD) ── */
     .jd-score-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
     .jd-score-pct { font-size: 1.5rem; font-weight: 800; line-height: 1; }
-    .jd-score-sub { font-size: 0.75rem; color: #9fb0c0; }
+    .jd-score-sub { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .jd-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 0.6rem; }
         /* ★400ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - the same three-in-one this wave found on
        ph-intelligence's MTBF bar. `ease` is ease-IN-out so the bar starts slowly; 400ms is past the
@@ -211,14 +215,16 @@
        therefore equally short; fixing only the <b> would have left the explanatory text it sits in
        just as unreadable while the metric went green. */
     .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; min-height: 44px;
-      font-size: 0.875rem; color: #b6c4d1; cursor: pointer; }
+      font-size: 0.875rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer; }
     .opt-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--wh-blue); }
     :focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
 
     /* ── Empty / prompt ── */
     .empty-prompt { text-align: center; padding: 1.5rem 1rem; }
     .empty-prompt .big { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .empty-prompt p { font-size: 0.875rem; color: #9fb0c0; margin-bottom: 1rem; line-height: 1.5; }
+    /* the start card's text was #9fb0c0 at 14px - the colour this page's own 2026-08-06 note measured at APCA Lc 57.7,
+       under the 60 floor; every page-local grey now uses the platform's muted-text token (W46034) */
+    .empty-prompt p { font-size: 0.875rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 1rem; line-height: 1.5; }
 
     /* ── Bottom sheet (checklist review) ── */
     .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; }
@@ -274,6 +280,7 @@
     .check-row input[type="checkbox"],
     .opt-toggle input[type="checkbox"] { width: 44px; height: 44px; min-width: 44px; margin-top: 0.25rem; accent-color: var(--wh-blue); }
     .check-row .cr-body { flex: 1; }
+    #btn-undo[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }   /* nothing to undo yet (W46034) */
     /* Clear the sticky .sheet-foot so the LAST review row's editable input is never
        obscured by the footer (WCAG 2.2 SC 2.5.8 target-size). */
     #review-body { padding-bottom: 3.25rem; }
@@ -323,7 +330,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </ul>
     </details>
 
-    <p data-i="p_yourresumesavedonthisdevicea_182d" class="wh-source-chip" role="status" style="font-size: 0.75rem;opacity:.8;margin:.25rem 0 0;">Your resume · saved on this device and to your account · as of this page load</p>
+    <p data-i="p_yourresumesavedonthisdevicea_182d" class="wh-source-chip" role="status" style="font-size: 0.75rem;opacity:.8;margin:.25rem 0 0;">Your resume · your own words, plus anything you auto-fill from your logbook and skill badges · saved on this device and to your account · as of this page load</p>
+    <!-- SAY WHERE THE WORDS COME FROM, NOT ONLY WHERE THEY ARE KEPT (2026-10-09, UFAI LXP110). The line named the
+         storage and the moment, and no source - while runAutofill() reads v_logbook_truth, v_skill_badges_truth,
+         skill_badges and skill_profiles, but only when the person presses Auto-fill. So the source is the person's
+         own text plus what they chose to pull in; "built from your records" would have overclaimed. -->
       <p data-i="p_buildaprofessionalresumefrom_d73d">Build a professional resume from your WorkHive experience. Everything is editable: you decide what goes in.</p>
       <div id="ctx-pill" class="ctx-pill" style="display:none;"></div>
     </header>
@@ -393,7 +404,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="review-title">
       <div class="sheet-handle"></div>
       <h2 data-i="rs-review" id="review-title" style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">Review what we found</h2>
-      <p id="review-sub" style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
+      <p id="review-sub" style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.4rem;">Uncheck anything you don't want. Tap a value to edit it before adding.</p>
       <div id="review-body"></div>
       <div class="sheet-foot">
         <div style="display:flex;gap:0.6rem;">
@@ -409,8 +420,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="rm-title">
       <div class="sheet-handle"></div>
       <h2 data-i="rs-myresumes" id="rm-title" style="font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:0.2rem;">📂 My Resumes</h2>
-      <p style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
-      <label data-i="rs-resname" style="display:block;font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.8rem;">This resume’s name
+      <p style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.6rem;">Keep separate resumes for different jobs, e.g. a maintenance CV and an OFW application. Each saves on its own.</p>
+      <label data-i="rs-resname" style="display:block;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.8rem;">This resume’s name
         <input class="wh-input" id="rm-current-title" aria-label="Name of the resume you are editing" placeholder="e.g. Maintenance Technician CV" style="margin-top:0.25rem;" />
       </label>
       <div class="sheet-group-title">Your saved resumes</div>
@@ -437,7 +448,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button data-i="rs-pdf" class="btn btn-primary btn-sm" id="pv-pdf" type="button">⬇ Download / View PDF</button>
         <button class="btn btn-ghost btn-sm" id="pv-docx" type="button">⬇ Word .docx</button>
         <button data-i="rs-print" class="btn btn-ghost btn-sm" id="pv-print" type="button">🖨 Print</button>
-        <button class="btn btn-ghost btn-sm" id="pv-json" type="button">{ } JSON</button>
+        <button class="btn btn-ghost btn-sm" id="pv-json" type="button" title="Your resume as a JSON Resume file: an open format you can keep offline or bring to another resume site">Data file</button>
       </div>
     </div>
     <!-- T124/T49 (2026-08-27): the four export buttons above are ALWAYS enabled, and on a resume
@@ -475,11 +486,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let resume = emptyResume();
     let _resumeId = null;
     const _undoStack = [];
-    function pushUndo() { try { _undoStack.push(JSON.stringify(resume)); if (_undoStack.length > 15) _undoStack.shift(); } catch (_) { /* empty-catch-allow: undo is best-effort */ } }
+    // ★AN UNDO THAT LOOKED READY WITH NOTHING TO UNDO (critique W46034, 2026-10-13). A full-width "Undo" sat in the
+    // action bar of a blank resume, drawn like every other button; pressing it was the only way to learn there was
+    // nothing behind it. It now looks idle while its stack is empty (aria-disabled, so it stays focusable and still
+    // answers "Nothing to undo." when pressed) and wakes when an auto-fill, an import, an AI rewrite or a removal
+    // pushes a step - the only actions that do.
+    function _syncUndo() {
+      const b = document.getElementById('btn-undo');
+      if (!b) return;
+      const none = !_undoStack.length;
+      b.setAttribute('aria-disabled', none ? 'true' : 'false');
+      b.title = none ? 'Nothing to undo yet. Undo steps back over an auto-fill, a file import, an AI rewrite or a removal.' : '';
+    }
+    function pushUndo() { try { _undoStack.push(JSON.stringify(resume)); if (_undoStack.length > 15) _undoStack.shift(); } catch (_) { /* empty-catch-allow: undo is best-effort */ } _syncUndo(); }
     function undo() {
       if (!_undoStack.length) { toast('Nothing to undo.'); return; }
       try { resume = mergeDefaults(JSON.parse(_undoStack.pop())); }
-      catch (_) { toast('Could not undo.'); return; }
+      catch (_) { toast('Could not undo.'); _syncUndo(); return; }
+      _syncUndo();
       render(); scheduleLocalSave(); toast('↩ Undone.');
     }
 
@@ -592,13 +616,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
     function fmtDate(d) { if (!d) return ''; try { return new Date(d).toISOString().slice(0, 7); } catch (_) { return ''; } }
     let _toastTimer = null;
+    // ★THE WAIT VANISHED AT 2.8 s AND ITS WORDS STAYED BEHIND (LM-L walk, LM523, 2026-10-08): "Polishing your wording…"
+    // hid after 2.8 s while the AI could work for 45, so for most of the wait nothing said it was working - and the hidden
+    // toast (only translated off-screen) kept the stale sentence in the page and the screen-reader tree. A WAITING
+    // message (one that ends in "…") now stays up until the call it describes settles (hideWaitingToast, called by
+    // callResumePolish when the response arrives); every toast clears its words once it has slid away.
+    let _toastWaiting = false;
+    function _toastHide() {
+      const t = document.getElementById('toast');
+      t.classList.remove('show');
+      setTimeout(() => { if (!t.classList.contains('show')) document.getElementById('toast-msg').textContent = ''; }, 300);
+    }
     function toast(msg) {
       const t = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = msg;
       t.classList.add('show');
       clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+      _toastWaiting = /\u2026\s*$/.test(String(msg));
+      if (!_toastWaiting) _toastTimer = setTimeout(_toastHide, 2800);
     }
+    function hideWaitingToast() { if (_toastWaiting) { _toastWaiting = false; _toastHide(); } }
     // Platform-standard alias (input-guards contract): DB-write errors are surfaced to the worker via a toast.
     function showToast(msg) { toast(msg); }
     const LEVELWORD = { 1: 'Beginner', 2: 'Basic', 3: 'Intermediate', 4: 'Advanced', 5: 'Expert' };
@@ -632,8 +669,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // holding a device copy, the one thing the person must not conclude is "my resume is gone".
         // Wording follows report-sender's fallback card: name what happened, say what is on screen,
         // and say what NOT to do — because the damaging action here is re-typing a resume that exists.
-        html += `<div class="card empty-prompt">
-          <div class="big">⚠️</div>
+        // role=alert (2026-10-06, resume x assistive-tech, PostgREST stopped): this card replaces the skeleton that the
+        // shared settle alert had been announced over, so without its own role a screen reader heard "could not load
+        // this section" and then silence - never the sentence that matters here, "not an empty resume".
+        html += `<div class="card empty-prompt" role="alert">
+          <div class="big" aria-hidden="true">⚠️</div>
           <!-- ★THE PAGE SAID WHAT WENT WRONG IN ENGLISH, INSIDE A FILIPINO NOTICE (2026-09-18, W46031).
                The fil-degraded walk reads the shared chrome correctly - "Hindi maabot ang server, kaya
                hindi na-load ang bahagi ng page na ito" - and then THIS sentence, the one that explains
@@ -644,8 +684,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                the chrome was English - the seam is the same either way. -->
           <p><b>${_t('Could not load your saved resume.', 'Hindi ma-load ang naka-save mong resume.')}</b></p>
           <p>${isEmptyResume()
-            ? _t('This is a connection problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.',
-                  'Problema ito sa koneksyon, hindi dahil walang laman ang resume mo. Nasa server pa rin ang lahat ng na-save mo. Subukan muli bago mo i-type ulit mula sa simula.')
+            ? _t('This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.',
+                  'Problema ito sa pag-load, hindi dahil walang laman ang resume mo. Nasa server pa rin ang lahat ng na-save mo. Subukan muli bago mo i-type ulit mula sa simula.')
             : _t('What you see below is the copy saved on this device, which may be older than your saved version. Try again before editing, so you do not overwrite newer work.',
                   'Ang nakikita mo sa ibaba ay ang kopyang naka-save sa device na ito, na maaaring mas luma kaysa sa naka-save mong bersyon. Subukan muli bago mag-edit para hindi mo mapatungan ang mas bagong kopya.')}</p>
           <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
@@ -730,19 +770,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div class="field"><label for="${fid}"><span data-i="rs-${f}">${escHtml(label)}</span>${chip}</label>${input}</div>`;
     }
 
+    // ★EXAMPLES THAT READ AS HIS OWN DATA (critique W46034, 2026-10-13). Ben - a driver on a delivery fleet - opened
+    // his resume to "Mechanical Maintenance Technician", "Batangas City" and "Batangas" in the details form: placeholders
+    // drawn at 72% white beside values at 96%, real-looking enough that a reader takes them for filled fields (and an
+    // exported resume then has no headline or city). An example is marked as one; the email and phone placeholders are
+    // formats, not examples, and stay as they are.
     function renderBasics() {
       const b = resume.basics;
       return `<div class="card">
         <div class="sec-head"><div><h2 data-i="rs-details" class="sec-title" role="heading" aria-level="2">Your Details</h2><div class="sec-sub">The top of your resume</div></div></div>
-        ${basicsField('name', 'Full name', b.name, 'Juan Dela Cruz')}
-        ${basicsField('label', 'Headline / role', b.label, 'Mechanical Maintenance Technician')}
+        ${basicsField('name', 'Full name', b.name, 'e.g. Juan Dela Cruz')}
+        ${basicsField('label', 'Headline / role', b.label, 'e.g. Maintenance Technician')}
         <div class="field-row">
           ${basicsField('email', 'Email', b.email, 'you@email.com')}
           ${basicsField('phone', 'Phone', b.phone, '+63 9XX XXX XXXX')}
         </div>
         <div class="field-row">
-          ${basicsField('city', 'City', b.location.city, 'Batangas City')}
-          ${basicsField('region', 'Province / Region', b.location.region, 'Batangas')}
+          ${basicsField('city', 'City', b.location.city, 'e.g. Batangas City')}
+          ${basicsField('region', 'Province / Region', b.location.region, 'e.g. Batangas')}
         </div>
         ${basicsField('summary', 'Professional summary', b.summary, _t('A short paragraph about you...', 'Isang maikling talata tungkol sa iyo...'), 'area')}
       </div>`;
@@ -764,8 +809,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // an aria-label from the field name (placeholder is only an example, not the label).
           const _alab = `aria-label="${escHtml(fld.label)}"`;
           const input = (fld.type === 'area' || fld.type === 'lines')
-            ? `<textarea class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph || '')}" rows="3">${escHtml(val)}</textarea>`
-            : `<input class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph || '')}" value="${escHtml(val)}" />`;
+            ? `<textarea class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph ? 'e.g. ' + fld.ph : '')}" rows="3">${escHtml(val)}</textarea>`
+            : `<input class="wh-input" ${dataAttr} ${_alab} placeholder="${escHtml(fld.ph ? 'e.g. ' + fld.ph : '')}" value="${escHtml(val)}" />`;   // examples marked as examples (W46034)
           const fieldHtml = `<div class="field"><label>${escHtml(fld.label)}</label>${input}${fld.hint ? `<div class="field-hint">${escHtml(fld.hint)}</div>` : ''}</div>`;
           if (fld.half) {
             if (pendingHalf) { fieldsHtml += `<div class="field-row">${pendingHalf}${fieldHtml}</div>`; pendingHalf = ''; }
@@ -863,7 +908,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try { const d = await idb(); return await new Promise((res) => { const tx = d.transaction('draft', 'readonly'); const r = tx.objectStore('draft').get(key); r.onsuccess = () => res(r.result); r.onerror = () => res(null); }); } catch (_) { return null; }
     }
     const scheduleLocalSave = debounce(saveLocal, 700);
-    async function saveLocal() { await idbPut('current', { resume, _resumeId, worker: WORKER_NAME, ts: Date.now() }); }
+    // the draft names the ACCOUNT it belongs to, so a restore can tell whose it is (2026-10-12, see loadResumeIntoView)
+    async function saveLocal() { await idbPut('current', { resume, _resumeId, worker: WORKER_NAME, auth_uid: _authUid || null, ts: Date.now() }); }
 
     // ── Cloud save / load (owner-scoped resume_documents) ────────────────────
     async function snapshotVersion(note) {
@@ -919,10 +965,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
       } catch (err) {
         console.error('resume saveCloud failed:', err);   // L-layer: keep the cloud-save failure greppable
-        toast('Could not save to cloud: ' + (err.message || 'error') + '. Saved on device.');
+        // It printed the transport's own words ("Could not save to cloud: name resolution failed") - 2026-10-06 walk.
+        const _m = String((err && err.message) || '');
+        const _st = Number((err && (err.status || err._httpStatus)) || 0);
+        const _transport = (_st >= 500 && _st <= 504) || /name resolution|service unavailable|bad gateway|timed? ?out|failed to fetch|network/i.test(_m);
+        toast(_transport
+          ? ((navigator.onLine === false)
+              ? 'You are offline, so this was not backed up to your account. It is saved on this device; save again when your connection is back.'
+              : 'Not backed up to your account - WorkHive did not answer. It is saved on this device; save again in a moment.')
+          : 'Could not save to cloud: ' + (_m || 'error') + '. Saved on device.');
         await saveLocal();
       } finally {
-        if (!silent) { btn.disabled = false; btn.textContent = lbl; }
+        if (!silent) { btn.disabled = false; btn.textContent = lbl;
+          // disabling the focused Save dropped focus to <body> (2026-10-06 walk); return it when focus was lost
+          try { const _ae = document.activeElement; if (!_ae || _ae === document.body) btn.focus(); } catch (_) { /* empty-catch-allow */ } }
       }
     }
 
@@ -955,6 +1011,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let draft = null, loaded = false;
       try {
         draft = await idbGet('current');
+        // ★SOMEONE ELSE'S RESUME, ON A SHARED TABLET (2026-10-12, UFAI edge walk W4766). The device keeps ONE local draft
+        // ('current'), and when the cloud load found nothing this restored it for whoever was signed in - so a worker who
+        // imported a resume and signed out left their name, contacts and work history for the next person on the crew's
+        // tablet to open, and to save as their own. A draft is restored only for the account that wrote it (an older
+        // draft without an account falls back to the worker name it carries); anyone else starts from their own.
+        if (draft && !(draft.auth_uid ? draft.auth_uid === _authUid : (draft.worker && draft.worker === WORKER_NAME))) draft = null;
         if (draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
         if (!loaded) loaded = await loadCloud();
       } catch (err) {
@@ -1121,7 +1183,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (resumeWorthSaving()) await saveCloud(true);  // never lose current work
       const ok = await loadCloudById(id);
       if (!ok) { toast('Could not open that resume.'); await renderResumeList(); return; }
-      _undoStack.length = 0;  // the undo stack belongs to the PREVIOUS resume; an Undo
+      _undoStack.length = 0; _syncUndo();  // the undo stack belongs to the PREVIOUS resume; an Undo
       // after switching would restore resume A's model while _resumeId points at B,
       // so the next save would write A's content into B's row (cross-resume clobber).
       _resetAiPanels();
@@ -1133,7 +1195,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (resumeWorthSaving()) await saveCloud(true);
       resume = emptyResume(); resume.basics.name = WORKER_NAME; resume.meta.title = 'Untitled resume';
       _resumeId = null;
-      _undoStack.length = 0;  // fresh resume: the prior resume's undo history must not carry over
+      _undoStack.length = 0; _syncUndo();  // fresh resume: the prior resume's undo history must not carry over
       _resetAiPanels();
       render(); await saveLocal();
       closeResumeManager();
@@ -1340,7 +1402,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     let _reviewItems = [], _reviewConfirm = null;
-    function openReview(title, items, onConfirm) {
+    // aiInfo (optional) = { question, groundedOn, traceId } for an AI review: each AI mode rests on different inputs, and the
+    // "was this right?" chip must say which (LM-E, 2026-10-08) - one fixed sentence named the logbook for all three.
+    function openReview(title, items, onConfirm, aiInfo) {
       _reviewItems = items; _reviewConfirm = onConfirm;
       document.getElementById('review-title').textContent = title;
       const groups = {};
@@ -1353,7 +1417,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           html += `<div class="check-row">
             <input type="checkbox" data-review-check="${i}" ${it.checked ? 'checked' : ''} aria-label="Include this item" />
             <div class="cr-body">
-              ${it.label ? `<div style="font-size: 0.75rem;color:#9fb0c0;margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
+              ${it.label ? `<div style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.2rem;">${escHtml(it.label)} ${srcChip(it.src)}</div>` : `<div style="margin-bottom:0.2rem;">${srcChip(it.src)}</div>`}
               <input class="wh-input" data-review-value="${i}" value="${escHtml(it.value)}" aria-label="${escHtml('Edit ' + String(it.label || it.group || 'value').replace(/^Was:\s*/i, '').slice(0, 60))}" />
             </div></div>`;
         }
@@ -1361,9 +1425,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('review-body').innerHTML = html;
       // EX-AT (2026-09-07): the AI's suggestions are an answer too - the shared row lets a person
       // record that the polish was wrong, against the wording it proposed.
-      if (typeof whAiTrustRow === 'function' && items.some(it => /AI/i.test(String(it.src || '')))) {
+      // ★/AI/i MATCHED A FILENAME (LM-E, 2026-10-08): an upload's chip is 'Uploaded: <file>', and "Maintenance_CV.pdf"
+      // contains "ai" - so an extract of the person's OWN document got a row filed as a resume-polish answer. Only the
+      // 'AI suggested' source is the model's.
+      if (typeof whAiTrustRow === 'function' && items.some(it => String(it.src || '') === 'AI suggested')) {
         whAiTrustRow(document.getElementById('review-body'), { db, agent: 'resume-polish', source: 'review', page: 'resume',
-          question: title, answer: items.map(it => it.value).join('\n'), groundedOn: _t('your logbook entries, skills and achievements', 'ang mga logbook entry, skill at achievement mo') });
+          traceId: whTraceIdOf(aiInfo && aiInfo.traceId),   // LM-E: the id the resume-polish reply returned
+          question: (aiInfo && aiInfo.question) || title, answer: items.map(it => it.value).join('\n'),
+          groundedOn: (aiInfo && aiInfo.groundedOn) || _t('your logbook entries, skills and achievements', 'ang mga logbook entry, skill at achievement mo') });
       }
       updateReviewCount();
       document.getElementById('review-sheet').classList.add('open');
@@ -1472,16 +1541,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return text;
     }
 
+    // ★THE CALLER WAS NEVER NAMED (2026-10-12, UFAI edge walk W4766). Both readers were called with no Authorization, so
+    // resume-extract and resume-polish could not tell who was asking and fell back to the client IP: every worker behind
+    // one plant or carrier address (CGNAT, the free-tier phone audience) shared one 30-an-hour, 100-a-day bucket, and a
+    // busy crew stopped every resume import on that network. The person's own session goes with each call now, so each
+    // is capped as themselves - which is what the functions' own comments say they do.
+    async function _resumeFnHeaders() {
+      const h = { 'Content-Type': 'application/json' };
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (session && session.access_token) h.Authorization = 'Bearer ' + session.access_token;
+      } catch (_) { /* empty-catch-allow: no session -> the anonymous, IP-keyed bucket, as before */ }
+      return h;
+    }
+
     async function callResumeExtract(kind, payload, source) {
       const res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-extract`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: await _resumeFnHeaders(),
         body: JSON.stringify({ kind, payload, source, hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid, dedupe_promotions: _promoteDedupe }),
       }, 60000);
       if (res === null) { toast('That took too long. Try a smaller or clearer file.'); return null; }
       let raw; try { raw = await res.json(); } catch (_) { console.error('resume reader error:', _); toast(_t('Reader error. Please try again.', 'Error sa reader. Pakisubukan muli.')); return null; }
       // Envelope-aware: errors carry { ok:false, error:{message} }; success carries { ok:true, data:{...} }. Legacy flat shape still supported.
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
-        toast(raw && raw.error ? (raw.error.message || raw.error) : _t('Reader failed. Try again.', 'Hindi natuloy ang reader. Subukan muli.')); return null;
+        const _said = raw && raw.error ? (raw.error.message || raw.error) : '';
+        // the function's own refusal (a limit, a sign-in) is not a fact about the file: keep it for the summary
+        if (_said && typeof _said === 'string') _readerRefusal = _said;
+        toast(_said || _t('Reader failed. Try again.', 'Hindi natuloy ang reader. Subukan muli.')); return null;
       }
       const data = (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
       // Map-reduce honesty: on a heavy multi-page file the fn reads N sections
@@ -1612,7 +1698,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Dump one OR many files -> read each (with progress) -> ONE combined
     // editable checklist tagged by source filename -> merge into the resume.
     // Sequential (not parallel) to stay gentle on the free-tier chain + rate limit.
+    // ★A REFUSAL READ AS A BAD PHOTO (2026-10-12, UFAI edge walk W4766): when every file failed, the summary below said
+    // "Try clearer photos or PDFs" over the reader's own sentence - measured on a rate-limit refusal, which sent a
+    // person who had to WAIT to retake their photos. The refusal is remembered here and the summary repeats it.
+    let _readerRefusal = '';
     async function handleFiles(fileList) {
+      _readerRefusal = '';
       // Q3 free-tier upload cap: skip files over 10 MB before we read/upload them —
       // a giant PDF/image wastes storage + AI-extract budget. Batch count is capped
       // separately (MAX_BATCH); this caps per-file SIZE.
@@ -1651,6 +1742,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const offline = failCount && !navigator.onLine;
         const tn = _uploadNotes.length ? ' (' + _uploadNotes.join('; ') + ')' : '';   // A4: surface truncation even with no items
         toast((offline ? 'You appear to be offline. Reconnect, then try uploading again.'
+              : failCount && _readerRefusal ? _readerRefusal
               : failCount ? _t('Could not read those files. Try clearer photos or PDFs.', 'Hindi mabasa ang mga file na iyon. Subukan ang mas malinaw na litrato o PDF.')
               : 'No resume details found.') + tn);
         return;
@@ -1676,16 +1768,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let res;
       try {
         res = await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/resume-polish`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: await _resumeFnHeaders(),
           body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
         }, 45000);
-      } catch (_) { console.error('resume AI-helper unreachable:', _); toast(_t('Could not reach the AI helper - check your connection and try again.', 'Hindi maabot ang AI helper - suriin ang koneksyon at subukan muli.')); return null; }
-      if (res === null) { toast(_t('That took too long. Please try again.', 'Masyadong matagal iyon. Pakisubukan muli.')); return null; }
+        hideWaitingToast();   // the call settled: the "…" toast it was showing is withdrawn before any result or error toast
+      } catch (_) { hideWaitingToast(); console.error('resume AI-helper unreachable:', _); toast((navigator.onLine === false) ? _t('You are offline, so the AI helper could not be reached. Try again when your connection is back.', 'Offline ka, kaya hindi maabot ang AI helper. Subukan muli kapag bumalik ang koneksyon mo.') : _t('Could not reach the AI helper - it did not answer. Your resume is unchanged; try again in a moment.', 'Hindi maabot ang AI helper - hindi ito sumagot. Hindi nagbago ang resume mo; subukan muli maya-maya.')); return null; } // 2026-10-06 assistive-tech walk: no longer blames the connection while navigator.onLine is TRUE
+      if (res === null) { hideWaitingToast(); toast(_t('That took too long. Please try again.', 'Masyadong matagal iyon. Pakisubukan muli.')); return null; }
       let raw; try { raw = await res.json(); } catch (_) { console.error('resume AI-helper error:', _); toast(_t('AI helper error. Please try again.', 'Error sa AI helper. Pakisubukan muli.')); return null; }
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {
         toast(raw && raw.error ? (raw.error.message || raw.error) : _t('AI helper failed. Try again.', 'Hindi natuloy ang AI helper. Subukan muli.')); return null;
       }
-      return (raw && raw.data && typeof raw.data === 'object') ? raw.data : raw;
+      // ★THE UNWRAP DROPPED THE TRACE ID (LM-E walk, LM540, 2026-10-08): resume-polish puts trace_id on the ENVELOPE, and
+      // returning raw.data alone left every rating on this page with trace_id null - a "wrong" could not name its call.
+      // The id travels with the unwrapped answer.
+      if (raw && raw.data && typeof raw.data === 'object') {
+        return (raw.trace_id && !raw.data.trace_id) ? Object.assign({}, raw.data, { trace_id: raw.trace_id }) : raw.data;
+      }
+      return raw;
     }
     function ensureWork0() { if (!resume.work.length) resume.work.push(newItem('work')); return resume.work[0]; }
 
@@ -1712,7 +1811,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         render(); scheduleLocalSave();
         toast('✓ Updated ' + selected.length + ' lines.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_polish', { page: 'resume', count: selected.length });
-      });
+      }, { question: 'Polish my experience bullets:\n' + items.map(it => it.label).join('\n'),
+           groundedOn: 'the experience lines on this resume and your headline', traceId: data.trace_id });
     }
 
     async function runTailor() {
@@ -1747,7 +1847,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         render(); scheduleLocalSave();
         toast('✓ Applied ' + selected.length + ' suggestions.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_tailor', { page: 'resume', count: selected.length });
-      });
+      }, { question: 'Tailor my resume to this job ad:\n' + jd.slice(0, 1500),
+           groundedOn: 'the job ad you pasted, and your summary and skills', traceId: data.trace_id });
     }
 
     // ── Whole-resume summary synthesis (the reduce-pass) ─────────────────────
@@ -1819,7 +1920,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         render(); scheduleLocalSave();
         toast(selected.length ? '✓ Updated your summary.' : 'Kept your current summary.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_summarize', { page: 'resume' });
-      });
+      }, { question: 'Write my professional summary from my whole resume',
+           groundedOn: 'a fact sheet from this resume: years, roles, top skills, certifications, achievements, education',
+           traceId: data.trace_id });
     }
 
     // ── Tailor-to-JD keyword-gap score (Phase 1) ─────────────────────────────
@@ -2002,6 +2105,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const data = await callResumePolish({ mode: 'cover_letter', name: b.name || WORKER_NAME, headline: b.label || '', summary: b.summary || '', skills, experience, jd });
       if (!data || !data.letter) { if (data) toast(_t('No draft returned. Try again.', 'Walang naibalik na draft. Subukan muli.')); return; }
       renderCoverLetter(data.letter);
+      // ★THE COVER LETTER WAS THE ONE AI HELPER WITH NO "WAS THIS RIGHT?" (LM-E walk, 2026-10-08): polish, tailor and
+      // summary go through the review sheet, which carries the shared row; the letter goes straight to its own panel and
+      // carried nothing. Editing the letter fixes THIS letter - the row is how a wrong draft is heard. The panel is
+      // rewritten whole on every draft (and cleared by _resetAiPanels), so a row never stacks.
+      if (typeof whAiTrustRow === 'function' && typeof data.letter === 'string') {
+        whAiTrustRow(document.getElementById('cover-letter-panel'), { db, agent: 'resume-polish', source: 'cover-letter', page: 'resume',
+          traceId: whTraceIdOf(data),   // LM-E: the id the resume-polish reply returned
+          question: 'Draft a cover letter' + (jd ? ' for this job ad:\n' + jd.slice(0, 1500) : ''), answer: data.letter,
+          groundedOn: 'your name, headline, summary, skills and up to four jobs on this resume' + (jd ? ', and the job ad you pasted' : '') });
+      }
       if (typeof logEvent === 'function') logEvent(db, 'resume_cover_letter', { page: 'resume', tailored: !!jd });
     }
     function renderCoverLetter(letter) {
@@ -2457,6 +2570,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         else if (document.getElementById('resume-manager').classList.contains('open')) closeResumeManager();
       });
       document.getElementById('btn-undo').addEventListener('click', undo);
+      _syncUndo();
       document.getElementById('review-body').addEventListener('input', onReviewInput);
       document.getElementById('review-body').addEventListener('change', onReviewInput);
       document.getElementById('review-cancel').addEventListener('click', closeReview);

@@ -47,10 +47,9 @@ def _load_env():
 
 _load_env()
 
-GROQ_KEY       = os.getenv("GROQ_API_KEY", "")
-CEREBRAS_KEY   = os.getenv("CEREBRAS_API_KEY", "")
-OPENROUTER_KEY = os.getenv("OPENROUTER_API_KEY", "")
-ANTHROPIC_KEY  = os.getenv("ANTHROPIC_API_KEY", "")
+# Provider keys are read by tools/ai_chain.py, the only path this tool uses to reach a model (2026-10-08: the direct
+# Cerebras / Groq / OpenRouter / Anthropic helpers that sat here were removed - none had a caller, the Groq and
+# Cerebras ones named models that no longer answer, and Anthropic is a PAID API this free-tier tool must not call).
 
 BACKLOG  = Path(".tmp/video_ideas_backlog.json")
 SCRIPTS  = Path(".tmp/video_scripts")
@@ -115,76 +114,9 @@ PLATFORM_CONTEXT = _get_platform_context()
 
 # ── AI call helpers ───────────────────────────────────────────────────────────
 
-def _call_cerebras(prompt: str, model: str = "llama-3.3-70b") -> str:
-    resp = requests.post(
-        "https://api.cerebras.ai/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {CEREBRAS_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.9,
-        },
-        timeout=90,
-    )
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"].strip()
-
-
-def _call_anthropic(prompt: str, model: str) -> str:
-    import anthropic
-    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-    msg = client.messages.create(
-        model=model,
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return msg.content[0].text.strip()
-
-
-def _call_openrouter(prompt: str, model: str) -> str:
-    resp = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://workhiveph.com",
-            "X-Title": "WorkHive Video Marketing Tool",
-        },
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.9,
-        },
-        timeout=90,
-    )
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"].strip()
-
-
-def _call_groq(prompt: str, model: str = "llama-3.3-70b-versatile") -> str:
-    resp = requests.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {GROQ_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.9,
-        },
-        timeout=90,
-    )
-    resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"].strip()
-
-
 def ai_call(prompt: str, high_quality: bool = False) -> str:
     """
-    Delegates to tools.ai_chain.call_ai_chain — the canonical 14-model
+    Delegates to tools.ai_chain.call_ai_chain — the canonical free-tier
     fallback chain that mirrors supabase/functions/_shared/ai-chain.ts.
 
     Backward-compatible signature. high_quality=True buys a larger token
@@ -203,8 +135,8 @@ def ai_call(prompt: str, high_quality: bool = False) -> str:
         # check for failures (e.g. video idea generator). Platform pack
         # wraps this in its own try/except so it surfaces as a soft warning.
         raise RuntimeError(
-            "All providers in the 14-model chain returned empty. "
-            "Check GROQ_API_KEY, CEREBRAS_API_KEY, OPENROUTER_API_KEY "
+            "Every free model in the chain was rate-limited, refused or unkeyed. "
+            "Check GROQ_API_KEY, GEMINI_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY "
             "in supabase/functions/.env (or pass them via tester env)."
         )
     return out

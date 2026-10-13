@@ -2,7 +2,7 @@
 """prove_w4_design_receipts.py - the `w4-design` gate: a design-lens row stays banked only while its evidence holds.
 
 Every receipt in .tmp/mcp_walks/W4*.json whose `w4.lens` is set is checked for shape (the lens, BOTH viewports with a
-`fit` dict on every step, a detector file, after-scores for the scored lenses, both languages for copy, the Figma
+`fit` dict on every step, a detector file, after-scores for the scored lenses, English for copy, the Figma
 nodes for figma) and its page is RE-SCANNED with `impeccable detect --json` now - not the file saved at bank time.
 A page that regressed (a later edit re-introduced a tiny label, a nested card, a gradient heading) fails this gate
 by name, which is how a banked row is reopened: the platform gate goes red until the page is clean again or the row
@@ -78,8 +78,13 @@ def shape_problems(res: dict) -> list[str]:
             low = [k for k, v in after.items() if isinstance(v, (int, float)) and v < 3]
             if low:
                 p.append("scores below 3: " + ", ".join(low))
-    if lens == "copy" and not {"en", "fil"} <= set(w4.get("languages") or []):
-        p.append("copy lens not in both languages")
+    # ★THE FILIPINO HALF IS DESCOPED (Ian 2026-09-30, 2026-10-06): the copy lens closes on English, and a mixed row keeps
+    # its English half. The banker (bank_mcp_design_walk.py) and the ledger (live_walk_manifest.py) learned it on
+    # 2026-10-12; this third consumer did not, so every English-only copy receipt banked since read "no longer holds"
+    # here while the ledger read it closed - one rule, three readers, one left behind
+    # ([[feedback_a_new_roster_kind_must_teach_every_consumer]]).
+    if lens == "copy" and "en" not in set(w4.get("languages") or []):
+        p.append("copy lens not walked in English")
     if lens == "figma" and not w4.get("figma"):
         p.append("figma lens without file/node ids")
     return p
@@ -223,8 +228,19 @@ def self_test() -> int:
         if "no after-scores" not in "; ".join(shape_problems(thin)):
             print("FAIL self-test: an audit receipt without after-scores held")
             return 1
+        # the copy lens closes on English (Filipino descoped): an English-only copy receipt holds, one without
+        # English does not - both directions, so the rule cannot rot unseen the way the en+fil version did
+        copy_en = dict(r, w4=dict(r["w4"], lens="copy", languages=["en"]))
+        if shape_problems(copy_en):
+            print(f"FAIL self-test: an English copy receipt was refused: {shape_problems(copy_en)}")
+            return 1
+        copy_fil = dict(r, w4=dict(r["w4"], lens="copy", languages=["fil"]))
+        if "copy lens not walked in English" not in "; ".join(shape_problems(copy_fil)):
+            print("FAIL self-test: a copy receipt with no English held")
+            return 1
     print("PASS w4-design self-test: a two-viewport receipt with a detector file holds; one viewport, no detector, "
-          "and a scored lens without after-scores are refused")
+          "a scored lens without after-scores and a copy receipt without English are refused; an English copy "
+          "receipt holds")
     return 0
 
 

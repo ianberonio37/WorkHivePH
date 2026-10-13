@@ -137,6 +137,12 @@
        "reads from …" chip on initBoard(). MEASURED settled height 54px
        (wraps to two lines at the 390px board width). */
     #board-source-chip { min-height: 54px; }
+    /* ★A ONE-LINE CHIP IN A 62PX BOX (critique W45922, 2026-10-13). components.css reserves 62px on EVERY .wh-source-chip
+       (sized once for community's three-line chip), and this chip is one line, "Live data", over its method disclosure:
+       measured, 46px of empty air between the two at both widths, the container settling at 108px. The reserve belongs
+       to the container at what it renders - 20px of chip and the 44px disclosure, 66px at 390 and at 1280. */
+    #board-source-chip { min-height: 66px; }
+    #board-source-chip > .wh-source-chip { min-height: 0; }
 
     /* Reliability Coach panel — collapsed at paint (body display:none); only
        its toggle button is visible. Reserve the toggle's height so the panel
@@ -226,12 +232,12 @@
       border-radius: 0.75rem;
       padding: 0.5rem 1rem;
       font-size: 0.75rem;
-      border: 1px solid rgba(239,68,68,0.3);
+      border: 1px solid rgba(248,113,113,0.3);
       transition: background 0.2s;
       cursor: pointer;
       white-space: nowrap;
     }
-    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+    .btn-danger:hover { background: rgba(248,113,113,0.1); }
 
     .btn-text {
       min-height: 44px;
@@ -272,7 +278,7 @@
     .hive-menu-item { width:100%; text-align:left; background:none; border:none; border-radius:8px; padding:0.5rem 0.75rem; font-family:inherit; font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.82); cursor:pointer; min-height:44px; text-decoration:none; box-sizing:border-box; }
     .hive-menu-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
     .hive-menu-danger { color:var(--wh-red-text); }
-    .hive-menu-danger:hover { background:rgba(239,68,68,0.10); color:var(--wh-red-text); }
+    .hive-menu-danger:hover { background:rgba(248,113,113,0.10); color:var(--wh-red-text); }
 
     .code-display {
       background: rgba(41,182,217,0.1);
@@ -349,14 +355,17 @@
     }
     .welcome-stat + .welcome-stat { border-left: 1px solid rgba(255,255,255,0.10); }
 
+    /* status tints are the tokens' channels (critique W45922, 2026-10-13): the board tinted danger and success with
+       Tailwind's red-500 and green-500 (239,68,68 / 34,197,94) beside token text - 12 off-token reads in the activity
+       feed alone. Now --wh-red (248,113,113) and --wh-green (74,222,128) at the same alphas. */
     .status-badge {
       display: inline-flex; align-items: center;
       padding: 2px 8px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.04em;
     }
-    .status-open   { background: rgba(239,68,68,0.15); color:var(--wh-red-text); }
-    .status-closed { background: rgba(34,197,94,0.15);  color: var(--wh-green); }
+    .status-open   { background: rgba(248,113,113,0.15); color:var(--wh-red-text); }
+    .status-closed { background: rgba(74,222,128,0.15);  color: var(--wh-green); }
 
     .cat-badge {
       display: inline-flex; align-items: center;
@@ -453,7 +462,7 @@
 <!-- ── NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
-    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
+    <a href="index.html" data-wh-back aria-label="WorkHive home" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
@@ -468,7 +477,7 @@
         <!-- Dropdown panel -->
         <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(22,32,50,0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
-            <p class="text-xs font-bold text-white/85">Notifications</p>
+            <p data-i="p_notifications_753a" class="text-xs font-bold text-white/85">Notifications</p>
             <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size: 0.75rem;font-weight:600;color:rgba(255,255,255,0.80);" data-i="markallread">Mark all read</button>
           </div>
           <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
@@ -524,8 +533,16 @@
     </script>
 
     <!-- ── VIEW: ONBOARD ── -->
-    <div id="view-onboard" class="hidden">
+    <div id="view-onboard" class="hidden" data-wh-gate="onboarding">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
+        <!-- Only when this screen was opened FROM a board (Join or Create Another Hive): the person still has that
+             hive, so the screen must not strand them in front of a first-run choice with no way back to it. -->
+        <div style="text-align:left;">
+          <button id="btn-onboard-back" type="button" class="btn-text mb-3 hidden">
+            <span class="ic ic-back" aria-hidden="true"></span>
+            <span id="btn-onboard-back-label">Back to your hive</span>
+          </button>
+        </div>
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.2);">
           <span class="ic ic-community" aria-hidden="true"></span>
         </div>
@@ -567,11 +584,11 @@
           <span class="ic ic-back" aria-hidden="true"></span>
           Back
         </button>
-        <h2 class="text-xl font-black text-white mb-1">Create Your Hive</h2>
-        <p class="text-xs text-white/80 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
-        <label for="hive-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Hive Name</label>
+        <h2 data-i="p_createyourhive_0e93" class="text-xl font-black text-white mb-1">Create Your Hive</h2>
+        <p data-i="p_nameyourteamyoullgetacharact_d5a1" class="text-xs text-white/80 mb-6 leading-relaxed">Name your team. You'll get a 6-character code to share with your crew at briefing.</p>
+        <label data-i="p_hivename_7d10" for="hive-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Hive Name</label>
         <input id="hive-name-input" type="text" placeholder="e.g. Electrical Team A" maxlength="40" class="wh-input mb-2" autocomplete="off" />
-        <p role="alert" aria-live="assertive" id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
+        <p data-i="p_pleaseenterahivename_8ebe" role="alert" aria-live="assertive" id="create-error" class="text-xs text-red-400 mb-3 hidden">Please enter a hive name.</p>
         <button id="btn-submit-create" class="btn-primary mt-2" data-i="createhive">Create Hive</button>
       </div>
     </div>
@@ -579,12 +596,12 @@
     <!-- ── VIEW: CODE REVEAL ── -->
     <div id="view-code" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(74,222,128,0.15); border:1px solid rgba(74,222,128,0.3);">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
-        <p class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">Hive Created</p>
+        <p data-i="p_hivecreated_6c80" class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">Hive Created</p>
         <h2 id="code-hive-name" class="text-xl font-black text-white mb-6"></h2>
-        <p class="text-xs text-white/80 mb-3">Share this code with your team:</p>
+        <p data-i="p_sharethiscodewithyourteam_b16b" class="text-xs text-white/80 mb-3">Share this code with your team:</p>
         <div class="code-display mb-4" id="code-value"></div>
         <!-- T6 (2026-08-25): the code panel offered TEXT TO READ ALOUD and nothing else — the
              briefing-room reality is a supervisor pasting into the group chat, so give the code
@@ -615,7 +632,7 @@
             }
           })();
         </script>
-        <p class="text-xs text-white/80 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
+        <p data-i="p_readitatbriefingorpostitinyo_fc8e" class="text-xs text-white/80 mb-8 leading-relaxed">Read it at briefing or post it in your group chat. Members enter this code to join your hive.</p>
         <button id="btn-enter-board" class="btn-primary" data-i="gotoliveboard">Go to Live Board →</button>
       </div>
     </div>
@@ -627,9 +644,9 @@
           <span class="ic ic-back" aria-hidden="true"></span>
           Back
         </button>
-        <h2 class="text-xl font-black text-white mb-1">Join a Hive</h2>
-        <p class="text-xs text-white/80 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
-        <label for="join-code-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Invite Code</label>
+        <h2 data-i="p_joinahive_6c7a" class="text-xl font-black text-white mb-1">Join a Hive</h2>
+        <p data-i="p_enterthecharactercodeyoursup_c7b7" class="text-xs text-white/80 mb-6 leading-relaxed">Enter the 6-character code your supervisor gave you.</p>
+        <label data-i="p_invitecode_6929" for="join-code-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
           style="font-size:1.5rem; letter-spacing:0.35em;" />
@@ -638,10 +655,10 @@
              Juan Dela Cruzes on one crew is ordinary, and the refusal has to be walkable from the
              screen that raised it - there is no other name field on this form. -->
         <div id="join-name-fix" class="hidden mb-3 text-left">
-          <label for="join-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">The name your team will see</label>
+          <label data-i="p_thenameyourteamwillsee_e173" for="join-name-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">The name your team will see</label>
           <input id="join-name-input" type="text" maxlength="60" autocomplete="off"
             class="wh-input mb-1" placeholder="e.g. Juan Dela Cruz (Mechanical)" />
-          <p class="text-xs text-white/60 leading-relaxed">This goes on everything you log, so two people in a hive cannot share it. Changing it here updates your name everywhere.</p>
+          <p data-i="p_thisgoesoneverythingyoulogso_21f1" class="text-xs text-white/60 leading-relaxed">This goes on everything you log, so two people in a hive cannot share it. Changing it here updates your name everywhere.</p>
         </div>
         <button id="btn-submit-join" class="btn-primary mt-2" data-i="joinhive">Join Hive</button>
       </div>
@@ -650,21 +667,21 @@
     <!-- ── VIEW: WELCOME (shown after joining, not creating) ── -->
     <div id="view-welcome" class="hidden">
       <div class="wh-card p-8 text-center max-w-sm mx-auto mt-8">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3);">
+        <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style="background:rgba(74,222,128,0.15); border:1px solid rgba(74,222,128,0.3);">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
-        <p class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">You're In</p>
+        <p data-i="p_yourein_3637" class="text-xs font-semibold text-white/80 uppercase tracking-widest mb-1">You're In</p>
         <h2 id="welcome-hive-name" class="text-xl font-black text-white mb-2"></h2>
-        <p class="text-xs text-white/80 mb-6 leading-relaxed">Your records are now visible to your team:</p>
+        <p data-i="p_yourrecordsarenowvisibletoyo_7456" class="text-xs text-white/80 mb-6 leading-relaxed">Your records are now visible to your team:</p>
 
         <div class="flex gap-3 mb-6">
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-log-count">-</p>
-            <p class="text-xs text-white/80 mt-1">Logbook Entries</p>
+            <p data-i="p_logbookentries_caf3" class="text-xs text-white/80 mt-1">Logbook Entries</p>
           </div>
           <div class="welcome-stat">
             <p class="text-2xl font-black text-white" id="welcome-parts-count">-</p>
-            <p class="text-xs text-white/80 mt-1">Jobs Closed</p>
+            <p data-i="p_jobsclosed_d85f" class="text-xs text-white/80 mt-1">Jobs Closed</p>
           </div>
         </div>
 
@@ -699,9 +716,9 @@
                surface ONLY on realtime degrade (reconnecting/offline). The source chip states liveness. -->
           <div id="conn-pill" class="flex items-center gap-2 mb-1" role="status" aria-live="polite" aria-atomic="true" style="display:none;">
             <span class="conn-dot reconnecting" id="conn-dot"></span>
-            <span id="conn-label" class="text-xs text-white font-semibold">Connecting...</span>
+            <span data-i="p_connecting_b98e" id="conn-label" class="text-xs text-white font-semibold">Connecting...</span>
           </div>
-          <h1 class="text-2xl font-black text-white" id="board-hive-name" translate="no">Hive Board</h1>
+          <h1 data-i="p_hiveboard_45c9" class="text-2xl font-black text-white" id="board-hive-name" translate="no">Hive Board</h1>
           <div id="hive-role-tag" class="mt-1 hidden">
             <span class="supervisor-tag">
               <span class="ic ic-check" aria-hidden="true"></span>
@@ -732,15 +749,28 @@
                  reveals Show Invite Code. -->
             <button id="btn-rename-hive" role="menuitem" class="hive-menu-item hidden" data-i="rename_hive">Rename Hive</button>
             <button id="btn-switch-hive" role="menuitem" class="hive-menu-item hidden" data-i="switchhive">Switch Hive</button>
+            <!-- ★A ONE-HIVE MEMBER HAD NO DOOR TO A SECOND HIVE (2026-10-08, UI-write recipes). The join/create screen
+                 was reachable from the board only through "Switch Hive" -> "Join Another Hive", and Switch Hive is
+                 hidden until you already belong to TWO hives - so the person who most needs a second hive (a
+                 contractor starting at a new site) could not get there without leaving the one they have.
+                 Shown exactly when Switch Hive is not (updateSwitchButton). -->
+            <button id="btn-add-hive" type="button" role="menuitem" class="hive-menu-item hidden">Join or Create Another Hive</button>
             <!-- Phase H.2 / 4.1 / 5C: audit-log, AI-quality + plant-connections are
                  hidden in the primary nav-hub; this supervisor-only menu is their
                  discoverable entry point (revealed by the supervisor block below). -->
-            <a id="btn-audit-log" href="audit-log.html" role="menuitem" class="hive-menu-item hidden"
+            <a data-i="p_auditlog_076c" id="btn-audit-log" href="audit-log.html" role="menuitem" class="hive-menu-item hidden"
                title="View activity log: supervisor actions and moderation history">Audit Log &#8594;</a>
-            <a id="btn-ai-quality" href="ai-quality.html" role="menuitem" class="hive-menu-item hidden"
+            <a data-i="p_aiquality_b561" id="btn-ai-quality" href="ai-quality.html" role="menuitem" class="hive-menu-item hidden"
                title="AI Quality + ROI: 30-day spend, fallback rate, schema compliance, worker thumbs feedback, predicted ROI (Stair 2+ gated)">AI Quality &#8594;</a>
-            <a id="btn-plant-connections" href="plant-connections.html" role="menuitem" class="hive-menu-item hidden"
+            <a data-i="p_plantconnections_8d25" id="btn-plant-connections" href="plant-connections.html" role="menuitem" class="hive-menu-item hidden"
                title="Plant Connections: CMMS sync, sensor topics, gateway audit, data retention, SSO, all in one supervisor surface (Phase 5 Track C)">Plant Connections &#8594;</a>
+            <!-- ★A CONSENT WITH NO SWITCH (2026-10-08). hives.federated_benchmark_opted_in has said since Phase 6D that a
+                 supervisor decides whether the hive's anonymised figures join the shared PH benchmarks - and no control
+                 existed, while every reader ignored the flag. The readers now honour it; this is the switch. A checkable
+                 menu item so its state is announced, and a confirmation that says what is and is not shared. -->
+            <button id="btn-benchmark-sharing" type="button" role="menuitemcheckbox" aria-checked="false"
+                    class="hive-menu-item hidden"
+                    title="Choose whether this hive's anonymised maintenance figures join the shared PH benchmarks">Share benchmarks: off</button>
             <!-- ★THE EXPORT EXISTED AND NOTHING CALLED IT (T164, 2026-09-07). supabase/functions/
                  export-hive-data has shipped since Phase 5 Track A as the PDPA Article 16 right-to-access
                  export, and no page on the platform invoked it - so the right existed in the codebase and
@@ -757,11 +787,24 @@
         </div>
       </div>
 
+      <!-- ★A PERSON'S OWN HISTORY COMES IN BY THEIR CHOICE (2026-10-08, migration 20261008000064). Shown only to a
+           member who holds logbook entries of their own (no hive, their account) and has not decided for this hive.
+           Nothing moves without "Bring them in". Inline rather than a modal: it waits for the person instead of
+           interrupting whatever they opened the board to do. Filled and revealed by _offerPersonalHistory(). -->
+      <section id="history-offer" class="wh-card hidden" aria-labelledby="history-offer-title"
+               style="padding:1rem 1.1rem; margin-bottom:1.25rem; border:1px solid rgba(41,182,217,0.28); background:rgba(41,182,217,0.08);">
+        <h2 id="history-offer-title" class="text-sm font-bold text-white mb-1">Your own logbook entries</h2>
+        <p id="history-offer-text" class="text-sm mb-3" style="color:rgba(255,255,255,0.85); line-height:1.5;"></p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" id="history-offer-bring" class="btn-primary" style="width:auto; min-height:44px;">Bring them in</button>
+          <button type="button" id="history-offer-keep" class="btn-ghost" style="width:auto; min-height:44px;">Keep them personal</button>
+        </div>
+      </section>
       <!-- Invite code strip (supervisor only, toggleable) -->
       <div id="code-strip" class="hidden wh-card p-4 mb-5 text-center">
-        <p class="text-xs text-white/80 mb-2">Share this code with your team:</p>
+        <p data-i="p_sharethiscodewithyourteam_b16b" class="text-xs text-white/80 mb-2">Share this code with your team:</p>
         <div class="code-display" id="code-strip-value" style="font-size:1.5rem; padding:0.75rem 1rem;"></div>
-        <p class="text-xs text-white/80 mt-2">Anyone with this code can join your hive.</p>
+        <p data-i="p_anyonewiththiscodecanjoinyou_fb25" class="text-xs text-white/80 mt-2">Anyone with this code can join your hive.</p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -796,7 +839,7 @@
         <div class="ss-eyebrow" id="ss-eyebrow"><span data-i="eyebrow">Hive Board</span></div>
         <div id="ss-verdict" class="verdict empty ss-hero">
           <span id="ss-verdict-icon" class="verdict-icon" aria-hidden="true">&#183;</span>
-          <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
+          <div class="verdict-text"><span data-i="p_computinghivehealth_f711" id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
         </div>
         <!-- v4 (2026-07-15) FIRST-RUN value-first view (rubric O1 value-first-not-a-tour + O2 endowed-
              progress). Shown ONLY on a brand-new hive (isFirstRun); replaces the empty action tiles
@@ -804,11 +847,11 @@
              path, plus endowed-progress steps. Toggled in loadSupervisorSummary. -->
         <div class="ss-firstrun" id="ss-firstrun" hidden>
           <div class="ss-fr-steps" aria-hidden="true">
-            <span class="ss-fr-step done">&#10003; Hive created</span>
+            <span data-i="p_hivecreated_2e67" class="ss-fr-step done">&#10003; Hive created</span>
             <span class="ss-fr-bar done"></span>
-            <span class="ss-fr-step now">Log first job</span>
+            <span data-i="p_logfirstjob_cf88" class="ss-fr-step now">Log first job</span>
             <span class="ss-fr-bar"></span>
-            <span class="ss-fr-step">Invite team</span>
+            <span data-i="p_inviteteam_0f45" class="ss-fr-step">Invite team</span>
           </div>
           <a class="ss-fr-cta" href="logbook.html?new=1">&#128295; <span data-i="frlog">Log your first job</span> &#8594;</a>
           <p class="ss-fr-note" data-i="frnote">Takes about 20 seconds. Your readiness score and AI brief unlock the moment you log one job.</p>
@@ -836,12 +879,12 @@
         </div>
         <div class="action-card" id="ss-action">
           <div class="ac-label" data-i="whattodo">What to do next</div>
-          <div class="ac-text" id="ss-action-text">Computing recommendation...</div>
+          <div data-i="p_computingrecommendation_5948" class="ac-text" id="ss-action-text">Computing recommendation...</div>
           <!-- Arc P · Wave 1 (P3 one primary action): the recommendation ends in ONE
                primary button that OPENS the named surface, so "what to do next" is a
                thing you DO, not just read. Label + href set per-branch in
                loadSupervisorSummary(); hidden until computed. -->
-          <a id="ss-action-btn" class="ac-cta hidden" href="#" aria-label="Do the recommended next action">Take action &#8594;</a>
+          <a data-i="p_takeaction_ee0b" id="ss-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
         </div>
         <!-- Service-hailing hive-provider home (SERVICE_HAILING_ROADMAP.md P3 / §1c): the hive
              can register as a service COMPANY and dispatch its crew — console lives on the
@@ -875,10 +918,10 @@
           <div class="ss-rd-head">
             <span class="ss-rd-title" data-i="readytitle">Hive readiness</span>
             <span class="ss-rd-score"><b id="ss-rd-composite">&#8212;</b>/100</span>
-            <span class="ss-rd-stair" id="ss-rd-stair">Loading&#8230;</span>
+            <span data-i="p_loading_33ce" class="ss-rd-stair" id="ss-rd-stair">Loading&#8230;</span>
             <span class="ss-rd-cta" aria-hidden="true" data-i="why">Why? &#8594;</span>
           </div>
-          <div class="ss-rd-track"><i id="ss-rd-fill" style="width:0%;"></i></div>
+          <div class="ss-rd-track"><i id="ss-rd-fill" style="--rd:0%;"></i></div>
           <div class="ss-rd-weak" id="ss-rd-weak"></div>
         </div>
         <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details" data-i="showdetails">
@@ -887,7 +930,7 @@
         <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer"
     data-rag-tile="hive:detail_panel"
     data-rag-label="Hive supervisor detail">
-          <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
           <ul style="margin:0;padding-left:20px;">
             <!-- ★ THE LEGEND NAMED FIVE DIMENSIONS THE PRODUCT DOES NOT USE. It read "Reliability /
                  Operations / Safety / People / Cost"; the bars this card points at (#stair-dims,
@@ -899,10 +942,10 @@
                  An explanation that names different inputs from the ones on screen is worse than no
                  explanation: it is read as authoritative, and it sends someone looking for a Safety
                  score that does not exist. The names now come from the same model the bars render. -->
-            <li><strong>Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair: <strong>Process</strong>, <strong>Data</strong>, <strong>Resilience</strong>, <strong>Leadership</strong> and <strong>Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
-            <li><strong>Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong>Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
-            <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
+            <li><strong data-i="p_maturitystair_e00b">Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair: <strong data-i="p_process_12f4">Process</strong>, <strong data-i="p_data_e5e4">Data</strong>, <strong data-i="p_resilience_19d9">Resilience</strong>, <strong data-i="p_leadership_f542">Leadership</strong> and <strong data-i="p_culture_1db1">Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
+            <li><strong data-i="p_adoptionhealth_603c">Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong data-i="p_openissues_aa01">Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
+            <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
           <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
         </div>
@@ -918,7 +961,7 @@
         <!-- Y6 silent-loop: a green dot was an unexplained status. State the basis inline (not a hover tooltip — field phones have no hover). -->
         <p class="text-xs text-white/80 mb-2" data-i="presence-legend">Green dot = a teammate is in WorkHive right now.</p>
         <div id="presence-bar" class="flex gap-2 overflow-x-auto pb-1">
-          <span class="presence-chip" style="color:rgba(255,255,255,0.80); font-style:italic;">Connecting...</span>
+          <span data-i="p_connecting_b98e" class="presence-chip" style="color:rgba(255,255,255,0.80); font-style:italic;">Connecting...</span>
         </div>
       </div>
 
@@ -930,7 +973,7 @@
       <a id="my-work-card" href="logbook.html" class="wh-card" style="align-items:center; gap:14px; padding:12px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
           <p role="heading" aria-level="2" data-i="myworklabel" class="wh-section-title" style="margin-bottom:2px;">Your open work</p>
-          <p id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
+          <p data-i="p_checkingyourjobs_344a" id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
           <p id="my-work-sub" style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top:2px;"></p>
         </div>
         <span aria-hidden="true" data-i="myworkcta" style="font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
@@ -953,7 +996,10 @@
            was invisible to the exact person it was added for. Pattern-matching a sibling card is not
            the same as checking who can see its container. A supervisor needs nothing here - they have
            the nav entry - so this block is the worker's, alongside their own open work. -->
-      <a id="my-alerts-card" href="alert-hub.html" class="wh-card" style="align-items:center; gap:14px; padding:12px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
+      <!-- display:flex was missing since this card was added (2026-09-11): an inline <a> styled as a card around block
+           content broke into fragments - a 17px rounded sliver beside the title, the subtitle spilling across its edge,
+           "Open Alert Hub" in a box of its own (critique W45922, 2026-10-13) -->
+      <a id="my-alerts-card" href="alert-hub.html" class="wh-card" style="display:flex; align-items:center; gap:14px; padding:12px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
           <p role="heading" aria-level="2" class="wh-section-title" style="margin-bottom:2px;" data-i="alerthublabel">What the hive has flagged</p>
           <p style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;" data-i="alerthubtext">Risk, anomalies and shift briefings for this hive</p>
@@ -1003,7 +1049,7 @@
            "Hive maturity" mini-card tap-jumps here — whJumpTo opens this <details>) and
            OPEN for WORKERS (who have no Summary, so they keep the readiness context). -->
       <details id="health-details" class="wh-disclose">
-        <summary><span class="wh-disclose-title">Hive readiness details</span></summary>
+        <summary><span data-i="p_hivereadinessdetails_6a2e" class="wh-disclose-title">Hive readiness details</span></summary>
         <div class="wh-disclose-body">
       <!-- ── Maturity Stairway (Phase 0.2 of STRATEGIC_ROADMAP) ──────────────
            Readiness score: current stair + composite + dimension scores + the
@@ -1012,20 +1058,20 @@
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue-text);">Stair 0 · Paper</span>
+              <span data-i="p_stairpaper_4682" id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue-text);">Stair 0 · Paper</span>
               <span id="stair-composite" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size: 12px; color:rgba(255,255,255,0.80); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
             </div>
             <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
-          <p id="stair-blocker" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
+          <p data-i="p_computingyourhivesreadiness_aa15" id="stair-blocker" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
         <!-- Source chip — anchors the readiness composite + dimension
              scores to v_hive_readiness_truth so supervisors can trace each
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
         <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
-        <p style="font-size: 12px; color:rgba(255,255,255,0.80); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
+        <p data-i="p_basedontheworkhivestairmodel_4c8f" style="font-size: 12px; color:rgba(255,255,255,0.80); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
           <!-- C1/K1: fills are ONE neutral accent, not a per-dimension rainbow. A fixed green
@@ -1101,7 +1147,7 @@
              the <p>, in the page's own .ac-cta idiom. The [data-i] translator swaps this <p>'s innerHTML
              wholesale, so WH_FIL.vsEmpty carries the same anchor with Filipino text (a sibling anchor
              was tried first and could not count — the rule scopes to the panel). -->
-        <p id="vs-empty" class="hidden" style="font-size: 12px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works. <a class="ac-cta" href="pm-scheduler.html" style="display:inline-flex; margin-top:8px;">Log your first PM &#8594;</a></p>
+        <p id="vs-empty" class="hidden" style="font-size: 12px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works. <a data-i="p_logyourfirstpm_909f" class="ac-cta" href="pm-scheduler.html" style="display:inline-flex; margin-top:8px;">Log your first PM &#8594;</a></p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1142,7 +1188,7 @@
       <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your hive?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
         <div style="background:var(--wh-navy); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:var(--wh-cloud);">
           <h2 style="margin:0 0 0.5rem; font-size:1.125rem; font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your hive?</h2>
-          <p style="margin:0 0 1rem; font-size:0.875rem; color:rgba(255,255,255,0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
+          <p data-i="p_picktheonegoalthatmattersmos_38cb" style="margin:0 0 1rem; font-size:0.875rem; color:rgba(255,255,255,0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
             <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> <span data-i="intent_pred">Predictive maintenance: stop failures before they happen</span>
@@ -1187,7 +1233,7 @@
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:var(--wh-green);">Healthy</span>
+              <span data-i="p_healthy_80ea" id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(74,222,128,0.18); color:var(--wh-green);">Healthy</span>
               <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size: 12px; color:rgba(255,255,255,0.80); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
             </div>
@@ -1196,12 +1242,12 @@
           <!-- E1: risk as length (0-100), colored by tier, so severity is preattentive, not a bare number.
                The bar grows + reddens as risk rises (short green = low risk / good). -->
           <div class="stair-dim-track" style="margin-top:8px; height:6px;"><div id="adoption-risk-fill" class="stair-dim-fill" style="background:var(--wh-green);"></div></div>
-          <p id="adoption-summary" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
+          <p data-i="p_computingyourhivesadoptionsi_402c" id="adoption-summary" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
           <!-- Source chip — anchors risk score + champion + reasons to
                hive_adoption_score + compute_adoption_risk. Populated by
                loadAdoptionCard(). -->
           <p id="adoption-source-chip" style="margin:8px 0 0;"></p>
-          <p style="font-size: 12px; color:rgba(255,255,255,0.80); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
+          <p data-i="p_basedontheworkhiveadoptionri_3074" style="font-size: 12px; color:rgba(255,255,255,0.80); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
         <div id="adoption-detail" style="display:none; padding: 12px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
@@ -1418,15 +1464,12 @@
         .ss-rd-stair { font-size: 0.75rem; font-weight:600; color:rgba(255,255,255,0.80); }
         .ss-rd-cta { margin-left:auto; font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); }
         .ss-rd-track { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; margin:8px 0 8px; }
-        /* THIS ONE KEEPS `width`, AND THE REASON IS THE GRADIENT. Scaling a linear-gradient scales the
-           gradient with it: a bar at 30% would show the whole orange-to-green ramp squeezed into a
-           third of the track instead of the orange END of it, which is the opposite of what a
-           readiness bar means. The duration and the curve are still wrong and are still fixed - 500ms
-           on an ease-in-out becomes --wh-dur-slow on --wh-ease-out - and the remaining cost, one
-           reflowing property on one element, is named rather than quietly kept. The clean fix is a
-           clip-path on a full-width gradient; it is a different shape of change and belongs to a row
-           that can verify the gradient at every value. */
-        .ss-rd-track > i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), var(--wh-green)); transition:width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
+        /* ★THE CLIP-PATH THIS NOTE ASKED FOR (critique W45922, 2026-10-13). It kept `width` because scaling a gradient
+           squeezes the whole orange-to-green ramp into the filled part - but `width` does exactly that too, since the
+           gradient spans the element's own box: measured at 40/100 the bar already ended in full green. A FULL-WIDTH
+           gradient clipped from the right shows where on the ramp the hive stands (orange at 30, green only near 100),
+           and clip-path repaints without reflowing the card, which `width` did on every update. --rd is the score. */
+        .ss-rd-track > i { display:block; width:100%; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), var(--wh-green)); clip-path:inset(0 calc(100% - var(--rd, 0%)) 0 0 round 999px); transition:clip-path var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
         .ss-rd-weak { font-size: 0.75rem; font-weight:600; color:rgba(255,255,255,0.83); }
         @media (prefers-reduced-motion: reduce){ .ss-rd-track > i { transition:none; } }
 
@@ -1442,13 +1485,13 @@
       </style>
 
       <!-- Alerts -->
-      <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);">
+      <div id="pm-overdue-alert" class="hidden mb-3 rounded-xl p-4" style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);">
         <div class="flex items-start gap-3">
           <span class="ic ic-back" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
+            <p data-i="p_pmtasksoverdue_eec5" class="text-xs font-bold text-red-400 mb-0.5">PM Tasks Overdue</p>
             <p class="text-xs text-white/80" id="pm-overdue-text"></p>
-            <a href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-red-text);min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
+            <a data-i="p_openpmscheduler_bb59" href="pm-scheduler.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-red-text);min-height:44px;display:inline-flex;align-items:center;">Open PM Scheduler &#8594;</a>
           </div>
         </div>
       </div>
@@ -1457,14 +1500,14 @@
         <div class="flex items-start gap-3">
           <span class="ic ic-warning" aria-hidden="true"></span>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
+            <p data-i="p_yourstockalert_1939" class="text-xs font-bold text-orange-wh mb-0.5">Your Stock Alert</p>
             <p class="text-xs text-white/80" id="stock-alert-text"></p>
             <a href="inventory.html" class="text-xs font-semibold mt-1.5" style="color:var(--wh-orange-text); display:inline-flex; align-items:center; min-height:44px;" data-i="viewinv">View Inventory &#8594;</a>
           </div>
         </div>
       </div>
 
-      <div id="team-stock-alert" class="hidden mb-4 rounded-xl p-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.18);">
+      <div id="team-stock-alert" class="hidden mb-4 rounded-xl p-4" style="background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.18);">
         <div class="flex items-center gap-2 mb-3">
           <span class="ic ic-parts" aria-hidden="true"></span>
           <p class="text-xs font-bold text-red-400" data-i="teamlow">Teammates Low on Parts</p>
@@ -1478,13 +1521,13 @@
            types that produce them. Populated by loadTodaysBrief(). -->
       <div id="todays-brief-panel" class="hidden mb-5">
         <div class="flex items-center justify-between mb-2">
-          <p role="heading" aria-level="2" class="text-xs font-semibold text-white/80 uppercase tracking-widest" data-i="brief">Today's Brief</p>
+          <p role="heading" aria-level="2" class="text-xs font-semibold text-white/80 uppercase tracking-widest" data-i="brief">Latest brief</p>
           <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red-text);">AI</span>
         </div>
         <div class="wh-card p-4">
           <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
           <div id="todays-brief-content">
-            <p class="text-xs text-white/80">Loading...</p>
+            <p data-i="p_loading_b04b" class="text-xs text-white/80">Loading...</p>
           </div>
         </div>
       </div>
@@ -1515,7 +1558,8 @@
             <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
             <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:12px; font-family:inherit; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
           </div>
-          <div id="coach-result" style="display:none; margin-top:12px;"></div>
+          <!-- LM-L walk LM515 (2026-10-08): the coach's "Analyzing...", its actions and its failure were silent to a screen reader -->
+          <div id="coach-result" style="display:none; margin-top:12px;" role="status" aria-live="polite"></div>
         </div>
       </div>
 
@@ -1682,14 +1726,14 @@
       <details id="benchmark-panel" class="hidden wh-disclose">
         <summary>
           <span class="wh-disclose-title">How your hive compares
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-text); text-transform:none; letter-spacing:0;">WorkHive network</span>
+            <span data-i="p_workhivenetwork_bdfd" class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-text); text-transform:none; letter-spacing:0;">WorkHive network</span>
           </span>
         </summary>
         <div class="wh-disclose-body">
           <p class="text-xs text-white/80 mb-3" data-i="benchmark_intro">Anonymized: no individual hive is identified.</p>
           <p id="benchmark-source-chip" style="margin:0 0 8px;"></p>
           <div id="benchmark-content">
-            <p class="text-xs text-white/80">Loading benchmarks...</p>
+            <p data-i="p_loadingbenchmarks_0058" class="text-xs text-white/80">Loading benchmarks...</p>
           </div>
         </div>
       </details>
@@ -1718,7 +1762,7 @@
            one primary action; the feed is one tap away. -->
       <details class="wh-disclose">
         <summary>
-          <span class="wh-disclose-title"><span data-i="activity">Hive Activity</span> <span class="text-xs text-white/80" style="text-transform:none; letter-spacing:0; font-weight:600;">Live</span></span>
+          <span class="wh-disclose-title"><span data-i="activity">Hive Activity</span> <span data-i="p_live_65c8" class="text-xs text-white/80" style="text-transform:none; letter-spacing:0; font-weight:600;">Live</span></span>
         </summary>
         <div class="wh-disclose-body">
           <!-- NOT A CARD (2026-09-16): this empty state sits inside .wh-disclose-body, and that disclosure
@@ -1727,8 +1771,8 @@
                person least helped by extra chrome. The panel provides the edge; the message just needs room. -->
           <div id="feed-empty" class="hidden p-8 text-center">
             <span class="ic ic-minus" aria-hidden="true"></span>
-            <p class="text-sm text-white/80">No activity yet in this hive.</p>
-            <p class="text-xs text-white/80 mt-1">Logbook entries from team members will appear here.</p>
+            <p data-i="p_noactivityyetinthishive_6bd4" class="text-sm text-white/80">No activity yet in this hive.</p>
+            <p data-i="p_logbookentriesfromteammember_9de0" class="text-xs text-white/80 mt-1">Logbook entries from team members will appear here.</p>
           </div>
           <div id="feed" class="flex flex-col gap-3"></div>
           <div id="feed-more" class="hidden mt-3">
@@ -1765,7 +1809,7 @@
         <div class="sheet-inner w-full max-w-lg mx-auto">
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
             <div>
-              <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
+              <p data-i="p_shifthandoverreport_c5a7" class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
               <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);" id="ho-meta"></p>
             </div>
             <!-- 44px effective target (dialog_layout floor): the sheet was unreachable until
@@ -1774,11 +1818,11 @@
           </div>
           <div id="handover-body"></div>
           <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
-            <label class="ho-label" for="ho-handover-to">Handover to (incoming technician)</label>
+            <label data-i="p_handovertoincomingtechnician_0cd0" class="ho-label" for="ho-handover-to">Handover to (incoming technician)</label>
             <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
-              <button onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);">&#128203; Copy</button>
-              <button onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);">&#128424; Print</button>
+              <button data-i="p_copy_7baa" onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);">&#128203; Copy</button>
+              <button data-i="p_print_d218" onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);">&#128424; Print</button>
             </div>
           </div>
         </div>
@@ -1828,13 +1872,13 @@
       <!-- Approval Queue (supervisor only, always open) -->
       <div id="approval-queue" class="hidden mb-5 board-card">
         <div class="flex items-center gap-2 mb-2">
-          <p role="heading" aria-level="2" class="text-xs font-semibold text-white/80 uppercase tracking-widest">Approval Queue</p>
+          <p data-i="p_approvalqueue_c452" role="heading" aria-level="2" class="text-xs font-semibold text-white/80 uppercase tracking-widest">Approval Queue</p>
           <span id="approval-badge" class="hidden text-xs font-black px-1.5 py-0.5 rounded-full" style="background:var(--wh-orange);color:var(--wh-navy);min-width:18px;text-align:center;"></span>
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
           <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/80">All caught up: no pending items.</p>
+            <p data-i="p_allcaughtupnopendingitems_52fb" class="text-xs text-white/80">All caught up: no pending items.</p>
           </div>
         </div>
       </div>
@@ -1843,7 +1887,12 @@
       <div class="mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
           <p class="text-xs font-semibold text-white/80 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
-          <button id="btn-toggle-members" class="wh-toggle" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <!-- ★A DISCLOSURE ANNOUNCED AS A SWITCH THAT NEVER TURNS ON (2026-10-12, UFAI edge walk W4238). The T8 drive gave
+               these two Show/Hide buttons the shared .wh-toggle class so a detector would find an ARIA state - and
+               whToggleAria stamped aria-pressed from .active, which nothing here ever set: opened, the roster read
+               "Hide, toggle button, not pressed". A Show/Hide that reveals a region is a disclosure: aria-expanded +
+               aria-controls, and the click keeps .active in step so the shared helper syncs the same state. -->
+          <button id="btn-toggle-members" class="wh-toggle" aria-expanded="false" aria-controls="members-list" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -1854,12 +1903,12 @@
           <p class="text-xs font-semibold text-white/80"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.80); text-transform:none; letter-spacing:0;"></span></p>
           <!-- Arc P · Wave 1 (P2): default COLLAPSED (was "Hide"/open) so the audit
                trail no longer stretches the board; toggle JS reads display so this is safe. -->
-          <button id="btn-toggle-audit" class="wh-toggle" style="color:var(--wh-blue-text);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-audit" class="wh-toggle" aria-expanded="false" aria-controls="audit-log-body" style="color:var(--wh-blue-text);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
           <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-            <p class="text-xs text-white/80">No supervisor actions recorded yet. Approvals and role changes land here.</p>
+            <p data-i="p_nosupervisoractionsrecordedy_8934" class="text-xs text-white/80">No supervisor actions recorded yet. Approvals and role changes land here.</p>
           </div>
         </div>
       </div>
@@ -1894,12 +1943,12 @@
 <!-- Supervisor leave modal -->
 <div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
-    <h3 class="text-lg font-black text-white mb-1">Hand over supervisor before you leave</h3>
-    <p class="text-xs text-white/80 mb-5 leading-relaxed">You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.</p>
-    <label for="sup-transfer-select" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Transfer role to</label>
+    <h3 data-i="p_handoversupervisorbeforeyoul_e6cd" class="text-lg font-black text-white mb-1">Hand over supervisor before you leave</h3>
+    <p data-i="p_yourunthishivepicksomeonetot_b110" class="text-xs text-white/80 mb-5 leading-relaxed">You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.</p>
+    <label data-i="p_transferroleto_550c" for="sup-transfer-select" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Transfer role to</label>
     <select id="sup-transfer-select" class="wh-input mb-4"></select>
-    <button id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
-    <button id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
+    <button data-i="p_transferleave_fda3" id="btn-sup-transfer-leave" class="btn-primary mb-3">Transfer &amp; Leave</button>
+    <button data-i="p_leavewithouttransferring_c1d0" id="btn-sup-leave-anyway" class="btn-ghost mb-3">Leave Without Transferring</button>
     <button id="btn-sup-leave-cancel" class="btn-text" style="display:block; text-align:center; width:100%;" data-i="cancel">Cancel</button>
   </div>
 </div>
@@ -1949,6 +1998,27 @@ const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
 logPageView(db);
 let _authUid = null; // C3: populated at init from Supabase Auth session
+
+/* BRP-A (2026-10-04) — "MINE" IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE.
+   WORKER_NAME is localStorage text (wh_last_worker); the stored worker_name on a row is whatever was
+   written when the row was created. Diverge by one character and a name-only read returns nothing - which
+   on this page was not a thin list but a LOCKOUT: initHive read it as "removed from the ACTIVE hive",
+   cleared every wh_hive_* key and said "you have been removed from your hive". Union, not swap: rows
+   written by a service-role path still arrive with auth_uid NULL and are findable only by name.
+
+   ★ONLY FOR MY OWN ROWS. _openWorkerProfileDrawer(workerName) looks up a TEAMMATE by the name on screen;
+   using this helper there would show MY badges, XP and logbook under their name. Those four reads are a
+   separate defect with a separate fix (pass the identity through from the roster row) and are left alone.
+
+   Quoting via JSON.stringify, not a hand-rolled escape - a shell heredoc halved the backslashes in two
+   earlier copies of this helper and produced /(["\])/, which throws on page load. */
+function _mineFilter() {
+  var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  if (!_authUid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+}
+function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))); }
 
 // ── IDENTITY ──
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
@@ -2095,7 +2165,7 @@ async function loadMyOpenWork() {
   try {
     const { count, error } = await db.from('v_logbook_truth')
       .select('*', { count: 'exact', head: true })
-      .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('status', 'Open');
+      .eq('hive_id', HIVE_ID).or(_MINE()).eq('status', 'Open');
     if (error) { head.textContent = _t("Couldn't load your jobs", "Hindi ma-load ang mga job mo"); sub.textContent = whReadError(error, 'your jobs'); return; }
     const n = count || 0;
     // ★THE WORKER'S OWN CARD SPOKE ENGLISH ONLY WHEN IT WORKED (2026-09-10, found by walking J1 in
@@ -2145,6 +2215,8 @@ function showView(id) {
     document.getElementById('view-' + v).classList.add('hidden');
   });
   document.getElementById('view-' + id).classList.remove('hidden');
+  // Arriving on a board (the old one, or a new one just created/joined) closes the "came from a board" detour.
+  if (id === 'board') document.getElementById('btn-onboard-back')?.classList.add('hidden');
 }
 
 // ── CATEGORY COLORS ──
@@ -2157,7 +2229,7 @@ function showView(id) {
 // #facc15 is DELIBERATELY UNCHANGED - it measures 76.8 Lc / well clear on the dark tint, and
 // editing a colour that already passes is churn rather than a fix.
 const catColors = {
-  'Mechanical':      { bg:'rgba(239,68,68,0.12)',   color:'#FDC9C9' },  // was #f87171, 4.28:1
+  'Mechanical':      { bg:'rgba(248,113,113,0.12)',   color:'#FDC9C9' },  // was #f87171, 4.28:1
   'Electrical':      { bg:'rgba(234,179,8,0.12)',    color:'#facc15' },  // passes, untouched
   'Instrumentation': { bg:'rgba(59,130,246,0.12)',   color:'#5FCCE8' },  // was #29b6d9
   'Structural':      { bg:'rgba(168,85,247,0.12)',   color:'#C4B5FD' },  // was #a78bfa
@@ -2337,7 +2409,19 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .from('v_worker_truth')
       .select('role, hive_status')
       .eq('hive_id', HIVE_ID)
-      .eq('worker_name', WORKER_NAME)
+      // ★THIS IS THE READ THAT DECIDED SOMEONE HAD BEEN REMOVED (BRP-A, 2026-10-04). It asked
+      // `worker_name = WORKER_NAME`, where WORKER_NAME is localStorage text and the stored value is
+      // whatever was written when the membership row was created. Diverge by one character and this
+      // returns no row, the branch below reads that as "kicked or removed from the ACTIVE hive", and it
+      // then clears wh_active_hive_id / wh_hive_id / wh_hive_role / wh_hive_name / wh_hive_code and
+      // stashes a "you have been removed from your hive" notice. A RENAME became a REVOCATION.
+      // Traced by instrumenting Storage.removeItem: the clear fired from initHive with ZERO
+      // hive_members requests in flight, which is what ruled out the gates fixed alongside it.
+      // v_worker_truth carries auth_uid (it wraps hive_members, whose read policy already begins
+      // `auth.uid() = auth_uid`), and 20261004000003 enforces one row per (hive_id, auth_uid), so
+      // .maybeSingle() cannot see two. _authUid is guaranteed non-null here - the sign-in wall three
+      // lines above returns when it is missing - so this cannot fail closed on a missing session.
+      .eq('auth_uid', _authUid)
       .maybeSingle();
 
     if (!valErr && (!membership || membership.hive_status === 'kicked')) {
@@ -2404,7 +2488,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     (async function reconcileHiveList() {
       try {
         const { data: mems, error: mErr } = await db.from('v_worker_truth')
-          .select('hive_id, role').eq('worker_name', WORKER_NAME)
+          .select('hive_id, role').or(_MINE())
           .neq('hive_status', 'kicked').limit(500);
         if (mErr || !mems || !mems.length) return;
         const { data: hs } = await db.from('v_hives_truth')
@@ -2435,7 +2519,10 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
         // always read their OWN row, whatever its status. The hive's feed correctly returned [] in the
         // same breath, which is the behaviour that leaves the board looking merely quiet.
         const { data: me, error: meErr } = await db.from('hive_members')
-          .select('status').eq('worker_name', WORKER_NAME).eq('hive_id', HIVE_ID).maybeSingle();
+          // BRP-A (2026-10-04): identity, not display name. The comment above already notes this row is
+    // readable because the policy begins `auth_uid = auth.uid()` - so the name filter added nothing
+    // except a way to miss your OWN row once your display name drifted, which read as 'still a member'.
+    .select('status').eq('auth_uid', _authUid).eq('hive_id', HIVE_ID).maybeSingle();
         if (meErr || !me || me.status !== 'kicked') return;   // offline, or still a member
         const noticeEl = document.getElementById('onboard-revoked');
         if (noticeEl) {
@@ -2464,7 +2551,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     const { data: memberships, error: recErr } = await db
       .from('v_worker_truth')
       .select('hive_id, role')
-      .eq('worker_name', WORKER_NAME)
+      .or(_MINE())
       .neq('hive_status', 'kicked')
       .limit(500);  // L2: one worker's memberships are bounded-by-nature (<= dozens of hives); insurance cap, never truncates
 
@@ -2683,7 +2770,11 @@ async function submitJoin() {
   const { data: existingRow } = await db.from('hive_members')
     .select('role, status')
     .eq('hive_id', hive.id)
-    .eq('worker_name', WORKER_NAME)
+    // BRP-A (2026-10-04): identity, not display name. With a drifted name this reported NO existing row,
+    // and the kicked check below never saw the person's row - so a REMOVED member could rejoin silently.
+    // hive_members' read policy already begins `auth_uid = auth.uid()`, and 20261004000003 enforces one
+    // row per (hive_id, auth_uid), so .maybeSingle() stays safe.
+    .eq('auth_uid', _authUid)
     .maybeSingle();
 
   if (existingRow && existingRow.status === 'kicked') {
@@ -2845,8 +2936,8 @@ async function showWelcome(hive) {
   document.getElementById('welcome-hive-name').textContent = hive.name || '';  // textContent is XSS-safe; escHtml would double-escape (P4-01 fix)
 
   const [logRes, closedRes] = await Promise.all([
-    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME),
-    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
+    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).or(_MINE()),
+    db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).or(_MINE()).eq('status', 'Closed')
   ]);
 
   /* A head:true COUNT resolves with { count: null, error } rather than throwing, so `count || 0`
@@ -2923,6 +3014,45 @@ document.getElementById('btn-deactivate-account')?.addEventListener('click', asy
 // when they are already unhappy: a 403 means the function's supervisor-only contract refused them (the
 // button is supervisor-gated, but a role can change under an open tab), and a network failure means
 // their data is still there and they should try again - neither is "something went wrong".
+// ★BENCHMARK SHARING (2026-10-08): the supervisor's switch for hives.federated_benchmark_opted_in. The label and
+// aria-checked show the hive's current choice; a press explains what is shared before it changes anything, goes
+// through set_federated_benchmark_opt_in (supervisor-only, stamped, audited) and says what happened.
+async function _loadBenchmarkSharing() {
+  const btn = document.getElementById('btn-benchmark-sharing');
+  if (!btn || !HIVE_ID) return;
+  try {
+    const db = await getDb();
+    // canonical-allow: the consent flag lives only on hives (v_hives_truth does not carry federated_benchmark_opted_in)
+    const { data, error } = await db.from('hives').select('federated_benchmark_opted_in').eq('id', HIVE_ID).maybeSingle();
+    if (error || !data) return;   // the item keeps its last known label; a press re-reads before changing anything
+    const on = data.federated_benchmark_opted_in === true;
+    btn.setAttribute('aria-checked', on ? 'true' : 'false');
+    btn.textContent = on ? 'Share benchmarks: on' : 'Share benchmarks: off';
+  } catch (_) { /* empty-catch-allow: a label refresh; the press itself reads and reports */ }
+}
+document.getElementById('btn-benchmark-sharing')?.addEventListener('click', async (ev) => {
+  const btn = ev.currentTarget;
+  if (!HIVE_ID) return;
+  const on = btn.getAttribute('aria-checked') === 'true';
+  const ask = on
+    ? 'Stop sharing this hive\'s figures with the PH benchmarks? From the next weekly update your hive no longer counts in any shared figure. Your own reports are unchanged.'
+    : 'Share this hive\'s anonymised maintenance figures with the PH benchmarks? Only totals and averages are shared (failure counts, MTBF by equipment type, common root causes), never names, machines or entries, and only when at least 3 hives share. You can stop at any time.';
+  if (!(await window.whConfirm(ask, { okLabel: on ? 'Stop sharing' : 'Share', cancelLabel: 'Cancel' }))) return;
+  btn.disabled = true;
+  try {
+    const db = await getDb();
+    const { data, error } = await db.rpc('set_federated_benchmark_opt_in', { p_hive_id: HIVE_ID, p_opt_in: !on });
+    if (error) { showToast(whWriteError(error, 'Benchmark sharing was not changed. Try again.')); return; }
+    const now = !!(data && data.opted_in);
+    btn.setAttribute('aria-checked', now ? 'true' : 'false');
+    btn.textContent = now ? 'Share benchmarks: on' : 'Share benchmarks: off';
+    showToast(now ? 'This hive now shares its anonymised figures with the PH benchmarks. Recorded in the audit log.'
+                  : 'This hive no longer shares its figures with the PH benchmarks. Recorded in the audit log.');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 document.getElementById('btn-export-hive')?.addEventListener('click', async (ev) => {
   const btn = ev.currentTarget;
   const original = btn.textContent;
@@ -2937,7 +3067,7 @@ document.getElementById('btn-export-hive')?.addEventListener('click', async (ev)
     const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `workhive-hive-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `workhive-hive-export-${whManilaYmd()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -3051,7 +3181,25 @@ async function performLeave() {
   // BEFORE the delete — fire-and-forget raced the delete and silently lost
   // the member_left trail whenever the delete committed first.
   await writeAuditLog('member_left', 'hive_members', null, WORKER_NAME, { role: HIVE_ROLE });
-  await db.from('hive_members').delete().eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME);
+  // BRP-A: a WRITE guard keys on the IDENTITY. With a drifted display name this delete matched
+  // nothing, PostgREST answered with no error, and the person stayed a member of a hive they had
+  // just been told they left.
+  // ★...AND ITS RESULT WAS NEVER READ (2026-10-08, UI-write recipes). The delete was awaited and discarded, so a
+  // refusal - an error, or RLS filtering it to zero rows (hive_members_delete refuses a kicked row) - still
+  // cleared the hive from this device, tore down the board and moved the person on as if they had left, while
+  // the server kept them a member. Read both outcomes; on either, nothing local changes and the person is told.
+  const { data: _leftRows, error: _leaveErr } = await db.from('hive_members')
+    .delete().eq('hive_id', HIVE_ID).eq('auth_uid', _authUid).select('hive_id');
+  if (_leaveErr || !_leftRows || !_leftRows.length) {
+    // The member_left row above already landed (it had to precede the delete). Correct the trail rather than
+    // leave it saying this person left: they are still a member, so the insert is still allowed.
+    writeAuditLog('member_leave_refused', 'hive_members', null, WORKER_NAME,
+      { role: HIVE_ROLE, reason: _leaveErr ? (_leaveErr.code || _leaveErr.message || 'error') : 'no membership row removed' });
+    showToast(_leaveErr
+      ? whWriteError(_leaveErr, 'You have NOT left this hive - you are still a member. Try again.')
+      : 'You have NOT left this hive: the server did not remove your membership. You are still a member; ask a supervisor if this keeps happening.');
+    return;
+  }
 
   // Remove this hive from the list; switch to another if available
   const remaining = getHiveList().filter(h => h.id !== HIVE_ID);
@@ -3097,7 +3245,8 @@ async function renderHiveSwitcher() {
   const { data: membership, error: memErr } = await db.from('hive_members')
     .select('role, status')
     .eq('hive_id', next.id)
-    .eq('worker_name', WORKER_NAME)
+    // BRP-A: identity, not display name (see the gate note above).
+    .eq('auth_uid', _authUid)
     .maybeSingle();
   if (memErr) {
     // DB unreachable: fail open: trust the cached role so the worker stays in
@@ -3304,7 +3453,7 @@ async function initBoard() {
      get INTO the hive, so offering that button to a worker offers them a membership lever. */
   const _isSup = HIVE_ROLE === 'supervisor';   // role-check-allow: drives supervisor-only CHROME on this board
   [['hive-role-tag'], ['btn-show-code'], ['btn-rename-hive'],
-   ['btn-audit-log'], ['btn-ai-quality'], ['btn-plant-connections'], ['btn-export-hive']].forEach(([id]) => {
+   ['btn-audit-log'], ['btn-ai-quality'], ['btn-plant-connections'], ['btn-export-hive'], ['btn-benchmark-sharing']].forEach(([id]) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.toggle('hidden', !_isSup);
@@ -3312,6 +3461,7 @@ async function initBoard() {
     if (el.style.display === 'none' && _isSup) el.style.display = '';
   });
   if (_isSup) {
+    _loadBenchmarkSharing();
     const savedCode = localStorage.getItem('wh_hive_code') || '';
     if (savedCode) document.getElementById('code-strip-value').textContent = savedCode;
   } else {
@@ -3323,6 +3473,8 @@ async function initBoard() {
   }
 
   updateSwitchButton();
+  // the person's own history: offered (never moved) once per hive - see _offerPersonalHistory (20261008000064)
+  _offerPersonalHistory().catch(() => { /* empty-catch-allow: an unanswered offer is no offer; nothing moved */ });
 
   // Fan-out collapse (2026-06-07): one get_hive_board_dashboard RPC feeds the
   // five hive-scoped plain-read loaders (members/feed/pm-health/team-stock/
@@ -3410,9 +3562,21 @@ let _readinessChannel = null;
 let _lastReadiness = null;
 let _adoptionChannel = null;
 let _lastAdoption = null;
+// ★"PAIR GLORIA TAN WITH WHOEVER'S SLIPPING", SAID TO GLORIA TAN (critique W45922, 2026-10-13). champion_candidate is the
+// hive's most active member, and on a small hive that is often the supervisor reading the board - so the next step,
+// the healthy summary and the Why? drawer all talked about the reader in the third person. A display-name match only
+// chooses the wording (a homonym would read "you" where "they" was meant); it grants and gates nothing.
+function _isReaderName(name) {
+  return !!name && !!WORKER_NAME && String(name).trim().toLowerCase() === String(WORKER_NAME).trim().toLowerCase();
+}
 
 async function loadMaturityStairway() {
   if (!HIVE_ID) return;
+  // ★A FAILED READ SAID "NO SNAPSHOT YET - LOG ACTIVITY TO COMPUTE READINESS" (2026-10-06, hive x assistive-tech, PostgREST
+  // stopped). The RPC resolves a failure as { data: null, error }, so `row` was simply null and the glance told a
+  // supervisor whose hive has a readiness score that there was none, and sent them to log work to create it. The flag
+  // separates "could not read" from "nothing there"; it is reset per load so a later success clears it.
+  window._readinessErr = false;
   // 1. Try to read today's (or yesterday's) snapshot — from the board RPC
   //    payload when present, else the get_hive_readiness_current RPC.
   let row;
@@ -3420,6 +3584,7 @@ async function loadMaturityStairway() {
     row = _board.readiness || null;
   } else {
     const res = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
+    if (res.error) window._readinessErr = true;
     row = res.data;
     // RPC returns a SETOF row; supabase-js may give array or null
     if (Array.isArray(row)) row = row[0] || null;
@@ -3434,11 +3599,14 @@ async function loadMaturityStairway() {
     try {
       await db.rpc('compute_hive_readiness', { p_hive_id: HIVE_ID });
       const refetch = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
+      if (refetch.error) window._readinessErr = true; else if (refetch.data) window._readinessErr = false;
       row = Array.isArray(refetch.data) ? refetch.data[0] : refetch.data;
     } catch (e) {
+      window._readinessErr = true;
       console.warn('compute_hive_readiness failed (using cached if any):', e?.message || e);
     }
   }
+  if (row) window._readinessErr = false;
   _lastReadiness = row || null;
   renderMaturityStairway(row);
   startReadinessRealtime();
@@ -3479,6 +3647,9 @@ function renderMaturityStairway(row) {
       // Both halves of the trace, in code rather than in a comment: the RPC the page actually calls
       // and the view that materializes the same numbers for an ad-hoc query.
       source:    'compute_hive_readiness + v_hive_readiness_truth',
+      // plain words for people (critic B4, 2026-10-13): the relation names rendered as "Based on your compute hive
+      // readiness & hive readiness"; `source` keeps the canonical names the chip gates check
+      sourceLabel: "your hive's latest readiness snapshot",
       notes:     [
         'Weighted: Process 25% · Data 20% · Resilience 15% · Leadership 25% · Culture 15% of the score',
       ],
@@ -3637,8 +3808,8 @@ function renderValueSummary(row) {
 
 const ADOPTION_TIER_STYLE = {
   healthy:  { bg: 'rgba(74,222,128,0.18)',  fg: '#4ade80', label: 'Healthy'  },
-  at_risk:  { bg: 'rgba(247,162,27,0.18)',  fg: '#F7A21B', label: 'At Risk'  },
-  critical: { bg: 'rgba(248,113,113,0.18)', fg: '#f87171', label: 'Critical' },
+  at_risk:  { bg: 'rgba(247,162,27,0.18)',  fg: '#F7A21B', text: 'var(--wh-orange-text)', label: 'At Risk'  },
+  critical: { bg: 'rgba(248,113,113,0.18)', fg: '#f87171', text: 'var(--wh-red-text)', label: 'Critical' },
   nodata:   { bg: 'rgba(148,163,184,0.18)', fg: '#94a3b8', label: 'No data yet' }, // no adoption snapshot — must NOT read as green "Healthy"
 };
 
@@ -3721,13 +3892,20 @@ function renderAdoptionCard(row) {
   // BUGFIX: no snapshot => neutral "No data yet", NOT a green "Healthy" verdict (which
   // contradicted the honest "No adoption snapshot yet" summary line below).
   const tier = (row && row.risk_tier) || 'nodata';
-  const style = ADOPTION_TIER_STYLE[tier] || ADOPTION_TIER_STYLE.nodata;
+  // ★THE BADGE SAID "NO DATA YET" BESIDE A SUMMARY SAYING THE READ FAILED (2026-10-06, hive x assistive-tech, PostgREST
+  // stopped). E2 below already tells the two apart for the summary line; the badge, read first, still claimed the
+  // empty state. Same flag, same answer.
+  const style = (!row && window._adoptionErr)
+    ? { bg: ADOPTION_TIER_STYLE.nodata.bg, fg: ADOPTION_TIER_STYLE.nodata.fg, label: _t('Not loaded', 'Hindi na-load') }
+    : (ADOPTION_TIER_STYLE[tier] || ADOPTION_TIER_STYLE.nodata);
 
   const badge = document.getElementById('adoption-tier-badge');
   if (badge) {
     badge.textContent = style.label;
     badge.style.background = style.bg;
-    badge.style.color = style.fg;
+    // the badge is small text and needs 4.5:1; the tier hex is a FILL colour (the bar) and read 3.96:1 for "Critical"
+    // on the card's gradient (critic batch C2, 2026-10-13). The score below is large text (3:1) and keeps the hex.
+    badge.style.color = style.text || style.fg;
   }
   const score = document.getElementById('adoption-risk-score');
   if (score) {
@@ -3753,7 +3931,9 @@ function renderAdoptionCard(row) {
         : 'No adoption snapshot yet. Daily compute will populate this card.';
     } else if (tier === 'healthy') {
       summary.textContent = row.champion_candidate
-        ? `Adoption looking good. ${row.champion_candidate} is your most active worker this month.`
+        ? (_isReaderName(row.champion_candidate)
+            ? 'Adoption looking good. You are the most active member this month.'
+            : `Adoption looking good. ${row.champion_candidate} is your most active worker this month.`)
         : 'Adoption looking good across the hive this week.';
     } else {
       // Surface the top reason in the summary line so even closed drawer reads honestly.
@@ -3795,8 +3975,8 @@ function renderAdoptionCard(row) {
       }
       if (row.champion_candidate) {
         blocks.push(`<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Champion candidate:</strong>`
-          + `<div>· ${e(row.champion_candidate)} (engagement ${e(String(row.champion_engagement || 0))}/100)</div>`
-          + `<div style="font-size: 12px;color:rgba(255,255,255,0.72);margin-top:4px;">Pair them with a new worker who has not written yet: that is how adoption compounds.</div>`);
+          + `<div>· ${_isReaderName(row.champion_candidate) ? 'You' : e(row.champion_candidate)} (engagement ${e(String(row.champion_engagement || 0))}/100)</div>`
+          + `<div style="font-size: 12px;color:rgba(255,255,255,0.72);margin-top:4px;">${_isReaderName(row.champion_candidate) ? 'Pair yourself with a new worker who has not written yet' : 'Pair them with a new worker who has not written yet'}: that is how adoption compounds.</div>`);
       }
       drawer.innerHTML = blocks.join('');
     }
@@ -3956,7 +4136,7 @@ async function loadSupervisorSummary() {
   try {
     const { count } = await db.from('v_logbook_truth')
       .select('*', { count: 'exact', head: true })
-      .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('status', 'Open');
+      .eq('hive_id', HIVE_ID).or(_MINE()).eq('status', 'Open');
     myJobs = count || 0;
   } catch (_e) { /* empty-catch-allow: leave 0 if the source can't answer */ }
   setTile('jobs', myJobs, myJobs > 0, 'is-accent');
@@ -4059,12 +4239,17 @@ async function loadSupervisorSummary() {
   if (vIcon) vIcon.textContent = tone === 'healthy' ? '✓' : tone === 'watch' ? '!' : tone === 'attn' ? '⚠' : '·';
   // v4 greeting headline (2026-07-14) — the A1 5-second focal point. Replaces the verdict
   // box copy; the vIcon above still reflects health tone (✓/!/⚠/·). textContent = XSS-safe.
-  const _hr = new Date().getHours();
+  // ★"TUESDAY MORNING" AT 23:56 ON A MONDAY (critique W45922, 2026-10-13). The eyebrow, the greeting and "Jobs logged
+  // today" read the DEVICE's clock: measured on a device set to Auckland, the board said "Hive Board - Tuesday morning"
+  // and "Good morning" while the hive's day was Monday 23:56 PHT, and "since midnight" began at Monday 19:00 PHT. The
+  // platform promises one clock - whFmtDate pins Asia/Manila - and a day in WorkHive is the Philippine day (migration
+  // 20261009000066), so the board's hour, weekday and midnight are the hive's. In the Philippines nothing changes.
+  const _hr = Number(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', hourCycle: 'h23' }));
   const _isFil = (typeof window !== 'undefined' && window.WH_LANG === 'fil');
   const _tod = _hr < 12 ? 'morning' : _hr < 18 ? 'afternoon' : 'evening';
   const _todFil = _hr < 12 ? 'umaga' : _hr < 18 ? 'hapon' : 'gabi';
   const _first = (WORKER_NAME || '').trim().split(/\s+/)[0] || (_isFil ? 'ka' : 'there');
-  const _weekday = new Date().toLocaleDateString('en-PH', { weekday: 'long' });
+  const _weekday = new Date().toLocaleDateString('en-PH', { weekday: 'long', timeZone: 'Asia/Manila' });
   const _WEEKDAY_FIL = { Monday: 'Lunes', Tuesday: 'Martes', Wednesday: 'Miyerkules', Thursday: 'Huwebes', Friday: 'Biyernes', Saturday: 'Sabado', Sunday: 'Linggo' };
   const _weekdayShown = _isFil ? (_WEEKDAY_FIL[_weekday] || _weekday) : _weekday;
   const _todShown = _isFil ? _todFil : _tod;
@@ -4128,7 +4313,14 @@ async function loadSupervisorSummary() {
       text = _isFil ? 'Nagawa na ang hive. Imbitahin ang team mo, tapos i-log ang unang entries. Gabay ang checklist sa ibaba.' : 'Hive created. Invite your team, then log your first entries. The checklist below guides you.';
       cta = { label: _isFil ? 'Tapusin ang setup ng hive →' : 'Finish hive setup →', href: '#onboarding-card' };
     } else if (tier === 'critical') {
-      text = _isFil ? `Kritikal ang adoption. Ipares si ${_lastAdoption.champion_candidate || 'pinakaaktibong worker'} sa mga humihina.` : `Adoption critical. Pair ${_lastAdoption.champion_candidate || 'your top worker'} with whoever's slipping.`;
+      text = _isFil ? `Kritikal ang adoption. Ipares si ${_lastAdoption.champion_candidate || 'pinakaaktibong worker'} sa mga humihina.` : (() => {
+        const _champ = _lastAdoption.champion_candidate || '';
+        const _d = Array.isArray(_lastAdoption.dropping_workers) ? _lastAdoption.dropping_workers : [];
+        const _slip = _d[0] && _d[0].worker_name && !_isReaderName(_d[0].worker_name) ? _d[0].worker_name : '';
+        return _isReaderName(_champ)
+          ? `Adoption critical. You are the hive's most active member: check in with ${_slip || 'whoever has gone quiet'} this week.`
+          : `Adoption critical. Pair ${_champ || 'your top worker'} with ${_slip || "whoever's slipping"}.`;
+      })();
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 5) {
       text = _isFil ? `${overdue} asset ang may lumipas na PM. Iiskedyul sa PM Scheduler ngayong linggo.` : `${overdue} asset${overdue === 1 ? '' : 's'} ${overdue === 1 ? 'has' : 'have'} overdue PMs. Schedule them in PM Scheduler this week.`;
@@ -4177,9 +4369,23 @@ async function loadSupervisorSummary() {
   const rdComposite = document.getElementById('ss-rd-composite');
   if (rdComposite) rdComposite.textContent = compVal != null ? String(compVal) : '--';
   const rdFill = document.getElementById('ss-rd-fill');
-  if (rdFill) rdFill.style.width = (compVal != null ? Math.max(0, Math.min(100, compVal)) : 0) + '%';
+  if (rdFill) rdFill.style.setProperty('--rd', (compVal != null ? Math.max(0, Math.min(100, compVal)) : 0) + '%');
+  const _rdUnread = compVal == null && window._readinessErr === true;
   const rdStair = document.getElementById('ss-rd-stair');
-  if (rdStair) rdStair.textContent = stair != null ? `Stair ${stair}${stairLbl ? ' · ' + stairLbl : ''}` : 'No snapshot yet';
+  if (rdStair) rdStair.textContent = stair != null ? `Stair ${stair}${stairLbl ? ' · ' + stairLbl : ''}`
+    : (_rdUnread ? _t('Not loaded', 'Hindi na-load') : 'No snapshot yet');
+  // ★THE CARD'S NAME LEFT OUT ITS SCORE (2026-10-06, hive x assistive-tech). #ss-readiness is role="button", so its
+  // static aria-label "Hive readiness: open the full maturity breakdown" was the WHOLE card to a screen reader - a
+  // button's children are presentational - while everyone else saw "63/100" and the stair it sits on. The name is
+  // rebuilt here, where the score lands, so it can never describe a score other than the one on screen.
+  const rdCard = document.getElementById('ss-readiness');
+  if (rdCard) {
+    const _rdState = compVal != null
+      ? `${compVal}/100${stair != null ? ', Stair ' + stair + (stairLbl ? ' ' + stairLbl : '') : ''}`
+      : (_rdUnread ? _t('could not be read just now', 'hindi mabasa ngayon') : _t('not computed yet', 'hindi pa nakukuwenta'));
+    rdCard.setAttribute('aria-label', _t('Hive readiness', 'Kahandaan ng hive') + ' ' + _rdState + ': '
+      + _t('open the full maturity breakdown', 'buksan ang buong breakdown ng maturity'));
+  }
   // Goal-gradient (rubric H1): name the NEXT stair as the target + the weakest dim as the concrete
   // lever to unlock it. Honest (L1): no fabricated "33 pts" — the real lever is the weakest gate.
   const nextLbl = (stair != null && typeof STAIR_PALETTE !== 'undefined' && STAIR_PALETTE[stair + 1])
@@ -4197,7 +4403,10 @@ async function loadSupervisorSummary() {
     } else {
       rdWeak.textContent = compVal != null
         ? _t('All dimensions balanced', 'Balanse ang lahat ng dimensyon')
-        : _t('Log activity to compute readiness', 'Mag-log ng aktibidad para makuwenta ang readiness');
+        : (_rdUnread
+          ? _t('Readiness could not be read just now - WorkHive did not answer. It is not lost; it will show when the board reloads.',
+               'Hindi mabasa ang readiness ngayon - hindi sumagot ang WorkHive. Hindi ito nawala; lalabas ito pag nag-reload ang board.')
+          : _t('Log activity to compute readiness', 'Mag-log ng aktibidad para makuwenta ang readiness'));
     }
   }
 }
@@ -4504,10 +4713,16 @@ async function maybeShowIntentCapture() {
 
   let intent = null;
   try {
-    const { data } = await db.from('v_hives_truth')
+    const { data, error } = await db.from('v_hives_truth')
       .select('intent')
       .eq('id', HIVE_ID)
       .maybeSingle();
+    // ★A FAILED READ OPENED A FULL-SCREEN "PICK YOUR GOAL" DIALOG (2026-10-06, hive x assistive-tech, PostgREST
+    // stopped). The client RESOLVES a failed read with { data: null, error } - it does not throw - so the catch below
+    // never ran, the null read as "this hive has no focus", and a supervisor whose hive had chosen "predictive" a
+    // month ago got an aria-modal dialog over the whole board asking for it again, whose Save could only fail. An
+    // unreadable answer is not an empty one: say nothing, and ask again on a visit where the read works.
+    if (error) return;
     intent = data ? data.intent : null;
   } catch (_) { return; }
 
@@ -4768,10 +4983,19 @@ async function resetMemberPassword(workerName) {
         ? await window.whFnError(error, _t('Could not reset the password. Nothing changed; try again.', 'Hindi na-reset ang password. Walang nabago; subukan ulit.'))
         : whWriteError(data, _t('Could not reset the password. Nothing changed; try again.', 'Hindi na-reset ang password. Walang nabago; subukan ulit.'));
       showToast(_msg);
+      // ★THE FUNCTION'S OWN WORDS WERE OVERWRITTEN A MOMENT LATER (2026-10-12, UFAI edge walk W4238). Without this
+      // return, a refusal fell through to the dialog below, read data.temp_password off a null result, threw, and
+      // the catch replaced "Too many password resets" or "A supervisor cannot reset another supervisor's password"
+      // with the generic sentence T39 had just removed. A refusal stops here.
+      return;
     }
     // Show the temp password ONCE (the server never stores it in plaintext); supervisor copies + hands over.
+    // ★A PASSWORD THAT DID NOT WORK, ONE RESET IN FOUR (2026-10-12, W4238). whConfirm escapes its own message, and
+    // this escaped it first: the alphabet includes '&', so roughly a quarter of temporary passwords displayed as
+    // '&amp;' where the password holds '&' - and the worker this flow exists for, the one with no reachable email,
+    // typed what the supervisor read out and stayed locked out. Plain text in; the dialog does the escaping.
     await window.whConfirm(
-      `Temporary password for ${escHtml(workerName)}:\n\n${escHtml(data.temp_password)}\n\nGive this to ${escHtml(workerName)} now; it won't be shown again. Ask them to change it after signing in.`,
+      `Temporary password for ${workerName}:\n\n${data.temp_password}\n\nGive this to ${workerName} now; it won't be shown again. Ask them to change it after signing in.`,
       { okLabel: 'Done', cancelLabel: '' }
     );
     loadAuditLog();  // the reset is audit-logged server-side; refresh the action log
@@ -4818,6 +5042,8 @@ document.getElementById('btn-toggle-members').addEventListener('click', () => {
   list.style.display = isHidden ? 'flex' : 'none';
   list.style.flexDirection = 'column';
   btn.textContent = isHidden ? _t('Hide', 'Itago') : _t('Show', 'Ipakita');
+  btn.classList.toggle('active', isHidden);                      // whToggleAria syncs aria-expanded from .active
+  btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
 });
 
 async function loadFeed() {
@@ -5008,7 +5234,14 @@ function startPresence() {
       clearTimeout(connTimeout);
       if (status === 'SUBSCRIBED') {
         setConn('live');
-        await presenceChannel.track({ worker_name: WORKER_NAME, at: Date.now() });
+        /* BRP-A, scope="named" (2026-10-04): carry the IDENTITY in the presence payload. The channel KEY
+           stays the display name - presenceState() is keyed by it and renderPresence, the fallback bar and
+           the "(you)" marker all read those keys, so changing it would be a far wider change than this
+           needs. But the payload is free to carry more, and auth_uid is what the worker-profile drawer
+           needs: opened from a presence chip it previously received only a NAME, and then asked four tables
+           by that name - so a teammate whose display name had drifted from the one stored on their rows
+           showed an empty card (no badges, no XP, no recent work) to the supervisor looking at them. */
+        await presenceChannel.track({ worker_name: WORKER_NAME, auth_uid: _authUid || null, at: Date.now() });
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         setConn('offline');
         renderPresenceFallback();
@@ -5022,8 +5255,31 @@ function startPresence() {
 // drawer is created once on first open and reused. Closes the gap
 // flagged in PRODUCTION_FIXES #15.
 
-function _openWorkerProfileDrawer(workerName) {
+async function _openWorkerProfileDrawer(workerName, workerUid) {
   if (!workerName || !HIVE_ID) return;
+  /* ★BRP-A, scope="named" (2026-10-04). This drawer asked FOUR tables for a teammate's record using the
+     display name it was handed - so a teammate whose stored worker_name had drifted from the name on
+     screen showed a supervisor an EMPTY card: no badges, no XP, no recent work, as though they had done
+     nothing. It is the same root as the empty asset picker Ian reported, seen from the other side: there
+     the drifted name was MINE, here it is someone else's, and the self-union would be actively WRONG
+     (auth_uid.eq.<me> would put MY badges and logbook under THEIR name).
+     So the identity is PASSED THROUGH from the presence payload, and when it is absent - an older client
+     that tracks no uid, or a caller that has only a name - it is resolved ONCE from the roster, which is
+     the same mapping the database itself uses. If neither yields a uid the reads fall back to the name
+     and behave exactly as before, so nothing regresses. */
+  let _uid = workerUid || '';
+  if (!_uid) {
+    try {
+      const r = await db.from('hive_members').select('auth_uid')
+        .eq('hive_id', HIVE_ID).eq('worker_name', workerName).maybeSingle();
+      _uid = (r && r.data && r.data.auth_uid) || '';
+    } catch (_) { /* empty-catch-allow: fall back to the name below */ }
+  }
+  // "that person" = their identity OR their name. Union, not swap: rows whose auth_uid was never bound
+  // (service-role and seeded inserts) are findable only by name, and this card is mostly history.
+  const _them = _uid
+    ? 'auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(workerName))
+    : null;
   let drawer = document.getElementById('wh-worker-profile-drawer');
   if (!drawer) {
     drawer = document.createElement('div');
@@ -5051,10 +5307,14 @@ function _openWorkerProfileDrawer(workerName) {
 
   // Parallel fetch: skill badges + community XP + recent activity.
   Promise.all([
-    db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).order('id').limit(5),
-    db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
-    db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
-    db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).order('id').limit(3),
+    (_them ? db.from('v_skill_badges_truth').select('discipline, level').or(_them)
+             : db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName)).order('level', { ascending: false }).order('id').limit(5),
+    (_them ? db.from('community_xp').select('xp_total').or(_them).eq('hive_id', HIVE_ID)
+             : db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
+    (_uid ? db.from('hive_members').select('role, joined_at').eq('auth_uid', _uid).eq('hive_id', HIVE_ID)
+            : db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
+    (_them ? db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).or(_them)
+             : db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName)).order('created_at', { ascending: false }).order('id').limit(3),
     /* THE TIEBREAKER WAS INERT (fixed 2026-08-08). This read .eq('worker_name', workerName) and then
        ordered by .order('worker_name') - the very column it had just filtered to a SINGLE value, so
        it is constant across every returned row and can break no tie at all. It reads as a tiebreaker
@@ -5167,7 +5427,14 @@ function renderPresence() {
   bar.innerHTML = onlineKeys.map(key => {
     const name = escHtml(key);
     const isMe = key === WORKER_NAME;
-    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(key)}')">
+    /* BRP-A, scope="named": hand the drawer the IDENTITY the person tracked, not just the key. The key is
+       a display name; the payload carries auth_uid (see the track() call). presenceState()[key] is an
+       ARRAY of that key's presences - take the newest that actually carries a uid, because an older
+       client still on the previous build tracks none, and in that case the drawer falls back to the name
+       exactly as before. */
+    const _pres = (state[key] || []);
+    const _uid  = (_pres.filter(m => m && m.auth_uid).pop() || {}).auth_uid || '';
+    return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(key)}', '${escJsAttr(_uid)}')">
       <span class="presence-dot online"></span>
       ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.80);font-size: 0.75rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
@@ -5327,7 +5594,7 @@ async function checkStockAlert() {
   } else {
     const res = await db.from('v_inventory_items_truth')
       .select('part_name, qty_on_hand, min_qty')
-      .eq('worker_name', WORKER_NAME)
+      .or(_MINE())
       .eq('status', 'approved')
       .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
     inv = res.data;
@@ -5445,7 +5712,7 @@ async function buildNotifications() {
   } else {
     const res = await db.from('v_inventory_items_truth')
       .select('part_name, qty_on_hand, min_qty')
-      .eq('worker_name', WORKER_NAME)
+      .or(_MINE())
       .eq('status', 'approved')
       .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
     inv = res.data;
@@ -5466,7 +5733,7 @@ async function buildNotifications() {
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     let woQuery = db.from('v_logbook_truth')
       .select('machine, date, created_at')
-      .eq('worker_name', WORKER_NAME)
+      .or(_MINE())
       .eq('status', 'Open')
       .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
@@ -5672,8 +5939,8 @@ async function checkTeamStockAlert() {
   const hasOut = items.some(i => i.severity === 'out');
   const sevFg  = hasOut ? '#f87171' : '#F7A21B';
   const alertEl = document.getElementById('team-stock-alert');
-  alertEl.style.background  = hasOut ? 'rgba(239,68,68,0.06)' : 'rgba(247,162,27,0.06)';
-  alertEl.style.borderColor = hasOut ? 'rgba(239,68,68,0.18)' : 'rgba(247,162,27,0.24)';
+  alertEl.style.background  = hasOut ? 'rgba(248,113,113,0.06)' : 'rgba(247,162,27,0.06)';
+  alertEl.style.borderColor = hasOut ? 'rgba(248,113,113,0.18)' : 'rgba(247,162,27,0.24)';
   const svgEl   = alertEl.querySelector('svg');               if (svgEl)   svgEl.setAttribute('stroke', sevFg);
   const titleEl = alertEl.querySelector('[data-i="teamlow"]'); if (titleEl) titleEl.style.color = sevFg;
   const linkEl  = alertEl.querySelector('a[data-i="viewinv"]'); if (linkEl)  linkEl.style.color = sevFg;
@@ -5842,7 +6109,7 @@ function renderApprovalQueue() {
     if (!d) return '';
     const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
     const age = days >= 7 ? ` · <b style="color:var(--wh-orange);">${days} days waiting</b>` : '';
-    return ` · submitted ${(typeof whFmtDate === 'function') ? whFmtDate(d) : new Date(d).toLocaleDateString()}${age}`;
+    return ` · submitted ${(typeof whFmtDate === 'function') ? whFmtDate(d) : new Date(d).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' })}${age}`;
   };
   const _hint = (txt) => txt ? `<p class="text-xs mt-1" style="color:var(--wh-orange);">&#9888; ${escHtml(txt)}</p>` : '';
   const _ex = window._apprExisting;
@@ -5857,8 +6124,8 @@ function renderApprovalQueue() {
         </div>
       </div>
       <div class="flex gap-2">
-        <button data-i="approve" onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button data-i="reject" onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button data-i="approve" onclick="approveItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button data-i="reject" onclick="rejectItem('asset_nodes','${escJsAttr(a.id)}','${escJsAttr(a.submitted_by || a.worker_name)}','${escJsAttr(a.asset_id)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(248,113,113,0.1);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -5873,8 +6140,8 @@ function renderApprovalQueue() {
         </div>
       </div>
       <div class="flex gap-2">
-        <button data-i="approve" onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);min-height:44px;cursor:pointer;">Approve</button>
-        <button data-i="reject" onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(239,68,68,0.1);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.2);min-height:44px;cursor:pointer;">Reject</button>
+        <button data-i="approve" onclick="approveItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.25);min-height:44px;cursor:pointer;">Approve</button>
+        <button data-i="reject" onclick="rejectItem('inventory_items','${escJsAttr(p.id)}','${escJsAttr(p.submitted_by || p.worker_name)}','${escJsAttr(p.part_name)}')" class="flex-1 rounded-lg py-1.5 text-xs font-bold" style="background:rgba(248,113,113,0.1);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.2);min-height:44px;cursor:pointer;">Reject</button>
       </div>
     </div>`).join('');
 
@@ -6138,6 +6405,11 @@ async function loadAuditLog() {
     // 2026-09-28: both were written by writeAuditLog() across the platform with NO viewer entry,
     // so the audit log rendered each as a generic dot - the same gap H11's rename had.
     alert_dismissal_undone:{ icon: '↺',  color: '#94a3b8', label: 'Undid alert dismissal' },
+    // 2026-10-13 (audit-trail-coverage): written server-side by set_federated_benchmark_opt_in (mig 20261008000017) and
+    // the bring-your-history RPC (mig 20261008000064), with no viewer entry, so each rendered as a generic dot.
+    benchmark_sharing_on:  { icon: '↗',  color: 'var(--wh-blue)', label: 'Turned on benchmark sharing' },
+    benchmark_sharing_off: { icon: '⊘',  color: '#94a3b8', label: 'Turned off benchmark sharing' },
+    personal_history_brought_in: { icon: '⇲', color: 'var(--wh-blue)', label: 'Brought their own history in' },
     rejected:              { icon: '✕',  color: '#f87171', label: 'Rejected' },
     member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
     hive_renamed:          { icon: '✎',  color: 'var(--wh-blue)', label: 'Renamed the hive' },  // H11 rename shipped without its viewer entry, so it rendered as a generic dot
@@ -6172,6 +6444,17 @@ async function loadAuditLog() {
     delete_project:        { icon: '⊘',  label: 'Removed project' },
     hard_delete_project:   { icon: '⊘',  label: 'Permanently deleted project (and its change orders)' },
     restore_project:       { icon: '↺',  label: 'Restored project' },
+    // 2026-10-08: the project page's authority decisions, written by DB triggers
+    // (20261008000014_project_authority_decisions_are_audited) - registered here in the same change, so the
+    // first rows never render as unlabelled dots.
+    approve_change_order:     { icon: '✓',  label: 'Approved change order' },
+    reject_change_order:      { icon: '✗',  label: 'Rejected change order' },
+    cancel_change_order:      { icon: '⊘',  label: 'Cancelled change order' },
+    assign_project_role:      { icon: '→',  label: 'Assigned project role' },
+    remove_project_role:      { icon: '⊘',  label: 'Removed project role' },
+    acknowledge_progress_log: { icon: '✓',  label: 'Acknowledged progress report' },
+    // performLeave: the member_left row precedes the delete (RLS), so a refused delete writes this correction.
+    member_leave_refused:     { icon: '⚠',  label: 'Tried to leave - membership kept' },
     amend_pm_completion:   { icon: '✎',  label: 'Amended PM completion' },
     amend_pm_schedule:     { icon: '⏱',  label: 'Changed PM schedule' },
     delete_asset_node:     { icon: '⊘',  label: 'Deleted asset (and its reliability history)' },
@@ -6250,9 +6533,9 @@ async function loadAuditLog() {
   // C1/K1: collapse the audit palette to a SEMANTIC set so red/amber stay meaningful instead of
   // 7-way category coding. green=create/approve · red=destroy/reject · amber=security-only · neutral=rest.
   // The glyph (from ACTION_ICON) carries the specific action; color carries only valence.
-  const _AUD_SEC = new Set(['new_device','amend_pm_completion','amend_pm_schedule']);
-  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved','restore_project']);
-  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node','delete_project','hard_delete_project','rejected']);
+  const _AUD_SEC = new Set(['new_device','amend_pm_completion','amend_pm_schedule','member_leave_refused']);
+  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved','restore_project','approve_change_order','acknowledge_progress_log']);
+  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node','delete_project','hard_delete_project','rejected','reject_change_order','cancel_change_order','remove_project_role']);
   const _auditColor = a => _AUD_SEC.has(a) ? '#F7A21B' : _AUD_NEG.has(a) ? '#f87171' : _AUD_POS.has(a) ? '#4ade80' : '#94a3b8';
   list.innerHTML = data.map(row => {
     const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: String(row.action || '').replace(/_/g, ' ') || 'Action recorded' };
@@ -6284,6 +6567,8 @@ document.getElementById('btn-toggle-audit').addEventListener('click', () => {
   const isHidden = body.style.display === 'none';
   body.style.display = isHidden ? '' : 'none';
   btn.textContent = isHidden ? _t('Hide', 'Itago') : _t('Show', 'Ipakita');
+  btn.classList.toggle('active', isHidden);                      // whToggleAria syncs aria-expanded from .active
+  btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
 });
 
 
@@ -6299,12 +6584,18 @@ async function loadTodaysBrief() {
   try {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
-      const { html, ts } = JSON.parse(cached);
+      const { html, ts, chip } = JSON.parse(cached);
       // Defensive: an older build cached the "No AI analysis yet" placeholder.
       // Evict it so we re-fetch and apply the empty-hide rule below.
       const looksLikePlaceholder = html && html.indexOf('No AI analysis yet') !== -1;
       if (!looksLikePlaceholder && Date.now() - ts < 8 * 60 * 60 * 1000) {
-        el.innerHTML = html; panel.classList.remove('hidden'); return;
+        el.innerHTML = html;
+        // ★THE BRIEF LOST ITS "BASED ON" ON EVERY RELOAD (critique W45922, 2026-10-13): the source chip was rendered
+        // only on a fresh read, after this early return, so within the 8h cache the bullets came back with no
+        // provenance at all. The chip is cached with them and restored with them.
+        const _chipEl = document.getElementById('todays-brief-source-chip');
+        if (_chipEl && chip) _chipEl.innerHTML = chip;
+        panel.classList.remove('hidden'); return;
       }
       if (looksLikePlaceholder) sessionStorage.removeItem(cacheKey);
     }
@@ -6367,10 +6658,19 @@ async function loadTodaysBrief() {
 
   // Source chip — anchors the bullets to ai_reports + the 3 report
    // types whose latest rows feed this panel.
+  // ★"TODAY'S BRIEF ... UPDATED 7D AGO" (critique W45922, 2026-10-13). The heading said today, the chip said "refreshed
+  // daily", and the line under the bullets said 7d ago - three claims about one panel, two of them false whenever the
+  // daily job has not run. And the age was the FIRST report type found, not the newest. The heading is now always true
+  // ("Latest brief"), the age is the newest of the three reports, and the chip says when it last refreshed once that
+  // is more than a day and a half ago.
+  const _briefTs = results.filter(r => r.status === 'fulfilled' && r.value.data && r.value.data.generated_at)
+    .map(r => Date.parse(r.value.data.generated_at)).filter(Number.isFinite);
+  const _newest = _briefTs.length ? new Date(Math.max(..._briefTs)).toISOString() : null;
+  const _briefStale = !!_newest && (Date.now() - Date.parse(_newest) > 36 * 3600 * 1000);
   const chipEl = document.getElementById('todays-brief-source-chip');
   if (chipEl && typeof renderSourceChip === 'function') {
     chipEl.innerHTML = renderSourceChip({
-      freshness: 'AI summary · refreshed daily',
+      freshness: _briefStale ? 'AI summary · last refreshed ' + timeAgo(_newest) : 'AI summary · refreshed daily',
       source:    'v_ai_reports_truth',
       notes:     [
         'Covers failure summaries, predictions, and overdue PMs',
@@ -6379,8 +6679,7 @@ async function loadTodaysBrief() {
     });
   }
 
-  const latest = results.find(r => r.status === 'fulfilled' && r.value.data)?.value.data;
-  const ageText = latest ? timeAgo(latest.generated_at) : '';
+  const ageText = _newest ? timeAgo(_newest) : '';
   let html = bullets.slice(0, 3).map(b =>
     `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
       <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
@@ -6390,7 +6689,7 @@ async function loadTodaysBrief() {
   if (ageText) html += `<p class="text-xs text-white/80 mt-2">Updated ${escHtml(ageText)}</p>`;
 
   el.innerHTML = html;
-  try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
+  try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now(), chip: chipEl ? chipEl.innerHTML : '' })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
   panel.classList.remove('hidden');
 }
 
@@ -6615,14 +6914,8 @@ async function loadBenchmarks() {
   }
 }
 
-async function computeBenchmarkNow() {
-  try {
-    await db.functions.invoke('benchmark-compute', { body: { hive_id: HIVE_ID } });
-    await loadBenchmarks();
-  } catch (e) {
-    console.warn('computeBenchmarkNow:', e);
-  }
-}
+// computeBenchmarkNow() was removed 2026-10-12: it was never wired to any control. Benchmarks are recomputed by the
+// weekly schedule the chip above describes (cron benchmark-compute-weekly, migration 20261012000072).
 
 
 // ── RELIABILITY COACH (Phase 1.3) ────────────────────────────────────────────
@@ -6651,6 +6944,9 @@ async function askCoach() {
 
   btn.disabled    = true;
   btn.textContent = '...';
+  // the previous answer's "was this right?" row goes with that answer - it never rates the next one or a failure
+  const _oldTrust = result.parentElement && result.parentElement.querySelector(':scope > .wh-ai-trust');
+  if (_oldTrust) _oldTrust.remove();
   result.style.display = 'block';
   result.innerHTML = '<p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">' + _t('Analyzing your plant data...', 'Sinusuri ang datos ng iyong planta...') + '</p>';
 
@@ -6662,17 +6958,23 @@ async function askCoach() {
     // route_result (the gateway pins mode:'coach'). Falls back to the bespoke
     // direct ai-orchestrator invoke if the gateway path is unavailable — zero regression.
     let actions;
+    let _coachTrace = null;   // the gateway envelope's trace_id, carried into the "was this right?" row
     try {
       const resp = await db.functions.invoke('ai-gateway', {
         body: { agent: 'coach', message: question, hive_id: HIVE_ID }
       });
       if (resp.error) throw new Error(resp.error.message || 'gateway error');
       const body = resp.data || {};
+      _coachTrace = (typeof body.trace_id === 'string') ? body.trace_id : null;
       const gw = (body.ok === true && body.data) ? body.data : body;   // unwrap envelope
       const rr = gw.route_result || {};                                // structured passthrough
       actions = rr.actions ?? gw.actions;
-      if (actions == null) throw new Error('no actions from gateway');
+      // ★TEXT WHERE THE LIST BELONGS CRASHED THE COACH (LM-S walk, LM205, 2026-10-07): a model that answered in prose
+      // instead of a ranked list reached actions.map() and the person read "Error: TypeError: actions.map is not a
+      // function". Only a LIST is a set of actions; anything else tries the direct tool below.
+      if (!Array.isArray(actions)) throw new Error('no list of actions from gateway');
     } catch (_gwErr) {
+      _coachTrace = null;   // the answer below comes from the direct tool, not the gateway call that trace named
       // Fallback: the bespoke direct tool (zero regression if the gateway is down).
       const { data, error } = await db.functions.invoke('ai-orchestrator', {
         body: { question, hive_id: HIVE_ID, worker_name: WORKER_NAME, mode: 'coach' }
@@ -6680,10 +6982,15 @@ async function askCoach() {
       // T39: rethrowing error.message rethrows the placeholder. Carry the real reason instead,
       // so whatever catches this shows a person something they can act on.
       if (error) throw new Error(await window.whFnError(error, 'The recommendation engine did not run.'));
-      actions = data?.actions;
+      actions = Array.isArray(data?.actions) ? data.actions : null;
     }
 
-    if (!actions || !actions.length) {
+    // the model sent nothing usable: say that, not "not enough data", which blames the hive's records
+    if (actions === null) {
+      result.innerHTML = '<p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">' + escHtml("The coach didn't send back any actions this time. Please ask again.") + '</p>';
+      return;
+    }
+    if (!actions.length) {
       result.innerHTML = '<p style="color:rgba(255,255,255,0.80); font-size:0.875rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
       return;
     }
@@ -6701,9 +7008,25 @@ async function askCoach() {
         ${a.why ? `<p style="font-size: 0.75rem; color:rgba(255,255,255,0.72);">${escHtml(a.why)}</p>` : ''}
       </div>`;
     }).join('');
+    // ★THE COACH'S ANSWER COULD NOT BE CALLED WRONG (LM-E walk, LM532, 2026-10-08): a supervisor reading a ranked
+    // action he knows is wrong had no way to say so. The shared "was this right?" row records the exact actions shown.
+    // It sits in #coach-body right AFTER #coach-result - outside that polite live region, so the region announces the
+    // answer only and the row's own status line is not nested in a second live region. Removed at the next ask (above).
+    if (typeof whAiTrustRow === 'function') {
+      const _s = (v) => ((typeof v === 'string' || typeof v === 'number') ? String(v).trim() : '');
+      const _coachText = actions.map(a => [('#' + _s(a.priority)), _s(a.urgency), _s(a.machine) ? _s(a.machine) + ':' : '', _s(a.action),
+        _s(a.why) ? '- ' + _s(a.why) : ''].filter(Boolean).join(' ')).join('\n');
+      whAiTrustRow(result.parentElement || result, { db, agent: 'coach', source: 'coach', page: 'hive',
+        question, answer: _coachText, traceId: _coachTrace,
+        groundedOn: "your hive's logbook, PM compliance, parts stock and saved AI reports" });
+    }
 
   } catch (e) {
-    result.innerHTML = `<p style="color:var(--wh-red-text); font-size:0.875rem;">Error: ${escHtml(String(e))}</p>`;
+    // ★"Error: Error: ..." (LM515, 2026-10-08): String(e) adds its own "Error: " to a sentence that is already the
+    // person's (whFnError / whAiError); the sentence is shown once, as an alert, and an unknown failure says so plainly
+    const _coachMsg = (e && e.message && !/^(TypeError|ReferenceError|SyntaxError)/.test(String(e))) ? e.message
+      : _t("The coach could not answer just now. Please try again.", "Hindi nakasagot ang coach ngayon. Pakisubukan muli.");
+    result.innerHTML = `<p role="alert" style="color:var(--wh-red-text); font-size:0.875rem;">${escHtml(_coachMsg)}</p>`;
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Ask';
@@ -6739,7 +7062,9 @@ async function loadTeamPulse() {
     });
   }
 
-  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  // the hive's midnight (the Philippine day, UTC+8, no DST) as an instant - not this device's midnight (W45922)
+  const _phNow = new Date(Date.now() + 8 * 3600 * 1000);
+  const todayStart = new Date(Date.UTC(_phNow.getUTCFullYear(), _phNow.getUTCMonth(), _phNow.getUTCDate()) - 8 * 3600 * 1000);
 
   // Jobs-today is a since-local-midnight count (kept as its own HEAD query —
   // the board RPC has no day-boundary param). Stock issues reuse the board's
@@ -6818,8 +7143,70 @@ async function loadTeamPulse() {
   panel.classList.remove('hidden');
 }
 
-// ── HIVE_ID BACKFILL (one-time, silent) ──
+// ── PERSONAL HISTORY: brought into a hive only by the person's own choice ──
+// ★...AND NOW IT IS THEIR CHOICE (2026-10-08, §LM.11, migration 20261008000064). The silent move below is gone; in its
+// place a member who holds logbook entries of their OWN (no hive, their account) is shown one inline card per hive:
+// what bringing them in means (the hive's reliability numbers and knowledge search use them; its supervisors can read
+// them) and that nothing moves without a press. "Bring them in" calls bring_personal_history_into_hive - the person's
+// own entries only, matched by account, recorded once in the hive's audit log; "Keep them personal" is remembered on
+// this device for 30 days. A hive switch while the card is open re-asks for the hive now on screen, never the old one.
+async function _offerPersonalHistory() {
+  const card = document.getElementById('history-offer');
+  if (!card) return;
+  card.classList.add('hidden');
+  if (!HIVE_ID || !_authUid) return;
+  const key = 'wh_history_offer:' + _authUid + ':' + HIVE_ID;
+  try {
+    const last = Number(localStorage.getItem(key) || 0);
+    if (last && Date.now() - last < 30 * 864e5) return;
+  } catch (_) { /* empty-catch-allow: storage blocked - offer anyway; nothing moves without a press */ }
+  const hiveAtAsk = HIVE_ID, nameAtAsk = HIVE_NAME || 'this hive';
+  const { data: n, error } = await db.rpc('my_personal_history_count');
+  if (error || !n || hiveAtAsk !== HIVE_ID) return;
+  const one = n === 1;
+  document.getElementById('history-offer-text').textContent =
+    `You have ${n} logbook ${one ? 'entry' : 'entries'} that ${one ? 'is' : 'are'} yours alone. Bring ${one ? 'it' : 'them'} into `
+    + `${nameAtAsk} and the hive's reliability numbers and knowledge search will use ${one ? 'it' : 'them'}; its supervisors `
+    + `will be able to read ${one ? 'it' : 'them'}. Nothing moves unless you choose it.`;
+  const bring = document.getElementById('history-offer-bring');
+  const keep  = document.getElementById('history-offer-keep');
+  bring.textContent = one ? 'Bring it in' : 'Bring them in';
+  keep.textContent  = one ? 'Keep it personal' : 'Keep them personal';
+  bring.disabled = false; keep.disabled = false;
+  bring.onclick = async () => {
+    if (hiveAtAsk !== HIVE_ID) { card.classList.add('hidden'); return; }
+    bring.disabled = true; keep.disabled = true; bring.setAttribute('aria-busy', 'true');
+    const { data: res, error: e2 } = await db.rpc('bring_personal_history_into_hive', { p_hive_id: hiveAtAsk });
+    bring.removeAttribute('aria-busy');
+    if (e2) {
+      bring.disabled = false; keep.disabled = false;
+      showToast('Your entries were not moved and are still yours alone: ' + (e2.message || 'please try again'), 'error');
+      return;
+    }
+    try { localStorage.setItem(key, String(Date.now())); } catch (_) { /* empty-catch-allow: the move is done; only the reminder is lost */ }
+    const moved = (res && res.moved) || 0;
+    card.classList.add('hidden');
+    showToast(`${moved} ${moved === 1 ? 'entry is' : 'entries are'} now part of ${nameAtAsk}.`, 'success');
+  };
+  keep.onclick = () => {
+    try { localStorage.setItem(key, String(Date.now())); } catch (_) { /* empty-catch-allow: nothing moved either way */ }
+    card.classList.add('hidden');
+    showToast('Your entries stay yours alone.', 'info');
+  };
+  card.classList.remove('hidden');
+}
+
+// ── HIVE_ID BACKFILL (retired: it moved records without asking - kept for its record) ──
 async function runHiveIdBackfill() {
+  // ★A PAGE LOAD MOVED A PERSON'S PERSONAL ENTRIES INTO A HIVE, SILENTLY (LM-A walk, LM330, 2026-10-07). This one-time
+  // helper stamped the open hive onto every logbook row of a member that had no hive, matched by worker NAME, on the
+  // first hive.html visit of each session. Its original job - legacy rows written before hive_id existed - is done (0
+  // such rows today). What it still did: a hive-less entry (a solo owner's own records, or an entry a member made with no
+  // hive active, which logbook.html writes as hive_id null) was moved into whichever hive was open - for a two-hive
+  // member, possibly the wrong one - where its supervisors could read it, without asking. Personal records stay
+  // personal; bringing them into a hive must be the person's explicit choice, not a side effect of opening a page.
+  return;
+  // eslint-disable-next-line no-unreachable
   if (!memberNames.length || !HIVE_ID) return;
   // Only run once per hive per session
   const key = 'wh_backfilled_' + HIVE_ID;
@@ -6854,7 +7241,63 @@ function updateSwitchButton() {
   } else {
     btn.classList.add('hidden');
   }
+  // ★The one-hive member's door to a second hive (see #btn-add-hive). Multi-hive members reach the same screen
+  // through Switch Hive -> Join Another Hive, so exactly one of the two is offered.
+  document.getElementById('btn-add-hive')?.classList.toggle('hidden', list.length > 1 || !HIVE_ID);
 }
+
+/* Everything a board holds for ONE hive: its realtime channels and the per-hive state they feed. Shared by
+   switchToHive and by leaving the board for the join/create screen, so both detach from the hive the same way
+   (the dim-11 note below is what happens when one path is fixed and its sibling is not). */
+function _teardownHiveBoard() {
+  memberNames = [];
+  _pendingAssets = []; _pendingParts = [];
+  // BUGFIX: reset PM-overdue count + banner on hive-switch — loadPMHealth early-returns
+  // (without recomputing) for a hive with no PM scope items, so the prior hive's stale
+  // overdue count would otherwise linger in the Team Pulse tile + Supervisor Summary + banner.
+  _pmOverdueCount = 0;
+  document.getElementById('pm-overdue-alert')?.classList.add('hidden');
+  if (presenceChannel)  db.removeChannel(presenceChannel);
+  if (feedChannel)      db.removeChannel(feedChannel);
+  if (partsChannel)     db.removeChannel(partsChannel);
+  if (pmChannel)        db.removeChannel(pmChannel);
+  if (approvalChannel)  db.removeChannel(approvalChannel);
+  if (workerApprovalCh) db.removeChannel(workerApprovalCh);
+  // ★THE dim-11 FIX WENT TO performLeave AND NEVER TO ITS SIBLING. That note (2026-07-07) says the
+  // readiness/adoption channels were leaked because they were only removed on beforeunload, and that
+  // NOT nulling them makes the re-subscribe guards (`if (_readinessChannel) return`) misfire so the
+  // NEXT hive's feed stays dead. performLeave was corrected; switchToHive was not - and a switch is
+  // the commoner path. Measured across a real switch: presence/feed/pm/inventory re-keyed to the new
+  // hive while hive-readiness and hive-adoption stayed subscribed to the hive the person just LEFT -
+  // two live wires on a tenant they no longer occupy, and two dead panels on the one they now do.
+  if (_readinessChannel) db.removeChannel(_readinessChannel);
+  if (_adoptionChannel)  db.removeChannel(_adoptionChannel);
+  presenceChannel = null; feedChannel = null; partsChannel = null; pmChannel = null;
+  approvalChannel = null; workerApprovalCh = null;
+  _readinessChannel = null; _adoptionChannel = null;
+}
+
+/* ★Leave the board for the join/create screen WITHOUT leaving the hive (2026-10-08). The person keeps their
+   membership; the screen offers Create / Join as for a first visit, plus the way back to the board they came
+   from. The board is detached first, so creating or joining starts the new hive clean, and Back re-runs
+   initBoard to reattach. */
+function openJoinOrCreateHive() {
+  document.getElementById('hive-menu')?.classList.add('hidden');
+  document.getElementById('modal-hive-switch')?.classList.add('hidden');
+  _teardownHiveBoard();
+  const back = document.getElementById('btn-onboard-back');
+  const label = document.getElementById('btn-onboard-back-label');
+  if (label) label.textContent = HIVE_NAME ? ('Back to ' + HIVE_NAME) : 'Back to your hive';  // textContent: no HTML parse
+  if (back) back.classList.toggle('hidden', !HIVE_ID);
+  showView('onboard');
+}
+
+document.getElementById('btn-add-hive').addEventListener('click', openJoinOrCreateHive);
+document.getElementById('btn-onboard-back').addEventListener('click', () => {
+  if (!HIVE_ID) { showView('onboard'); return; }
+  showView('board');
+  initBoard();
+});
 
 /* The role word under each hive name comes from the DB ('supervisor' / 'worker') and was printed raw
    with a CSS `capitalize`, so a Filipino person read "Supervisor" / "Worker". Unknown roles pass
@@ -6906,7 +7349,7 @@ async function switchToHive(id) {
     .from('v_worker_truth')
     .select('role, hive_status')
     .eq('hive_id', id)
-    .eq('worker_name', WORKER_NAME)
+    .or(_MINE())
     .maybeSingle();
 
   if (_mErr) {
@@ -6932,36 +7375,13 @@ async function switchToHive(id) {
   applyHiveRole(_role);   // _role is the SERVER's answer for this hive, not the cached one
   // Keep the cached list honest too, so the next paint-from-cache starts from the truth.
   saveHiveList(getHiveList().map(x => (x.id === id ? { ...x, role: _role } : x)));
-  memberNames = [];
-  _pendingAssets = []; _pendingParts = [];
-  // BUGFIX: reset PM-overdue count + banner on hive-switch — loadPMHealth early-returns
-  // (without recomputing) for a hive with no PM scope items, so the prior hive's stale
-  // overdue count would otherwise linger in the Team Pulse tile + Supervisor Summary + banner.
-  _pmOverdueCount = 0;
-  document.getElementById('pm-overdue-alert')?.classList.add('hidden');
-  if (presenceChannel)  db.removeChannel(presenceChannel);
-  if (feedChannel)      db.removeChannel(feedChannel);
-  if (partsChannel)     db.removeChannel(partsChannel);
-  if (pmChannel)        db.removeChannel(pmChannel);
-  if (approvalChannel)  db.removeChannel(approvalChannel);
-  if (workerApprovalCh) db.removeChannel(workerApprovalCh);
-  // ★THE dim-11 FIX WENT TO performLeave AND NEVER TO ITS SIBLING. That note (2026-07-07) says the
-  // readiness/adoption channels were leaked because they were only removed on beforeunload, and that
-  // NOT nulling them makes the re-subscribe guards (`if (_readinessChannel) return`) misfire so the
-  // NEXT hive's feed stays dead. performLeave was corrected; switchToHive was not - and a switch is
-  // the commoner path. Measured across a real switch: presence/feed/pm/inventory re-keyed to the new
-  // hive while hive-readiness and hive-adoption stayed subscribed to the hive the person just LEFT -
-  // two live wires on a tenant they no longer occupy, and two dead panels on the one they now do.
-  if (_readinessChannel) db.removeChannel(_readinessChannel);
-  if (_adoptionChannel)  db.removeChannel(_adoptionChannel);
-  _readinessChannel = null; _adoptionChannel = null;
+  _teardownHiveBoard();   // channels + per-hive state, the same detach the join/create door uses
   initBoard();
 }
 
-document.getElementById('btn-hive-switch-join').addEventListener('click', () => {
-  document.getElementById('modal-hive-switch').classList.add('hidden');
-  showView('onboard');
-});
+// "Join Another Hive" in the switcher goes through the same door as the menu item, so it too detaches the
+// board it leaves and offers the way back (it used to drop the person on the first-run screen with neither).
+document.getElementById('btn-hive-switch-join').addEventListener('click', openJoinOrCreateHive);
 
 document.getElementById('btn-hive-switch-cancel').addEventListener('click', () => {
   document.getElementById('modal-hive-switch').classList.add('hidden');
@@ -7044,7 +7464,7 @@ function generateHandover() {
   </div>`;
 
   if (lotoJobs.length) {
-    html += `<div class="ho-section" style="border-left:3px solid var(--wh-red);padding-left:0.75rem;background:rgba(239,68,68,0.07);border-bottom:1px solid rgba(239,68,68,0.18);">
+    html += `<div class="ho-section" style="border-left:3px solid var(--wh-red);padding-left:0.75rem;background:rgba(248,113,113,0.07);border-bottom:1px solid rgba(248,113,113,0.18);">
       <p class="ho-label" style="color:var(--wh-red-text);">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
       ${lotoJobs.map(e =>
         `<div class="ho-item"><span style="color:var(--wh-red-text);flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '-')}</strong>${e.problem ? ': ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
@@ -7172,8 +7592,8 @@ window.addEventListener('beforeunload', () => {
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
 <details data-calm-disclosure="data-sources" style="max-width:680px; margin:0 auto 1rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:0.875rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:0.875rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.875rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.875rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {

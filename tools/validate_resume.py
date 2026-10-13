@@ -153,8 +153,13 @@ def validate_resume():
               "cleanResume overwrote meta wholesale, dropping which named resume/template on re-import")
         # D6: the export/preview dialog controls hold the 44px tap floor; the review
         # checkbox holds the 24px WCAG 2.2 SC 2.5.8 minimum.
+        # The checkbox half asserts the FLOOR, not one literal (2026-10-13): W46028 raised the review checkboxes to 44px,
+        # above the 24px minimum, and this check - which looked for the string "width: 24px; height: 24px" - has failed
+        # on that better code ever since. Every checkbox size rule must be >= 24px, and at least one must exist.
+        _cb = [(int(w), int(h)) for w, h in re.findall(
+            r'input\[type="checkbox"\][^{]*\{\s*width:\s*(\d+)px;\s*height:\s*(\d+)px', html)]
         check("PDDA D6: preview dialog controls 44px + review checkbox 24px",
-              ".preview-bar .btn-sm { min-height: 44px" in html and "width: 24px; height: 24px" in html,
+              ".preview-bar .btn-sm { min-height: 44px" in html and bool(_cb) and all(w >= 24 and h >= 24 for w, h in _cb),
               "the most-used export surface + the merge checkbox must meet the tap-target floor")
         # D1: the editable review value inputs carry an aria-label (were unlabeled ->
         # axe critical 'Form elements must have labels').
@@ -214,8 +219,10 @@ def validate_resume():
           "a rotating spoofed auth_uid minted fresh per-identity buckets; the IP ceiling floors a single IP")
     for fn in ("resume-extract", "resume-polish"):
         s2 = read(f"supabase/functions/{fn}/index.ts")
+        # matched on the CALL'S SHAPE, not one variable name (2026-10-13): both functions renamed the identity from
+        # auth_uid to _rlUid and still pass clientIp in both places; the literal failed on correct code.
         check(f"PDDA I5: {fn} passes clientIp to checkSoloRateLimit (IP ceiling wired)",
-              bool(s2) and "checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp), undefined, undefined, clientIp)" in s2,
+              bool(s2) and bool(re.search(r"checkSoloRateLimit\(db, soloRateLimitKey\(\w+, clientIp\), undefined, undefined, clientIp\)", s2)),
               "the IP ceiling only engages when the caller passes clientIp")
 
     nav = read("nav-hub.js")

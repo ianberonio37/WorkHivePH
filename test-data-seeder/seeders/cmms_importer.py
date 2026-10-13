@@ -132,7 +132,7 @@ def import_from_dataset(
         try:
             client.table("external_sync").upsert(
                 batch,
-                on_conflict="system_type,external_id,entity_type",
+                on_conflict="hive_id,system_type,external_id,entity_type",
             ).execute()
             upserted += len(batch)
         except Exception as e:
@@ -141,7 +141,7 @@ def import_from_dataset(
                 try:
                     client.table("external_sync").upsert(
                         [row],
-                        on_conflict="system_type,external_id,entity_type",
+                        on_conflict="hive_id,system_type,external_id,entity_type",
                     ).execute()
                     upserted += 1
                 except Exception as row_e:
@@ -196,7 +196,7 @@ def import_raw_rows(
         try:
             client.table("external_sync").upsert(
                 batch,
-                on_conflict="system_type,external_id,entity_type",
+                on_conflict="hive_id,system_type,external_id,entity_type",
             ).execute()
             upserted += len(batch)
         except Exception as e:
@@ -205,7 +205,7 @@ def import_raw_rows(
                 try:
                     client.table("external_sync").upsert(
                         [row],
-                        on_conflict="system_type,external_id,entity_type",
+                        on_conflict="hive_id,system_type,external_id,entity_type",
                     ).execute()
                     upserted += 1
                 except Exception as row_e:

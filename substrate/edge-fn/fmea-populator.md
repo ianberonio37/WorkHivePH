@@ -2,7 +2,7 @@
 name: edge-fn-fmea-populator
 type: edge-fn
 source: file:supabase/functions/fmea-populator/index.ts
-source_sha: a99e6bfeb9fda092
+source_sha: d397a2d55fad10c4
 last_verified: 2026-07-13
 supersedes: null
 ---

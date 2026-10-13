@@ -707,6 +707,606 @@ def design_rows(existing: list[dict]) -> list[dict]:
     return rows
 
 
+# ════════════════════════════════════════════════════════════════════════════════════════════
+# LAYER-UX x PERSONA (Ian, 2026-09-30: "extend the numbers ... with this kind of deeper walk per
+# every production page ... for different personas ... every Full Stack Architectural Layer").
+#
+# THE TWO GAPS, both measured from the registry rather than typed:
+#   A - LAYER BREADTH. The LX wave exists for 6 of 13 layers (CI L LB H RL S). Seven layers -
+#       F D A CA AU C AV - have no layer-UX wave at all.
+#   B - PERSONA DEPTH. 289 of the 335 existing LX rows carry persona "any": the wave asks what A
+#       PERSON feels when a layer misbehaves, never what THIS person feels. 45 of 156
+#       (persona x layer) cells are empty, and assistive-tech sits on 1 of 13 layers.
+#
+# BOTH VIEWPORTS IN ONE ROW (Ian: "have you considered also the two viewports, the desktop and
+# phone?"). The first draft of this seeder took one axis, reasoning that a persona's Auth or
+# Caching experience does not change between 320px and 390px - true, and beside the point: those
+# are two PHONE widths. At 1280 the Frontend layer is a different layout, and the personas split
+# by device (oversight works at a desk; driver-worker is one-handed in a van). The registry shows
+# the skew: desktop-1280 550 rows against phone-390 6,220 - under 9% desktop-class. So a row
+# carries BOTH viewports and closes only when measured at both, which is exactly the convention
+# DESIGN_VIEWPORTS already sets for the design lens. It costs no extra rows.
+#
+# The felt sentence per layer is NOT re-typed here: LAYER_LENS (seed_expansion_wave3) already
+# carries one for all 13 layers plus its ufai dims, and the CA sentence there is the same one
+# prove_w4_layer_ca.mjs walks. Re-typing it is how two vocabularies drift apart.
+LX_PREFIX = "LXP"   # its own id space; LX1..LX335 belong to the original layer-UX wave
+LX_VIEWPORTS = ["phone-390", "desktop-1280"]
+LX_INSTRUMENT = "playwright-mcp + postgres-mcp"
+# personas that can hold a session; "any"/"anon" are not persona-depth subjects
+LX_SIGNED_IN = ["worker", "supervisor", "fleet-supervisor", "solo-owner", "driver-worker",
+                "oversight", "buyer", "machine-client", "new-user", "returner",
+                "assistive-tech", "adversary"]
+
+
+def _lx_subject(t: dict) -> str | None:
+    """The app surface a journey LANDS on - its last page. Calculators, learn articles and the
+    public pages are not layer-UX subjects: they carry no session, so no persona x layer cell."""
+    pages = t.get("pages") or []
+    if not pages:
+        return None
+    subj = pages[-1]
+    return subj if subj.endswith(".html") and "/" not in subj else None
+
+
+def _lx_state(scoped: list[dict]) -> tuple[dict, set, list]:
+    """Measured, from the registry: where each persona already goes, which (persona, layer) cells
+    are already populated, and the app roster. Nothing here is a constant."""
+    persona_pages: dict[str, set] = {}
+    cells: set = set()
+    roster: set = set()
+    # ★THE PLAN MUST BE A PURE FUNCTION OF THE PRE-EXISTING PROGRAM (2026-09-30). These rows are what
+    # FILLS the empty cells, so counting them here would close the gaps they were seeded to close and
+    # the plan would shrink to zero the moment it ran. tools/validate_trajectory_registry.py derives
+    # this wave's id range from plan() the way it does for every other wave, and a plan that changes
+    # after seeding cannot be checked against the registry at all. Excluding our own kind keeps the
+    # answer identical before and after the write.
+    # ★AND THE TWO WAVES SEEDED AFTER IT ARE EXCLUDED FOR THE SAME REASON (2026-10-06). The layer floor (LXC) and
+    # the LLM layer (LM) add persona journeys onto app pages and would add cells - and Gap B below is "the
+    # persona x layer cells no row covers", so a new LXC row on a Gap-B cell would make the LXP REPLAY stop
+    # generating that cell's rows and renumber every later LXP id. Excluding them keeps the replay identical
+    # before and after they land; their own plans measure what they need directly.
+    scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")]
+    for t in scoped:
+        # ★"REACHES" IS ANY APP PAGE ON THE JOURNEY, NOT ITS LAST ONE. _path() appends the platform's
+        # own continuation until a journey spans four pages, so pages[-1] is where the route ENDS, not
+        # what the row is about - which is why audit-log.html appears as the last page of 4,804 rows
+        # (45% of the program) without 4,804 journeys being about audit-log. A persona demonstrably
+        # reaches every app page on its route, so Gap B seeds against all of them.
+        app = [x for x in (t.get("pages") or []) if x.endswith(".html") and "/" not in x]
+        if not app:
+            continue
+        roster.update(app)
+        p = t.get("persona")
+        if p in LX_SIGNED_IN:
+            persona_pages.setdefault(p, set()).update(app)
+            for l in (t.get("layers") or []):
+                cells.add((p, l))
+    return persona_pages, cells, sorted(roster)
+
+
+# ★NON-PRODUCTION SUBJECTS - NEVER SEED A PERSONA JOURNEY ONTO ONE (Ian, 2026-09-30: "why you are
+# including the non-production pages in the trajectories?"). The scope was already written down in this
+# function's own docstring quote - "every PRODUCTION page ... for different personas" - and violated
+# anyway: the first seed took served_pages() wholesale and put 297 rows onto retired, admin-only and
+# infrastructure surfaces. validate_auto_discovery.NON_TOOL_PAGES has named each of these for months, and
+# is deliberately NOT reused verbatim here: it means "not a worker TOOL page", which also catches
+# index.html, public-feed.html and the seller dashboard - all genuinely production. The three admin
+# CONSOLES (founder-console, marketplace-admin, platform-actions) are likewise kept IN scope: Ian and
+# platform staff use them daily and they hold live controls.
+LX_NON_PRODUCTION = {
+    "architecture.html",              # RETIRED 2026-05-13, archival, never in nav
+    "symbol-gallery.html",            # RETIRED 2026-05-13, archival, never in nav
+    "platform-health.html",           # retired Phase 7, deprecated banner only
+    "llm-observability.html",         # admin/devops observability dashboard
+    "agentic-rag-observability.html",  # admin-only Phase 8 observability dashboard
+    "validator-catalog.html",         # admin/devops validator browser
+    "status.html",                    # admin/devops local status page
+    "design-system.html",             # internal reference (Ian 2026-07-17: "internal tool page, NOT family")
+    "promo-poster.html",              # admin/marketing poster generator
+    "offline-fallback.html",          # the service-worker offline shell; nobody navigates to it
+    "voice-journal.html",             # untracked WIP companion, not a shipped tool page
+}
+
+
+def layer_ux_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One deep-walk row per (persona, layer, page), appended with the next free LX ids. Already
+    seeded triples are skipped so the persona list and the layer table can grow and this can be
+    re-run; plan() replays them.
+
+    ★THE SCOPE FILTER APPLIES TO NEW ROWS ONLY, AND THAT ASYMMETRY IS LOAD-BEARING (2026-09-30).
+    replay=True must keep reproducing the wave as it was FIRST SEEDED, including the 297 rows since
+    descoped as non-production, because LXP ids are POSITIONAL: validate_trajectory_registry rebuilds
+    them as LXP1..LXP<n> by enumerating this function's output, so dropping rows from the replay would
+    renumber every later id and silently reattach banked evidence - LXP619 carries a real receipt - to a
+    different trajectory. So replay answers "what was planned" (history, ids stable) while the forward
+    path answers "what is in scope now" (production subjects only). The descoped rows keep their skip
+    keys, so they are never re-created either way."""
+    seeded = set() if replay else {
+        ((t.get("lx") or {}).get("persona"), (t.get("lx") or {}).get("layer"),
+         (t.get("lx") or {}).get("page"))
+        for t in existing if (t.get("lx") or {}).get("kind") == "layer-ux"}
+    # ★AND THE REPLAY'S *INPUTS* MUST BE WHOLE TOO, not only its output (2026-10-05). This line dropped descoped
+    # rows unconditionally, which quietly contradicted the ★ note above: `scoped` feeds persona_pages / cells /
+    # roster / have_lx, so descoping ANY row changes what the replay generates and therefore renumbers LXP ids.
+    # Measured: descoping eight rows that targeted terms.html (a page that is not on disk and never was) renamed
+    # LXP569's wave from LXP-AU to LXP-CA and failed the registry gate on rows nobody had touched. History cannot
+    # be re-derived through a present-tense filter - on replay the input is every row that was there.
+    scoped = existing if replay else [t for t in existing if t.get("status") != "descoped"]
+    persona_pages, cells, roster = _lx_state(scoped)
+    have_lx = {t["wave"].split("-", 1)[1] for t in scoped
+               if str(t.get("wave", "")).startswith("LX-") and t["wave"].split("-", 1)[1] in LAYER_SET}
+    missing_lx = [l for l in LAYER_SET if l not in have_lx]
+
+    rows: list[dict] = []
+    arithmetic = {"gap_a": Counter(), "gap_b": Counter()}
+    # Forward path only - see the docstring's ★ note on why the replay must stay whole.
+    out_of_scope = set() if replay else LX_NON_PRODUCTION
+
+    def _row(persona: str, layer: str, page: str, gap: str) -> dict:
+        ask, dims = LAYER_LENS[layer]
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
+        entry = "direct" if page == "index.html" else "hub-nav"
+        vertical = HIVES[roster.index(page) % len(HIVES)]
+        who = "a person" if persona == "any" else persona
+        return {
+            "wave": f"LXP-{layer}",
+            "title": f"{ask} - {who} · {_short(page)}",
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(dims),
+            "persona": persona,
+            "device": "any",                      # the row spans both viewports, so it is not one device
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} arrives by {entry} and reaches {_short(page)} through the platform's own "
+                      f"navigation ({' -> '.join(_short(p) for p in pages)}), signed in as that persona; "
+                      f"the {layer} layer is exercised live through the {LX_INSTRUMENT} at "
+                      f"{' and '.join(LX_VIEWPORTS)} in one batched round, and the walk records what the "
+                      f"PERSON experiences when it misbehaves, not whether the layer is internally "
+                      f"correct; it closes when the row's ask is answered from the page itself at both "
+                      f"viewports, with the database read as the witness where the layer writes"),
+            "journey": {"archetype": f"LXP-{layer}:{persona}", "stage": "operate", "vertical": vertical,
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal",
+                        "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "lx": {"kind": "layer-ux", "layer": layer, "persona": persona, "page": page, "gap": gap,
+                   "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT, "ask": ask,
+                   "closes": (f"the {layer} ask is answered from {_short(page)} itself at both viewports, "
+                              f"as {who}, with a receipt naming the layer, the persona signed in, and "
+                              f"steps at phone-390 AND desktop-1280")},
+        }
+
+    # GAP A - the seven layers with no LX wave at all, at the existing wave's own fidelity
+    for layer in missing_lx:
+        for page in roster:
+            if ("any", layer, page) in seeded or page in out_of_scope:
+                continue
+            arithmetic["gap_a"][layer] += 1
+            rows.append(_row("any", layer, page, "A-layer-breadth"))
+
+    # GAP B - the empty (persona, layer) cells, only on pages that persona demonstrably reaches
+    for persona in LX_SIGNED_IN:
+        missing = [l for l in LAYER_SET if (persona, l) not in cells]
+        for layer in missing:
+            for page in sorted(persona_pages.get(persona, ())):
+                if (persona, layer, page) in seeded or page in out_of_scope:
+                    continue
+                arithmetic["gap_b"][persona] += 1
+                rows.append(_row(persona, layer, page, "B-persona-depth"))
+
+    # ★EMITTED LAYER-MAJOR, so each LX-<layer> sub-wave owns a CONTIGUOUS id range. The gate builds
+    # its expected id list wave by wave (validate_trajectory_registry: expected = T1..T500 + [i for w
+    # in NAMED_WAVE_ORDER for i in NAMED_WAVES[w]]), so a plan that interleaves waves across the two
+    # gaps produces ids the gate can never match - it read "ids are not exactly ... in order" on a
+    # registry that was otherwise correct. The existing LX plan already emits layer-major for exactly
+    # this reason; this sorts to the same contract. Stable within a layer: gap A before gap B, then
+    # persona, then page.
+    rows.sort(key=lambda r: (LAYER_SET.index(r["lx"]["layer"]), r["lx"]["gap"],
+                             r["lx"]["persona"], r["lx"]["page"]))
+    layer_ux_rows.arithmetic = arithmetic
+    return rows
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+# BRP · THE BUG-REPRO WAVE (Ian, 2026-10-04)
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+# Ian: "we have to expand and extend the number of trajectories in our roadmap, where we have to bug
+# reproduced and fix, so that it would improve the entire Full Stack SaaS Layers and its UFAI UI UX for
+# my entire platform."
+#
+# A bug-repro trajectory is NOT "go look at page X". Every row names ONE concrete site, the MECHANISM
+# that makes it wrong, a REPRODUCTION that can be made to fail on demand, and the FIX. Its size is
+# derived from tools/bug_repro_inventory.py, which measures the real source against the real schema -
+# never typed, never invented, and nothing seeds a row unless it can be measured.
+#
+# THE WAVE OPENS ON THE CLASS IAN HIT HIMSELF. On 2026-10-04 the logbook's "select an asset" was empty
+# while Asset Hub showed the same assets. One scoped ownership by worker_name (a localStorage display
+# string), the other by auth_uid. bind_asset_nodes_submitter() ALWAYS binds auth_uid but only overwrites
+# worker_name when a hive_members row matches on hive_id = NEW.hive_id - never true for a personal asset
+# (hive_id NULL) - so the name is frozen at whatever the client sent while the uid stays correct forever.
+# Fixed, gated (logbook-asset-picker-identity), and then the sweep found the same shape at 84 more sites.
+BRP_PREFIX = "BRP"
+BRP_CLASS = {
+    "A": ("AU", "returner",
+          "ownership asked by DISPLAY NAME where the table carries auth_uid",
+          "drift the signed-in display name by one character and the person's own rows vanish from this "
+          "surface while a surface that scopes on auth_uid still shows them",
+          "union the auth_uid query in beside the name query - never swap, because rows whose auth_uid "
+          "was never bound (service-role and seeded inserts) are findable only by name"),
+    "B": ("D", "any",
+          "the truth VIEW drops the auth_uid its BASE table carries",
+          "no consumer of this view can ask the ownership question correctly at all: select auth_uid "
+          "from the view and it is not there, while the base table has it",
+          "add auth_uid to the view (keeping security_invoker and the column grants intact), then scope "
+          "every consumer on it - one view fixes every reader at once"),
+    "C": ("D", "any",
+          "no identity column anywhere on the relation",
+          "ownership is only ever expressible as a name, so there is nothing correct to scope on - the "
+          "repro is the schema read itself",
+          "a migration adding auth_uid (bound by trigger on insert, like asset_nodes) before the "
+          "client-side fix is even sayable"),
+}
+
+
+def bug_repro_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per MEASURED defect site, from tools/bug_repro_inventory.collect().
+
+    Skip key is (cls, page, line, table) so the inventory can grow and this can be re-run. replay=True
+    returns the full planned set, for the same reason layer_ux_rows does: the registry validator rebuilds
+    BRP ids POSITIONALLY by enumerating this function, so dropping rows from the replay would renumber
+    every later id and reattach banked evidence to a different trajectory.
+    """
+    # ★REPLAY READS THE REGISTRY, NOT THE WORLD (2026-10-04, and the gate caught this within the hour).
+    # The first version re-ran collect() for replay=True, the way layer_ux_rows replays its own plan. That
+    # is safe there because the LXP plan derives from the REGISTRY's persona x layer gaps, which do not
+    # move when a bug is fixed. A BRP plan derives from live SOURCE and live SCHEMA - so the moment
+    # migration 20261004000001 gave the truth views their auth_uid, sites that had been class B became
+    # class A, the class-major ordering shifted, and every positional id after the first reclassified site
+    # pointed at a different trajectory: "FAIL BRP55: wave BRP-B != declared named wave BRP-A". A wave
+    # whose ids renumber themselves every time the platform IMPROVES is unusable - banked evidence would
+    # silently reattach to another row. So replay is ANCHORED to what was actually seeded, in id order,
+    # and the registry is the record. Discovery still measures live, through the forward path below.
+    if replay:
+        out = []
+        for t in sorted((x for x in existing if (x.get("brp") or {}).get("kind") == "bug-repro"),
+                        key=lambda x: int(str(x["id"])[len(BRP_PREFIX):] or 0)):
+            out.append({"wave": t["wave"], "brp": t["brp"]})
+        bug_repro_rows.arithmetic = {c: sum(1 for r in out if r["brp"]["cls"] == c)
+                                     for c in ("A", "B", "C")}
+        return out
+
+    # ★THE SKIP KEY IS CLASS-AGNOSTIC, because a site's CLASS MOVES AS THE PLATFORM IS FIXED. It was
+    # (cls, page, line, table) for one run, and the moment the truth views gained auth_uid the 21 class-B
+    # sites re-measured as class A at the same (page, line, table) - so the forward path reported 19 of
+    # them as NEW and would have seeded a second row for a site that already had one. A site is the same
+    # site whichever class it currently falls in; the class is a property of the world right now, not an
+    # identity. A row whose class has since moved is not re-seeded, and the walk sees the real state.
+    # ★A SITE'S IDENTITY IS NOT ITS LINE NUMBER (2026-10-04). The skip key was
+    # (page, line, table), and every fix in this wave adds an explanatory comment - which pushes every
+    # LATER site in that file down. After one page was fixed the dry-run offered 16 "new" rows that were
+    # all already-seeded sites wearing new line numbers, and seeding them would have duplicated the wave.
+    # So the key is (page, table) plus the ORDINAL of that pair, which survives comment insertion. The
+    # ordinal is derived by COUNTING existing rows per (page, table) rather than stored on them, so this
+    # needs no migration of the 80 rows already written: iterate the measured sites in the same stable
+    # order collect() emits and spend one unit of budget per existing row.
+    from collections import Counter as _Counter
+    budget = _Counter()
+    for t in existing:
+        b = t.get("brp") or {}
+        if b.get("kind") == "bug-repro":
+            budget[(b.get("page"), b.get("table"))] += 1
+
+    from bug_repro_inventory import collect
+    sites = collect()
+
+    rows: list[dict] = []
+    for s in sites:
+        cls, page, line, table = s["cls"], s["page"], s["line"], s["table"]
+        if budget[(page, table)] > 0:
+            budget[(page, table)] -= 1          # this measured site is already carried by an existing row
+            continue
+        layer, persona, mech, repro, fix = BRP_CLASS[cls]
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
+        who = "a person" if persona == "any" else persona
+        rows.append({
+            "wave": f"BRP-{cls}",
+            "title": (f"{mech} - {_short(page)}:{line} reads {table} - {who}"),
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(LAYER_LENS[layer][1]),
+            "persona": persona,
+            "device": "any",
+            "entry": "direct" if page == "index.html" else "hub-nav",
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} and the surface asks the wrong question about who "
+                      f"owns the rows it shows: {_short(page)}:{line} filters {table} on worker_name. "
+                      f"MECHANISM: {mech}. REPRO: {repro}. FIX: {fix}. The row closes only when the "
+                      f"reproduction is made to FAIL on demand and a gate holds the fix, measured at "
+                      f"{' and '.join(LX_VIEWPORTS)}"),
+            "journey": {"archetype": f"BRP-{cls}:{persona}", "stage": "operate",
+                        "vertical": HIVES[line % len(HIVES)], "pair": "", "language": "en",
+                        "moment": "present", "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "brp": {"kind": "bug-repro", "cls": cls, "page": page, "line": line, "table": table,
+                    "relation_kind": s.get("kind"), "base_table": s.get("base_table"),
+                    "bound_to": s.get("bound_to"), "layer": layer, "persona": persona,
+                    "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                    "mechanism": mech, "repro": repro, "fix": fix,
+                    "closes": (f"the reproduction is demonstrated FAILING on demand, the fix lands, and a "
+                               f"registered gate reddens when the fix is reverted (mutation-verified) - "
+                               f"not merely 'the page looks right now'")},
+        })
+    # Class-major so each BRP-<cls> sub-wave owns a CONTIGUOUS id range; the gate builds its expected id
+    # list wave by wave and a plan that interleaves classes produces ids it can never match.
+    rows.sort(key=lambda r: (r["brp"]["cls"], r["brp"]["page"], r["brp"]["line"]))
+    bug_repro_rows.arithmetic = {c: sum(1 for r in rows if r["brp"]["cls"] == c) for c in ("A", "B", "C")}
+    return rows
+
+
+# ════════════════════════════════════════════════════════
+# LXC · THE PERSONA x LAYER FLOOR (Ian, 2026-10-06)
+# ════════════════════════════════════════════════════════
+# Ian: "then you have to decide, which layers we have to make more trajectories on top of our trajectories
+# roadmap". Every layer had passed its 90-row target 7-50x, so the weakness was never the layer's SIZE - it was the
+# persona x layer CELLS: the supervisor held 2 rows on Logs, 3 on Security, 5 on Auth; driver-worker 1 on
+# Availability. LXC seeds each signed-in persona's thin cell up to LXC_FLOOR, on pages that persona already reaches
+# and that are not yet seeded for the cell.
+#
+# ★ITS OWN ID SPACE, NOT A GAP C INSIDE layer_ux_rows (decided while building it). layer_ux_rows emits LAYER-MAJOR
+# and the validator rebuilds LXP ids POSITIONALLY from its replay - rows added to layer F's block would shift every
+# D/A/CA/... id after it, which is the ★×16 trap this repo has hit twice. So: LXC1.., waves LXC-<layer>, appended
+# after BRP, with a replay ANCHORED to the registry the way bug_repro_rows' is.
+LXC_PREFIX = "LXC"
+LXC_FLOOR = 12
+
+
+def _lx_like_row(persona: str, layer: str, page: str, roster: list, wave: str, kind: str, gap: str) -> dict:
+    """The LXP row shape, for a wave seeded after LXP. A copy of layer_ux_rows._row's body rather than a refactor of
+    it, deliberately: that nested builder is what the LXP replay runs, and any change to it is a change to 2,206
+    positional ids. The cost is two places that say the same sentence; the gate catches the one that drifts."""
+    ask, dims = LAYER_LENS[layer]
+    pages = _path(_start(page), page, [], cast=_cast_of(persona))
+    entry = "direct" if page == "index.html" else "hub-nav"
+    vertical = HIVES[roster.index(page) % len(HIVES)] if page in roster else HIVES[0]
+    who = "a person" if persona == "any" else persona
+    return {
+        "wave": wave,
+        "title": f"{ask} - {who} · {_short(page)}",
+        "pages": list(pages),
+        "layers": [layer],
+        "ufai": list(dims),
+        "persona": persona,
+        "device": "any",
+        "entry": entry,
+        "framing": "person",
+        "story": (f"{who} arrives by {entry} and reaches {_short(page)} through the platform's own navigation "
+                  f"({' -> '.join(_short(p) for p in pages)}), signed in as that persona; the {layer} layer is "
+                  f"exercised live through the chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)} in one batched "
+                  f"round, with the postgres MCP as the witness where the layer writes, and the walk records what "
+                  f"the PERSON experiences when it misbehaves"),
+        "journey": {"archetype": f"{wave}:{persona}", "stage": "operate", "vertical": vertical, "pair": "",
+                    "language": "en", "moment": "present", "condition": "normal", "tier": "A", "pages": list(pages)},
+        "axis": {"device": "phone-390", "language": "en"},
+        "lx": {"kind": kind, "layer": layer, "persona": persona, "page": page, "gap": gap,
+               "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT, "ask": ask,
+               "closes": (f"the {layer} ask is answered from {_short(page)} itself at both viewports, as {who}, "
+                          f"with a receipt naming the layer, the persona signed in, and steps at phone-390 AND "
+                          f"desktop-1280")},
+    }
+
+
+def layer_floor_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """Rows that lift every signed-in persona's thin (persona, layer) cell to LXC_FLOOR. replay=True returns what
+    was SEEDED, in id order - the registry is the record, so the floor can move as cells fill without renumbering."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("lx") or {}).get("kind") == "layer-floor"),
+                        key=lambda x: int(str(x["id"])[len(LXC_PREFIX):] or 0))
+        layer_floor_rows.arithmetic = {}
+        return [{"wave": t["wave"], "lx": t["lx"]} for t in seeded]
+    scoped = [t for t in existing if t.get("status") != "descoped"]
+    persona_pages, _cells, roster = _lx_state(scoped)
+    act = Counter()
+    for t in scoped:
+        p = t.get("persona") or (t.get("lx") or {}).get("persona") or "any"
+        for l in (t.get("layers") or []):
+            act[(p, l)] += 1
+    seeded = {((t.get("lx") or {}).get("persona"), (t.get("lx") or {}).get("layer"), (t.get("lx") or {}).get("page"))
+              for t in existing if (t.get("lx") or {}).get("kind") in ("layer-ux", "layer-floor")}
+    rows, arithmetic = [], {"by_persona": Counter(), "by_layer": Counter(), "short_cells": []}
+    for persona in LX_SIGNED_IN:
+        reach = sorted(set(persona_pages.get(persona, ())) - LX_NON_PRODUCTION)
+        for layer in LAYER_SET:
+            need = LXC_FLOOR - act[(persona, layer)]
+            if need <= 0:
+                continue
+            take = [pg for pg in reach if (persona, layer, pg) not in seeded][:need]
+            if len(take) < need:
+                arithmetic["short_cells"].append((persona, layer, need, len(take)))
+            for pg in take:
+                rows.append(_lx_like_row(persona, layer, pg, roster, f"{LXC_PREFIX}-{layer}", "layer-floor",
+                                         "C-floor"))
+                arithmetic["by_persona"][persona] += 1
+                arithmetic["by_layer"][layer] += 1
+    # layer-major, so each LXC-<layer> wave owns a contiguous id range (the validator builds wave by wave)
+    rows.sort(key=lambda r: (LAYER_SET.index(r["lx"]["layer"]), r["lx"]["persona"], r["lx"]["page"]))
+    layer_floor_rows.arithmetic = arithmetic
+    return rows
+
+
+# ════════════════════════════════════════════════════════
+# LM · THE LLM LAYER - a 14th layer, with sub-layers inside (Ian, 2026-10-06)
+# ════════════════════════════════════════════════════════
+# Ian: "I also can't see why we haven't consider to make trajectories for my LLMs of my platform wide, we have to
+# treat it also another layer which inside its LLM Layer there are also like sub-layers like a Full stack SaaS for
+# LLMs". Measured: 40 edge functions reach a model or an embedding/speech provider, and until now every one was
+# walked only under A ("the call answered") or C - never whether the ANSWER was grounded, valid, affordable or
+# honest. Ian chose ONE 14th layer with its sub-layers inside, and LOCAL STUBS FIRST with the live model only for
+# Grounding and Routing (batched, the spend stated before each batch).
+LM_PREFIX = "LM"
+# emitted in HARM order - each LM-<sub> wave owns a contiguous id range in this order
+LM_SUBLAYERS = {
+    "X": ("Safety, privacy & guardrails",
+          "The platform must keep this page's AI from leaking one plant's records into another's answer, and from "
+          "obeying instructions hidden in what people typed", ["I"]),
+    "G": ("Grounding & citations",
+          "The platform must make this page's AI answer from this hive's own records, point at them, and say when "
+          "it has nothing to go on", ["F", "I"]),
+    "S": ("Structure & schema",
+          "The platform must make whatever this page's AI generates complete and valid in the shape the page "
+          "renders", ["F"]),
+    "R": ("Routing, fallback & cost",
+          "The platform must answer within this hive's AI budget, and still answer when a model fails", ["A", "I"]),
+    "P": ("Prompt & context",
+          "The platform must give this page's AI the context of this person, this hive and this asset", ["F"]),
+    "A": ("Agents & approval",
+          "The platform must let the AI propose and the person approve, with the record showing which", ["I"]),
+    "V": ("Voice & vision",
+          "The platform must turn what this person says or photographs into the entry they meant", ["U", "F"]),
+    "L": ("Latency & waiting",
+          "The platform must show the AI is working and keep a slow answer instead of losing it", ["U", "A"]),
+    "E": ("Evals & quality gates",
+          "The platform must measure this page's AI quality rather than claim it", ["I"]),
+    "O": ("Observability",
+          "The platform must let someone see afterwards what this page's AI did and why", ["I"]),
+}
+LM_LIVE_SUBS = ("G", "R")                       # live model, batched, spend stated (Ian's choice)
+LM_PERSON_SUBS = ("P", "G", "X", "A", "V")      # where the PERSON changes the answer; R/L/E/O/S are the same for all
+LM_DEPTH = ("worker", "supervisor", "fleet-supervisor", "solo-owner", "assistive-tech")
+LM_INSTRUMENT_LOCAL = "playwright-mcp + postgres-mcp"
+LM_INSTRUMENT_LIVE = "playwright-mcp + live-model"
+# measured 2026-10-06: the edge functions whose source reaches a model or an embedding / speech provider
+LM_MODEL_FNS = frozenset((
+    "agentic-rag-loop ai-eval-runner ai-gateway ai-orchestrator amc-orchestrator analytics-orchestrator "
+    "asset-brain-query batch-risk-scoring data-fabric-normalizer embed-entry engineering-bom-sow "
+    "engineering-calc-agent failure-signature-scan fmea-populator gcash-receipt-ocr hierarchical-summarizer "
+    "intelligence-report marketplace-listing-assist pdf-ingest platform-gateway project-orchestrator resume-extract "
+    "resume-polish scheduled-agents semantic-fact-extractor semantic-search shift-planner-orchestrator "
+    "temporal-rag-orchestrator tts-speak vehicle-doc-extract visual-defect-capture voice-action-router "
+    "voice-embeddings voice-journal-agent voice-logbook-entry voice-model-call voice-report-intent "
+    "voice-semantic-rag voice-transcribe walkthrough-analyzer").split())
+
+
+def _lm_surfaces(roster: list) -> tuple[dict, str, set]:
+    """{page: [its own model functions]} for production pages, the companion's host page, and the voice pages.
+    Read from the substrate's per-page 'Edge invokes' line plus the page's own .js - the AI_SURFACES_MANIFEST's
+    per-page list is stale (hive and asset-hub read empty there while both call ai-gateway)."""
+    surfaces, voice = {}, set()
+    for page in roster:
+        if page in LX_NON_PRODUCTION:
+            continue
+        fns = set()
+        sub = ROOT / "substrate" / "page" / (page[:-5] + ".md")
+        if sub.exists():
+            m = re.search(r"\*\*Edge invokes\*\*: (.*)", sub.read_text(encoding="utf-8", errors="ignore"))
+            if m:
+                fns |= set(re.findall(r"`([a-z0-9-]+)`", m.group(1)))
+        js = ROOT / (page[:-5] + ".js")
+        if js.exists():
+            fns |= set(re.findall(r"functions/v1/([a-z0-9-]+)", js.read_text(encoding="utf-8", errors="ignore")))
+        hit = sorted(fns & LM_MODEL_FNS)
+        if hit:
+            surfaces[page] = hit
+        html = (ROOT / page).read_text(encoding="utf-8", errors="ignore") if (ROOT / page).exists() else ""
+        if re.search(r"voice-handler\.js|wh-tts\.js", html) or any(f.startswith("voice-") for f in hit):
+            voice.add(page)
+    hosts = [p for p in roster if p not in LX_NON_PRODUCTION and p not in surfaces and (ROOT / p).exists()
+             and "companion-launcher.js" in (ROOT / p).read_text(encoding="utf-8", errors="ignore")]
+    return surfaces, (sorted(hosts)[0] if hosts else "index.html"), voice
+
+
+def llm_layer_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per (sub-layer, persona, AI surface). replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("lx") or {}).get("kind") == "llm"),
+                        key=lambda x: int(str(x["id"])[len(LM_PREFIX):] or 0))
+        llm_layer_rows.arithmetic = {}
+        return [{"wave": t["wave"], "lx": t["lx"]} for t in seeded]
+    scoped = [t for t in existing if t.get("status") != "descoped"]
+    persona_pages, _cells, roster = _lx_state(scoped)
+    surfaces, companion_host, voice = _lm_surfaces(roster)
+    seeded = {((t.get("lx") or {}).get("persona"), (t.get("lx") or {}).get("sublayer"),
+               (t.get("lx") or {}).get("surface")) for t in existing if (t.get("lx") or {}).get("kind") == "llm"}
+    targets = [(p, p, surfaces[p]) for p in sorted(surfaces)] + [("companion", companion_host, ["ai-gateway"])]
+
+    def _row(sub: str, persona: str, surface: str, page: str, fns: list) -> dict:
+        name, ask, dims = LM_SUBLAYERS[sub]
+        live = sub in LM_LIVE_SUBS
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
+        entry = "direct" if page == "index.html" else "hub-nav"
+        vertical = HIVES[roster.index(page) % len(HIVES)] if page in roster else HIVES[0]
+        who = "a person" if persona == "any" else persona
+        where = f"the companion on {_short(page)}" if surface == "companion" else _short(page)
+        instr = LM_INSTRUMENT_LIVE if live else LM_INSTRUMENT_LOCAL
+        return {
+            "wave": f"{LM_PREFIX}-{sub}",
+            "title": f"{ask} - {who} · {where}",
+            "pages": list(pages),
+            "layers": ["LM"],
+            "ufai": list(dims),
+            "persona": persona,
+            "device": "any",
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {where} through the platform's own navigation and asks its AI what this "
+                      f"person would ask ({', '.join(fns)}); the {name} sub-layer is walked through the "
+                      f"chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)}, "
+                      + ("against the LIVE model - batched, the token spend stated before the batch, because "
+                         "here the model's own behaviour is the claim"
+                         if live else
+                         "against the local stack, with the witness from the ai-eval harness, the gateway's "
+                         "local debug echo or the AI gates - no paid call")
+                      + ", and the walk records what the PERSON experiences, not whether the model is clever"),
+            "journey": {"archetype": f"LM-{sub}:{persona}", "stage": "operate", "vertical": vertical, "pair": "",
+                        "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "lx": {"kind": "llm", "layer": "LM", "sublayer": sub, "persona": persona, "page": page,
+                   "surface": surface, "functions": list(fns), "viewports": list(LX_VIEWPORTS),
+                   "instrument": instr, "live_model": live, "ask": ask,
+                   "closes": (f"the LM-{sub} ask is answered from {where} itself at both viewports, as {who}, with "
+                              f"a receipt naming the sub-layer, the persona signed in, steps at phone-390 AND "
+                              f"desktop-1280, and "
+                              + ("the live model and the tokens it spent" if live else
+                                 "the local witness (eval harness / debug echo / AI gate) that settles it"))},
+        }
+
+    rows, arithmetic = [], {"baseline": 0, "depth": Counter(), "by_sub": Counter(), "surfaces": len(targets)}
+    for sub in LM_SUBLAYERS:
+        plan = [("any", t) for t in targets]
+        if sub in LM_PERSON_SUBS:
+            for persona in LM_DEPTH:
+                reach = set(persona_pages.get(persona, ()))
+                plan += [(persona, t) for t in targets if t[0] == "companion" or t[1] in reach]
+        if sub == "V":
+            plan += [("driver-worker", t) for t in targets if t[0] == "companion" or t[1] in voice]
+        if sub == "X":
+            plan += [("adversary", t) for t in targets]
+        for persona, (surface, page, fns) in plan:
+            if (persona, sub, surface) in seeded:
+                continue
+            rows.append(_row(sub, persona, surface, page, fns))
+            arithmetic["by_sub"][sub] += 1
+            if persona == "any":
+                arithmetic["baseline"] += 1
+            else:
+                arithmetic["depth"][persona] += 1
+    llm_layer_rows.arithmetic = arithmetic
+    return rows
+
+
+def _append_own_space(existing: list, rows: list, prefix: str) -> list:
+    have = {t["id"] for t in existing}
+    nxt, created = 1, []
+    for r in rows:
+        while f"{prefix}{nxt}" in have:
+            nxt += 1
+        rid = f"{prefix}{nxt}"
+        have.add(rid)
+        created.append(dict({"id": rid, "status": "specced", "pct": 5}, **r))
+    return created
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -715,10 +1315,136 @@ def main() -> int:
                     help="append one W4 row per axis for every w4_confusions.json entry not yet seeded")
     ap.add_argument("--add-design", action="store_true",
                     help="append one W4 row per served page per applicable design lens (LENSES) not yet seeded")
+    ap.add_argument("--add-layer-ux", action="store_true",
+                    help="append one LX row per (persona, layer, page) for every empty persona x layer cell, both viewports")
+    ap.add_argument("--add-layer-floor", action="store_true",
+                    help="LXC (2026-10-06): lift every signed-in persona's thin persona x layer cell to LXC_FLOOR")
+    ap.add_argument("--add-llm-layer", action="store_true",
+                    help="LM (2026-10-06): the 14th layer - one row per (sub-layer, persona, AI surface)")
+    ap.add_argument("--add-bug-repro", action="store_true",
+                    help="append one BRP row per MEASURED defect site (tools/bug_repro_inventory.py), both viewports")
     args = ap.parse_args()
     doc = json.loads(REGISTRY.read_text(encoding="utf-8"))
     existing = doc["trajectories"]
     scoped = [t for t in existing if t.get("status") != "descoped"]
+
+    if args.add_layer_floor or args.add_llm_layer:
+        # ★BOTH SEED INTO THEIR OWN ID SPACE, appended after every existing wave (the BRP pattern), and print THE
+        # NUMBER from the plan itself - Ian asked to see the new rows before anything is written (2026-10-06).
+        if args.add_layer_floor:
+            rows = layer_floor_rows(existing)
+            a = layer_floor_rows.arithmetic
+            label, prefix = "LXC layer floor", LXC_PREFIX
+        else:
+            rows = llm_layer_rows(existing)
+            a = llm_layer_rows.arithmetic
+            label, prefix = "LM layer", LM_PREFIX
+        if not rows:
+            print(f"  {label}: nothing to add - every planned row is already seeded")
+            return 0
+        created = _append_own_space(existing, rows, prefix)
+        print(f"  THE NUMBER, measured from the registry ({label}):")
+        if args.add_layer_floor:
+            print(f"    floor {LXC_FLOOR} per signed-in persona x layer cell")
+            print("    by persona  " + " · ".join(f"{k} {v}" for k, v in a["by_persona"].most_common()))
+            print("    by layer    " + " · ".join(f"{k} {v}" for k, v in a["by_layer"].most_common()))
+            for p, l, need, got in a["short_cells"]:
+                print(f"    short: {p} x {l} needed {need}, only {got} unseeded reached page(s)")
+        else:
+            print(f"    {a['surfaces']} AI surfaces (incl. the companion) x {len(LM_SUBLAYERS)} sub-layers = "
+                  f"{a['baseline']} baseline rows (persona any)")
+            print("    persona depth  " + " · ".join(f"{k} {v}" for k, v in a["depth"].most_common())
+                  + f"  = {sum(a['depth'].values())}")
+            print("    by sub-layer   " + " · ".join(f"{k} {a['by_sub'][k]}" for k in LM_SUBLAYERS))
+        print(f"    = {len(created)} new rows ({created[0]['id']}..{created[-1]['id']}), each walked at "
+              f"{' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = existing + created
+        doc["count"] = len(doc["trajectories"])
+        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + chr(10))
+        from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP and LXP follow
+        seed_missing()
+        print(chr(10) + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_bug_repro:
+        rows = bug_repro_rows(existing)
+        if not rows:
+            print("  bug-repro: every measured defect site is already seeded - nothing to add")
+            return 0
+        a = bug_repro_rows.arithmetic
+        # BRP ids live in their OWN space (BRP1..), for the same reason LXP does: the registry validator
+        # rebuilds them positionally, so they must never be interleaved with another wave's numbering.
+        have = {t["id"] for t in existing}
+        nxt = 1
+        created = []
+        for r in rows:
+            while f"{BRP_PREFIX}{nxt}" in have:
+                nxt += 1
+            rid = f"{BRP_PREFIX}{nxt}"
+            have.add(rid)
+            created.append(dict({"id": rid, "status": "specced", "pct": 5}, **r))
+        print("  THE NUMBER, measured against the real source and the real schema (never typed):")
+        for c, label in (("A", "ownership by DISPLAY NAME where auth_uid exists  (layer AU)"),
+                         ("B", "truth VIEW drops the auth_uid its base table has (layer D)"),
+                         ("C", "no identity column anywhere - needs a migration  (layer D)")):
+            print(f"    class {c} · {label}: {a.get(c, 0)}")
+        print(f"    = {len(created)} new BRP rows ({created[0]['id']}..{created[-1]['id']})"
+              f", each reproduced and fixed at {' and '.join(LX_VIEWPORTS)}")
+        after = len(scoped) + len(created)
+        print(f"  program: {len(scoped)} in scope today -> {after} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = existing + created
+        doc["count"] = len(doc["trajectories"])
+        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + chr(10))
+        from critic_seed_missing import seed_missing  # noqa: E402
+        seed_missing()
+        print(chr(10) + f"  wrote {len(created)} bug-repro row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+
+    if args.add_layer_ux:
+        rows = layer_ux_rows(existing)
+        if not rows:
+            print("  layer-ux: every (persona, layer, page) triple is already seeded - nothing to add")
+            return 0
+        a = layer_ux_rows.arithmetic
+        # LX ids live in their own space (LX1..) alongside the existing LX-CI/LX-S rows
+        have = {t["id"] for t in existing}
+        nxt = 1
+        created = []
+        for r in rows:
+            while f"{LX_PREFIX}{nxt}" in have:
+                nxt += 1
+            rid = f"{LX_PREFIX}{nxt}"
+            have.add(rid)
+            created.append(dict({"id": rid, "status": "specced", "pct": 5}, **r))
+        print("  THE NUMBER, measured (empty persona x layer cells x the pages each persona reaches):")
+        print("    gap A, layer breadth  " + " · ".join(f"{k} {v}" for k, v in sorted(a["gap_a"].items()))
+              + f"  = {sum(a['gap_a'].values())}")
+        print("    gap B, persona depth  " + " · ".join(f"{k} {v}" for k, v in sorted(a["gap_b"].items()))
+              + f"  = {sum(a['gap_b'].values())}")
+        print(f"    = {len(created)} new LX rows ({created[0]['id']}..{created[-1]['id']})"
+              f", each walked at {' and '.join(LX_VIEWPORTS)}")
+        after = len(scoped) + len(created)
+        print(f"  program: {len(scoped)} in scope today -> {after} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:130]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = existing + created
+        doc["count"] = len(doc["trajectories"])
+        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        from critic_seed_missing import seed_missing  # noqa: E402
+        seed_missing()
+        print(f"\n  wrote {len(created)} layer-ux row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
 
     if args.add_design:
         have = {t["id"] for t in existing}

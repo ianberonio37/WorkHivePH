@@ -2,7 +2,7 @@
 name: doc-CSP_HARDENING_ARC
 type: doc
 source: file:CSP_HARDENING_ARC.md
-source_sha: 5f8f286e82074b23
+source_sha: ea28584630cbbcd5
 last_verified: 2026-07-13
 supersedes: null
 ---

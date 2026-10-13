@@ -2,7 +2,7 @@
 name: edge-fn-agentic-rag-loop
 type: edge-fn
 source: file:supabase/functions/agentic-rag-loop/index.ts
-source_sha: d45c0a2ab12771b4
+source_sha: 3494072ad020b365
 last_verified: 2026-07-13
 supersedes: null
 ---

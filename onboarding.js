@@ -194,7 +194,7 @@
           <span style="font-size:14px; font-weight:800; color:var(--wh-orange, #F7A21B); font-variant-numeric:tabular-nums;">${pct}%</span>
         </div>
         <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; margin:8px 0; overflow:hidden;">
-          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A)); border-radius:3px; transition:width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);"></div>
+          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange, #F7A21B),var(--wh-orange-light, #FDB94A)); border-radius:3px;"></div>
         </div>
         <ul style="list-style:none; padding:0; margin:6px 0 0;">${items}</ul>
         ${endowed}

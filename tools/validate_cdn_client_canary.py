@@ -50,7 +50,10 @@ FLOOR_TAG = re.compile(r"""<script[^>]+src=["'][^"']*browser-floor\.js""", re.I)
 # dead. The gate's first version failed its own self-test on the very canary it was written to protect -
 # which is the cheapest possible place to learn it. Match to the closing paren instead.
 CANARY_SCOPE = re.compile(r"""querySelectorAll\([^)]{0,120}supabase""", re.I)
-CANARY_TEST = re.compile(r"""if\s*\(\s*window\.supabase\s*\)\s*return""", re.I)
+# ★THE ARRIVAL TEST MAY CARRY A SECOND CONDITION (2026-10-13): a client that arrives late, after the start-up already
+# threw for lack of it, still needs a restart, so the floor reads `if (window.supabase && !startupNeededClient) return;`.
+# Any `if (window.supabase ...)` whose branch returns still asks whether the client ARRIVED.
+CANARY_TEST = re.compile(r"""if\s*\(\s*window\.supabase\b[^)]*\)\s*(?:return\b|\{[^{}]*\breturn\b)""", re.I)
 
 
 def canary_present(src: str) -> tuple[bool, str]:
@@ -104,6 +107,11 @@ def selftest() -> int:
          "if (window.supabase) return;", False),
         ("a canary that never checks arrival is caught",
          "document.querySelectorAll('script[src*=\"supabase-js\"]').length;", False),
+        ("the late-arrival shape (a second condition) passes",
+         'document.querySelectorAll(\'script[src*="supabase-js"]\').length;\n'
+         'if (window.supabase && !startupNeededClient) return;', True),
+        ("a test of something else is still caught",
+         'document.querySelectorAll(\'script[src*="supabase-js"]\').length;\nif (window.supabaseUrl) return;', False),
     ]:
         got, _ = canary_present(src)
         if got != want:

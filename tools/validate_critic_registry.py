@@ -61,6 +61,10 @@ def check(critic: dict, traj: dict, spec: dict) -> list[str]:
         for d in r.get("dims_graded") or []:
             if d not in dims and d != "IN-MOTION":
                 problems.append(f"R4 {rid}: graded dim '{d}' not in the rubric spec")
+        # R7: a LOCKED row carries the lock receipt critic_lock_promote.py writes (2026-10-13). A status typed by hand
+        # is a false 100%: only a full board, after the row's evidence, with its named gate PASS, may lock it.
+        if st == "locked" and not any(": locked - " in str(x) for x in (r.get("improvement_refs") or [])):
+            problems.append(f"R7 {rid}: locked without a lock receipt - only critic_lock_promote.py may lock a row")
         if not r.get("pages") and not r.get("no_ui_basis"):
             problems.append(f"R5 {rid}: no pages and no no_ui_basis - not walkable, not excused")
         # R6: a JOURNEY may not be critiqued from one page's at-rest board grade (2026-09-10).
@@ -151,6 +155,12 @@ def self_test() -> int:
     b = copy.deepcopy(good); b["rows"][0]["target_source"] = "family-rubric-board"
     if any(p.startswith("R6") for p in check(b, traj, spec)):
         fails.append("a SINGLE-page row from the board must stay quiet - that is the honest case")
+    b = copy.deepcopy(good); b["rows"][0]["status"] = "locked"
+    if not any(p.startswith("R7") for p in check(b, traj, spec)):
+        fails.append("a hand-locked row (no lock receipt) must FAIL")
+    b["rows"][0]["improvement_refs"] = ["2026-10-20: locked - family-rubric-ratchet PASS on the full board of 2026-10-20T09:00"]
+    if any(p.startswith("R7") for p in check(b, traj, spec)):
+        fails.append("a row locked by the promoter (receipt present) must stay quiet")
     b = copy.deepcopy(good); b["rows"].append({"id": "T2", "status": "pending", "pages": ["a.html"], "cell": "x"})
     if not any("descoped ids present" in p for p in check(b, traj, spec)):
         fails.append("a descoped id in the bank must FAIL")

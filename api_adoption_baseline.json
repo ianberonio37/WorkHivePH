@@ -1,6 +1,6 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-09-29T01:34:47.732146+00:00",
+  "generated": "2026-10-13T10:40:32.973494+00:00",
   "functions": 62,
   "rows": [
     {
@@ -159,9 +159,9 @@
       "satisfies": "hive/tenant scoping preamble",
       "mode": "measured",
       "need_rule": "tenant-data",
-      "adopters_n": 42,
-      "need_n": 44,
-      "pct": 95,
+      "adopters_n": 45,
+      "need_n": 47,
+      "pct": 96,
       "adopters": [
         "agent-memory-store",
         "agentic-rag-loop",
@@ -188,6 +188,8 @@
         "platform-scraper",
         "project-orchestrator",
         "project-progress",
+        "resume-extract",
+        "resume-polish",
         "scheduled-agents",
         "semantic-fact-extractor",
         "semantic-search",
@@ -196,6 +198,7 @@
         "shift-planner-orchestrator",
         "temporal-rag-orchestrator",
         "trigger-ml-retrain",
+        "vehicle-doc-extract",
         "visual-defect-capture",
         "voice-action-router",
         "voice-embeddings",
@@ -260,11 +263,10 @@
       "satisfies": "RL layer quota preamble",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 42,
-      "need_n": 46,
+      "adopters_n": 41,
+      "need_n": 45,
       "pct": 91,
       "adopters": [
-        "ai-eval-runner",
         "ai-gateway",
         "ai-orchestrator",
         "amc-orchestrator",
@@ -505,9 +507,11 @@
       "name": "cache.ts / context-budget.ts",
       "satisfies": "CA layer caching + token-budget preambles",
       "mode": "census-only",
-      "adopters_n": 3,
+      "adopters_n": 5,
       "adopters": [
         "agentic-rag-loop",
+        "ai-eval-runner",
+        "ai-gateway",
         "voice-action-router",
         "voice-report-intent"
       ]
@@ -516,9 +520,9 @@
   "floors": {
     "A1": 62,
     "A2": 59,
-    "A3": 42,
+    "A3": 45,
     "A4": 28,
-    "A5": 42,
+    "A5": 41,
     "A6": 3,
     "A8": 62,
     "A9": 62

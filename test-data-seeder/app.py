@@ -324,6 +324,16 @@ def get_test_logins():
 
 @app.route("/")
 def index():
+    # ★"/" IS THE SITE'S LANDING PAGE IN PRODUCTION (2026-10-08, W4 learn-cta walk CGW41007): every learn guide links
+    # root-relative ("/?signup=1", "/" for Home), and production serves the site at the domain root - but here "/" is
+    # this dashboard, so a guide's "Join WorkHive" landed a stranger on "WorkHive Test Seeder". In-site navigation
+    # (the site's own sign-in / sign-up query, or a referrer inside the site) goes where production sends it; a
+    # direct visit still gets the dashboard.
+    _ref = request.referrer or ""
+    _site_q = any(k in request.args for k in ("signup", "signin", "return", "calc", "companion"))
+    if _site_q or "/workhive/" in _ref or "/learn/" in _ref or "/tools/" in _ref:
+        _qs = request.query_string.decode("utf-8", "ignore")
+        return redirect("/workhive/index.html" + ("?" + _qs if _qs else ""), code=302)
     connected = False
     error = None
     counts = {}
@@ -3246,6 +3256,21 @@ def workhive_file(filename):
     return send_from_directory(WORKHIVE_ROOT, filename)
 
 
+def _in_site_page_redirect(rel):
+    """★ONE SITE, ONE SERVICE-WORKER SCOPE (2026-10-08, W4 compute walk KCW41175). A guide links root-absolute
+    (/engineering-design.html?calc=ahu-sizing) because production serves the site at the domain root. Here the alias
+    served that page at "/", so it registered /sw.js under scope "/" beside the /workhive/ worker the walk already had.
+    Back on /workhive/index.html the page was controlled by the ROOT worker when its own /workhive/ worker installed -
+    "installed with an existing controller", which the page reads as a release - and the update notice covered the
+    consent banner's Allow / No thanks at 320. Production has one scope, so no person meets that; the instrument made
+    it. An in-site navigation to a PAGE (a referrer inside /workhive/) now goes where production keeps it - the same
+    site and scope - by a redirect that carries the query. Assets, sw.js and direct visits are served as before."""
+    if not rel.lower().endswith(".html") or "/workhive/" not in (request.referrer or ""):
+        return None
+    _qs = request.query_string.decode("utf-8", "ignore")
+    return redirect("/workhive/" + rel + ("?" + _qs if _qs else ""), code=302)
+
+
 @app.route("/<path:subpath>/<filename>")
 def root_nested_alias(subpath, filename):
     """★AND THE ALIAS MUST REACH NESTED PATHS, OR THE SERVICE WORKER CAN NEVER INSTALL LOCALLY
@@ -3268,7 +3293,7 @@ def root_nested_alias(subpath, filename):
             abort(404)
     except (OSError, ValueError):
         abort(404)
-    return workhive_file(rel)
+    return _in_site_page_redirect(rel) or workhive_file(rel)
 
 
 @app.route("/<filename>")
@@ -3286,7 +3311,7 @@ def root_file_alias(filename):
             abort(404)
     except (OSError, ValueError):
         abort(404)
-    return workhive_file(filename)
+    return _in_site_page_redirect(filename) or workhive_file(filename)
 
 
 # ── Phase 1: CMMS Integration Tester ─────────────────────────────────────────

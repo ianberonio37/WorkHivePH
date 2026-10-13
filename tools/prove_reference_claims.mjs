@@ -8,7 +8,7 @@
 //   node tools/prove_reference_claims.mjs --page design-system.html
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn as harnessSignIn, psql, psqlAs } from './prover_harness.mjs';   // shared preamble + DB truths (2026-09-05)
+import { SEEDER, signIn as harnessSignIn, psql, psqlAs, assertSignedIn } from './prover_harness.mjs';   // shared preamble + DB truths (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 // Truth views that carry an admin/member predicate (v_service_credit_topups_truth, v_gcash_receipts_needing_eyes) return
 // NOTHING to a plain postgres session - the count must be taken AS the signed-in person (SET LOCAL ROLE authenticated +
@@ -130,7 +130,7 @@ async function runExplain(ctx) {
   let bad = 0, n = 0, signed = false;
   for (const e of EXPLAIN) {
     if (ONLY && e.file !== ONLY) continue;
-    if (e.signin && !signed) { await signIn(ctx); signed = true; }
+    if (e.signin && !signed) { await assertSignedIn(signIn(ctx)); signed = true; }
     const p = await ctx.newPage();
     await p.goto(`${SEEDER}/workhive/${e.file}`, { waitUntil: 'load' }).catch(() => {});
     await p.waitForTimeout(e.wait);
@@ -151,7 +151,7 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, service
 let bad = 0, n = 0, signed = false;
 for (const c of CLAIMS) {
   if (ONLY && c.file !== ONLY) continue;
-  if (c.signin && !signed) { await signIn(ctx); signed = true; }
+  if (c.signin && !signed) { await assertSignedIn(signIn(ctx)); signed = true; }
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${c.file}${c.query || ''}`, { waitUntil: 'load' }).catch(() => {});   // a page that needs a query to render (seller profile)
   await p.waitForTimeout(c.wait);

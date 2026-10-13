@@ -2,7 +2,7 @@
 name: edge-fn-intelligence-api
 type: edge-fn
 source: file:supabase/functions/intelligence-api/index.ts
-source_sha: 7fc9d583ec90633b
+source_sha: 30d2f81c314762dc
 last_verified: 2026-07-13
 supersedes: null
 ---

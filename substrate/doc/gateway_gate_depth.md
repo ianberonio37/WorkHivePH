@@ -2,7 +2,7 @@
 name: doc-gateway_gate_depth
 type: doc
 source: file:gateway_gate_depth.md
-source_sha: 16816f179e84b9fc
+source_sha: b2abd9b24a792128
 last_verified: 2026-07-13
 supersedes: null
 ---

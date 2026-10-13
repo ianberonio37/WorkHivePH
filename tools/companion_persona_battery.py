@@ -29,6 +29,9 @@ import time
 import pathlib
 import urllib.request
 import urllib.error
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from chain_pacer import GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES, ChainPacer, edge_window_outcome  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EDGE = "http://127.0.0.1:54321"
@@ -120,13 +123,19 @@ def main():
         "Back to it — which asset should I prioritise for a strategy review?",
     ]
     d7_rows, d7_hard = [], 0
+    # paced (tools/lib/chain_pacer.py): 8 s between gateway calls, a 30-call cap, stop on two all-429 windows
+    pacer = ChainPacer("persona-battery", GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES)
     for i, msg in enumerate(d7_turns):
+        if not pacer.wait():
+            break
+        _t0 = time.time()
         try:
             resp = _post(f"{EDGE}/functions/v1/ai-gateway",
                          {"agent": "voice-journal", "message": msg, "hive_id": HIVE,
                           "context": {"persona": "zaniah"}}, hdr, timeout=70)
         except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
             break
+        pacer.record(edge_window_outcome(_t0, time.time()))
         dd = resp.get("data") or {}
         echo = dd.get("persona"); ans = dd.get("answer") or ""
         echo_ok = (echo == "zaniah")
@@ -138,6 +147,10 @@ def main():
 
     rows, hard_fail, soft_miss = [], 0, 0
     for label, persona, prompt, shape, check in GOLDEN:
+        if not pacer.wait():
+            print(f"persona-battery: {pacer.stop_reason} - the remaining probes were NOT run (not failed)")
+            break
+        _t0 = time.time()
         try:
             resp = _post(f"{EDGE}/functions/v1/ai-gateway",
                          {"agent": "voice-journal", "message": prompt, "hive_id": HIVE,
@@ -145,6 +158,7 @@ def main():
         except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
             print(f"persona-battery: SKIP (gateway unreachable: {e})")
             return 0
+        pacer.record(edge_window_outcome(_t0, time.time()))
         dd = resp.get("data") or {}
         echo = dd.get("persona")
         ans = dd.get("answer") or ""

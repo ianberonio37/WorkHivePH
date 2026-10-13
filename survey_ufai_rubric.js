@@ -192,13 +192,33 @@
     // a 1px tolerance so a panel resting exactly at the edge is not called visible on a rounding error
     return (r.bottom <= 1 || r.top >= vh - 1 || r.right <= 1 || r.left >= vw - 1);
   };
+  // ★A CLOSED <details> HIDES EVERY DESCENDANT EXCEPT ITS OWN SUMMARY, AT EVERY LEVEL (critic batch, 2026-10-13).
+  // vis() asked only the nearest closed <details> and let anything inside any <summary> through, and V1's visR asked
+  // none. assistant's "How this page works" twin is a closed <details> inside the closed scope disclosure, so its summary
+  // read as visible; Chrome still lays it out (content-visibility skips paint, not geometry), V1 found the chat bubble
+  // really painted at its centre and reported it covered on ~74 walks (voice-journal's mailto link in its closed help: 8).
+  // An element is shown only if, for EVERY closed ancestor <details>, it sits inside that details' own summary.
+  const _hiddenByClosedDetails = (e) => {
+    for (let d = e.closest('details:not([open])'); d; d = d.parentElement ? d.parentElement.closest('details:not([open])') : null) {
+      if (d === e) continue;
+      const s = [...d.children].find((c) => c.tagName === 'SUMMARY');
+      if (!(s && s.contains(e))) return true;
+    }
+    return false;
+  };
   const vis = (e) => {
     if (!e) return false;
     // checkVisibility, not offsetParent (2026-09-06): a position:fixed or sticky control - a primary button in a sticky
     // toolbar, the hub's floating button, a docked toast - has NO offsetParent yet is exactly what the person sees; the
     // offsetParent test hid them from A1/W2/T-lenses. Opacity and visibility count as hidden; a zero-size box too.
     if (typeof e.checkVisibility === 'function') {
-      if (!e.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return false;
+      // ★SCROLL-REVEAL CONTENT IS CONTENT (critic batch O2, 2026-10-13). The landing's 14 .reveal sections sit at
+      // opacity 0 until an IntersectionObserver sees them (html.wh-reveal-armed; index.html:643). A survey of the
+      // settled page reads it at the top, so every section below the fold was "hidden" from every dim: its FAQ, eight
+      // real <details>, read as "0 on-demand help affordances" on all 24 signed-out screens. A reader scrolls and sees
+      // it, so opacity alone does not hide an element still waiting for its reveal; display and visibility still do.
+      const _awaitingReveal = document.documentElement.classList.contains('wh-reveal-armed') && !!e.closest('.reveal:not(.visible)');
+      if (!e.checkVisibility({ opacityProperty: !_awaitingReveal, visibilityProperty: true })) return false;
       const rc = e.getBoundingClientRect(); if (rc.width === 0 && rc.height === 0) return false;
     } else if (e.offsetParent === null) return false;
     const s = getComputedStyle(e);
@@ -215,8 +235,9 @@
     // (the normal state) vanished from the lens and A3 counted disclosures=0 on pages
     // that ship them (dayplanner had 2). An over-broad exclusion is the same instrument
     // class as an over-broad match -- both misreport; this one hid the AFFORDANCE itself.
-    const det = e.closest('details:not([open])');
-    if (det && det !== e && !e.closest('summary')) return false;
+    // (the rule above now asks EVERY closed ancestor, see _hiddenByClosedDetails - the nearest one alone let a summary
+    // nested inside a closed disclosure read as visible, 2026-10-13)
+    if (_hiddenByClosedDetails(e)) return false;
     if (_clippedAway(e)) return false;
     if (_offCanvasFixed(e)) return false;      // ★fault 18: a closed bottom sheet / off-canvas drawer
     return true;
@@ -249,6 +270,25 @@
   };
   const ownText = (e) => [...e.childNodes].filter(n => n.nodeType === 3)
     .map(n => n.textContent.trim()).join(' ').trim();
+  // ★THE SENTENCE A READER READS (critic batch B3, 2026-10-13). ownText() keeps only an element's own text nodes, so
+  // every word inside a link, <strong> or <code> fell out of the sentence B3 graded: "start a so every job is
+  // recorded", "puts a preventive programme at roughly than running reactive". Word counts ran short and grades were
+  // computed on text nobody reads. flowText() is the run a reader sees: own text plus VISIBLE INLINE children, never
+  // block children. _isInlineEl/_flowParent let B3 skip an inline child whose words its parent already carries.
+  const _isInlineEl = (e) => { try { return /^inline/.test(getComputedStyle(e).display); } catch (_) { return false; } };
+  const flowText = (e) => {
+    let out = '';
+    for (const n of e.childNodes) {
+      if (n.nodeType === 3) out += n.textContent;
+      // a <br> is a line break the reader sees: it is inline and has no text, so without this the sentence before it
+      // and the words after it arrived as one run ("...then Print Report.Go to Project Manager", 2026-10-13)
+      else if (n.nodeType === 1 && n.tagName === 'BR') out += ' ';
+      else if (n.nodeType === 1 && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(n.tagName) && _isInlineEl(n) && vis(n)) out += flowText(n);
+      else if (n.nodeType === 1) out += ' ';
+    }
+    return out.replace(/\s+/g, ' ').trim();
+  };
+  const _flowParent = (e) => { let p = e.parentElement; while (p && _isInlineEl(p)) p = p.parentElement; return p; };
 
   const pct = (pass, total) => total > 0 ? Math.round((pass / total) * 100) : null;
   const M = (id, name, pass, total, note) => ({
@@ -265,6 +305,36 @@
   // Composite the FULL ancestor chain onto the page's own base colour. The first cut
   // composited a translucent layer over WHITE, which on this dark shell produced
   // impossible 1:1 ratios ("30 days" over rgba(255,255,255,0.05)).
+  // ★A FAINT TEXTURE IS NOT A FILL (2026-10-13, critic batch). 19 learn guides lay a dot grid on the article:
+  // radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px). C5's gradient skip was written for a FILLED
+  // button (navy text on an orange gradient) and treated the grid as one, so no text in those articles was ever graded.
+  // Their back link at Lc 46 (floor 60) and byline at Lc 34 read clean, while the identical link failed on the three
+  // guides whose pattern is an SVG. A gradient whose every stop is at most 10% opaque is decoration over the surface
+  // behind it, so the walks below continue past it as if it had no image.
+  const _faintGradient = (img) => {
+    const stops = (img || '').match(/rgba?\([^)]+\)/g) || [];
+    return stops.length > 0 && stops.every((s) => { const c = rgb(s); return !!c && c.a <= 0.1; });
+  };
+  // ★URGENCY IS SALES PRESSURE, NOT A MAINTENANCE WORD (2026-10-13, critic batch). Shared by DP1 and L1, which had
+  // separate word lists and so disagreed: after DP1 stopped reading "...no amount of work on your part can hurry." as
+  // fake urgency, L1 still did, on the same sentence. A phrase is blanked out of the text before the urgency patterns
+  // run unless it is pressure: "act now" and "expires" only with a commercial word within 60 characters ("the permit
+  // expires" is a fact; "offer expires tonight" is pressure), "hurry" only as an imperative (sentence-initial,
+  // "hurry up", "hurry!").
+  const _COMMERCE = /\b(buy|order|price|prices|pricing|discount|offer|deal|sale|subscribe|sign\s*up|join|trial|register|checkout|cart)\b/i;
+  const _salesUrgencyOnly = (t) => String(t || '')
+    .replace(/act\s+now|\bexpires\b/gi, (m, at, s) => (_COMMERCE.test(s.slice(Math.max(0, at - 60), at + 60)) ? m : ' '))
+    .replace(/hurry\b/gi, (m, at, s) => {
+      const before = s.slice(Math.max(0, at - 3), at);
+      const after = s.slice(at + m.length, at + m.length + 4);
+      return (at === 0 || /[.!?\n]\s*$/.test(before) || /^\s*(!|up\b)/i.test(after)) ? m : ' ';
+    });
+  // ★A READ IS A READ WHATEVER IT IS CALLED (critic batch PP3, 2026-10-13). PP3 decides "this page writes" from its
+  // source and treats any rpc not named get_/list_/fetch_/v_/my_ as a write. audit-log's only call is
+  // audit_filter_vocab (STABLE, no DML), so a read-only viewer graded 0% for "no instant acknowledgment". These are the
+  // STABLE/IMMUTABLE public functions the pages call without a read prefix. The line below is written from the
+  // database by tools/sync_lens_read_rpcs.py, and the gate lens-read-rpcs fails when it drifts. Do not edit by hand.
+  const _READ_RPCS = new Set(['audit_filter_vocab', 'check_username_available', 'find_hive_by_code', 'founder_active_hives', 'founder_anon_sessions', 'founder_dau_series', 'founder_mau', 'founder_page_heatmap', 'listing_reservation_amount', 'marketplace_platform_response_hours', 'provider_credit_balance', 'seller_credit_balance', 'service_knob', 'service_knob_pct', 'service_request_price']); // sync_lens_read_rpcs
   const pageBase = () => rgb(getComputedStyle(document.body).backgroundColor)
     || rgb(getComputedStyle(document.documentElement).backgroundColor)
     || { r: 255, g: 255, b: 255, a: 1 };
@@ -286,7 +356,7 @@
     while (n && n !== document.documentElement) {
       const st = getComputedStyle(n);
       const img = st.backgroundImage || '';
-      if (img.includes('gradient')) {
+      if (img.includes('gradient') && !_faintGradient(img)) {
         // A translucent stop (rgba …,0.6) renders composited over whatever is BEHIND the
         // gradient node — forcing it opaque scores a colour the user never sees. Resolve
         // the behind-surface by continuing the walk from the parent, composite each stop
@@ -412,8 +482,15 @@
       + '|para (?:lang )?sa (?:mga )?[a-z ]{0,14}(?:supervisor|admin|owner|miyembro)'
       + '|(?:supervisor|admin|owner|miyembro)[a-z ]{0,14} lang'
       + '|sumali (?:muna )?sa hive', 'i');
-    const isPermWall = _gateEls.length > 0
-      && _permVocab.test(_gateEls.map((e) => e.textContent || '').join(' '));
+    // ★OR THE PAGE SAYS SO (critic batch, 2026-10-13). A solo owner opening hive.html gets its onboarding view, "Your
+    // Hive" with one sentence and Create / Join: no data, no plan, one block. E3 (no source chip), H1 (no progress
+    // indicator) and A2 (no sub-headings) graded that start screen as if it were the board, on all 24 walks. A page now
+    // DECLARES such a state with data-wh-gate="<why>" on the visible container, and a declared gate counts as a wall
+    // without the vocabulary test: a declared contract can be audited, a guess from markup cannot (same reasoning as
+    // meta wh-page-kind).
+    const _declaredGate = $$('[data-wh-gate]', document).filter((e) => e.getClientRects().length && vis(e));
+    const isPermWall = _declaredGate.length > 0 || (_gateEls.length > 0
+      && _permVocab.test(_gateEls.map((e) => e.textContent || '').join(' ')));
     // A declared reference surface (<meta name="wh-page-kind" content="reference">) renders DATA in its
     // tables and code: validator labels, symbol names, function ids. Those cells are not the page's
     // copy, so the copy-quality lenses (B1/B2/B3/B5/G2/H4/L1) read the prose around them, never the
@@ -496,14 +573,19 @@
     // shift-brain's Generate now, pm-scheduler's Next) - five pages read cta=0 with a visible gradient primary
     // (2026-09-05). The header is part of the page: count its filled primaries too (shell chrome stays excluded).
     // ...and shift-brain's Generate sits in neither: a filled primary-classed control anywhere on the page counts (2026-09-06)
-    const headerCtas = $$('header [class*="primary"], .page-header [class*="primary"], .toolbar [class*="primary"], header button, .page-header button, [class*="btn-primary"]', document.body)
+    // ...and a FILLED LINK in the header is the same thing as a filled header button (critic batch A1, 2026-10-13):
+    // public-feed's only signed-in action is the sticky header's <a class="header-btn"> "Post in your hive", and every
+    // signed-in walk read cta=0. Nav links and the logo are not filled, so isFilled below still keeps them out.
+    const headerCtas = $$('header [class*="primary"], .page-header [class*="primary"], .toolbar [class*="primary"], header button, header a[href], .page-header button, [class*="btn-primary"]', document.body)
         .filter(vis).filter((e) => !/^wh-/.test(e.id || '') && !e.closest('#wh-nav-hub, [id*="wh-hub"], #wh-feedback-panel'))
         .filter((e) => /primary/.test(typeof e.className === 'string' ? e.className : '') || isFilled(e));
     const _ctaPairs = $$('.ac-cta, .btn-generate, [class*="primary"]', R).filter(vis)
         .concat($$('button, a[href]', R).filter(vis).filter(isFilled))
         .concat(headerCtas)
         .concat(pageFabs)
-        .filter((e2) => !isSelection(e2) && !isCard(e2))
+        // The cookie notice's Allow/Decline answer a separate, passing question the platform asks, not the page's offer;
+        // counted as a page CTA it made every signed-out landing screen read 4 primaries (critic batch G3, 2026-10-13).
+        .filter((e2) => !isSelection(e2) && !isCard(e2) && !e2.closest('#wh-consent'))
         .map((e2) => [((e2.innerText || '').trim().slice(0, 24) + '|' + String(e2.className)), e2]);
     // A REPEATED ROW ACTION -- the same design appearing >=2 times, each inside its own list
     // item / card / row -- acts on the ROW, not the page. marketplace-seller's per-listing "Edit"
@@ -547,7 +629,9 @@
       // The page says so explicitly -- <meta name="wh-page-kind" content="reference"> -- rather than
       // the lens guessing from markup; a declared contract can be audited, a heuristic cannot.
       // (2026-09-05: symbol-gallery / validator-catalog / llm-observability read A1 75% "cta=0".)
-      primaryCta.length >= 1 || isPrintDoc || isPoster
+      // ...and a GATE has no page action by design either: its job is to explain the refusal and offer the way back
+      // (audit-log's supervisor-only wall read cta=0 on 19 non-supervisor walks; critic batch, 2026-10-13)
+      primaryCta.length >= 1 || isPrintDoc || isPoster || isPermWall
         || !!document.querySelector('meta[name="wh-page-kind"][content="reference"], meta[name="wh-page-kind"][content="console"]'),  // a primary action exists -- but a reference page has none by design and a console's actions live per card (2026-09-05)
                                            // print report / poster is a STATIC artifact with
                                            // no interactive CTA (G1/E3 already N/A there), so
@@ -598,6 +682,7 @@
     // The check still excludes h1: a page title alone is not internal structure, which is the real
     // question here, so only levels 2-3 count. [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]]
     const subHeads = $$('h2,h3,[role="heading"][aria-level="2"],[role="heading"][aria-level="3"]', R).filter(vis);
+    if (isPermWall) out.push(NA('A2', 'Scannability', 'a gate (access refused, or a declared start screen): one short block, nothing to scan')); else
     out.push(M('A2', 'Scannability', [
       heads.length >= 2,
       chunked,
@@ -713,13 +798,27 @@
     // An <input> never reaches this sample (its value is not text content), so a textarea is the whole
     // of the gap. A placeholder is not text content either, so product example-copy still grades.
     const isUserAuthored = (e) => e.tagName === 'TEXTAREA' || !!e.closest('textarea, .transcript-box, .transcript, [class*="transcript"], .history-text, .post-content, .post-card, .reply-body, [data-user-content], #entries-list, .entry-card');
+    const _textElSet = new Set(textEls);
+    // A citation is not a sentence (2026-10-13): once B3 read whole runs, the learn guides' Sources lists ("US Department
+    // of Energy / PNNL, Operations & Maintenance Best Practices Guide, Release 3.0 (...)") became the "longest
+    // sentences". A list headed Sources / References / Further reading is a bibliography and is not graded as prose.
+    const _inSources = (e) => {
+      const list = e.closest && e.closest('ul, ol'); if (!list) return false;
+      const h = list.previousElementSibling;
+      return !!h && /^H[2-4]$/.test(h.tagName) && /^(sources|references|further reading|citations)\b/i.test((h.textContent || '').trim());
+    };
     const proseEls = textEls.filter((e) => {
-      const t = ownText(e);
+      if (_inSources(e)) return false;
+      // an inline child (a link, <strong>) whose block parent is graded is read as part of that parent's sentence
+      if (_isInlineEl(e) && _textElSet.has(_flowParent(e))) return false;
+      const t = flowText(e);
       return t.split(/\s+/).length >= 6 && !/^h[1-6]$/i.test(e.tagName) && !isUserAuthored(e);
     }).concat(tileCopy.filter((e) => ownText(e).split(/\s+/).length >= 4 && !isUserAuthored(e)));
     const sentences = [];
     proseEls.forEach((e) => {
-      const raw = ownText(e);
+      // flowText collapses whitespace, so a pre/pre-wrap block (whose newlines ARE lines, see below) keeps ownText
+      const _preWs = (() => { try { return /^pre/.test(getComputedStyle(e).whiteSpace || ''); } catch (_) { return false; } })();
+      const raw = _preWs ? ownText(e) : flowText(e);
       // A middot-separated citation/meta line is a REFERENCE LIST, not prose: "ISO
       // 14224:2016 (failure taxonomy + reliability metrics) · SMRP 5.4 · …" split into a
       // 30-word "sentence" that no rewrite could fix. Skip those; grade real sentences.
@@ -750,7 +849,8 @@
       const _ws = (() => { try { return getComputedStyle(e).whiteSpace || 'normal'; } catch (_) { return 'normal'; } })();
       const _keepsNewlines = /^pre/.test(_ws);
       const _src = _keepsNewlines ? raw : raw.replace(/\s*\n+\s*/g, ' ');
-      const _splitter = _keepsNewlines ? /(?<=[.!?])\s+|\s*\n+\s*/ : /(?<=[.!?])\s+/;
+      // a spaced middot separates facts on a meta line, as in B4 (project-report's source chip, 2026-10-13)
+      const _splitter = _keepsNewlines ? /(?<=[.!?])\s+|\s*\n+\s*|\s+·\s+/ : /(?<=[.!?])\s+|\s+·\s+/;
       _src.split(_splitter).forEach((s) => {
         const t = s.trim();
         if (t.split(/\s+/).length >= 4) sentences.push({ t, el: e });
@@ -974,7 +1074,7 @@
       const _onGradient = (el) => {
         for (let n = el; n && n !== document.body; n = n.parentElement) {
           const cs = getComputedStyle(n);
-          if ((cs.backgroundImage || '').includes('gradient')) return true;
+          if ((cs.backgroundImage || '').includes('gradient') && !_faintGradient(cs.backgroundImage)) return true;
           const bc = rgb(cs.backgroundColor);
           if (bc && bc.a >= 0.85) return false;   // hit an opaque flat bg first -> not on a gradient
         }
@@ -1158,7 +1258,9 @@
       ? NA('E3', 'Trust / transparency', 'permission wall: no data is shown to this persona, so there is no source or freshness to chip')
       : prose
         ? M('E3', 'Trust / transparency', 2, 2, 'article: names its sources and its freshness in prose (a chip is a product-surface convention)')
-        : M('E3', 'Trust / transparency', [!!chip, FRESH.test(chipTxt)].filter(Boolean).length, 2,
+        // a chip stating there is NO data behind the screen ("answers are not grounded") has no age to state; a freshness
+        // word there would be a false claim (assistant with no hive, 2026-10-13)
+        : M('E3', 'Trust / transparency', [!!chip, FRESH.test(chipTxt) || /\bnot grounded\b|\bno data source\b/i.test(chipTxt)].filter(Boolean).length, 2,
             chip ? `chip: "${chipTxt.slice(0, 40)}"` : 'NO source chip'));
 
 
@@ -1202,7 +1304,10 @@
     // (2) CAP RAW LISTS AT MILLER (5+-2) — a paragraph of asset codes is a dump.
     // An ID is a short CODE-shaped token (TT-002, AC-004): >7 inline = unreadable.
     const IDLIKE = /\b[A-Z]{1,5}-\d{2,4}\b/g;
-    $$('*', R).filter(e => vis(e) && isProse(e) && e.children.length === 0).forEach((e) => {
+    // AI output is graded by the AI-quality lenses, not as product copy: textEls already excludes [data-ai-generated],
+    // but this scan walked every element itself, so report-sender's 90-character preview of a stored model summary
+    // ("All eight machines - VFD-001, GEN-001, ...") read as the product's own dump (critic batch E4, 2026-10-13).
+    $$('*', R).filter(e => vis(e) && isProse(e) && e.children.length === 0 && !e.closest('[data-ai-generated], [data-user-content]')).forEach((e) => {
       const t = ownText(e);
       const ids = t.match(IDLIKE);
       // A DUMP is codes CRAMMED inline; a multi-line LIST (shift-brain's safety-isolation banner,
@@ -1382,7 +1487,10 @@
     // is usually a DOMAIN quantity, not an error (achievements' "405 XP this week" matched the old
     // `4\d\d` and failed G2 falsely; "500 hours", "404 assets" would too). §16.1 the ruler, not the page.
     const JARGON = /\b(RPC|JSON|null|undefined|NaN|stack trace)\b|\b(?:HTTP|error|status|code)\b[\s:#-]{0,3}[45]\d\d\b|\b[45]\d\d\b[\s-]{0,3}(?:internal server error|not found|forbidden|bad request|unauthorized|service unavailable)/i;
-    const jargon = textEls.filter(e => JARGON.test(ownText(e)));
+    // "JSON Resume" is the proper name of an open resume standard (jsonresume.org) that the resume guide cites and
+    // explains in plain words; naming a standard is not system text leaking (critic batch G2, 2026-10-13). A bare
+    // "JSON" anywhere else still counts.
+    const jargon = textEls.filter(e => JARGON.test(ownText(e).replace(/\bJSON Resume\b|jsonresume\.org/g, ' ')));
     out.push(M('G2', 'Match the real world', jargon.length === 0 ? 1 : 0, 1,
       jargon.length ? `system jargon leaked: "${ownText(jargon[0]).slice(0, 26)}"` : 'no system jargon in copy'));
     out.push(M('G3', 'Aesthetic-minimalist', primaryCta.length <= TH.A3.maxPrimaryCta ? 1 : 0, 1,
@@ -1416,7 +1524,9 @@
     // Same family as the C2 disabled exemption, the N1 data-i census and the X1 monolingual vocabulary:
     // [[feedback_an_oracles_vocabulary_is_part_of_the_oracle]].
     const _progSlot = $$('.wh-progress-slot', R).length > 0;
-    out.push(workerDaily || progress.length
+    out.push(isPermWall && !progress.length
+      ? NA('H1', 'Goal-gradient', 'a gate (access refused, or a declared start screen): there is no plan here to show progress on')
+      : workerDaily || progress.length
       ? (progress.length
         ? M('H1', 'Goal-gradient', 1, 1, `${progress.length} progress indicator(s)`)
         : _progSlot
@@ -1429,7 +1539,9 @@
     // /free|upgrade|limited/ flagged WorkHive's honest "Free, No Platform Fees" pricing
     // statement as ad-like (marketplace H4 false-positive) -- "free" as a true no-fee fact is
     // not a dark pattern; the pressure PHRASE is. Match urgency copy, the real distraction.
-    const promoish = textEls.filter(e => /\b(act now|hurry|limited time|last chance|don'?t miss (out|it)|upgrade now|for a limited time|while supplies last)\b/i.test(ownText(e)));
+    // ...and the same sentence test DP1 and L1 apply (_salesUrgencyOnly): three learn guides graded H4 0% on
+    // "act now" in a risk table and "can hurry" in plain prose (critic batch, 2026-10-13).
+    const promoish = textEls.filter(e => /\b(act now|hurry|limited time|last chance|don'?t miss (out|it)|upgrade now|for a limited time|while supplies last)\b/i.test(_salesUrgencyOnly(ownText(e))));
     out.push(isPoster
       ? NA('H4', 'Selective attention (no ad-like content)', 'marketing poster: promotional BY GENRE (Ian scope decision)')
       : M('H4', 'Selective attention (no ad-like content)', promoish.length === 0 ? 1 : 0, 1,
@@ -1485,6 +1597,9 @@
     const DESTRUCTIVE_WORD = /\b(delete|remove|clear|reset|archive|discard)\b|\b(burahin|alisin|tanggalin|i-clear|i-reset)\b/i;
     const destructive = inter.filter(e => {
       const label = (e.getAttribute('aria-label') || e.innerText || '').trim();
+      // a LINK with no onclick only navigates: its label cannot make it destructive (pm-scheduler's "Clear 2 overdue
+      // PMs ->" CTA scrolls to the list, 2026-10-13); a destructive marker still counts
+      if (e.tagName === 'A' && !e.getAttribute('onclick') && !DESTRUCTIVE_MARKER(e)) return false;
       if (DESTRUCTIVE_MARKER(e)) return !CLEAR_VIEW.test(label);
       return label.length > 0 && label.length <= 30
         && DESTRUCTIVE_WORD.test(label)
@@ -1520,6 +1635,9 @@
       if (GUARD.test(oc)) return true;
       const fn = (oc.match(/^\s*([A-Za-z_$][\w$]*)\s*\(/) || [])[1];
       if (fn && typeof window[fn] === 'function' && GUARD.test(String(window[fn]))) return true;
+      // a tap that only OPENS a confirm surface writes nothing: inventory's "Use" calls openUseModal(), where the
+      // quantity is confirmed (2026-10-13)
+      if (fn && /^(?:open|show)\w*(?:Modal|Sheet|Dialog|Drawer|Confirm)$/.test(fn) && typeof window[fn] === 'function') return true;
       // ★THE GUARD WAS ONE HOP AWAY, BEHIND A CLASS INSTEAD OF AN ID (2026-09-10). report-sender graded
       // J1 0% - "1 destructive control(s)", a BLOCKER - on its contact Remove button. The delete is in
       // fact guarded: deleteContact() opens window.whConfirm() before touching anything, and refuses
@@ -1629,7 +1747,7 @@
       `${kpiBig.length}/${nums.length ? nums.length : 'no'} glanceable KPI(s), ${small.length} under-44 target(s)`));
 
     // ── L · Ethics / wayfinding ─────────────────────────────────────────────
-    const urgency = textEls.filter(e => /\b(only \d+ left|expires|last chance|hurry)\b/i.test(ownText(e)));
+    const urgency = textEls.filter(e => /\b(only \d+ left|expires|last chance|hurry)\b/i.test(_salesUrgencyOnly(ownText(e))));
     out.push(M('L1', 'Honest design (no deceptive patterns)', urgency.length === 0 ? 1 : 0, 1,
       urgency.length ? 'manufactured urgency present' : 'no manufactured urgency'));
     const links = $$('a[href]', R).filter(vis);
@@ -1660,12 +1778,16 @@
       const convOK = (f) => {
         const hay = ((f.getAttribute('aria-label') || '') + ' ' + (f.id || '') + ' ' + (f.name || '')).toLowerCase();
         return f.type === 'search'
-          || /search|filter|query|\bask\b|reply|coach|message|compose|question/.test(hay)
+          // `chat` (2026-10-13): the id is the one part of `hay` a translation cannot change; the assistant's composer
+          // (#chat-input) read "placeholder-as-label" on a Filipino walk because its translated aria-label held no
+          // English keyword
+          || /search|filter|query|\bask\b|reply|coach|message|compose|question|chat/.test(hay)
           || !!f.closest('[data-idx], tr, .item-row, .parts-row');
       };
       const named = fields.filter(f => visLabel(f) || (convOK(f) && f.getAttribute('aria-label')));
       const phOnly = fields.filter(f => f.placeholder && !visLabel(f) && !convOK(f));
-      out.push(M('M1', 'Labels & structure', named.length - phOnly.length, fields.length,
+      // clamped: a field can be in neither list, and a pass count below zero printed "M1 -100%" (2026-10-13)
+      out.push(M('M1', 'Labels & structure', Math.max(0, named.length - phOnly.length), fields.length,
         `${named.length}/${fields.length} labelled, ${phOnly.length} placeholder-as-label`));
       const validated = fields.filter(f => f.required || f.pattern || f.getAttribute('aria-invalid') !== null);
       out.push(validated.length ? M('M2', 'Validation & recovery', validated.length, validated.length, 'inline validation present')
@@ -1862,7 +1984,18 @@
     // placeholder is a computed string that was never bilingual in the first place.
     const _filStampsOk = !_filActive
       || (_filStamps.clobbered.length === 0 && (_filStamps.appFilledEnglish || []).length === 0);
-    if (isPoster) {
+    // ★N1 IS DESCOPED WITH THE WORK IT GRADES (2026-10-13). Ian took Filipino, and the dictionary work behind it,
+    // out of the roadmap (2026-09-30, and again 2026-10-06: "I thought we are removing from remaining open
+    // trajectories related to filipino or any dictionaries?"). Every N1 failure in the critic bank asks for
+    // exactly that work - data-i stamps and dictionary values - so grading it kept 8,417 rows open on work nobody
+    // may do. The census stays in the note so a re-scope starts from numbers, and the dim's one English check
+    // (no horizontal overflow at the current locale) is R2's identical test, so nothing in scope goes ungraded.
+    // Re-scoping Filipino is one line: empty _N1_DESCOPED.
+    const _N1_DESCOPED = 'Filipino and dictionary work are out of the roadmap (Ian, 2026-09-30 and 2026-10-06)';
+    if (_N1_DESCOPED) {
+      out.push(NA('N1', 'i18n mechanism + expansion resilience', 'descoped: ' + _N1_DESCOPED + ' · label coverage '
+        + labelCovered + '/' + labelEls.length + ' recorded, not graded · overflow is graded by R2'));
+    } else if (isPoster) {
       out.push(NA('N1', 'i18n mechanism + expansion resilience', 'poster: a print artifact ships in ONE locale by design (Ian scope decision)'));
     } else if (_refKind || _consoleKind) {
       out.push(NA('N1', 'i18n mechanism + expansion resilience', (_refKind ? 'reference catalog' : 'single-operator console') + ': ships in the platform operating language by default (2026-09-05 calibration; label coverage ' + labelCovered + '/' + labelEls.length + ' recorded, not graded)'));
@@ -1927,6 +2060,8 @@
       + '[class*="details-toggle"], [class*="disclose"], [class*="method"]').filter(vis);
     out.push(isPoster
       ? NA('O2', 'Pull > push help', 'poster: a static artifact offers no in-page help journey')
+      // a permission wall is one message and one way on; there is nothing on the page to look up (2026-10-13)
+      : isPermWall ? NA('O2', 'Pull > push help', 'permission wall: one message and one way on, nothing on the page to look up')
       : M('O2', 'Pull > push help', help.length ? 1 : 0, 1, `${help.length} on-demand help affordance(s)`));
 
     // ── Q · Motion ──────────────────────────────────────────────────────────
@@ -2237,7 +2372,11 @@
         if (!vis(e) || e.closest(W1_CHROME)) return false;
         const t = ((e.getAttribute('aria-label') || '') + ' ' + ownText(e)).toLowerCase().trim();
         const cls = (typeof e.className === 'string' ? e.className : '').toLowerCase();
-        return /^(←|‹|◄|«|⟵|↩)/.test(t.trim()) || /(^|\s)(back|go back|home|all tools|hive board)\b/.test(t) || /\b(back-btn|back-link|btn-back|breadcrumb|home-link|nav-back|go-back)\b/.test(cls);
+        // [data-wh-back] / .wh-back-link: wayfinding.js's own definition of "this page already has a back control"
+        // (wayfinding.js:192). hive and pm-scheduler mark their icon+logo back link that way and read "NO in-layout way
+        // back" on every walk because the link has no text (critic batch W1, 2026-10-13).
+        return /^(←|‹|◄|«|⟵|↩)/.test(t.trim()) || /(^|\s)(back|go back|home|all tools|hive board)\b/.test(t) || /\b(back-btn|back-link|btn-back|breadcrumb|home-link|nav-back|go-back)\b/.test(cls)
+          || (e.matches && e.matches('[data-wh-back], .wh-back-link'));
       });
       const crumb = !!R.querySelector('.breadcrumb, [class*="breadcrumb"], nav[aria-label*="readcrumb" i]');
       const hasBack = escBtn || crumb;
@@ -2257,7 +2396,7 @@
       // which is NULL for every position:fixed element, so V1 was structurally BLIND to the entire
       // bottom-right FAB stack, the connectivity "Online" chip, and the wayfinding breadcrumb (Ian's
       // screenshots). This is the [[feedback_ufai_lens_instrument_blindspots]] offsetParent trap again.
-      const visR = (e) => { const s = getComputedStyle(e); if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity || '1') === 0) return false; const r = e.getBoundingClientRect(); return r.width > 4 && r.height > 4 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
+      const visR = (e) => { if (_hiddenByClosedDetails(e)) return false; const s = getComputedStyle(e); if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity || '1') === 0) return false; const r = e.getBoundingClientRect(); return r.width > 4 && r.height > 4 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
       const ov = (a, b) => { const ix = Math.min(a.right, b.right) - Math.max(a.left, b.left); const iy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); return (ix <= 1 || iy <= 1) ? 0 : (ix * iy) / Math.min(a.width * a.height, b.width * b.height); };
       const inPanel = (e) => !!e.closest('[aria-modal="true"], [role="dialog"], [role="menu"], [role="tooltip"], .modal, .tooltip, .toast, [class*="sheet"], #wh-ai-panel, #wh-hub-panel');
 
@@ -2356,7 +2495,12 @@
       let occl = '';
       {
         const OV = '[aria-modal="true"], [role="dialog"], [role="menu"], .modal, .sheet.open, #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel';
-        const open = [...document.querySelectorAll(OV)].filter((o) => visR(o));
+        // a fixed gate covering most of the screen (project-manager's no-hive #hive-gate) is an open overlay too: what
+        // sits under it is covered by design, as under an aria-modal dialog (2026-10-13)
+        const _gateOverlay = (g) => { if (!visR(g) || !/fixed/.test(getComputedStyle(g).position)) return false;
+          const gr = g.getBoundingClientRect(); return gr.width * gr.height >= innerWidth * innerHeight * 0.5; };
+        const open = [...document.querySelectorAll(OV)].filter((o) => visR(o))
+          .concat([...document.querySelectorAll('[data-wh-gate], [id$="-gate"], [id^="gate-"]')].filter(_gateOverlay));
         const ctrls = [...document.querySelectorAll('a[href], button, [role="button"], [role="tab"], input:not([type="hidden"]), select, textarea, summary')]
           .filter((c) => visR(c) && !c.closest('[inert], [disabled]') && !c.disabled && !(open.length && !open.some((o) => o.contains(c))));
         for (const c of ctrls) {
@@ -2366,10 +2510,16 @@
           const hit = document.elementFromPoint(cx, cy);
           if (!hit || hit === c || c.contains(hit) || hit.contains(c)) continue;
           if (hit.closest('label') && hit.closest('label').control === c) continue;
-          const hs = getComputedStyle(hit);
-          const cover = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], [id^="wh-"], [class^="wh-"]') || hit;
+          // ★NAME THE ELEMENT THAT COVERS, AND MEASURE THAT ONE (2026-10-13). This climbed from `hit` to the nearest
+          // chrome-looking ancestor, and `[id^="wh-"]` matches the page's own <main id="wh-main-content"> - an ancestor of
+          // the control, the box it sits in, never its coverer - so 226 assistant rows read "wh-main-content (static, z
+          // auto, 384x855@0,0) covers summary". An ancestor of the control is rejected, and position and z-index are read
+          // from the element the sentence names ([[feedback_one_sentence_named_three_different_elements]]).
+          let cover = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], [id^="wh-"], [class^="wh-"]') || hit;
+          if (cover.contains(c)) cover = hit;
+          const hs = getComputedStyle(cover);
           const cr = cover.getBoundingClientRect();
-          occl = `occludes an interactive control: ${cover.id || cover.tagName.toLowerCase()} (${hs.position}, z ${hs.zIndex}, ${Math.round(cr.width)}x${Math.round(cr.height)}@${Math.round(cr.left)},${Math.round(cr.top)}) covers ${c.tagName.toLowerCase()}"${(c.getAttribute('aria-label') || ownText(c)).slice(0, 14)}" @${Math.round(r.left)},${Math.round(r.top)}`;
+          occl = `occludes an interactive control: ${cover.id || (cover.tagName.toLowerCase() + (typeof cover.className === 'string' && cover.className.trim() ? '.' + cover.className.trim().split(/\s+/)[0] : ''))} (${hs.position}, z ${hs.zIndex}, ${Math.round(cr.width)}x${Math.round(cr.height)}@${Math.round(cr.left)},${Math.round(cr.top)}) covers ${c.tagName.toLowerCase()}"${(c.getAttribute('aria-label') || ownText(c)).slice(0, 14)}" @${Math.round(r.left)},${Math.round(r.top)}`;
           break;
         }
       }
@@ -2395,7 +2545,9 @@
         .filter((e) => vis(e) && !e.closest(B4_CHROME) && trig.test((e.innerText || e.textContent || '')));
       let over = 0, checked = 0; const bad = [];
       discs.forEach((e) => {
-        (e.innerText || '').split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter((s) => s.split(/\s+/).filter(Boolean).length >= 8).forEach((s) => {
+        // a spaced middot separates FACTS on a meta line ("Live · as of 13:59 PHT · Based on ... · Weighted: ..."), the
+        // way B3 already reads such a line as a list: hive's readiness chip was one 38-word "sentence" (2026-10-13)
+        (e.innerText || '').split(/(?<=[.!?])\s+|\n+|\s+·\s+/).map((s) => s.trim()).filter((s) => s.split(/\s+/).filter(Boolean).length >= 8).forEach((s) => {
           checked++;
           const words = s.split(/\s+/).filter(Boolean);
           const syl = words.reduce((a, w) => a + syllables(w), 0);
@@ -2596,7 +2748,10 @@
         // etc. (e.g. #filter-apply is an APPLY action, not a stateful toggle; it has no on/off state to expose).
         const nameToggle = tag === 'button'
           && /toggle|tab|expand|collapse|filter|switch/i.test((e.className || '') + ' ' + (e.id || ''))
-          && !/\b(apply|submit|save|reset|clear|cancel|close|search|run|refresh|send|export|update|go)\b/i.test((e.innerText || '') + ' ' + (e.id || '') + ' ' + (e.className || ''));
+          && !/\b(apply|submit|save|reset|clear|cancel|close|search|run|refresh|send|export|update|go)\b/i.test((e.innerText || '') + ' ' + (e.id || '') + ' ' + (e.className || ''))
+          // a name that says where it goes ("Switch to Filipino") is an action, not a held state: aria-pressed on it
+          // would be false (assistant's language button, 2026-10-13)
+          && !/^(switch|change) to\b/i.test((e.getAttribute('aria-label') || '').trim());
         return role === 'tab' || role === 'switch' || e.hasAttribute('aria-expanded') || nameToggle;
       });
       const _st = _sf.filter(e => ['aria-pressed', 'aria-expanded', 'aria-selected', 'aria-checked', 'aria-disabled'].some(a => e.hasAttribute(a)) || e.hasAttribute('disabled'));
@@ -2879,12 +3034,14 @@
         + '|patakbuhin|sabihin|sagutin|suriin|tanggapin)\\b'
         // the REASSURANCE twins in their passive/future forms - the English half already counts
         // "will appear / lands here", and these are the shipped Filipino for exactly that.
-        + '|\\b(?:mapupuno|ipinapakita|itinatala)\\b'
+        + '|\\b(?:mapupuno|ipinapakita|itinatala|lilitaw)\\b'   // lilitaw: "will appear" (i18n/hive.json, 2026-10-13)
         , 'i');
       const _guide = (p) => _GUIDE_RE.test(p.textContent || '');
       // a POSITIVE/healthy zero-state is a SUCCESS, not a dead-end: "All caught up" (inbox-zero) and a
       // monitoring page's "no anomalies" (silence-is-golden) celebrate absence — no next step owed.
-      const _positive = (p) => /all caught up|all done|all set|up to date|all clear|no (fused )?anomal|nothing (pending|due|overdue)/i.test(p.textContent || '');
+      // + the shipped Filipino of "All caught up: no pending items." (i18n/hive.json), so good news reads as good news
+      // in both languages (2026-10-13)
+      const _positive = (p) => /all caught up|all done|all set|up to date|all clear|no (fused )?anomal|nothing (pending|due|overdue)|wala nang naghihintay|walang pending/i.test(p.textContent || '');
       // ★THE RECOVERY PATH WAS THE SIBLING, NOT THE PANEL (2026-09-10). hive's approval card reddened on
       // "Nothing to approve on this board." — but that sentence renders ONLY on the branch where work is
       // waiting ELSEWHERE, and the very same branch fills the adjacent #approval-list with "Also awaiting
@@ -3054,8 +3211,10 @@
       // to optimistically ack (achievements/plant-connections/audit-log are read dashboards) → NA.
       // a genuine WRITE submit — NOT a read rpc (get_*/list_* rpcs are reads, e.g. seller-profile's
       // get_seller_community_reputation is a lookup, not a submit to acknowledge).
-      const _writeOp = /\.insert\(|\.upsert\(|\.update\(|\.delete\(\s*\)|functions\.invoke\(/i.test(_srcPP)
-        || /\.rpc\(\s*['"](?!get_|list_|fetch_|v_|my_)/i.test(_srcPP);
+      // a known read-only rpc (_READ_RPCS, from the database) is renamed out of the write test's way
+      const _srcPPw = _srcPP.replace(/\.rpc\(\s*(['"])([a-z0-9_]+)\1/gi, (m, q, n) => (_READ_RPCS.has(n) ? '.readRpc(' + q + n + q : m));
+      const _writeOp = /\.insert\(|\.upsert\(|\.update\(|\.delete\(\s*\)|functions\.invoke\(/i.test(_srcPPw)
+        || /\.rpc\(\s*['"](?!get_|list_|fetch_|v_|my_)/i.test(_srcPPw);
       // `my_*` is this platform's convention for a CALLER-SCOPED LOOKUP (my_service_provider_ids(),
       // used inside RLS predicates), not a submit. Without it, achievements.html - a read-only trophy
       // dashboard this very comment lists as N/A - was graded 0% for "no instant acknowledgment" on a
@@ -3117,7 +3276,8 @@
       // glance, preattentive 2D-position), so the most-important number is seen first.
       if (_isDashboard) {
         const _nums = Array.from(document.querySelectorAll('*')).filter((e) => _vfd(e) && !_inChromeDD(e)
-          && /^[\d,.]+[%kKmM]?$/.test((e.childElementCount === 0 ? (e.textContent || '') : '').trim())
+          // units as K2/C4 read them (`nums`): a duration KPI ("9d" worst MTBF) is a number a person reads (2026-10-13)
+          && /^[\d,.]+\s*(?:%|[kKmM]|h|d|hrs)?$/.test((e.childElementCount === 0 ? (e.textContent || '') : '').trim())
           && parseFloat(getComputedStyle(e).fontSize) >= 20);
         if (_nums.length) {
           const _sized = _nums.map((e) => ({ e, fs: parseFloat(getComputedStyle(e).fontSize), top: e.getBoundingClientRect().top }));
@@ -3209,7 +3369,16 @@
       // DP1 · fake urgency / scarcity: manufactured pressure ("only 2 left!", "hurry", "selling fast",
       // "12 people viewing"). A REAL, dated deadline (an RFQ closing date, a PM due date) is factual and
       // is NOT this - so the detector matches only the manipulative phrasings, never a rendered date.
-      const _fakeUrgency = /only\s+\d+\s+(left|remaining|spots?|seats?)|hurry\b|act\s+now|selling\s+fast|going\s+fast|limited\s+time\s+(only|offer)|\d+\s+(people|others|users)\s+(are\s+)?(viewing|watching|looking)|almost\s+gone|don'?t\s+miss\s+out/i.test(_txt);
+      // ★DP1 IS SALES PRESSURE, AND MAINTENANCE PROSE KEPT TRIPPING IT (2026-10-13, critic batch). Three learn
+      // articles graded 0% (severity 4) on every walk: a risk table ("Critical - Act now: this is the asset the shift
+      // plan should open with"), a list of response levels ("keep watching, plan a check, act now") and plain prose
+      // ("which no amount of work on your part can hurry"). None of them sells anything. So "act now" counts only with
+      // a COMMERCIAL word within 60 characters (buy, order, price, discount, offer, deal, sale, subscribe, sign up,
+      // join, trial, register, checkout, cart), and "hurry" only as an imperative (sentence-initial, "hurry up",
+      // "hurry!"). Every other phrase in the list is pressure on its face and is unchanged.
+      // The rule lives in _salesUrgencyOnly (top of the file) so L1 applies the same test.
+      const _dpTxt = _salesUrgencyOnly(_txt);
+      const _fakeUrgency = /only\s+\d+\s+(left|remaining|spots?|seats?)|hurry\b|act\s+now|selling\s+fast|going\s+fast|limited\s+time\s+(only|offer)|\d+\s+(people|others|users)\s+(are\s+)?(viewing|watching|looking)|almost\s+gone|don'?t\s+miss\s+out/i.test(_dpTxt);
       out.push(M('DP1', 'No fake urgency or scarcity (manufactured pressure)', _fakeUrgency ? 0 : 1, 1,
         _fakeUrgency ? 'manufactured urgency/scarcity copy pressures the decision (a named deceptive pattern with regulatory enforcement)' : 'no manufactured urgency/scarcity pressure; any deadline shown is a real date'));
       // DP2 · confirmshaming: the DECLINE path is worded to shame the user out of declining

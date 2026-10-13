@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 176,
-    "total_calls": 102,
+    "files_scanned": 183,
+    "total_calls": 115,
     "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 304
+    "rpcs_known": 331
   },
   "per_file": [
     {
@@ -312,6 +312,10 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\asset-codes.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\audio-chain.ts",
       "issues": []
     },
@@ -360,7 +364,15 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\federated-consent.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\followups.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\gateway-trust.ts",
       "issues": []
     },
     {
@@ -392,11 +404,23 @@
       "issues": []
     },
     {
+      "file": "supabase\\functions\\_shared\\memory_age.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\model-calls.ts",
+      "issues": []
+    },
+    {
       "file": "supabase\\functions\\_shared\\numeric_provenance.ts",
       "issues": []
     },
     {
       "file": "supabase\\functions\\_shared\\observability.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\own-knowledge.ts",
       "issues": []
     },
     {
@@ -441,6 +465,10 @@
     },
     {
       "file": "supabase\\functions\\_shared\\tenant-context.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\_shared\\trace-reply.ts",
       "issues": []
     },
     {

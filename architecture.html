@@ -17,7 +17,13 @@
     // loopback = founder dev bypass; any public host requires isPlatformAdmin
     // (marketplace_platform_admins). Fail-CLOSED on any load/check error.
     (function () {
-      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1) return;
+      // ★THE LOOPBACK BYPASS OPENED THIS PAGE TO EVERY SIGNED-IN PERSON ON A LOCAL STACK (2026-10-13, Ian: "it seems that
+      // founder/admins function button or functions can still be seen by non-admins?" - a driver persona read this page
+      // in full). founder-console.html made its bypass opt-in on 2026-10-09; this copy of the same gate never followed.
+      // Opt-in now, the same way: localStorage.setItem('wh_local_founder', '1') on the founder's own machine. Seeded
+      // local admins (marketplace_platform_admins) pass the real check below and need nothing.
+      if (['127.0.0.1', 'localhost', '::1'].indexOf(location.hostname) !== -1
+          && (function () { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })()) return;
       document.documentElement.style.visibility = 'hidden';
       function deny() {
         document.body.innerHTML = '<div style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);">&larr; Back to WorkHive</a></p></div></div>';
@@ -268,7 +274,24 @@
     }
     .flow-table { width: 100%; border-collapse: collapse; }
     .flow-panel { overflow-x: auto; }   /* phone fit (2026-09-06): at 390px the 100%-wide tables squeezed headers into 3 lines; keep column widths and let the panel scroll sideways */
-    @media (max-width: 640px) { .flow-table { min-width: 640px; } }
+    /* ★A TWO-UP ROW WHOSE ITEMS COULD NOT GO BELOW 280px, INSIDE A 250px TRACK (phone-fit@320, 2026-09-29).
+       The nav-hub row is `display:flex;flex-wrap:wrap` with each panel `flex:1;min-width:280px` - the
+       min-width being the wrap trigger, which is the right idea. At 320 the row's content box is 250px, so
+       both panels held 280 and ran to x=344, 24px past the viewport. `min()` keeps the wrap point exactly
+       where it was (on any viewport with room, 280px is the smaller value) while letting the item fall back
+       to its track when there is less than 280 to give - the fixed floor was the only thing making this
+       unresponsive.
+       And `.flow-panel`'s `margin: 0 32px` was written for a FULL-WIDTH panel; on a flex item inside a row
+       that already has its own gap and outer padding it just eats 64px of a 250px track, so it is dropped
+       here. Scoped to `.flow-row >` so every standalone panel keeps the margin it was designed with. */
+    .flow-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+    .flow-row > .flow-panel { flex: 1; min-width: min(280px, 100%); margin-left: 0; margin-right: 0; }
+    /* 760, not 640, because the FILIPINO headers are longer (2026-09-29). The 640 above was measured
+       against the English; under FIL "Mga Risk Column (dapat i-verify sa bawat pagbabago)" needs 358px on
+       one line and its column only got 220, so the header stacked to three lines. The panel already
+       scrolls sideways - that is what the rule above buys - so a wider table costs scroll distance and
+       nothing else, and 760 gives that column ~261px, enough for two. */
+    @media (max-width: 640px) { .flow-table { min-width: 760px; } }
     .flow-table th {
       text-align: left;
       font-size: 12px;
@@ -327,7 +350,7 @@
   <link rel="stylesheet" href="tokens.css">
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). Locked by validate_pill_reserve.py. */
 body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
-<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/architecture.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v!=null&&el.textContent!==v)el.textContent=v;});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
+<script id="wh-fil-page">(function(){try{if(localStorage.getItem('wh_lang')!=='fil')return;}catch(e){return;}fetch('i18n/pages/architecture.fil.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(d){window.WH_FIL_PAGE_VISIBLE=d||{};function ap(){document.querySelectorAll('[data-i]').forEach(function(el){var v=window.WH_FIL_PAGE_VISIBLE[el.getAttribute('data-i')];if(v==null)return;if(!el.hasAttribute('data-i-en'))el.setAttribute('data-i-en',el.textContent);if(el.textContent!==v)el.textContent=v;if(v!==el.getAttribute('data-i-en'))el.lang='fil';});}function arm(){ap();var t=null;if(typeof MutationObserver==='function')new MutationObserver(function(){clearTimeout(t);t=setTimeout(ap,200);}).observe(document.body,{childList:true,subtree:true});window.addEventListener('load',ap);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arm);else arm();});})();</script>
 </head>
 <body>
 <main>
@@ -626,8 +649,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
   <!-- ═══════════════════════ NAV HUB STATUS ═══ -->
-  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
-    <div class="flow-panel" style="flex:1;min-width:280px;">
+  <div class="flow-row">
+    <div class="flow-panel">
       <div data-i="p_navhubregistrystatus_8744" class="flow-panel-header">Nav Hub Registry Status</div>
       <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
         <thead><tr><th>Page</th><th>In nav-hub.js</th><th>Match string</th></tr></thead>
@@ -646,7 +669,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </table>
     </div>
 
-    <div class="flow-panel" style="flex:1;min-width:280px;">
+    <div class="flow-panel">
       <div data-i="p_integrityauditlastrun_dbc2" class="flow-panel-header">Integrity Audit: Last Run 2026-04-18</div>
       <!-- table-name-allow: platform-architecture data flow table --> <table class="flow-table">
         <thead><tr><th data-i="p_check_4b5e">Check</th><th data-i="p_result_5faa">Result</th></tr></thead>
@@ -820,5 +843,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   window.addEventListener('resize', () => { setTimeout(drawArrows, 80); });
 </script>
 </main>
+<!-- AU/session hygiene (LXP-AU x assistive-tech, 2026-09-30). This page reads the identity keys
+     (wh_last_worker twice, wh_hive_id) and is reached from the Founder Tools panel on
+     founder-console.html, which carries the guard - so the console watched the session and the surfaces
+     it opens did not. session-timeout.js supplies the 15-minute prompt and the 60-minute HARD identity
+     clear that a shared plant tablet depends on; without it a founder could idle here and leave the next
+     person holding a signed-in session, with no announcement at all for anyone who cannot see the screen.
+     Only this member of the AV offline set is added - the other four are visible chrome and write
+     machinery, which this surface is genuinely without by design. Inert when signed out
+     (`!activeWorker()`); not precached, so no sw.js bump. -->
+<script defer src="session-timeout.js"></script>
 </body>
 </html>

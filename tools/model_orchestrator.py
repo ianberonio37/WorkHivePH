@@ -2,77 +2,63 @@
 """
 Phase 2: Free-Tier Model Orchestrator
 
-A/B tests and switches between multiple free-tier LLM models:
-- Groq Scout (meta-llama/llama-4-scout-17b-16e-instruct) — PRIMARY / baseline
-- Cerebras Qwen (qwen2.5-7b-instruct) — Fast, 2.5 family fine-tuning
-- Voyage AI (mistral-large-2411) — Strong reasoning, creative tasks
+A/B tests and switches between free-tier LLM models. Every call goes through the platform chain
+(tools/ai_chain.call_ai_chain, the Python mirror of supabase/functions/_shared/ai-chain.ts): a strategy only
+says which chain model to try FIRST, and the rest of the chain is the fallback.
 
-All three offer free tier with generous limits:
-  - Groq Scout: Fastest, lowest latency, proven baseline in voice
-  - Cerebras Qwen: Excellent for structured output, good for intent routing
-  - Voyage AI: Best reasoning, good for semantic depth questions
+REROUTED 2026-10-08. Each strategy used to call a provider directly, and none of them could answer: Groq Scout
+(meta-llama/llama-4-scout-17b-16e-instruct) was retired from Groq on 2026-09-10, "qwen" was Cerebras
+qwen2.5-7b-instruct (a name Cerebras never served, and Cerebras now answers 402 payment_required - it is off the
+platform), and "voyage"/"jina" pointed at embeddings companies with no chat endpoint at all. The strategy NAMES are
+kept for callers and map to the same chain models voice-model-call uses:
+
+  scout  -> qwen/qwen3.8-27b       (Groq; the chain's head)
+  qwen   -> mistral-small-latest   (Mistral)
+  voyage -> openai/gpt-oss-20b     (Groq)
+  jina   -> openai/gpt-oss-120b    (Groq)
 
 Configuration:
-  MODEL_STRATEGY: "scout" (default) | "qwen" | "voyage" | "round-robin" | "quality-based"
+  MODEL_STRATEGY: "scout" (default) | "qwen" | "voyage" | "jina"
   AI_EVAL_ENABLED: 1 (track quality metrics) | 0 (production default)
-
-Returns:
-  (model_name, api_url, headers, parsed_response)
 """
 
 import os
 import sys
-import json
-from typing import Optional, Tuple, Dict, Any
+from pathlib import Path
+from typing import Optional, Tuple, Dict
+
+_ROOT = str(Path(__file__).resolve().parent.parent)
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+STRATEGY_MODEL = {
+    "scout":  "qwen/qwen3.8-27b",
+    "qwen":   "mistral-small-latest",
+    "voyage": "openai/gpt-oss-20b",
+    "jina":   "openai/gpt-oss-120b",
+}
+
+
+def _entry_for(strategy: str) -> dict:
+    from tools.ai_chain import PROVIDER_CHAIN
+    model = STRATEGY_MODEL.get((strategy or "scout").lower(), STRATEGY_MODEL["scout"])
+    for e in PROVIDER_CHAIN:
+        if e["model"] == model:
+            return e
+    raise KeyError(f"{model} is not in tools/ai_chain.py PROVIDER_CHAIN - update STRATEGY_MODEL")
+
 
 def get_model_config(strategy: str = "scout") -> Tuple[str, str, Dict]:
     """
-    Get model, API endpoint, and headers for the specified strategy.
-
-    Args:
-        strategy: Model selection strategy (scout/qwen/voyage/jina/round-robin)
-
-    Returns:
-        (model_name, api_url, headers)
+    (model_name, chat_completions_url, headers) for a strategy - READ from the platform chain, never typed here.
     """
-    strategy = strategy.lower()
-
-    if strategy == "qwen":
-        return (
-            "qwen2.5-7b-instruct",
-            "https://api.cerebras.ai/v1/chat/completions",
-            {
-                "Authorization": f"Bearer {os.getenv('CEREBRAS_API_KEY', '')}",
-                "Content-Type": "application/json",
-            },
-        )
-    elif strategy == "voyage":
-        return (
-            "mistral-large-2411",
-            "https://api.voyage.ai/v1/chat/completions",
-            {
-                "Authorization": f"Bearer {os.getenv('VOYAGE_API_KEY', '')}",
-                "Content-Type": "application/json",
-            },
-        )
-    elif strategy == "jina":
-        return (
-            "jina-ai/reader",  # or other Jina LLM if available
-            "https://api.jina.ai/v1/chat/completions",
-            {
-                "Authorization": f"Bearer {os.getenv('JINA_API_KEY', '')}",
-                "Content-Type": "application/json",
-            },
-        )
-    else:  # Default to Scout
-        return (
-            "meta-llama/llama-4-scout-17b-16e-instruct",
-            "https://api.groq.com/openai/v1/chat/completions",
-            {
-                "Authorization": f"Bearer {os.getenv('GROQ_API_KEY', '')}",
-                "Content-Type": "application/json",
-            },
-        )
+    e = _entry_for(strategy)
+    headers = {
+        "Authorization": f"Bearer {os.getenv(e['env_key'], '')}",
+        "Content-Type": "application/json",
+        **e.get("extra_headers", {}),
+    }
+    return e["model"], f"{e['base_url']}/chat/completions", headers
 
 
 def call_model(
@@ -82,61 +68,15 @@ def call_model(
     temperature: float = 0.7,
 ) -> Optional[str]:
     """
-    Call the specified free-tier model and return the response text.
-
-    Args:
-        messages: OpenAI-format messages list
-        model_strategy: Which model to use (scout/qwen/sambanova)
-        max_tokens: Max tokens in response
-        temperature: Sampling temperature
-
-    Returns:
-        Response text, or None if call fails
+    Call the platform chain with this strategy's model tried first. Returns the answer text, or None when every
+    free model in the chain was rate-limited, refused or unkeyed. Which model actually answered:
+    tools.ai_chain.last_outcome()["served_by"].
     """
-    import requests
-
-    model_name, api_url, headers = get_model_config(model_strategy)
-
-    # Check that API key is configured
-    if not headers.get("Authorization") or "Bearer" not in headers.get("Authorization", ""):
-        print(
-            f"Warning: {model_strategy} API key not configured, skipping",
-            file=sys.stderr,
-        )
-        return None
-
-    try:
-        resp = requests.post(
-            api_url,
-            headers=headers,
-            json={
-                "model": model_name,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": temperature,
-            },
-            timeout=10,
-        )
-
-        if resp.status_code != 200:
-            print(
-                f"Model call failed ({model_strategy}): {resp.status_code}",
-                file=sys.stderr,
-            )
-            return None
-
-        data = resp.json()
-        answer = (
-            data.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-            .strip()
-        )
-
-        return answer if answer else None
-    except Exception as e:
-        print(f"Model call error ({model_strategy}): {e}", file=sys.stderr)
-        return None
+    from tools.ai_chain import call_ai_chain
+    model = _entry_for(model_strategy)["model"]
+    out = call_ai_chain("", messages=messages, max_tokens=max_tokens, temperature=temperature,
+                        json_mode=False, prefer_model=model, timeout=30)
+    return None if out == "{}" else (out.strip() or None)
 
 
 def call_with_fallback(
@@ -158,6 +98,7 @@ def call_with_fallback(
         (response_text, model_used)
     """
     if fallback_strategies is None:
+        # call_model already falls through the whole platform chain; these re-ask with a different model FIRST
         fallback_strategies = ["qwen", "voyage", "jina"]
 
     # Try primary

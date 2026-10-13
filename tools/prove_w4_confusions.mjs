@@ -22,6 +22,7 @@ import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import os from 'node:os';
+import { stubModelCalls } from './prover_harness.mjs';   // signs in through the UI, then opens shift-brain (C26): stub its load-time model call
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const AXIS = arg('--axis', 'phone-390 en');
@@ -90,6 +91,11 @@ const PRED = {
     window._whShowNotice('wh-w4-c15', 'Could not load your data. Check your connection and try again.', '88px');
     const n = document.getElementById('wh-w4-c15'); const close = n && n.querySelector('.wh-notice-close'); const cr = close && close.getBoundingClientRect();
     if (!close) return { ok: false, detail: 'the notice has no dismiss control (.wh-notice-close)' };
+    // ★THE NOTICE YIELDS TO THE OPEN SIGN-IN DIALOG (2026-10-12, the first MCP walk of C15): since C28 (2026-09-16) a
+    // notice hides while a visible dialog intersects it, and at 320 the sign-in dialog fills the screen - so it covers
+    // nothing, which is this confusion's point. A yielded notice passes when SSO is reachable; a shown one still needs
+    // its 44px dismiss that clears the SSO button.
+    if (getComputedStyle(n).display === 'none') { const sso = REACH('#si-sso-btn'); n.remove(); return { ok: sso.ok, detail: `the notice yields to the open sign-in dialog (hidden while the dialog covers it, C28); SSO ${sso.ok ? 'reachable' : 'covered by ' + sso.hit}` }; }
     if (cr.width < 44 || cr.height < 44) return { ok: false, detail: `dismiss control ${Math.round(cr.width)}x${Math.round(cr.height)} < 44` };
     const before = REACH('#si-sso-btn'); close.click();
     const gone = !document.getElementById('wh-w4-c15'); const after = REACH('#si-sso-btn');
@@ -166,6 +172,100 @@ const PRED = {
   C10: { stage: 'page', on: ['skillmatrix.html', 'ai-quality.html', 'alert-hub.html'], run: async (page, ctx) => { await ctx.context.setOffline(true); await page.waitForSelector('.wh-offline-banner', { state: 'visible', timeout: 8000 }).catch(() => {}); await page.waitForFunction(() => { const b = document.querySelector('.wh-offline-banner'); return !!b && b.getBoundingClientRect().height >= 20; }, null, { timeout: 6000 }).catch(() => {}); await page.waitForTimeout(500); /* the banner animates its height: measure it SETTLED, not mid-transition */ const r = await page.evaluate(() => { const b = document.querySelector('.wh-offline-banner'); const p = document.querySelector('#wh-wayfinding .wf-back'); if (!b || b.getBoundingClientRect().height === 0) return { ok: false, detail: 'the offline banner did not show' }; if (!p) return { ok: false, detail: 'no wayfinding pill on this page - C10 is not exercisable here' }; const bh = b.getBoundingClientRect().bottom, pt = p.getBoundingClientRect().top; const t = document.elementFromPoint(p.getBoundingClientRect().left + 10, pt + 10); return { ok: pt >= bh - 1 && (t === p || p.contains(t)), detail: `banner bottom ${Math.round(bh)}, pill top ${Math.round(pt)}, at the pill sits ${t ? (t.className || t.tagName) : null}` }; }); await ctx.context.setOffline(false); await page.waitForTimeout(800); return r; } },
   C11: { stage: 'page', on: ['assistant.html'], run: async (page) => page.evaluate(() => { const REACH = window.__W4_REACH; const pill = document.getElementById('wh-wayfinding'); const pillShown = !!pill && pill.getBoundingClientRect().height > 0 && getComputedStyle(pill).display !== 'none'; const own = [...document.querySelectorAll('button.back-link, .back-link')].find((b) => b.getBoundingClientRect().width > 0 && b.getBoundingClientRect().height > 0); if (!own) return { ok: false, detail: 'the page shows no VISIBLE owned back control (.back-link) on the screen it landed on' }; const r = REACH(own); return { ok: !pillShown && r.ok, detail: `wayfinding pill ${pillShown ? 'INJECTED' : 'absent'}; own back "${(own.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 20)}" ${r.ok ? 'reachable at its own centre' : 'covered by ' + r.hit}` }; }) },
   C12: { stage: 'page', on: ['hive.html'], run: async (page, ctx) => { await ctx.context.setOffline(true); await page.waitForSelector('.wh-offline-banner', { state: 'visible', timeout: 8000 }).catch(() => {}); await page.waitForFunction(() => { const b = document.querySelector('.wh-offline-banner'); return !!b && b.getBoundingClientRect().height >= 20; }, null, { timeout: 6000 }).catch(() => {}); await page.waitForTimeout(500); /* the banner animates its height: measure it SETTLED, not mid-transition */ const r = await page.evaluate(() => { const REACH = window.__W4_REACH; const b = document.querySelector('.wh-offline-banner'); if (!b || b.getBoundingClientRect().height === 0) return { ok: false, detail: 'the offline banner did not show' }; const nav = document.querySelector('nav.fixed, header.fixed'); if (!nav) return { ok: false, detail: 'no fixed nav/header on this page - C12 is not exercisable here' }; const link = nav.querySelector('a[data-wh-back], a, button'); if (!link) return { ok: false, detail: 'the fixed nav has no control' }; const r = REACH(link); const nt = nav.getBoundingClientRect().top, bh = b.getBoundingClientRect().bottom; return { ok: r.ok && nt >= bh - 1, detail: `banner bottom ${Math.round(bh)}, fixed nav top ${Math.round(nt)}; its first control ${r.ok ? 'reachable' : 'covered by ' + r.hit}` }; }); await ctx.context.setOffline(false); await page.waitForTimeout(800); return r; } },
+  // ── C29-C34 (2026-10-12): the last six ledger entries, each measuring the improvement its entry names ──────────────
+  C29: { stage: 'page', on: ['achievements.html'], run: async (page, ctx) => {
+    // the person's route on a phone: "Send feedback" in the hub (the FAB is consolidated into it); the FAB where shown
+    let via = 'the hub';
+    await ctx.openHub();
+    let opened = await page.evaluate(() => { const b = document.getElementById('wh-hub-open-feedback'); if (!b || !(b.checkVisibility && b.checkVisibility())) return false; b.click(); return true; });
+    if (!opened) { via = 'its button'; opened = await page.evaluate(() => { const f = document.getElementById('wh-feedback-fab'); if (!f || f.getBoundingClientRect().width === 0) return false; f.click(); return true; }); }
+    if (!opened) return { ok: false, detail: 'neither the hub\'s Send feedback nor a feedback button is shown on this page' };
+    await page.waitForTimeout(800);
+    const r = await page.evaluate(() => { const vw = document.documentElement.clientWidth; const p = document.getElementById('wh-feedback-panel'); if (!p) return null; const cs = getComputedStyle(p); const b = p.getBoundingClientRect(); const h = p.querySelector('h2, h3, [class*="title"]'); const hb = h ? h.getBoundingClientRect() : null; return { shown: cs.display !== 'none' && cs.visibility !== 'hidden' && b.width > 0, l: Math.round(b.left), r: Math.round(vw - b.right), vw, hl: hb ? Math.round(hb.left) : null, hr: hb ? Math.round(hb.right) : null }; });
+    await page.evaluate(() => { const c = document.querySelector('#wh-feedback-panel .wh-fb-close'); if (c) c.click(); });
+    await page.waitForTimeout(400);
+    if (!r || !r.shown) return { ok: false, detail: 'the feedback panel did not open' };
+    const inset = r.l >= 7.5 && r.r >= 7.5; const head = r.hl === null || (r.hl >= 0 && r.hr <= r.vw);
+    return { ok: inset && head, detail: `opened from ${via}: the feedback panel spans ${r.l}..${r.vw - r.r} in a ${r.vw}px viewport (${inset ? 'inset from both edges' : 'NOT inset from both edges'}); its header ${r.hl === null ? 'not found' : r.hl + '..' + r.hr + (head ? ', on screen' : ', CUT by the screen edge')}` };
+  } },
+  C30: { stage: 'page', on: ['achievements.html'], run: async (page) => {
+    // every REST read refused for ONE reload - an init script gated on a sessionStorage flag, the flag removed after
+    if (!page.__w4FailReads) {
+      await page.addInitScript(() => { try { if (sessionStorage.getItem('__w4FailReads') === '1') { const of = window.fetch; window.fetch = (i, init) => { const u = typeof i === 'string' ? i : ((i && i.url) || ''); return /\/rest\/v1\//.test(u) ? Promise.reject(new TypeError('Failed to fetch')) : of(i, init); }; } } catch (e) { void e; } });
+      page.__w4FailReads = true;
+    }
+    await page.evaluate(() => sessionStorage.setItem('__w4FailReads', '1'));
+    await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
+    let t = '';
+    for (let i = 0; i < 40; i++) { t = await page.evaluate(() => { const c = document.querySelector('.wh-source-chip'); return c ? (c.textContent || '').replace(/\s+/g, ' ').trim() : ''; }).catch(() => ''); if (/read failed|nabigo ang pagbasa/i.test(t)) break; await page.waitForTimeout(500); }
+    await page.evaluate(() => sessionStorage.removeItem('__w4FailReads')).catch(() => {});
+    await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
+    await page.waitForTimeout(3000);
+    if (!t) return { ok: false, detail: 'no source chip on this page' };
+    const failed = /read failed|nabigo ang pagbasa/i.test(t);
+    const fresh = /(read failed|nabigo ang pagbasa)\s*·\s*(live|recomputed|refreshed|updated)\b/i.test(t) || /refreshed on load/i.test(t);
+    const truth = /showing the last data loaded|ipinapakita ang huling na-load na data/i.test(t);
+    return { ok: failed && !fresh && truth, detail: `with every read refused the chip reads "${t.slice(0, 120)}"` };
+  } },
+  C31: { stage: 'page', on: ['achievements.html'], run: async (page, ctx) => {
+    await ctx.openHub();
+    const r = await page.evaluate(() => [...document.querySelectorAll('#wh-hub-mode .wh-hub-mode-btn')].filter((b) => b.checkVisibility && b.checkVisibility()).map((b) => { const q = b.getBoundingClientRect(); return [(b.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 14), Math.round(q.width), Math.round(q.height)]; }));
+    if (!r.length) return { ok: false, detail: 'no hub mode buttons visible' };
+    const small = r.filter(([, w, h]) => w < 44 || h < 44);
+    return { ok: small.length === 0, detail: small.length ? small.map(([t, w, h]) => `"${t}" ${w}x${h}`).join(' | ') + ' below the 44px floor' : `${r.length} mode buttons, each at least 44x44 (${r.map(([t, w, h]) => `${t} ${w}x${h}`).join(', ')})` };
+  } },
+  C32: { stage: 'page', on: ['achievements.html'], run: async (page) => {
+    const vp = page.viewportSize();
+    const measure = () => page.evaluate(() => { const vw = document.documentElement.clientWidth; const n = document.getElementById('wh-w4-c32'); if (!n) return null; const r = n.getBoundingClientRect(); return { l: Math.round(r.left), r: Math.round(vw - r.right), w: Math.round(r.width), vw, shown: getComputedStyle(n).display !== 'none' && r.width > 0 }; });
+    await page.evaluate(() => { if (typeof window._whShowNotice === 'function') window._whShowNotice('wh-w4-c32', 'Could not load part of this page. Check your connection and try again.', '88px'); });
+    await page.waitForTimeout(800);
+    const phone = await measure();
+    await page.setViewportSize({ width: 1280, height: 800 }); await page.waitForTimeout(1900);   // the notice re-measures at 500 / 1500 ms
+    const wide = await measure();
+    if (vp) await page.setViewportSize(vp); await page.waitForTimeout(600);
+    await page.evaluate(() => { const n = document.getElementById('wh-w4-c32'); if (n) n.remove(); });
+    if (!phone || !wide || !phone.shown || !wide.shown) return { ok: false, detail: 'the notice did not render (or stayed hidden) through _whShowNotice' };
+    const edge = phone.l <= 12 && phone.r <= 12;
+    const toast = wide.w <= 562 && wide.l > 600 && wide.r >= 8 && wide.r <= 40;
+    return { ok: edge && toast, detail: `at ${phone.vw}px the notice spans ${phone.l}..${phone.vw - phone.r} (${edge ? 'edge to edge' : 'NOT edge to edge'}); at 1280 it is ${wide.w}px wide, ${wide.r}px from the right edge (${toast ? 'a toast' : 'NOT a toast'})` };
+  } },
+  C33: { stage: 'page', on: ['alert-hub.html'], run: async (page) => { await page.waitForTimeout(1500); return page.evaluate(() => {
+    const alerts = [...document.querySelectorAll('.alert[data-alert-key]')].filter((a) => a.checkVisibility && a.checkVisibility());
+    if (!alerts.length) return { ok: false, detail: 'no alert on this page for this cast - C33 is not exercisable here' };
+    const byName = {}; const bare = []; let n = 0;
+    for (const a of alerts) {
+      const title = ((a.querySelector('.alert-title') || {}).textContent || '').trim();
+      const key = title + '|' + ((a.querySelector('.alert-msg') || {}).textContent || '').trim();
+      for (const c of a.querySelectorAll('.alert-action, .alert-dismiss')) {
+        if (!(c.checkVisibility && c.checkVisibility())) continue;
+        n++;
+        const name = (c.getAttribute('aria-label') || c.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!title || !name.includes(title)) bare.push(`"${name.slice(0, 40)}"`);
+        (byName[name] = byName[name] || new Set()).add(key);
+      }
+    }
+    const dup = Object.entries(byName).filter(([, ks]) => ks.size > 1).map(([nm, ks]) => `"${nm.slice(0, 40)}" x${ks.size}`);
+    return { ok: n > 0 && !bare.length && !dup.length, detail: `${alerts.length} alert(s), ${n} control(s); ${bare.length ? bare.length + ' do not name their alert (e.g. ' + bare[0] + ')' : 'every control names its alert'}; ${dup.length ? 'a name shared by different alerts: ' + dup.slice(0, 2).join(' | ') : 'no name shared by two different alerts'}` };
+  }); } },
+  C34: { stage: 'page', on: ['achievements.html', 'ai-quality.html'], run: async (page) => {
+    await page.waitForSelector('#wh-guide-link', { state: 'visible', timeout: 15000 }).catch(() => {});
+    const before = await page.evaluate(() => { const c = document.getElementById('wh-guide-link'); return c && c.getBoundingClientRect().width > 0 ? { w: Math.round(c.getBoundingClientRect().width), folded: c.getAttribute('data-wh-folded') === '1' } : null; });
+    if (!before) return { ok: false, detail: 'no page-guide chip painted on this page (nothing to fold)' };
+    await page.mouse.wheel(0, 300); await page.waitForTimeout(700);   // the first scroll folds it
+    const read = () => page.evaluate(() => { const c = document.getElementById('wh-guide-link'); const a = c && c.querySelector('a'); const ab = a ? a.getBoundingClientRect() : null; return { folded: !!c && c.getAttribute('data-wh-folded') === '1', w: c ? Math.round(c.getBoundingClientRect().width) : 0, aw: ab ? Math.round(ab.width) : 0, ah: ab ? Math.round(ab.height) : 0 }; });
+    if (!(await read()).folded) await page.waitForTimeout(8500);   // a page too short to scroll folds at 8 s
+    // AT REST: mid-scroll the chip stands down (display:none) wherever it would cover the page's own controls - a
+    // deliberate rule (learn-link.js) - so the fold is measured back at the top, where the person reads the numbers
+    await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(900);
+    const after = await read();
+    let unfolds = null;
+    if (after.folded && after.aw >= 44) {
+      await page.click('#wh-guide-link a', { timeout: 6000 }).catch(() => {}); await page.waitForTimeout(500);
+      unfolds = await page.evaluate(() => { const c = document.getElementById('wh-guide-link'); const a = c && c.querySelector('a'); return !!c && c.getAttribute('data-wh-folded') !== '1' && !!a && a.getAttribute('aria-expanded') === 'true'; });
+    }
+    const ok = after.folded && after.aw >= 44 && after.ah >= 44 && after.w <= 72 && unfolds === true;
+    return { ok, detail: `the chip was ${before.w}px wide${before.folded ? ' (already folded)' : ''}; at rest it is ${after.folded ? 'folded' : 'NOT folded'} to ${after.w}px, its link ${after.aw}x${after.ah}; a tap ${unfolds === true ? 'unfolds it' : unfolds === false ? 'did NOT unfold it' : 'was not tried'}` };
+  } },
 };
 
 const browser = await chromium.launch();
@@ -187,6 +287,7 @@ for (const t of rows) {
   const problems = []; const steps = []; let predicate = null;
   let waited = 0; while (freeGb() < 0.7 && waited < 120) { await new Promise((r) => setTimeout(r, 15000)); waited += 15; }
   const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, deviceScaleFactor: 1, locale: lang === 'fil' ? 'fil-PH' : 'en-PH', serviceWorkers: 'block' });
+  await stubModelCalls(context);
   const page = await context.newPage();
   await page.addInitScript({ content: AUDIT });
   await page.addInitScript({ content: 'window.__W4_REACH = ' + REACH.toString() + ';' });   // CDP-injected: no page CSP can refuse it

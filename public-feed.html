@@ -71,7 +71,7 @@
       font-size: 0.875rem; font-weight: 700; color: white;
     }
     .header-pill {
-      background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
+      background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25);   /* --wh-green's channel, not #22c55e (W46020) */
       color: var(--wh-green); font-size: 0.75rem; font-weight: 700; padding: 2px 8px;
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
     .header-btn {
@@ -125,16 +125,20 @@
        used the `background` shorthand, dragging image and position onto the clock for a colour
        change. All three now name the property their own state class changes, on the platform's
        duration and ease-out tokens. */
+    /* ★ONE CLASS, TWO JOBS (critique W46020, 2026-10-13). The card was rendered as `post-card cat-technical` - and
+       .cat-technical is the BADGE's chip style, declared after .post-card. So every card took its badge's tint as its own
+       background (and its text colour): fifteen posts became a run of blue, grey, violet and red slabs, each with a 3px
+       coloured stripe down its left edge - the side stripe DESIGN.md rules out ("accent borders are 1px tints of the
+       status hue, NEVER a thick coloured border-left"). The badge says the category; the card is one surface for every
+       post, and only a SAFETY post keeps a 1px tint of the red, so a hazard still stands out in the scroll. */
     .post-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
-      border-left: 3px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 0.875rem;
       padding: 1rem; margin-bottom: 0.75rem; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
     .post-card:hover { border-color: rgba(255,255,255,0.18); }
-    .post-card.cat-safety      { border-left-color: var(--wh-red); }
-    .post-card.cat-technical   { border-left-color: var(--wh-blue); }
-    .post-card.cat-announcement{ border-left-color: var(--wh-violet); }
+    .post-card.post-safety { border-color: rgba(248,113,113,0.35); }
+    .post-card.post-safety:hover { border-color: rgba(248,113,113,0.55); }
 
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
@@ -145,9 +149,9 @@
       font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .cat-general      { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.86); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
-    .cat-safety       { background: rgba(239,68,68,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
+    .cat-safety       { background: rgba(248,113,113,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
     .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
-    .cat-announcement { background: rgba(168,85,247,0.12); color: #d8b4fe; } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
+    .cat-announcement { background: rgba(167,139,250,0.14); color: var(--wh-violet-text, #C4B5FD); } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
     .post-time { font-size: 0.75rem; color:rgba(255,255,255,0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
     /* ★THE MEASURE RAN 98 CHARACTERS A LINE AT DESKTOP (2026-09-18, W46015 craft). .main caps at
@@ -287,8 +291,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const { data } = await _DB.auth.getSession();
       if (!data || !data.session) return;
-      const inHive = !!(localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id'));
-      const cta = document.querySelector('[data-i="pf_signin"]');
+      // the shared accessor (utils.js, loaded above): the same two keys in the same order, and safe when storage is blocked
+      const inHive = !!(typeof whHiveId === 'function' ? whHiveId()
+        : (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id')));
+      // ★FOURTH INSTANCE (2026-10-09, walked W4731 as David Velasco): the page intro gained its own conversion CTA
+      // (pf_join_cta "Sign in to post") and a sign-up door (pf_signup_cta) AFTER this block was written for the header's
+      // pf_signin - so a signed-in reader was still told to sign in, and to create an account they already have. Every
+      // signed-out CTA on the page is rewritten here; the sign-up door goes away for someone who is signed in.
+      const ctas = [...document.querySelectorAll('[data-i="pf_signin"], [data-i="pf_join_cta"]')];
+      const signupDoor = document.querySelector('[data-i="pf_signup_cta"]');
       const sub = document.querySelector('[data-i="pf_subtitle"]');
       // ★THE DICTIONARY PUT THE SIGNED-OUT LABEL BACK, AND THE HREF DID NOT AGREE WITH IT (2026-09-18,
       // W46017 copy). Both elements are written here from session state AND still carried data-i, so the
@@ -305,12 +316,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // dictionary from doing it.
       const _T = (en, fil) => (typeof _t === 'function' ? _t(en, fil)
                              : (document.documentElement.lang === 'fil' ? fil : en));
-      if (cta) {
+      ctas.forEach((cta) => {
         cta.removeAttribute('data-i');
+        // the arrow keeps its last word (W46020): under 400px the label may wrap (the 320 fix), and "→" alone on line two
         cta.textContent = inHive
-          ? _T('Post in your hive →', 'Mag-post sa hive mo →')
-          : _T('Join a hive to post →', 'Sumali sa hive para makapag-post →');
+          ? _T('Post in your hive →', 'Mag-post sa hive mo →')
+          : _T('Join a hive to post →', 'Sumali sa hive para makapag-post →');
         cta.setAttribute('href', inHive ? 'community.html' : 'hive.html');
+      });
+      if (signupDoor) { signupDoor.removeAttribute('data-i'); signupDoor.hidden = true; signupDoor.style.display = 'none'; }
+      // ★TWO "POST IN YOUR HIVE" AND A PARAGRAPH FOR SOMEONE ELSE (critique W46020, 2026-10-13). Signed in, both CTAs
+      // above became "Post in your hive ->" to community.html: the header's and the intro's, 170px apart. The header is
+      // sticky, so its copy stays in reach down the whole feed; the intro's duplicate goes. And the line under the
+      // buttons still opened "Signing in takes you to your hive's board" for a reader the subtitle had just told "You're
+      // signed in". (No dictionary carries these two keys, so the English below is what every reader saw before too.)
+      const introCta = document.querySelector('.page-intro [href="community.html"], .page-intro [href="hive.html"]');
+      if (introCta) { introCta.hidden = true; introCta.style.display = 'none'; }
+      const hailCta = document.querySelector('.page-intro a[href^="marketplace.html"]');
+      if (hailCta) hailCta.style.marginLeft = '0';
+      const hint = document.querySelector('.page-intro p:last-of-type');
+      if (hint && /Signing in takes you/.test(hint.textContent)) {
+        hint.removeAttribute('data-i');
+        hint.textContent = (inHive
+          ? 'What you post in your hive appears on your team’s board only, never here, unless you share it. '
+          : 'Joining a hive gives you its board: what you post there appears on your team’s board only, never here, unless you share it. ')
+          + 'Hailing a service publishes your job to nearby providers, who reply with quotes. You pick one, and you can cancel the request until then. You pay the provider directly; WorkHive never handles the money.';
+      }
+      const how = document.querySelector('[data-i="pf_how_body"]');
+      if (how) {
+        how.removeAttribute('data-i');
+        how.textContent = 'This feed is read-only and shows public hive posts. ' + (inHive
+          ? 'To post or reply, use your hive’s Community.'
+          : 'Join a hive to post or reply.');
       }
       if (sub) {
         sub.removeAttribute('data-i');
@@ -336,7 +373,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const d = (Date.now() - new Date(ts).getTime()) / 86400000;
     if (d < 7 && typeof whFmtAgo === 'function') return whFmtAgo(ts);
     if (typeof whFmtDate === 'function') return whFmtDate(ts);
-    return new Date(ts).toLocaleDateString();
+    return new Date(ts).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' });
   }
 
   function catClass(cat) {
@@ -353,7 +390,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   function renderCard(p) {
     const cc = catClass(p.category);
-    return `<div class="post-card ${cc}">
+    return `<div class="post-card${p.category === 'safety' ? ' post-safety' : ''}">
       <div class="post-meta">
         <span class="post-author">${escHtml(p.author_name)}</span>
         <span class="cat-badge ${cc}">${escHtml(catLabel(p.category))}</span>
@@ -513,10 +550,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); // G1 (FAMILY F3)
     // E3 provenance: source verified from this page's own read.
     var el = document.getElementById('pf-source-chip');
-    if (!el) { el = document.createElement('div'); el.id = 'pf-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f ? / f ||) */ (f ? f.parentElement : document.querySelector('.page') || document.body).insertBefore(el, f || null); }
+    if (!el) { el = document.createElement('div'); el.id = 'pf-source-chip'; var f = document.getElementById('wh-fresh-footer'); /* gid-allow: created at runtime by utils.js; access is null-guarded (f ? / f ||) */ (f ? f.parentElement : document.querySelector('.page') || document.querySelector('main') || document.body).insertBefore(el, f || null); }
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
       freshness: 'Live · refreshed on load',
       source: 'v_community_posts_truth (public posts only)',
+      // not "your": the query reads public posts from EVERY hive (see renderSourceChip's 2026-10-06 note)
+      possessive: false,
+      sourceLabel: 'public posts from WorkHive hives',
     });
   });
 </script>

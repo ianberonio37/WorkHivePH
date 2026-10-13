@@ -78,6 +78,7 @@
       + window.location.search + window.location.hash);
 
   let lastActivity = Date.now();
+  let _whIdleRestoreFocus = null;
   let modalShown = false;
 
   function bump() {
@@ -87,12 +88,27 @@
     if (modalShown) dismiss();
   }
 
+  /* ★THIS FILE'S OWN RULE, APPLIED TO ITS OWN IDENTITY READ (2026-09-30, LXP-AU x assistive-tech).
+     The header above says the sign-in URL is computed "inline rather than via utils.js: this file is
+     precached shell and must not depend on load order" - and then the one read the whole guard hinges on
+     went through whWorker(), which utils.js defines. utils.js is NOT in SHELL_FILES, so it is the one
+     dependency a service worker can never guarantee; and whWorker() is literally
+     `localStorage.getItem('wh_last_worker') || null` (utils.js:3970), so going through it buys nothing.
+     When it is absent the call THROWS, the catch returns '', and maybeShow()'s `if (!name) return`
+     makes the guard permanently INERT - no 15-minute prompt and no 60-minute hard identity clear -
+     while localStorage holds a real signed-in name. Measured live on architecture.html: mounted=true,
+     disabled=false, wh_last_worker="Gloria Tan", typeof whWorker="undefined", overlay never appeared.
+     That page loads utils.js dynamically after its founder-access check (and not at all on localhost,
+     which its own dev bypass short-circuits), so the tag alone was not enough. Reading the canonical
+     key directly costs nothing, changes nothing where utils.js is present, and removes the load-order
+     dependency the header already forbids. Also covers a dropped utils.js request on ANY page. */
   function activeWorker() {
     try {
-      return whWorker()
-        || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker()
-        || '';
-    } catch (_) { return ''; }
+      if (typeof whWorker === 'function') return whWorker() || '';
+    } catch (_) { /* empty-catch-allow: fall through to the direct read below */ }
+    try {
+      return localStorage.getItem('wh_last_worker') || '';
+    } catch (_) { return ''; /* storage blocked */ }
   }
 
   /* T8: the reason is a PARAMETER because this one function serves three different events - an
@@ -128,8 +144,25 @@
     if (!name) return;   // nothing to protect
 
     modalShown = true;
+    // ★A SESSION ABOUT TO END, AND NOTHING TOLD A SCREEN READER (LXP619, AU x assistive-tech, 2026-09-30).
+    // Walked live at 390 AND 1280 by tools/prove_lxp_au_session_identity.mjs: this overlay appeared over
+    // alert-hub with role=null, aria-modal=null, no accessible name, no aria-live, focus left on BODY and
+    // 163 focusables still tabbable behind a z-index 99999 layer. It renders "Are you still Gloria Tan?"
+    // perfectly for someone who can see it; for someone who cannot, a full-screen thing that will SIGN
+    // THEM OUT arrived silently. That is exactly the AU ask - "keep this page's identity honest when a
+    // session ends" - failing for the one persona the program had never asked (1 of 13 layers covered).
+    // ★AND IT IS DELIBERATELY NOT aria-modal, NOR FOCUS-TRAPPED. bump() dismisses this prompt on ANY
+    // activity - mousemove, keydown, scroll, click - because activity IS the answer it wants ("yes I'm
+    // still here"). aria-modal="true" asserts the background is inert, and trapping Tab would fight the
+    // mechanism's own contract; claiming either would be the same kind of false declaration as stamping
+    // lang="fil" on English text. role=alertdialog + a real name + moving focus is what makes it
+    // PERCEIVABLE without lying about what it is.
+    const _prevFocus = document.activeElement;
     const overlay = document.createElement('div');
     overlay.id = 'wh-idle-overlay';
+    overlay.setAttribute('role', 'alertdialog');
+    overlay.setAttribute('aria-labelledby', 'wh-idle-title');
+    overlay.setAttribute('aria-describedby', 'wh-idle-desc');
     overlay.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:99999',
       'display:flex', 'align-items:center', 'justify-content:center',
@@ -146,10 +179,10 @@
     ].join(';');
     card.innerHTML = `
       <div style="font-size:1.85rem;margin-bottom:0.4rem;">🛡️</div>
-      <h3 style="margin:0 0 0.4rem;font-size:1.0rem;font-weight:800;">${_esc(
+      <h3 id="wh-idle-title" style="margin:0 0 0.4rem;font-size:1.0rem;font-weight:800;">${_esc(
         _tt('Are you still ' + name + '?', 'Ikaw pa ba si ' + name + '?')
       )}</h3>
-      <p style="margin:0 0 1.1rem;font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.45;">
+      <p id="wh-idle-desc" style="margin:0 0 1.1rem;font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.45;">
         ${_esc(_tt(
           'This tablet has been idle for ' + _idleMins + ' minutes. Confirm you are still working, or sign out so the next worker can take over.',
           _idleMins + ' minuto nang walang ginagawa ang tablet na ito. Kumpirmahin na nagtatrabaho ka pa, o mag-sign out para makapasok ang susunod na manggagawa.'
@@ -163,9 +196,15 @@
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 
-    document.getElementById('wh-idle-continue').addEventListener('click', () => {
+    const _continue = document.getElementById('wh-idle-continue');
+    _continue.addEventListener('click', () => {
       bump(); dismiss();
     });
+    // Focus is what makes an alertdialog announce itself and its name. focus() fires none of the events
+    // bump() listens for, so moving it here cannot self-dismiss the prompt it just opened.
+    try { _continue.focus({ preventScroll: true }); } catch (_) { _continue.focus(); }
+    // and the person goes back where they were when it clears, rather than to the top of the document
+    _whIdleRestoreFocus = (_prevFocus && typeof _prevFocus.focus === 'function') ? _prevFocus : null;
     // no reason: this one was deliberate, and the sign-in screen should not explain it away
     document.getElementById('wh-idle-signout').addEventListener('click', () => clearIdentityHard());
   }
@@ -174,6 +213,12 @@
     const overlay = document.getElementById('wh-idle-overlay');
     if (overlay) overlay.remove();
     modalShown = false;
+    // Put focus back where the prompt took it from; a keyboard user who was mid-page should not be
+    // returned to the top of the document by an interruption they did not ask for.
+    if (_whIdleRestoreFocus) {
+      try { _whIdleRestoreFocus.focus({ preventScroll: true }); } catch (_) { /* empty-catch-allow: the element that had focus is gone from the DOM, so there is nothing to return to */ }
+      _whIdleRestoreFocus = null;
+    }
   }
 
   function tick() {

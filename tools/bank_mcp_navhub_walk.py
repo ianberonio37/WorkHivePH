@@ -39,6 +39,59 @@ ROOT = Path(__file__).resolve().parents[1]
 GATES = {"phone-390 en": "w4-nav-hub", "narrow-320 en": "w4-nav-hub-320-en", "phone-390 fil": "w4-nav-hub-390-fil"}
 
 
+def _navhub_entry_is_mine(last: str, today: str) -> bool:
+    return (last.startswith(f"[{today}]") and f"WALKED LIVE {today} via playwright-mcp (tools/record_mcp_walk.py)" in last
+            and "Walked through the Playwright MCP" in last)
+
+
+def promote_newest_mcp_claim(rid: str, registry: Path | None = None, mine_test=None) -> str:
+    """Move the MCP walk this run just banked to the FRONT of the row's basis, history kept after ' || '.
+
+    ★A RE-WALK THAT COULD NEVER CLOSE ITS ROW (2026-10-07). live_walk_manifest._newest_segment reads the row's
+    CURRENT claim as the text before the first ' || ' ("every banker PREPENDS"), and judges retraction on it. But
+    advance_trajectory, the sole basis writer, APPENDS with ' · '. Every nav-hub row's basis opens with its
+    2026-09-14 prover claim (tools/prove_w4_navhub.mjs, retracted 2026-09-15), so a fresh, genuine Playwright MCP
+    walk appended after it still read as resting on the retracted prover - all 60 English rows stayed OPEN after
+    clean MCP walks. Only the entry THIS run wrote is promoted: today's date, the playwright-mcp recorder, and this
+    banker's own sentence. An older appended entry - e.g. a 2026-09-16 driver re-bank labelled as MCP - is never
+    promoted, so the reader's protection against laundered receipts stands. Returns '' or why it did nothing.
+
+    mine_test(last_entry, today) -> bool names "the entry THIS run wrote" for another MCP banker (2026-10-13: the
+    W3-JN journey banker had never learned this step, so a clean MCP journey re-walk banked and still read OPEN -
+    the exact failure this function was written for, one banker over). Default: the nav-hub banker's sentence."""
+    import datetime as _dt
+    import os
+    import re
+    import tempfile
+    reg_path = registry or (ROOT / "trajectory_registry.json")
+    reg = json.loads(reg_path.read_text(encoding="utf-8"))
+    row = next((t for t in reg["trajectories"] if t.get("id") == rid), None)
+    if row is None:
+        return f"no row {rid}"
+    basis = row.get("basis") or ""
+    today = _dt.date.today().isoformat()
+    head = f"[{today}] pct -> "
+    if basis.startswith(head) and " || " in basis:
+        return "already first"
+    parts = re.split(r" · (?=\[\d{4}-\d{2}-\d{2}\])", basis)
+    last = parts[-1]
+    mine = (mine_test or _navhub_entry_is_mine)(last, today)
+    if len(parts) < 2 or not mine:
+        return "the newest entry is not this run's MCP walk - left as written"
+    row["basis"] = last + " || " + " · ".join(parts[:-1])
+    # ...and both readers must agree: the ledger reads the FRONT, validate_trajectory_registry rule 6 reads the LAST
+    # 'pct -> N'. When the history ends on another number, close the basis with one line restating the current pct.
+    said = re.findall(r"pct\s*(?:\d+\s*)?->\s*(\d+)", " ".join(row["basis"].split()), re.I)
+    if said and int(said[-1]) != int(row.get("pct") or 0):
+        row["basis"] += (f" · [{today}] pct -> {int(row.get('pct') or 0)} (the current claim is the MCP walk at "
+                         f"the front of this basis; the entries between are its history).")
+    fd, tmp = tempfile.mkstemp(dir=str(reg_path.parent), suffix=".tmp")
+    os.close(fd)
+    Path(tmp).write_text(json.dumps(reg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, reg_path)
+    return ""
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--id", required=True)
@@ -161,6 +214,8 @@ def main() -> int:
         if r.returncode != 0:
             print(f"  FAILED ({r.returncode}): {Path(cmd[1]).name}")
             return r.returncode
+    why = promote_newest_mcp_claim(a.id)
+    print("  newest claim first: " + ("yes" if not why else why))
     return 0
 
 

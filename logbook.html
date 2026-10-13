@@ -357,7 +357,14 @@
       color:rgba(255,255,255,0.80);
       user-select: none;
     }
-    .status-toggle input { display: none; }
+    /* ★OPEN / CLOSED WAS UNREACHABLE WITHOUT A MOUSE (2026-10-12, UFAI edge walk W4410). The radios were display:none and
+       the labels are not focusable, so Tab never landed on the status at all and a screen reader met an empty
+       radiogroup: a keyboard user could not close a job. The radios stay in the tab order and the accessibility tree,
+       only invisible; arrow keys switch them natively (the change handler restyles the labels), and the focused
+       choice shows its ring on the label a sighted keyboard user is looking at. */
+    .status-toggle { position: relative; }
+    .status-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+    .status-toggle input:focus-visible + label { outline: 2px solid var(--wh-orange, #F7A21B); outline-offset: -2px; }
     .status-toggle label.active-open {
       background: rgba(239,68,68,0.2);
       color: var(--wh-red);
@@ -482,6 +489,14 @@
       /* I1 (2026-09-05): the entries list grows as entries load (CLS 0.114 <- #entries-list); reserve its first-screen height */
     @media (min-width: 768px) { #entries-list { min-height: 480px; } }
     @media (max-width: 767px) { #entries-list { min-height: 360px; } }
+    /* ★THE RESERVE OUTLIVED THE READ (critique W45950, 2026-10-13). The 480px above is for entries that are COMING; when the
+       read comes back with none, the empty list kept its room and "No entries yet - Log Your First Repair", the one action
+       a new driver is offered, rendered BELOW it at y=999 on a 1280x800 screen - under the fold, beneath an empty box.
+       Once any list state shows, the list gives its room back and the state takes the same height: nothing below moves,
+       and the message sits at the top of the list area. Applies to the read-failed and no-results states alike. */
+    #entries-list:empty:has(~ :is(#empty-state, #no-results, #read-failed-state, #team-prompt):not(.hidden)) { min-height: 0; }
+    @media (min-width: 768px) { #entries-list:empty ~ :is(#empty-state, #no-results, #read-failed-state, #team-prompt):not(.hidden) { min-height: 480px; } }
+    @media (max-width: 767px) { #entries-list:empty ~ :is(#empty-state, #no-results, #read-failed-state, #team-prompt):not(.hidden) { min-height: 360px; } }
     /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
     [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
@@ -591,9 +606,9 @@
                with 516 entries saw "0 entries · 0 machines · 0 open" because the render aborted and
                the markup default survived. A 0 here is a claim about someone's work history; the
                honest default is "not known yet", which a successful read replaces. -->
-          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">—</span> <span class="text-white/80">entries</span></span>
-          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">—</span> <span id="machine-count-noun" class="text-white/80">assets</span></span>
-          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">—</span> <span class="text-white/80">open</span></span>
+          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold" aria-label="entries: unknown, not loaded">—</span> <span class="text-white/80">entries</span></span>
+          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold" aria-label="assets: unknown, not loaded">—</span> <span id="machine-count-noun" class="text-white/80">assets</span></span>
+          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold" aria-label="open jobs: unknown, not loaded">—</span> <span class="text-white/80">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
             <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="registerasset">Register Asset</span>
@@ -643,7 +658,9 @@
                the first one a new worker touches - carried none, so the questions it answers here
                (what happens to my entry, who sees it, what Open vs Closed costs) had nowhere to be
                asked. Native <details> so it needs no script and prints closed. -->
-          <details class="wh-help" style="margin:0 0 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px 16px;">
+          <!-- padding 12px like wh-help.css (2026-10-13, the W45945 craft walk): this page does not load that sheet, so this
+               inline copy is its only style, and it still carried the 10px the shared rule left behind on 2026-09-15 -->
+          <details class="wh-help" style="margin:0 0 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 16px;">
             <summary style="cursor:pointer; min-height:44px; display:flex; align-items:center; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.85);"><span data-i="howworks">How this page works</span></summary>
             <ul style="margin:8px 0 0; padding-left:18px; font-size:0.75rem; line-height:1.55; color:rgba(255,255,255,0.8);">
               <li><strong data-i="p_threesteps_75c6">Three steps</strong>: <span data-i="p_picktheassetandwhatkindofwor_79ce">pick the asset and what kind of work it was, describe the problem and what you did, then save. Your typing is kept as you go, so an interruption does not lose it.</span></li>
@@ -1204,6 +1221,12 @@
           <span id="offline-queue-count" class="ml-auto text-xs font-bold px-2 py-0.5 rounded-full hidden" style="background:rgba(247,162,27,0.2);color:var(--wh-orange-text);"></span>
         </div>
 
+        <!-- Parked offline work (2026-10-07): queued saves the server refused, or edits that would have overwritten a newer
+             version. Kept on this device and never resent blindly; each says why, in the server's own words, and offers
+             Open and fix / Discard. Filled by renderStuckPanel() - it is empty, and hidden, whenever nothing is parked.
+             Outside #offline-banner on purpose: parking happens ONLINE, while that banner is hidden. -->
+        <section id="lb-stuck-panel" class="hidden mb-3 rounded-xl px-4 py-3" aria-live="polite" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.3);"></section>
+
         <!-- Live team-activity badge (D3.2 INTERACTIVE_LINEAGE): a teammate logged
              a new entry in this hive. Tap-to-refresh keeps the team feed query-first
              (no surprise re-sort) while making cross-page reactivity VISIBLE. -->
@@ -1247,7 +1270,12 @@
         <div id="read-failed-state" class="text-center py-20 empty-state hidden" style="opacity:1;">
           <span class="ic ic-warn" aria-hidden="true"></span>
           <p data-i="p_couldnotloadyourlogbook_4bbd" class="text-sm text-white/90 font-semibold">Could not load your logbook.</p>
-          <p data-i="p_yourentriesareunknownrightno_68fa" class="text-xs text-white/80 mt-1">Your entries are unknown right now, not missing. Check your connection and reload before logging a repeat of work you may have already recorded.</p>
+          <!-- The STATIC default carries no cause, because at author time there is none to name: the runtime
+               replacement (search _rfMsg) inserts the real diagnosis - a 401, a 429, a server that did not
+               answer - and until it does, this is what a reader sees. It said "Check your connection", which
+               was measured on screen for ~40s at a true 1280 with PostgREST stopped and navigator.onLine TRUE.
+               The part that matters here - unknown is not missing, do not log a duplicate - needs no cause. -->
+          <p data-i="p_yourentriesareunknownrightno_68fa" class="text-xs text-white/80 mt-1">Your entries are unknown right now, not missing. Reload before logging a repeat of work you may have already recorded.</p>
           <!-- Retry must RE-ISSUE the read, not re-render the previous failure — renderEntries(true)
                calls loadEntries(), which is the request that failed. The distinction is the whole
                content of the retry_path oracle, and re-rendering is the defect commit 3ddef99d fixed
@@ -1326,7 +1354,8 @@
             </button>
             <div class="text-xs flex-1 leading-snug" style="color:rgba(255,255,255,0.80);">
               Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
-              <span id="a-scan-status" class="block mt-0.5" style="color:var(--wh-orange);"></span>
+              <!-- role=status (2026-10-12): "Scanning...", the fields filled and the failure were never announced -->
+              <span id="a-scan-status" class="block mt-0.5" role="status" aria-live="polite" style="color:var(--wh-orange);"></span>
             </div>
           </div>
         </div>
@@ -1645,6 +1674,31 @@ async function loadSyncedMachines() {
 }
 let _authUid    = null; // C3: populated at init from Supabase Auth session
 
+/* BRP-A (2026-10-04) — "MINE" ON A READ IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE.
+   This is the page Ian reported it on: "in the select an asset there is nothing there, but I can see it in
+   my asset hub". worker_name is a free display string from localStorage; bind_asset_nodes_submitter always
+   binds auth_uid but only overwrites the name when a hive_members row matches on hive_id = NEW.hive_id,
+   never true for a personal row - so the name freezes at write time while the uid stays correct, and one
+   character of drift empties the list with no error.
+
+   UNION, not swap, and the number is why: logbook carried auth_uid on 3,821 of 31,241 rows (12.2%) before
+   the same day's backfill, so a uid-only read would have hidden 88% of everyone's history. Rows written by
+   a service-role path still arrive unbound today and remain findable only by name.
+
+   One .or() rather than two merged queries: these callers carry deliberate ORDER BY, count and limit
+   clauses that merging result sets would discard, and .or() ANDs with the sibling filters so
+   `.is('hive_id', null).or(...)` still means `hive_id IS NULL AND (uid OR name)`.
+
+   Quoting via JSON.stringify, not a hand-rolled escape: the first two copies of this helper had their
+   backslashes halved by a shell heredoc and became /(["\])/, which throws on page load. */
+function _mineFilter() {
+  var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  if (!_authUid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+}
+function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))); }
+
 // C4: redirect deferred to async init — checks auth session first
 
 // ── Hive membership + role re-validation ─────────────────────────────────────
@@ -1682,7 +1736,20 @@ async function validateHiveMembership() {
     .from('hive_members')
     .select('role, status')
     .eq('hive_id', HIVE_ID)
-    .eq('worker_name', WORKER_NAME)
+    // ★THE ACCESS GATE KEYS ON THE IDENTITY (BRP-A, 2026-10-04) — and this one was LOAD-BEARING, not
+    // cosmetic. It used to ask `worker_name = WORKER_NAME`, where WORKER_NAME is localStorage text, so a
+    // person whose display name had drifted from the one stored on their membership row failed this
+    // check, the page gated them out, and initAssets() never ran. That is how the asset picker came up
+    // empty while Asset Hub stayed full: the real symptom is not a thin dropdown, it is being LOCKED OUT
+    // OF YOUR OWN HIVE. Found by a prover that passed and failed on alternate runs - the difference was
+    // only whether a hive was active, because with no hive this check is skipped entirely.
+    //
+    // auth_uid is safe here, measured rather than assumed: .maybeSingle() needs at most one row, and
+    // (hive_id, auth_uid) has NO duplicates (now enforced by the unique index in 20261004000003). The
+    // two hive_members rows carrying auth_uid NULL are seed FIXTURES with no auth user behind them
+    // ("Ben Reyes", and a kicked-member fixture), so keying on the uid locks out nobody real - whereas
+    // the union would have risked PGRST116 the moment one hive held two members sharing a name.
+    .eq('auth_uid', _authUid)
     .maybeSingle();
 
   if (error) {
@@ -1835,6 +1902,20 @@ let _teamSearched = false;
 let _teamLastDate = null;
 let _teamHasMore  = false;
 const TEAM_PAGE   = 30;
+// ★MINE MODE HAD A ROW CAP AND NO CURSOR, SO THE LABEL MISSTATED THE CORPUS AND THE OLD ENTRIES WERE
+// UNREACHABLE (2026-10-06, found by walking LXP215's HEALTHY control). The header pill read '2277
+// entries' while the list under it read 'Showing 20 of 200 entries' - 200 is the .limit() on the mine
+// read, i.e. a fact about the FETCH presented as the size of the person's own logbook - and Load More
+// hid itself at 200 because it only ever sliced the already-loaded window. A technician looking for
+// their repair from four months ago was told, in effect, that it does not exist.
+// T9 had ALREADY fixed this exact cap-as-total defect on THIS PAGE for the progress strip, using
+// _mineTrueTotal from a count:exact read - and the count label beside it was never taught. Same page,
+// same lesson, one of two consumers. So mine mode now carries the SAME keyset team mode already has
+// (cursor on `date`, hasMore when a page comes back full, append on Load More) rather than a second
+// invented pager, and the label prefers the TRUE total over the loaded window.
+let _mineHasMore  = false;
+let _mineLastDate = null;
+const MINE_PAGE   = 200;
 
 // ── Phase D3.2 (INTERACTIVE_LINEAGE_ROADMAP) — live team-activity badge ──
 // `logbook` is published in supabase_realtime + REPLICA IDENTITY FULL (mig
@@ -1890,9 +1971,15 @@ window.addEventListener('beforeunload', () => {
   if (_logbookRtChannel) { try { db.removeChannel(_logbookRtChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup */ } }
 });
 
-function loadMoreLogbook() {
+async function loadMoreLogbook() {
   if (_viewMode === 'team') { searchTeam(true); return; }
   _logbookDisplayCount += 20;
+  // Once the display counter has caught up with what is loaded, the next 20 have to be FETCHED -
+  // before this, Load More simply vanished at the 200-row cap and the rest of the person's own
+  // logbook had no route to the screen at all.
+  if (_logbookDisplayCount > _allEntries.length && _mineHasMore) {
+    await loadEntries(true);
+  }
   renderEntries(false);
 }
 
@@ -1925,8 +2012,11 @@ async function searchTeam(append = false) {
   const dateFrom  = document.getElementById('filter-date-from').value;
   const dateTo    = document.getElementById('filter-date-to').value;
 
+  // ★THE MAPPING BELOW READ wo_state / wo_assigned_to THAT THIS SELECT NEVER ASKED FOR (2026-10-07), so every
+  // team card's work-order badge was undefined. Both are now selected; validate_logbook.py checks every r.<col> the
+  // mapping reads is in this list, and that updated_at survives into the cached row (see the mine loader).
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, wo_state, wo_assigned_to')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -1949,7 +2039,10 @@ async function searchTeam(append = false) {
       query = query.or(`machine.ilike.%${_term}%,problem.ilike.%${_term}%,action.ilike.%${_term}%,knowledge.ilike.%${_term}%,root_cause.ilike.%${_term}%`);
     }
   }
-  if (append && _teamLastDate) query = query.lt('date', _teamLastDate);
+  // .lte for the same reason as the mine pager above: `date` is not unique, so an exclusive cursor
+  // steps over every row sharing the boundary timestamp. This pager had the defect first; the dedupe
+  // below is what makes the overlap free.
+  if (append && _teamLastDate) query = query.lte('date', _teamLastDate);
 
   const { data, error } = await query;
   if (error) { showToast(whReadError(error, 'the team search')); return; }
@@ -1961,18 +2054,28 @@ async function searchTeam(append = false) {
     downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
     asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
     closed_at: r.closed_at || null, created_at: r.created_at || null,
+    updated_at: r.updated_at || null,   // the edit path's optimistic-lock snapshot (see the mine loader's ★ note)
     tasklist_acknowledged: r.tasklist_acknowledged || false,
     tasklist_note: r.tasklist_note || null,
     failure_consequence: r.failure_consequence || null,
     readings_json: r.readings_json || null,
     production_output: r.production_output || null,
+    // Selected and then dropped, like updated_at: openEditModal fills the form from THIS row, so an edit opened from
+    // the team view saw no LOTO record, left f-loto unchecked and saved loto_applied=false / permit_reference=null -
+    // erasing the safety-isolation record of the entry being amended (2026-10-07).
+    loto_applied: r.loto_applied || false,
+    permit_reference: r.permit_reference || null,
     worker_name: r.worker_name,
     wo_state: r.wo_state || null,
     wo_assigned_to: r.wo_assigned_to || null,
   }));
 
-  _teamEntries = append ? [..._teamEntries, ...mapped] : mapped;
+  const _seen = append ? new Set(_teamEntries.map(e => e.id)) : new Set();
+  const _fresh = mapped.filter(r => !_seen.has(r.id));
+  _teamEntries = append ? [..._teamEntries, ..._fresh] : mapped;
   _teamHasMore = mapped.length === TEAM_PAGE;
+  // nothing new came back, so the inclusive cursor has nothing further to reach (see the .lte note)
+  if (append && !_fresh.length) _teamHasMore = false;
   if (mapped.length) _teamLastDate = mapped[mapped.length - 1].date;
 
   // T129 (2026-08-25, found on the aged-hive fixture): a zero-result team search rendered
@@ -2036,8 +2139,8 @@ async function loadTeamMembers() {
   // only when no search has run and the fields are untouched; the scoped-zero card's
   // "Search all history" widen button stays as the recovery for the browse path.
   if (!_teamSearched && !document.getElementById('filter-date-from').value) {
-    const today   = new Date().toISOString().slice(0, 10);
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    const today   = whManilaYmd();
+    const weekAgo = whManilaYmd(new Date(Date.now() - 7 * 86400000));
     document.getElementById('filter-date-from').value = weekAgo;
     document.getElementById('filter-date-to').value   = today;
   }
@@ -2118,10 +2221,155 @@ async function updateOfflineBadge() {
   } else {
     badge.classList.add('hidden');
   }
+  renderStuckPanel(pending);
+}
+
+// ── Parked offline work: what the drain refused to resend, and why (2026-10-07) ──
+// The badge above only says "N stuck", and only inside the OFFLINE banner - which is hidden at exactly the moment
+// parking happens (the drain runs online). So a refused entry was kept on the device with its reason stored and
+// nowhere on screen. This lists each parked item with the sentence it was parked with (the server's own, via
+// whWriteError, or explainZeroRowWrite's for an edit that lost a race) and the two things a person can do about it.
+// Scoped to the active hive exactly like the feed merge (LB17): opening a parked item from another hive here would
+// save it under this one.
+function renderStuckPanel(pending) {
+  const panel = document.getElementById('lb-stuck-panel');
+  if (!panel) return;
+  const _hiveOf = (p) => (p && p._queueOp === 'update' ? (p.updates || {}).hive_id : p.hive_id);
+  const parked = (pending || []).filter(p => p && p._stalled)
+    .filter(p => { const h = _hiveOf(p); return !HIVE_ID || h === HIVE_ID || h == null; });
+  if (!parked.length) { panel.classList.add('hidden'); panel.innerHTML = ''; return; }
+  const e = escHtml;
+  const rows = parked.map(p => {
+    const isEdit = p._queueOp === 'update';
+    const src = isEdit ? (p.updates || {}) : p;
+    const when = (p.date || src.date) ? new Date(p.date || src.date).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : '';
+    const what = (isEdit ? 'Edit to ' : 'New entry: ') + (src.machine || 'an entry') + (when ? ' (' + when + ')' : '');
+    return `<li class="rounded-lg px-3 py-2" style="background:rgba(0,0,0,0.18);">
+        <p class="text-xs font-semibold" style="color:var(--wh-orange-text);">${e(what)}</p>
+        <p class="text-xs text-white/90 mt-1">${e(p._stallReason || 'The server did not accept this, so it was not saved.')}</p>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <button type="button" class="btn-secondary text-xs px-3" style="min-height:44px;" data-stuck-act="fix" data-stuck-id="${e(p.id)}">Open and fix</button>
+          <button type="button" class="btn-secondary text-xs px-3" style="min-height:44px;" data-stuck-act="discard" data-stuck-id="${e(p.id)}">Discard</button>
+        </div>
+      </li>`;
+  }).join('');
+  panel.innerHTML = `<p class="text-xs font-bold" style="color:var(--wh-orange-text);">${e(parked.length === 1
+      ? '1 offline save was not synced. It is kept on this device.'
+      : parked.length + ' offline saves were not synced. They are kept on this device.')}</p>
+    <ul class="mt-2 space-y-2">${rows}</ul>`;
+  panel.classList.remove('hidden');
+}
+
+// One delegated listener, bound in JS rather than inline (the CSP note at logbookRetryRead applies here too).
+document.addEventListener('click', async function (ev) {
+  const btn = ev.target && ev.target.closest ? ev.target.closest('#lb-stuck-panel [data-stuck-act]') : null;
+  if (!btn) return;
+  const id = btn.getAttribute('data-stuck-id');
+  let item = null;
+  try { item = (await getPendingEntries()).find(p => p.id === id && p._stalled) || null; }
+  catch (e) { console.error('stuck panel: queue read failed', e); }
+  if (!item) { await updateOfflineBadge(); return; }
+  if (btn.getAttribute('data-stuck-act') === 'discard') {
+    const ok = await window.whConfirm('Discard this offline save? It was never saved to the server, so it will be gone.',
+      { okLabel: 'Discard', cancelLabel: 'Keep it' });
+    if (!ok) return;
+    await removeFromQueue(id);
+    await updateOfflineBadge();
+    showToast('Discarded. Nothing was saved to the server.');
+    return;
+  }
+  await openParkedItem(item);
+});
+
+// Open a parked item in the edit form so the person can correct it and save it again.
+//  - A parked NEW entry opens as a still-queued entry (_offline): saveEditFromForm puts the corrected payload back in
+//    the queue and, online, drains it at once - an INSERT, which is what it still needs.
+//  - A parked EDIT opens over the row as it is NOW, with the person's offline values filled in and a FRESH
+//    updated_at snapshot, so they see the newer version they would be replacing and saving is their choice. The
+//    parked item is removed once that save lands (saveEditFromForm, _editingParkedId).
+async function openParkedItem(item) {
+  if (item._queueOp !== 'update') {
+    const payload = Object.fromEntries(Object.entries(item).filter(([k]) => k.charAt(0) !== '_'));
+    await openEditModal(item.id, { ...payload, _offline: true });
+    return;
+  }
+  if (!navigator.onLine) { showToast('Connect to the internet to compare this edit with the saved entry.', '⚠️'); return; }
+  const { data: cur, error } = await db.from('logbook').select('*').eq('id', item.id).maybeSingle();
+  if (error) { showToast(whWriteError(error, 'Could not read the saved entry. Try again.'), '⚠️'); return; }
+  if (!cur) { showToast('That entry no longer exists. It was deleted. Discard this edit, or log it as a new entry.', '⚠️'); return; }
+  await openEditModal(item.id, { ...cur, ...(item.updates || {}), updated_at: cur.updated_at, _prevAssignee: cur.wo_assigned_to || '' });
+  _editingParkedId = item.id;
+  showToast('Your offline changes are filled in over the latest saved version. Check them, then save.');
+}
+
+// ── What a failed queued write MEANS: retry later, or stop and tell the person (2026-10-07) ──
+// supabase-js puts the HTTP status on the RESPONSE, not on the error, and 401 vs 403 is the whole difference between
+// "sign in again, then it will go" and "refused". Carry it across so the classifier below can read it.
+function _lbQueueError(r) {
+  if (!r || !r.error) return null;
+  const x = r.error;
+  return { code: x.code != null ? String(x.code) : '', message: x.message || '', details: x.details || null,
+           hint: x.hint || null, status: r.status != null ? r.status : (x.status != null ? x.status : null) };
+}
+
+// A REFUSAL is the server answering NO to this exact payload - sending it again gets the same NO, so it is parked and
+// explained. Everything else can clear by itself and keeps retrying: no answer at all (status 0), a dead session
+// (whIsAuthFailure - signing in clears it), a timeout, a rate limit, a server fault, the daily free limit (54000,
+// resets at midnight), PostgREST unable to reach the database (PGRST000-003).
+async function _lbIsRefusal(err) {
+  if (!err) return false;
+  const code = String(err.code || ''), status = Number(err.status) || 0;
+  if (typeof whIsAuthFailure === 'function' && whIsAuthFailure(err)) return false;
+  if (code === '54000' || /^PGRST00\d$/.test(code)) return false;
+  const refused = code === '42501' || code === 'P0001' || /^2[23][0-9A-Z]{3}$/.test(code)
+    || /^42(703|P01|804|883)$/.test(code) || /^PGRST[12]\d\d$/.test(code)
+    || (status >= 400 && status < 500 && status !== 408 && status !== 429);
+  if (!refused) return false;
+  // T38's rule, applied to the drain: a write from a session that has died also comes back 42501 (RLS with no user
+  // behind it). That is a session event, not a verdict on the entry - keep it queued for after sign-in.
+  if (code === '42501') {
+    try { const { data } = await db.auth.getUser(); if (!data || !data.user) return false; }
+    catch (_) { return false; }
+  }
+  return true;
+}
+
+// A queued insert answered 23505 (logbook's only unique key is its primary key): if the row with this id is ours,
+// an earlier drain's insert LANDED and only its reply was lost, so the entry is saved, not refused.
+async function _lbQueuedInsertLanded(id) {
+  try {
+    const { data, error } = await db.from('logbook').select('id, auth_uid').eq('id', id).maybeSingle();
+    return !error && !!data && (!_authUid || !data.auth_uid || data.auth_uid === _authUid);
+  } catch (_) { return false; }
 }
 
 // ── Drain queue when connection returns ──
+// ★AN OFFLINE SAVE MUST MEET THE SAME RULES AS AN ONLINE ONE (2026-10-07, four gaps on this one function):
+//  1. A queued EDIT replayed with no updated_at check, so an edit made in a dead zone overwrote whatever another
+//     session had saved since - the exact overwrite the online save refuses (saveEditFromForm's optimistic lock). The
+//     queued edit now carries the snapshot it was made from (_snapshot) and replays with .eq('updated_at', it); a row
+//     that moved on matches 0 rows and is PARKED with explainZeroRowWrite's sentence, the one the online save shows.
+//     An edit with no snapshot cannot be checked, so it is parked too - never written unguarded.
+//  2. A queued NEW entry that named an assignee synced without telling them. The online insert calls
+//     notify_wo_assigned; so does the drain now, once the insert has landed (and for a queued edit that changed the
+//     assignee, as the online edit does).
+//  3. A queued write the server REFUSED (42501 from the approval guard, a 23514 check, ...) stayed queued and was
+//     resent on every reconnect forever, with nothing said. It is now parked with the server's own sentence
+//     (whWriteError) and listed in #lb-stuck-panel with Open and fix / Discard; failures that can clear by
+//     themselves stay queued and retry (_lbIsRefusal).
+//  4. Two 'online' events (or the load-time drain and an 'online' event) could run two drains over one queue and send
+//     the same entry twice; _lbDraining makes the second wait, and _lbDrainAgain runs ONE more pass after the first,
+//     so work queued meanwhile (a parked entry just corrected) is not left until the next reconnect.
+let _lbDraining = false, _lbDrainAgain = false;
 async function syncOfflineQueue() {
+  if (_lbDraining) { _lbDrainAgain = true; return; }
+  _lbDraining = true;
+  try {
+    do { _lbDrainAgain = false; await _drainOfflineQueue(); } while (_lbDrainAgain);
+  } finally { _lbDraining = false; }
+}
+
+async function _drainOfflineQueue() {
   let pending;
   try { pending = await getPendingEntries(); }
   catch (e) { // P14: queue read failed — skip this drain, retry on next reconnect
@@ -2129,12 +2377,17 @@ async function syncOfflineQueue() {
     return;
   }
   if (!pending.length) return;
-  let synced = 0, unapplied = 0, stallReason = '';
+  let synced = 0, unapplied = 0, refused = 0, stallReason = '', refusedReason = '';
   for (const p of pending) {
     if (p._stalled) continue;   // dead-lettered: retrying can't help, and it must not read as pending work
-    const { _offline, _queueOp, _stalled, _retryCount, ...rest } = p; // rest retains worker_name and hive_id
-    let error, unconfirmed = false;
-    if (_queueOp === 'update') {
+    const { _queueOp, _snapshot, _prevAssignee } = p;
+    // Only the queue's own bookkeeping starts with "_" (_offline, _queueOp, _snapshot, _stallReason ...); no logbook
+    // column does. Stripping by prefix rather than by a list means a new bookkeeping key can never reach the INSERT.
+    const rest = Object.fromEntries(Object.entries(p).filter(([k]) => k.charAt(0) !== '_')); // keeps worker_name and hive_id
+    let error = null, unconfirmed = false, parkWhy = '';
+    if (_queueOp === 'update' && !_snapshot) {
+      parkWhy = 'This edit could not be checked for newer changes, so it was not applied. Open it, check it against the saved entry and save again.';
+    } else if (_queueOp === 'update') {
       // Offline edit — apply update to existing DB row.
       // LB7 (2026-07-28): ask for the row back. A PostgREST update matching ZERO rows returns
       // { error: null, status: 204 }, so the old `if (!error)` treated "changed nothing" as
@@ -2146,15 +2399,43 @@ async function syncOfflineQueue() {
       // cannot actually edit. This mirrors the 0-row guard the ONLINE edit path already has
       // (saveEditFromForm), rather than inventing a second convention.
       const { id, updates } = rest;
-      const r = await db.from('logbook').update(updates).eq('id', id).eq('worker_name', WORKER_NAME).select('id');
-      error = r.error;
-      if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
+      try {
+        const r = await db.from('logbook').update(updates).eq('id', id)
+          // BRP-A: the ownership guard is the IDENTITY, not the display name. RLS (logbook_update)
+          // already enforces auth_uid = auth.uid(), so a name filter could never make this safer - only
+          // add a way to match nothing. The `unconfirmed` branch directly below has been catching
+          // exactly that for anyone whose display name drifted from the one stored on their own row.
+          .eq('auth_uid', _authUid)
+          // The optimistic lock, replayed: the row must still be the version this edit was made from.
+          .eq('updated_at', _snapshot)
+          .select('id, updated_at');
+        error = _lbQueueError(r);
+        if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
+      } catch (x) { error = { code: '', message: String(x && x.message || x), status: 0 }; }   // no answer: retry later
+      // T108's nudge, as the online edit sends it: only when this edit CHANGED the assignee (re-saving the same name
+      // must not re-notify), and only once the write is confirmed.
+      if (!error && !unconfirmed && updates && updates.wo_assigned_to && updates.wo_assigned_to !== (_prevAssignee || '')) {
+        try { db.rpc('notify_wo_assigned', { p_entry_id: String(id) }).then(() => {}, () => {}); }
+        catch (_) { /* empty-catch-allow: the edit stands; the nudge is best-effort */ }
+      }
     } else {
       // Offline new entry — insert
-      ({ error } = await db.from('logbook').insert(rest)); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid (line ~1809) */
-      if (!error) embedFaultEntry({ ...rest });
+      try {
+        const r = await db.from('logbook').insert(rest); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid (line ~1809) */
+        error = _lbQueueError(r);
+      } catch (x) { error = { code: '', message: String(x && x.message || x), status: 0 }; }   // no answer: retry later
+      if (error && error.code === '23505' && await _lbQueuedInsertLanded(rest.id)) error = null;   // saved earlier, reply lost
+      if (!error) {
+        embedFaultEntry({ ...rest });
+        // The online insert's nudge (addEntry): a NEW entry assigned to someone tells them. It was silent for every
+        // entry created offline, i.e. for exactly the dead-zone jobs that most need a hand-off.
+        if (rest.wo_assigned_to) {
+          try { db.rpc('notify_wo_assigned', { p_entry_id: String(rest.id) }).then(() => {}, () => {}); }
+          catch (_) { /* empty-catch-allow: the entry stands; the nudge is best-effort */ }
+        }
+      }
     }
-    if (!error && !unconfirmed) {
+    if (!error && !unconfirmed && !parkWhy) {
       await removeFromQueue(p.id);
       synced++;
     } else if (unconfirmed) {
@@ -2165,9 +2446,25 @@ async function syncOfflineQueue() {
       await queueEntryOffline({ ...p, _stalled: true, _retryCount: (p._retryCount || 0) + 1, _stallReason: why });
       unapplied++;
       if (!stallReason) stallReason = why;
+    } else if (parkWhy) {
+      await queueEntryOffline({ ...p, _stalled: true, _retryCount: (p._retryCount || 0) + 1, _stallReason: parkWhy });
+      unapplied++;
+      if (!stallReason) stallReason = parkWhy;
+    } else if (await _lbIsRefusal(error)) {
+      // The server said no to this payload. Park it with ITS sentence (a guard that explains itself - "Supervisor
+      // role required to approve/assign/verify ..." - is shown as written; a raw constraint name is not).
+      const why = whWriteError(error, 'The server would not accept this entry as it is, so it was not saved. Open it, correct it and save again.');
+      console.error('[logbook.queue] refused, parked', { id: p.id, error });
+      await queueEntryOffline({ ...p, _stalled: true, _retryCount: (p._retryCount || 0) + 1, _stallReason: why });
+      refused++;
+      if (!refusedReason) refusedReason = why;
+    } else {
+      // Transient: no answer, a dead session, a limit, a server fault. Left exactly as queued; the next reconnect
+      // (or the next page load) sends it again.
+      console.warn('[logbook.queue] not sent, will retry', { id: p.id, error });
     }
   }
-  if (synced || unapplied) {
+  if (synced || unapplied || refused) {
     _allEntries = _allEntries.filter(e => !e._offline && !e._pending_edit);
     await updateOfflineBadge();
     if (synced) showToast(_t(`${synced} offline ${synced === 1 ? 'change' : 'changes'} synced.`,
@@ -2178,6 +2475,10 @@ async function syncOfflineQueue() {
         `${stallReason} Your text is kept on this device.`,
         `${unapplied} offline na edit ang hindi naipatupad. ` +
         `${stallReason} Nananatili ang teksto mo sa device na ito.`), '⚠️');
+    }
+    if (refused) {
+      showToast(`${refused} offline ${refused === 1 ? 'save was' : 'saves were'} refused by the server: ${refusedReason} ` +
+        'Kept on this device - open it from the list above the feed to fix it, or discard it.', '⚠️');
     }
     await renderEntries();
   }
@@ -2231,7 +2532,7 @@ async function explainZeroRowWrite(id) {
   }
 }
 
-async function loadEntries() {
+async function loadEntries(append = false) {
   // Mine-mode only. Team mode uses searchTeam().
   // G1 (FF1): canonical skeleton while the query is in flight — first load only,
   // so refresh cycles don't blank an already-rendered list.
@@ -2249,12 +2550,24 @@ async function loadEntries() {
   // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
   if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
-    .eq('worker_name', WORKER_NAME)
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, wo_state, wo_assigned_to')
+    .or(_MINE())
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-    .limit(200); // L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
+    .limit(MINE_PAGE); // L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+  // The keyset step. ★IT IS .lte, NOT .lt, AND THAT IS THE WHOLE POINT (measured 2026-10-06).
+  // `date` is a timestamptz but it is NOT unique: 527 of Bryan Garcia's own dates carry more than one
+  // row and the largest tie is 7 (12 table-wide). The declared ordering is `date desc, id asc`, so an
+  // EXCLUSIVE cursor on `date` alone skips every remaining row that shares the boundary timestamp -
+  // checked against the database at every 200-row boundary of a real 2,277-entry logbook, and boundary
+  // 600 silently drops one entry. A dropped row here is a repair a technician cannot find, with nothing
+  // on screen to say anything is missing.
+  // An inclusive cursor re-reads the boundary ties instead of stepping over them, and the _heldIds set
+  // below discards the few duplicates - cheaper and far less fragile than building a compound
+  // `or=(date.lt.D,and(date.eq.D,id.gt.ID))` filter out of a microsecond timestamp and a uuid, where a
+  // mis-encoded '+' in the zone offset would shift the boundary silently.
+  if (append && _mineLastDate) query = query.lte('date', _mineLastDate);
 
   const { data, error } = await query;
   // The toast alone was measured insufficient: it fires ~154ms after load and is GONE by 13s, while the
@@ -2317,9 +2630,29 @@ async function loadEntries() {
   const pendingUpdates = live.filter(p => p._queueOp === 'update');
   const insertIds      = new Set(pendingInserts.map(p => p.id));
   const updateMap      = Object.fromEntries(pendingUpdates.map(p => [p.id, p.updates]));
+  // hasMore and the cursor are read off the SERVER page, not off _allEntries: the merged array also
+  // holds pending offline inserts, whose dates would move the cursor to a row the server has never
+  // seen and whose count would make a short page look full.
+  const _srv = data || [];
+  _mineHasMore = _srv.length === MINE_PAGE;
+  if (_srv.length) _mineLastDate = _srv[_srv.length - 1].date;
+  const _held = append ? _allEntries.filter(e => !e._offline) : [];
+  const _heldIds = new Set(_held.map(e => e.id));
+  // TERMINATION. An inclusive cursor can only make progress while a page contains something new; if a
+  // single timestamp ever held a full page of rows, .lte would return the same page forever. Appending
+  // nothing new is the proof there is nothing left to reach, whatever the row count says.
+  if (append && !_srv.some(r => !_heldIds.has(r.id))) _mineHasMore = false;
   _allEntries = [
     ...pendingInserts.map(p => ({ ...p, _offline: true })),
-    ...(data || []).filter(r => !insertIds.has(r.id)).map(r => {
+    ..._held,
+    ..._srv.filter(r => !insertIds.has(r.id) && !_heldIds.has(r.id)).map(r => {
+      // ★THE OPTIMISTIC LOCK WAS DEAD FOR EVERY ENTRY OPENED FROM THIS LIST (found from source 2026-10-07). The
+      // select above has always asked for updated_at, and this mapping dropped it - so openEditModal, which edits
+      // the CACHED row, snapshotted `entry.updated_at || null` = null, and saveEditFromForm's
+      // `if (_editingUpdatedAt) .eq('updated_at', ...)` skipped the guard: a save from "Mine" overwrote whatever
+      // another session had written since the list loaded, silently. The team loader dropped it the same way; only
+      // the select('*') cache-miss path ever armed the lock. Kept here (with the work-order fields the cards and the
+      // view modal render), and the save now refuses rather than overwrite when a server row has no snapshot.
       const mapped = {
         id: r.id, date: r.date, machine: r.machine || '', category: r.category,
         maintenance_type: r.maintenance_type, root_cause: r.root_cause,
@@ -2327,6 +2660,9 @@ async function loadEntries() {
         downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
         asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
         closed_at: r.closed_at || null, created_at: r.created_at || null,
+        updated_at: r.updated_at || null,
+        wo_state: r.wo_state || null,
+        wo_assigned_to: r.wo_assigned_to || null,
         tasklist_acknowledged: r.tasklist_acknowledged || false,
         tasklist_note: r.tasklist_note || null,
         failure_consequence: r.failure_consequence || null,
@@ -2341,6 +2677,53 @@ async function loadEntries() {
     })
   ];
   return _allEntries;
+}
+
+// ★WHICH WORDS THE AI WROTE (LM-V walk, LM422, 2026-10-07). Three AI paths fill this form - "Speak to fill"
+// (voice-logbook-entry), "Photo defect capture" (visual-defect-capture) and the companion's logbook.create prefill -
+// and the nameplate scan fills the Register Asset form (equipment-label-ocr). The person reviews and saves, so the
+// approval is theirs; what the saved row never said was WHICH of its words the AI wrote. Each AI path records the value
+// it actually left in the field (read back from the element, so a select that refused the AI's value records nothing);
+// a save sends ai_assisted_fields = the fields whose saved value still equals that (the person kept it). Same rule as
+// marketplace_listings.ai_assisted_fields (LM332). clearForm() / clearAssetForm() and a successful save start fresh.
+window._lbAiFilled      = window._lbAiFilled      || {};   // logbook column -> the value an AI path left in the form
+window._lbAssetAiFilled = window._lbAssetAiFilled || {};   // asset_nodes column -> the value the nameplate OCR left
+const LB_AI_FIELD_EL = {
+  machine: 'f-machine', maintenance_type: 'f-maint-type', category: 'f-category', problem: 'f-problem',
+  action: 'f-action', root_cause: 'f-root-cause', knowledge: 'f-knowledge', downtime_hours: 'f-downtime',
+  wo_state: 'f-wo-state', wo_assigned_to: 'f-wo-assigned-to',
+};
+function lbNoteAiFill(field) {
+  let v;
+  if (field === 'status') v = document.querySelector('input[name="f-status"]:checked')?.value;
+  else { const el = document.getElementById(LB_AI_FIELD_EL[field] || ''); v = el ? el.value : ''; }
+  if (v == null || String(v).trim() === '') { delete window._lbAiFilled[field]; return; }
+  window._lbAiFilled = Object.assign(window._lbAiFilled || {}, { [field]: String(v) });
+}
+// Two values are "the same words" when both are non-empty and equal after trimming; downtime compares as a number,
+// because the form holds "2.50" while the row holds 2.5.
+function lbAiSameValue(field, a, b) {
+  if (field === 'downtime_hours') {
+    const x = (a === '' || a == null) ? NaN : Number(a), y = (b === '' || b == null) ? NaN : Number(b);
+    return Number.isFinite(x) && Number.isFinite(y) && x === y;
+  }
+  const s = String(a == null ? '' : a).trim();
+  return s !== '' && s === String(b == null ? '' : b).trim();
+}
+// The fields of `row` (the object being written) an AI path filled and the person kept. A field the write does not
+// carry is never claimed - the row cannot be said to hold the AI's words in a column it did not save.
+function lbAiKeptFields(filled, row) {
+  const f = filled || {};
+  return Object.keys(f).filter(k => row && Object.prototype.hasOwnProperty.call(row, k) && lbAiSameValue(k, row[k], f[k]));
+}
+// The marks already on a saved entry, for an edit that has to keep or drop them. null = could not be read.
+async function lbReadAiAssistedFields(id) {
+  try {
+    const { data, error } = await db.from('logbook').select('ai_assisted_fields').eq('id', id).maybeSingle();
+    return (!error && data && Array.isArray(data.ai_assisted_fields)) ? data.ai_assisted_fields : null;
+  } catch (_) {
+    return null;   // unreadable is not "none": the caller then leaves the stored value alone
+  }
 }
 
 async function addEntry(entry) {
@@ -2363,6 +2746,18 @@ async function addEntry(entry) {
     worker_name: WORKER_NAME,
     auth_uid: _authUid || null  // C3: link auth identity on every new entry
   };
+  // ★A WORK-ORDER STATE PICKED ON A NEW ENTRY WAS NEVER SAVED (found from source 2026-10-07). The form submit puts
+  // wo_state / wo_assigned_to on `entry` - only when the person picked one, the same opt-in rule saveEditFromForm
+  // uses - and this payload never copied them, so every new entry landed with wo_state NULL whatever was chosen
+  // (0 of 31,257 local rows carried one). Copied BEFORE the offline branch, so a queued entry carries them to the
+  // drain, and before the AI-provenance line, so a state an AI path filled and the person kept can be claimed. The
+  // server still decides who may set what: tg_guard_approval refuses approved/assigned/verified/rejected on INSERT
+  // from a non-supervisor (42501), which whWriteError reports below.
+  if (entry.wo_state)       payload.wo_state       = entry.wo_state;
+  if (entry.wo_assigned_to) payload.wo_assigned_to = entry.wo_assigned_to;
+  // ★WHICH WORDS THE AI WROTE (LM-V, LM422): the fields an AI path filled that the person kept, measured against
+  // what this row actually saves. Set BEFORE the offline branch so a queued entry carries it to the drain unchanged.
+  payload.ai_assisted_fields = lbAiKeptFields(window._lbAiFilled, payload);
 
   if (!navigator.onLine) {
     await queueEntryOffline(payload);
@@ -2455,7 +2850,14 @@ async function addEntry(entry) {
     parts_count: Array.isArray(payload.parts_used) ? payload.parts_used.length : 0,
   });
   document.getElementById('sync-badge').classList.remove('hidden');
-  embedFaultEntry(entry);
+  embedFaultEntry({ ...entry, ai_assisted_fields: payload.ai_assisted_fields });
+  // T108's nudge, on the path that can now assign (2026-10-07): an edit that assigns the work order tells the
+  // assignee (saveEditFromForm); a NEW entry assigned to someone is the same event and was silent. Same guarded RPC
+  // (member-of-hive caller, recipient resolved from the row, self-assign no-op), same best-effort .then().
+  if (payload.wo_assigned_to) {
+    try { db.rpc('notify_wo_assigned', { p_entry_id: String(payload.id) }).then(() => {}, () => {}); }
+    catch (_) { /* empty-catch-allow: the entry stands; the nudge is best-effort */ }
+  }
   // Phase 4.1: push completion back to CMMS when job is closed (fire-and-forget)
   if (payload.status === 'Closed' && payload.machine && HIVE_ID) {
     db.functions.invoke('cmms-push-completion', {
@@ -2532,6 +2934,10 @@ async function embedFaultEntry(entry) {
           action:      entry.action,
           knowledge:   entry.knowledge,
           worker_name: WORKER_NAME,
+          // ★LM-V (LM422): which of these words an AI path drafted and the person kept, so the fault_knowledge
+          // row says so too. Absent (not []) when unknown - e.g. an entry queued offline before this field
+          // existed - so a re-embed never erases a mark the row already carries.
+          ...(Array.isArray(entry.ai_assisted_fields) ? { ai_assisted_fields: entry.ai_assisted_fields } : {}),
         }
       })
     }, 8000);
@@ -2546,8 +2952,15 @@ async function deleteEntry(id) {
   if (!(await window.whConfirm('Delete this entry? This cannot be undone, and any XP it earned is taken back.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { data: deleted, error } = await db.from('logbook')
     .delete()
+    // BRP-A: a WRITE guard is TIGHTENED to the identity, never unioned with the display name. The first
+    // pass swept this with the reads and gave it `.or(auth_uid…,worker_name…)`, which is the wrong
+    // direction for a delete - and validate_logbook's "deleteEntry scoped by worker_name" check caught
+    // it. RLS (logbook_delete) already enforces `auth_uid = auth.uid()`, so the name could never make
+    // this safer; it could only add a way to match nothing, and the no-rows branch below would then tell
+    // the person "you can only delete your own entries" about an entry that IS theirs. logbook is
+    // 31,241/31,241 bound after the 2026-10-04 backfill, held there by author-can-edit-own-work.
     .eq('id', id)
-    .eq('worker_name', WORKER_NAME)
+    .eq('auth_uid', _authUid)
     .select('id');
   if (error) { showToast(whWriteError(error, 'The delete did not go through. The entry is still there.')); return; }
   if (!deleted || !deleted.length) {
@@ -2595,6 +3008,9 @@ function _assetToNode(a) {
     status:       a.status || 'approved',
     submitted_by: a.submitted_by || a.worker_name || WORKER_NAME,
     auth_uid:     a.auth_uid || _authUid || null,  // attribution FK — asset_nodes upsert was dropping it (matches the main logbook insert at line 1809)
+    // LM-V (LM422): the nameplate fields the OCR filled and the person kept. Only sent when the caller knows it
+    // (the Register form does; the localStorage migration does not), so an upsert never erases a stored mark.
+    ...(Array.isArray(a.ai_assisted_fields) ? { ai_assisted_fields: a.ai_assisted_fields } : {}),
   };
   // asset_nodes CHECK constraint accepts low/medium/high/critical.
   if (!['low','medium','high','critical'].includes(out.criticality)) {
@@ -2625,9 +3041,29 @@ async function initAssets() {
     // canonical-allow: logbook is canonical CRUD owner for logbook entries which write asset_node_id;
     // the asset picker needs the same shaped row set it writes (legacy-aliased COLS), v_asset_truth
     // renames id → asset_id which would break the existing _assets[].id consumers
-    const [hiveRes, myRes] = await Promise.all([
+    const [hiveRes, myRes, uidRes] = await Promise.all([
       db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500), // Arc L · L2: row cap (hive equipment registry feeds asset picker; bounded-by-nature)
-      db.from('asset_nodes').select(COLS).eq('worker_name', WORKER_NAME).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature)
+      db.from('asset_nodes').select(COLS).or(_MINE()).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature)
+      // ★MY ASSETS BY IDENTITY, NOT BY DISPLAY NAME (2026-10-04, Ian: "in the select an asset there is
+      // nothing there, but I can see it in my asset hub"). The picker found "mine" with
+      // worker_name = WORKER_NAME, a free-text display name; asset-hub.html finds the same rows with
+      // auth_uid and says why in its own comment: "the name is display text, the uid is the identity the
+      // row was bound to on insert (bind_asset_nodes_submitter)". Read that trigger and the asymmetry is
+      // exact: it ALWAYS sets NEW.auth_uid := auth.uid(), but it only overwrites worker_name when
+      //     SELECT worker_name FROM hive_members WHERE auth_uid = auth.uid() AND hive_id = NEW.hive_id
+      // returns a row — and for a PERSONAL asset NEW.hive_id is NULL, so `hive_id = NULL` is never true
+      // and v_name stays NULL. The name therefore keeps whatever the client sent at that moment and is
+      // frozen there, while auth_uid stays correct forever. Any later divergence (a renamed worker, a
+      // different device, a row created before the name settled) makes the asset VISIBLE in Asset Hub
+      // and INVISIBLE here, which is exactly the report. Added as a THIRD query unioned below rather
+      // than replacing the name query, because 24 of 125 local rows carry auth_uid NULL — service-role
+      // and seeded inserts, where auth.uid() was NULL so the trigger left it alone — and those are only
+      // findable by name. Separate query rather than .or(): a PostgREST or() filter would need the
+      // display name quoted inside the string, and these names contain spaces.
+      // canonical-allow: the IDENTITY half of the picker union, same COLS shape as the hive branch
+      // above - v_asset_truth exposes no worker_name, so the name half of this union cannot be
+      // expressed against the view, and that half exists for rows whose auth_uid was never bound.
+      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).limit(500), // Arc L · L2: row cap (one person's assets by identity; bounded-by-nature)
     ]);
     // Don't concatenate the upstream message into the notice: a person was shown "Could not load hive
     // assets: injected server fault" in the measured run, and in production that is whatever Postgres
@@ -2640,16 +3076,41 @@ async function initAssets() {
     // the upstream sentence stays in console.error, never in the notice.
     if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast(whReadError(hiveRes.error, 'the hive equipment list')); }
     if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast(whReadError(myRes.error, 'your equipment list')); }
+    // Deliberately NOT a second toast: uidRes and myRes are two ways of asking the same question, so a
+    // failure in one while the other answers is not something to interrupt a person about. It is still
+    // recorded, because a silent catch is how the previous version of this bug stayed invisible.
+    if (uidRes.error) { console.error('assets load (by identity):', uidRes.error.message); }
     const seen = new Set();
-    for (const a of [...(myRes.data || []), ...(hiveRes.data || [])]) {
+    for (const a of [...(uidRes.data || []), ...(myRes.data || []), ...(hiveRes.data || [])]) {
       if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
     }
   } else {
     // canonical-allow: solo-mode asset picker — same COLS shape requirement as hive branch above
-    const { data, error } = await db.from('asset_nodes').select(COLS)
-      .eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500); // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature)
-    if (error) { console.error('assets load:', error.message); showToast(whReadError(error, 'your equipment list')); }
-    sbAssets = data || [];
+    // Same identity fix as the hive branch, and it matters MORE here: solo mode is exactly the
+    // hive_id IS NULL case where bind_asset_nodes_submitter cannot normalise worker_name (its lookup
+    // joins on hive_id = NEW.hive_id, which is never true against NULL), so a solo person's assets are
+    // the ones whose stored name is most likely to have drifted from their current display name.
+    // asset-hub.html's solo scope is `is('hive_id', null).eq('auth_uid', _authUid)` — this now asks the
+    // same question, keeping the name query as the fallback for rows whose auth_uid was never bound.
+    const [soloUidRes, soloNameRes] = await Promise.all([
+      // canonical-allow: solo-mode picker, identity half of the same union (see the hive branch) -
+      // v_asset_truth carries no worker_name, so the name half has no view-side equivalent.
+      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker by identity; bounded-by-nature)
+      // canonical-allow: solo-mode picker, NAME half - _MINE() filters on worker_name, a column
+      // v_asset_truth does not expose at all, so this read has no canonical equivalent to move to.
+      db.from('asset_nodes').select(COLS).or(_MINE()).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature)
+    ]);
+    const soloErr = soloUidRes.error && soloNameRes.error ? soloNameRes.error : null;
+    if (soloUidRes.error) console.error('assets load (by identity):', soloUidRes.error.message);
+    if (soloNameRes.error) console.error('assets load (by name):', soloNameRes.error.message);
+    // Only tell the person when BOTH ways of asking failed — one failing while the other answers means
+    // the list on screen is complete, and a toast then would name a problem they do not have.
+    if (soloErr) showToast(whReadError(soloErr, 'your equipment list'));
+    const soloSeen = new Set();
+    sbAssets = [];
+    for (const a of [...(soloUidRes.data || []), ...(soloNameRes.data || [])]) {
+      if (!soloSeen.has(a.id)) { soloSeen.add(a.id); sbAssets.push(a); }
+    }
   }
 
   if (sbAssets.length === 0 && lsAssets.length > 0) {
@@ -2659,7 +3120,7 @@ async function initAssets() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back after localStorage migration
     const { data: migrated } = await db.from('asset_nodes').select(COLS)
-      .eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500); // Arc L · L2: row cap (post-upsert read-back; bounded-by-nature)
+      .or(_MINE()).is('hive_id', null).limit(500); // Arc L · L2: row cap (post-upsert read-back; bounded-by-nature)
     _assets = migrated || [];
   } else {
     _assets = sbAssets;
@@ -2734,6 +3195,7 @@ function clearAssetForm() {
   const sn   = document.getElementById('a-serial-no');    if (sn)   sn.value   = '';
   const ict  = document.getElementById('a-ideal-cycle-time'); if (ict) ict.value = '';
   const stat = document.getElementById('a-scan-status');  if (stat) stat.textContent = '';
+  window._lbAssetAiFilled = {};   // LM-V (LM422): a fresh asset form has no OCR-read fields yet
   document.querySelectorAll('input[name="a-criticality"]').forEach(r => { r.checked = false; });
   ['Critical','Major','Minor'].forEach(v => {
     document.getElementById('crit-btn-' + v).classList.remove('sel-Critical','sel-Major','sel-Minor');
@@ -2806,6 +3268,8 @@ async function submitAsset() {
     hive_id: HIVE_ID || null,
     submitted_by: WORKER_NAME
   };
+  // ★WHICH WORDS THE AI WROTE (LM-V, LM422): the nameplate fields the OCR filled that the person kept unchanged.
+  asset.ai_assisted_fields = lbAiKeptFields(window._lbAssetAiFilled, asset);
   // P7 double-submit lock (button-lock.js isn't on this page → self-disable). Without it a fast
   // double-tap re-runs submitAsset: each tap mints a fresh uuid so the upsert's PK-based onConflict
   // doesn't match, and the 2nd write hits the (hive_id, tag) unique index → a confusing 23505 toast
@@ -2822,6 +3286,7 @@ async function submitAsset() {
     return;
   }
   if (_sb) _sb.disabled = false;
+  window._lbAssetAiFilled = {};   // LM-V (LM422): the next asset starts with no OCR-read fields
   writeAuditLog('register_asset', 'assets', asset.id, asset.asset_id, {
     name: asset.name, type: asset.type, criticality: asset.criticality, status: asset.status,
   });
@@ -2955,7 +3420,10 @@ async function saveEditAsset() {
 
   // Scope update to owner: prevents overwriting another member's asset
   let q = db.from('asset_nodes').update(updates).eq('id', id);
-  if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('worker_name', WORKER_NAME);
+  // BRP-A: scope the non-supervisor update by IDENTITY. The comment above says this exists to stop
+  // overwriting another member's asset - auth_uid does that correctly, where a display name both
+  // over-matches (two people could share one) and under-matches (a renamed person loses their own).
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
 
   // LG9 (2026-07-28): confirm the write before believing it. The `.eq('worker_name', ...)` scope
   // above is a CLIENT guard; the real one is asset_nodes_write, which requires `auth_uid =
@@ -3005,8 +3473,16 @@ async function saveEditAsset() {
 
   // Sync asset_name and tag_id to pm_assets: they copy at creation and go stale
   // Match by old asset_id (tag) since pm_assets has no FK to assets table
-  const oldAsset = loadAssets().find(a => a.id === id);
-  const oldAssetId = oldAsset?.asset_id || asset?.asset_id;
+  // ★THE "OLD" ASSET WAS READ AFTER THE CACHE ALREADY HELD THE NEW ONE (W4406, 2026-10-09). This read
+  // loadAssets() - which IS _assets - three statements after _assets was repainted with the edit, so
+  // the old tag and old name it compared against were the NEW ones, the condition was always false,
+  // and syncToPMAssets never ran: a rename in this editor moved asset_nodes and left pm_assets,
+  // logbook.machine, fault_knowledge.machine and asset_risk_scores on the old identity (the AH11
+  // split the rpc exists to prevent). Walked live: Save Changes sent PATCH asset_nodes and the audit
+  // row, and no rpc/sync_asset_identity at all. `asset` was taken before the write and the repaint
+  // (the map above builds a NEW object for the edited row), so it still holds what the asset WAS.
+  const oldAsset = asset;
+  const oldAssetId = oldAsset?.asset_id;
   if (oldAssetId && (asset_id !== oldAssetId || name !== (oldAsset?.name || ''))) {
     // `id` is the asset_nodes id, and the node has ALREADY been updated above — the sync needs
     // both facts (AH11).
@@ -3149,7 +3625,7 @@ async function loadAssetDetail(asset) {
     ? [
         db.from('inventory_items')
           .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
-          .eq('worker_name', WORKER_NAME)
+          .or(_MINE())
           .contains('linked_asset_node_ids', [assetNodeId])
           .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap
         ...(HIVE_ID ? [
@@ -3275,7 +3751,7 @@ function renderDetailConsumption(txns, itemsList) {
     const name   = item ? escHtml(item.part_name) : 'Unknown part';
     const unit   = item ? escHtml(item.unit || 'pcs') : '';
     const qty    = Math.abs(t.qty_change);
-    const date   = t.created_at ? new Date(t.created_at).toLocaleDateString() : '';
+    const date   = t.created_at ? new Date(t.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : '';
     const jobRef = t.job_ref ? escHtml(t.job_ref) : '';
     const note   = t.note && t.note !== ('Job: ' + t.job_ref) ? escHtml(t.note) : '';
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);">
@@ -3317,7 +3793,7 @@ function renderDetailFaultHistory(entries) {
     const statusTx    = isOpen ? '#f87171' : '#4ade80';
     const borderColor = isOpen ? '#f87171' : '#4ade80';
     const catColor    = catColors[e.category] || '#9ca3af';
-    const date        = e.created_at ? new Date(e.created_at).toLocaleDateString() : (e.date || '').slice(0, 10);
+    const date        = e.created_at ? new Date(e.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : (e.date || '').slice(0, 10);
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${borderColor};">
       <div class="flex items-start justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5 flex-wrap">
@@ -3462,8 +3938,15 @@ async function loadMachineHistory(machineId) {
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(5);
 
+    // ★SOLO: the person's OWN hive-less rows (2026-10-07). This branch was always empty for a solo owner - not
+    // because of this filter but because fault_knowledge_read only admitted `hive_id IN (my hives)`, which a
+    // hive-less row never is. 20261007000014 gave the policy the platform's hive-less owner branch
+    // (hive_id IS NULL AND auth_uid = auth.uid()) and binds auth_uid from the entry's author. The read names
+    // hive_id IS NULL like every other solo read on this page (the asset picker, the read-back), so a person
+    // between hives sees the repairs on THEIR machine, not their crew's. Held by
+    // tools/validate_hiveless_knowledge_is_owner_read.py R6.
     if (HIVE_ID) q.eq('hive_id', HIVE_ID);
-    else         q.eq('worker_name', WORKER_NAME);
+    else         q.is('hive_id', null).or(_MINE());
 
     const { data, error } = await q;
     if (error || !data || !data.length) { wrap.style.display = 'none'; return; }
@@ -3485,7 +3968,11 @@ async function loadMachineHistory(machineId) {
         .eq('machine', machineId)
         .not('problem', 'is', null);
       if (HIVE_ID) cq = cq.eq('hive_id', HIVE_ID);
-      else         cq = cq.eq('worker_name', WORKER_NAME);
+      // BRP-C -> A (2026-10-04): fault_knowledge gained auth_uid in 20261004000007 (3,815 of 3,821 rows
+        // bound; 6 stored names match no roster row and stay NULL, which is exactly why this UNIONS the
+        // name rather than swapping it - an unbound row must stay findable). Since 20261007000014 the RLS
+        // policy also admits the caller's own hive-less rows, so the count and the list ask the same question.
+        else         cq = cq.is('hive_id', null).or(_MINE());
       const { count, error: cErr } = await cq;
       if (!cErr && typeof count === 'number') _total = count;
     } catch (_) { _total = null; }
@@ -3502,7 +3989,7 @@ async function loadMachineHistory(machineId) {
 
     content.innerHTML = data.map(r => {
       const dt = r.created_at
-        ? new Date(r.created_at).toLocaleDateString('en-PH', { year: '2-digit', month: 'short', day: 'numeric' })
+        ? new Date(r.created_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: '2-digit', month: 'short', day: 'numeric' })
         : '';
       return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
         + (r.problem  ? '<p style="color:rgba(255,255,255,0.86); margin-bottom:3px;"><span style="color:rgba(255,255,255,0.80); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
@@ -3950,15 +4437,28 @@ document.getElementById('open-asset-modal-btn').addEventListener('click', () => 
       });
       // T39: the raw error's .message is the placeholder; the catch reads exactly that.
       if (error) throw new Error(await window.whFnError(error, 'The label could not be read.'));
+      // ★THE READER WAS NOT SET UP AND THE PERSON WAS TOLD TO RETAKE THE PHOTO (2026-10-12, UFAI edge walk W4415).
+      // equipment-label-ocr answers 200 with azure_unavailable when no OCR service is configured - its comment says the
+      // frontend reads the flag - and this handler never did: the empty result read as "Could not read a nameplate from
+      // the photo. Try again", advice that cannot help. Nothing was read; the fields are typed from the label.
+      if (data && data.azure_unavailable) {
+        stat.textContent = 'The nameplate reader is not available here, so nothing was read from the photo. Type the fields from the label.';
+        return;
+      }
       const parsed = (data && data.parsed) || {};
       let filled = 0;
-      const setField = (id, val) => {
+      // col = the asset_nodes column: remember what the OCR left in the field, so the registered asset records
+      // which nameplate fields the AI read and the person kept (asset_nodes.ai_assisted_fields, LM-V LM422)
+      const setField = (id, val, col) => {
         const el = document.getElementById(id);
-        if (el && val && !el.value.trim()) { el.value = val; filled++; }
+        if (el && val && !el.value.trim()) {
+          el.value = val; filled++;
+          if (el.value.trim()) window._lbAssetAiFilled = Object.assign(window._lbAssetAiFilled || {}, { [col]: el.value });
+        }
       };
-      setField('a-manufacturer', parsed.manufacturer);
-      setField('a-model',        parsed.model);
-      setField('a-serial-no',    parsed.serial_no);
+      setField('a-manufacturer', parsed.manufacturer, 'manufacturer');
+      setField('a-model',        parsed.model,        'model');
+      setField('a-serial-no',    parsed.serial_no,    'serial_no');
       stat.textContent = filled > 0
         ? `Filled ${filled} field${filled === 1 ? '' : 's'} from nameplate. Confirm and continue.`
         : 'Could not read a nameplate from the photo. Try again or type fields manually.';
@@ -4143,7 +4643,11 @@ async function updateStatPills() {
     return;
   }
   const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
-  document.getElementById('machine-count').textContent = allMachines.size;
+  // routed through the pair so a real count clears any 'unknown, not loaded' name left by _dashPill;
+  // _setPill is declared below this line in source order, so the call is made lazily-safe by typeof
+  { const _mc = document.getElementById('machine-count');
+    if (_mc) { if (typeof whStatValue === 'function') whStatValue(_mc, allMachines.size);
+              else { _mc.textContent = allMachines.size; _mc.removeAttribute('aria-label'); } } }
   // '1 assets' read wrong on the solo owner's pill (VP5, T131 counted-noun class)
   const _mcNoun = document.getElementById('machine-count-noun');
   if (_mcNoun) _mcNoun.textContent = allMachines.size === 1 ? 'asset' : 'assets';
@@ -4158,16 +4662,36 @@ async function updateStatPills() {
   // and a failed count arrived as null, fell through to the loaded window, and printed the window's
   // length. When the entries read failed too that length is 0, so a worker with 516 entries was told
   // "0 entries · 0 open". A count is either KNOWN or it is a dash; there is no third value to guess.
-  const _dashPill = id => { const e = document.getElementById(id); if (e) e.textContent = '—'; };
+  /* ★THE DASH THAT STARTED THE CONVENTION, AND IT HAD NO WORDS (2026-10-06, found grading this page as an
+     assistive-tech user with PostgREST stopped). _dashPill is where this platform's "unknown" token comes
+     from, and every later page copied the shape - including the 17 markup defaults added this session.
+     Measured in the ACCESSIBILITY TREE here: the three header pills read '—' and their surrounding context
+     read '—' too, so unlike alert-hub (whose tags sit in headings already saying "Not loaded") the dash is
+     the SOLE carrier of meaning, and a screen reader got nothing at all from it. That distinction is the
+     rule: name the dash only where nothing else says it, which is exactly here.
+     whStatUnknown names it and whStatValue clears the name when a real count lands - a stale aria-label
+     would be read INSTEAD of the number. The unit is passed so three unknowns are distinguishable. */
+  const _PILL_UNITS = { 'total-count': 'entries', 'machine-count': 'machines', 'open-count': 'open jobs' };
+  const _dashPill = id => {
+    const e = document.getElementById(id);
+    if (!e) return;
+    if (typeof whStatUnknown === 'function') whStatUnknown(e, _PILL_UNITS[id] || null);
+    else e.textContent = '—';
+  };
+  const _setPill = (id, v) => {
+    const e = document.getElementById(id);
+    if (!e) return;
+    if (typeof whStatValue === 'function') whStatValue(e, v); else { e.textContent = v; e.removeAttribute('aria-label'); }
+  };
   try {
-    let qTotal = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME);
-    let qOpen  = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Open');
+    let qTotal = db.from('logbook').select('*', { count: 'exact', head: true }).or(_MINE());
+    let qOpen  = db.from('logbook').select('*', { count: 'exact', head: true }).or(_MINE()).eq('status', 'Open');
     if (HIVE_ID) { qTotal = qTotal.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); qOpen = qOpen.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); }
     const [tRes, oRes] = await Promise.all([qTotal, qOpen]);
     if (tRes.error || tRes.count == null) { _dashPill('total-count'); _lbReadFailed = true; _mineTrueTotal = null; }
-    else { document.getElementById('total-count').textContent = tRes.count; _mineTrueTotal = tRes.count; }
+    else { _setPill('total-count', tRes.count); _mineTrueTotal = tRes.count; }
     if (oRes.error || oRes.count == null) { _dashPill('open-count'); _lbReadFailed = true; _mineTrueOpen = null; }
-    else { document.getElementById('open-count').textContent = oRes.count; _mineTrueOpen = oRes.count; }
+    else { _setPill('open-count', oRes.count); _mineTrueOpen = oRes.count; }
     // T9 cap-as-total fix (2026-09-02): stash the TRUE worker-scoped counts so the "Jobs closed out"
     // goal-gradient uses them, not _allEntries.length (a capped ~200-row load window that read
     // "200 of 200" for a 314-entry worker - a row cap masquerading as a total). renderEntries()
@@ -4360,11 +4884,37 @@ async function renderEntries(reload = true, fromStatPills = false) {
       ? `Showing ${_e(visible.length)} (load more below)`
       : `${_e(visible.length)} found`;
   } else {
-    wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length);
+    // Load More stays reachable while EITHER more rows are already loaded OR the server has more to
+    // give. Testing only the loaded window is what hid the control at the 200-row cap.
+    wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length && !_mineHasMore);
     const _e2 = (n) => `${n} entr${n === 1 ? 'y' : 'ies'}`;
-    lbl.textContent = _t(`Showing ${visible.length} of ${_e2(filtered.length)}`, `Ipinapakita ang ${visible.length} sa ${_e2(filtered.length)}`);
+    // ★THE DENOMINATOR IS THE PERSON'S LOGBOOK, NOT THE FETCH. filtered.length cannot exceed the
+    // MINE_PAGE cap, so printing it after "of" told a worker with 2,277 entries that they had 200.
+    // _mineTrueTotal is the count:exact figure the header pill already shows - the true number was
+    // in memory on the same render that misreported it (T9 taught the progress strip this and left
+    // this label behind). It is only the right denominator for an UNFILTERED view: once a search or
+    // a category filter is on, the honest statement is about the matches, which are client-side and
+    // therefore themselves bounded by the loaded window - so that case says "of the N loaded" and
+    // names the cap instead of implying a total it cannot know.
+    const _unfiltered = filtered.length === _allEntries.length;
+    const _trueTotal  = (typeof _mineTrueTotal === 'number') ? _mineTrueTotal : null;
+    if (_unfiltered && _trueTotal != null && _trueTotal > filtered.length) {
+      lbl.textContent = _t(`Showing ${visible.length} of ${_e2(_trueTotal)} - newest first`,
+                           `Ipinapakita ang ${visible.length} sa ${_e2(_trueTotal)} - pinakabago muna`);
+    } else if (!_unfiltered && _mineHasMore) {
+      lbl.textContent = _t(`Showing ${visible.length} of ${_e2(filtered.length)} in the ${_allEntries.length} loaded so far`,
+                           `Ipinapakita ang ${visible.length} sa ${_e2(filtered.length)} sa ${_allEntries.length} na na-load`);
+    } else {
+      lbl.textContent = _t(`Showing ${visible.length} of ${_e2(filtered.length)}`, `Ipinapakita ang ${visible.length} sa ${_e2(filtered.length)}`);
+    }
   }
 
+  /* ★A BUTTON'S NAME IS ALL A SCREEN READER GETS OF IT (2026-10-06, logbook x assistive-tech, layer D). Each card is
+     role="button" with an aria-label, and a button's children are presentational - so the label is not a
+     summary of the card, it is the WHOLE card. It read "Open entry: AHU-001 - Communication fault to PLC" while
+     the card shows ELECTRICAL · CLOSED · Sep 17, 2026 · 03:41 PM, and in the Team Feed the name of whoever logged
+     it. For a logbook those are the provenance - when, what state, who - and a screen-reader user moving through
+     the list heard none of them. The label now carries what the card shows, in the order it shows it. */
   list.innerHTML = visible.map(e => {
     const q         = query;
     const machine   = highlight(e.machine, q);
@@ -4373,7 +4923,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml((e.machine || '') + ' - ' + (e.problem || '').slice(0, 60))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && e.worker_name !== WORKER_NAME) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -4541,8 +5091,12 @@ async function openModal(id) {
 let _editingEntry     = null; // cached entry being edited
 let _editingId        = null; // null = new entry, string id = edit-in-place mode
 let _editingUpdatedAt = null; // updated_at snapshot at edit-open time (optimistic lock sentinel)
+let _editingPrevAssignee = ''; // the assignee the entry had when opened - a save notifies only when it CHANGES
+let _editingParkedId  = null; // set when the form was opened from a parked offline edit (renderStuckPanel)
 
-async function openEditModal(id) {
+// `given` (optional): the entry to edit when it is not in the list caches - a parked offline save opened from
+// #lb-stuck-panel (openParkedItem). Otherwise the entry comes from the cache of the current view.
+async function openEditModal(id, given) {
   // LB9 (2026-07-28): this function is async and sets _editingId only at the very END, after a
   // possible entry re-fetch and an await on renderReadingsFields(). The save button stayed live for
   // that whole window, so a fast tap ran saveEditFromForm() with _editingId still null: offline that
@@ -4554,6 +5108,14 @@ async function openEditModal(id) {
 
   // Resolve entry from cache (avoids re-fetching all entries)
   let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
+  if (given) entry = given;
+  _editingParkedId = null;   // openParkedItem sets it again AFTER this returns; any other open is a plain edit
+  // ★A CACHED SERVER ROW WITH NO updated_at CANNOT ARM THE OPTIMISTIC LOCK (2026-10-07). Both list loaders keep it
+  // now, but a cached copy without it would leave _editingUpdatedAt null and the save would refuse (see the online
+  // path of saveEditFromForm). Re-read it whole instead, so the form and the snapshot come from the same read.
+  // Offline it stays the cached copy: that save is queued WITH this snapshot (_snapshot), and the drain replays it
+  // under the same .eq('updated_at', ...) guard - so a copy with no stamp is parked by the drain, never written blind.
+  if (entry && !entry._offline && !entry.updated_at && navigator.onLine) entry = null;
   if (!entry) {
     const { data } = await db.from('logbook').select('*').eq('id', id).single();
     entry = data;
@@ -4661,6 +5223,19 @@ async function openEditModal(id) {
   }
   if (entry.tasklist_note) _tasklistNote = entry.tasklist_note;
 
+  // ── Work-order state + assignee ──
+  // ★AN EDIT NEVER SHOWED WHERE THE JOB WAS (2026-10-07). clearForm() resets #f-wo-state to "None" and nothing here
+  // refilled it, so a worker opening their assigned job saw no state, was offered only None/Requested (the options
+  // are computed FROM the current value), and could never move it assigned -> in progress -> completed by editing -
+  // the one move the workflow hint says workers make. The row's state is now the form's BASE (dataset.from), and
+  // applyWoStateUI offers only the moves tg_guard_approval accepts from that base for this role.
+  const _woSel = document.getElementById('f-wo-state');
+  if (_woSel) { _woSel.dataset.from = entry.wo_state || ''; _woSel.value = entry.wo_state || ''; }
+  const _woWho = document.getElementById('f-wo-assigned-to');
+  if (_woWho) _woWho.value = entry.wo_assigned_to || '';
+  applyWoStateUI();
+  _editingPrevAssignee = (entry._prevAssignee !== undefined ? entry._prevAssignee : entry.wo_assigned_to) || '';
+
   // ── Cache and mode state ──
   _editingEntry     = entry;
   _editingId        = entry.id;
@@ -4713,6 +5288,8 @@ function cancelEditMode() {
   document.getElementById('save-entry-btn').textContent = 'Save Entry';
   _editingId    = null;
   _editingEntry = null;
+  _editingParkedId = null;
+  _editingPrevAssignee = '';
 }
 
 async function saveEditFromForm() {
@@ -4731,6 +5308,11 @@ async function saveEditFromForm() {
   const machine    = document.getElementById('f-machine').value.trim();
   const newStatus  = document.querySelector('input[name="f-status"]:checked').value;
   const existing   = _editingEntry;
+  // ★THE STATUS BEFORE THIS EDIT, TAKEN BEFORE ANYTHING CHANGES IT (2026-10-12, UFAI edge walk W4410). `existing` can be
+  // the very object the list caches, and the online save refreshes that cache with the new values before the audit row
+  // and the CMMS push read it - so an entry opened from the list was recorded "Closed -> Closed" in the amendment trail,
+  // and its close never reached the CMMS. Read once, here.
+  const prevStatus = existing ? existing.status : undefined;
   const assetMatch = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
 
   const closedAt = newStatus === 'Closed'
@@ -4776,20 +5358,66 @@ async function saveEditFromForm() {
   if (_woStateVal)    updates.wo_state       = _woStateVal;
   if (_woAssignedVal) updates.wo_assigned_to = _woAssignedVal;
 
+  // ★WHICH WORDS THE AI WROTE, ON AN AMENDMENT (LM-V, LM422, 2026-10-07). The entry's earlier marks survive this edit
+  // for every field the edit leaves as it was; a field the person rewrote is theirs now. Fields an AI path filled
+  // during THIS edit and the person kept are added. When the earlier marks cannot be read (opened offline, read
+  // failed) and the AI filled nothing now, the column stays out of the update, so the stored value stands untouched;
+  // if the AI did fill now, only what it filled now can be stated (the AI paths need a connection, so this is rare).
+  const _aiNow = lbAiKeptFields(window._lbAiFilled, updates);
+  let _aiPrev = Array.isArray(existing?.ai_assisted_fields) ? existing.ai_assisted_fields : null;
+  if (!_aiPrev && navigator.onLine) _aiPrev = await lbReadAiAssistedFields(id);
+  if (_aiPrev) {
+    const _stillKept = _aiPrev.filter(k => !Object.prototype.hasOwnProperty.call(updates, k)
+      || !existing || !Object.prototype.hasOwnProperty.call(existing, k)
+      || lbAiSameValue(k, updates[k], existing[k]));
+    updates.ai_assisted_fields = [...new Set([..._stillKept, ..._aiNow])];
+  } else if (_aiNow.length) {
+    updates.ai_assisted_fields = _aiNow;
+  }
+
+  // ── A still-queued NEW entry ────────────────────────────────────────
+  // Edited offline, or opened from #lb-stuck-panel after the server refused it. It has no server row, so it is never
+  // an UPDATE - online, the old flow sent one anyway, matched 0 rows and said the entry had been deleted. The
+  // corrected payload replaces the queued one and, when online, goes out through the drain at once, so it meets the
+  // same refusal / notify rules as every other queued save.
+  if (existing?._offline) {
+    // ★THE QUEUED INSERT IS THE BASE, NOT JUST THIS EDIT (2026-10-07). put() REPLACES the queued record, and
+    // `updates` omits what this form leaves untouched (wo_state / wo_assigned_to are sent only when picked) - so
+    // `{ ...updates, id, date }` dropped the work-order state the person chose when they created the entry. Start
+    // from the queued payload, as the online UPDATE leaves unsent columns. Every bookkeeping key starts with "_"
+    // (_offline, _pending_edit, and a parked item's _stalled / _stallReason / _retryCount) and is dropped, so a
+    // corrected entry is live work again rather than still parked.
+    const queuedInsert = Object.fromEntries(Object.entries(existing).filter(([k]) => k.charAt(0) !== '_'));
+    const insertPayload = { ...queuedInsert, ...updates, id, date: existing.date };
+    await queueEntryOffline(insertPayload); // put() replaces by id keyPath
+    const idx = _allEntries.findIndex(e => e.id === id);
+    if (idx !== -1) _allEntries[idx] = { ...insertPayload, _offline: true };
+    await updateOfflineBadge();
+    cancelEditMode();
+    if (navigator.onLine) {
+      showToast('Sending the corrected entry now.');
+      await syncOfflineQueue();
+    } else {
+      showToast('Edit saved offline, will sync when connected.');
+    }
+    if (_viewMode === 'mine') await renderEntries(false);
+    return;
+  }
+
   // ── Offline edit path ───────────────────────────────────────────────
   if (!navigator.onLine) {
-    if (existing?._offline) {
-      // Entry was itself created offline — update the pending insert payload in-place
-      const insertPayload = { ...updates, id, date: existing.date };
-      await queueEntryOffline(insertPayload); // put() replaces by id keyPath
-      const idx = _allEntries.findIndex(e => e.id === id);
-      if (idx !== -1) _allEntries[idx] = { ...insertPayload, _offline: true };
-    } else {
-      // Entry is in DB — queue an update operation
-      await queueEntryOffline({ id, _queueOp: 'update', updates });
-      const idx = _allEntries.findIndex(e => e.id === id);
-      if (idx !== -1) _allEntries[idx] = { ..._allEntries[idx], ...updates, _pending_edit: true };
-    }
+    // Entry is in DB — queue an update operation, carrying the updated_at it was made from (_snapshot): the drain
+    // replays it under the same optimistic lock as the online save below, and parks it if the row has moved on.
+    // _prevAssignee lets the drain notify only an assignee this edit CHANGED; a second offline edit of the same entry
+    // keeps the first one's (the cached copy it was opened from already carries the queued assignee).
+    let _prior = null;
+    try { _prior = (await getPendingEntries()).find(q => q.id === id && q._queueOp === 'update' && !q._stalled) || null; }
+    catch (_) { /* empty-catch-allow: no earlier queued edit could be read; this edit's own base stands */ }
+    await queueEntryOffline({ id, _queueOp: 'update', updates,
+      _snapshot: _editingUpdatedAt || null,
+      _prevAssignee: _prior ? (_prior._prevAssignee || '') : _editingPrevAssignee });
+    const idx = _allEntries.findIndex(e => e.id === id);
+    if (idx !== -1) _allEntries[idx] = { ..._allEntries[idx], ...updates, _pending_edit: true };
     await updateOfflineBadge();
     cancelEditMode();
     if (_viewMode === 'mine') await renderEntries(false);
@@ -4797,10 +5425,23 @@ async function saveEditFromForm() {
     return;
   }
   // ── Online path ─────────────────────────────────────────────────────
+  // ★NO SNAPSHOT, NO BLIND OVERWRITE (2026-10-07). The guard below used to be skipped whenever the snapshot was
+  // missing, and that was every entry opened from the "Mine" list (its cache dropped updated_at), so a stale form
+  // overwrote a newer edit with nothing said. logbook.updated_at is NOT NULL (0 of 31,257 rows null), so a server
+  // row with no snapshot is always a client gap, never a fact about the row: refuse, and reopening re-reads it
+  // (openEditModal). An entry still waiting in the offline queue has no server row to compare against.
+  if (!_editingUpdatedAt && !existing?._offline) {
+    showToast('This entry could not be checked for newer changes, so nothing was saved. Close it, open it again and save.', '⚠️');
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Update Entry';
+    return;
+  }
   let updateQuery = db.from('logbook')
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
-    .eq('worker_name', WORKER_NAME);
+    // BRP-A: identity, not display name - RLS already enforces auth_uid; the name could only
+    // narrow this into matching nothing, which PostgREST answers with no error.
+    .eq('auth_uid', _authUid);
 
   // Optimistic lock: if we captured updated_at when the entry was opened,
   // add it to the filter. A concurrent edit by another session would change
@@ -4809,7 +5450,7 @@ async function saveEditFromForm() {
     updateQuery = updateQuery.eq('updated_at', _editingUpdatedAt);
   }
 
-  const { data: updatedRows, error } = await updateQuery.select('id');
+  const { data: updatedRows, error } = await updateQuery.select('id, updated_at');
   if (error) {
     console.error('logbook edit-save failed:', { error, id, worker_name: WORKER_NAME, updates });
     showToast(whWriteError(error, 'The update did not go through. The entry is unchanged; try again.'));
@@ -4826,14 +5467,47 @@ async function saveEditFromForm() {
     return;
   }
 
+  // ★THE CACHED COPY MUST CARRY WHAT THIS SAVE WROTE, STAMP INCLUDED (2026-10-07). The team view does not re-query
+  // after a save, and now that its cache keeps updated_at, a second edit of the same entry would send the pre-save
+  // stamp and be told someone else had changed it - our own write reported as a conflict. (Before, with no stamp,
+  // that second edit refilled the form from the pre-save copy and silently reverted the first edit.)
+  const _savedStamp = Array.isArray(updatedRows) && updatedRows[0] ? updatedRows[0].updated_at : null;
+  for (const _cached of [_allEntries.find(e => e.id === id), _teamEntries.find(e => e.id === id)]) {
+    if (_cached) Object.assign(_cached, updates, _savedStamp ? { updated_at: _savedStamp } : {});
+  }
+
+  // A parked offline edit this save has now carried to the server (opened via openParkedItem) is done: take it off
+  // the device, or the stuck list would go on offering to fix work that has landed.
+  if (_editingParkedId === id) {
+    try { await removeFromQueue(id); }
+    catch (e) { console.error('saved, but the parked copy could not be removed from this device', e); }
+    _editingParkedId = null;
+    await updateOfflineBadge();
+  }
+
   // T108 (2026-08-25): if this edit ASSIGNED the work order, tell the ASSIGNEE — the badge
   // alone was silent work (they discovered their job by scrolling). Guarded server-side
   // (member-of-hive caller, recipient resolved from the entry, self-assign no-op, free-text
   // names that match no member resolve to nothing — honest partial reach). .then() attached:
   // supabase-js builders are thenables and never send un-awaited (measured on mig 003).
-  if (_woAssignedVal) {
+  // Only when the assignee CHANGED: openEditModal now refills the assignee, so every later edit of an assigned job
+  // resends the same name - and must not push "assigned to you" at them again.
+  if (_woAssignedVal && _woAssignedVal !== _editingPrevAssignee) {
     try { db.rpc('notify_wo_assigned', { p_entry_id: String(id) }).then(() => {}, () => {}); }
     catch (_) { /* empty-catch-allow: the edit stands; the nudge is best-effort */ }
+  }
+
+  // ★A CMMS WORK ORDER CLOSED HERE WAS NEVER CLOSED THERE (2026-10-12, UFAI edge walk W4409). cmms-push-completion
+  // ran only from the NEW-entry save, for an entry born Closed - which has no CMMS work order to close (and, until the
+  // function stopped guessing the same day, made it close the newest order for that machine instead). The case the
+  // push exists for is this one: an order imported from the CMMS, opened here, and closed by the person who did the
+  // work. Only when this edit CLOSED it, fire-and-forget like the insert path; the function finds the order by this
+  // entry's own link and pushes nothing when there is none. (An edit queued offline is pushed by neither path.)
+  if (newStatus === 'Closed' && prevStatus !== 'Closed' && machine && HIVE_ID) {
+    db.functions.invoke('cmms-push-completion', {
+      body: { hive_id: HIVE_ID, machine, worker_name: WORKER_NAME,
+              actual_hours: updates.downtime_hours, closed_at: closedAt, logbook_id: id }
+    }).then(({ error: pushErr }) => { if (pushErr) console.warn('cmms-push-completion:', pushErr.message); });
   }
 
   // Deduct newly added parts (skip existing — already deducted on original save)
@@ -4868,7 +5542,7 @@ async function saveEditFromForm() {
   // Placed AFTER the 0-row guard above on purpose, which is the asset-manager lesson: never write an
   // audit entry for an amendment the database refused.
   writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
-    new_status: newStatus, prev_status: existing?.status,
+    new_status: newStatus, prev_status: prevStatus,
     new_category: updates.category, new_downtime_hours: updates.downtime_hours,
     parts_added: _partsUsed.filter(p => p.partId && !p._existing).length,
   });
@@ -4936,7 +5610,7 @@ async function loadPMTasksForAsset() {
     q = db.from('v_pm_compliance_truth').select('pm_asset_id, asset_name, tag_id, category').eq('hive_id', HIVE_ID).limit(500); // limit-as-count-allow: asset-picker registry (bounded-by-nature ≤ dozens/hive), does not feed a .length count. Arc L · L2 row cap
   } else {
     // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
-    q = db.from('pm_assets').select('id, asset_name, tag_id, category').eq('worker_name', WORKER_NAME).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature)
+    q = db.from('pm_assets').select('id, asset_name, tag_id, category').or(_MINE()).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature)
   }
   const { data: pmRaw } = await q;
   // Normalise the id column so downstream code (which expects `id`) works
@@ -5012,7 +5686,7 @@ function renderPMTasksPanel() {
     if (item.status === 'nodata')   return `<span style="color:rgba(255,255,255,0.80);font-size:0.75rem;">no history</span>`;
     if (item.nextDue) {
       const d = item.nextDue;
-      return `<span style="color:rgba(255,255,255,0.80);font-size:0.75rem;">next: ${d.toLocaleDateString('en-PH',{month:'short',day:'numeric'})}</span>`;
+      return `<span style="color:rgba(255,255,255,0.80);font-size:0.75rem;">next: ${d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',month:'short',day:'numeric'})}</span>`;
     }
     return '';
   }
@@ -5172,9 +5846,9 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   // reach the queue; today's-duplicate softness is not worth a hang (addEntry's 30s
   // whRecentDuplicate still guards the drain).
   if (machine && !_duplicateWarned && navigator.onLine) {
-    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+    const todayStart = whManilaMidnight();   // "already logged today" means the Manila day (device-clock-day ratchet)
     const { data: dupeCheck } = await db.from('logbook')
-      .select('id').eq('worker_name', WORKER_NAME).eq('machine', machine)
+      .select('id').or(_MINE()).eq('machine', machine)
       .gte('date', todayStart.toISOString()).limit(1);
     if (dupeCheck && dupeCheck.length > 0) {
       showToast(_t(`${machine} already logged today. Submit again to save anyway.`,
@@ -5468,6 +6142,9 @@ function stepGo(n, fromPop) {
 // (the central utils.js handler owns that pop) and when the wizard is at rest.
 window.addEventListener('popstate', function (e) {
   try {
+    // A modal closed by X gives its entry back, and that popstate lands here with no overlay open: it
+    // must not step the wizard (it reset a mid-wizard entry to step 1 on the base entry).
+    if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;
     if (document.querySelector('.sheet-overlay.open, .modal-overlay.open')) return;
     const s = e.state && e.state.whWizStep;
     if (s !== undefined && s !== null) { if (s !== _currentStep) stepGo(s, true); return; }
@@ -5505,6 +6182,7 @@ function clearForm() {
   document.getElementById('photo-dropzone').classList.remove('hidden');
   currentPhotoData    = null;
   _pendingAssetRefId  = null;
+  window._lbAiFilled  = {};   // LM-V (LM422): a fresh entry has no AI-drafted fields yet
   _pmItemsForAsset    = [];
   _pmOnTrackExpanded  = false;
   document.getElementById('pm-tasks-panel').classList.add('hidden');
@@ -5534,7 +6212,10 @@ function clearForm() {
   localStorage.removeItem(DRAFT_KEY);
   // Reset status toggle visual to Open
   updateStatusToggle('f-status');
-  // Phase E.4: re-evaluate WO state dropdown options + hide assignee
+  // Phase E.4: re-evaluate WO state dropdown options + hide assignee. A cleared form is a NEW entry, so its base
+  // state is None (openEditModal sets the row's own state as the base after calling this).
+  const _woBase = document.getElementById('f-wo-state');
+  if (_woBase) _woBase.dataset.from = '';
   applyWoStateUI();
 }
 
@@ -5640,7 +6321,7 @@ async function startSmartVoice() {
       if (res.error) throw new Error(await window.whFnError(res.error, _t('The voice entry could not be filled in.', 'Hindi napunan ang voice entry.')));
       const e = res.data?.entry;
       if (!e) throw new Error('No entry returned');
-      applySmartVoiceFill(e, transcript);
+      applySmartVoiceFill(e, transcript, res.data);
     } catch (err) {
       console.error('logbook AI-fill failed:', err);
       procDiv.style.display = 'none';
@@ -5664,36 +6345,46 @@ async function startSmartVoice() {
   rec.start();
 }
 
-function applySmartVoiceFill(e, transcript) {
+// reply = voice-logbook-entry's whole reply: its trace_id is what a "wrong" on the voice notes names (LM-E)
+function applySmartVoiceFill(e, transcript, reply) {
   const procDiv   = document.getElementById('vf-processing');
   const resultDiv = document.getElementById('vf-result');
   procDiv.style.display = 'none';
 
-  // Fill form fields
+  // Fill form fields. Each lbNoteAiFill records what this fill left in the field (LM-V, LM422), so the saved entry
+  // can say which of its words the AI drafted (logbook.ai_assisted_fields).
   const filled = [];
-  if (e.problem) { const el = document.getElementById('f-problem'); if (el) { el.value = e.problem; filled.push('Problem'); } }
-  if (e.action)  { const el = document.getElementById('f-action');  if (el) { el.value = e.action;  filled.push('Action'); } }
-  if (e.root_cause) { const el = document.getElementById('f-root-cause'); if (el) { el.value = e.root_cause; filled.push('Root Cause'); } }
+  if (e.problem) { const el = document.getElementById('f-problem'); if (el) { el.value = e.problem; filled.push('Problem'); lbNoteAiFill('problem'); } }
+  if (e.action)  { const el = document.getElementById('f-action');  if (el) { el.value = e.action;  filled.push('Action'); lbNoteAiFill('action'); } }
+  if (e.root_cause) { const el = document.getElementById('f-root-cause'); if (el) { el.value = e.root_cause; filled.push('Root Cause'); lbNoteAiFill('root_cause'); } }
   if (e.maintenance_type) {
     const sel = document.getElementById('f-maint-type');
     if (sel) {
       const opt = Array.from(sel.options).find(o => o.value === e.maintenance_type);
-      if (opt) { sel.value = e.maintenance_type; filled.push('Type'); }
+      if (opt) { sel.value = e.maintenance_type; filled.push('Type'); lbNoteAiFill('maintenance_type'); }
     }
   }
   if (e.status) {
     const r = document.querySelector(`input[name="f-status"][value="${e.status}"]`);
-    if (r) { r.checked = true; filled.push('Status'); }
+    if (r) { r.checked = true; filled.push('Status'); lbNoteAiFill('status'); }
   }
-  // Phase E.4: hydrate work-order state + assignee from the loaded entry
+  // Phase E.4: hydrate work-order state + assignee from the loaded entry.
+  // ★ONLY WHEN THE AI RETURNED ONE (2026-10-07). This wrote `e.wo_state || ''` unconditionally, and
+  // voice-logbook-entry's output has no wo_state or wo_assigned_to at all - so "Speak" never filled them and instead
+  // CLEARED a state or assignee the person had already picked by hand. Like every other field here, an absent AI
+  // value leaves the person's input alone.
   const woStateEl = document.getElementById('f-wo-state');
-  if (woStateEl) { woStateEl.value = e.wo_state || ''; if (e.wo_state) filled.push('WO State'); }
+  if (woStateEl && e.wo_state) {
+    woStateEl.value = e.wo_state;
+    applyWoStateUI();   // a state this person may not set snaps back to the form's base - and then it was not filled
+    if (woStateEl.value === e.wo_state) { filled.push('WO State'); lbNoteAiFill('wo_state'); }
+  }
   const woAssignedEl = document.getElementById('f-wo-assigned-to');
-  if (woAssignedEl) { woAssignedEl.value = e.wo_assigned_to || ''; }
+  if (woAssignedEl && e.wo_assigned_to) { woAssignedEl.value = e.wo_assigned_to; lbNoteAiFill('wo_assigned_to'); }
   applyWoStateUI();   // re-evaluate visible options + show/hide Assigned-to field
   if (e.downtime_hours) {
     const el = document.getElementById('f-downtime');
-    if (el) { el.value = e.downtime_hours; filled.push('Downtime'); }
+    if (el) { el.value = e.downtime_hours; filled.push('Downtime'); lbNoteAiFill('downtime_hours'); }
   }
   if (e.machine) {
     const hiddenM = document.getElementById('f-machine');
@@ -5701,6 +6392,7 @@ function applySmartVoiceFill(e, transcript) {
     if (hiddenM && !hiddenM.value) {
       // Only prefill machine if not already selected — don't overwrite user selection
       hiddenM.value = e.machine;
+      lbNoteAiFill('machine');
       if (labelM) { labelM.textContent = e.machine; labelM.style.color = 'rgba(255,255,255,0.6)'; }
       loadMachineHistory(e.machine);
     }
@@ -5725,6 +6417,21 @@ function applySmartVoiceFill(e, transcript) {
 
   resultDiv.innerHTML = html;
   resultDiv.style.display = 'block';
+  // LM-E (2026-10-08): the filled fields are the person's to edit (their edit is the correction). The LOTO, parts and
+  // supervisor notes above are different - the model's reading of what was said, shown as text and in no field - so
+  // when any of them is shown, the shared "was this right?" row records them with the transcript they came from.
+  // #vf-result is rewritten whole on every fill, so the row never stacks.
+  const _vn = (v) => (typeof v === 'string' ? v.trim() : '');
+  const _voiceNotes = [
+    e.loto_detected ? ('LOTO/isolation detected' + (_vn(e.loto_note) ? ': ' + _vn(e.loto_note) : '')) : '',
+    Array.isArray(e.parts_mentioned) && e.parts_mentioned.length ? ('Parts mentioned: ' + e.parts_mentioned.map(_vn).filter(Boolean).join(', ')) : '',
+    _vn(e.supervisor_alert) ? ('Supervisor note: ' + _vn(e.supervisor_alert)) : '',
+  ].filter(Boolean);
+  if (_voiceNotes.length && typeof whAiTrustRow === 'function') {
+    whAiTrustRow(resultDiv, { db, agent: 'voice-logbook-entry', source: 'voice-notes', page: 'logbook',
+      traceId: whTraceIdOf(reply),
+      question: transcript || '', answer: _voiceNotes.join('\n'), groundedOn: 'what you said, as transcribed' });
+  }
   saveDraft();
   showToast('Form filled from voice, review and adjust before submitting.');
 }
@@ -5827,7 +6534,11 @@ function vdcWireOnce() {
 
 async function vdcAnalyze() {
   if (!_vdcDataUrl) { showToast('Capture a photo first.'); return; }
-  if (!HIVE_ID)    { showToast('Join a hive to analyze defects with AI.'); return; }
+  // ★NO HIVE IS NOT A REASON TO REFUSE (LM-V walk, LM479, 2026-10-07). This function used to stop here when there
+  // was no hive and tell the person to join one - so a solo owner, whose own entries, voice fill and companion
+  // prefill all work without a hive, was turned away from the photo path alone.
+  // visual-defect-capture now serves a signed-in hive-less person on their verified identity (own solo AI budget,
+  // own asset register) and answers an anonymous caller 401 "Sign in to analyze a photo.", which whFnError shows.
 
   const analyzeBtn = document.getElementById('vdc-analyze-btn');
   const procDiv    = document.getElementById('vdc-processing');
@@ -5845,7 +6556,7 @@ async function vdcAnalyze() {
   try {
     const { data, error } = await db.functions.invoke('visual-defect-capture', {
       body: {
-        hive_id:         HIVE_ID,
+        hive_id:         HIVE_ID || null,   // none = the person's own scope, decided by the server from their session
         image_data_url:  _vdcDataUrl,
         asset_id:        null,
         voice_note,
@@ -5859,7 +6570,7 @@ async function vdcAnalyze() {
     if (data && data.error) { showToast(data.error); return; }
     if (!data || !data.draft) { showToast('AI returned no draft.'); return; }
 
-    vdcApplyDraft(data);
+    vdcApplyDraft(data, voice_note);
 
     // Persona Contract Phase 4: play the narration in Hezekiah/Zaniah's voice
     // while the worker reviews the auto-filled draft. wh-tts.js handles
@@ -5879,24 +6590,26 @@ async function vdcAnalyze() {
   }
 }
 
-function vdcApplyDraft(payload) {
+function vdcApplyDraft(payload, voiceNote) {
   const e = escHtml;
   const draft = payload.draft || {};
   const matched = payload.matched_asset;
   const filled = [];
 
-  const setVal = (id, v, label) => {
+  // field = the logbook column, so lbNoteAiFill can record what the photo draft left in it (LM-V, LM422)
+  const setVal = (id, v, label, field) => {
     if (!v) return;
     const el = document.getElementById(id);
     if (!el) return;
     if (el.value && el.value.trim()) return;   // do not overwrite existing input
     el.value = v;
     filled.push(label);
+    lbNoteAiFill(field);
   };
 
-  setVal('f-problem',    draft.problem,    'Problem');
-  setVal('f-action',     draft.action,     'Action');
-  setVal('f-knowledge',  draft.knowledge,  'Knowledge');
+  setVal('f-problem',    draft.problem,    'Problem',   'problem');
+  setVal('f-action',     draft.action,     'Action',    'action');
+  setVal('f-knowledge',  draft.knowledge,  'Knowledge', 'knowledge');
 
   // Category select.
   if (draft.category) {
@@ -5904,7 +6617,7 @@ function vdcApplyDraft(payload) {
     if (sel) {
       const want = String(draft.category).toLowerCase();
       const opt = Array.from(sel.options).find(o => o.value.toLowerCase() === want);
-      if (opt && !sel.value) { sel.value = opt.value; filled.push('Category'); }
+      if (opt && !sel.value) { sel.value = opt.value; filled.push('Category'); lbNoteAiFill('category'); }
     }
   }
 
@@ -5915,7 +6628,7 @@ function vdcApplyDraft(payload) {
       const opt = Array.from(sel.options).find(o =>
         String(o.value).toLowerCase() === String(draft.root_cause).toLowerCase()
       );
-      if (opt && !sel.value) { sel.value = opt.value; filled.push('Root Cause'); }
+      if (opt && !sel.value) { sel.value = opt.value; filled.push('Root Cause'); lbNoteAiFill('root_cause'); }
     }
   }
 
@@ -5925,6 +6638,7 @@ function vdcApplyDraft(payload) {
     const labelM  = document.getElementById('asset-picker-label');
     if (hiddenM && !hiddenM.value) {
       hiddenM.value = matched.tag || matched.name || matched.asset_id;
+      lbNoteAiFill('machine');
       if (labelM) {
         labelM.textContent = matched.tag || matched.name;
         labelM.style.color = 'rgba(255,255,255,0.6)';
@@ -5943,8 +6657,13 @@ function vdcApplyDraft(payload) {
                     : sev === 'high'    ? '#f7a21b'
                     : sev === 'medium'  ? '#facc15'
                                         : 'rgba(255,255,255,0.5)';
+    // where the server looked the tag up: a hive's register, or (no hive) the person's own registered assets
+    const ownScope = payload.asset_scope ? payload.asset_scope === 'own' : !HIVE_ID;
+    const tagWhere = ownScope
+      ? (matched ? ' (matched in your registered assets)' : ' (not in your registered assets)')
+      : (matched ? ' (matched in hive)' : ' (no hive match)');
     const tagLine = draft.asset_tag_extracted
-      ? `<p style="color:rgba(255,255,255,0.80); font-size:0.75rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${matched ? ' (matched in hive)' : ' (no hive match)'}</p>`
+      ? `<p style="color:rgba(255,255,255,0.80); font-size:0.75rem; margin-top:4px;">Asset tag read from photo: <strong>${e(draft.asset_tag_extracted)}</strong>${tagWhere}</p>`
       : '';
     resultDiv.innerHTML =
       `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:6px;">` +
@@ -5958,6 +6677,26 @@ function vdcApplyDraft(payload) {
       tagLine +
       `<button type="button" onclick="document.getElementById('vdc-result').style.display='none';" style="margin-top:8px; font-size:0.75rem; color:rgba(255,255,255,0.80); background:none; border:none; cursor:pointer; font-family:inherit;" data-i="dismiss">Dismiss</button>`;
     resultDiv.style.display = 'block';
+    // ★THE PHOTO'S DIAGNOSIS COULD NOT BE CALLED WRONG (LM-E walk, 2026-10-08). The fields it filled are the person's to
+    // edit - that edit IS the correction, and ai_assisted_fields records what was kept. But the failure mode, severity
+    // and confidence above are NOT in any field: they are the model's reading of the photo, shown as text a person
+    // acts on. The shared "was this right?" row records that diagnosis and the drafted words. #vdc-result is rewritten
+    // whole on every analysis, so the row never stacks.
+    if (typeof whAiTrustRow === 'function') {
+      const _d = (v) => (typeof v === 'string' ? v.trim() : '');
+      const _diag = [
+        'Failure mode: ' + (_d(draft.failure_mode) || '?') + '; severity: ' + sev + '; confidence: ' + confPct + '%',
+        _d(draft.asset_tag_extracted) && ('Asset tag read: ' + _d(draft.asset_tag_extracted)),
+        _d(draft.problem) && ('Problem: ' + _d(draft.problem)),
+        _d(draft.action) && ('Action: ' + _d(draft.action)),
+        _d(draft.knowledge) && ('Knowledge: ' + _d(draft.knowledge)),
+      ].filter(Boolean).join('\n');
+      whAiTrustRow(resultDiv, { db, agent: 'visual-defect-capture', source: 'photo-diagnosis', page: 'logbook',
+        traceId: whTraceIdOf(payload),   // LM-E: the id visual-defect-capture's reply returned
+        question: 'What defect is in this photo?' + (voiceNote ? ' Notes typed with it: ' + voiceNote : ''), answer: _diag,
+        groundedOn: 'your photo' + (voiceNote ? ', what you had typed in Problem / Action,' : '')
+          + (ownScope ? ' and your registered assets' : ' and your hive\'s asset register') });
+    }
   }
 
   if (filled.length) saveDraft();
@@ -6197,7 +6936,7 @@ const _exportPageAll = async () => {
   for (let from = 0; ; from += PAGE) {
     let q = db.from('logbook')
       .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, status, closed_at, created_at, failure_consequence, loto_applied, permit_reference, worker_name')
-      .eq('worker_name', WORKER_NAME)
+      .or(_MINE())
       .order('date', { ascending: false })
       .order('id')                    // MR4: the sort above is not total on its own
       .range(from, from + PAGE - 1);
@@ -6297,7 +7036,7 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `workhive-logbook-${WORKER_NAME}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `workhive-logbook-${WORKER_NAME}-${whManilaYmd()}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('Exported ' + entries.length + ' entries.');
@@ -6553,8 +7292,19 @@ function applyWoStateUI() {
   if (!sel) return;
 
   const role = (HIVE_ROLE === 'supervisor') ? 'supervisor' : 'worker';
+  // ★THE MOVES ARE MEASURED FROM THE ROW'S STATE, NOT FROM THE LAST PICK (2026-10-07). This used to compute the
+  // allowed set from the CURRENT selection, so every pick re-based the menu: a worker who chose Requested could no
+  // longer go back to None, and an edit (which never refilled the state) always started from None. The base is the
+  // state the entry HAD - dataset.from, set by openEditModal, '' for a new entry (clearForm) - so the menu is the
+  // same set of legal moves however many times the person changes their mind.
+  // It mirrors tg_guard_approval (wh_guard_supervisor_approval): a non-supervisor who puts an entry INTO approved,
+  // assigned, verified or rejected is refused 42501 (an unchanged state is not a move, so keeping it is allowed).
+  // A value outside the set - a voice/companion fill, a stale draft - snaps back to the base rather than sitting
+  // selected until Save fails.
+  const from = sel.dataset.from || '';
+  const allowed = WO_TRANSITIONS[role][from] || [from];
+  if (allowed.indexOf(sel.value || '') === -1) sel.value = from;
   const current = sel.value || '';
-  const allowed = WO_TRANSITIONS[role][current] || [current];
 
   // Disable options that aren't valid transitions; keep them visible so users
   // understand the workflow but can't pick them. (Greys them out via CSS state.)
@@ -6629,7 +7379,7 @@ const _PICKER_COLS = 'id, part_name, part_number, qty_on_hand, unit, bin_locatio
 async function loadInventoryForPicker() {
   if (HIVE_ID) {
     const [myRes, hiveRes] = await Promise.allSettled([
-      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('worker_name', WORKER_NAME).limit(2000), // L2: parts picker; inventory bounded-by-nature
+      db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000), // L2: parts picker; inventory bounded-by-nature
       db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature
     ]);
     const seen = new Set();
@@ -6639,7 +7389,7 @@ async function loadInventoryForPicker() {
     }
     _inventoryItems = merged;
   } else {
-    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('worker_name', WORKER_NAME).limit(2000); // L2: parts picker; inventory bounded-by-nature
+    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000); // L2: parts picker; inventory bounded-by-nature
     _inventoryItems = data || [];
   }
 }
@@ -6727,7 +7477,11 @@ function selectPart(partId, partName, partNumber, unit) {
   if (_partsUsed.some(p => p.partId === partId)) return;
   _partsUsed.push({ partId, partName, partNumber, qty: 1, unit: unit || 'pcs' });
   renderSelectedParts();
-  renderPartsPickerList(document.getElementById('parts-picker-search').value.trim());
+  // ★ONE PRESS, ONE PART (UFAI W4400, walked 2026-10-09). The picker stayed open after a pick, so the person was left
+  // on "Select Part Used" with nothing changed but a dimmed row, and the only way back was an X named "Close" - which
+  // reads as cancel. The quantity is set on the form, not here, so the form is always the next step: the picker
+  // closes on the pick, whModalA11y returns focus to "Add Part Used", and a second part is one more press of it.
+  closePartsPicker();
 }
 
 function renderSelectedParts() {
@@ -6741,14 +7495,14 @@ function renderSelectedParts() {
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <span class="text-xs" style="color:rgba(255,255,255,0.80);">Qty:</span>
-        <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity used"
+        <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity of ${escHtml(p.partName)} used"
           onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
           style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
         <span class="text-xs" style="color:rgba(255,255,255,0.80);">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
-          style="background:rgba(239,68,68,0.1); color:var(--wh-red); border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove">
+          style="background:rgba(239,68,68,0.1); color:var(--wh-red); border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove ${escHtml(p.partName)}">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
@@ -6787,7 +7541,7 @@ function renderOpenJobs(entries) {
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
       onclick="openModal('${e.id}')" role="button" tabindex="0"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}"
-      aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml(e.machine || _t('Unknown machine', 'Hindi kilalang makina'))}"
+      aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([e.machine || _t('Unknown machine', 'Hindi kilalang makina'), (e.problem || '').slice(0, 60), e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''].filter(Boolean).join(' - '))}"
       onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
       <div class="flex items-center justify-between gap-2">
         <div class="flex-1 min-w-0">
@@ -6795,7 +7549,7 @@ function renderOpenJobs(entries) {
           ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:rgba(255,255,255,0.80);">' + escHtml(e.problem) + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
-          <p class="text-xs" style="color:rgba(255,255,255,0.80);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { month:'short', day:'numeric' }) : ''}</p>
+          <p class="text-xs" style="color:rgba(255,255,255,0.80);">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''}</p>
           <p class="text-xs font-bold mt-0.5" style="color:var(--wh-red);">Open</p>
         </div>
       </div>
@@ -6833,7 +7587,10 @@ function saveDraft() {
       action,
       knowledge:   document.getElementById('f-knowledge').value,
       downtime:    document.getElementById('f-downtime').value,
-      status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open'
+      status:      document.querySelector('input[name="f-status"]:checked')?.value || 'Open',
+      // LM-V (LM422): what the AI put in these fields travels with them, or a restored draft would save the AI's
+      // words as the person's own
+      aiFilled:    window._lbAiFilled || {}
     }));
   } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
 }
@@ -6866,6 +7623,9 @@ function restoreDraft() {
       const radio = document.querySelector(`input[name="f-status"][value="${draft.status}"]`);
       if (radio) { radio.checked = true; updateStatusToggle('f-status'); }
       if (draft.status === 'Closed') document.getElementById('parts-used-section').classList.remove('hidden');
+    }
+    if (draft.aiFilled && typeof draft.aiFilled === 'object' && !Array.isArray(draft.aiFilled)) {
+      window._lbAiFilled = Object.assign({}, draft.aiFilled);
     }
     showToast('Draft restored. Continue where you left off.');
   } catch(e) { localStorage.removeItem(DRAFT_KEY); }
@@ -6944,6 +7704,11 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 
   if (!navigator.onLine) updateOfflineUI(false);
   await updateOfflineBadge();
+  // The queue drained ONLY on an 'online' event, and a page that LOADS online never sees one - so an entry saved in a
+  // dead zone, after the phone was pocketed and the app closed, waited for the next signal flap that might never come
+  // (the T14 restart lesson: a drain only happens if a fresh page life starts it). Not awaited: the feed must not
+  // wait on the queue. _lbDraining keeps it from racing an 'online' event that fires during load.
+  if (navigator.onLine) syncOfflineQueue().catch(e => console.error('offline sync at load failed; will retry on reconnect', e));
 
   // Show team/mine toggle only when in a hive
   if (HIVE_ID) {
@@ -6997,7 +7762,12 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
       const lf = document.getElementById('log-form');
       if (lf) {
         lf.scrollIntoView({ behavior: 'smooth' });
-        const first = lf.querySelector('input:not([type=hidden]), select, textarea');
+        // The first INPUT in this form is the hidden photo picker (#vdc-file-input), and step 1 opens with buttons
+        // only (Speak, Capture, the asset picker) - so focus() landed on a display:none input and the person was left
+        // on <body> (2026-10-06, logbook x any, layer F). Focus the first control that can actually be seen.
+        const first = Array.prototype.find.call(
+          lf.querySelectorAll('input:not([type=hidden]), select, textarea, button, [role=combobox], [tabindex]:not([tabindex="-1"])'),
+          (el) => !el.disabled && (typeof el.checkVisibility !== 'function' || el.checkVisibility({ visibilityProperty: true, opacityProperty: true })));
         if (first) first.focus({ preventScroll: true });
       }
     }
@@ -7060,6 +7830,21 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
         _setRadio('f-status', p.status);
       }
 
+      // ★WHICH WORDS THE AI WROTE (LM-V, LM422, 2026-10-07): record what this prefill left in each field it set, so
+      // the entry the person saves records which fields the companion drafted and they kept (logbook.ai_assisted_fields).
+      // lbNoteAiFill reads the field back, so a select that refused the spoken value records nothing.
+      if (typeof lbNoteAiFill === 'function') {
+        if (machine)                                       lbNoteAiFill('machine');
+        if (p.maintenance_type)                            lbNoteAiFill('maintenance_type');
+        if (p.category)                                    lbNoteAiFill('category');
+        if (p.problem)                                     lbNoteAiFill('problem');
+        if (p.action)                                      lbNoteAiFill('action');
+        if (p.root_cause)                                  lbNoteAiFill('root_cause');
+        if (p.downtime_hours != null)                      lbNoteAiFill('downtime_hours');
+        if (p.status === 'Open' || p.status === 'Closed')  lbNoteAiFill('status');
+        if (typeof saveDraft === 'function') saveDraft();   // the draft carries the marks with the words
+      }
+
       // Scroll the form into view so the worker can review and tap Save.
       const form = document.getElementById('log-form') || document.querySelector('form');
       if (form && form.scrollIntoView) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -7077,7 +7862,10 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 
     function tryRegister() {
       if (window.WHVoice && typeof window.WHVoice.register === 'function') {
-        window.WHVoice.register('logbook.create', logbookCreateHandler);
+        // effect 'prefill' (LM-V walk, 2026-10-07): the handler only fills the form and links the
+        // asset; the person reviews and taps Save, which is the write. If this handler ever saves by
+        // itself, declare 'write' - validate_ai_companion_orchestration fails a 'prefill' that writes.
+        window.WHVoice.register('logbook.create', logbookCreateHandler, { effect: 'prefill' });
         return true;
       }
       return false;

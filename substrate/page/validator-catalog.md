@@ -2,13 +2,13 @@
 name: page-validator-catalog
 type: page
 source: file:validator-catalog.html
-source_sha: f91066be8bc5cf7d
+source_sha: 05e4a2cda0a3dd45
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `validator-catalog.html` — WorkHive — Validator Catalog
 
-Size: 15KB · 2 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 16KB · 2 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

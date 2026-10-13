@@ -129,6 +129,22 @@ def _id_is_kpi(id_: str) -> bool:
     return any(pat.match(id_) for pat in KPI_ID_PATTERNS)
 
 
+_HELPER_DEF_RE = re.compile(
+    r"(?:function\s+(?P<f>[A-Za-z_$][\w$]*)\s*\(\s*(?P<fp>[A-Za-z_$][\w$]*)"
+    r"|(?:const|let|var)\s+(?P<c>[A-Za-z_$][\w$]*)\s*=\s*(?:function\s*)?\(\s*(?P<cp>[A-Za-z_$][\w$]*))"
+)
+
+
+def _id_helpers(body: str) -> set:
+    """Names of functions whose FIRST parameter goes straight to getElementById within their first 400 chars."""
+    out = set()
+    for m in _HELPER_DEF_RE.finditer(body):
+        name, param = (m.group('f'), m.group('fp')) if m.group('f') else (m.group('c'), m.group('cp'))
+        if re.search(r"getElementById\(\s*" + re.escape(param) + r"\s*\)", body[m.end():m.end() + 400]):
+            out.add(name)
+    return out
+
+
 def _is_default_value(content: str) -> bool:
     # Strip whitespace + HTML entity-escapes; treat &#8212; (em-dash) and
     # &mdash; as default placeholders.
@@ -176,6 +192,14 @@ def _scan_page(page_path: Path) -> tuple[list[dict], list[dict]]:
             body,
         )
         if direct:
+            continue
+
+        # Helper: `_invStat('stat-total', 'parts', n)` where the same file defines
+        # `const _invStat = (id, ...) => { ... document.getElementById(id) ... }` (inventory, 2026-10-13).
+        # Credited only when the id is the helper's FIRST argument and the helper passes that parameter
+        # to getElementById within its own opening lines - a call that never reaches the DOM is no setter.
+        if any(re.search(r"\b" + re.escape(h) + r"\s*\(\s*['\"`]" + re.escape(id_) + r"['\"`]", body)
+               for h in _id_helpers(body)):
             continue
 
         # Dynamic: `getElementById('prefix-' + name + '-suffix')`.

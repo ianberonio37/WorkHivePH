@@ -1,0 +1,13 @@
+{
+  "_doc": "Forward-only floors for the \u00a7BRP wave: a class's site count may fall, never rise. Measured by tools/bug_repro_inventory.py against the live source and schema.",
+  "generated": "2026-10-13T10:16:31.250219+00:00",
+  "floors": {
+    "A": 0,
+    "C": 4,
+    "_total": 4
+  },
+  "by_page": {
+    "marketplace-seller-profile.html": 2,
+    "marketplace.html": 2
+  }
+}

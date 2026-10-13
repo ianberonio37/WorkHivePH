@@ -64,8 +64,20 @@ DIRECT_WRITE = {
     "fault_knowledge": {
         "source": "logbook",
         "key": "logbook_id",
+        # auth_uid (2026-10-07): the entry's AUTHOR owns the knowledge row. A hive-less row is readable only by
+        # `hive_id IS NULL AND auth_uid = auth.uid()` (fault_knowledge_read, mig 20261007000014), and this upsert
+        # never carried it - 6 of the 12 hive-less rows were unowned, so their author could never read them back.
+        # The table's BEFORE trigger (tg_bind_owner_fault_knowledge) binds the same value from the entry for every
+        # writer; naming it here keeps this writer honest on its own rather than relying on the trigger alone.
         "cols": ["hive_id", "machine", "category", "problem", "root_cause", "action", "knowledge",
-                 "worker_name"],
+                 "worker_name", "auth_uid"],
+        # Target column -> SQL over the source row `l`. ai_assisted_fields (LM-V, LM422, 2026-10-07) names the fields
+        # of the ENTRY an AI path drafted and the person kept; the knowledge row keeps only the ones it holds - the
+        # same narrowing embed-entry applies, so the two writers of fault_knowledge agree on one meaning.
+        "derived": {
+            "ai_assisted_fields": "array(select f from unnest(l.ai_assisted_fields) f "
+                                  "where f = any(array['machine','category','problem','root_cause','action','knowledge']))",
+        },
     },
 }
 
@@ -175,7 +187,10 @@ def embed_direct(source_table, row_id, spec):
         # no usable space — the exact failure class this session spent hours undoing.
         return False, f"embedder returned bad shape: {len(vec) if isinstance(vec, list) else type(vec)}"
 
-    cols = ", ".join(m["cols"])
+    derived = m.get("derived", {})
+    cols = ", ".join(list(m["cols"]) + list(derived))
+    src_exprs = ", ".join(["l." + c for c in m["cols"]] + list(derived.values()))
+    upd = ", ".join(f"{c} = excluded.{c}" for c in list(m["cols"]) + list(derived))
     vlit = "'[" + ",".join(repr(float(x)) for x in vec) + "]'::vector"
     # ANNOUNCE the bulk write. check_daily_row_cap is a per-user ABUSE cap (200/day) meant for a human
     # clicking a button; a backfill is not that. The GUC is set per statement, in the caller's own code,
@@ -183,13 +198,13 @@ def embed_direct(source_table, row_id, spec):
     sql = f"""
     set local workhive.row_cap_system_write = 'on';
     insert into public.{spec['target']} ({m['key']}, {cols}, embedding, embedding_model)
-    select l.id, {', '.join('l.' + c for c in m['cols'])}, {vlit}, {lit(MODEL_TAG)}
+    select l.id, {src_exprs}, {vlit}, {lit(MODEL_TAG)}
       from public.{m['source']} l
      where l.id::text = {lit(row_id)}
     on conflict ({m['key']}) do update
        set embedding = excluded.embedding,
            embedding_model = excluded.embedding_model,
-           {', '.join(f'{c} = excluded.{c}' for c in m['cols'])};
+           {upd};
     """
     # `set local` only lives inside a transaction, so the announcement and the write travel together —
     # the GUC cannot outlive the statement it was set for.

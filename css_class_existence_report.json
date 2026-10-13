@@ -1,10 +1,10 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "total_calls": 793,
+    "total_calls": 814,
     "total_missing": 0,
     "baseline": 0,
-    "css_classes_known": 1783
+    "css_classes_known": 1807
   },
   "per_page": [
     {

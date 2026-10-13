@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
 <style>
   :root {
-    --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44; --card-hover: #243a55;
+    --bg: #0f1923; --surface: var(--wh-navy); --card: var(--wh-navy-mid); --card-hover: #243a55;   /* --card was #1d2e44, one unit from --wh-navy-mid (critique W46006) */
     --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green); --amber: var(--wh-amber); --red: var(--wh-red);
     --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80); --border: rgba(255,255,255,0.08);
   }
@@ -35,14 +35,14 @@
   button, .btn {
     font-family: inherit; font-size: 0.92rem; font-weight: 600;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
-    border-radius: var(--wh-radius-sm); padding: 8px 16px; cursor: pointer; transition: all 0.15s;
+    border-radius: var(--wh-radius-sm); padding: 8px 16px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
     min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   }
   button:hover, .btn:hover { background: var(--card-hover); }
-  button.primary, .btn.primary { background: var(--gold); color: #1a1208; border-color: var(--gold); }
+  button.primary, .btn.primary { background: var(--gold); color: var(--wh-navy); border-color: var(--gold); }
   button.primary:hover { background: var(--wh-orange); }
   button.ghost { background: transparent; }
-  button.danger { color: var(--wh-red); border-color: rgba(225,85,84,0.4); }
+  button.danger { color: var(--wh-red); border-color: rgba(248,113,113,0.4); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   input, select, textarea {
     font-family: inherit; font-size: 16px; /* iOS no-zoom */
@@ -74,8 +74,11 @@
   @media (max-width: 640px) {
     .tab-strip { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
   }
-  .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 16px; }
-  @media (max-width: 720px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn { grid-column: 1 / -1; } }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto auto; gap: 8px; margin-bottom: 16px; }   /* five controls, five tracks: with four, the AI button fell alone onto a second row on desktop */
+  /* the search box and the AI button each sat alone in a half cell beside an empty one, and at 320 the AI label
+     broke onto two lines in its 133px (nav-hub MCP walk, 2026-10-07) - on a phone they take the whole row */
+  /* 900, not 720: five tracks on one row need ~900px before each select is wide enough for "All owners" */
+  @media (max-width: 900px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn, .filter-row > #filter-search, .filter-row > .ai-btn { grid-column: 1 / -1; } }
 
   /* ── Recents strip ────────────────────────────────────────── */
   .recent-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
@@ -83,7 +86,7 @@
   .recent-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 6px 12px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s;
+    padding: 6px 12px; font-size: 0.82rem; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
   }
   .recent-chip:hover { border-color: var(--gold); background: var(--card-hover); }
   .recent-chip .pcode { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
@@ -139,7 +142,7 @@
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr)); gap: 12px; }
   .pcard {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding:16px; cursor: pointer; transition: all 0.15s;
+    padding:16px; cursor: pointer; transition: border-color 0.15s var(--wh-ease-out, ease-out), transform 0.15s var(--wh-ease-out, ease-out);
   }
   .pcard:hover { border-color: var(--gold); transform: translateY(-1px); }
   .pcard-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
@@ -149,15 +152,15 @@
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   }
   .ptype-workorder  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .ptype-shutdown   { background: rgba(225,85,84,0.18);  color: var(--wh-red); }
+  .ptype-shutdown   { background: rgba(248,113,113,0.18);  color: var(--wh-red-text, #FDC9C9); }
   .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
-  .ptype-contractor { background: rgba(48,208,104,0.18); color: var(--green); }
+  .ptype-contractor { background: rgba(74,222,128,0.18); color: var(--green); }
   .nature-pill {
     display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
   }
-  .nature-reactive   { background: rgba(225,85,84,0.14);  color: var(--wh-red);     border-color: rgba(225,85,84,0.3); }
-  .nature-preventive { background: rgba(48,208,104,0.14); color: var(--green); border-color: rgba(48,208,104,0.3); }
+  .nature-reactive   { background: rgba(248,113,113,0.14);  color: var(--wh-red-text, #FDC9C9); border-color: rgba(248,113,113,0.3); }
+  .nature-preventive { background: rgba(74,222,128,0.14); color: var(--green); border-color: rgba(74,222,128,0.3); }
   .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
   .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -169,11 +172,15 @@
   .pcard-foot { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
   .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
   .status-planning  { background: rgba(255,255,255,0.08); color: var(--muted); }
-  .status-active    { background: rgba(48,208,104,0.18); color: var(--green); }
-  .status-on_hold   { background: rgba(244,196,48,0.18); color: var(--amber); }
+  .status-active    { background: rgba(74,222,128,0.18); color: var(--green); }
+  .status-on_hold   { background: rgba(250,204,21,0.18); color: var(--amber); }
   .status-complete  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .status-cancelled { background: rgba(225,85,84,0.18);  color: var(--wh-red); }
+  .status-cancelled { background: rgba(248,113,113,0.18);  color: var(--wh-red-text, #FDC9C9); }
   .status-archived  { background: rgba(255,255,255,0.04); color: var(--muted); }
+  /* A scope item's status pill is a BUTTON (2026-10-12, W4673). It was a <span onclick>: utils.js's polyfill made it
+     focusable, but as a bare "in progress, button" - a name that never said pressing it changes the task's status -
+     and ~20px tall. A native button named "<status>: change to <next>", same look; 24px is the WCAG 2.5.8 minimum. */
+  button.status-pill { border: 0; font-family: inherit; cursor: pointer; min-height: 24px; line-height: 1.2; }
 
   /* ── Detail view ──────────────────────────────────────────── */
   #detail-view { display: none; }
@@ -222,7 +229,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
   th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   th { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  tr.critical td { background: rgba(225,85,84,0.06); }
+  tr.critical td { background: rgba(248,113,113,0.06); }
   tr.done td { opacity: 0.55; }
 
   /* ── Modal ────────────────────────────────────────────────── */
@@ -241,7 +248,7 @@
 
   /* ── Hive gate ────────────────────────────────────────────── */
   #hive-gate {
-    display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.96);
+    display: none; position: fixed; inset: 0; background: rgba(22,32,50,0.96);
     z-index: 500; align-items: center; justify-content: center; padding: 32px; text-align: center;
   }
   #hive-gate .gate-card {
@@ -292,8 +299,8 @@
   .wizard-modal { max-width: 720px; }
   .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
   .wizard-progress .step { flex: 1; padding: 6px 12px; background: var(--card); border-radius: 8px; text-align: center; }
-  .wizard-progress .step.active { background: var(--gold); color: #1a1208; font-weight: 700; }
-  .wizard-progress .step.done { background: rgba(48,208,104,0.18); color: var(--green); }
+  .wizard-progress .step.active { background: var(--gold); color: var(--wh-navy); font-weight: 700; }
+  .wizard-progress .step.done { background: rgba(74,222,128,0.18); color: var(--green); }
   .wizard-pane { display: none; }
   .wizard-pane.active { display: block; }
   .wizard-foot { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; }
@@ -303,7 +310,7 @@
   @media (max-width: 520px) { .type-tile-grid { grid-template-columns: 1fr; } }
   .type-tile {
     background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 16px 20px; cursor: pointer; transition: all 0.15s;
+    padding: 16px 20px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out), transform 0.15s var(--wh-ease-out, ease-out);
   }
   .type-tile:hover { border-color: var(--gold); transform: translateY(-1px); }
   .type-tile.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
@@ -315,7 +322,7 @@
   .template-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
   .template-card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
-    padding: 12px 16px; cursor: pointer; transition: all 0.15s;
+    padding: 12px 16px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
   }
   .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
   .template-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
@@ -342,12 +349,12 @@
   }
   .phase-pre        { background: rgba(255,255,255,0.08); color: var(--muted); }
   .phase-execute    { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .phase-commission { background: rgba(48,208,104,0.18); color: var(--green); }
+  .phase-commission { background: rgba(74,222,128,0.18); color: var(--green); }
   .phase-close      { background: rgba(247,162,27,0.18); color: var(--gold); }
   .phase-fel1       { background: rgba(255,255,255,0.08); color: var(--muted); }
   .phase-fel2       { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .phase-fel3       { background: rgba(48,208,104,0.18); color: var(--green); }
-  .phase-gate       { background: rgba(225,85,84,0.18); color: var(--wh-red); }
+  .phase-fel3       { background: rgba(74,222,128,0.18); color: var(--green); }
+  .phase-gate       { background: rgba(248,113,113,0.18); color: var(--wh-red-text, #FDC9C9); }
   .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 1.1rem; }
   .item-remove:hover { color: var(--red); }
   .add-custom-row {
@@ -389,7 +396,7 @@
    budget. Impact fraction, not distance, is what makes a small miss expensive here. Read these two
    numbers as MEASURED, not chosen — re-measure them when the chip text or verdict copy changes, and
    note that `layout-shift.sources` names the blocks that MOVED, never the one that grew. */
-#pm-mgr-source-chip { min-height: 62px; }       /* empty <p> 0→62 (fills with "reads from X" chip; renders 2 lines at 1280) */
+#pm-mgr-source-chip { min-height: 108px; }      /* empty <p> 0→108: the chip line (62px) + the "How we compute this" toggle (44px, its tap target), measured identical at 320/390/1280 (2026-10-13; 62px counted only the line, and the toggle's 46px moved everything below it, CLS 0.112) */
 #pm-verdict.verdict { min-height: 102px; }       /* verdict box 84→102 (verdict-sub wraps to 2 lines) */
 #pm-verdict-sub { display:block; min-height: 47px; } /* sub 31→47 (placeholder 1-line → real 2-line wrap) */
 #hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
@@ -413,7 +420,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <body>
 
 <!-- Hive gate -->
-<div id="hive-gate">
+<div id="hive-gate" data-wh-gate="no-hive">
   <div class="gate-card">
     <h2 style="margin-bottom: 10px;" data-i="joinhivefirst">Join a hive first</h2>
     <p data-i="p_projectmanageristeamdatajoin_ae15" class="sub" style="margin-bottom: 18px;">Project Manager is team data. Join or create a hive to plan and track projects with your crew.</p>
@@ -524,7 +531,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       </select>
       <input aria-label="Search by name or code…" type="search" id="filter-search" placeholder="Search by name or code…">
       <button class="btn primary new-btn" onclick="openNewProject()" data-i="newproject">+ New project</button>
-      <button class="btn small" onclick="openAIIntentModal()" title="Describe your project in plain language" data-i="aifromtext">🤖 AI: from text</button>
+      <button class="btn small ai-btn" onclick="openAIIntentModal()" title="Describe your project in plain language" data-i="aifromtext">🤖 AI: from text</button>
     </div>
 
     <div id="card-grid" class="card-grid"
@@ -814,6 +821,8 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <button type="button" class="btn ghost" onclick="closeModal('modal-ai-intent')" data-i="cancel">Cancel</button>
       <button type="button" class="btn primary" id="ai-intent-go" onclick="runAIIntent()" data-i="parsewithai">Parse with AI</button>
     </div>
+    <!-- the wait was only the button's label ("Parsing…"), which a screen reader does not announce (LM520) -->
+    <p id="ai-intent-status" class="sub" role="status" aria-live="polite" style="font-size:0.8rem;margin-top:0.5rem;min-height:1em;"></p>
   </div>
 </div>
 
@@ -916,7 +925,9 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
   </div>
 </div>
 
-<div id="toast-container"></div>
+<!-- ★EVERY TOAST ON THIS PAGE WAS SILENT (LM-L walk, LM520, 2026-10-08): the container had no live region, so a
+     screen reader heard no success, refusal or failure. Polite for the container; an error toast is an alert. -->
+<div id="toast-container" role="status" aria-live="polite"></div>
 
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
@@ -955,6 +966,7 @@ let _logs       = [];                      // progress logs for opened project
 let _progress   = null;                    // edge-fn rollup result
 let _roles      = [];                      // project_roles rows (Phase 5B)
 let _aiDraftedText  = null;               // PJ14: the exact text the AI produced, if any
+let _aiDraftedTrace = null;               // LM-E: the trace id the call that drafted _aiDraftedText returned
 let _budgetReadable = false;              // PJ9: did get_project_budget() actually return a figure?
 let _changeOrders = [];                    // project_change_orders rows (Phase 5D)
 let _editingId          = null;  // null = new project, uuid = edit
@@ -970,6 +982,7 @@ function showToast(msg, kind, ms) {
   const c = $('toast-container');
   const t = document.createElement('div');
   t.className = 'toast' + (kind === 'error' ? ' error' : kind === 'success' ? ' success' : '');
+  if (kind === 'error') t.setAttribute('role', 'alert');
   t.textContent = msg;
   c.appendChild(t);
   // timer-cleanup-allow: every setTimeout on this page is short-lived and
@@ -981,7 +994,7 @@ function fmtDate(d) {
   if (!d) return '-';
   return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
-function _todayIso() { return new Date().toISOString().slice(0, 10); }
+function _todayIso() { return whManilaYmd(); }
 function fmtPHP(n) {
   // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): keeps the
   // null→'-' affordance, whole-peso en-PH with thousands separators, never ₱NaN.
@@ -1000,7 +1013,14 @@ async function validateHiveMembership() {
   // canonical-allow: auth-check probe on the membership row itself; the row
   // returning maybeSingle() is the auth signal, not a display fan-out
   const { data, error } = await db.from('hive_members')
-    .select('role').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle();
+    // BRP-A (2026-10-04): the gate keys on the IDENTITY. It asked `worker_name = WORKER_NAME`, which is
+    // localStorage text, so a person whose display name had drifted from the one stored on their
+    // membership row read as "not a member" - the same FALSE REMOVAL the comment below guards against for
+    // a refused read, arriving by a different door. hive_members' read policy already begins
+    // `auth_uid = auth.uid()`, and 20261004000003 enforces one row per (hive_id, auth_uid), so
+    // .maybeSingle() stays safe. That comment notes the refused-read fix "never reached the other five
+    // copies of the gate" - this pass reached all six.
+    .select('role').eq('hive_id', HIVE_ID).eq('auth_uid', _authUid).maybeSingle();
   if (error) { console.warn('membership check error:', error.message); return true; }
   if (!data) {
     /* ★A REFUSED READ IS NOT A REMOVAL (2026-09-09). RLS refuses by FILTERING: asked with no session
@@ -1238,7 +1258,7 @@ function renderProjectsSummary() {
     }
     return;
   }
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = whManilaYmd();
   const TERMINAL = new Set(['complete', 'cancelled', 'archived']);
   const active   = _projects.filter(p => p.status === 'active').length;
   const overdue  = _projects.filter(p => p.end_date && p.end_date < todayIso && !TERMINAL.has(p.status)).length;
@@ -1301,7 +1321,8 @@ function renderProjectsSummary() {
     // simplified - work-order, shutdown, CAPEX and contractor ARE the platform's vocabulary and a plant
     // supervisor knows them; what was wrong was stacking all four behind a single instruction. Both halves
     // now read under the bar (2.5 and 7.8) with every term and the button name intact.
-    sub  = _t('Click + New Project to begin. It can be a work-order bundle, a shutdown, CAPEX, or contractor work. Or use 🤖 AI: from text to bootstrap from a plain-language description.',
+    // the button's own words, device-neutral (2026-10-13, the W46003 copy walk): it reads "+ New project" and a finger does not click
+    sub  = _t('Press + New project to begin. It can be a work-order bundle, a shutdown, CAPEX, or contractor work. Or use 🤖 AI: from text to bootstrap from a plain-language description.',
               'Pindutin ang + New Project para magsimula. Pwede itong work-order bundle, shutdown, CAPEX, o contractor work. O gamitin ang 🤖 AI: from text para magsimula mula sa simpleng paglalarawan.');
   } else {
     tone = 'healthy'; label = _t(`${active} active project${active === 1 ? '' : 's'}, none overdue`,
@@ -1324,7 +1345,12 @@ function renderProjectsSummary() {
       // as a sentence end, because the markup happened to wrap it. It is the empty state a supervisor with
       // no projects reads first, so the instruction it carries is the one that most needs to be plain.
       // Split into four short sentences; the example and the button name are unchanged.
-      text = 'No projects yet. The quickest start is 🤖 AI: from text. Describe the job in your own words: "3-day pump overhaul next week, 2 mechanics, 4 spare seals". The AI builds the scope list for you.';
+      // ★THREE "NO PROJECTS YET" ON ONE SCREEN (critique W46006, 2026-10-13). The verdict says it, the template list says it,
+      // and this said it a third time while naming a different first step from each of them - and its one example was a
+      // plant's ("pump overhaul ... spare seals") on a van fleet's board. The verdict above already states the empty
+      // portfolio, so the next step only says how to start: the templates below are the concrete door, AI: from text the
+      // fast one, with one example for a plant and one for a fleet.
+      text = 'Start from a template below: each comes with standard scope items you can change. Or describe the job in 🤖 AI: from text, like "3-day pump overhaul next week, 2 mechanics". The AI builds the scope list, for a fleet too: "brake service on 4 vans this month".';
     } else if (overdue >= 3) {
       text = _t(`Open the Active tab and scan down. Each project past its end date drags your portfolio health. Close it out or move the date, one at a time.`,
                 `Buksan ang Active tab at tingnan pababa. Hinihila ng bawat proyektong lampas sa end date ang kalusugan ng portfolio mo. Isara ito o ilipat ang petsa, isa-isa.`);
@@ -1659,6 +1685,7 @@ let _wizardState = { step: 1, type: null, template_id: null, items: [] };
 
 function openNewProject() {
   _editingId = null;
+  window._pmAiIntent = null;   // LM-A: a fresh wizard has nothing the AI proposed
   _wizardState = { step: 1, type: null, template_id: null, items: [] };
   // Reset UI
   ['wiz-name','wiz-start','wiz-end','wiz-budget','wiz-desc'].forEach(id => $(id).value = '');
@@ -1693,8 +1720,11 @@ function wizardPickType(type) {
   _wizardState.type = type;
   document.querySelectorAll('#modal-wizard .type-tile').forEach(t => t.classList.toggle('selected', t.dataset.type === type));
   $('wiz-next-1').disabled = false;
-  // Show budget field on capex/contractor (still optional on others)
-  $('wiz-budget-field').style.display = (type === 'capex' || type === 'contractor') ? '' : 'none';
+  // Show budget field on capex/contractor (still optional on others).
+  // ★...and only to a supervisor: set_project_budget refuses everyone else ("Only a supervisor of this hive can set
+  // a project budget"), and the edit form already withholds the figure from workers (PJ9). Offering a worker a field
+  // whose value can only be refused is a dead end with a form in front of it.
+  $('wiz-budget-field').style.display = ((type === 'capex' || type === 'contractor') && isSupervisor()) ? '' : 'none';
 }
 
 function wizardPickTemplate(id) {
@@ -1719,9 +1749,9 @@ function wizardPickTemplate(id) {
       $('wiz-name').value = tmpl.name;
     }
     if (!$('wiz-start').value) {
-      const today = new Date();
-      const start = today.toISOString().slice(0, 10);
-      const end = new Date(today.getTime() + tmpl.duration_days * 86400000).toISOString().slice(0, 10);
+      // Manila's dates, not UTC's (before 08:00 Manila UTC is still yesterday - device-clock-day ratchet)
+      const start = whManilaYmd();
+      const end = whManilaYmd(new Date(Date.now() + tmpl.duration_days * 86400000));
       $('wiz-start').value = start;
       $('wiz-end').value = end;
     }
@@ -1822,6 +1852,14 @@ async function wizardSubmit() {
       && !whRequireOnline('Creating this project', (m) => showToast(m, 'error'))) return;
   const name = $('wiz-name').value.trim();
   if (!name) { showToast('Project name is required'); $('wiz-name').focus(); return; }
+  // The budget is read only while its field is on screen (capex/contractor, supervisor), so a value typed under one
+  // type and left behind by switching to another is never saved invisibly.
+  const _wizBudgetShown = $('wiz-budget-field').style.display !== 'none';
+  const _wizBudgetRaw = _wizBudgetShown ? $('wiz-budget').value.trim() : '';
+  const _wizBudget = _wizBudgetRaw === '' ? null : Number(_wizBudgetRaw);
+  if (_wizBudget !== null && !(Number.isFinite(_wizBudget) && _wizBudget >= 0)) {
+    showToast('Budget must be 0 or a positive amount in PHP, or left empty.', 'error'); $('wiz-budget').focus(); return;
+  }
   const checkedItems = _wizardState.items.filter(i => i._checked && i.title.trim());
   if (_wizardState.template_id !== '__blank__' && !checkedItems.length) {
     if (!(await window.whConfirm('No scope items checked. Create an empty project?', { okLabel: 'Create empty', cancelLabel: 'Go back' }))) return;
@@ -1847,6 +1885,19 @@ async function wizardSubmit() {
     // PJ2: budget_php out of the INSERT; set after creation via set_project_budget(). Mig 030.
     description: $('wiz-desc').value.trim() || null,
   };
+  // ★A PROJECT THE AI DRAFTED WAS SAVED AS IF THE PERSON TYPED IT (LM-A walk, LM335, 2026-10-07): "Parse with AI" proposes
+  // the type, template, name and description; the person reviews and presses Create - their approval was recorded
+  // (worker_name, auth_uid), which parts the AI wrote was not. The fields the AI proposed and the person kept are now in
+  // meta, as AI-drafted lessons already are (_ai_generated_lessons, PJ14).
+  const _ai = window._pmAiIntent;
+  if (_ai) {
+    const kept = [];
+    if (_ai.name && name === _ai.name) kept.push('name');
+    if (_ai.description && projPayload.description === _ai.description) kept.push('description');
+    if (_ai.project_type && type === _ai.project_type) kept.push('project_type');
+    if (_ai.template_id && _wizardState.template_id === _ai.template_id) kept.push('template');
+    if (kept.length) projPayload.meta = { _ai_intent: true, _ai_prefilled_fields: kept, _ai_generated_at: new Date().toISOString() };
+  }
   // PJ2: the RETURNING list must be explicit. A bare .select() is `select *`, which includes
   // budget_php — SELECT on that column is revoked (mig 024/030), so the star 42501s and the
   // create fails even though the INSERT itself is legal. Only id is consumed below.
@@ -1871,8 +1922,8 @@ async function wizardSubmit() {
         const days = Math.max(1, (end - start) / 86400000);
         const itemStartDays = (cumH / totalH) * days;
         const itemEndDays   = ((cumH + h) / totalH) * days;
-        pStart = new Date(start.getTime() + itemStartDays * 86400000).toISOString().slice(0, 10);
-        pEnd   = new Date(start.getTime() + itemEndDays   * 86400000).toISOString().slice(0, 10);
+        pStart = new Date(start.getTime() + itemStartDays * 86400000).toISOString().slice(0, 10); // device-clock-allow: start is a YYYY-MM-DD parsed as UTC midnight, so UTC date arithmetic is exact
+        pEnd   = new Date(start.getTime() + itemEndDays   * 86400000).toISOString().slice(0, 10); // device-clock-allow: as pStart
       }
       cumH += h;
       itemRows.push({
@@ -1893,6 +1944,18 @@ async function wizardSubmit() {
     });
     const { error: itemErr } = await db.from('project_items').insert(itemRows);
     if (itemErr) { showToast(whWriteError(itemErr, 'The project was created but its SCOPE ITEMS were not, so it starts empty. Open it and add them again.'), 'error'); }
+  }
+
+  // ★THE WIZARD'S BUDGET WAS NEVER SAVED (2026-10-08, UI-write recipes). The comment on the payload above says the
+  // budget is "set after creation via set_project_budget()" - and nothing here called it, so a capex project created
+  // with a P850,000 budget opened with no budget, no Earned Value, and nothing said. Same RPC, same refusal handling
+  // as the edit form (saveProject): the project exists either way; only the figure may not apply, and that is said.
+  if (_wizBudget !== null) {
+    const { data: _br, error: _brErr } = await db.rpc('set_project_budget', { p_project_id: ins.id, p_budget_php: _wizBudget });
+    if (_brErr || !_br || _br.ok === false) {
+      const _why = _brErr ? whWriteError(_brErr, 'The budget was not saved.') : ((_br && _br.detail) || 'The budget was not saved.');
+      showToast(`Project ${codeData} was created, but its budget was NOT set. ${_why} Open the project and set it from Edit.`, 'error', 8000);
+    }
   }
 
   showToast(_t(`✓ Project ${codeData} created (${checkedItems.length} scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`,
@@ -1917,6 +1980,10 @@ async function runAIIntent() {
   if (!transcript || transcript.length < 8) { showToast('Type at least a short sentence describing the project'); return; }
   $('ai-intent-go').disabled = true;
   $('ai-intent-go').textContent = 'Parsing…';
+  const _st = $('ai-intent-status');
+  if (_st) _st.textContent = _t('Parsing your description… this can take up to a minute.', 'Sinusuri ang paglalarawan mo… maaaring umabot ng isang minuto.');
+  // the status line is cleared however the call ends (success, refusal, failure)
+  const _clearSt = () => { if (_st) _st.textContent = ''; };
   try {
     const { data, error } = await db.functions.invoke('project-orchestrator', {
       body: { phase: 'intent', transcript },
@@ -1926,6 +1993,10 @@ async function runAIIntent() {
     closeModal('modal-ai-intent');
     // Open wizard pre-filled from the AI payload
     openNewProject();
+    // LM-A (2026-10-07): remember what the AI proposed, so the created project records which of it the person kept
+    const _aiTxt = (v) => (typeof v === 'string' ? v.trim() : '');
+    window._pmAiIntent = { name: _aiTxt(data.name), description: _aiTxt(data.description),
+      project_type: _aiTxt(data.project_type), template_id: _aiTxt(data.template_id) };
     setTimeout(() => {
       if (data.project_type) wizardPickType(data.project_type);
       // Step 1 → 2
@@ -1938,11 +2009,12 @@ async function runAIIntent() {
           setTimeout(() => {
             wizardNext();
             // Pre-fill step 3 fields
-            if (data.name) $('wiz-name').value = data.name;
+            // LM-S (2026-10-07): only TEXT goes into a field - an object is the literal "[object Object]"
+            if (typeof data.name === 'string' && data.name.trim()) $('wiz-name').value = data.name.trim();
             if (data.start_date) $('wiz-start').value = data.start_date;
             if (data.end_date) $('wiz-end').value = data.end_date;
             if (data.priority) $('wiz-priority').value = data.priority;
-            if (data.description) $('wiz-desc').value = data.description;
+            if (typeof data.description === 'string' && data.description.trim()) $('wiz-desc').value = data.description.trim();
             showToast('AI pre-filled the wizard: review and Create.', 'success');
           }, 60);
         }, 60);
@@ -1956,6 +2028,8 @@ async function runAIIntent() {
     showToast(whAiError(e, 'The project narrative did not run. Nothing was changed.'), 'error');
     $('ai-intent-go').disabled = false;
     $('ai-intent-go').textContent = 'Parse with AI';
+  } finally {
+    _clearSt();
   }
 }
 
@@ -2354,7 +2428,7 @@ function renderScope() {
         <td class="mono small">${e(it.wbs_code || '')}</td>
         <td>${e(it.title)}</td>
         <td class="small">${e(it.owner_name || '-')}</td>
-        <td><span class="status-pill status-${sCls}" style="cursor:pointer;" title="Click to cycle status" onclick="cycleScopeStatus('${e(it.id)}', event)">${e(it.status.replace('_', ' '))}</span></td>
+        <td><button type="button" class="status-pill status-${sCls}" aria-label="${e(it.status.replace('_', ' '))}: change to ${it.status === 'pending' ? 'in progress' : it.status === 'in_progress' ? 'done' : 'pending'}" onclick="cycleScopeStatus('${e(it.id)}', event)">${e(it.status.replace('_', ' '))}</button></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
         <td class="small">${it.estimated_hours || '-'}h</td>
@@ -2658,7 +2732,7 @@ async function loadLinkOptions() {
     if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
     if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
     if (t === 'logbook') return `${r.machine || '?'}: ${(r.problem || '').slice(0, 50)}`;
-    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString()}`
+    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' })}`
       + (r.status === 'skipped' ? ' (skipped, not performed)' : '');
     if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}`;
     return r.id;
@@ -2725,7 +2799,7 @@ function renderProgress() {
   `;
 }
 function openProgressLog() {
-  $('p-date').value = new Date().toISOString().slice(0, 10);
+  $('p-date').value = whManilaYmd();
   ['p-pct','p-hours','p-notes','p-blockers'].forEach(id => $(id).value = '');
   $('p-pct').value = _progress?.rollup?.pct_complete ?? 0;
   $('p-hours').value = 8;  // default shift length; user can edit
@@ -2814,10 +2888,19 @@ async function ackLog(id) {
   // already exist in utils.js; this is adoption.
   if (typeof whRequireOnline === 'function'
       && !whRequireOnline('Acknowledging this update', (m) => showToast(m, 'error'))) return;
-  const { error } = await db.from('project_progress_logs')
+  // ★AUDITED by the 20261008000014_project_authority_decisions_are_audited trigger (acknowledge_progress_log). Acknowledge only a report nobody has acknowledged
+  // yet, and read the result: a 0-row answer means someone got there first, or the report is not yours to
+  // acknowledge - not that it worked.
+  const { data: _acked, error } = await db.from('project_progress_logs')
     .update({ acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() })
-    .eq('id', id);
+    .eq('id', id).is('acknowledged_at', null).select('id');
   if (error) { showToast(whWriteError(error, 'Your acknowledgement was not saved.'), 'error'); return; }
+  if (!_acked || !_acked.length) {
+    showToast('No change: that report was already acknowledged by someone else. Refreshed.');
+    await refreshDetail();
+    return;
+  }
+  showToast('Progress report acknowledged.', 'success');
   await refreshDetail();
 }
 
@@ -2878,7 +2961,7 @@ function renderCpm() {
   if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
     resHtml = `
       <h3 style="font-size: 0.92rem; margin-top: 16px;">Resource Overload</h3>
-      <div style="background: rgba(225,85,84,0.08); border: 1px solid rgba(225,85,84,0.3); border-radius: 10px; padding: 10px 16px;">
+      <div style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; padding: 10px 16px;">
         <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
         <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
@@ -2976,14 +3059,23 @@ async function saveRole() {
   const worker = $('r-worker').value;
   const role = $('r-role').value;
   if (!worker) { showToast('Pick a worker'); return; }
-  const { error } = await db.from('project_roles').insert({
+  // ★AUDITED by the 20261008000014_project_authority_decisions_are_audited trigger (assign_project_role). And the role now goes to the person PICKED: until
+  // 20261008000015_a_project_role_goes_to_the_person_named, a generic name-binding trigger rewrote worker_name to the
+  // CALLER, so every role assigned here landed on the supervisor who pressed Assign. The read-back below proves it.
+  const { data: _roleRow, error } = await db.from('project_roles').insert({
     project_id: _detailId, hive_id: HIVE_ID,
     worker_name: worker, role,
     assigned_by: WORKER_NAME,
     notes: $('r-notes').value.trim() || null,
-  });
+  }).select('worker_name, role');
   if (error) { showToast(whWriteError(error, 'The role was not saved.'), 'error'); return; }
-  showToast('Role assigned.', 'success');
+  const _landed = _roleRow && _roleRow[0];
+  if (_landed && _landed.worker_name !== worker) {
+    showToast(`The role was recorded for ${_landed.worker_name}, not ${worker}. Remove it and tell your administrator.`, 'error', 8000);
+    await refreshDetail();
+    return;
+  }
+  showToast(`Role assigned to ${worker}.`, 'success');
   closeModal('modal-role');
   await refreshDetail();
 }
@@ -2999,8 +3091,16 @@ async function removeRole(id) {
   if (typeof whRequireOnline === 'function'
       && !whRequireOnline('Removing this role', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Remove this role?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
-  const { error } = await db.from('project_roles').delete().eq('id', id);
+  // ★AUDITED by the 20261008000014_project_authority_decisions_are_audited trigger (remove_project_role). A removal that matched nothing (already removed, or
+  // refused by the supervisor-only policy) is a 0-row success, not an error, so it is read rather than assumed.
+  const { data: _gone, error } = await db.from('project_roles').delete().eq('id', id).select('id');
   if (error) { showToast(whWriteError(error, 'The role was not removed.'), 'error'); return; }
+  if (!_gone || !_gone.length) {
+    showToast('Nothing was removed: that role was already gone, or only a supervisor can remove it. Refreshed.', 'error');
+    await refreshDetail();
+    return;
+  }
+  showToast('Role removed.', 'success');
   await refreshDetail();
 }
 
@@ -3117,6 +3217,10 @@ async function approveCO(id) {
   if (!(await window.whConfirm('Approve this change order? Cost / schedule impact will be reflected in the project.', { okLabel: 'Approve', cancelLabel: 'Cancel' }))) return;
   // P6-C1 optimistic lock (sibling of hive/asset-hub): only decide a STILL-pending CO so a concurrent
   // approve/reject (or a double-click) cannot reverse an already-decided, cost-impacting change order.
+  // ★AUDITED (2026-10-08): this decision used to leave NO hive_audit_log row, so the trail could not say who approved
+  // a cost-moving change order. It is now audited by the 20261008000014_project_authority_decisions_are_audited trigger
+  // (audit_change_order_decision: approve/reject/cancel -> hive_audit_log, actor resolved from the session, the same
+  // shape as this page's project removal). A trigger, not a client call, so no other write path can skip it.
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'approved', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id).eq('status', 'pending').select('id');
@@ -3139,6 +3243,7 @@ async function rejectCO(id) {
   const reason = await window.whPrompt('Reason for rejection (visible to requester):', { inputLabel: 'Rejection reason' });
   if (!reason) return;
   // P6-C1 optimistic lock: only reject a STILL-pending CO (no re-flip of an already-decided order).
+  // ★AUDITED by the 20261008000014_project_authority_decisions_are_audited trigger (reject_change_order, with the rejection reason in meta).
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(), rejection_reason: reason })
     .eq('id', id).eq('status', 'pending').select('id');
@@ -3169,6 +3274,7 @@ async function cancelCO(id) {
   // P6-C1 optimistic lock (2026-07-19): the `co.status !== 'pending'` check above reads STALE cached
   // state — atomically guard `.eq('status','pending')` so a concurrent supervisor approve cannot be
   // clobbered back to 'cancelled' (last-write-wins TOCTOU). .select() detects the 0-row no-op.
+  // ★AUDITED by the 20261008000014_project_authority_decisions_are_audited trigger (cancel_change_order).
   const { data: updated, error } = await db.from('project_change_orders')
     .update({ status: 'cancelled', approved_by: WORKER_NAME, approved_at: new Date().toISOString() })
     .eq('id', id).eq('status', 'pending').select('id');
@@ -3196,8 +3302,8 @@ function renderBudget() {
   $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div><div class="kpi-sub">PHP, as entered (no VAT adjustment applied)</div></div>
-      <div class="kpi"><div class="kpi-label">${escHtml(_t('Planned value (PV)', 'Planned value (PV)'))}</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
-      <div class="kpi"><div class="kpi-label">${escHtml(_t('Earned value (EV)', 'Earned value (EV)'))}</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
+      <div class="kpi"><div class="kpi-label">${escHtml(_t('Planned value (PV)', 'Planadong halaga (PV)'))}</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
+      <div class="kpi"><div class="kpi-label">${escHtml(_t('Earned value (EV)', 'Natamong halaga (EV)'))}</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
       <div class="kpi"><div class="kpi-label">Actual cost (AC)</div><div class="kpi-value">${fmtPHP(ev.ac)}</div><div class="kpi-sub">proxy: hours × ₱200</div></div>
       <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${ev.spi ?? '-'}</div><div class="kpi-sub">schedule</div></div>
       <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '-'}</div><div class="kpi-sub">cost</div></div>
@@ -3205,8 +3311,8 @@ function renderBudget() {
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
       <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Variance summary', 'Buod ng variance'))}</h3>
       <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
-        <tr><td>${escHtml(_t('Schedule variance (SV = EV − PV)', 'Schedule variance (SV = EV − PV)'))}</td><td>${fmtPHP(ev.sv)}</td></tr>
-        <tr><td>${escHtml(_t('Cost variance (CV = EV − AC)', 'Cost variance (CV = EV − AC)'))}</td><td>${fmtPHP(ev.cv)}</td></tr>
+        <tr><td>${escHtml(_t('Schedule variance (SV = EV − PV)', 'Variance ng schedule (SV = EV − PV)'))}</td><td>${fmtPHP(ev.sv)}</td></tr>
+        <tr><td>${escHtml(_t('Cost variance (CV = EV − AC)', 'Variance ng gastos (CV = EV − AC)'))}</td><td>${fmtPHP(ev.cv)}</td></tr>
       </table></div>
       <div class="small" style="margin-top: 10px; color: var(--muted);">${escHtml(_t('Standards: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.', 'Mga pamantayan: PMI PMBOK 7th ed. (EV chapter), AACE 80R-13. Status thresholds: Green ≥ 0.95, Amber ≥ 0.85, Red &lt; 0.85.'))}</div>
     </div>
@@ -3254,6 +3360,25 @@ function renderSignoff() {
       </div>
     </div>
   `;
+  // a saved draft still carrying the AI tag is, by PJ14, still the AI's words - so it can still be called wrong. Not
+  // when this session drafted something else: the tag is set on load, before a save, so the saved text may not be it.
+  if (_detail.meta?._ai_generated_lessons && lessonsExisting.trim()
+      && (_aiDraftedText === null || _aiDraftedText.trim() === lessonsExisting.trim()))
+    // a draft saved in an earlier session has no id (the project row keeps none); this session's own draft names its call
+    _pmTrustLessons(lessonsExisting.trim(), _aiDraftedText !== null ? _aiDraftedTrace : null);
+}
+
+// ★AN AI-DRAFTED LESSONS TEXT HAD NO WAY TO BE CALLED WRONG (LM-E walk, 2026-10-08). Editing the draft fixes THIS
+// project's text, but tells no one the draft was wrong - and an edited draft is indistinguishable from a person's own
+// words once saved (PJ14 drops the tag). The shared "was this right?" row records the draft exactly as the AI wrote it.
+// It sits at the end of the lessons box; a re-render of the pane or the next draft replaces it (one row per box).
+function _pmTrustLessons(text, traceId) {
+  const box = document.getElementById('lessons-text')?.parentElement;
+  if (!box || !text || typeof whAiTrustRow !== 'function') return;
+  whAiTrustRow(box, { db, agent: 'project-orchestrator', source: 'lessons', page: 'project-manager',
+    traceId: whTraceIdOf(traceId),
+    question: 'Lessons learned draft for project ' + ((_detail && (_detail.project_code || _detail.name)) || ''),
+    answer: text, groundedOn: "this project's progress logs" });
 }
 
 // Phase 6.2 — AI: draft lessons from progress logs
@@ -3267,9 +3392,13 @@ async function aiDraftLessons() {
     });
     if (error) { showToast(await window.whFnError(error, 'The project assistant did not run. Nothing was changed; try again in a moment.'), 'error'); return; }
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
-    if (!data?.lessons_text) { showToast('AI returned no draft'); return; }
-    $('lessons-text').value = data.lessons_text;
-    _aiDraftedText = data.lessons_text;   // PJ14: so the badge can tell a kept draft from a rewrite
+    // LM-S (2026-10-07): a draft is TEXT; an object assigned to the textarea reads "[object Object]"
+    const _draft = (typeof data?.lessons_text === 'string') ? data.lessons_text.trim() : '';
+    if (!_draft) { showToast('AI returned no draft'); return; }
+    $('lessons-text').value = _draft;
+    _aiDraftedText = _draft;   // PJ14: so the badge can tell a kept draft from a rewrite
+    _aiDraftedTrace = data && data.trace_id;
+    _pmTrustLessons(_draft, _aiDraftedTrace);
     // Phase 6.8 — audit tag in meta
     const meta = { ...(_detail.meta || {}),
       _ai_generated_lessons: true,

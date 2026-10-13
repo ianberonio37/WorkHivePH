@@ -58,6 +58,47 @@ def scan_page(path: Path):
     return LIVE_CLAIM_RE.findall(txt), cache.group(1)
 
 
+# ── CLAUSE 2: the chip's ACCESSIBILITY contract, not its freshness claim ──────────────────────────
+# Added 2026-09-30 (LXP-D x assistive-tech). renderSourceChip() attaches role="status" +
+# aria-live="polite" to every chip it emits, on purpose: this in-content provenance line IS the page's
+# system-status region, and a person who cannot see the screen learns where the figures came from only
+# if it is announced. But fourteen chips on this platform are hand-written markup that copied the CLASS
+# and the inline styles without the semantics — and four of the fourteen carried neither role nor
+# aria-live. Two of those four turned out fine and are why this clause is written the way it is:
+# community.html and platform-actions.html populate their outer <p> by assigning
+# renderSourceChip(...) INTO it, so the announcing element exists at runtime and a static reader that
+# only inspects the outer tag manufactures a finding. So a page passes if EITHER the tag carries the
+# semantics OR the file calls renderSourceChip at all. The two that were real: assistant.html (0
+# renderSourceChip calls, _writeScope() replaces the scope sentence via textContent — the provenance
+# CHANGES and nothing announces it) and ph-intelligence.html (0 calls, static hand-written sentence).
+CHIP_TAG_RE = re.compile(r'<p[^>]*class="[^"]*wh-source-chip[^"]*"[^>]*>', re.I)
+# ★MATCH THE CALL SYNTAX, NOT THE NAME — and this clause is the proof, because its FIRST version used
+# a bare r'renderSourceChip\s*\(' and could not fail. The fix comments added to assistant.html and
+# ph-intelligence.html both explain themselves by NAMING renderSourceChip(), so the escape condition
+# matched my own prose and the mutation test came back GREEN on a reverted fix — a gate that cannot
+# bite, written minutes after fixing the identical prose hole in validate_av_adoption. Measured: of
+# five `renderSourceChip(` occurrences across the four chip pages, only TWO are real
+# (community.html:1022, platform-actions.html:1539, both `el.innerHTML = renderSourceChip(`); the other
+# three are comments, including platform-actions' own note about aria-live. A real call is always
+# ASSIGNED, because the function returns HTML, so requiring the `=` separates code from prose without
+# stripping comments — which is the other trap: `<!--.*?-->` with DOTALL eats real markup when a stray
+# "<!--" sits inside a JS string.
+RENDER_CALL_RE = re.compile(r'=\s*renderSourceChip\s*\(')
+
+
+def scan_chip_semantics(path: Path) -> list:
+    src = path.read_text(encoding="utf-8", errors="ignore")
+    if RENDER_CALL_RE.search(src):
+        return []          # the announcing element is produced at runtime
+    out = []
+    for m in CHIP_TAG_RE.finditer(src):
+        tag = m.group(0)
+        if 'role="status"' in tag or "aria-live" in tag:
+            continue
+        out.append(src[:m.start()].count("\n") + 1)
+    return out
+
+
 def run_all():
     problems = []
     scanned = 0
@@ -72,6 +113,12 @@ def run_all():
                 f"{path.name}: renders from `{table}` yet hardcodes freshness "
                 f"“{claim}” — a replayed copy would carry a claim of liveness it cannot "
                 f"support. Compute the string from whether this render came from the store.")
+        for line in scan_chip_semantics(path):
+            problems.append(
+                f"{path.name}:{line}: a hand-written wh-source-chip with no role=\"status\" and no "
+                f"aria-live, and this file never calls renderSourceChip — it copied the chip's class "
+                f"and styles without the contract, so the page's provenance is a bare <p> that is "
+                f"never announced to anyone who cannot see it")
     return problems, scanned
 
 

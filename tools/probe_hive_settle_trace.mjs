@@ -1,9 +1,9 @@
 // probe_hive_settle_trace — run the settle's OWN source on hive with tracing injected (2026-09-05): what does vis() return for
 // every PROG hit and every chip, and what does the Live test see?
 import { chromium } from 'playwright';
-import { SEEDER, signIn, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
-await signIn(ctx); const p = await ctx.newPage();
+await assertSignedIn(signIn(ctx)); const p = await ctx.newPage();
 await p.route('**/*', (route) => /\/rest\/v1\/|\/functions\/v1\/|\/realtime\/v1\/|\/storage\/v1\//.test(route.request().url()) ? route.abort('failed') : route.continue());
 await p.goto(`${SEEDER}/workhive/hive.html`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
 await p.waitForTimeout(SETTLE_MS);

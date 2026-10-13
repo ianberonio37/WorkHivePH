@@ -34,7 +34,10 @@ const prelude = oq[0].trim() + '\n';
 
 // `_tt` mirrors the page's own definition: English unless a translator is present. Passing it in as a
 // parameter keeps the extracted source byte-identical - the test must not rewrite the code it grades.
-const classify = new Function('m', '_tt', prelude + chain + ' return friendly;');
+// ★A THIRD CLOSED-OVER NAME (2026-10-13): the LM-R timeout branch reads the caught `err` (err.context.name /
+// message) so a slow answer says "took too long" instead of "check your connection". Injected like _tt, so the
+// extracted source stays byte-identical; undefined unless a case supplies one.
+const classify = new Function('m', '_tt', 'err', prelude + chain + ' return friendly;');
 const EN = (en) => en;
 const FIL = (en, fil) => (fil || en);
 
@@ -47,6 +50,7 @@ const cases = [
   ["AI call limit reached for this hive. Try again in an hour.", "for this hour"],
   ["Failed to fetch", "Check your connection"],
   ["Edge Function returned a non-2xx status code", "Check your connection"],
+  ["WH_DB_TIMEOUT: the database did not answer in time", "took too long"],
 ];
 
 let pass = 0, fail = 0;

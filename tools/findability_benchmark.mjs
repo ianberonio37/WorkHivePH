@@ -18,7 +18,12 @@ const QUESTIONS = [
   { q: 'Where do I check spare part stock?',     start: 'community',    search: 'inventory',    landRe: /inventory/ },
   { q: 'Where do I ask the AI a question?',      start: 'inventory',    search: 'assistant',    landRe: /assistant/ },
   { q: "Where is my team's live board?",         start: 'logbook',      search: 'hive',         landRe: /hive/ },
-  { q: 'Where do I build my resume?',            start: 'pm-scheduler', search: 'resume',       landRe: /resume/ },
+  // ★THE ONE QUESTION THE NAV BUDGET MADE THREE TAPS (2026-10-13). Resume Builder was hidden from the worker's hub on
+  // 2026-09-10, deliberately: the worker nav had reached 14 tools against a budget of 13, and the Growth surface links
+  // to the Resume in plain prose (nav-hub.js, the comment above the entry). This question kept asking for a hub entry
+  // that the decision removed, so it failed every run since. It now walks the recorded route - hub, Growth, then the
+  // page's own Resume link - and still fails if that route breaks. Every other question keeps the two-tap rule.
+  { q: 'Where do I build my resume?',            start: 'pm-scheduler', search: 'growth', then: 'a[href*="resume.html"]', landRe: /resume/ },
   { q: 'Where do I log a repair?',               start: 'analytics',    search: 'logbook',      landRe: /logbook/ },
   { q: 'Where do I plan my day?',                start: 'logbook',      search: 'day',          landRe: /dayplanner/ },
   { q: 'Where are the plant KPIs?',              start: 'inventory',    search: 'analytics',    landRe: /analytics/, role: 'supervisor' },
@@ -66,10 +71,21 @@ for (const t of QUESTIONS) {
     return href;
   }, t.search);
   await p.waitForTimeout(2500);
+  // interaction 3, only where a recorded decision put the answer one page deeper (see the resume question)
+  if (t.then && landed !== null) {
+    const followed = await p.evaluate((sel) => {
+      const a = [...document.querySelectorAll(sel)].find((x) => x.getClientRects().length);
+      if (!a) return false;
+      a.click();
+      return true;
+    }, t.then);
+    if (!followed) console.log(`  no visible ${t.then} on the page the hub opened`);
+    await p.waitForTimeout(2500);
+  }
   const url = p.url();
   const ok = landed !== null && t.landRe.test(url);
   console.log(`${ok ? 'PASS' : 'FAIL'}  "${t.q}" — from ${t.start} via hub -> ${url.split('/').pop()}`);
   if (ok) pass++;
 }
-console.log(`findability: ${pass}/${QUESTIONS.length} answered in <=2 interactions`);
+console.log(`findability: ${pass}/${QUESTIONS.length} answered in <=2 interactions (${QUESTIONS.filter((t) => t.then).length} by a recorded three-tap route)`);
 process.exit(pass === QUESTIONS.length ? 0 : 1);

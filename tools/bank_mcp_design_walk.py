@@ -54,9 +54,22 @@ VIEWPORTS = ("phone-390", "desktop-1280")
 
 
 def run_detector(page: str, out: Path) -> list[dict]:
+    # ★A PAGE THE DETECTOR CANNOT OPEN READ AS A CLEAN PAGE (2026-10-13). Given a path that does not exist, the detector
+    # prints "[]" with exit 0 and only a stderr "Warning: cannot access <path>"; and an empty stdout fell back to "[]"
+    # here. .tmp/refresh_disproofs.py, handed a bare stem ("project-report"), therefore reported "detector clean" on a page
+    # with a live finding, declared its September claims "fixed" and deleted its claim file. A reading the detector could
+    # not take is a FAILURE, never an empty result: the page must exist, a "cannot access" warning refuses, and so does
+    # silence (a clean run prints "[]").
+    if not (ROOT / page).is_file():
+        raise RuntimeError(f"run_detector: no such page {page!r} under {ROOT} - pass the file itself, e.g. {page}.html")
     r = subprocess.run([str(DETECTOR), "detect", "--json", "--no-advisory", page], cwd=ROOT,
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    text = (r.stdout or "").strip() or "[]"
+    if "cannot access" in (r.stderr or ""):
+        raise RuntimeError(f"run_detector: the detector could not read {page}: {(r.stderr or '').strip()[:200]}")
+    text = (r.stdout or "").strip()
+    if not text:
+        raise RuntimeError(f"run_detector: the detector printed nothing for {page} (exit {r.returncode}): "
+                           f"{(r.stderr or '').strip()[:200]}")
     findings = json.loads(text)
     out.parent.mkdir(parents=True, exist_ok=True)
     # The FILE keeps every finding the detector reported, artifacts included: it is the receipt's
@@ -77,7 +90,7 @@ def main() -> int:
     ap.add_argument("--page", required=True)
     ap.add_argument("--cast", required=True)
     ap.add_argument("--scores", default="", help="JSON {before:{...}, after:{...}} (audit / critique)")
-    ap.add_argument("--languages", default="", help="'en,fil' for the copy lens (defaults to en)")
+    ap.add_argument("--languages", default="", help="the languages walked (defaults to en; Filipino is descoped, 2026-10-12)")
     ap.add_argument("--figma", default="", help="'<fileKey> <node@390> <node@1280>' for the figma lens")
     ap.add_argument("--note", default="")
     ap.add_argument("--status", default="locking")
@@ -112,9 +125,11 @@ def main() -> int:
     if a.lens == "figma" and not a.figma:
         print("REFUSED: the figma lens needs --figma '<fileKey> <node@390> <node@1280>'")
         return 2
-    langs = a.languages or ("en,fil" if a.lens == "copy" else "en")
-    if a.lens == "copy" and not {"en", "fil"} <= set(langs.split(",")):
-        print("REFUSED: the copy lens is walked in both en and fil")
+    # the copy lens closes on English: Filipino trajectories and the dictionary work are descoped (Ian 2026-09-30,
+    # 2026-10-06); a mixed row keeps its English half (2026-10-12)
+    langs = a.languages or "en"
+    if a.lens == "copy" and "en" not in set(langs.split(",")):
+        print("REFUSED: the copy lens is walked in English")
         return 2
     if a.lens in ("audit", "critique") and not a.scores:
         print(f"REFUSED: the {a.lens} lens banks with --scores '{{\"before\":{{...}},\"after\":{{...}}}}'")

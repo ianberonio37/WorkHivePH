@@ -608,12 +608,18 @@ def main() -> int:
     #    governance summary. H8/F = the eval loop produces a real correctness VERDICT live; H8/U = the
     #    documented summary CONTRACT {runner,total,passed,failed,results[{score,passed}]} is returned. The
     #    fixture's own pass/fail is the model's job (named §5 residual) — the apparatus running is the proof. ──
-    ec2, eb2 = _invoke("ai-eval-runner", {"limit": 1}, key, jwt)
+    # 2026-10-07: the runner is SERVICE-ROLE only now (a run spends the shared eval identity's quota), so this
+    # probe calls it the way the cron does. And a verdict only counts when an ANSWER was graded: until
+    # 2026-10-07 this cell passed on a judge grading "[gateway error: 401]" - the shape was right and nothing
+    # had been measured. logbook-voice is the slice that needs no seeded eval-hive data.
+    ec2, eb2 = _invoke("ai-eval-runner", {"only": "logbook-voice", "limit": 1}, key, key)
     if ec2 == 200 and isinstance(eb2, dict) and eb2.get("runner") == "ai-eval-runner" \
             and isinstance(eb2.get("total"), int) and eb2["total"] >= 1 \
             and isinstance(eb2.get("results"), list) and eb2["results"]:
         r0 = eb2["results"][0]
-        if isinstance(r0.get("score"), (int, float)) and isinstance(r0.get("passed"), bool):
+        if r0.get("outcome") == "infra_error":
+            record("H8/F", False, f"eval ran but measured nothing - infra_error: {str(r0.get('infra_reason'))[:90]}")
+        elif isinstance(r0.get("score"), (int, float)) and isinstance(r0.get("passed"), bool):
             record("H8/F", True, f"eval apparatus LIVE: ai-eval-runner ran {eb2['total']} fixture(s) through the "
                    f"gateway + LLM-judge → verdict {{q='{r0.get('question_id')}',score={r0.get('score')},passed={r0.get('passed')}}}")
             record("H8/U", True, f"governance summary CONTRACT LIVE: {{runner,total={eb2['total']},passed={eb2.get('passed')},"

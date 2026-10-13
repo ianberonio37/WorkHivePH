@@ -40,7 +40,11 @@ test.describe('marketplace state inducers (journey lane)', () => {
     // a different reason than the one under test — the state has to be induced NARROWLY or the test proves
     // something else.
     let aborted = 0;
-    await whPage.route(/v_marketplace_listings_truth/, route => {
+    // ★THE PAGE MOVED TO THE PUBLIC VIEW AND THE INDUCER DID NOT (found 2026-10-13). Since 2026-09-07 marketplace
+    // reads v_marketplace_listings_public (the account-scoped public view); this matched only the old _truth name, so
+    // nothing was aborted and the vacuity check below failed the gate - correctly blaming the harness. Either name
+    // now, so a rename in either direction is still induced.
+    await whPage.route(/v_marketplace_listings_(?:public|truth)/, route => {
       aborted += 1;
       return route.abort('failed');
     });

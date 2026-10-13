@@ -2,13 +2,13 @@
 name: page-status
 type: page
 source: file:status.html
-source_sha: 844b8d865cb4a8e3
+source_sha: 229c2fe1c56e7a09
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `status.html` — WorkHive Gateway — Status
 
-Size: 30KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 37KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

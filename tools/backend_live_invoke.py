@@ -16,7 +16,7 @@ Per fn:
   · over-long  (I4):        a 20k-char string in `textf` -> assert not a 500 crash
 
 COST: the AI chain (_shared/ai-chain.ts) uses ONLY permanently-free provider tiers
-(Groq/Cerebras free tier — see its header). A SINGLE happy-path invoke per LLM fn
+(free-tier chain — see its header). A SINGLE happy-path invoke per LLM fn
 costs $0 (free-tier quota, trivially within 500K TPD). The genuine cost/quota risk
 is the 429 BURST/load test — that stays Ian-gated and is NOT run here.
 
@@ -69,7 +69,7 @@ REG: dict[str, tuple[dict, str | None, str | None, int]] = {
     # NOT a user JWT (user -> 401 by design). service-role is the real invocation mode.
     "sensor-readings-ingest":    ({"readings": [{"asset_id": ASSET, "parameter": "temperature", "value": 1, "recorded_at": "2026-06-20T00:00:00Z"}]}, S, None, 30),
     "data-fabric-normalizer":    ({"source": "manual_log", "source_id": "live-probe-1", "payload": {"note": "probe"}}, S, None, 30),
-    # ── free-tier LLM (text) happy-path (Groq/Cerebras free tier — $0) ────────
+    # ── free-tier LLM (text) happy-path (free-tier chain — $0) ────────────────
     "ai-orchestrator":           ({"hive_id": HIVE, "question": "what is the asset risk status?"}, U, "question", 60),
     "agentic-rag-loop":          ({"question": "What assets are at risk?", "hive_id": HIVE}, U, "question", 60),
     "temporal-rag-orchestrator": ({"question": "recent failures?", "asset_tag": "PT-001"}, U, "question", 60),

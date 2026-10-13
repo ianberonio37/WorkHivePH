@@ -67,8 +67,14 @@ try {
     const errs = [];
     page.on('pageerror', (e) => errs.push(String(e).slice(0, 100)));
     await page.route('**/functions/v1/analytics-orchestrator*', (r) => (succeed
+      // ★A PLAN WITH NOTHING TO DRAW IS NOT AN UPGRADE (2026-10-07, LM-S): alert-hub keeps the stored brief unless the
+      // compose carries words renderActionBrief shows (whActionPlanHasContent: a summary or narration, or an item).
+      // This fixture was a bare headline with no items, so the page rightly refused it and the stamp rightly stayed
+      // "stored brief" - the oracle was testing an upgrade the product no longer accepts (found 2026-10-13).
       ? r.fulfill({ status: 200, contentType: 'application/json',
-                    body: JSON.stringify({ action_plan: { headline: 'Live action brief', items: [] } }) })
+                    body: JSON.stringify({ action_plan: { summary: 'Live action brief: two PMs are due today.',
+                                                          this_week: [{ action: 'Service the chiller', why: 'its PM is 3 days overdue' }],
+                                                          watch_list: [] } }) })
       : r.fulfill({ status: 429, contentType: 'application/json',
                     body: JSON.stringify({ error: 'AI call limit reached for this hive. Try again in an hour.' }) })));
     await page.goto(`${BASE}/alert-hub.html`, { waitUntil: 'domcontentloaded' });

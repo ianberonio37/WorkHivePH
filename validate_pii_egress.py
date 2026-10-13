@@ -86,11 +86,14 @@ PII_TOKENS = {
 # Both shapes are functionally equivalent for the L2 detection -- the
 # validator is checking that PII never reaches the model verbatim.
 REDACT_HELPER_RE = re.compile(
-    r"\b(redactPII|sanitizePII|maskPII|scrubPII)\s*\(|<redacted>",
+    # redactPIIWithMap is the same helper with a re-fill map (the model sees <worker_1>, the person sees the name);
+    # listed explicitly, because `redactPII` followed by `WithMap` never reaches the `\(` the bare name needs
+    r"\b(redactPIIWithMap|redactPII|sanitizePII|maskPII|scrubPII)\s*\(|<redacted>",
 )
 
 # Per-fn exemptions. Each entry needs a one-line justification.
 PII_EGRESS_OK = {
+    "ai-eval-runner": "the display_name / email / worker_name tokens are the SYNTHETIC eval account's own provisioning fields (EVAL_EMAIL, EVAL_DISPLAY_NAME: generateLink + the eval hive_members row); no person's data and never placed in a prompt - the prompts are the canonical fixture questions and the judge rubric (2026-10-08)",
     "send-report-email":          "Resend digest legitimately needs worker email; opt-in flag enforced",
     "engineering-bom-sow":        "AI BOM/SOW prompt operates on equipment names; PII redaction not applicable",
     "resume-extract":             "Solo Resume Builder — the user uploads their OWN resume to extract their OWN name/email/phone; the contact fields ARE the deliverable (JSON Resume `basics`). The PII is the user's own and opt-in by the act of uploading-to-extract — redaction would defeat the feature. (`worker_name` is read then `void`'d, unused.)",

@@ -1,25 +1,46 @@
 {
-  "_doc": "AV Component Registry: Layer AV (Availability) canonical set (opened 2026-07-17). The offline canonical set ships as ONE unit (banner + queue + connectivity + session-timeout + device-fingerprint); adoption = all five present. Health (/health) = Layer A9 100%; loading states = Layer F FF1 100%; DR seeds = seeders/.",
-  "version": 1,
-  "layer": "AV",
-  "components": [
-    {
-      "id": "AV1",
-      "class": "AVO Offline set",
-      "name": "offline canonical set (banner/queue/connectivity/session-timeout/device-fingerprint)",
-      "api": "the 5 trailing <script> tags, shipped together",
-      "defined_in": "offline-banner.js + siblings (repo root)",
-      "satisfies": "PWA offline resilience + session hygiene on worker tool pages",
-      "need": "family minus chrome-less trio; per-page disposition during the wave may add exempts",
-      "exempt": [
-        "agentic-rag-observability.html",
-        "promo-poster.html",
-        "status.html"
-      ],
-      "exempt_reason": "founder-only / poster / status surfaces: chrome-less by design (same basis as FCh1/2)",
-      "status": "built",
-      "when_to_use": "every worker tool page",
-      "when_not": "chrome-less internal surfaces"
-    }
-  ]
+ "_doc": "AV Component Registry: Layer AV (Availability) canonical set (opened 2026-07-17). AV1 = the offline CHROME set, shipped as ONE unit (banner + queue + connectivity + device-fingerprint). AV2 = session-timeout.js, a SEPARATE session-hygiene floor keyed to each page's own identity/tenant signals (split 2026-09-30: the all-or-nothing five let a chrome-less ruling exempt a security floor). Health (/health) = Layer A9 100%; loading states = Layer F FF1 100%; DR seeds = seeders/.",
+ "version": 1,
+ "layer": "AV",
+ "components": [
+  {
+   "id": "AV1",
+   "class": "AVO Offline set",
+   "name": "offline CHROME set (banner/queue/connectivity/device-fingerprint) -- session-timeout.js was split out to AV2 on 2026-09-30, see its _split note",
+   "api": "the 4 offline-chrome <script> tags, shipped together",
+   "defined_in": "offline-banner.js + siblings (repo root)",
+   "satisfies": "PWA offline resilience on worker tool pages (session hygiene is AV2)",
+   "need": "family minus chrome-less trio; per-page disposition during the wave may add exempts",
+   "exempt": [
+    "agentic-rag-observability.html",
+    "architecture.html",
+    "design-system.html",
+    "llm-observability.html",
+    "offline-fallback.html",
+    "promo-poster.html",
+    "status.html",
+    "symbol-gallery.html",
+    "validator-catalog.html"
+   ],
+   "exempt_reason": "chrome-less internal surfaces (founder tools / poster / status / reference / the offline shell itself): no offline banner, queue, connectivity widget or device fingerprint by design -- same basis as FCh1/2. Made EXPLICIT on 2026-09-30: six of these sat in the gap carrying ZERO of the set, which the ratchet could not see (its `elif have:` branch reported only PARTIAL pages), so permanent debt read as PASS. Being chrome-less does NOT exempt a page from AV2 session hygiene.",
+   "status": "built",
+   "when_to_use": "every worker tool page",
+   "when_not": "chrome-less internal surfaces"
+  },
+  {
+   "id": "AV2",
+   "class": "AVO Session hygiene floor",
+   "name": "session-timeout.js (15-min soft prompt + 60-min HARD identity clear)",
+   "api": "one trailing <script defer src=\"session-timeout.js\"> tag",
+   "defined_in": "session-timeout.js (repo root, precached SHELL)",
+   "satisfies": "shared-device session hygiene: on a shared plant tablet an idle expiry is exactly when the next person picks the tablet up, so the identity keys must be cleared and the person must be TOLD -- announced, named and focused, for someone who cannot see it",
+   "need": "every family page whose CODE (comments stripped) shows an identity or tenant-row signal: wh_last_worker, whWorker(), wh_hive_id, wh_hive_role, or a .from('...') read. Measured 35/42 family pages on 2026-09-30.",
+   "exempt": [],
+   "exempt_reason": "none needed: the need-rule is derived from the page's own code, so a surface with no identity and no tenant read is simply not in the need-set (design-system, symbol-gallery, validator-catalog, promo-poster, status, offline-fallback). offline-fallback.html must NEVER carry it: the hard clear redirects to index.html?signin=1, and sending a person to a sign-in page while they are OFFLINE is the one place this guard would do harm.",
+   "status": "built",
+   "when_to_use": "any page that can hold or act on a signed-in identity",
+   "when_not": "a static surface that reads no identity and no tenant row; the offline shell",
+   "_split": "Split from AV1 on 2026-09-30 (LXP-AU x assistive-tech walk). AV1 shipped five scripts as ONE all-or-nothing unit, so a single ruling -- 'founder-only, chrome-less by design' -- exempted the four that ARE visible chrome AND the one that is a security floor. agentic-rag-observability.html is the proof case: exempt from all five while reading whWorker()/wh_last_worker and querying .from('agentic_rag_traces') behind a hive gate. session-timeout.js paints nothing until a session ends, so 'chrome-less' was never a reason to omit it."
+  }
+ ]
 }

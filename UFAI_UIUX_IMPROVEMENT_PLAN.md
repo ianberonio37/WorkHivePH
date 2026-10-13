@@ -3112,3 +3112,184 @@ At ≤320px there is no horizontal room for both groups on one row, and `flex-wr
 - tabs group `width:100%` (force-wrap) → tabs wrap to a second flex line at y≈221, but the 161px+ chip column still extends into that row, so the tab **still overlaps the chip**.
 
 **The real fix is a header restructure, not an attribute flip:** the `min-height:161px` provenance chip must stop competing with the tabs in the same flex row at narrow width — e.g. give the chip its own full-width row below the title/tabs at `<sm` (so the tabs sit on the title's row and the chip flows beneath both), or drop the chip's reserved height at narrow width where its content reflows anyway. Either touches shared header layout + the CLS reservation, so it needs the whole-header treatment with full-page screenshots at 320 / 390 / 768 / 1280 to confirm no CLS or desktop regression. Banked as W3643's V1 finding; left as-found (not worsened) for that focused pass.
+
+**Resolved (verified live 2026-10-13, signed in, 320x854):** the provenance chip now sits at 16,185 (282x101) and none
+of the three page tabs overlaps it. The header restructure this entry called for arrived with W45915's chip move; no
+further change was needed.
+
+### C-BY · The critic batch, signed-out half: 706 walks, fused by what the reader was trying to do
+
+On 2026-10-13 the critic deepwalk's uniform half ran headless (`tools/critic_walk_batch.mjs`): 706 signed-out walks,
+4,658 rows banked, the program from 24.6% to 52.4%. One fact shapes every count below: a signed-out visit to a product
+page lands on the home page, so about 24 "pages" in any cluster are the landing seen 24 times. Distinct screens are
+what the verdicts are about.
+
+**1. One clear next step per screen (A1, G3, A3), the strongest fusion.** Three dims, 32 screens, one job: the reader
+should see one primary action. Three changes closed it:
+- the 8 comparison and pillar guides ended on a bold link inside a callout; it is the platform's `.cta-btn` now, with
+  the callout's alternative as a secondary line;
+- the landing's "See All Tools" was the same filled amber as "Join the Hive" a few lines above; it is the secondary
+  button;
+- the cookie notice's Allow and Decline no longer count as page CTAs.
+The other guides' CTA box was not copied, because it opens with an eyebrow above its heading, which the craft floor
+bans.
+
+**2. Can a plant worker read it (B3 on 83 pages, B1 on 40): the largest open cluster, a content program.** These are
+sentence length (over 20 words), grade (over 8) and paragraph length, in long-form guides read by Filipino workers in
+English on a phone. The bar is right for that reader; the lens is not the problem. The fix is a plain-language pass,
+highest-traffic guides first, gated by a per-guide readability ratchet. Sizing for Ian: about 80 pages of long-form
+copy. The worst guide has 162 sentences, 50 of them over 20 words. A pilot on start-digital-maintenance-guide
+kept every fact, link and source and took its prose from 14 sentences over 20 words (longest 64) to none (longest
+20), for about 15K tokens.
+
+**3. Can the reader trust what is stated (E3, C5, DP1, L1, H4).**
+- The landing states four outcome figures; three have no source anywhere on the platform. That is a proposal for Ian
+  (front-door copy is his voice): cite them or keep only the sourced one.
+- Contrast: the cookie sentence (Lc 73 to 79) and the three pillar guides (prose Lc 70, byline 40, back link 46) are
+  fixed. The pillar guides were built after the platform's two contrast fixers ran, and neither fixer was a gate. Both
+  are gates now.
+- DP1, L1 and H4 read maintenance prose as sales pressure ("Critical - Act now", "can hurry"). One shared rule now
+  serves all three.
+
+**4. Can a thumb hit it and does it answer at once (F1, T3, K2).** Table-cell links had height and no width ("FCU"
+31x44). The marketplace logo was squeezed to 18px by its row. Four public pages had the 300 ms tap delay. All fixed,
+and the touch-action fixer now covers the public pages and is a gate.
+
+**5. Can a keyboard or screen-reader user move through it (A1/A2 headings, T8, X1).** The feedback page's `<main>`
+held only its list, so the skip link jumped past the title and filters. The ph-intelligence gate left the page with
+no heading. Six filter chips hid their state. The voice journal's history said "Sign in to see your journal
+entries." with nothing to press. All fixed.
+
+**6. Is help there when asked (O2): an instrument, not the page.** The landing's FAQ is eight `<details>`, but it sits
+in a scroll-reveal section at opacity 0 until scrolled, and the survey reads the page at the top. The lens now counts
+content waiting for its reveal. The same blind spot had hidden the landing's whole lower half from every dim.
+
+**7. N1, translation coverage (153 screens): descoped (2026-10-13).** Filipino and the dictionary work behind it were
+taken out of the roadmap by Ian on 2026-09-30 and again on 2026-10-06, and every N1 failure asks for exactly that work.
+The lens now returns N/A for N1 with the reason (the label census stays in the note; overflow is R2's identical test),
+and the closer no longer lets an N1 finding hold a row open, receipting it as descoped, never as clean.
+
+**Instruments repaired during the run** (each one changed what the numbers above mean): survey reuse per identical
+screen (about 60 s to 7 s per walk); an exclusive lock and a retry around the bank's write; stamping the lens that
+graded, not the file on disk (4,541 rows re-stamped); C5 graded none of the article text on 19 guides, because a 4%
+dot texture counted as a fill; scroll-reveal content counted as hidden; one urgency rule instead of three copies;
+"JSON Resume" as a standard's name, not jargon.
+
+**The signed-in half: 455 walks, 3,586 rows, 306 distinct persona-by-page screens.** Readability (B3) and
+translation coverage (N1) lead again, for the same reasons as above. Below them the findings fuse into five jobs:
+
+**8. Does the page I land on know who I am (gates and start screens): the strongest signed-in fusion.** Six findings
+on four pages were one mistake: a screen that answers "not for you" or "not yet" graded as if it were the product.
+- The two admin consoles' no-access gates had no h1, and founder-console's told a worker to "grant you via
+  marketplace_platform_admins".
+- hive's onboarding view (a solo owner's "Your Hive", Create or Join) was graded as the board (E3, H1, A2).
+- audit-log's supervisor-only wall was asked for a primary action.
+Fixed in the pages (an h1 on each gate, plain words) and in the lens: a page can now declare such a state
+(`data-wh-gate`), and A1, A2 and H1 respect a wall.
+
+**9. Will my work survive (X2).** The assistant lost an unsent question to a refresh. It now uses the platform's owner-
+and hive-stamped draft, cleared on send.
+
+**10. Can I find my way and read what matters (W1, C2, F1).** hive's and pm-scheduler's icon-and-logo back link had
+no name, and a screen reader heard "WorkHive"; it is "WorkHive home". hive's "Critical" badge read 3.96:1 and now uses
+the text-safe token (7.5:1). skillmatrix's inline Resume link was 43px tall and is now 44.
+
+**11. Does the page answer the action I came for (A1, PP3, X1).** public-feed's only signed-in action lives in its
+header and was invisible to the lens. audit-log's one read-only RPC was read as a write. shift-brain's empty parts list
+was a third good-news dead end, and now says where to look.
+
+**12. Still open, each needing the live page:** the assistant's "How this page works" control reads as covered (V1);
+achievements shows two labels overflowing at 320 (R6); inventory has 8
+destructive controls the lens cannot tie to a confirm (J1; its Remove does confirm, so this needs the DOM);
+analytics' largest number sits below the first glance (DD1); report-sender's AI paragraph lists eight asset tags
+inline (E4, an LLM-rendering job).
+
+**What the signed-in half taught the closer:** a sweep is one persona's screen. The board sweep is a supervisor's, so
+2,271 rows walked as workers, buyers, solo owners and others wait for a same-cast re-walk, which can now close them
+(`--rewalk`, gate `critic-rewalk-close`).
+
+**13. Fixed after the batch, from the surveys' own sentence lists (2026-10-13).** Every saved survey names the sentences
+B3 failed, so the shared ones could be fixed once:
+- The analytics consent notice on the landing: "No names, emails or phone numbers are collected. Nothing is measured
+  until you choose." (2,390 surveys) now reads "We collect no names, emails or phone numbers. We measure nothing until
+  you choose."
+- The source chip's methodology disclosure: "How the open-items summary is computed" (hive, 387 surveys) and "How your
+  day plan is computed" are "How we compute ..." on every page, from one line in utils.js.
+- The calculator pages (60): the call to action was one 47-word sentence and is four short ones with the same
+  schema-checked claims; the method note's two facts were joined by a semicolon and are two sentences. Both are sweeps
+  with gates (`calc-cta-crew-context`, `calc-method-defaults-split`), the generator is born correct, and the staging
+  gate now asks both sweeps, so promoting staging cannot bring the long sentences back.
+- The landing's 38-word "It will not predict..." sentence is two sentences of 17 words with the same three commitments.
+- One card treatment per page (R3: skillmatrix 396 rows, achievements 174, marketplace 163): a banner, a tier card and an
+  inquiries list had borrowed the KPI tile and overridden its padding inline; they use the design system's
+  `simple-card list-row` now, which also drops the 154px tile floor from a two-line banner on a PC.
+- Product copy named by the signed-in surveys, each rewrite scored with a port of the lens's B3 rule before it
+  landed: assistant's provenance line, skillmatrix's privacy promise and first-quiz line, integrations' supervisor
+  wall, marketplace-seller's first listing, ph-intelligence's Stair 3 explanation, project-manager's AI hint, and seven
+  sentences in project-report.
+- Model-written text marked as such (`data-ai-generated`): the Action Brief's summary and lists (unless built from
+  records), alert-hub's stored brief, and index's pick card, which also stopped cutting the brief mid-word.
+- One contrast defect the axe gate found: alert-hub's "Stacking up" tag used the red fill token as text (3.95:1).
+- X1 now reads Filipino good news ("Wala nang naghihintay") and Filipino "will appear here" ("Lilitaw dito") as
+  it reads their English twins; both tokens come from the platform's own English/Filipino pairs.
+
+**14. For Ian: the landing's remaining B3 and E3 are front-door copy.** About 4,700 signed-out rows carry the landing's
+own findings, because every signed-out visit to a product page lands there. After item 13, three things remain, and
+each is a decision about what the front door says:
+- The hero's positioning line (22 words, grade 19, written for answer engines): "Free industrial tools for every
+  Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an
+  AI work assistant." A list of product names cannot reach grade 8. Proposed: "Free industrial tools for every Filipino
+  worker. Log jobs, schedule PMs and track spare parts and skills. Run engineering calculations, or ask the AI work
+  assistant." It keeps every tool and drops the names "digital logbook" and "skill matrix" from this line, which matters
+  for search.
+- The footer's mission line (grade 13): "Closing the Execution, Skills, Intelligence, and Marketplace gaps that hold
+  Filipino workers back." The four pillar names are what make it hard. Proposed: "We close four gaps that hold Filipino
+  workers back: getting work done, skills, knowledge and finding help."
+- The four outcome figures (E3, no source): cite each, or keep only the sourced 35-50% (see the trajectory roadmap).
+
+**Measured the same evening: the copy is not all that holds these rows.** 4,834 signed-out rows are still critiqued, and
+every one carries the landing's A3, B3, E3, G3 and O2 (N1 is descoped and no longer blocks; C5 was fixed that day; 882
+also carry V1 at 390). So the three copy changes above close none of them on their own. The same front-door decision has
+to cover three layout calls the rubric scores on the landing:
+- **G3, choice load:** 4 primary calls to action against a ceiling of 2 (38 controls in all).
+- **O2, help on demand:** no "how does this work" affordance anywhere on the page.
+- **A3, disclosure:** 0 disclosures; the page shows all 10 blocks at once.
+The closer confirms the wait: it can close none of these rows, because a signed-out re-measure of a members page lands on
+the landing and would grade the same screen again (`close_critic_findings.py`, 2026-10-13: 4,827 rows "page never swept"
+for the signed-out persona). One decision about the front door unblocks about 40% of the critic program.
+
+### C-BZ · The critic batch, signed-in half: 475 walks, fused by what the reader was trying to do
+
+On 2026-10-13 the signed-in re-walk surveyed 475 walks (1,131 rows) as each row's own cast: worker, supervisor,
+fleet-supervisor, solo owner, machine client, buyer, adversary, in five verticals. Every walk banked; 433 rows moved to
+improving. Its leftovers were then read live under the SAME cast, because three of the four that mattered reproduced only
+there (a fleet hive, a supervisor's call to action, a worker's parts list). Most of what remained was the instrument; the
+verdicts below are about the screens.
+
+**1. The number a person came for must be the loudest thing on its line, and on the page (K2, DD1, R6). Strongest fusion.**
+Three surfaces broke the same rule in three ways:
+- inventory set every part's on-hand count at 30px over 24px summary tiles, so the detail outranked the summary, and
+  for a supervisor it started 1,770px down. Now the tiles' 24px step.
+- project-report shrank its KPIs to 14pt (18.7px) on a phone, under the 20px arm's-length bar, to keep a peso figure
+  inside a two-column cell. Now 15pt (20px), which still fits at 390, and one column below 360px, where no readable
+  size fits two.
+- achievements at 320 let the ellipsis eat the end of the line, which was the information: "x30" and "(you)". The label
+  truncates now; the marker keeps its width.
+Owner: the KPI and list components; the shared rule is in skills write-back rows 60, 67 and 68.
+
+**2. Say whose words and which data (B3, B4, E3).** The reader trusts text in proportion to knowing where it came from:
+- alert-hub's feed showed past AMC brief headlines (the agent's words) as if they were the platform's; only those
+  words are marked now, and the platform's suffix ("(expired)", "still awaiting approval") stays the platform's.
+- hive's readiness chip said "Based on your compute hive readiness & hive readiness", two relation names; it now says
+  "your hive's latest readiness snapshot", which is what the view serves.
+- marketplace-seller's hint told sellers buyers reach them at "m.me/ directly": the `<your-handle>` placeholder was
+  parsed as a tag. Fixed, and now a gate for every served page.
+
+**3. Offer an action only where it can be taken (W1, J1, the shift-brain stale plan).** A stale plan told a worker to
+"Re-run the plan" only if the re-run control is on screen; it now reads the control's presence, not a role guess. J1's
+false alarms on "Clear 2 overdue PMs" (a link) and "Use" (opens a quantity dialog) were the instrument; the screens
+already asked before writing.
+
+**Kept distinct, deliberately:** the learn guides' readability (B1/B3 on about 80 guides) and the three guide openers that
+need a sourced figure stay in the learn-guide content program; one of them, the marketplace guide's "no platform fees
+or commissions", may be untrue for service hails (they settle a commission) and is a pricing message for Ian.

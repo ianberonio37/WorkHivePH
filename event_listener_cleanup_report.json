@@ -7,25 +7,25 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 30,
+      "add": 32,
       "remove": 0,
-      "add_raw": 34,
+      "add_raw": 36,
       "rebuild_scoped": 4,
       "risky": true
     },
     {
       "page": "hive.html",
-      "add": 55,
+      "add": 58,
       "remove": 0,
-      "add_raw": 56,
+      "add_raw": 59,
       "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 76,
+      "add": 77,
       "remove": 0,
-      "add_raw": 79,
+      "add_raw": 80,
       "rebuild_scoped": 3,
       "risky": true
     },
@@ -63,10 +63,10 @@
     },
     {
       "page": "skillmatrix.html",
-      "add": 10,
+      "add": 12,
       "remove": 1,
       "add_raw": 15,
-      "rebuild_scoped": 5,
+      "rebuild_scoped": 3,
       "risky": false
     },
     {
@@ -115,17 +115,17 @@
     },
     {
       "page": "engineering-design.js",
-      "add": 8,
+      "add": 9,
       "remove": 0,
-      "add_raw": 8,
+      "add_raw": 9,
       "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "assistant.html",
-      "add": 8,
+      "add": 9,
       "remove": 0,
-      "add_raw": 9,
+      "add_raw": 10,
       "rebuild_scoped": 1,
       "risky": false
     },
@@ -145,9 +145,9 @@
     },
     {
       "page": "integrations.html",
-      "add": 5,
+      "add": 6,
       "remove": 0,
-      "add_raw": 5,
+      "add_raw": 6,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -161,9 +161,9 @@
     },
     {
       "page": "project-report.html",
-      "add": 2,
+      "add": 3,
       "remove": 0,
-      "add_raw": 2,
+      "add_raw": 3,
       "rebuild_scoped": 0,
       "risky": false
     },
@@ -193,9 +193,9 @@
     },
     {
       "page": "asset-hub.html",
-      "add": 13,
+      "add": 14,
       "remove": 2,
-      "add_raw": 14,
+      "add_raw": 15,
       "rebuild_scoped": 1,
       "risky": false
     },

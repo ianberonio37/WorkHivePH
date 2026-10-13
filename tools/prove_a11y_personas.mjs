@@ -19,7 +19,7 @@
 //   node tools/prove_a11y_personas.mjs --page logbook.html
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const ROWS = (() => {
@@ -43,7 +43,7 @@ for (const page of PAGES) {
   // ── SR · what is announced ──
   {
     const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-    await signIn(ctx);
+    await assertSignedIn(signIn(ctx));
     const p = await ctx.newPage();
     await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
     await p.waitForTimeout(SETTLE_MS);
@@ -67,7 +67,7 @@ for (const page of PAGES) {
   // ── KB · Tab reaches the controls, focus is visible, nothing traps it ──
   {
     const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-    await signIn(ctx);
+    await assertSignedIn(signIn(ctx));
     const p = await ctx.newPage();
     await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
     await p.waitForTimeout(SETTLE_MS);
@@ -100,7 +100,7 @@ for (const page of PAGES) {
   // ── ZM · 200% zoom: no horizontal scroll, no clipped text ──
   {
     const ctx = await b.newContext({ viewport: { width: 640, height: 900 }, deviceScaleFactor: 2, serviceWorkers: 'block' });
-    await signIn(ctx);
+    await assertSignedIn(signIn(ctx));
     const p = await ctx.newPage();
     await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
     await p.addStyleTag({ content: 'html { zoom: 2 !important; }' }).catch(() => {});
@@ -120,7 +120,7 @@ for (const page of PAGES) {
   // ── CB · nothing signalled by colour alone ──
   {
     const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-    await signIn(ctx);
+    await assertSignedIn(signIn(ctx));
     const p = await ctx.newPage();
     await p.emulateMedia({ forcedColors: 'active' }).catch(() => {});
     await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => {});

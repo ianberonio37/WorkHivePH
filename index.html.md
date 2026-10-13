@@ -57,7 +57,7 @@ Operational Readiness Layer
 
 We don't replace your ERP or CMMS. We make digital tools actually work in your plant.
 
-It will not predict from data it does not have yet, it does not make you work its way, and it runs on the phone already in your pocket rather than on infrastructure you would have to buy. Free at the worker tier forever.
+It will not predict from data it does not have yet, or make you work its way. It runs on the phone already in your pocket, not on infrastructure you would have to buy. Free at the worker tier forever.
 
 Every hive grows in 4 stages · Every stage unlocks tools
 
@@ -104,6 +104,8 @@ NowStage 3 complete
 
 Next4-of-4: sensor + RCM + audit + benchmarks
 
+secondary, not primary (critic batch G3, 2026-10-13): browsing the tools sat in the same filled amber as
+ "Join the Hive" a few lines above it, so the landing offered a signed-out visitor two equal first steps. 
 See All Tools
 
 ## All WorkHive tools (free for every Filipino industrial worker)
@@ -292,6 +294,8 @@ Ask a question at 2am and a technician three plants away answers it. Share the f
  The trust you build by helping others follows you, from the community straight to the free marketplace,
  where it becomes real jobs and trades.
 
+secondary, like "See All Tools" (critic batch G3, 2026-10-13): a filled blue button here made browsing the feed a
+ third filled call to action beside the two amber "Join" buttons; joining is the one filled step. 
 [See the community feed](public-feed.html)
 [How a community of practice works →](https://workhiveph.com/learn/industrial-community-of-practice-philippines/)
 
@@ -437,4 +441,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: 2a012e026f5f41c5 -->
+<!-- md-twin source-sha: c62a8eb239ca35a4 -->

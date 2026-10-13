@@ -450,7 +450,9 @@
         <span class="ic ic-message" aria-hidden="true"></span>
         <h2 style="font-size:0.875rem;font-weight:700;margin:0;">Facebook Messenger handle</h2>
       </div>
-      <p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Buyers see a "Message on Messenger" button on your listings that opens m.me/<your-handle> directly. Find your handle at facebook.com/settings under Username.</p>
+      <!-- the handle placeholder is escaped: written as a bare tag, the browser parsed it as an element and sellers read
+           "opens m.me/ directly" (critic batch, 2026-10-13) -->
+      <p style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">Your listings show buyers a "Message on Messenger" button. It opens a chat with you at m.me/&lt;your-handle&gt;. Find your handle at facebook.com/settings, under Username.</p>
       <label data-i="messengerhandle" for="messenger-input" style="display:block;font-size: 0.75rem;font-weight:700;margin-bottom:0.375rem;color:var(--wh-steel-bright);">Messenger handle</label>
       <div class="field-save-row">
         <input class="wh-input" id="messenger-input" type="text" placeholder="your.handle (without m.me/)" style="font-size:1rem;" />
@@ -783,10 +785,38 @@
 
     /* Fetch seller profile */
     try {
-      const { data } = await db.from('v_marketplace_sellers_truth').select('*').eq('worker_name', WORKER_NAME).maybeSingle();
-      _seller = data;
-      _readFailed.seller = false;
+      /* BRP-A (2026-10-04): "mine" is the union of IDENTITY and name. WORKER_NAME is localStorage text and
+         the row's worker_name is whatever was written when it was created, so once they diverge this read
+         returns nothing and the seller is shown an empty profile - no tier, no badges, no listings count -
+         as though they had never sold anything. This read could not even ASK by identity until migration
+         20261004000005 gave v_marketplace_sellers_truth the auth_uid its base table always carried (it was
+         the last of the wave's three class-B views). Safe with .maybeSingle(): marketplace_sellers is
+         16/16 bound with zero duplicate auth_uid and zero duplicate worker_name, so the union cannot
+         return two rows and trip PGRST116. Union rather than swap, and it matters here more than most:
+         _authUid on this page is populated by a NON-awaited .then(), so it can still be null when this
+         runs - the name half is what keeps the profile loading in that window. */
+      const _mine = _authUid
+        ? 'auth_uid.eq.' + _authUid + ',worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))
+        : null;
+      /* ★A RESOLVED PROMISE IS NOT A SUCCESSFUL READ (2026-10-06, found walking LXP218 with PostgREST
+         stopped). This destructured only `data` and then set _readFailed.seller = false unconditionally -
+         and supabase-js RESOLVES with {data: null, error} instead of throwing, so the catch below never
+         ran and a failed read declared itself a success. Measured: the Sales tile read "0" next to a
+         correctly-dashed Listings tile and the page's own note "Couldn't load these numbers, so they're
+         showing as a dash rather than as zero", and the tier sentence read "Silver at 0 sales to distinct
+         buyers (Silver 0 · Gold 0)" where the healthy page says "Silver at 11 sales (Silver 11 · Gold 51)"
+         - so the outage also rewrote the THRESHOLDS, not just the progress.
+         The flag now follows the error, which is what every other loader on this page already does. */
+      const { data, error: _sellerErr } = _mine
+        ? await db.from('v_marketplace_sellers_truth').select('*').or(_mine).maybeSingle()
+        : await db.from('v_marketplace_sellers_truth').select('*').eq('worker_name', WORKER_NAME).maybeSingle();
+      if (_sellerErr) { _readFailed.seller = true; _seller = null; }
+      else { _seller = data; _readFailed.seller = false; }
     } catch (_) { _readFailed.seller = true; _seller = null; }
+    /* Same reason as the note in loadInquiries: this loader owns the Sales tile (via _readFailed.seller),
+       so it refreshes the tiles rather than leaving them on whatever the listings loader painted. Guarded
+       by typeof because loadProfile can run before updateProfileStats is defined in source order. */
+    if (typeof updateProfileStats === 'function') updateProfileStats();
 
     const e = escHtml;
     if (badgesEl) {
@@ -808,8 +838,18 @@
               db.rpc('service_knob', { p_hive: hv, p_key: 'tier_silver_sales' }),
               db.rpc('service_knob', { p_hive: hv, p_key: 'tier_gold_sales' }),
             ]);
+            /* ★THE GUARD SAID "ONLY WHEN BOTH READS LAND" AND LET TWO FAILED READS THROUGH (2026-10-06,
+               found walking LXP218 with PostgREST stopped). A failed service_knob RPC yields data null,
+               Number(null) is 0, and isFinite(0) is TRUE - so the sentence rendered "Silver at 0 sales to
+               distinct buyers (Silver 0 · Gold 0)" where the healthy page says "Silver at 11 sales (Silver
+               11 · Gold 51)". That is worse than a missing sentence: it misstates the THRESHOLDS, so a
+               seller reads that they have already met them, on the surface that decides their standing.
+               The error is now checked (these RPCs RESOLVE with {data, error}; they do not throw, so the
+               catch below never saw them), and a threshold must be a POSITIVE count - needing zero sales
+               to reach Silver is not a value this product can mean, so it cannot be a value it prints. */
+            if (sv?.error || gv?.error) return;
             const silver = Number(sv?.data), gold = Number(gv?.data);
-            if (!isFinite(silver) || !isFinite(gold)) return;
+            if (!isFinite(silver) || !isFinite(gold) || silver <= 0 || gold <= 0) return;
             const nextName = tier === 'bronze' ? 'Silver' : 'Gold';
             const nextN = tier === 'bronze' ? silver : gold;
             const note = document.createElement('div');
@@ -868,7 +908,10 @@
         // TELL the seller why (previously they saw only a bare red "Removed" chip). RLS keeps these
         // readable to the owning seller + admins only (mkt_listings_read).
         .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at,moderation_reason,moderated_at')
-        .eq('seller_name', WORKER_NAME)
+        // ★MINE BY ACCOUNT, NOT BY NAME (2026-10-08, migration 20261008000060): seller_name is a display name anyone
+        // can also hold, so a namesake's PUBLISHED listings appeared here as this seller's own. is_mine is the
+        // account check, answered by the database without exposing the owner key.
+        .eq('is_mine', true)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
@@ -889,7 +932,7 @@
       const { count, error: cErr } = await db
         .from('v_marketplace_listings_truth')
         .select('id', { count: 'exact', head: true })
-        .eq('seller_name', WORKER_NAME);
+        .eq('is_mine', true);
       if (cErr || count === null || count === undefined) { _readFailed.listings = true; _listingsTotal = null; }
       else _listingsTotal = Number(count);
     } catch (_e) { _readFailed.listings = true; _readFailErr.listings = _e; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, { en: 'your listings', fil: 'mga listing mo' }), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
@@ -958,10 +1001,26 @@
       return _t(`This account does not have access to ${subj.en}. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.`,
                 `Walang access ang account na ito sa ${subj.fil}. Maayos ang session mo, kaya hindi ito magbabago kahit mag-sign in ka ulit. Magtanong sa supervisor kung kailangan mo ng access.`);
     }
-    return _t(`Could not load ${subj.en}. Check your connection and retry.`,
-              `Hindi ma-load ang ${subj.fil}. Tingnan ang koneksyon mo at subukan muli.`);
+    // 2026-10-06 (seller x assistive-tech, PostgREST stopped): the fallthrough blamed the connection while
+    // navigator.onLine was TRUE and the service was what failed.
+    if (navigator.onLine === false) {
+      return _t(`You are offline, so ${subj.en} could not be read. It will load when your connection is back.`,
+                `Offline ka, kaya hindi mabasa ang ${subj.fil}. Maglo-load ito kapag bumalik ang koneksyon mo.`);
+    }
+    return _t(`Could not load ${subj.en} - WorkHive did not answer. Retry in a moment.`,
+              `Hindi ma-load ang ${subj.fil} - hindi sumagot ang WorkHive. Subukan muli maya-maya.`);
   }
   const _statOrGap = (failed, value) => (failed ? '\u2014' : String(value));
+  // ★FIVE DASHES WITH NO WORDS (2026-10-06, seller x assistive-tech, PostgREST stopped). _statOrGap wrote a bare em dash
+  // into each figure, and one status line explained dashes in general - so a screen reader reached "Listings" with no
+  // value at all (an em dash is below most readers' default punctuation level) and could not tell WHICH figures were
+  // missing. The shared pair says "<unit>: unknown, not loaded" beside the dash and removes it when a value lands.
+  const _paintStat = (el, failed, value, unit) => {
+    if (!el) return;
+    if (failed && typeof whStatUnknown === 'function') { whStatUnknown(el, unit); return; }
+    if (!failed && typeof whStatValue === 'function') { whStatValue(el, value); return; }
+    el.textContent = _statOrGap(failed, value);
+  };
   let _listingsTotal  = 0;
 
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
@@ -971,7 +1030,7 @@
       const _q = db
         .from('v_marketplace_inquiries_truth')
         .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
-        .eq('seller_name', WORKER_NAME)
+        .eq('to_me', true)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
@@ -987,28 +1046,37 @@
         const { count: totalCount } = await db
           .from('v_marketplace_inquiries_truth')
           .select('id', { count: 'exact', head: true })
-          .eq('seller_name', WORKER_NAME);
+          .eq('to_me', true);
         _inquiriesTotal = Number(totalCount || 0);
         const { count: pendingCount } = await db
           .from('v_marketplace_inquiries_truth')
           .select('id', { count: 'exact', head: true })
-          .eq('seller_name', WORKER_NAME)
+          .eq('to_me', true)
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
     } catch (_e) { _readFailed.inquiries = true; _readFailErr.inquiries = _e; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, { en: 'your inquiries', fil: 'mga inquiry mo' }), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
+    /* ★THE TILE THIS LOADER OWNS IS REFRESHED BY THIS LOADER (2026-10-06, found walking LXP218 with
+       PostgREST stopped). updateProfileStats() was called from ONE place - the end of loadListings() - so
+       the three tiles were painted on the listings loader's timeline while `_readFailed.inquiries` and
+       `_readFailed.seller` were still false. Measured on screen: "— Listings" correctly dashed beside
+       "0 Sales" and "0 New Inquiries", with the page's OWN note underneath reading "Couldn't load these
+       numbers, so they're showing as a dash rather than as zero" - true of one tile and false of the two
+       next to it, and a seller with 1 sale and 3 inquiries was told both were zero. The dash logic was
+       never wrong (_statOrGap is shared by all three); the ORDERING was. */
+    if (typeof updateProfileStats === 'function') updateProfileStats();
   }
 
   /* ── Update badges ──────────────────────────────────────────────────────── */
   function updateBadges() {
     const bl = document.getElementById('badge-listings');
     const bi = document.getElementById('badge-inquiries');
-    if (bl) bl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
+    _paintStat(bl, _readFailed.listings, _listingsTotal || _listings.length, _t('Listings', 'Mga listing'));
     // Pending inquiry badge uses the head-only count when available, else
     // falls back to the in-memory filter on the limited array.
-    if (bi) bi.textContent = _statOrGap(_readFailed.inquiries, _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length);
+    _paintStat(bi, _readFailed.inquiries, _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length, _t('Inquiries', 'Mga inquiry'));
   }
 
   function updateProfileStats() {
@@ -1050,9 +1118,9 @@
       _hideRetryUnderNotice();
       if (anyFailed) { setTimeout(_hideRetryUnderNotice, 1500); setTimeout(_hideRetryUnderNotice, 4000); }
     }
-    if (psl) psl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
-    if (pss) pss.textContent = _statOrGap(_readFailed.seller, _seller?.total_sales || 0);
-    if (psi) psi.textContent = _statOrGap(_readFailed.inquiries, _inquiries.filter(i => i.status === 'pending').length);
+    _paintStat(psl, _readFailed.listings, _listingsTotal || _listings.length, _t('Listings', 'Mga listing'));
+    _paintStat(pss, _readFailed.seller, _seller?.total_sales || 0, _t('Sales', 'Benta'));
+    _paintStat(psi, _readFailed.inquiries, _inquiries.filter(i => i.status === 'pending').length, _t('New inquiries', 'Bagong inquiry'));
   }
 
   /* ── Credit wallet ──────────────────────────────────────────────────────────
@@ -1272,6 +1340,22 @@
     } catch (_e) {
       // empty-catch-allow: the wallet is informational; a failed read must never block the dashboard
       console.warn('credit wallet unavailable:', _e?.message || _e);
+      // ★BUT IT MUST NOT LEAVE THE PLACEHOLDER STANDING AS IF IT WERE A FIGURE (2026-10-06, same walk). The markup
+      // default is a bare "-", so an unread wallet looked exactly like a wallet that had loaded and said nothing - on the
+      // one panel whose comment already insists "absent is not zero". Name each figure as unknown and say why once.
+      if (typeof whStatUnknown === 'function') {
+        whStatUnknown(document.getElementById('cw-available'), _t('Available to list', 'Magagamit sa listing'));
+        whStatUnknown(document.getElementById('cw-reserved'), _t('Held by live listings', 'Nakahawak sa mga live listing'));
+      }
+      const _nn = document.getElementById('cw-negative-note');
+      if (_nn) {
+        _nn.textContent = (navigator.onLine === false)
+          ? _t('You are offline, so your credit balance could not be read. It is not zero; it will show when your connection is back.',
+               'Offline ka, kaya hindi mabasa ang credit balance mo. Hindi ito zero; lalabas ito kapag bumalik ang koneksyon mo.')
+          : _t('Your credit balance could not be read - WorkHive did not answer. It is not zero; it will show when the page reloads.',
+               'Hindi mabasa ang credit balance mo - hindi sumagot ang WorkHive. Hindi ito zero; lalabas ito pag nag-reload ang page.');
+        _nn.style.display = '';
+      }
     }
   }
 
@@ -1349,10 +1433,32 @@
         if (lmWrap) lmWrap.classList.add('hidden');
         return;
       }
+      // ★AN EMPTY FILTER IS NOT AN EMPTY SHOP (same walk). With a status filter on and listings elsewhere, this
+      // branch said "No listings yet - Post your first listing" while the tab beside it read "Listings 3". Say what
+      // the filter hid and give the one control that undoes it.
+      if (_statusFilter !== 'all' && _listings.length > 0) {
+        area.innerHTML = `<div class="empty-state">
+        <span class="ic ic-list" aria-hidden="true"></span>
+        <h3>${escHtml(_t('No listings with this status', 'Walang listing sa status na ito'))}</h3>
+        <p>${escHtml(_t(`You have ${_listings.length} listing${_listings.length === 1 ? '' : 's'} in other statuses.`, `May ${_listings.length} listing ka sa ibang status.`))}</p>
+        <button type="button" class="btn-post-now" id="seller-filter-show-all" style="min-height:44px;">${escHtml(_t('Show all listings', 'Ipakita lahat ng listing'))}</button>
+      </div>`;
+        document.getElementById('seller-filter-show-all')?.addEventListener('click', () => {
+          const _all = document.querySelector('[data-status="all"]');
+          if (_all) _all.click(); else { _statusFilter = 'all'; renderListings(); }
+        });
+        if (lmWrap) lmWrap.classList.add('hidden');
+        return;
+      }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-list" aria-hidden="true"></span>
         <h3>${escHtml(_t('No listings yet', 'Wala pang listing'))}</h3>
-        <p>${escHtml(_t('Post your first listing to start selling on WorkHive.', 'I-post ang iyong unang listing para magsimulang magbenta sa WorkHive.'))}</p>
+        <p>${escHtml(_t('Post your first listing. Sell a spare part or tool, offer a training you run, or post a job your plant is hiring for.', 'I-post ang iyong unang listing para magsimulang magbenta sa WorkHive.'))}</p>
+        <!-- SAY WHAT A CREW MEMBER CAN LIST (2026-10-09, UFAI LXP379/452/485/518, walked as two sellers with
+             no listings). "Post your first listing to start selling on WorkHive" named nothing a maintenance
+             person could put up, so a first-time seller met a generic shop screen. The three things the
+             marketplace takes are its three tabs - Parts, Training, Hiring - and this line names them in the
+             crew's own words. English only: the Filipino line is left as it was (Filipino work is out of scope). -->
         <!-- THE ONE CONTROL WHOSE JOB IS THE FIRST LISTING DID NOT START ONE (2026-09-10, walked as
              a seller with no listings). This empty state says "Post your first listing to start
              selling" and its button says "Post a Listing" - and it linked to bare marketplace.html,
@@ -1860,14 +1966,17 @@
          this one did not, and it is the costliest of the unguarded three.
 
          The filter is ADDED to the existing chain rather than delegated to `ocUpdate`, because that
-         helper filters on id + stamp only and this update must keep `.eq('seller_name', …)` — a
-         concurrency fix that quietly widened who may edit a listing would be a poor trade. */
+         helper filters on id + stamp only.
+         ★WHO MAY EDIT IS THE DATABASE'S ANSWER, ON THE ACCOUNT (2026-10-08, migration 20261008000060). This
+         chain used to keep `.eq('seller_name', …)` "so a concurrency fix could not widen who may edit". It never
+         narrowed it: RLS asked the same name, and any account can hold that name. The policy now asks the
+         ACCOUNT (auth_uid = auth.uid()); a name filter on top only refused a seller whose display name had
+         changed since listing, as a silent 0-row save. */
       const _stamp = _editItem && _editItem.updated_at;
       let _q2 = db
         .from('marketplace_listings')
         .update({ title, category, condition, description: desc, price, location, seller_contact: contact, image_url: imageUrl, status: 'draft', updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .eq('seller_name', WORKER_NAME);
+        .eq('id', id);
       if (_stamp) _q2 = _q2.eq('updated_at', _stamp);
       const { data: _saved, error } = await _q2.select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
@@ -1936,8 +2045,17 @@
     if (!(await window.whConfirm(`Delete "${item.title}"? This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
 
     try {
-      const { error } = await db.from('marketplace_listings').delete().eq('id', id).eq('seller_name', WORKER_NAME);
+      // ★OWNERSHIP IS THE DATABASE'S (mkt_listings_delete: seller_name IN auth_worker_names()), so the client name
+      // filter is gone - with a drifted display name it matched nothing, PostgREST answered 204, and the code below
+      // went on to DELETE THE PHOTO of a listing that was still there and say "Listing deleted." The 0-row case is
+      // now read, and it stops before the photo is touched (BRP-C, the sibling saved-search delete's fix).
+      const { data: _gone, error } = await db.from('marketplace_listings').delete().eq('id', id).select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
+      if (!_gone || !_gone.length) {
+        showToast('Nothing was deleted: this listing is no longer yours to delete, or it was already removed. The list has been refreshed.', 'info');
+        await loadListings();
+        return;
+      }
       /* T134/T164 (2026-08-26): DELETE THE PHOTO TOO. Deleting the row left the uploaded image in
          the marketplace-listings bucket forever - and that bucket is PUBLIC, so the picture stayed
          reachable by URL after the seller believed they had removed the listing. "This cannot be
@@ -1958,7 +2076,10 @@
       showToast('Listing deleted.', 'success');
       await loadListings();
     } catch (_err) {
-      console.error('marketplace-seller delete failed:', _);
+      // ★THE ERROR HANDLER CRASHED ON ITS FIRST LINE (2026-10-08, UI-write recipes): `_` is declared nowhere on this
+      // page, so logging it threw ReferenceError and the toast never ran - a failed delete was completely silent.
+      // Same defect the inquiry-close handler below was already fixed for; log the error the catch bound.
+      console.error('marketplace-seller delete failed:', _err);
       showToast(whWriteError(_err, _t('Delete failed. Try again.', 'Hindi natuloy ang delete. Subukan muli.')), 'error');
     }
   }
@@ -2594,7 +2715,9 @@
     if (error) {
       showToast(/duplicate|unique/i.test(error.message)
         ? 'That reference number is already filed'
-        : whWriteError(error, "Couldn't file the top-up. Nothing was sent. Check your connection and try again."),
+        : whWriteError(error, (navigator.onLine === false)
+            ? "You are offline, so the top-up was not filed. Nothing was sent. File it again when your connection is back."
+            : "Couldn't file the top-up - WorkHive did not answer. Nothing was sent; try again in a moment."),
         'error');
       return;
     }
@@ -3186,7 +3309,7 @@
       const { data: myRepliedInq } = await db
         .from('v_marketplace_inquiries_truth')
         .select('created_at, replied_at')
-        .eq('seller_name', WORKER_NAME)
+        .eq('to_me', true)
         .not('replied_at', 'is', null)
         .limit(200);
       const myRepl = myRepliedInq || [];
@@ -3195,19 +3318,13 @@
         myAvgH = (totalMs / myRepl.length) / 3600000;
       }
 
-      /* Platform avg (sample up to 500 most-recent replied inquiries across all sellers) */
-      const { data: platRepliedInq } = await db
-        .from('v_marketplace_inquiries_truth')
-        .select('created_at, replied_at')
-        .not('replied_at', 'is', null)
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);
-      const platRepl = platRepliedInq || [];
-      if (platRepl.length) {
-        const totalMs = platRepl.reduce((sum, i) => sum + Math.max(0, new Date(i.replied_at).getTime() - new Date(i.created_at).getTime()), 0);
-        platformAvgH = (totalMs / platRepl.length) / 3600000;
-      }
+      /* ★THE PLATFORM AVERAGE WAS THE SELLER'S OWN (2026-10-08, migration 20261008000063). This read asked for "the
+         500 most recent replied inquiries across all sellers", but RLS lets a person read only conversations they are
+         party to - so the sample was this seller's own inquiries and the badge compared them with themselves. The
+         database now answers with one platform-wide number (same 500-reply definition) and never a row; it is null
+         below 5 replies, which this page already shows as "no platform figure yet". */
+      const { data: platH, error: platErr } = await db.rpc('marketplace_platform_response_hours');
+      if (!platErr && platH != null && Number.isFinite(Number(platH))) platformAvgH = Number(platH);
     } catch (_) { /* ignore — render with nulls */ /* empty-catch-allow: best-effort silent swallow */ }
 
     /* Aggregate inquiry counts per listing */
@@ -3218,7 +3335,7 @@
       const { data } = await db
         .from('v_marketplace_inquiries_truth')
         .select('listing_id, status')
-        .eq('seller_name', WORKER_NAME)
+        .eq('to_me', true)
         .limit(5000); // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
       (data || []).forEach(r => {
         if (r.listing_id) {
@@ -3527,7 +3644,10 @@
        reload / leave-and-back keeps the seller's view. */
     try {
       const _stParam = urlParams.get('status');
-      if (_stParam && _stParam !== 'all') {
+      // ★ONLY A STATUS THE PAGE OFFERS (2026-10-06, seller x adversary, layer F). Any string was accepted, so
+      // ?status=<anything> filtered every listing away and no chip was active to show why.
+      const _known = Array.prototype.map.call(document.querySelectorAll('[data-status]'), (c) => c.dataset.status);
+      if (_stParam && _stParam !== 'all' && _known.indexOf(_stParam) !== -1) {
         _statusFilter = _stParam;
         document.querySelectorAll('[data-status]').forEach(c => { const on = c.dataset.status === _stParam; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
         renderListings();

@@ -84,6 +84,13 @@ def main() -> int:
           + (f"; {len(skipped)} skipped (no <style>)" if skipped else ""))
     if not apply and changed:
         print("  re-run with --apply to write")
+    # ★--check FAILS WHEN A PAGE IS PENDING (2026-10-13, critic batch C5). The dry run always exited 0 and nothing ran it,
+    # so the three pillar guides, built after this tool, shipped without the remap: their byline read Lc 40 and their
+    # back link Lc 46 while the same classes rendered at 0.8 on the other 51. Registered as `learn-contrast-remap`.
+    if "--check" in sys.argv and changed:
+        for f in changed:
+            print("  missing: " + Path(f).parent.name)
+        return 1
     return 0
 
 

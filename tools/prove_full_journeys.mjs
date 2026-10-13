@@ -706,14 +706,19 @@ const PERFORM = {
   },
 };
 
-// the chain cache: (archetype, hive) -> count, or null when the database genuinely could not answer
+// the chain cache: (archetype, hive, person) -> count, or null when the database genuinely could not answer
+// ★THE PERSON IS PART OF THE KEY (2026-10-07). It was (archetype, hive) - and both solo operators have NO hive, so J11
+// for Boyet Ramirez read back Jun Salvador's cached count: a chain keyed to the PERSON (`$W`) answered for the wrong
+// person, and the receipt said "his own records exist" about somebody else's. Found when the MCP journey walk's
+// multi-row collect never asked for Boyet's chain at all.
 const CHAINS = new Map();
+const chainKey = (archetype, hiveId, identity) => `${archetype}@${hiveId}@${(identity && identity.name) || ''}`;
 function readChainFresh(archetype, hiveId, identity) {
-  CHAINS.delete(`${archetype}@${hiveId}`);
+  CHAINS.delete(chainKey(archetype, hiveId, identity));
   return readChain(archetype, hiveId, identity);
 }
 function readChain(archetype, hiveId, identity) {
-  const key = `${archetype}@${hiveId}`;
+  const key = chainKey(archetype, hiveId, identity);
   if (CHAINS.has(key)) return CHAINS.get(key);
   const spec = EFFECT[archetype];
   if (!spec) { CHAINS.set(key, null); return null; }

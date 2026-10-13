@@ -6,9 +6,9 @@ Source: https://workhiveph.com/tools/generator-sizing-calculator/
 
 Generator Sizing Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
-**The Generator Sizing Calculator finds the standby genset kVA for a load, accounting for the largest motor's starting kVA surge. Example: for a 100 kW load with a 20 HP DOL-started largest motor, Recommended genset = 250 kVA, Steady demand = 129.41 kVA, Peak during start = 215.16 kVA (per ISO 8528-1:2018 | ISO 3046-1 | IEEE 446 | PEC 2017 | NFPA 110).**
+**The Generator Sizing Calculator finds the standby genset kVA for a load, accounting for the largest motor's starting kVA surge. Example: for a 100 kW load with a 20 HP DOL-started largest motor, Recommended genset = 250 kVA, Steady demand = 129.41 kVA, Peak during start = 215.16 kVA (per ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110).**
 How it works
-Computed from your inputs per ISO 8528-1:2018 | ISO 3046-1 | IEEE 446 | PEC 2017 | NFPA 110. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
+The calculator follows ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Electrical & Power)
 Inputs: a 100 kW load with a 20 HP DOL-started largest motor.
@@ -16,20 +16,20 @@ ResultValue
 Recommended genset250 kVA
 Steady demand129.41 kVA
 Peak during start215.16 kVA
-Computed by WorkHive's calculation engine when this page was built; standard: ISO 8528-1:2018 | ISO 3046-1 | IEEE 446 | PEC 2017 | NFPA 110.
+Computed by WorkHive's calculation engine when this page was built; standard: ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110.
 How to use this calculator
 Read the worked example. It uses a 100 kW load with a 20 HP DOL-started largest motor and shows every number in the method.
-Follow the formula with your own figures: it returns Recommended genset, Steady demand, Peak during start, computed per ISO 8528-1:2018.
+Follow the formula with your own figures: it returns Recommended genset, Steady demand, Peak during start, computed per ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110.
 To compute interactively, open the Generator Sizing Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
-What is a genset sizing calculator kVA?The Generator Sizing Calculator is a free online tool that finds the standby genset kVA for a load, accounting for the largest motor's starting kVA surge. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following ISO 8528-1:2018. The worked example on this page shows a real computation with real numbers.
+What is the Generator Sizing Calculator?The Generator Sizing Calculator is a free online tool that finds the standby genset kVA for a load, accounting for the largest motor's starting kVA surge. It shows the formula and a fully worked example so you can check the method, not just the number.
+How is it calculated?The result is computed from your inputs following ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110. The worked example on this page shows a real computation with real numbers.
 Is the calculator free?Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Generator Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=generator-sizing). Free, and a free sign-up saves your calculations, BOMs and scope-of-works to your account.
+[Open the interactive Generator Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=generator-sizing). Free to use. A free account saves the calculation, its bill of materials and its scope of works to your hive. Your team finds them under the project name it already uses. The next technician on that job reads the same numbers instead of re-deriving them.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/)
 [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
 
-<!-- md-twin source-sha: ccbd4c582095dafd -->
+<!-- md-twin source-sha: e8d18e6c85bba30e -->

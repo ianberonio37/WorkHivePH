@@ -2,7 +2,7 @@
 name: edge-fn-pdf-ingest
 type: edge-fn
 source: file:supabase/functions/pdf-ingest/index.ts
-source_sha: 9f63c798b9601d18
+source_sha: cda8702b89d97865
 last_verified: 2026-07-13
 supersedes: null
 ---

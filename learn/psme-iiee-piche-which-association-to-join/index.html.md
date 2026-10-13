@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide. One thing to clear up first, because it is the commonest reason people pick wrong: **no association sets your CPD quota**. Under RA 10912 the number of units you need to renew your Professional Identification Card is set by the **PRC**, through the Professional Regulatory Board for your discipline. What an association gives you is somewhere to earn those units, so the real decision is discipline match and which chapter actually meets near you.
+**Short answer:** Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide. One thing to clear up first, because it is the commonest reason people pick wrong: **no association sets your CPD quota**. Under RA 10912 the number of units you need to renew your Professional Identification Card is set by the **PRC**, through the Professional Regulatory Board for your discipline. The card itself runs for 3 years before you renew it. What an association gives you is somewhere to earn those units, so the real decision is discipline match and which chapter actually meets near you.
 
 Who this is for
 
@@ -130,7 +130,8 @@ The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engine
 
 ## Sources
 
+- The card's 3-year validity, and the bills to extend it to 5 years (House Bill 8876, passed by the House in May 2026; Senate Bills 2326 and 2391), as reported by the [Manila Bulletin, 17 August 2026](https://mb.com.ph/2026/08/17/mark-villar-seeks-to-extend-prc-id-validity-to-5-years). Still pending in the Senate at that date: check the PRC before you plan around a 5-year card.
 - [Professional Regulation Commission (PRC)](https://www.prc.gov.ph/), **Republic Act 10912 (CPD Act of 2016)** and **PRC Resolution No. 2019-1146** (effective 1 March 2019, reducing the required CPD units). The PRC and its Professional Regulatory Boards set the CPD requirement and administer licensure.
 - **PSME** (Philippine Society of Mechanical Engineers), **IIEE** (Institute of Integrated Electrical Engineers) and **PIChE** (Philippine Institute of Chemical Engineers): each publishes its own current membership schedule, chapter list and event calendar. Take fees from the association, not from a summary.
 
-<!-- md-twin source-sha: 9f281ada9e5dc067 -->
+<!-- md-twin source-sha: a8a28902cdd2ff6e -->

@@ -2654,6 +2654,31 @@ function makeCalcCard(ct, showDisc) {
       ${!ct.available ? '<span class="ml-auto text-xs px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);">Soon</span>' : ''}
     </div>`;
   if (ct.available) div.onclick = () => selectCalcType(ct.id);
+  // ★THE PAGE'S MAIN CHOICE COULD NOT BE REACHED WITHOUT A MOUSE (2026-10-06, engineering-design x assistive-tech).
+  // Every calculation type was a plain <div> with an onclick: no role, no tabindex, no key handler - so a keyboard
+  // or screen-reader user could pick a discipline (those are real buttons) and then stop dead at Step 2, unable to
+  // choose any of the 55 calculations the page exists to run. Each card is now a toggle button: focusable, Enter
+  // and Space select it, aria-pressed carries "selected" (which was colour only), and its NAME is the calculation
+  // alone - the description is attached as a description, so a list of 55 does not read as 55 paragraphs. A
+  // "Soon" card says it is unavailable instead of being a silent dead target.
+  try {
+    makeCalcCard._n = (makeCalcCard._n || 0) + 1;
+    const _descEl = div.querySelector('.calc-desc');
+    if (_descEl) { _descEl.id = 'calc-desc-' + makeCalcCard._n; div.setAttribute('aria-describedby', _descEl.id); }
+    const _ico = div.querySelector('span');
+    if (_ico) _ico.setAttribute('aria-hidden', 'true');
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-label', whCalcLabel(ct.id) + (ct.available ? '' : ' (coming soon)'));
+    if (ct.available) {
+      div.tabIndex = 0;
+      div.setAttribute('aria-pressed', ct.id === _calcType ? 'true' : 'false');
+      div.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectCalcType(ct.id); }
+      });
+    } else {
+      div.setAttribute('aria-disabled', 'true');
+    }
+  } catch (_) { /* empty-catch-allow: the card still works by pointer if the upgrade fails */ }
   return div;
 }
 
@@ -2711,7 +2736,12 @@ function labelizeInputs() {
     const unitEl = (el.closest('.input-group') || el.parentElement || el).querySelector
       ? (el.closest('.input-group') || el.parentElement).querySelector('.input-unit') : null;
     const unit = unitEl ? unitEl.textContent.trim() : '';
-    el.setAttribute('aria-label', unit ? `${name} (${unit})` : name);
+    // ★THE UNIT WAS SAID TWICE (2026-10-08, W4 compute walk, AHU Sizing at 320). A label that already names its unit
+    // ("Total Cooling Load (kW)") got the badge's unit appended again, so every screen reader heard "kW" twice and the
+    // range refusal - which builds its sentence from this same name - read "Total Cooling Load (kW) (kW) must be at
+    // least 1". The badge's unit is added only when the label does not already carry it.
+    const named = !!unit && new RegExp('\\(\\s*' + unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\)', 'i').test(name);
+    el.setAttribute('aria-label', unit && !named ? `${name} (${unit})` : name);
   });
 }
 
@@ -2859,6 +2889,7 @@ function selectCalcType(id) {
   trackRecentCalc(id);
   document.querySelectorAll('.calc-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.id === id);
+    if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', c.dataset.id === id ? 'true' : 'false');
   });
   setStep(3);
   renderInputForm(id);
@@ -10265,6 +10296,7 @@ async function runCalculation() {
     } else {
       renderReport(inputs, data.results, data.narrative);
     }
+    _edTrustNarrative(data.narrative, data);
     showToast('Calculation complete!');
 
   } catch (err) {
@@ -10281,6 +10313,31 @@ function showEmpty() {
   document.getElementById('report-loading').style.display = 'none';
   document.getElementById('report-output').classList.add('hidden');
 }
+// ★THE AI-DRAFTED SUMMARY WAS LABELLED, NOT ANSWERABLE (LM-E walk, 2026-10-08). The report says its objective,
+// assumptions and recommendations are "AI-drafted; review before use", and an engineer who finds a wrong
+// recommendation can edit it in the report - which fixes THIS report and tells no one the draft was wrong. The shared
+// "was this right?" row sits in #ed-ai-note, beside that sentence, and records ONLY the narrative parts the report
+// actually shows (a renderer that prints its own default text instead of the AI's is not the AI's answer). A new
+// calculation replaces the row; a calculation with no AI narrative removes it, so it never rates a previous report.
+// reply = engineering-calc-agent's whole reply: its trace_id is what a "wrong" on the narrative names (LM-E)
+function _edTrustNarrative(narr, reply) {
+  const note = document.getElementById('ed-ai-note');
+  if (!note) return;
+  const old = note.querySelector(':scope > .wh-ai-trust');
+  if (old) old.remove();
+  if (typeof whAiTrustRow !== 'function' || !narr || typeof narr !== 'object') return;
+  const shown = (document.getElementById('report-panel')?.textContent || '').replace(/\s+/g, ' ');
+  const t = (v) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim() : '');
+  const parts = [['Objective', t(narr.objective)], ['Assumptions', t(narr.assumptions)], ['Recommendations', t(narr.recommendations)]]
+    .filter(([, v]) => v && shown.includes(v.slice(0, 60)))
+    .map(([k, v]) => k + ': ' + v);
+  if (!parts.length) return;
+  whAiTrustRow(note, { db, agent: 'engineering-calc-agent', source: 'calc-narrative', page: 'engineering-design',
+    traceId: whTraceIdOf(reply),
+    question: whCalcLabel(_calcType) + ' report: objective, assumptions and recommendations', answer: parts.join('\n'),
+    groundedOn: 'your inputs and this calculation\'s computed results' });
+}
+
 // AI-4 (deep-arc P5): bound every AI edge-fn call with a client timeout so a hung/slow function
 // can't leave an infinite spinner — Promise.race against a timeout that rejects into the catch.
 function invokeWithTimeout(name, opts, ms = 45000) {
@@ -10339,6 +10396,13 @@ function showLoading() {
   document.getElementById('report-loading').style.display = 'flex';
   document.getElementById('report-output').classList.add('hidden');
   startLoadingMessages();
+  // ★THE WAIT WAS SILENT; ONLY ITS END WAS SAID (2026-10-06, engineering-design x assistive-tech, PostgREST stopped).
+  // announceStatus() below says "report ready" - but the run before it took 33s on this walk, and in those 33s the
+  // rotating message changed every 2.8s inside a panel no assistive technology was told about. One polite sentence at
+  // the start, not one per rotation: a status that speaks every 2.8 seconds is noise.
+  try { announceStatus(_calcT('Calculating. This can take up to about a minute - the report will be announced when it is ready.',
+                              'Nagkakalkula. Puwedeng umabot ng mga isang minuto - sasabihin kapag handa na ang report.')); }
+  catch (_) { /* empty-catch-allow: the visible message still shows */ }
 }
 // U-3 (deep-arc P3): SC 4.1.3 status message — announce report readiness to assistive tech
 // without moving focus (a screen-reader user waited 22s and otherwise gets no signal a full
@@ -10399,6 +10463,19 @@ function labelizeReportEditables() {
   });
 }
 
+// ★THE REPORT LANDED BEHIND THE PINNED HEADER (critique W45915, 2026-10-13). scrollIntoView({block:'start'}) puts its
+// target at viewport top 0, and the top of this page is held by the fixed wayfinding band and the pinned tab header
+// (#ed-pinned-header): measured at 390, after Run Calculation the report's own action row - Download PDF, Save - sat
+// hidden behind them. The target's scroll-margin is set to the pinned header's bottom at the moment of scrolling, so it
+// lands just below whatever is pinned (taller when the title wraps, lower when the offline banner is open).
+function _edScrollToStart(el) {
+  if (!el) return;
+  const pin = document.getElementById('ed-pinned-header');
+  el.style.scrollMarginTop = ((pin ? Math.ceil(pin.getBoundingClientRect().bottom) : 0) + 8) + 'px';
+  const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+}
+
 function showReport() {
   stopLoadingMessages();
   document.getElementById('report-empty').style.display   = 'none';
@@ -10407,7 +10484,7 @@ function showReport() {
   labelizeReportEditables();                                                  // U-8
   announceStatus(`${_calcType} report ready. Results are shown in the report panel below.`); // U-3
   if (window.innerWidth < 768) {
-    setTimeout(() => document.getElementById('report-output').scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+    setTimeout(() => _edScrollToStart(document.getElementById('report-output')), 150);
   }
   // Show BOM+SOW trigger, reset to idle state
   document.getElementById('bom-sow-section').classList.remove('hidden');
@@ -10561,7 +10638,7 @@ function showReport() {
 function renderReport(inputs, results, narrative) {
   if (!results || !results.components) return '';
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const c       = results.components;
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
@@ -10719,7 +10796,7 @@ function renderReport(inputs, results, narrative) {
 // ─── Render Ventilation / ACH Report ─────────────────────────────────────────
 function renderVentReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -10858,7 +10935,7 @@ function renderVentReport(inputs, results, narrative) {
 function renderBoilerReport(inputs, results, narrative) {
   if (inputs.boiler_type === 'Hot Water') { renderHotWaterBoilerReport(inputs, results, narrative); return; }
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const r = results || {};
   const e = escHtml;
   const pass = v => v ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
@@ -11015,7 +11092,7 @@ function renderBoilerReport(inputs, results, narrative) {
 // ─── Hot Water Boiler Report ─────────────────────────────────────────────────
 function renderHotWaterBoilerReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const r = results || {};
   const e = escHtml;
   const pass = v => v ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
@@ -11161,7 +11238,7 @@ function renderHotWaterBoilerReport(inputs, results, narrative) {
 // ─── Compressed Air Report ───────────────────────────────────────────────────
 function renderAirReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const toolRows = (results.tool_breakdown || []).map(t => `
@@ -11282,7 +11359,7 @@ function renderAirReport(inputs, results, narrative) {
 // ─── Pipe Sizing Report ───────────────────────────────────────────────────────
 function renderPipeReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const velStatus = results.velocity_ok
@@ -11441,7 +11518,7 @@ function _pipeDiaNote(inputs, results) {
 
 function renderPumpReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const velWarn = !results.velocity_ok
@@ -11599,7 +11676,7 @@ function renderGeneratorReport(inputs, results, narrative) {
   const e = escHtml;
   const r = results;
   const n = narrative || {};
-  const dateStr = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div style="padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:'Times New Roman',Times,serif;font-size:0.9rem;line-height:1.6;">
@@ -11809,7 +11886,7 @@ function renderSolarPVReport(inputs, results, narrative) {
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">System Derating Factor</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.derating_pct || 80)} % (soiling, wiring, temp, mismatch)</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Inverter Efficiency</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${e(inputs.inverter_eff_pct || 96)} %</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Prepared by</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">${ef('Engineer Name')}</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;color:#555;">Date</td><td style="padding:0.4rem 0.5rem;">${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;color:#555;">Date</td><td style="padding:0.4rem 0.5rem;">${ef(new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'}))}</td></tr>
     </table>
 
     <!-- Key Results -->
@@ -11920,7 +11997,7 @@ function renderSolarPVReport(inputs, results, narrative) {
         <div style="border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${ef('_________________________')}</div>
           <div style="font-size:0.75rem;color:#555;">${ef('Owner / Client Representative')}</div>
-          <div style="font-size:0.75rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${ef(new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'}))}</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
@@ -11936,7 +12013,7 @@ function renderPFCReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const kw              = results.kw              ?? inputs.load_kw   ?? '';
@@ -11971,7 +12048,7 @@ function renderPFCReport(inputs, results, narrative) {
         <div class="report-meta">Project: ${e(projName)}</div>
         <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
         <div class="report-meta">Date: ${e(dateStr)}</div>
-        <div class="report-meta">Doc No.: ${e('ELEC-PFC-' + now.toISOString().slice(0,10).replace(/-/g,''))}</div>
+        <div class="report-meta">Doc No.: ${e('ELEC-PFC-' + whManilaYmd(now).replace(/-/g,''))}</div>
       </div>
       <div class="report-logo-block">
         <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">IEEE 18 / IEEE 1036</div>
@@ -12096,7 +12173,7 @@ function renderPFCReport(inputs, results, narrative) {
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e('_________________')}</div>
           <div style="font-size:0.75rem;color:#555;">${e('Owner / Client Representative')}</div>
-          <div style="font-size:0.75rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}))}</div>
+          <div style="font-size:0.75rem;color:#555;">Date: ${e(new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'}))}</div>
           <div style="font-size:0.75rem;color:#595959;margin-top:0.2rem;">Approved by</div>
         </div>
       </div>
@@ -12112,7 +12189,7 @@ function renderCableTrayReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const trayType       = inputs.tray_type      || 'Ladder';
@@ -12159,7 +12236,7 @@ function renderCableTrayReport(inputs, results, narrative) {
         <div class="report-meta">Project: ${e(projName)}</div>
         <div class="report-meta">Prepared by: ${e(WORKER_NAME || '')}</div>
         <div class="report-meta">Date: ${e(dateStr)}</div>
-        <div class="report-meta">Doc No.: ${e('ELEC-CT-' + now.toISOString().slice(0,10).replace(/-/g,''))}</div>
+        <div class="report-meta">Doc No.: ${e('ELEC-CT-' + whManilaYmd(now).replace(/-/g,''))}</div>
       </div>
       <div class="report-logo-block">
         <div style="font-size:0.75rem;font-weight:700;color:#1a56db;">NEMA VE 1</div>
@@ -12314,7 +12391,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const topology      = inputs.topology      || 'Online (Double-Conversion)';
@@ -12367,7 +12444,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <div class="report-subtitle">${e(projName)}</div>
       <div class="report-meta">
         Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
-        Ref: ELEC-UPS-${now.toISOString().slice(0,10).replace(/-/g,'')}
+        Ref: ELEC-UPS-${whManilaYmd(now).replace(/-/g,'')}
       </div>
     </div>
 
@@ -12857,7 +12934,7 @@ function buildTransformerSLDTitleBlockHtml(inputs, results) {
   const v1 = r.primary_voltage || '-';
   const v2 = r.secondary_voltage || '-';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -12888,7 +12965,7 @@ function buildTransformerSLDTitleBlockHtml(inputs, results) {
 // ─── Transformer Sizing Report ───────────────────────────────────────────────
 function renderTransformerReport(inputs, results, narrative) {
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const r = results;
   const mOk = ok => ok ? '#2e7d32' : '#c62828';
   const panel = document.getElementById('report-panel');
@@ -12937,7 +13014,7 @@ function renderTransformerReport(inputs, results, narrative) {
 // ─── Harmonic Distortion Report ───────────────────────────────────────────────
 function renderHarmonicReport(inputs, results, narrative) {
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const r = results;
   const panel = document.getElementById('report-panel');
   panel/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
@@ -13269,7 +13346,7 @@ function buildCleanAgentSVG(inputs, results) {
 function buildCleanAgentTitleBlockHtml(inputs, results) {
   const r = results || {};
   const proj = String(inputs?.project_name || 'Clean Agent System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -13300,7 +13377,7 @@ function buildCleanAgentTitleBlockHtml(inputs, results) {
 // ─── Clean Agent Suppression Report ──────────────────────────────────────────
 function renderCleanAgentReport(inputs, results, narrative) {
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const r = results;
   const safeColor = r.safe_for_occupied_spaces ? '#2e7d32' : '#c62828';
   const panel = document.getElementById('report-panel');
@@ -13348,7 +13425,7 @@ function renderEarthingReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const projName   = inputs.project_name     || 'Earthing System';
@@ -13413,7 +13490,7 @@ function renderEarthingReport(inputs, results, narrative) {
       <div class="report-subtitle">${e(projName)}</div>
       <div class="report-meta">
         Prepared by: ${e(WORKER_NAME || '')} &nbsp;|&nbsp; Date: ${e(dateStr)} &nbsp;|&nbsp;
-        Ref: ELEC-EGS-${now.toISOString().slice(0,10).replace(/-/g,'')}
+        Ref: ELEC-EGS-${whManilaYmd(now).replace(/-/g,'')}
       </div>
     </div>
 
@@ -13518,7 +13595,7 @@ function renderLPSReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e  = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
   const ef = s => `<span contenteditable="true" class="editable-field" style="font-style:italic;">${escHtml(String(s ?? ''))}</span>`;
 
@@ -13731,7 +13808,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const projName     = inputs.project_name  || 'Duct Sizing Project';
@@ -13910,7 +13987,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const dateStr = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
 
   const projName    = inputs.project_name       || 'Expansion Tank Project';
   const sysType     = inputs.system_type        || 'Chilled Water';
@@ -14070,7 +14147,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
-  const dateStr = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
 
   const projName  = inputs.project_name  || 'FCU Selection Project';
   const pipeSys   = inputs.pipe_system   || '2-Pipe (Cooling Only)';
@@ -14279,7 +14356,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
   const panel = document.getElementById('report-panel');
   if (!panel) return;
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s ?? ''))}</span>`;
 
   const projName   = inputs.project_name || 'Refrigerant Pipe Sizing Project';
@@ -14443,7 +14520,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
 // ─── Load Estimation Report ───────────────────────────────────────────────────
 function renderLoadReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const loadRows = (results.load_breakdown || []).map(l => `
@@ -14560,7 +14637,7 @@ function renderLoadReport(inputs, results, narrative) {
 // ─── Voltage Drop Report ──────────────────────────────────────────────────────
 function renderVDReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const passColor  = results.pass ? '#2e7d32' : '#b71c1c';
@@ -14675,7 +14752,7 @@ function renderVDReport(inputs, results, narrative) {
 // ─── Wire Sizing Report ───────────────────────────────────────────────────────
 function renderWireSizingReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const sizeRows = (results.size_comparison || []).map(r => `
@@ -14774,7 +14851,7 @@ function renderWireSizingReport(inputs, results, narrative) {
 // ─── Septic Tank Sizing Report ────────────────────────────────────────────────
 function renderSepticReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const comp = results.compartments || 1;
@@ -14921,7 +14998,7 @@ function renderSepticReport(inputs, results, narrative) {
 // ─── Grease Trap Sizing Report ─────────────────────────────────────────────
 function renderGreaseTrapReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const r   = results  || {};
@@ -15183,7 +15260,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
 // ─── Drainage Pipe Sizing Report ─────────────────────────────────────────────
 function renderDrainageReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const velStatus = results.velocity_ok
@@ -15339,7 +15416,7 @@ function renderDrainageReport(inputs, results, narrative) {
 // ─── Hot Water Demand Report ──────────────────────────────────────────────────
 function renderHotWaterReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const deltaT = results.delta_T || (results.T_hot - results.T_supply);
@@ -15484,7 +15561,7 @@ function renderHotWaterReport(inputs, results, narrative) {
 // ─── Water Supply Pipe Sizing Report ─────────────────────────────────────────
 function renderWaterSupplyReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   const velStatus = results.velocity_ok
@@ -15655,7 +15732,7 @@ function renderWaterSupplyReport(inputs, results, narrative) {
 // ─── Fire Protection: Stairwell Pressurization Report (NFPA 92) ──────────────
 function renderStairwellPressReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const dpStatus = r.delta_P_ok
@@ -15821,7 +15898,7 @@ function renderStairwellPressReport(inputs, results, narrative) {
 // ─── Fire Protection: Fire Pump Sizing Report (NFPA 20) ──────────────────────
 function renderFirePumpReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const nfpaPct = r.drive_type === 'Diesel Engine' ? '120%' : '115%';
@@ -16031,14 +16108,14 @@ function renderLightingDesignReport(inputs, results, narrative) {
           <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Lumen (Zonal Cavity) Method: IES / PEC 2017</div>
         </div>
         <div style="text-align:right;font-size:0.75rem;color:#555;">
-          <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
+          <div>Date: ${now.toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'})}</div>
           <div>Standard: IES RP-1 / PEC Article 3.60</div>
         </div>
       </div>
 
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Room</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">${e('_________________')}</td></tr>
-        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Space Type</td><td style="padding:0.3rem 0.5rem;">${inputs.space_type}</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Space Type</td><td style="padding:0.3rem 0.5rem;">${inputs.space_type}</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila' })}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Room Dimensions</td><td style="padding:0.3rem 0.5rem;">${inputs.room_len_m} m × ${inputs.room_wid_m} m × ${inputs.ceiling_ht_m} m H</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Floor Area</td><td style="padding:0.3rem 0.5rem;">${r.floor_area_m2} m²</td></tr>
       </table>
 
@@ -16160,14 +16237,14 @@ function renderShortCircuitReport(inputs, results, narrative) {
           <div style="font-size:0.8rem;color:#555;margin-top:0.2rem;">Fault Current &amp; Breaker Interrupting Capacity Verification</div>
         </div>
         <div style="text-align:right;font-size:0.75rem;color:#555;">
-          <div>Date: ${now.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</div>
+          <div>Date: ${now.toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'})}</div>
           <div>Standard: PEC 2017 / IEC 60909 / IEEE 141</div>
         </div>
       </div>
 
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.78rem;">
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;width:35%;color:#555;">Project / Panel</td><td style="padding:0.3rem 0.5rem;">${inputs.project_name}</td><td style="padding:0.3rem 0.5rem;font-weight:600;width:20%;color:#555;">Engineer</td><td style="padding:0.3rem 0.5rem;">${e('_________________')}</td></tr>
-        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Transformer</td><td style="padding:0.3rem 0.5rem;">${inputs.xfmr_kva} kVA, ${inputs.z_pct}%Z</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH')}</td></tr>
+        <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Transformer</td><td style="padding:0.3rem 0.5rem;">${inputs.xfmr_kva} kVA, ${inputs.z_pct}%Z</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Date</td><td style="padding:0.3rem 0.5rem;">${now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila' })}</td></tr>
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">System Voltage</td><td style="padding:0.3rem 0.5rem;">${inputs.voltage_ll} V (L-L)</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Cable Run</td><td style="padding:0.3rem 0.5rem;">${inputs.cable_mm2} mm² Cu, ${inputs.cable_len_m} m</td></tr>
       </table>
 
@@ -16276,7 +16353,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
 // ─── Fire Protection: Fire Sprinkler Hydraulic Report ────────────────────────
 function renderFireSprinklerReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -16435,7 +16512,7 @@ function renderFireSprinklerReport(inputs, results, narrative) {
 // ─── Fire Alarm Battery Standby Report (NFPA 72) ─────────────────────────────
 function renderFireAlarmBatteryReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const dc      = r.device_currents || {};
@@ -16609,7 +16686,7 @@ function renderFireAlarmBatteryReport(inputs, results, narrative) {
 // ─── Bolt Torque & Preload Report: ISO 898-1 / VDI 2230 / ASME PCC-1 ───────
 function renderBoltTorqueReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -16745,7 +16822,7 @@ function renderBoltTorqueReport(inputs, results, narrative) {
 // ─── Shaft Design Report: ASME B106.1M / Shigley's Elliptic Criterion ──────
 function renderShaftDesignReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
   // ── Compatibility: Python DE-Goodman keys → ASME B106.1M renderer fields ──
@@ -16966,7 +17043,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
 // ─── Bearing Life (L10) Report: ISO 281 ────────────────────────────────────
 function renderBearingLifeReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -17100,7 +17177,7 @@ function renderBearingLifeReport(inputs, results, narrative) {
 // ─── V-Belt Drive Design Report (RMA IP-20 / ASME B17.1) ────────────────────
 function renderVBeltReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -17243,7 +17320,7 @@ function renderVBeltReport(inputs, results, narrative) {
 
 // ─── Gear / Belt / Chain Drive Report (Python API) ───────────────────────────
 function renderGearBeltDriveReport(inputs, results, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r = results;
   const driveType  = r.drive_type || inputs.drive_type || 'Drive';
@@ -17345,7 +17422,7 @@ function renderGearBeltDriveReport(inputs, results, narrative) {
 
 // ─── Boiler / Steam System Report (Python API) ───────────────────────────────
 function renderBoilerSteamReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
@@ -17403,7 +17480,7 @@ function renderBoilerSteamReport(inputs, r, narrative) {
 // ─── Chiller System — Water Cooled Report ────────────────────────────────────
 function renderChillerWaterCooledReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const copColor = r.cop_check === 'PASS' ? '#2e7d32' : '#c62828';
@@ -17612,7 +17689,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
 // ─── Chiller System — Air Cooled Report ──────────────────────────────────────
 function renderChillerAirCooledReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const copColor = r.cop_check === 'PASS' ? '#2e7d32' : '#c62828';
@@ -17821,7 +17898,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
 // ─── Hoist Capacity Report (ASME B30.2 / B30.16) ────────────────────────────
 function renderHoistCapacityReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const sfColor = r.safety_factor_check === 'PASS' ? '#2e7d32' : '#c62828';
@@ -17963,7 +18040,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
 // ─── Elevator Traffic Analysis Report (ASME A17.1 / EN 81 / CIBSE Guide D) ──
 function renderElevatorTrafficReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -18113,7 +18190,7 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
 // ─── AHU Sizing Report ────────────────────────────────────────────────────────
 function renderAHUSizingReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
   const fanColor = r.fan_power_check === 'PASS' ? '#2e7d32' : '#c62828';
@@ -18503,7 +18580,7 @@ function buildAHUTitleBlockHtml(inputs, results) {
   const coilTR = Number(r.Q_coil_TR || (Number(coilKW) / 3.517) || 0).toFixed(1);
   const fanCheck = String(r.fan_power_check || 'PASS');
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -18540,7 +18617,7 @@ function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
   const kF = Number(r.K_factor || 0).toFixed(2);
   const status = r.overall_pass ? 'COMPLIANT' : 'NON-COMPLIANT';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -18583,7 +18660,7 @@ function buildDuctSizingTitleBlockHtml(inputs, results) {
   const velStatus = anyHigh ? 'HIGH' : anyWarn ? 'WARNING' : 'OK';
   const velColor  = anyHigh ? '#c62828' : anyWarn ? '#ef6c00' : '#2e7d32';
   const proj = String(inputs?.project_name || 'Untitled').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -18985,7 +19062,7 @@ function _renderGenericSLD(svgString, titleBlockHtml) {
 function _buildGenericTitleBlock(inputs, ratingStr, opts) {
   const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const proj  = esc2(inputs?.project_name || 'Untitled Project');
-  const now   = new Date().toLocaleDateString('en-PH', {year:'numeric', month:'long', day:'numeric'});
+  const now   = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric', month:'long', day:'numeric'});
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${esc2(v)}</div>`;
   const SIG = () => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:20px;outline:none;"></div>
@@ -19936,7 +20013,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
   const lpl   = String(inputs.lpl || 'LPL II');
   const method = String(inputs.air_term_method || 'Rolling Sphere');
   const proj  = String(inputs.project_name || 'LPS Design Project').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now   = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const now   = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
   const rSph  = Number(r.rolling_sphere_R_m || 45);
   const meshSz = Number(r.mesh_size_m || 10);
 
@@ -20246,7 +20323,7 @@ function buildSLDTitleBlockHtml(inputs, results) {
   const mainBkr  = r.recommended_breaker_A || 100;
   const demandKW = _orNA(r.total_demand_kw, 1);
   const proj = String(inputs.project_name || 'Untitled Panel').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now  = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const now  = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
   const EF  = (v='') => `<div contenteditable="true" class="editable-field" style="font-size:11px;color:#1a2e4a;min-height:16px;outline:none;">${v}</div>`;
@@ -20571,7 +20648,7 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
   const is3Ph   = phaseConf.includes('3');
   const app     = String(inputs.application || r.application || 'Standby (ESP)');
   const proj    = String(inputs.project_name || 'Untitled Generator').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now     = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const now     = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const ratingLine = `${selKva} kVA / ${selKw} kW | ${is3Ph ? '400V / 3Ø / 50Hz' : '230V / 1Ø / 50Hz'} | ${app}`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
@@ -20882,7 +20959,7 @@ function buildPumpPIDTitleBlockHtml(inputs, results) {
   const motorKw= _orNA(r.recommended_kw, 1);
   const motorHp= _orNA(r.recommended_hp, 0);
   const proj   = String(inputs.project_name || 'Untitled Pump System').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const now    = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const now    = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const ratingLine = `${flowM3} m³/hr @ ${tdh} m TDH | DN${pipeDia} ${pipeMat} | ${motorKw} kW / ${motorHp} HP`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
@@ -21206,7 +21283,7 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
   const pS     = _orNA(r.P_source, 2);
   const durMin = Number(r.duration     || 0);
   const proj   = escHtml(String(inputs.project_name || 'Untitled Sprinkler System'));
-  const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const now    = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
   const ratingLine = `${hazard} | ${nH} heads | Q=${qT}\u00a0L/min | P\u209b=${pS}\u00a0bar | ${durMin}\u00a0min`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
@@ -27218,7 +27295,7 @@ function buildHVACTitleBlockHtml(inputs, results) {
   const proj   = escHtml(String(inputs.project_name  || 'Untitled Project'));
   const fn     = escHtml(String(inputs.room_function || 'Office'));
   const area   = Number(inputs.floor_area            || 0);
-  const now    = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const now    = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
   const ratingLine = `${fn} | ${area}\u00a0m\u00b2 | ${recKW}\u00a0kW\u00a0/\u00a0${recTR}\u00a0TR | ASHRAE\u00a062.1\u00a0/\u00a0PSME\u00a0Code`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
@@ -27616,7 +27693,7 @@ function buildLightingTitleBlockHtml(inputs, results) {
   const area    = Number(r.floor_area_m2 || 0);
   const proj    = escHtml(String(inputs.project_name || 'Untitled Lighting Design'));
   const spaceTyp = escHtml(String(inputs.space_type  || 'Office'));
-  const now     = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const now     = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
   const rating  = `${spaceTyp} | ${nFix} fixtures | E\u2090\u1D65\u1D67=${Math.round(eActual)}\u00a0lx | LPD=${lpd.toFixed(2)}\u00a0W/m\u00b2 | ${totKW.toFixed(2)}\u00a0kW | ${area.toFixed(1)}\u00a0m\u00b2`;
 
   const LBL = t => `<div style="font-size:7px;font-weight:700;letter-spacing:0.09em;color:#595959;text-transform:uppercase;margin-bottom:3px;">${t}</div>`;
@@ -28242,7 +28319,7 @@ async function saveCalc() {
 
     const { error } = await db.from('engineering_calcs').insert(payload);
     if (error) {
-      showToast('Save failed: ' + error.message, 5000);
+      showToast(_calcSaveFailText(error, _calcT('this calculation', 'ang kalkulasyong ito')), 9000);
     } else {
       // Was 'Calculation saved to history.' - a destination with no timing and no route to it. A saved
       // calc is reachable evidence, so the confirmation names where it is, that it is there NOW, and
@@ -28252,7 +28329,32 @@ async function saveCalc() {
   } finally {
     _savingCalc = false;
     restore();
+    _calcSaveRefocus(btn);
   }
+}
+
+// ★"SAVE FAILED: NAME RESOLUTION FAILED" (2026-10-06, engineering-design x assistive-tech, PostgREST stopped).
+// Both savers printed 'Save failed: ' + error.message, so the reader was handed the gateway's own words for an
+// unreachable upstream - a DNS term - with no answer to the two questions a failed save raises: is my work gone, and
+// what do I do. The calculation is computed in the browser, so the report IS still on screen; saying so is the whole
+// reassurance. whWriteError keeps its specific sentences (expired session, refusal, a deliberate guard) and takes
+// this page's sentence for everything else, split on the one input that tells offline from a server that did not answer.
+function _calcT(en, fil) { return (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t(en, fil) : en; }
+function _calcSaveFailText(error, what) {
+  const off = (typeof navigator !== 'undefined' && navigator.onLine === false);
+  const fb = off
+    ? _calcT('You are offline, so ' + what + ' was not saved. The report is still on screen - save it when your connection is back.',
+         'Offline ka, kaya hindi na-save ang ' + what + '. Nasa screen pa ang report - i-save ito kapag bumalik ang koneksyon mo.')
+    : _calcT('Couldn\u2019t save ' + what + ' - WorkHive did not answer. Nothing was saved, and the report is still on screen, so you can press Save again in a moment.',
+         'Hindi na-save ang ' + what + ' - hindi sumagot ang WorkHive. Walang na-save, at nasa screen pa ang report, kaya puwede mong pindutin muli ang Save maya-maya.');
+  return (typeof whWriteError === 'function') ? whWriteError(error, fb) : fb;
+}
+// Disabling the focused Save button drops focus to <body>; put it back on the button when the attempt ends.
+function _calcSaveRefocus(btn) {
+  try {
+    const ae = document.activeElement;
+    if (btn && (!ae || ae === document.body || ae === document.documentElement)) btn.focus();
+  } catch (_) { /* empty-catch-allow: focus restore is best-effort */ }
 }
 
 async function saveWithBomSow() {
@@ -28319,7 +28421,7 @@ async function saveWithBomSow() {
 
     const { error } = await db.from('engineering_calcs').insert(payload);
     if (error) {
-      showToast('Save failed: ' + error.message, 5000);
+      showToast(_calcSaveFailText(error, _calcT('this calculation with its BOM and SOW', 'ang kalkulasyong ito kasama ang BOM at SOW')), 9000);
     } else {
       // Was 'Saved with BOM + SOW.' - it named WHAT was saved but not where it went or what to do next.
       showToast('Saved -> the calculation, its BOM and its SOW are in your history now, and you can reopen or export them from the History tab.');
@@ -28327,6 +28429,7 @@ async function saveWithBomSow() {
   } finally {
     _savingBomSow = false;
     restore();
+    _calcSaveRefocus(btn);
   }
 }
 
@@ -28418,7 +28521,7 @@ async function loadHistory() {
   data.forEach(r => { _historyById[r.id] = r; });
   list.innerHTML = data.map(row => {
     const d   = new Date(row.created_at);
-    const dt  = d.toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' });
+    const dt  = d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'short', day:'numeric' });
     const res = row.results;
     const summary = res?.recommended_kW
       ? `${res.recommended_kW} kW / ${res.recommended_TR} TR`
@@ -28788,7 +28891,7 @@ function generateDocuments() {
   renderBomTablePreview(checkedBom);
   renderSowDocPreview(checkedSow);
   document.getElementById('bom-preview').classList.remove('hidden');
-  document.getElementById('bom-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  _edScrollToStart(document.getElementById('bom-preview'));
 }
 
 function backToChecklist() {
@@ -28800,7 +28903,7 @@ function backToChecklist() {
 // ─── Render BOM white document table ─────────────────────────────────────────
 function renderBomTablePreview(items) {
   const proj    = _lastInputs?.project_name || 'Untitled Project';
-  const today   = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const today   = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const isVent  = _calcType === 'Ventilation / ACH';
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
@@ -28854,7 +28957,7 @@ function renderBomTablePreview(items) {
   const isBeam      = _calcType === 'Beam / Column Design';
   const isBearing   = _calcType === 'Bearing Life (L10)';
   const isBolt      = _calcType === 'Bolt Torque & Preload';
-  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isCoolTow ? 'HVAC-CT' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isRD ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoise ? 'MECH-NOISE' : isVibr ? 'MECH-VIB' : isFluPwr ? 'MECH-HYD' : isPV ? 'MECH-PV' : isHX ? 'MECH-HX' : isVBelt ? 'MECH-VBD' : isShaft ? 'MECH-SHF' : isBeam ? 'MECH-BEAM' : isBearing ? 'MECH-BRG' : isBolt ? 'MECH-BOLT' : 'MECH'}-BOM-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isET ? 'HVAC-ET' : isFC ? 'HVAC-FCU' : isRP ? 'HVAC-RPS' : isDS ? 'HVAC-DS' : isAHU ? 'HVAC-AHU' : isCoolTow ? 'HVAC-CT' : isChillerWC ? 'HVAC-CWC' : isChiller ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPS ? 'ELEC-LPS' : isEG ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPS ? 'ELEC-UPS' : isCT ? 'ELEC-CT' : isPFC ? 'ELEC-PFC' : isSolarPV ? 'ELEC-SOLARPV' : isGen ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoft ? 'PLMB-WS-SOFT' : isWT ? 'PLMB-WT' : isSTP ? 'PLMB-STP' : isSD ? 'PLMB-SD' : isGT ? 'PLMB-GT' : isRD ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoise ? 'MECH-NOISE' : isVibr ? 'MECH-VIB' : isFluPwr ? 'MECH-HYD' : isPV ? 'MECH-PV' : isHX ? 'MECH-HX' : isVBelt ? 'MECH-VBD' : isShaft ? 'MECH-SHF' : isBeam ? 'MECH-BEAM' : isBearing ? 'MECH-BRG' : isBolt ? 'MECH-BOLT' : 'MECH'}-BOM-${whManilaYmd().replace(/-/g,'')}`;
   const disciplineSystem = isET
     ? `HVAC Systems: Expansion Tank Sizing (${_lastInputs?.system_type || 'Chilled Water'}, V=${_lastResults?.system_volume_L || _lastInputs?.system_volume_L || ''}L, Fill ${_lastInputs?.fill_temp_c || 20}°C→Max ${_lastInputs?.max_temp_c || ''}°C, Head ${_lastInputs?.static_head_m || ''}m, Pmax ${_lastInputs?.max_pressure_kpa_g || ''}kPa g, Tank ${_lastResults?.selected_tank_L || ''}L bladder, α=${_lastResults?.acceptance_factor ?? ''})`
     : isFC
@@ -29164,7 +29267,7 @@ function renderBomTablePreview(items) {
 // ─── Render SOW white contractor document ─────────────────────────────────────
 function renderSowDocPreview(sections) {
   const proj    = _lastInputs?.project_name || 'Untitled Project';
-  const today   = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const today   = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const isVent  = _calcType === 'Ventilation / ACH';
   const isPump  = _calcType === 'Pump Sizing (TDH)';
   const isPipe  = _calcType === 'Pipe Sizing';
@@ -29218,7 +29321,7 @@ function renderSowDocPreview(sections) {
   const isBeamS      = _calcType === 'Beam / Column Design';
   const isBearingS   = _calcType === 'Bearing Life (L10)';
   const isBoltS      = _calcType === 'Bolt Torque & Preload';
-  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isCTow ? 'HVAC-CT' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isRDS ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoiseS ? 'MECH-NOISE' : isVibrS ? 'MECH-VIB' : isFluPwrS ? 'MECH-HYD' : isPVS ? 'MECH-PV' : isHXS ? 'MECH-HX' : isVBeltS ? 'MECH-VBD' : isShaftS ? 'MECH-SHF' : isBeamS ? 'MECH-BEAM' : isBearingS ? 'MECH-BRG' : isBoltS ? 'MECH-BOLT' : 'MECH'}-SOW-${new Date().toISOString().slice(0,10).replace(/-/g,'')}`;
+  const calcRef = `${isETS ? 'HVAC-ET' : isFCS ? 'HVAC-FCU' : isRPS ? 'HVAC-RPS' : isDSS ? 'HVAC-DS' : isAHUS ? 'HVAC-AHU' : isCTow ? 'HVAC-CT' : isChillerWCS ? 'HVAC-CWC' : isChillerS ? 'HVAC-CAC' : isHoist ? 'VT-HC' : isElev ? 'VT-ETA' : isFABatt ? 'FP-FAB' : isSPress ? 'FP-SP' : isCleanAgt ? 'FP-CAS' : isFPump ? 'FP-FPS' : isFSprink ? 'FP-FSH' : isLPSS ? 'ELEC-LPS' : isEGS ? 'ELEC-EGS' : isXFMR ? 'ELEC-XFMR' : isHarmonic ? 'ELEC-HD' : isUPSS ? 'ELEC-UPS' : isCTS ? 'ELEC-CT' : isPFCS ? 'ELEC-PFC' : isSolarPVS ? 'ELEC-SOLARPV' : isGenS ? 'ELEC-GEN' : isLight ? 'ELEC-LD' : isSC ? 'ELEC-SC' : isWire ? 'ELEC-WS' : isVD ? 'ELEC-VD' : isLoadEst ? 'ELEC-LE' : isWaterSoftS ? 'PLMB-WS-SOFT' : isWTS ? 'PLMB-WT' : isSTPS ? 'PLMB-STP' : isSDS ? 'PLMB-SD' : isGTS ? 'PLMB-GT' : isRDS ? 'PLMB-RD' : isSeptic ? 'PLMB-SEPTIC' : isDrain ? 'PLMB-DRN' : isHW ? 'PLMB-HW' : isWS ? 'PLMB-WSP' : isCAir ? 'MECH-CA' : isPipe ? 'MECH-PIPE' : isPump ? 'MECH-PUMP' : isVent ? 'MECH-VENT' : isNoiseS ? 'MECH-NOISE' : isVibrS ? 'MECH-VIB' : isFluPwrS ? 'MECH-HYD' : isPVS ? 'MECH-PV' : isHXS ? 'MECH-HX' : isVBeltS ? 'MECH-VBD' : isShaftS ? 'MECH-SHF' : isBeamS ? 'MECH-BEAM' : isBearingS ? 'MECH-BRG' : isBoltS ? 'MECH-BOLT' : 'MECH'}-SOW-${whManilaYmd().replace(/-/g,'')}`;
   const kw     = _lastResults?.recommended_kW    || '';
   const tr     = _lastResults?.recommended_TR    || '';
   const units  = _lastResults?.recommended_units || '';
@@ -29537,7 +29640,7 @@ ${isLight
 // ─── Cooling Tower Sizing Report ─────────────────────────────────────────────
 function renderCoolingTowerReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -29720,7 +29823,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 // ─── Water Softener Sizing Report ────────────────────────────────────────────
 function renderWaterSoftenerReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -29920,7 +30023,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
 // ─── Water Treatment System Report ───────────────────────────────────────────
 function renderWaterTreatmentReport(inputs, results, narrative) {
   const now     = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = (s, w) => `<span contenteditable="true" class="editable-field" style="min-width:${w||'120px'}">${escHtml(String(s || ''))}</span>`;
   const r       = results;
 
@@ -30219,7 +30322,7 @@ function renderRoofDrainReport(inputs, r, narrative) {
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const proj   = inputs.project_name  || 'Roof Drain';
   const now    = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' });
   const passColor = r.overall_status === 'PASS' ? '#16a34a' : '#dc2626';
   const passLabel = r.overall_status || 'PASS';
 
@@ -30477,8 +30580,8 @@ function renderStormDrainReport(inputs, r, narrative) {
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Storm Drain / Stormwater Sizing: Rational Method</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
             Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
-            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
-            Doc No.: <span class="editable-field" contenteditable="true">PLMB-SD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
+            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
+            Doc No.: <span class="editable-field" contenteditable="true">PLMB-SD-${whManilaYmd().replace(/-/g,'')}</span>
           </div>
         </div>
         <div style="text-align:right;font-size:0.75rem;color:#595959;white-space:nowrap;">
@@ -30700,8 +30803,8 @@ function renderSTPReport(inputs, r, narrative) {
           <div style="font-size:1.05rem;font-weight:600;color:#1a1a1a;margin-top:0.2rem;">Wastewater Treatment Plant: Activated Sludge</div>
           <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;">
             Prepared by: <span class="editable-field" contenteditable="true">${escHtml(WORKER_NAME)}</span> &nbsp;|&nbsp;
-            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
-            Doc No.: <span class="editable-field" contenteditable="true">PLMB-STP-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</span>
+            Date: <span class="editable-field" contenteditable="true">${new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'})}</span> &nbsp;|&nbsp;
+            Doc No.: <span class="editable-field" contenteditable="true">PLMB-STP-${whManilaYmd().replace(/-/g,'')}</span>
           </div>
         </div>
         <div style="text-align:right;font-size:0.75rem;color:#595959;white-space:nowrap;">
@@ -31074,7 +31177,7 @@ function downloadBomCsv() {
   const a    = document.createElement('a');
   const proj = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
   a.href     = url;
-  a.download = `BOM_${proj}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `BOM_${proj}_${whManilaYmd()}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('BOM CSV downloaded.');
@@ -31084,7 +31187,7 @@ async function downloadBomDocPdf() {
   const el = document.getElementById('bom-doc-content');
   if (!el) { showToast('No BOM to download.'); return; }
   const proj     = (_lastInputs?.project_name || 'BOM').replace(/[^a-z0-9]/gi, '_');
-  const fileName = `BOM_${proj}_${new Date().toISOString().slice(0,10)}.pdf`;
+  const fileName = `BOM_${proj}_${whManilaYmd()}.pdf`;
 
   // ── Server-side vector PDF ────────────────────────────────────────────────
   try {
@@ -31149,7 +31252,7 @@ async function downloadSowPdf() {
   const el = document.getElementById('sow-doc-content');
   if (!el) { showToast('No SOW to download.'); return; }
   const proj     = (_lastInputs?.project_name || 'SOW').replace(/[^a-z0-9]/gi, '_');
-  const fileName = `SOW_${proj}_${new Date().toISOString().slice(0,10)}.pdf`;
+  const fileName = `SOW_${proj}_${whManilaYmd()}.pdf`;
 
   // ── Server-side vector PDF ────────────────────────────────────────────────
   try {
@@ -31194,7 +31297,7 @@ async function downloadSowPdf() {
 
 // ─── Beam / Column Design Report ─────────────────────────────────────────────
 function renderBeamColumnReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const isSteel = (inputs.member_type || '').includes('Steel');
   const isBeam  = (inputs.member_type || '').includes('Beam');
@@ -31429,7 +31532,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
 
 // ─── Pressure Vessel Report ───────────────────────────────────────────────────
 function renderPressureVesselReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const ok = c => `<span style="font-weight:700;color:${c ? '#2e7d32' : '#c62828'};">${c ? 'PASS' : 'FAIL'}</span>`;
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
@@ -31568,7 +31671,7 @@ function renderPressureVesselReport(inputs, r, narrative) {
 
 // ─── Heat Exchanger Report ────────────────────────────────────────────────────
 function renderHeatExchangerReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading.</div>
@@ -31625,7 +31728,7 @@ function renderHeatExchangerReport(inputs, r, narrative) {
 
 // ─── Vibration Analysis Report ────────────────────────────────────────────────
 function renderVibrationReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const zoneColor = r.iso_zone?.includes('Zone A') || r.iso_zone?.includes('Zone B') ? '#2e7d32' : r.iso_zone?.includes('Zone C') ? '#f57c00' : '#c62828';
   // Inputs for formula display
@@ -31769,7 +31872,7 @@ function renderVibrationReport(inputs, r, narrative) {
 
 // ─── Fluid Power Report ───────────────────────────────────────────────────────
 function renderFluidPowerReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const cyl = r.cylinder || {};
   const pump = r.pump || {};
@@ -31924,7 +32027,7 @@ function renderFluidPowerReport(inputs, r, narrative) {
 
 // ─── Noise / Acoustics Report ─────────────────────────────────────────────────
 function renderNoiseAcousticsReport(inputs, r, narrative) {
-  const dateStr = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  const dateStr = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
   const e = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const dose = r.dose || {};
   const room = r.room || {};

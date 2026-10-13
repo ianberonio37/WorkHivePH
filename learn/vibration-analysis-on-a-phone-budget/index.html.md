@@ -27,7 +27,9 @@ Who this is for
 
 ## What is Phone-Based Vibration Analysis?
 
-Phone-based vibration analysis is a practical approach to Predictive Maintenance (PdM) for Philippine plants with limited budgets. Instead of investing in an analyser first, a plant supervisor at a PEZA industrial site in Batangas can start with two things they already have: a third-party accelerometer app to take the reading, and WorkHive to record and judge it. Be clear about which does what — **Voice Journal does not measure vibration**; it is a voice-to-text journal, and its job here is to capture the number and the context the moment you read it. The measuring is done by any of the accelerometer apps on the store, which use the phone's built-in accelerometer. That accelerometer is the whole constraint: it typically samples up to about 100 Hz, which covers a machine turning below roughly 30 Hz: most pumps, fans and motors under 1,800 RPM, and the first few harmonics above it. Everything faster than that is invisible to it, which is what the can-and-cannot list below is really describing.
+Phone-based vibration analysis is a practical approach to Predictive Maintenance (PdM) for Philippine plants with limited budgets. Instead of investing in an analyser first, a plant supervisor at a PEZA industrial site in Batangas can start with two things they already have: a third-party accelerometer app to take the reading, and WorkHive to record and judge it.
+
+Be clear about which does what — **Voice Journal does not measure vibration**; it is a voice-to-text journal, and its job here is to capture the number and the context the moment you read it. The measuring is done by any of the accelerometer apps on the store, which use the phone's built-in accelerometer. That accelerometer is the whole constraint: it typically samples up to about 100 Hz, which covers a machine turning below roughly 30 Hz: most pumps, fans and motors under 1,800 RPM, and the first few harmonics above it. Everything faster than that is invisible to it, which is what the can-and-cannot list below is really describing.
 
 A maintenance planner at a Pampanga manufacturing plant runs this on the phone already in their pocket, where a traditional analyser is a capital purchase with a lead time. The discipline is the same whichever app takes the reading: a fixed schedule: the same point, the same machine state, the same day each week: with each number dictated into Voice Journal, which timestamps it and keeps the entry searchable.
 
@@ -122,4 +124,4 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 
 - ISO 10816-3, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 3: Industrial machines** (the Class I–IV severity zones quoted above). Part 1:2009 gives the general framework.
 
-<!-- md-twin source-sha: 83d6088ec9b255fd -->
+<!-- md-twin source-sha: b607797646b18971 -->

@@ -177,7 +177,21 @@ def main() -> int:
             continue
         p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         print(f"    {'ok  ' if p.returncode == 0 else 'FAIL'} {r['id']:<8} {(p.stdout or p.stderr).strip()[:110]}")
+        # ★AN APPENDED MCP RE-WALK READS AS ITS RETRACTED PAST (2026-10-13, W39). The ledger reads a row's claim from
+        # the FRONT of its basis; advance_trajectory APPENDS. A W3-JN row whose basis opens with its 2026-09-08
+        # tools/prove_full_journeys.mjs claim banked a clean MCP walk here and still read OPEN. The nav-hub banker
+        # learned this on 2026-10-07; this one had not. Promote ONLY the entry this run wrote.
+        if p.returncode == 0 and str(r.get("instrument") or "").startswith("playwright-mcp"):
+            from bank_mcp_navhub_walk import promote_newest_mcp_claim
+            why = promote_newest_mcp_claim(r["id"], mine_test=_journey_entry_is_mine)
+            print(f"         {r['id']:<8} " + ("promoted the MCP walk to the front of the basis" if not why else why))
     return 0
+
+
+def _journey_entry_is_mine(last: str, today: str) -> bool:
+    """the entry THIS banker just wrote for an MCP journey walk: today, the MCP recorder, the journey walker's name"""
+    return (last.startswith(f"[{today}]") and f"WALKED LIVE {today} via playwright-mcp" in last
+            and "(tools/record_mcp_walk.py)" in last and "tools/w3_journey_walk.js" in last)
 
 
 if __name__ == "__main__":

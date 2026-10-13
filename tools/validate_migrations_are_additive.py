@@ -51,6 +51,11 @@ GRANDFATHERED = {
     "20260520000009_drop_phantom_columns_seeder_only.sql":       "seeder-only columns",
     "20260618000000_fix_network_benchmarks_upsert.sql":          "NOT NULL to make an upsert key work",
     "20260630000000_remove_stripe_free_marketplace.sql":         "Stripe removed; marketplace is free",
+    # the same shape as the 20260618 entry: hive_id NOT NULL so the new hive-scoped upsert key is enforceable. It closes
+    # a cross-tenant overwrite (one hive's CMMS order number updating another hive's row, W4409); every writer already
+    # supplied hive_id (0 NULLs of 14 when applied). An integrations page left open across the deploy fails one import
+    # on the retired conflict key and succeeds after a reload - the cost of the fix, not of the column.
+    "20261012000074_external_sync_unique_per_hive.sql":          "NOT NULL to make the hive-scoped upsert key work",
 }
 
 DROP_COL = re.compile(r"ALTER\s+TABLE\s+[^;]*?DROP\s+COLUMN", re.I | re.S)

@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 8 min read
 
-**Short answer:** The WorkHive Marketplace connects Philippine plants with specialist contractors (vibration analysts, motor rewinders, refrigeration specialists), equipment suppliers (pumps, seals, instrumentation), and service providers (calibration, NDT, training). Listings are vetted, work history is verifiable through the requester's hive data, and the marketplace is free and contact-only: buyers reach sellers directly, with no platform fees or commissions. It is built around three patterns: emergency specialist sourcing, recurring consumable supply, and one-off project bidding.
+**Short answer:** The WorkHive Marketplace connects Philippine plants with specialist contractors (vibration analysts, motor rewinders, refrigeration specialists), equipment suppliers (pumps, seals, instrumentation), and service providers (calibration, NDT, training). Listings are vetted, work history is verifiable through the requester's hive data, and the marketplace is free: buyers pay sellers directly, and WorkHive takes 0% commission because it never holds the money. It is built around three patterns: emergency specialist sourcing, recurring consumable supply, and one-off project bidding.
 
 Who this is for
 
@@ -119,4 +119,4 @@ Reviews are tied to completed transactions only (no buying reviews without using
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 936e5d2693b157cf -->
+<!-- md-twin source-sha: 6f84f646cffc2b0d -->

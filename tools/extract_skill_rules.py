@@ -2,7 +2,7 @@
 AI-assisted Skill-Rule Extraction
 =================================
 Phase 2 of L-1.5 Skill-Rule Mining. Reads each SKILL.md file and asks
-the platform's AI chain (Groq/Cerebras/OpenRouter fallback) to propose
+the platform's AI chain (Groq/Gemini/Mistral/OpenRouter fallback) to propose
 mineable rules in the manifest's JSON shape.
 
 Output is ALWAYS to `skill_rules_proposals.json` -- NEVER directly into

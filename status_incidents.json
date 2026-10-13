@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 1,
+ "open": 23,
  "resolved": 4,
  "incidents": [
   {
@@ -44,11 +44,209 @@
    "status": "resolved"
   },
   {
+   "id": "gate-design-detector-ratchet",
+   "source": "gate",
+   "title": "design-detector-ratchet",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-w4-design",
+   "source": "gate",
+   "title": "w4-design",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-w4-layer-session",
+   "source": "gate",
+   "title": "w4-layer-session",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-w4-layer-availability",
+   "source": "gate",
+   "title": "w4-layer-availability",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-tile-canonical",
+   "source": "gate",
+   "title": "tile-canonical",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-a11y-path",
+   "source": "gate",
+   "title": "a11y-path",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-consumption-bound",
+   "source": "gate",
+   "title": "consumption-bound",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
    "id": "gate-status-incidents-derived",
    "source": "gate",
    "title": "status-incidents-derived",
    "severity": "major",
-   "started_at": "2026-09-29T01:55:24.212352+00:00",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-migration-immutability-strict",
+   "source": "gate",
+   "title": "migration-immutability-strict",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-render-budget",
+   "source": "gate",
+   "title": "render-budget",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-memory_write_quality",
+   "source": "gate",
+   "title": "memory_write_quality",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-groq-fallback",
+   "source": "gate",
+   "title": "groq-fallback",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-tenant-boundary",
+   "source": "gate",
+   "title": "tenant-boundary",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-schema",
+   "source": "gate",
+   "title": "schema",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-ai-seam-coverage",
+   "source": "gate",
+   "title": "ai-seam-coverage",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-unbounded-query",
+   "source": "gate",
+   "title": "unbounded-query",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-trigger-function",
+   "source": "gate",
+   "title": "trigger-function",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-empty-catch",
+   "source": "gate",
+   "title": "empty-catch",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-trajectory-registry",
+   "source": "gate",
+   "title": "trajectory-registry",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-canonical-anchor",
+   "source": "gate",
+   "title": "canonical-anchor",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-substrate-freshness",
+   "source": "gate",
+   "title": "substrate-freshness",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-sw-shell-membership",
+   "source": "gate",
+   "title": "sw-shell-membership",
+   "severity": "major",
+   "started_at": "2026-10-06T02:21:15.914609+00:00",
    "ended_at": null,
    "status": "open"
   }

@@ -47,8 +47,10 @@
 
     /* Layout */
     .app-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
-    .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; overflow: hidden; transition: width 0.3s ease; }
+  .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(31,46,69,0.95) 0%, rgba(22,32,50,0.98) 100%); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; overflow: hidden; }
     .sidebar.collapsed { width: 48px; min-width: 48px; }
+    /* no width transition (critique W45908, 2026-10-13): nothing toggles .collapsed, so `transition: width .3s` only ran when a
+       window was resized across a breakpoint - a layout property re-laid out every frame for a move no person makes */
     /* ★THE CALENDAR HAD 4px AND NOTHING SAID SO (design lens critique, W45908 Assessment A,
        2026-09-15). This was `overflow: hidden`, and the calendar below was `flex:1; overflow:auto` -
        so the grid received whatever the summary band left, a flex scroll container's automatic minimum
@@ -521,7 +523,7 @@
          Populated by renderDayplannerSummary() from scheduleItems. -->
     <div id="dp-verdict" class="verdict empty" style="min-height:90px;box-sizing:border-box"><!-- I1 CLS: reserve the verdict height (placeholder→real swap) so the KPI row below doesn't shift -->
       <span id="dp-verdict-icon" class="verdict-icon">·</span>
-      <div class="verdict-text"><span data-i="p_loadingdayplan_b6c0" id="dp-verdict-label">Loading day plan...</span><small data-i="p_countingtodaysitemsthisweeks_21e3" id="dp-verdict-sub">Counting today's items, this week's load, and overdue.</small></div>
+      <div class="verdict-text"><span data-i="p_loadingdayplan_b6c0" id="dp-verdict-label">Loading day plan...</span><small data-i="p_countingtodaysitemsthisweeks_21e3" id="dp-verdict-sub">Counting today's tasks, this week's load, and overdue.</small></div>
     </div>
     <!-- H1 goal-gradient: today's real done/planned from scheduleItems (whProgressStrip). -->
     <div id="dp-progress" class="wh-progress-slot"></div>
@@ -548,6 +550,11 @@
     <div class="action-card">
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="dp-action-text">Computing recommendation...</div>
+      <!-- shown only when What to do next is "add the overdue PMs": the instruction carries its own path
+           (renderDayplannerSummary sets the label with the count; _dpShowOverduePms opens the list) -->
+      <button type="button" id="dp-action-btn" class="ac-cta" hidden onclick="_dpShowOverduePms()"
+              data-aria-allow="hidden until renderDayplannerSummary writes its label (Show the N overdue PMs) and un-hides it"
+              data-icon-button-label-allow="empty only while hidden: renderDayplannerSummary writes its text label before un-hiding it"></button>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
       Show details
@@ -557,16 +564,19 @@
     data-rag-label="Day planner detail">
       <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
       <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_today_2434">Today</strong>: items scheduled for today (Philippine time).</li>
-        <li><strong data-i="p_thisweek_7b72">This week</strong>: items in the current Monday-Sunday window.</li>
-        <li><strong data-i="p_overdue_0721">Overdue</strong>: items with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
+        <li><strong data-i="p_today_2434">Today</strong>: tasks scheduled for today (Philippine time).</li>
+        <li><strong data-i="p_thisweek_7b72">This week</strong>: tasks in the current Monday-Sunday window.</li>
+        <li><strong data-i="p_overdue_0721">Overdue</strong>: tasks with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
       <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:12px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 
     <!-- Calendar content -->
-    <div class="calendar-wrap" id="calendar-wrap" tabindex="0" role="region" aria-label="Day planner calendar timeline (scrollable)">
+    <!-- role="tabpanel": the Day / Week / Month / Year tabs all aria-control this box, and a tab must name a tabpanel for
+         assistive tech to treat it as the tab's panel (selection-is-exposed, 2026-10-13). Still focusable and named, so a
+         keyboard can scroll it. -->
+    <div class="calendar-wrap" id="calendar-wrap" tabindex="0" role="tabpanel" aria-label="Day planner calendar timeline (scrollable)">
       <!-- Rendered by JS -->
     </div>
 
@@ -632,8 +642,8 @@
         <div data-i="p_itemstatus_b596" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
           <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.80);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
-          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(104,211,145,0.3);background:rgba(104,211,145,0.08);color:var(--wh-green);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
-          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(252,92,92,0.3);background:rgba(252,92,92,0.08);color:var(--wh-red-text);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
+          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.08);color:var(--wh-green);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
+          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);color:var(--wh-red-text);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
         </div>
       </div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem">
@@ -664,6 +674,30 @@ let WORKER_NAME = (typeof whWorker === 'function' ? whWorker() : '') || '';
    count beside the rail stated a two-hive total. Same accessor every other page uses. */
 let HIVE_ID = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
 var _authUid = null; // C3b: populated at init from Supabase Auth session
+
+/* BRP-A (2026-10-04) — "MINE" ON A READ IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE.
+   Ian hit this on the logbook's asset picker: "in the select an asset there is nothing there, but I can
+   see it in my asset hub". One surface scoped ownership by auth_uid, the other by worker_name - a free
+   display string read from localStorage - and `bind_asset_nodes_submitter` freezes that name for personal
+   rows while always binding the uid, so one character of drift empties the list.
+
+   UNION, not swap, and the reason is measured: 27,420 of 31,241 logbook rows had auth_uid NULL before the
+   2026-10-04 backfill, and a uid-only read would have hidden 88% of everyone's history. Rows written by a
+   service-role path still arrive with auth_uid NULL today, so the name remains the only way to find them.
+
+   A single .or() rather than two merged queries, because both callers below carry a deliberate multi-key
+   ORDER BY (start_time then id, chosen so a timed day reads chronologically) and merging two result sets
+   client-side would throw that ordering away. The name is DOUBLE-QUOTED: PostgREST treats a bare comma or
+   space inside an or() as syntax, and every display name here contains a space. Returns null when there is
+   no identity yet, so the caller can fall back rather than send `auth_uid.eq.null`. */
+function _mineFilter() {
+  var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
+  // JSON.stringify does the quoting - see the note on the matching helper in inventory.html: a
+  // hand-rolled escape here is one shell heredoc away from becoming /(["\])/ and throwing on load.
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  if (!_authUid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+}
 // C4: redirect deferred to db init block — checks auth session first
 
 // ─────────────────────────────────────────────
@@ -682,7 +716,7 @@ function showToast(msg, type) {
 // STATE
 // ─────────────────────────────────────────────
 let currentView = 'dilo';
-let currentDate = new Date();
+let currentDate = _phtWallNow();
 let logbookItems = [];
 let scheduleItems = [];
 let selectedLogbookItem = null;
@@ -713,12 +747,12 @@ const catColors = {
   Pneumatic:   { bg: 'rgba(154,230,180,0.2)', text: '#4ade80',  border: 'rgba(154,230,180,0.35)' },
   Instrumentation: { bg: 'rgba(183,148,246,0.2)', text: '#a78bfa', border: 'rgba(183,148,246,0.35)' },
   Structural:  { bg: 'rgba(252,129,74,0.2)',  text: '#f7a21b',  border: 'rgba(252,129,74,0.35)' },
-  Safety:      { bg: 'rgba(252,92,92,0.2)',   text: 'var(--wh-red-text)',  border: 'rgba(252,92,92,0.35)' },
+  Safety:      { bg: 'rgba(248,113,113,0.2)',   text: 'var(--wh-red-text)',  border: 'rgba(248,113,113,0.35)' },
   General:     { bg: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.6)', border: 'rgba(255,255,255,0.12)' },
 };
 const schedCatColors = {
   PM:         { bg: 'rgba(41,182,217,0.25)',  text: '#29B6D9' },
-  CM:         { bg: 'rgba(252,92,92,0.25)',   text: 'var(--wh-red-text)' },
+  CM:         { bg: 'rgba(248,113,113,0.25)',   text: 'var(--wh-red-text)' },
   Inspection: { bg: 'rgba(247,162,27,0.25)',  text: '#F7A21B' },
   Training:   { bg: 'rgba(154,230,180,0.25)', text: '#4ade80' },
   Admin:      { bg: 'rgba(183,148,246,0.25)', text: '#a78bfa' },
@@ -746,7 +780,7 @@ function getItemStatus(item) {
   if (item.itemStatus === 'done') return 'done';
   if (item.itemStatus === 'missed') return 'missed';
   // Auto-detect missed: past date+time with no explicit status
-  const now = new Date();
+  const now = _phtWallNow();
   // ★A CROSSING JOB READ "MISSED" TWENTY HOURS BEFORE IT STARTED (W45908 Assessment B, 2026-09-15).
   // The end instant was built on the item's OWN date, so a 23:00-01:00 job resolved to 01:00 that
   // morning - already long past. _dpEndMins returns minutes past the start, which can exceed 1440;
@@ -764,10 +798,15 @@ function getItemStatus(item) {
 }
 
 // Status config: color + label + icon path
+// Each status colour is a token's value (critique W45908, 2026-10-13): upcoming --wh-blue, done --wh-green, missed
+// --wh-red-text. `border` doubles as the selected status button's TEXT colour (_dpPaintStatusButtons), so missed takes
+// the text member of the red family, not the fill #f87171; it stays a hex literal because the painter appends '80'.
+// The tints are the tokens' channels at low alpha: red 248,113,113 and green 74,222,128, as the block borders already
+// were - the page used to tint with an older red (252,92,92) and green (104,211,145) beside token borders.
 const statusConfig = {
   upcoming: { border: '#29B6D9', bg: null,                   label: 'Upcoming', icon: null },
-  done:     { border: '#4ade80', bg: 'rgba(104,211,145,0.1)', label: 'Done',     icon: 'M5 13l4 4L19 7' },
-  missed:   { border: '#FCA5A5', bg: 'rgba(252,92,92,0.08)', label: 'Missed',   icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+  done:     { border: '#4ade80', bg: 'rgba(74,222,128,0.1)', label: 'Done',     icon: 'M5 13l4 4L19 7' },
+  missed:   { border: '#FDC9C9', bg: 'rgba(248,113,113,0.08)', label: 'Missed',   icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
 };
 
 // K4 — display-vs-persistence split. The UI works in display terms
@@ -834,7 +873,18 @@ function toYMD(d) {
   const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
   return `${y}-${mo}-${da}`;
 }
-function todayYMD() { return toYMD(new Date()); }
+// ★THE NOW LINE STOOD AT 4 AM IN A PLANT AT 10:55 PM (critique W45908, 2026-10-13). The grid is labelled "PHT
+// (Asia/Manila)" and the page says "as of 22:54 PHT", but the line, "today" and the missed-task check read the
+// DEVICE's clock: measured on a browser set to Auckland the line sat at 4 AM, on one set to New York at 11 AM, while
+// the plant's time was 22:55. A day in WorkHive is the Philippine day (migration 20261009000066), and an OFW engineer
+// planning from abroad is a person this platform serves. _phtWallNow() is now, as a wall-clock Date whose LOCAL fields
+// read Philippine time (UTC+8, no DST), so toYMD / getHours / the item comparisons all stay wall-clock to wall-clock.
+// On a device already set to Philippine time it is new Date() to the second - nothing changes for the plants.
+function _phtWallNow() {
+  const u = new Date(Date.now() + 8 * 3600 * 1000);
+  return new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), u.getUTCHours(), u.getUTCMinutes(), u.getUTCSeconds());
+}
+function todayYMD() { return toYMD(_phtWallNow()); }
 // ★ONE CELL, TWO CLOCKS. toYMD above reads LOCAL date parts (getFullYear/getMonth/getDate) and is what gets
 // STORED and matched against schedule_items.date. whFmtDate renders in a FIXED timeZone: 'Asia/Manila'. When
 // the browser's zone is not Manila those two disagree for any date whose local midnight lands on a different
@@ -914,7 +964,9 @@ async function loadSchedule() {
     const { data, error } = await db.from('schedule_items')
       .select('*').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
         
-      .eq('worker_name', WORKER_NAME)
+      // BRP-A: mine = identity OR name (see _mineFilter). A name-only scope loses a renamed person
+      // their whole planner; RLS (schedule_items_read keys on auth_uid) still bounds what comes back.
+      .or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
       .order('date', { ascending: true })
       // T75 (2026-08-28): the day was ordered by date then ID, and this form collects a Start Time
       // (#m-start) -- so two items on the SAME day appeared in neither chronological nor even
@@ -1096,8 +1148,16 @@ async function syncItemToSupabase(item, undo) {
     if (item.updatedAt) {
       // `updated_at` comes BACK and is written onto the item: without it a SECOND edit in one sitting
       // sends the pre-save stamp and accuses the person of conflicting with themselves.
+      // BRP-A (2026-10-04): the ownership guard is the IDENTITY, not the display name. RLS
+      // (schedule_items_write) already enforces `auth_uid = auth.uid()`, so a client-side
+      // `.eq('worker_name', ...)` could never make this SAFER - it could only add a way to match
+      // nothing: a person whose display name has drifted from the one stored on their own row gets a
+      // 0-row update, and PostgREST answers that with no error. Same mechanism that emptied the
+      // logbook's asset picker, and the same one that left 27,420 logbook entries un-amendable by
+      // their authors. schedule_items is 231/231 bound, and the author-can-edit-own-work ratchet keeps
+      // it that way, so keying on auth_uid cannot silently lock anyone out of their own row.
       const { data: hit, error: uErr } = await db.from('schedule_items')
-        .update(row).eq('id', row.id).eq('worker_name', WORKER_NAME)
+        .update(row).eq('id', row.id).eq('auth_uid', _authUid)
         .eq('updated_at', item.updatedAt).select('id, updated_at');
       error = uErr;
       if (!uErr && hit && hit.length) item.updatedAt = hit[0].updated_at;
@@ -1205,7 +1265,10 @@ async function deleteItemFromSupabase(id, removed) {
     // .select('id') is what makes a no-op VISIBLE: PostgREST answers a delete that matched
     // nothing with 204 and error === null, so without it an RLS refusal and a worker_name
     // mismatch both read as success while the row stays in the database (W45908 round 2).
-    const { data: _deleted, error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME).select('id');
+    // BRP-A (2026-10-04): guard on the IDENTITY, not the display name - see the update path above.
+    // The comment directly above is why this matters here especially: a worker_name mismatch and an RLS
+    // refusal already read alike, so a name that has drifted deletes nothing and says nothing.
+    const { data: _deleted, error } = await db.from('schedule_items').delete().eq('id', id).eq('auth_uid', _authUid).select('id');
     if (error) {
       console.warn('Schedule delete failed:', error.message);
       /* T176: same as the save path - a refusal, not a connection problem. And a failed delete
@@ -1352,7 +1415,9 @@ function toggleSidebar() {
 
 async function loadLogbook() {
   try {
-    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false }).order('id').limit(1000); // L2: newest-first insurance cap on a worker's logbook
+    // BRP-B then BRP-A: v_logbook_truth could not express this at all until migration 20261004000001
+    // gave it the auth_uid its base table always carried; now "mine" is the union (see _mineFilter).
+    const { data, error } = await db.from('v_logbook_truth').select('*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"').order('date', { ascending: false }).order('id').limit(1000); // L2: newest-first insurance cap on a worker's logbook
     if (error) throw error;
     // Show open items: not Closed/Resolved
     logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
@@ -1439,7 +1504,7 @@ function renderPlantWorkSection() {
   const cards = plantWork.map(pm => {
     const added = scheduleItems.some(i => i.sourceKind === 'pm' && i.sourceRef === pm.scope_item_id && i.date === today);
     const badge = pm.is_overdue
-      ? `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">Overdue</span>`
+      ? `<span class="badge" style="background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.3)">Overdue</span>`
       : `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
     return `
     <div class="lb-card" style="cursor:default">
@@ -1472,6 +1537,20 @@ function renderPlantWorkSection() {
       ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0 0">
         Showing the ${plantWork.length} most urgent of ${plantWorkTotal} due across your plant. Open PM Scheduler for the full list.</div>` : ''}
     </div>`;
+}
+
+// What to do next's "Show the N overdue PMs" (critique W45908, 2026-10-13). On a phone the open-items panel starts
+// folded behind the clipboard toggle, so the instruction "add them to today" pointed at something the reader could
+// not see. Opens the panel when it is folded, brings the first un-added PM into the MIDDLE of the view (block
+// 'center': 'start' would park it under the fixed Back band), and focuses its "+ Add to my day".
+function _dpShowOverduePms() {
+  if (sidebarCollapsed) toggleSidebar();
+  const btn = document.querySelector('#sidebar-items button[data-i="addtoday"]:not([disabled])');
+  const card = btn && btn.closest('.lb-card');
+  if (!card) return;
+  const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  card.scrollIntoView({ block: 'center', behavior: still ? 'auto' : 'smooth' });
+  try { btn.focus({ preventScroll: true }); } catch (_) { btn.focus(); }
 }
 
 function addPmToDay(scopeItemId) {
@@ -1527,7 +1606,7 @@ function renderSidebar() {
       label.textContent = _t('Open items unknown', 'Hindi alam ang mga open na item');
       container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.85);font-size:0.75rem">
         <span class="ic ic-warn" aria-hidden="true"></span>
-        ${escHtml(_t('Could not load your open items. This is a connection problem, not an empty queue.', 'Hindi ma-load ang mga open item mo. Problema ito sa koneksyon, hindi walang laman na queue.'))}</div>`
+        ${escHtml(_t('Could not load your open items. This is a loading problem, not an empty queue.', 'Hindi ma-load ang mga open item mo. Problema ito sa pag-load, hindi walang laman na queue.'))}</div>`
         + renderPlantWorkSection();
       return;
     }
@@ -1550,10 +1629,10 @@ function renderSidebar() {
     // Badge config
     let schedBadge = '';
     if (hasDone) {
-      schedBadge = `<span class="badge" style="background:rgba(104,211,145,0.15);color:var(--wh-green);border:1px solid rgba(104,211,145,0.3)">
+      schedBadge = `<span class="badge" style="background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.3)">
         <span class="ic ic-check" aria-hidden="true"></span>Done</span>`;
     } else if (hasMissed) {
-      schedBadge = `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">
+      schedBadge = `<span class="badge" style="background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.3)">
         <span class="ic ic-back" aria-hidden="true"></span>Missed</span>`;
     } else if (hasLinked) {
       schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.3)">
@@ -1688,7 +1767,7 @@ function navigate(dir) {
   render();
 }
 
-function goToday() { currentDate = new Date(); render(); }
+function goToday() { currentDate = _phtWallNow(); render(); }
 
 function render() {
   if (currentView === 'dilo') renderDILO();
@@ -1708,7 +1787,7 @@ let _dpCloudReadFailed = false;
 
 // Layer D — Plain-Read summary for Day Planner.
 function renderDayplannerSummary() {
-  const today = new Date();
+  const today = _phtWallNow();
   // Use the SAME local formatter (toYMD) the writes use — schedule_items.date is stored as
   // toYMD(local). toISOString() is UTC, so in the evening (PHT = UTC+8) it returned
   // YESTERDAY's date and the today/week counts silently undercounted local-dated items
@@ -1716,7 +1795,7 @@ function renderDayplannerSummary() {
   const ymdToday = toYMD(today);
   // Monday-start week boundaries (PHT shifts assume Mon-Sun)
   const dow = today.getDay() || 7; // Sun=7 instead of 0
-  const monday = new Date(today); monday.setDate(today.getDate() - (dow - 1)); monday.setHours(0,0,0,0);
+  const monday = new Date(today); monday.setDate(today.getDate() - (dow - 1)); monday.setHours(0,0,0,0); // device-clock-allow: today is _phtWallNow(), the Manila wall clock in local fields
   const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999);
   const ymdMon = toYMD(monday);
   const ymdSun = toYMD(sunday);
@@ -1731,6 +1810,21 @@ function renderDayplannerSummary() {
   const overdueCount = scheduleItems.filter(i =>
     i.date < ymdToday && getItemStatus(i) !== 'done'
   ).length;
+  // ★SIX OVERDUE PMS BESIDE A GREEN "CLEAR" (critique W45908, 2026-10-13). Measured as Ben Ocampo: every PM in
+  // "Due from your assets" was overdue, up to 40 days, and this card read "0 - No tasks past their date - CLEAR"
+  // while the verdict said "No plan yet" and What to do next said "Nothing planned yet". The counts above are the
+  // PLAN's, which is right, and they stay so - but a summary that is green while the person's vehicles are weeks
+  // past their PMs tells him the opposite of the truth, and at 390 the list is folded behind the clipboard toggle,
+  // so the green tag was the only overdue fact a phone showed. pmOverdue = overdue PMs the plan does not carry: a
+  // PM is planned when it has an item that is not done (a past one is already counted above) or an item today
+  // (the sidebar's own "On your day" test, so the two never disagree). A failed PM read counts nothing - that
+  // rail already says it could not load.
+  const _pmPlanned = (pm) => scheduleItems.some(i => i.sourceKind === 'pm' && i.sourceRef === pm.scope_item_id
+    && (i.date === ymdToday || getItemStatus(i) !== 'done'));
+  const pmOverdue = plantWorkFailed ? 0 : plantWork.filter(pm => pm.is_overdue && !_pmPlanned(pm)).length;
+  const _pmS = pmOverdue === 1 ? '' : 's';
+  const _dpActBtn = document.getElementById('dp-action-btn');
+  if (_dpActBtn) _dpActBtn.hidden = true;
 
   // H1 goal-gradient — today's REAL done/planned (skips when nothing is planned:
   // an empty bar invents a journey). whProgressStrip is the shared utils.js strip.
@@ -1753,7 +1847,7 @@ function renderDayplannerSummary() {
                // a half-full amber bar reading "3 of 6" and read it as half of TODAY, when it is half
                // of every item he has ever planned, three of them finished two months ago. A bar that
                // credits old work as current progress is worse than no bar.
-               :                     _t('All plan items', 'Lahat ng item sa plano');
+               :                     _t('All planned tasks', 'Lahat ng item sa plano');
     const done = pool.filter(i => getItemStatus(i) === 'done').length;
     dpProg.innerHTML = whProgressStrip(lbl, done, pool.length);
   }
@@ -1803,10 +1897,10 @@ function renderDayplannerSummary() {
       // hero cards plus the verdict block: on pm-scheduler a targeted re-render restored the list and
       // left the summary still claiming failure, which is a partial recovery and worse than none.
       if (typeof whListError === 'function') {
-        whListError(eS, _t('Could not load your plan. This is a connection problem, not an empty day: ', 'Hindi ma-load ang plano mo. Problema ito sa koneksyon, hindi walang laman ang araw: ')
+        whListError(eS, _t('Could not load your plan. This is a loading problem, not an empty day: ', 'Hindi ma-load ang plano mo. Problema ito sa pag-load, hindi walang laman ang araw: ')
           + 'your items are still there.', () => location.reload());
       } else {
-        eS.textContent = _t('Could not load your plan. This is a connection problem, not an empty day. Reload to see your items.', 'Hindi ma-load ang plano mo. Problema ito sa koneksyon, hindi walang laman ang araw. I-reload para makita ang mga item mo.');
+        eS.textContent = _t('Could not load your plan. This is a loading problem, not an empty day. Reload to see your items.', 'Hindi ma-load ang plano mo. Problema ito sa pag-load, hindi walang laman ang araw. I-reload para makita ang mga item mo.');
       }
     }
     return;
@@ -1828,30 +1922,36 @@ function renderDayplannerSummary() {
   // scans, and all ten were English. Short forms, because the chip is ~90px on a 390 screen.
   setCard('today',
     String(todayCount),
-    todayCount === 0 ? _t('No items scheduled for today', 'Walang naka-iskedyul ngayong araw')
-                     : _t(`${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
+    todayCount === 0 ? _t('No tasks scheduled for today', 'Walang naka-iskedyul ngayong araw')
+                     : _t(`${todayCount} task${todayCount === 1 ? '' : 's'} on today's plan`,
                           `${todayCount} item sa plano ngayong araw`),
     todayCount === 0 ? _t('OPEN', 'BUKAS') : todayCount > 6 ? _t('BUSY', 'ABALA') : _t('PLANNED', 'NAKAPLANO'),
     todayCount === 0 ? 'green' : todayCount > 6 ? 'amber' : 'green'
   );
   setCard('week',
     String(weekCount),
-    weekCount === 0 ? _t('No items scheduled this week', 'Walang naka-iskedyul ngayong linggo')
-                    : _t(`${weekCount} item${weekCount === 1 ? '' : 's'} between Mon-Sun`,
+    weekCount === 0 ? _t('No tasks scheduled this week', 'Walang naka-iskedyul ngayong linggo')
+                    : _t(`${weekCount} task${weekCount === 1 ? '' : 's'} between Mon-Sun`,
                          `${weekCount} item sa pagitan ng Lun-Lin`),
     weekCount === 0 ? _t('EMPTY', 'WALA') : weekCount > 30 ? _t('PACKED', 'SIKSIK')
                     : weekCount > 10 ? _t('NORMAL', 'KATAMTAMAN') : _t('LIGHT', 'MAGAAN'),
     weekCount === 0 ? 'grey' : weekCount > 30 ? 'amber' : 'green'
   );
+  if (overdueCount === 0 && pmOverdue > 0) {
+    setCard('overdue', '0',
+      `No planned tasks past their date. ${pmOverdue} PM${_pmS} on your assets ${pmOverdue === 1 ? 'is' : 'are'} overdue.`,
+      'PMs DUE', 'amber');
+  } else {
   setCard('overdue',
     String(overdueCount),
-    overdueCount === 0 ? _t('No items past their date', 'Walang item na lumipas na ang petsa')
-                       : _t(`${overdueCount} item${overdueCount === 1 ? '' : 's'} past their scheduled date`,
+    overdueCount === 0 ? _t('No tasks past their date', 'Walang item na lumipas na ang petsa')
+                       : _t(`${overdueCount} task${overdueCount === 1 ? '' : 's'} past their scheduled date`,
                             `${overdueCount} item na lampas na sa nakatakdang petsa`),
     overdueCount === 0 ? _t('CLEAR', 'MALINIS') : overdueCount >= 3 ? _t('STACKING', 'NAIIPON')
                        : _t('CLOSE OUT', 'ISARA NA'),
     overdueCount === 0 ? 'green' : overdueCount >= 3 ? 'red' : 'amber'
   );
+  }
 
   let tone, label, sub;
   if (overdueCount >= 3) {
@@ -1860,7 +1960,7 @@ function renderDayplannerSummary() {
     // T131: the English half takes the singular branch (the platform's own idiom) so a single overdue
     // item does not read "1 items overdue" - n=1 is the ordinary case the moment a plan narrows to one.
     // The Filipino half needs none: Filipino does not inflect nouns for number.
-    tone = 'attn'; label = _t(`${overdueCount} item${overdueCount === 1 ? '' : 's'} overdue`,
+    tone = 'attn'; label = _t(`${overdueCount} task${overdueCount === 1 ? '' : 's'} overdue`,
                               `${overdueCount} item na lampas na sa takda`);
     // The label beside it was already bilingual; this - the instruction - was not.
     // ★"MARK CLOSED" IS THE LOGBOOK'S WORD AND THIS PAGE HAS NO SUCH CONTROL (W45908 Assessment B,
@@ -1877,9 +1977,15 @@ function renderDayplannerSummary() {
     if (overdueCount > 0) parts.push(_t(`${overdueCount} overdue`, `${overdueCount} lampas sa takda`));
     if (todayCount > 6)   parts.push(_t(`${todayCount} on today's plan`, `${todayCount} sa plano ngayong araw`));
     sub = parts.join(' · ') + '.';
+  } else if (pmOverdue > 0) {
+    tone = 'watch'; label = `${pmOverdue} PM${_pmS} overdue on your assets`;
+    sub  = (todayCount === 0 && weekCount === 0)
+      ? `${pmOverdue === 1 ? 'It is' : 'None of them is'} in your plan yet. Add ${pmOverdue === 1 ? 'it' : 'them'} to today, then plan around ${pmOverdue === 1 ? 'it' : 'them'}.`
+      : `Not in your plan yet. Put ${pmOverdue === 1 ? 'it' : 'them'} on a day so the plan matches the work that is due.`;
   } else if (todayCount === 0 && weekCount === 0) {
     tone = 'empty'; label = _t('No plan yet', 'Wala pang plano');
-    sub  = _t('Tap + Schedule to add items. DILO / WILO / MILO / YILO views drill into day / week / month / year.',
+    // the views were named DILO / WILO / MILO / YILO here, while the tabs a person presses say Day, Week, Month, Year
+    sub  = _t('Tap + Schedule to add tasks. The Day, Week, Month and Year tabs show your plan at each scale.',
               'Pindutin ang + Schedule para magdagdag ng item. Ang DILO / WILO / MILO / YILO na view ay sumisid sa araw / linggo / buwan / taon.');
   } else {
     tone = 'healthy'; label = _t('Day plan looks manageable', 'Kayang-kaya ang plano ng araw');
@@ -1922,16 +2028,20 @@ function renderDayplannerSummary() {
       // from the overdue work. The overdue items are in the sidebar and on their own dates; the way to
       // move one is to open it and change its date, which is what this now says.
       text = _planEmpty
-        ? _t(`${overdueCount} items overdue and nothing planned this week. Start there: open each overdue item and give it a new date.`,
+        ? _t(`${overdueCount} tasks overdue and nothing planned this week. Start there: open each overdue task and give it a new date.`,
              `${overdueCount} item ang lampas na sa takda at wala pang plano ngayong linggo. Doon magsimula: buksan ang bawat isa at bigyan ng bagong petsa.`)
-        : _t(`${overdueCount} items overdue. Open each one. Mark it Done if it is finished, or give it a new date.`,
+        : _t(`${overdueCount} tasks overdue. Open each one. Mark it Done if it is finished, or give it a new date.`,
              `${overdueCount} item ang lampas na sa takda. Buksan ang bawat isa. Markahang Done kung tapos na, o bigyan ng bagong petsa.`);
     } else if (overdueCount > 0) {
       text = _planEmpty
-        ? _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'} and nothing planned this week. Put ${overdueCount === 1 ? 'it' : 'them'} on a day first, then plan around ${overdueCount === 1 ? 'it' : 'them'}.`,
+        ? _t(`${overdueCount} overdue task${overdueCount === 1 ? '' : 's'} and nothing planned this week. Put ${overdueCount === 1 ? 'it' : 'them'} on a day first, then plan around ${overdueCount === 1 ? 'it' : 'them'}.`,
              `${overdueCount} item ang lampas na sa takda at wala pang plano ngayong linggo. Ilagay muna sila sa isang araw, tapos magplano sa paligid nila.`)
-        : _t(`${overdueCount} overdue item${overdueCount === 1 ? '' : 's'}. Open ${overdueCount === 1 ? 'it' : 'each one'} and mark it Done, or push the date forward so the plan stays honest.`,
+        : _t(`${overdueCount} overdue task${overdueCount === 1 ? '' : 's'}. Open ${overdueCount === 1 ? 'it' : 'each one'} and mark it Done, or push the date forward so the plan stays honest.`,
              `${overdueCount} item ang lampas na sa takda. Buksan ang bawat isa at markahang Done, o iusod ang petsa para manatiling totoo ang plano.`);
+    } else if (pmOverdue > 0 && todayCount <= 6) {
+      text = `${pmOverdue} PM${_pmS} on your assets ${pmOverdue === 1 ? 'is' : 'are'} overdue and not in your plan. `
+        + `Add ${pmOverdue === 1 ? 'it' : 'them'} to today first, then plan the rest of the day around ${pmOverdue === 1 ? 'it' : 'them'}.`;
+      if (_dpActBtn) { _dpActBtn.textContent = `Show the ${pmOverdue} overdue PM${_pmS}`; _dpActBtn.hidden = false; }
     } else if (_planEmpty) {
       text = _t('Nothing planned yet. Tap + Schedule to block out your week. Rough placeholders still help you group work by area.',
                 'Wala pang nakaplano. I-tap ang + Schedule para hatiin ang linggo mo. Malaking tulong pa rin ang magaspang na plano para pagsama-samahin ang trabaho.');
@@ -1939,10 +2049,10 @@ function renderDayplannerSummary() {
       // T131: the English half takes the singular branch. This branch only fires above 6 items, so n=1
       // cannot occur here today - but the ratchet counts the SHAPE, and a threshold is a thing that gets
       // tuned. Cheaper to write it correctly than to leave a trap for whoever lowers the number.
-      text = _t(`${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan, that's a heavy day. Open DILO to check the time grid for clashes, then defer anything non-urgent to tomorrow.`,
+      text = _t(`${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan, that's a heavy day. Open the Day tab to check the time grid for clashes, then defer anything non-urgent to tomorrow.`,
                 `${todayCount} item sa plano ngayong araw, mabigat iyan. Buksan ang DILO para tingnan ang time grid kung may sabay, tapos iurong sa bukas ang hindi madalian.`);
     } else {
-      text = _t('Day plan is healthy. Open DILO for the time-grid view of today, or WILO to balance the week ahead.',
+      text = _t('Day plan is healthy. Open the Day tab for the time grid of today, or the Week tab to balance the week ahead.',
                 'Maayos ang plano ng araw. Buksan ang DILO para sa time-grid ngayong araw, o ang WILO para balansehin ang linggo.');
     }
     actBox.textContent = text;
@@ -2043,11 +2153,11 @@ function renderDILO() {
   const isToday = ymd === todayStr;
   document.getElementById('period-label').textContent =
     (isToday ? _t('Today, ', 'Ngayon, ') : '') +
-    whFmtDate(currentDate, { long: true, weekday: 'long' }); // FD1a canonical (en-PH + Asia/Manila)
+    whFmtDate(ymdLabelDate(toYMD(currentDate)), { long: true, weekday: 'long' }); // FD1a canonical; the label is the GRID's day (ymdLabelDate), so it cannot disagree with it in any device zone
 
   const items = itemsOnDate(ymd);
 
-  const now = new Date();
+  const now = _phtWallNow();
   const nowMins = isToday ? now.getHours() * 60 + now.getMinutes() : null;
 
   // ★THE GRID NO LONGER STARTS AT MIDNIGHT, AND NOTHING SCROLLS ITSELF TO HIDE THE FIX (2026-09-15).
@@ -2248,12 +2358,12 @@ function renderDILO() {
     // Override block appearance based on status
     let blockBg = c.bg, blockBorder = c.text, blockOpacity = '1', statusIcon = '';
     if (status === 'done') {
-      blockBg = 'rgba(104,211,145,0.15)';
+      blockBg = 'rgba(74,222,128,0.15)';
       blockBorder = '#4ade80';
       blockOpacity = '0.65';
       statusIcon = `<span class="ic ic-check" aria-hidden="true"></span>`;
     } else if (status === 'missed') {
-      blockBg = 'rgba(252,92,92,0.15)';
+      blockBg = 'rgba(248,113,113,0.15)';
       blockBorder = '#f87171';
       statusIcon = `<span class="ic ic-warning" aria-hidden="true"></span>`;
     }
@@ -2391,7 +2501,7 @@ function renderWILO() {
     const isToday = ymd === todayStr;
     const dayItems = scheduleItems.filter(i => i.date === ymd);
     const layouts = layoutBlocks(dayItems);
-    const now = new Date();
+    const now = _phtWallNow();
     const nowMins = isToday ? now.getHours() * 60 + now.getMinutes() : null;
 
     html += `<div style="position:relative;height:${totalH}px;border-left:1px solid rgba(255,255,255,0.04);${isToday ? 'background:rgba(247,162,27,0.015)' : ''}">`;
@@ -2431,8 +2541,8 @@ function renderWILO() {
       const showTitle = height > 22;
       const status = getItemStatus(item);
       let blockBg = c.bg, blockBorder = c.text, blockOpacity = '1';
-      if (status === 'done')   { blockBg = 'rgba(104,211,145,0.15)'; blockBorder = '#4ade80'; blockOpacity = '0.6'; }
-      if (status === 'missed') { blockBg = 'rgba(252,92,92,0.15)';   blockBorder = '#f87171'; }
+      if (status === 'done')   { blockBg = 'rgba(74,222,128,0.15)'; blockBorder = '#4ade80'; blockOpacity = '0.6'; }
+      if (status === 'missed') { blockBg = 'rgba(248,113,113,0.15)';   blockBorder = '#f87171'; }
       // A 'missed' block's TEXT uses the text-weight red, not the fill red. Found 2026-08-06 walking
     // dayplanner: axe reported 3.94 contrast (needs 4.5) on the task title inside a missed block —
     // #f87171 composited through the title's opacity:0.85 down to #db6668 at 10.88px. tokens.css line
@@ -2569,7 +2679,7 @@ function renderYILO() {
     <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">${_t('Year In the Life Of', 'Isang Taon sa Buhay Ng')}</span>
   </div>`;
 
-  const now = new Date();
+  const now = _phtWallNow();
   html += `<div class="yilo-grid">`;
 
   for (let m = 0; m < 12; m++) {
@@ -3032,6 +3142,9 @@ document.addEventListener('keydown', e => {
     // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
     if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4);
     await Promise.all([loadLogbook(), loadSchedule(), loadPlantWork()]);
+    // loadSchedule renders the summary when IT lands, but the PM rail can land after it and only re-renders the
+    // sidebar - so the summary's overdue-PM line is computed once more here, with all three reads in (W45908)
+    renderDayplannerSummary();
     if (typeof whFreshnessFooter === 'function') whFreshnessFooter();   // G1 system status (FAMILY F3): stamp only AFTER the load completed
 
     // K2 (Ext-5 spine) — ?add= INGEST: shift-brain / alert-hub / pm-scheduler "Add to my day"
@@ -3041,15 +3154,31 @@ document.addEventListener('keydown', e => {
     try {
       const qp = new URLSearchParams(location.search);
       if (qp.get('add') === '1' && qp.get('title')) {
-        addGroundedItem({
+        const _ingest = {
           title:      qp.get('title'),
           category:   qp.get('cat'),
           date:       qp.get('date') || todayYMD(),
           sourceKind: qp.get('kind') || 'manual',
           sourceRef:  qp.get('ref') || null,
-        });
+        };
         ['add','title','kind','ref','cat','date'].forEach(k => qp.delete(k));
         history.replaceState(null, '', location.pathname + (qp.toString() ? '?' + qp.toString() : ''));
+        // ★A LINK COULD WRITE INTO SOMEONE'S DAY (2026-10-06, dayplanner x adversary, layer F). This ingest saves on
+        // load - addGroundedItem() calls syncItemToSupabase - so ANY link, including one pasted into a chat from
+        // outside WorkHive, could plant an item with any title ("Bypass the interlock on Pump 3") into the reader's
+        // plan, announced only by a passing "Added to your day" toast. WorkHive's own pages hand items over this way
+        // (alert-hub, pm-scheduler, logbook "Add to my day"), and that one-tap hand-off stays: a same-origin referrer
+        // adds directly. Anything else is ASKED, with the title shown, and nothing is written unless the person says so.
+        const _fromWorkHive = (() => { try { return !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (_) { return false; } })();
+        if (_fromWorkHive || typeof window.whConfirm !== 'function') {
+          addGroundedItem(_ingest);
+        } else {
+          const _shown = String(_ingest.title).slice(0, 120);
+          window.whConfirm(_t('A link wants to add "' + _shown + '" to your day plan. Add it?',
+                              'May link na gustong magdagdag ng "' + _shown + '" sa plano mo ngayong araw. Idagdag?'),
+                           { okLabel: _t('Add to my day', 'Idagdag sa araw ko'), cancelLabel: _t('Not now', 'Huwag muna') })
+            .then((ok) => { if (ok) addGroundedItem(_ingest); });
+        }
       }
     } catch (e) { console.warn('[dayplanner] ?add ingest failed:', e.message); }
 

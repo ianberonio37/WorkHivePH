@@ -2,13 +2,13 @@
 name: page-symbol-gallery
 type: page
 source: file:symbol-gallery.html
-source_sha: 0a48b53ad7681e9f
+source_sha: 7254d981f35e36b0
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `symbol-gallery.html` — Symbol Gallery: Engineering Drawing Library
 
-Size: 13KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 14KB · 5 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

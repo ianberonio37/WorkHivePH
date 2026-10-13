@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-27T02:11:27.910Z",
+  "ran": "2026-10-13T10:42:17.504Z",
   "findings": [
     {
       "page": "index.html",
@@ -7,8 +7,18 @@
       "layer": "floor",
       "rule": "cta:inert-primary",
       "severity": 1,
-      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Get Early Access: It's F\"])",
+      "evidence": "primary-styled control is [inert] at audit time (button.btn-primary.text-sm[\"Join the Hive - It's Fre\"])",
       "owner": "frontend"
+    },
+    {
+      "page": "index.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "index.html",
@@ -27,17 +37,18 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
-      "page": "marketplace.html",
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
       "role": "anon",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/74 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "marketplace.html",
@@ -56,7 +67,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -96,7 +127,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "index.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -136,6 +187,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "logbook.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -157,6 +218,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "inventory.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -215,6 +286,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "dayplanner.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -226,6 +307,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-inner.w-full — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "hive.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -275,6 +366,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -286,6 +387,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-panel — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "pm-scheduler.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -345,6 +456,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -379,13 +500,13 @@
       "owner": "designer"
     },
     {
-      "page": "community.html",
-      "role": "worker",
+      "page": "analytics.html",
+      "role": "supervisor",
       "layer": "heuristic",
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div.presence-chip — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -401,11 +522,12 @@
     {
       "page": "assistant.html",
       "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "2/14 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "assistant.html",
@@ -444,7 +566,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "asset-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -464,7 +606,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "alert-hub.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "audit-log.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -480,11 +642,12 @@
     {
       "page": "audit-log.html",
       "role": "worker",
-      "layer": "floor",
-      "rule": "tap-target≥44px",
-      "severity": 2,
-      "evidence": "1/7 interactive <44px",
-      "owner": "mobile-maestro"
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "audit-log.html",
@@ -494,6 +657,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "voice-journal.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -513,7 +686,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ai-quality.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -527,12 +720,32 @@
       "owner": "designer"
     },
     {
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "analytics-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
       "page": "engineering-design.html",
       "role": "worker",
       "layer": "floor",
       "rule": "axe:color-contrast",
       "severity": 2,
-      "evidence": "4 node(s): .result-highlight > div:nth-child(1) > div:nth-child(1) | .result-highlight > d",
+      "evidence": "5 node(s): span[data-source-chip=\"\"] | .result-highlight > div:nth-child(1) > div:nth-chil",
       "owner": "qa-tester"
     },
     {
@@ -571,6 +784,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -611,7 +834,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -621,7 +844,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div.toast.error — auto-update region without role=status/alert or aria-live",
+      "evidence": "div.toast.success — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -681,7 +904,7 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
-      "evidence": "div#toast-container — auto-update region without role=status/alert or aria-live",
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -703,6 +926,16 @@
       "severity": 0,
       "evidence": "h1 — h1 present in DOM (axe ok) but 0 visible in this state-view — consider a visible heading for SR nav",
       "owner": "qa-tester"
+    },
+    {
+      "page": "project-report.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     },
     {
       "page": "project-report.html",
@@ -751,6 +984,16 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "skillmatrix.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-icon — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
@@ -772,6 +1015,16 @@
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "achievements.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -821,7 +1074,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "span#toast-msg — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "resume.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -832,6 +1105,16 @@
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
       "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -860,17 +1143,17 @@
       "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
       "basis": "designer / WCAG-4.1.2",
       "severity": 2,
-      "evidence": "div#sheet-edit — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
       "owner": "designer"
     },
     {
       "page": "marketplace-seller.html",
       "role": "worker",
       "layer": "heuristic",
-      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
-      "basis": "designer / WCAG-4.1.2",
-      "severity": 2,
-      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {
@@ -889,7 +1172,7 @@
       "layer": "floor",
       "rule": "tap-target≥44px",
       "severity": 2,
-      "evidence": "2/17 interactive <44px",
+      "evidence": "1/19 interactive <44px",
       "owner": "mobile-maestro"
     },
     {
@@ -899,7 +1182,27 @@
       "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
       "basis": "designer / WCAG-4.1.3",
       "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "integrations.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "plant-connections.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
     },
     {

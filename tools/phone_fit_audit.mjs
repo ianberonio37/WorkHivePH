@@ -44,6 +44,22 @@ export function audit(VIS_JS, opts) {
   // CONFORMANT, while a page showing Filipino with no lang declared anywhere is the real defect.
   const out = { step: opts.step || null, width: vw, lang: (document.documentElement.lang || '').slice(0, 3) || null,
     filParts: document.querySelectorAll('[lang^="fil"], [lang^="tl"]').length,
+    // ★AND WHETHER THE PAGE PUT ANY FILIPINO ON SCREEN AT ALL (2026-09-29). `filParts` answers "is the
+    // Filipino declared"; it cannot answer "is there any Filipino", and the lang finding needs both. A
+    // page that is English BY DESIGN - offline-fallback, symbol-gallery, validator-catalog - answers
+    // `<html lang="en">` to a Filipino reader and marks no part, which is not a defect: the page IS
+    // English and says so, truthfully, which is all 3.1.1 asks. Reporting it confuses a COVERAGE gap
+    // (nothing translated yet - validate_i18n_coverage.py's question) with a DECLARATION defect
+    // (Filipino text claiming to be English), and the finding's own wording says the defect is the
+    // latter. Same reasoning as the retired-overlay skip above: the duplicate inside a phone-FIT
+    // measurement is dropped, and the gate that owns the question keeps it.
+    // Counted from what the appliers leave behind: an element whose applied text differs from the
+    // English captured before the swap. An identity ruling ("Pump":"Pump") is not Filipino on screen,
+    // so it correctly does not count. `__whI18nSwapped` covers wh-i18n-lite.js, which keeps a tally
+    // instead of stamping the applied value.
+    filSwapped: [...document.querySelectorAll('[data-i-applied]')]
+      .filter((e) => e.getAttribute('data-i-applied') !== e.getAttribute('data-i-en')).length
+      + (window.__whI18nSwapped || 0),
     overflow: document.documentElement.scrollWidth - vw, outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [] };
   const poster = ((document.querySelector('meta[name="artifact-genre"]') || {}).content || '') === 'poster';
   if (poster) { out.poster = true; return out; }
@@ -79,7 +95,20 @@ export function audit(VIS_JS, opts) {
   // A control inside an OPEN overlay (dialog, menu, sheet, hub panel, companion panel) is judged against that
   // overlay's own contents; a control UNDER an open overlay is expected to be covered (the overlay is modal) and
   // is not a finding - the finding is a control the person is meant to use right now that something else sits on.
-  const OVERLAY = '[aria-modal="true"], [role="dialog"], [role="menu"], [role="listbox"], .modal, .sheet.open, [class*="sheet"][class*="open"], #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel';
+  // ★THE PLATFORM'S OWN MOBILE MENU WAS NOT IN THIS LIST (2026-09-29). `#mobile-menu` is the shared
+  // header's dropdown - the thing "Buksan ang menu" opens - and it carries no role, no aria-modal and
+  // no `sheet`/`modal` class, so none of the selectors above matched it and `openOverlays` was empty
+  // while it was plainly open. Every control it covered was then probed as if nothing were open, and
+  // the consent card sitting at the top of <main> took the hit on all 22 pages that render the
+  // signed-out landing: `#wh-consent-yes` and `#wh-consent-no` reported covered, by design, on every
+  // run. Once the coverer was attributed correctly the culprit named itself - `a.block @20,169 280x48`,
+  // a menu LINK - which is the menu doing exactly its job. A person with the menu open is navigating,
+  // not answering a privacy card, and the card is reachable the moment the menu closes.
+  // Listed by id like `#wh-hub-panel` and `#wh-ai-panel` above rather than by adding a role to the
+  // markup: this file is the instrument, and an instrument must not require the page to be re-tagged
+  // before it can measure it correctly. The `.open` state class is required, so a CLOSED menu (which
+  // covers nothing) never suppresses a real finding.
+  const OVERLAY = '[aria-modal="true"], [role="dialog"], [role="menu"], [role="listbox"], .modal, .sheet.open, [class*="sheet"][class*="open"], #mobile-menu.open, #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel';
   const openOverlays = [...document.querySelectorAll(OVERLAY)].filter((e) => vis(e) && e.getBoundingClientRect().height > 0);
   const inOpenOverlay = (e) => openOverlays.some((o) => o.contains(e));
   const controls = all.filter((e) => e.matches('a[href], button, [role="button"], [role="tab"], [role="menuitem"], input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])'));
@@ -91,15 +120,49 @@ export function audit(VIS_JS, opts) {
     // scrolled partway out of a list is the walk's scroll-to job, not an occlusion, and its empty/tiny visible
     // rect skips here rather than false-flagging the scroll-parent's chrome as a coverer
     const vr = visibleRect(c, r); if (vr.width < 4 || vr.height < 4) continue;
+    // ★A CONTROL SCROLLED PAST THE TOP EDGE IS NOT OCCLUDED, IT IS ABOVE THE FOLD (2026-09-29).
+    // voice-journal reported `#persona-hezekiah "Hezekiah" @70,-19 covered by nav.wf-crumb` in the
+    // keyboard state, and the two states measured settle it: AT REST the chip is at y=610 and the crumb
+    // at y=10 - 600px apart, nothing near it. Focusing the search input makes the browser scroll it into
+    // view (scrollY 0 -> 629), which carries the chip to y=-19, under the crumb bar. The crumb stays at
+    // y=10 through that scroll despite computing `position: static`, because it rides inside a FIXED
+    // ancestor - which is also why it was reported as a static, z-auto "coverer", the tell that nothing
+    // was really sitting on anything.
+    // With a fixed band at the top, something is under it at every scroll offset; that is what scrolling
+    // means, not a defect ([[feedback_scrolling_the_page_put_a_control_under_the_fixed_band]]). The
+    // question this lens asks is whether a control the person is meant to use RIGHT NOW is unreachable,
+    // and a control above the fold is reached by scrolling to it - the same argument visibleRect already
+    // makes for a control scrolled out of a list.
+    // Deliberately narrow: only a control whose box is cut by the viewport's TOP edge. One fully on
+    // screen, under a FAB or a sticky bar, keeps its full rect and is still judged.
+    if (r.top < 0) continue;
     const x = Math.min(vw - 1, Math.max(0, vr.left + vr.width / 2)), y = Math.min(vh - 1, Math.max(0, vr.top + vr.height / 2));
     if (openOverlays.length && !inOpenOverlay(c)) continue;          // under a modal overlay: covered by design
     const hit = document.elementFromPoint(x, y);
     if (!hit || hit === c || c.contains(hit) || hit.contains(c)) continue;
     // a label wrapping its input, or an input's own visual twin, is the same control
     if (hit.closest('label') && hit.closest('label').control === c) continue;
-    const hcs = getComputedStyle(hit);
-    const cover = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], .sticky, [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel, [id^="wh-"], [class^="wh-"]') || hit;
-    out.occlusion.push(`${name(c)} "${(c.getAttribute('aria-label') || ownText(c) || c.value || '').slice(0, 24)}" @${rectOf(r)} covered by ${name(cover)} (${hcs.position}, z ${hcs.zIndex}) @${rectOf(cover.getBoundingClientRect())}`);
+    // ★THE SENTENCE NAMED ONE ELEMENT, MEASURED A SECOND AND DESCRIBED A THIRD (2026-09-29). The lookup
+    // below exists to blame the responsible CHROME rather than whatever leaf the point happened to land
+    // on - a FAB, a sticky header, a toast. But `.closest()` walks UPWARD, and the last two selectors,
+    // `[id^="wh-"]` and `[class^="wh-"]`, match `#wh-main-content` - the page's own <main>, an ancestor
+    // of virtually every control on the platform. So a real coverer was replaced by <main> and the
+    // finding read `covered by #wh-main-content (static, z auto)` on page after page: 22 pages reported
+    // it identically, which is what a selector matching the whole document looks like from the outside.
+    // Verified live on the signed-out landing: elementFromPoint over the consent buttons returns
+    // `#signin-modal` (fixed, z 50), and `.closest()` turned that into `#wh-main-content` (static, z
+    // auto) - so the report named an element that was not covering anything, and told the reader the
+    // coverer was unpositioned when the actual one is a fixed dialog.
+    // Worse, the three facts came from three different elements: the NAME and RECT from `cover`, and
+    // the position/z-index from `hit`. A finding has to describe ONE element, so `cover` is resolved
+    // first and then measured - and an ancestor of the control can never be its coverer (it is the box
+    // the control sits inside), so a lookup that climbs past the control is rejected and the actual hit
+    // stands. Kin of [[feedback_a_filename_is_not_a_key_when_180_files_share_it]]: a selector that
+    // matches nearly everything names nothing.
+    const chrome = hit.closest('[class*="fab"], [id*="fab"], header, [role="banner"], .sticky, [class*="sticky"], [class*="toast"], [role="alert"], [role="status"], [class*="consent"], [class*="cookie"], [aria-modal="true"], [role="dialog"], #wh-hub-panel, #wh-ai-panel, #wh-feedback-panel');
+    const cover = (chrome && !chrome.contains(c)) ? chrome : hit;
+    const vcs = getComputedStyle(cover);
+    out.occlusion.push(`${name(c)} "${(c.getAttribute('aria-label') || ownText(c) || c.value || '').slice(0, 24)}" @${rectOf(r)} covered by ${name(cover)} (${vcs.position}, z ${vcs.zIndex}) @${rectOf(cover.getBoundingClientRect())}`);
   }
 
   for (const e of all) {
@@ -242,10 +305,38 @@ export async function interactionSweep(page, VIS_JS, opts = {}) {
   return records.filter(Boolean);
 }
 
-/** page.evaluate(audit, VIS_JS, {step}) is awkward for two-argument evaluate; this bundles them. */
+/** ★EVERY TEXT-FIT FINDING WAS A COIN FLIP UNTIL THIS WAITED FOR THE WEBFONT (2026-09-29).
+ *  This lens measures whether text fits its box, and Poppins is WIDER than the sans-serif fallback it
+ *  replaces - so the same page, measured before and after the font applies, is two different layouts.
+ *  The prover waited a flat 6500 ms and hoped. That holds on an idle host and does NOT hold during a
+ *  46-page sweep on the 8 GB box with several Chromes contending, and the readings say so exactly:
+ *  achievements.html and alert-hub.html measured the consent buttons at 90x44 / 127x44 inside a
+ *  16381px page, while hive.html measured the SAME markup at 96x44 / 140x44 inside a 16709px page -
+ *  the wider, taller pair being Poppins and the narrower pair the fallback. `#si-sso-btn` sat right on
+ *  the seam: "Enterprise SSO (Okta / Azure AD)" is ~231px natural in a 230px box, so it wrapped to two
+ *  lines with the font and fitted without it, and the same run reported the same page as 53 issues or
+ *  as 2 depending on nothing but timing. That is what made this gate read 16/50, then 46/46, then
+ *  16/46 with no edit in between.
+ *  `document.fonts.ready` resolves when every face the document uses has settled, so it is the event
+ *  the flat timeout was standing in for. It is awaited ONCE per record and resolves instantly on every
+ *  later step, and it is bounded: a font that never arrives must not hang a 46-page sweep, and
+ *  measuring the fallback is still a legitimate reading - what is illegitimate is not knowing which
+ *  one was measured. So the record carries `fontsReady`, and a finding taken against the fallback can
+ *  be told apart from one taken against the shipped font instead of silently averaging with it.
+ *  Same family as [[feedback_the_webfont_was_the_layout_shift]] - there the font WAS the layout shift;
+ *  here it is the difference between two verdicts about the same page.
+ *  page.evaluate(audit, VIS_JS, {step}) is awkward for two-argument evaluate; this bundles them. */
 export async function record(page, VIS_JS, step) {
+  const fontsReady = await page.evaluate(() => {
+    if (!document.fonts || !document.fonts.ready) return Promise.resolve(false);
+    return Promise.race([
+      document.fonts.ready.then(() => true),
+      new Promise((r) => setTimeout(() => r(false), 4000)),
+    ]);
+  }).catch(() => false);
   return page.evaluate(({ VIS_JS: v, step: s, src }) => (0, eval)('(' + src + ')')(v, { step: s }), { VIS_JS, step, src: audit.toString() })
-    .catch((e) => ({ error: String(e).slice(0, 120), step, outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [], overflow: 0, findings: 0 }));
+    .then((r) => (r && typeof r === 'object' ? Object.assign(r, { fontsReady }) : r))
+    .catch((e) => ({ error: String(e).slice(0, 120), step, fontsReady, outside: [], clipped: [], wrapped: [], spill: [], overflowEl: [], occlusion: [], overflow: 0, findings: 0 }));
 }
 
 // `node tools/phone_fit_audit.mjs --emit-browser` - writes tools/phone_fit_audit.browser.js, a plain script that installs

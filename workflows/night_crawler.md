@@ -104,7 +104,7 @@ https://docs.example.com/ | example docs | 6,2
 - **SSRF:** non-`http(s)` schemes and hosts resolving to private / loopback / link-local IPs are refused. The spider
   defaults to **same-domain** (`--any-domain` to override — use with care).
 - **Prompt injection:** crawled text is DATA. The distiller's system prompt ignores instructions embedded in content.
-- **Free-tier only:** distillation uses `tools/lib/ai_chain.py` (Groq → Cerebras → Gemini → Mistral); never a paid model.
+- **Free-tier only:** distillation uses `tools/lib/ai_chain.py` (Groq → Gemini → Mistral → OpenRouter); never a paid model.
 - **Two planes:** ingest only external *public* knowledge into the agent substrate — never tenant data or secrets.
 - **Indexing cost:** a full `index` (~15-20 s) is required for `substrate/` chunks (incremental `refresh` does NOT walk
   it). For batches use `--no-reindex` on each crawl, then one `--reindex`. `--watch` does this automatically.

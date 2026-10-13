@@ -6,9 +6,9 @@ Source: https://workhiveph.com/tools/water-softener-calculator/
 
 Water Softener Sizing Calculator
 Static · formula-only · worked example computed when this page was built · no live data G1+E3 
-**The Water Softener Sizing Calculator finds the resin volume, tank size, and regeneration interval for a hardness-removal duty. Example: for a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days, Resin required = 96 L, Tank resin charge = 120 L, Tank diameter = 356 mm, Tank height = 1651 mm, Regen interval = 3 days (per WQA | NSF/ANSI 44 | PNS 1998).**
+**The Water Softener Sizing Calculator finds the resin volume, tank size, and regeneration interval for a hardness-removal duty. Example: for a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days, Resin required = 96 L, Tank resin charge = 120 L, Tank diameter = 356 mm, Tank height = 1651 mm, Regen interval = 3 days (per WQA, NSF/ANSI 44 and PNS 1998).**
 How it works
-Computed from your inputs per WQA | NSF/ANSI 44 | PNS 1998. Anything the worked example does not state uses this calculator's standard default; the interactive version shows every input and lets you change it.
+The calculator follows WQA, NSF/ANSI 44 and PNS 1998. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Plumbing & Pumps)
 Inputs: a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days.
@@ -18,20 +18,20 @@ Tank resin charge120 L
 Tank diameter356 mm
 Tank height1651 mm
 Regen interval3 days
-Computed by WorkHive's calculation engine when this page was built; standard: WQA | NSF/ANSI 44 | PNS 1998.
+Computed by WorkHive's calculation engine when this page was built; standard: WQA, NSF/ANSI 44 and PNS 1998.
 How to use this calculator
 Read the worked example. It uses a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days and shows every number in the method.
-Follow the formula with your own figures: it returns Resin required, Tank resin charge, Tank diameter, Tank height, Regen interval, computed per WQA | NSF/ANSI 44 | PNS 1998.
+Follow the formula with your own figures: it returns Resin required, Tank resin charge, Tank diameter, Tank height, Regen interval, computed per WQA, NSF/ANSI 44 and PNS 1998.
 To compute interactively, open the Water Softener Sizing Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
-What is a water softener sizing calculator resin?The Water Softener Sizing Calculator is a free online tool that finds the resin volume, tank size, and regeneration interval for a hardness-removal duty. It shows the formula and a fully worked example so you can check the method, not just the number.
-How is it calculated?The result is computed from your inputs following WQA | NSF/ANSI 44 | PNS 1998. The worked example on this page shows a real computation with real numbers.
+What is the Water Softener Sizing Calculator?The Water Softener Sizing Calculator is a free online tool that finds the resin volume, tank size, and regeneration interval for a hardness-removal duty. It shows the formula and a fully worked example so you can check the method, not just the number.
+How is it calculated?The result is computed from your inputs following WQA, NSF/ANSI 44 and PNS 1998. The worked example on this page shows a real computation with real numbers.
 Is the calculator free?Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Water Softener Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=water-softener-sizing). Free, and a free sign-up saves your calculations, BOMs and scope-of-works to your account.
+[Open the interactive Water Softener Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html?calc=water-softener-sizing). Free to use. A free account saves the calculation, its bill of materials and its scope of works to your hive. Your team finds them under the project name it already uses. The next technician on that job reads the same numbers instead of re-deriving them.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Drainage Pipe Sizing Calculator](https://workhiveph.com/tools/drainage-pipe-sizing-calculator/)
 [Domestic Water Demand Calculator](https://workhiveph.com/tools/domestic-water-demand-calculator/)
 
-<!-- md-twin source-sha: 90edb053dcfb3cea -->
+<!-- md-twin source-sha: 231bcb24546d1cd4 -->

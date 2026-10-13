@@ -2,7 +2,7 @@
 name: table-rls-ai_reply_feedback
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_reply_feedback
-source_sha: 2270d026f560816e
+source_sha: 90a6942225222817
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, hive_id, auth_uid, worker_name, agent*, source*, page, persona, question*, answer, rating*, created_at*
+Columns (*=NOT NULL): id*, hive_id, auth_uid, worker_name, agent*, source*, page, persona, question*, answer, rating*, created_at*, trace_id
 
 Policies:
 - `ai_reply_feedback_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((auth_uid = auth.uid()) AND ((hive_id IS NULL) OR (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = ai_reply`

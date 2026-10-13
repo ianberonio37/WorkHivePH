@@ -135,7 +135,19 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // ★community and public-feed were absent from this roster. public-feed is the ANON surface - the
   // one place a failed read is most likely to be mistaken for 'nothing here yet' - so its absence was
   // the least affordable. A roster is a claim about scope; an incomplete one makes a green look total.
-  'community', 'public-feed'];
+  'community', 'public-feed',
+  // ★SEVEN MORE, FOUND BY ASKING THE LEDGER WHICH PAGES THE LENS ACTUALLY OWES (2026-10-05). The LXP-A
+  // wave carries 128 open rows on exactly this question - "the platform must keep this page working when
+  // the service behind it answers slowly or not at all" - across 32 pages. Subtracting this roster AND
+  // tests/failure-injection.spec.ts's six marketplace-side surfaces left these seven with no
+  // failure-injection coverage of any kind, and they are the worst seven to be missing: every one is a
+  // data-heavy admin or observability surface where a failed read rendering as EMPTINESS does not look
+  // like a bug, it looks like good news. An admin opening platform-actions or marketplace-admin to an
+  // empty queue concludes there is nothing waiting; founder-console and ai-quality are read as health;
+  // audit-log reading empty says nobody did anything, which is the most dangerous empty on the platform.
+  // Derived from the registry rather than typed from memory, because a roster is a claim about scope.
+  'ai-quality', 'audit-log', 'founder-console', 'integrations', 'marketplace-admin', 'ph-intelligence',
+  'plant-connections'];
 
 // Each mode fails the READ in a different way. `fail_offline` is a rejection rather than a status, because
 // that is what a dead network actually looks like to fetch — a page that only handles non-2xx statuses
@@ -406,9 +418,17 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
     // it" for pages that were never loaded. Measured 2026-08-20: analytics-report (369 chars) and
     // engineering-design (1845 chars) both reported that way, and both simply redirect when signed
     // out. Abort instead: no result is honest, a fabricated one is not.
-    await signIn(c0, 'supervisor').catch((e) => {
-      throw new Error(`sign-in failed, aborting: every auth-gated page would redirect and be reported as silently failing (${String(e).slice(0, 120)})`);
-    });
+    // ★AND THE FIX ABOVE WAS THE WRONG SHAPE, which is worse than no fix because the ★ note vouched for it
+    // (found 2026-10-05, while adding seven auth-gated admin pages to the roster - exactly the pages this
+    // failure mode fabricates findings for). `signIn()` RETURNS `{ok:false, err}` on failure; it does not
+    // throw. So `.catch()` never fires on the path that actually happens, and the swallowed sign-in survived
+    // here while its sibling at the injected read below was correctly converted to `assertSignedIn`. One path
+    // fixed, its sibling missed, inside the same file - the shape this project has already paid for once
+    // across 59 call sites ([[feedback_fifty_nine_provers_discard_their_sign_in]]).
+    // This is the HEALTHY BASELINE read, which makes it the worst one to take signed-out: the oracle is a
+    // DIFFERENCE between healthy and injected, so a signed-out baseline does not merely lose a reading, it
+    // moves the comparison point for every mode that follows. assertSignedIn reads `.ok` and throws.
+    await assertSignedIn(signIn(c0, 'supervisor'));
     healthy = await read(c0, p, null);
     await c0.close();
   } catch (e) { healthy = { error: String(e.message || e).slice(0, 100) }; }

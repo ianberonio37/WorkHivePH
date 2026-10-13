@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 340,
+    "view_column_pairs": 341,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 341
+    "files_scanned": 348
   },
   "pairs": [
     {
@@ -1480,6 +1480,11 @@
           "file": "plant-connections.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "supabase/functions/cmms-push-completion/index.ts",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -1754,6 +1759,19 @@
           "shape": "direct",
           "smells": []
         },
+        {
+          "file": "maturity-gate.js",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_hive_readiness_truth",
+      "column": "computed_at",
+      "consumers": [
         {
           "file": "maturity-gate.js",
           "shape": "direct",
@@ -7596,11 +7614,6 @@
       "column": "role",
       "consumers": [
         {
-          "file": "community.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "hive.html",
           "shape": "direct",
           "smells": []
@@ -7649,7 +7662,7 @@
           "smells": []
         },
         {
-          "file": "community.html",
+          "file": "supabase/functions/_shared/observability.ts",
           "shape": "direct",
           "smells": []
         },
@@ -7660,6 +7673,11 @@
         },
         {
           "file": "supabase/functions/ai-gateway/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/ai-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
         },
@@ -7675,6 +7693,11 @@
         },
         {
           "file": "supabase/functions/cmms-webhook-receiver/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/export-hive-data/index.ts",
           "shape": "direct",
           "smells": []
         },

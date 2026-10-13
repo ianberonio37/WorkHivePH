@@ -2,13 +2,13 @@
 name: page-architecture
 type: page
 source: file:architecture.html
-source_sha: 85fa89879b3fa013
+source_sha: 625a81c0fd000e63
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `architecture.html` — WorkHive: Platform Architecture
 
-Size: 36KB · 6 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 40KB · 6 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

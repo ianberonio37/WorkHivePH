@@ -28,6 +28,9 @@ import json
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path as _P
+sys.path.insert(0, str(_P(__file__).resolve().parent / "lib"))
+from chain_pacer import GAP_EDGE_INVOKE_S, RUN_CAP_EDGE_INVOKES, ChainPacer, edge_window_outcome  # noqa: E402
 from pathlib import Path
 
 import requests
@@ -113,7 +116,7 @@ def _units(golden: dict) -> list[dict]:
     return list(golden.get("probes") or golden.get("units") or [])
 
 
-def capture_family(golden_path: Path, out_path: Path, dim: str, conn, pace: float) -> dict:
+def capture_family(golden_path: Path, out_path: Path, dim: str, conn, pace: float, pacer: "ChainPacer") -> dict:
     golden = json.loads(golden_path.read_text(encoding="utf-8"))
     units = _units(golden)
     observed: dict[str, dict] = {}
@@ -123,8 +126,13 @@ def capture_family(golden_path: Path, out_path: Path, dim: str, conn, pace: floa
     for u in units:
         uid = u.get("id")
         q = u.get("question") or u.get("utterance") or ""
+        if not pacer.wait():
+            print(f"  {YEL}{pacer.stop_reason} - the rest of {dim} was NOT asked (not failed){RESET}")
+            break
         reset_counters(conn)
+        _t0 = time.time()
         r = call_voice_journal(q)
+        pacer.record(edge_window_outcome(_t0, time.time()))
         if r["ok"]:
             ok += 1
         if r["status"] == 429:
@@ -136,7 +144,6 @@ def capture_family(golden_path: Path, out_path: Path, dim: str, conn, pace: floa
                     "answer_len": len(ans)})
         flag = GREEN + "ok" + RESET if r["ok"] and ans else (RED + f"FAIL({r['status']})" + RESET)
         print(f"  {uid:<10} {flag:<18} {r['latency_ms']:>6}ms  {ans[:70].replace(chr(10), ' ')}")
-        time.sleep(pace)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(observed, indent=2), encoding="utf-8")
     raw_path = out_path.with_name(out_path.stem.replace("_observed", "_raw") + ".json")
@@ -144,7 +151,8 @@ def capture_family(golden_path: Path, out_path: Path, dim: str, conn, pace: floa
                                     "total": len(units), "generated_ts": datetime.now(timezone.utc).isoformat(),
                                     "raw": raw}, indent=2), encoding="utf-8")
     print(f"  -> {out_path.relative_to(ROOT)}  ({ok}/{len(units)} ok, {rate_limited} rate-limited)")
-    return {"dim": dim, "ok": ok, "total": len(units), "rate_limited": rate_limited, "out": str(out_path)}
+    return {"dim": dim, "ok": ok, "total": len(units), "rate_limited": rate_limited, "out": str(out_path),
+            "stopped": pacer.stop_reason}
 
 
 def main() -> int:
@@ -153,7 +161,9 @@ def main() -> int:
     ap.add_argument("--golden", default=None)
     ap.add_argument("--out", default=None)
     ap.add_argument("--dim", default=None)
-    ap.add_argument("--pace", type=float, default=4.0, help="seconds between calls (rate-limit pacing)")
+    ap.add_argument("--pace", type=float, default=GAP_EDGE_INVOKE_S,
+                    help="minimum seconds between calls (tools/lib/chain_pacer.py; was 4, now the measured 8)")
+    ap.add_argument("--max-calls", type=int, default=RUN_CAP_EDGE_INVOKES, help="per-run cap on gateway calls")
     ap.add_argument("--no-reset", action="store_true", help="do NOT reset rate-limit counters between calls")
     args = ap.parse_args()
 
@@ -179,17 +189,22 @@ def main() -> int:
         return 2
 
     summaries = []
+    pacer = ChainPacer("live-capture", args.pace, args.max_calls)
     for golden_path, out_path, dim in jobs:
         if not golden_path.exists():
             print(f"{RED}missing golden: {golden_path}{RESET}")
             continue
-        summaries.append(capture_family(golden_path, out_path, dim, conn, args.pace))
+        summaries.append(capture_family(golden_path, out_path, dim, conn, args.pace, pacer))
+        if pacer.stop_reason:
+            break
 
     print(f"\n{BOLD}Capture summary{RESET}")
     total_rl = sum(s["rate_limited"] for s in summaries)
     for s in summaries:
         print(f"  {s['dim']:<12} {s['ok']}/{s['total']} ok  ({s['rate_limited']} rate-limited)")
-    if total_rl:
+    if pacer.stop_reason:
+        print(f"{YEL}{pacer.stop_reason} — a cut-short capture: do NOT freeze a baseline from this run.{RESET}")
+    elif total_rl:
         print(f"{YEL}WARNING: {total_rl} calls rate-limited — do NOT freeze a baseline from this run.{RESET}")
     else:
         print(f"{GREEN}clean run (0 rate-limited) — safe to grade + freeze.{RESET}")

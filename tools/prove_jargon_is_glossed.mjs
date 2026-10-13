@@ -23,7 +23,7 @@
 // suppression rather than glossing.
 import { writeFileSync } from 'fs';
 import { chromium } from '@playwright/test';
-import { signIn, SEEDER } from './live_page_journeys.mjs';
+import { signIn, SEEDER, assertSignedIn } from './live_page_journeys.mjs';
 
 const args = process.argv.slice(2);
 const ONE = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
@@ -150,7 +150,7 @@ const OVERLOADED = [
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-await signIn(ctx, 'supervisor');
+await assertSignedIn(signIn(ctx, 'supervisor'));
 
 const results = [];
 for (const { page, floor: pageFloor, open, query } of PAGES) {

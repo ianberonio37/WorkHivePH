@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **340**
+- View/column pairs scanned: **341**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **341**
+- Files scanned: **348**
 
 ## Smell legend
 
@@ -117,7 +117,7 @@ re-deriving what the canonical view should expose:
 | `v_external_sync_truth` | `status` | ✅ OK | 3 | direct |
 | `v_external_sync_truth` | `sync_payload` | ✅ OK | 2 | direct |
 | `v_external_sync_truth` | `sync_status` | ✅ OK | 1 | direct |
-| `v_external_sync_truth` | `system_type` | ✅ OK | 3 | direct |
+| `v_external_sync_truth` | `system_type` | ✅ OK | 4 | direct |
 | `v_external_sync_truth` | `workhive_table` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `ai_confidence` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `approved_at` | ✅ OK | 1 | direct |
@@ -134,6 +134,7 @@ re-deriving what the canonical view should expose:
 | `v_fmea_truth` | `source` | ✅ OK | 2 | direct |
 | `v_hive_readiness_truth` | `blocker_summary` | ✅ OK | 2 | direct |
 | `v_hive_readiness_truth` | `composite_score` | ✅ OK | 2 | direct |
+| `v_hive_readiness_truth` | `computed_at` | ✅ OK | 1 | direct |
 | `v_hive_readiness_truth` | `current_stair` | ✅ OK | 2 | direct |
 | `v_hive_readiness_truth` | `evidence` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `created_by` | ✅ OK | 1 | direct |
@@ -378,5 +379,5 @@ re-deriving what the canonical view should expose:
 | `v_worker_skill_truth` | `worker_name` | ✅ OK | 3 | direct |
 | `v_worker_truth` | `hive_status` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
-| `v_worker_truth` | `role` | ✅ OK | 8 | direct |
-| `v_worker_truth` | `worker_name` | ✅ OK | 11 | direct |
+| `v_worker_truth` | `role` | ✅ OK | 7 | direct |
+| `v_worker_truth` | `worker_name` | ✅ OK | 13 | direct |

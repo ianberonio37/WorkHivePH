@@ -197,8 +197,9 @@ const CASES = {
   // reconnect.' The runner's supervisor persona has a profile (Steam Systems), so the target
   // grid renders (no onboarding). Arm bumps ONE stepper (+1, a real change) - selector scoped
   // to .step-btn because discipline CARDS also carry data-disc (the known duplicate-attr trap).
-  // Local evidence: the branch re-enables the button and restores 'Save Targets' - the queue
-  // growth is the load-bearing acceptance check; the row itself was already rendered pre-save.
+  // Local evidence: the queued change counts as saved, so the button rests as 'Targets saved', disabled (2026-10-13,
+  // critique W46048 - it used to re-enable and restore 'Save Targets', which a no-change save then wrote again). The
+  // queue growth is still the load-bearing acceptance check; the row itself was already rendered pre-save.
   'skillmatrix-targets': {
     page: 'skillmatrix',
     writePattern: /rest\/v1\/skill_profiles/,
@@ -222,7 +223,7 @@ const CASES = {
     },
     localEvidence: () => ({
       recordVisible: (() => { const b = document.getElementById('target-save-btn');
-        return !!(b && !b.disabled && /save targets/i.test(b.textContent || '')); })(),
+        return !!(b && b.disabled && /targets saved/i.test(b.textContent || '')); })(),
     }),
   },
   // T14 sibling (2026-08-25): the daily progress log - the ONE field-capture write on

@@ -54,7 +54,8 @@ const get = async (path) => {
 // check that let GA4 ship dead: the header was present and simply did not name googletagmanager. So each host
 // the shipped pages really use is asserted against the directive that governs it, by name.
 const CSP_MUST = [
-  ['script-src', 'https://cdn.tailwindcss.com', 'Tailwind CDN, on nearly every page'],
+  // (2026-10-13) the Tailwind Play CDN left the list: no page loads it (app pages on wh-tw.css, public pages on
+  // /wh-tw-pub-<family>.css - gate tw-public-sheets), so the policy no longer grants it either.
   ['script-src', 'https://www.googletagmanager.com', 'GA4 - shipped deliberately (wh-ga4.js); absent here it is dead in prod'],
   ['script-src', 'https://challenges.cloudflare.com', 'Turnstile - the documented configure-to-enable switch'],
   ['script-src', 'https://cdn.plot.ly', 'analytics charts'],

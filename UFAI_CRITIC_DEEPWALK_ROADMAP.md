@@ -13,9 +13,9 @@ The deliverable is `UFAI_UIUX_IMPROVEMENT_PLAN.md` — every improvement cluster
 evidence — then fix waves that land and LOCK each improvement.
 
 <!-- critic-scoreboard:begin (GENERATED - edit critic_registry.json, not this block) -->
-**CRITIC PROGRAM: 31.9% overall · 9749 in-scope trajectories · pending 5790 · critiqued 1670 · improving 2289 — registry critic_registry.json (updated 2026-09-11, rubric 975123b63769).**
-Findings: 9986 total (S4 820, S3 2141, S2 6493, S1 532) · open Major+ 2961.
-Per-wave: A 74% · B 84% · C 82% · D 81% · E 76% · F 80% · G 75% · H 73% · I 70% · J 70% · K 70% · L 70% · M 70% · N 70% · O 70% · P 72% · Q 70% · R 70% · S 70% · T 70% · U 70% · V 70% · W 70% · X 70% · Y 70% · Z 70% · AA 70% · AC 70% · AD 70% · AE 70% · VD 70% · VM 70% · VP 71% · W4 0% · P-A 82% · P-B 81% · P-C 81% · P-D 83% · P-E 78% · P-F 85% · P-G 81% · P-H 81% · P-I 80% · P-J 81% · P-K 79% · P-L 81% · P-M 82% · LX-H 82% · LX-L 83% · LX-S 82% · EX-AT 79% · EX-AX 82% · EX-HP 82% · EX-PF 81% · EX-PX 82% · EX-RV 84% · EX-SB 82% · EX-TL 81% · LX-CI 83% · LX-FN 85% · LX-LB 83% · LX-RL 81% · W3-AR 81% · W3-CL 70% · W3-DF 81% · W3-FN 85% · W3-JN 81% · W3-LC 83% · W3-LN 70% · W3-PG 79% · W3-SC 70%
+**CRITIC PROGRAM: 76.9% overall · 12037 in-scope trajectories · critiqued 6495 · improving 5542 — registry critic_registry.json (updated 2026-09-11, rubric 975123b63769).**
+Findings: 113828 total (S4 61569, S3 2327, S2 38940, S1 10992) · open Major+ 63896.
+Per-wave: A 74% · B 84% · C 82% · D 81% · E 76% · F 80% · G 75% · H 73% · I 70% · J 70% · K 70% · L 70% · M 70% · N 70% · O 70% · P 72% · Q 70% · R 70% · S 70% · T 70% · U 70% · V 70% · W 70% · X 70% · Y 70% · Z 70% · AA 70% · AC 70% · AD 70% · AE 70% · VD 70% · VM 70% · VP 71% · W4 73% · P-A 82% · P-B 81% · P-C 81% · P-D 83% · P-E 78% · P-F 85% · P-G 81% · P-H 81% · P-I 80% · P-J 81% · P-K 79% · P-L 81% · P-M 82% · LM-A 83% · LM-E 84% · LM-G 83% · LM-L 84% · LM-O 84% · LM-P 83% · LM-R 84% · LM-S 84% · LM-V 83% · LM-X 83% · LX-H 82% · LX-L 83% · LX-S 82% · BRP-A 85% · BRP-B 85% · BRP-C 85% · EX-AT 79% · EX-AX 82% · EX-HP 82% · EX-PF 81% · EX-PX 82% · EX-RV 84% · EX-SB 82% · EX-TL 81% · LX-CI 83% · LX-FN 85% · LX-LB 83% · LX-RL 81% · LXC-A 83% · LXC-C 83% · LXC-D 80% · LXC-H 82% · LXC-L 83% · LXC-S 82% · LXP-A 84% · LXP-C 84% · LXP-D 84% · LXP-F 84% · LXP-H 84% · LXP-L 84% · LXP-S 84% · W3-AR 81% · W3-CL 70% · W3-DF 81% · W3-FN 85% · W3-JN 82% · W3-LC 83% · W3-LN 70% · W3-PG 79% · W3-SC 70% · LXC-AU 84% · LXC-AV 84% · LXC-CA 81% · LXC-CI 83% · LXC-LB 83% · LXC-RL 79% · LXP-AU 84% · LXP-AV 84% · LXP-CA 84% · LXP-CI 84% · LXP-LB 84% · LXP-RL 84%
 <!-- critic-scoreboard:end -->
 
 ## §1 · Scope — ALL 500 considered, 480 critiqued, none silently skipped
@@ -273,3 +273,59 @@ generator and waiting on promotion, and the same shape as
 3. Separate the two "gone" reasons in the report, because they need opposite actions: **rewritten** =
    close it; **runtime-generated** = the rubric must grade the rendered string, and a source edit will
    never satisfy it.
+
+## §9 · THE BATCH: the uniform half of every walk, headless (2026-10-13)
+
+The rubric survey of a settled page is the same work on every walk, so it runs headless through
+`tools/critic_walk_batch.mjs` (manifest `tools/critic_walk_manifest.py`, banker `tools/bank_critic_walk.py`). The
+in-motion layer stays an MCP job, one deep walk per template. Signed-out half: 706 walks, 4,658 rows banked, the
+program 24.6% -> 52.4%. Signed-in half: 455 walks surveyed, 455 banked, 0 failed, 3,586 rows over 306 distinct
+persona-by-page screens; the program stands at 72.7% with no row pending (9,890 critiqued, 2,178 improving).
+
+- **What it found, fused by the reader's job, and what was fixed:** `UFAI_UIUX_IMPROVEMENT_PLAN.md` C-BY.
+- **What it taught the instruments:** survey reuse per identical screen, an exclusive bank lock with a retry, and the
+  lens stamped as the one that graded. It also showed four lens readings that were wrong: a 4% dot texture read as a
+  fill (C5 blind on 19 guides), scroll-reveal content read as hidden (O2 and the landing's whole lower half), one
+  urgency word list in three dims, and the cookie notice's buttons counted as page CTAs.
+- **N1 is descoped, by the decision that already covered it (2026-10-13).** N1 grades Filipino label coverage, and
+  every N1 failure asks for data-i stamps and dictionary values: the work Ian took out of the roadmap on 2026-09-30
+  and again on 2026-10-06. 8,417 of the 8,502 open rows carried an N1 finding, so no row could close on it. The lens
+  now returns N/A for N1 with the reason, keeping the label census in the note; its one English check (no horizontal
+  overflow) is R2's identical test. The closer (`close_critic_findings.py`) no longer lets an N1 finding hold a row
+  open, writes "N1 not graded - descoped" in the receipt rather than calling it clean, and keeps a row whose only
+  findings are descoped open, because nothing on it improved. Re-scoping Filipino is one line (`_N1_DESCOPED` in the
+  lens, `DESCOPED_DIMS` in the closer); gate `critic-closer-guards` holds the three in step (9 cases plus the receipt,
+  teeth proven by removing the descope: three cases go red).
+- **And the sweep had been re-grading every N/A N1.** `family_rubric_sweep.mjs` overrode N1 with its locale flip unless
+  `kind !== 'NA'`, but the lens writes `'N/A'`, so posters, reference pages and consoles all had their N/A N1 turned
+  into a percentage and listed under `failing`, while the page's overall correctly left it out. It now overrides a
+  MEASURED N1 only.
+- **What still holds rows open is measurement, not findings.** After the descope the closer reads 8,502 open rows, 0
+  closable yet: 4,857 wait on a signed-out sweep of their page, 3,576 on a same-persona re-walk (worker 1,192,
+  assistive-tech 433, fleet-supervisor 360, returner 300, solo-owner 250, driver-worker 228, adversary 202, buyer 199)
+  and 69 on a signed-in sweep newer than their bank. All three need the browser.
+- **The signed-out half hangs on the landing page.** A signed-out visit to hive, analytics, audit-log, logbook or
+  engineering-design is sent to `index.html?signin=1&return=<page>`, so about 4,700 rows carry the landing's own
+  findings. Its E3 (no source) is the four front-door figures above: Ian's call, recorded in the trajectory roadmap
+  §LM.16.
+- **B3/B1 readability on about 80 guides** is a content program, sized in C-BY for Ian.
+- **Nothing could lock a critic row, so the program could not pass 85%.** Every receipt said "lock =
+  family-rubric-ratchet on the full board" and no tool cashed it: `post_board_promote.py` reads only the trajectory
+  registry, and a clean critique (nothing found) had no path past 70%. `tools/critic_lock_promote.py` is that step
+  (gate `critic-lock-promote`, self-test): a row locks only on a FULL board that ran after its evidence, with every
+  gate its receipt names PASS, and only where the gate measures the row's screen - the ratchet holds the supervisor
+  board's pages, so it backs board-graded rows and supervisor rows on those pages (1,808 of today's 3,566
+  candidates), not a worker's in-motion walk or a signed-out screen. Those need a screen-class ratchet of their own
+  (signed-out board, persona re-walk), which is the next structure this program owes. `validate_critic_registry.py`
+  R7 now fails any `locked` row without the promoter's receipt, and the re-walk banker names its lock like the closer.
+- **The signed-in re-walk ran: 475 walks banked, 0 failed; the program reads 73.2% (2,611 improving, up 433).** Its
+  leftovers were read live under the cast each row walked as, and most were the lens: Chrome lays out a closed
+  `<details>`'s content, so V1 called a hidden help summary "covered" (assistant, voice-journal); B4 read a middot meta
+  line as one 38-word sentence (hive); J1 counted a CTA link and modal-opening buttons as unguarded deletes
+  (pm-scheduler, inventory); a `<br>` glued two sentences (project-report). Each rule carries both-ways teeth in
+  rubric-teeth and fails on the pre-fix lens. Real page defects from the same read are fixed: achievements' clipped
+  "x30" / "(you)" at 320, alert-hub's unmarked agent headlines, hive's relation-name source line, marketplace-seller's
+  vanished `<your-handle>`. Details: trajectory roadmap §LM.16, rounds 5-6.
+- **Next:** a second signed-in re-walk with today's lens, limited to rows that still carry findings on the 16 pages
+  those fixes touched (`critic_walk_manifest.py --rewalk --pages ...`: 409 signed-in walks; the 713 signed-out ones
+  wait on the landing decision). Then the closer, the scoreboard, and the lock promoter after Ian's next full board.

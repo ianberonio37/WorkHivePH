@@ -38,9 +38,53 @@ BOARD_JSON = ROOT / "family_rubric_scoreboard.json"
 # `.html` is now optional and a bare stem is resolved against the state's filename keys (see _state_for).
 DIM_RE = re.compile(r"^(?P<page>[\w./-]+?)(?:\.html)?:\s*(?P<dim>[A-Z]{1,2}\d)\s+\d+%")
 TODAY = date.today().isoformat()
+# ★A DIM TAKEN OUT OF SCOPE STOPS BLOCKING, AND THE RECEIPT SAYS WHY (2026-10-13). N1 grades Filipino label
+# coverage; Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06), and the
+# lens now returns N/A for it. Its banked findings stay on their rows as the record. What changes is that they no
+# longer hold a row open, and a row that closes says the dim was DESCOPED - never that it came back clean, because
+# nothing was fixed. A row whose only findings are descoped does not close: nothing on it improved.
+DESCOPED_DIMS = {"N1": "Filipino and dictionary work are out of the roadmap (Ian, 2026-09-30 and 2026-10-06)"}
 
 
 LATEST = ROOT / ".tmp" / "critic_page_state.json"   # the closer's own memory: newest sweep per page, merged across page-set runs
+# ★A SWEEP CAN ONLY CLEAR WHAT IT CAME AFTER, AND ONLY FOR THE SCREEN IT SAW (2026-10-13). Before these guards the closer
+# would have moved 2,299 rows to improving on the day the critic batch banked them: it compared each finding with the
+# page's latest sweep and never asked (1) whether that sweep was NEWER than the finding (a board from September
+# "cleared" findings banked in October, with no fix in between), or (2) whether it saw the same SCREEN. A signed-out
+# walk of hive.html lands on the home page, so its findings are the landing's; the signed-in sweep of hive.html is a
+# different screen entirely. Now: a row's findings are judged only by a sweep newer than its bank (banked_at; before
+# that field existed, the END of its walked_at day), and a signed-out row only by a signed-out sweep
+# (family_rubric_sweep.mjs --anon -> family_rubric_scoreboard.page.anon.json).
+ANON_PAGE_JSON = ROOT / "family_rubric_scoreboard.page.anon.json"
+ANON_LATEST = ROOT / ".tmp" / "critic_page_state.anon.json"
+
+
+def _row_time(r: dict) -> float:
+    """When a row's findings were banked (epoch s). Without banked_at, the end of its walked_at day: conservative."""
+    import datetime as _dt
+    for key, suffix in (("banked_at", ""), ("walked_at", "T23:59:59")):
+        v = r.get(key)
+        if v:
+            try:
+                return _dt.datetime.fromisoformat(str(v) + suffix).timestamp()
+            except ValueError:
+                pass
+    return 0.0
+
+
+def _is_anon(r: dict) -> bool:
+    return (r.get("cell") or "").split("|")[1:2] == ["anon"] or r.get("persona") == "anon"
+
+
+# ...AND A SIGNED-IN SWEEP IS ONE PERSONA'S SCREEN. family_rubric_sweep.mjs signs in, prefers a SUPERVISOR membership
+# and sets wh_hive_role='supervisor', so its board shows what a supervisor sees. A worker's hive.html, a solo owner's
+# onboarding view and a buyer's marketplace are other screens. A signed-in sweep may judge only rows walked as a
+# supervisor, or rows walked persona-agnostically ("any"); every other persona waits for a same-persona measurement.
+SWEEP_PERSONAS = {"supervisor", "any", ""}
+
+
+def _persona(r: dict) -> str:
+    return r.get("persona") or ((r.get("cell") or "").split("|")[1:2] or [""])[0]
 
 
 def _state_for(pg: str, state: dict):
@@ -106,33 +150,75 @@ def page_state() -> dict:
         except Exception:
             pass
     out = {}
+    board_time = BOARD_JSON.stat().st_mtime if BOARD_JSON.exists() else 0.0
     for pg, v in board.items():
-        out[pg] = {"overall": v["overall"], "failing_dims": set(v["failing"]), "source": "board"}
+        out[pg] = {"overall": v["overall"], "failing_dims": set(v["failing"]), "source": "board", "time": board_time}
     for pg, v in latest.items():
-        out[pg] = {"overall": v["overall"], "failing_dims": set(v["failing"]), "source": "page-run"}
+        out[pg] = {"overall": v["overall"], "failing_dims": set(v["failing"]), "source": "page-run",
+                   "time": float(v.get("mtime") or 0)}
     return out
+
+
+def anon_page_state() -> dict:
+    """The signed-out twin of page_state(): only `family_rubric_sweep.mjs --anon` runs, merged newest-per-page."""
+    dim_re = re.compile(r"^([A-Z]{1,2}\d)\b")
+    latest = {}
+    if ANON_LATEST.exists():
+        try:
+            latest = json.loads(ANON_LATEST.read_text(encoding="utf-8"))
+        except Exception:
+            latest = {}
+    if ANON_PAGE_JSON.exists():
+        try:
+            d = json.loads(ANON_PAGE_JSON.read_text(encoding="utf-8"))
+            mtime = ANON_PAGE_JSON.stat().st_mtime
+            for pg, v in (d.get("pages") or {}).items():
+                fails = sorted({m.group(1) for f in (v.get("failing") or []) for m in [dim_re.match(str(f))] if m})
+                prev = latest.get(pg)
+                if not prev or mtime >= float(prev.get("mtime") or 0):
+                    latest[pg] = {"overall": v.get("overall"), "failing": fails, "mtime": mtime}
+            ANON_LATEST.parent.mkdir(parents=True, exist_ok=True)
+            ANON_LATEST.write_text(json.dumps(latest, indent=1), encoding="utf-8")
+        except Exception:
+            pass
+    return {pg: {"overall": v["overall"], "failing_dims": set(v["failing"]), "source": "anon-page-run",
+                 "time": float(v.get("mtime") or 0)} for pg, v in latest.items()}
 
 
 def main() -> int:
     apply = "--apply" in sys.argv
     critic = json.loads(CRITIC.read_text(encoding="utf-8"))
-    state = page_state()
+    signed_state = page_state()
+    anon_state = anon_page_state()
     closable, partial, skipped = [], [], 0
-    unparseable = unswept = 0
+    unparseable = unswept = older = other_persona = descoped_only = 0
     unswept_pages: Counter = Counter()
+    older_pages: Counter = Counter()
+    persona_rows: Counter = Counter()
     remaining = Counter()
     for r in critic["rows"]:
         if r.get("status") not in ("critiqued", "improving") or not (r.get("findings") or []) or (r.get("improvement_refs") or []):
             continue
+        anon = _is_anon(r)
+        if not anon and _persona(r) not in SWEEP_PERSONAS:
+            skipped += 1; other_persona += 1
+            persona_rows[_persona(r)] += 1
+            continue
+        state = anon_state if anon else signed_state
+        row_t = _row_time(r)
         verdicts = []
         for f in r["findings"]:
             m = DIM_RE.match(str(f.get("evidence") or ""))
             if not m:
                 verdicts.append(("skip", None, None)); continue
             pg, dim = m.group("page"), m.group("dim")
+            if dim in DESCOPED_DIMS:
+                verdicts.append(("descoped", pg, dim)); continue
             pg, st = _state_for(pg, state)
             if st is None:
-                verdicts.append(("unknown", pg, dim)); continue
+                verdicts.append(("unknown", ("anon " if anon else "") + pg, dim)); continue
+            if float(st.get("time") or 0) <= row_t:
+                verdicts.append(("older", ("anon " if anon else "") + pg, dim)); continue
             verdicts.append(("clean" if dim not in st["failing_dims"] else "open", pg, dim))
         # ★ONE COUNTER FOR TWO DIFFERENT PROBLEMS SENDS THE READER TO THE WRONG FIX (2026-09-11).
         # "skipped: 670" merged rows whose evidence this tool CANNOT PARSE with rows whose page has simply
@@ -148,8 +234,16 @@ def main() -> int:
                 if v[0] == "unknown":
                     unswept_pages[v[1]] += 1
             continue
-        if all(v[0] == "clean" for v in verdicts):
-            closable.append((r, verdicts))
+        if any(v[0] == "older" for v in verdicts):
+            skipped += 1; older += 1
+            for v in verdicts:
+                if v[0] == "older":
+                    older_pages[v[1]] += 1
+            continue
+        if all(v[0] == "descoped" for v in verdicts):
+            skipped += 1; descoped_only += 1; continue
+        if all(v[0] in ("clean", "descoped") for v in verdicts):
+            closable.append((r, verdicts, state))
         else:
             partial.append((r, verdicts))
             for v in verdicts:
@@ -157,27 +251,70 @@ def main() -> int:
                     remaining[f"{v[1]} {v[2]}"] += 1
     print(f"open rows examined: {len(closable) + len(partial) + skipped} · closable (every finding clean): {len(closable)} · partial (stay open): {len(partial)} · skipped: {skipped}")
     print(f"  skipped, split by CAUSE (a merged count sends you to the wrong fix): "
-          f"evidence this tool cannot parse = {unparseable} (a bug HERE) · page never swept = {unswept} (a sweep to RUN)")
+          f"evidence this tool cannot parse = {unparseable} (a bug HERE) · page never swept = {unswept} (a sweep to RUN)"
+          f" · swept only BEFORE the row was banked = {older} (a sweep AFTER the fix to run)"
+          f" · walked as a persona no sweep measures = {other_persona} (a same-persona re-walk to run)"
+          f" · only descoped findings = {descoped_only} (nothing on the row improved, so it stays)")
+    if persona_rows:
+        print("  rows waiting on a same-persona measurement: "
+              + ", ".join(f"{p or '?'} {n}" for p, n in persona_rows.most_common(8)))
     if unswept_pages:
-        print("  pages a row is waiting on (page: rows blocked) — run family_rubric_sweep --page for these:")
+        print("  pages a row is waiting on (page: rows blocked) — run family_rubric_sweep --page (--anon for 'anon ') for these:")
         for k, n in unswept_pages.most_common(10):
+            print(f"    {n:4} {k}")
+    if older_pages:
+        print("  pages whose newest sweep predates the row's bank (page: rows waiting):")
+        for k, n in older_pages.most_common(10):
             print(f"    {n:4} {k}")
     print("remaining open dims across partial rows (page dim: findings):")
     for k, n in remaining.most_common(14):
         print(f"  {n:3} {k}")
     if not apply:
         return 0
-    for r, verdicts in closable:
-        pages = sorted({v[1] for v in verdicts}); dims = sorted({v[2] for v in verdicts})
-        refs = []
-        for pg in pages:
-            st = state[pg]
-            refs.append(f"{TODAY}: {pg} re-swept at {st['overall']}% ({st['source']}) with {', '.join(d for d in dims)} clean - the P-program fix waves of 2026-09-05 (radius scale, KPI numerals, help affordance, copy, back link, CLS reserves, contrast tints, headings); lock = family-rubric-ratchet on the full board")
-        r["improvement_refs"] = refs
-        r["status"] = "improving"
-    critic["updated"] = TODAY
-    CRITIC.write_text(json.dumps(critic, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"applied: {len(closable)} rows -> improving with improvement_refs")
+    import datetime as _dt, os as _os, time as _time
+    # the banker's lock: a batch may be banking while this runs, and both are read-modify-writes of the whole file
+    lock = str(CRITIC) + ".lock"
+    deadline = _time.time() + 60
+    while True:
+        try:
+            _os.close(_os.open(lock, _os.O_CREAT | _os.O_EXCL | _os.O_WRONLY)); break
+        except FileExistsError:
+            if _time.time() > deadline:
+                print("refused: critic_registry.json is locked by another writer (60 s) - nothing written"); return 1
+            _time.sleep(0.25)
+    try:
+        fresh = json.loads(CRITIC.read_text(encoding="utf-8"))
+        by = {x["id"]: x for x in fresh["rows"]}
+        n = 0
+        for r, verdicts, st_map in closable:
+            cur = by.get(r["id"])
+            # re-check under the lock: a row re-banked since the read above carries different findings
+            if not cur or cur.get("findings") != r.get("findings") or cur.get("status") not in ("critiqued", "improving"):
+                continue
+            measured = [v for v in verdicts if v[0] == "clean"]
+            pages = sorted({v[1] for v in measured}); dims = sorted({v[2] for v in measured})
+            refs = []
+            for pg in pages:
+                st = st_map[pg]
+                when = _dt.datetime.fromtimestamp(float(st.get("time") or 0)).isoformat(timespec="minutes")
+                refs.append(f"{TODAY}: {pg} re-swept at {st['overall']}% ({st['source']}, {when}, after this row was banked) "
+                            f"with {', '.join(dims)} clean; lock = family-rubric-ratchet on the full board")
+            gone = sorted({v[2] for v in verdicts if v[0] == "descoped"})
+            for d in gone:
+                refs.append(f"{TODAY}: {d} not graded - descoped: {DESCOPED_DIMS[d]}; its findings stay on this row as the record")
+            cur["improvement_refs"] = refs
+            cur["status"] = "improving"
+            n += 1
+        fresh["updated"] = TODAY
+        tmp = str(CRITIC) + ".tmp"
+        Path(tmp).write_text(json.dumps(fresh, ensure_ascii=False, indent=1), encoding="utf-8")
+        _os.replace(tmp, CRITIC)
+    finally:
+        try:
+            _os.remove(lock)
+        except OSError:
+            pass
+    print(f"applied: {n} rows -> improving with improvement_refs ({len(closable) - n} changed under the lock and were left)")
     v = subprocess.run([sys.executable, str(ROOT / "tools" / "validate_critic_registry.py")], capture_output=True, text=True, encoding="utf-8", errors="replace")
     print((v.stdout or v.stderr).strip().splitlines()[-1][:160])
     s = subprocess.run([sys.executable, str(ROOT / "tools" / "update_critic_scoreboard.py")], capture_output=True, text=True, encoding="utf-8", errors="replace")

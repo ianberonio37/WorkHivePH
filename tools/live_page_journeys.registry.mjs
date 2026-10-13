@@ -163,12 +163,19 @@ export const JOURNEYS = [
   // sat green. These four lock the conversion contract the T1 fixes established.
   {
     id: 'LA7', phase: 'K1', page: 'index.html', role: 'anon', state: 'landing-anon',
-    title: "Ian's phone leg: the sticky mobile CTA reveals after ONE screen of scroll and its tap opens the real signup",
+    title: "Ian's phone leg: the sticky mobile CTA reveals once the hero's own CTA has scrolled away, and its tap opens the real signup",
     lenses: ['R', 'J', 'X'], ufai: ['U', 'F'],
     drive: async (page, h) => {
       await page.setViewportSize({ width: 390, height: 780 });
       await h.goto('index.html');
-      await page.evaluate(() => window.scrollTo(0, 800));   // one screen: the hero CTA has left
+      // ★BY THE PAGE'S OWN RULE (2026-10-13): the bar reveals once the hero's own CTA has left through the TOP of the
+      // viewport (it covered the hero paragraph at first paint before). A fixed 800px could leave that button on
+      // screen at 390x780, where the bar is correctly hidden; scroll just past it, never less than one screen.
+      await page.evaluate(() => {
+        const c = document.querySelector('section .cta-pulse') || document.querySelector('section');
+        const past = c ? c.getBoundingClientRect().bottom + window.scrollY + 40 : 800;
+        window.scrollTo(0, Math.max(800, past));
+      });
       await page.waitForTimeout(900);
       const state = await page.evaluate(() => {
         const bar = document.getElementById('sticky-mobile-cta');

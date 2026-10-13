@@ -1,8 +1,9 @@
 {
   "_meta": {
-    "description": "C4 Phase 2a \u2014 frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json. || 148 -> 150 on 2026-08-20 is a CATALOG CORRECTION, not a regression. tools/mine_ai_seams.py matched only /functions/v1/<fn> URLs, so it was blind to functions.invoke('<fn>') -- the platform's PREFERRED call style, because invoke forwards the caller's session JWT while a hand-rolled fetch does not (report-sender.html migrated two calls for exactly that reason: the raw fetch sent the publishable key and a signed-in supervisor was told to sign in). Teaching the miner that form revealed the inventory was wrong in BOTH directions and the errors cancelled at 177: 25 REAL production seams were invisible (asset-hub->ai-gateway, hive->ai-orchestrator, logbook->voice-logbook-entry, assistant->ai-gateway, marketplace->ai-gateway, shift-brain->shift-planner-orchestrator, +19) while 25 DUPLICATES from backup trees (.emoji_bak/.palette_bak/.hexvar_bak/.leftover_bak, each a full copy of the 49 root pages) were counted as production call sites. Those trees are now in SKIP_PARTS. Seams evidenced by functions.invoke went 0 -> 27. The floor is re-frozen on the corrected catalog; it still only ever drops as contract tests are wired."
+    "description": "C4 Phase 2a — frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json."
   },
   "covered": 27,
-  "total": 173,
-  "uncovered": 146
+  "total": 185,
+  "uncovered": 158,
+  "_review_2026_10_13": "2026-10-13 release re-baseline, reviewed seam by seam: of the 14 new seams, 9 'saas->ai' are TEST HARNESSES (tools/w4_*_walk.body.js, tools/lm_walk*.js, tools/dialog_targets.mjs) that stub or call AI functions - not product surface; 2 'ai->quota' are agentic-rag-loop and temporal-rag-orchestrator newly importing the rate limiter (a hardening); 3 'ai->tenant' are hive-scoped reads (ai-eval-runner's own eval hive; ai-gateway's v_logbook_truth filtered by hive_id). Queued: exclude tools/ harnesses from the product seam miner."
 }

@@ -67,7 +67,13 @@ KNOWN_INSTRUMENTS = ("chrome-devtools-mcp", "playwright-mcp", "postgres-mcp", "p
                      # the pg_proc volatility that decides which RPCs the walk may call at all, and the persisted
                      # effect a writing row needs. (A guard's target-bind must grow WITH the program it gates -
                      # memory feedback_the_target_grew_and_the_bind_did_not.)
-                     "playwright-mcp + postgres-mcp")
+                     "playwright-mcp + postgres-mcp",
+                     # the LLM layer's Grounding and Routing rows (§LM, 2026-10-07). The seeder declared this
+                     # instrument for every LM-G / LM-R row on 2026-10-06 and the recorder never learned it - the
+                     # same miss as the action rows above, found the first time a G receipt was written. Playwright
+                     # walks the page and asks; the live model answers (the receipt's --live-model names the model
+                     # and the tokens it spent, read from the edge runtime's own "served by" log line).
+                     "playwright-mcp + live-model")
 DESIGN_VIEWPORTS = {"phone-390", "desktop-1280"}
 
 
@@ -146,6 +152,52 @@ def build_receipt(rid: str, instrument: str, condition: str, cast: str,
                 w4["languages"] = [x.strip() for x in langs.split(",") if x.strip()]
             if w4["lens"] == "figma" and not w4.get("figma"):
                 raise ValueError("a W4 figma-lens receipt needs --figma '<fileKey> <node ids at 390 and 1280>'")
+    # ★AN LXP RECEIPT NAMES THE PERSON AND CARRIES BOTH VIEWPORTS (2026-09-30). The LAYER-UX x PERSONA wave
+    # exists because the wave before it asked what A PERSON feels when a layer misbehaves and answered with
+    # persona:"any" on 289 of 335 rows - so a receipt that does not say WHICH person signed in cannot close
+    # one of these rows, whatever else it proves. And the roadmap's §LXP states that a row closes only when
+    # measured at phone-390 AND desktop-1280: the registry showed desktop-class rows at under 9% of the
+    # program, so the desktop half is the half that gets skipped. A promise in a document that nothing
+    # enforces is not a mechanism ([[feedback_a_declared_mechanism_is_not_a_mechanism]]) - this is the
+    # enforcement, refusing the thin receipt here rather than letting the ledger close a phone-only walk.
+    # ...and the two waves seeded 2026-10-06 carry the same contract: LXC (the persona x layer floor) is LXP's
+    # sentence on a thin cell, and LM (the LLM layer) is a persona asking a page's AI - both close only as a named
+    # person at both viewports.
+    if rid.startswith(("LXP", "LXC")) or (rid.startswith("LM") and rid[2:].isdigit()):
+        w4 = w4 or {}
+        if not w4.get("layer"):
+            raise ValueError("an LXP receipt needs --layer <the architectural layer the walk provoked>")
+        if not w4.get("as_persona"):
+            raise ValueError("an LXP receipt needs --as-persona <the persona signed in as> - a row whose "
+                             "whole point is WHICH person cannot close on an anonymous walk")
+        vps = w4.get("viewports")
+        if isinstance(vps, str):
+            vps = [v.strip() for v in vps.split(",") if v.strip()]
+        if not DESIGN_VIEWPORTS <= set(vps or []):
+            raise ValueError("an LXP receipt needs --viewports phone-390,desktop-1280 - both, one batched "
+                             "round; §LXP closes a row only when it was measured at both")
+        w4["viewports"] = list(vps)
+        _seen = {str(st.get("viewport") or st.get("device") or "") for st in (steps or [])}
+        _missing = {v for v in DESIGN_VIEWPORTS if not any(v in s0 for s0 in _seen)}
+        if _missing:
+            raise ValueError(f"an LXP receipt needs STEPS at both viewports - none recorded at "
+                             f"{', '.join(sorted(_missing))}; declaring the viewports is not walking them")
+        # ★AN LM RECEIPT NAMES ITS SUB-LAYER AND HOW IT WAS SETTLED (2026-10-06). Grounding and Routing are walked
+        # against the LIVE model (Ian's choice), so their receipt must say which model and what it spent; every
+        # other sub-layer is settled locally and must name the witness that settled it.
+        if rid.startswith("LM"):
+            if w4.get("layer") != "LM":
+                raise ValueError("an LM receipt needs --layer LM")
+            sub = w4.get("sublayer")
+            if sub not in ("X", "G", "S", "R", "P", "A", "V", "L", "E", "O"):
+                raise ValueError("an LM receipt needs --sublayer <X|G|S|R|P|A|V|L|E|O>")
+            if sub in ("G", "R"):
+                if not w4.get("live_model"):
+                    raise ValueError("an LM-G / LM-R receipt needs --live-model '<model> <tokens spent>' - a stub "
+                                     "cannot answer whether the answer was grounded or the fallback held")
+            elif not w4.get("witness"):
+                raise ValueError("an LM receipt needs --witness <the local eval harness / gateway debug echo / AI "
+                                 "gate result that settles this sub-layer>")
     return {
         "_doc": ("A journey walked through the MCPs by hand, as the person - SS-LW.1 rule 4. Written by "
                  "tools/record_mcp_walk.py; the `instrument` field is how a reader tells this from a "
@@ -177,6 +229,8 @@ def main() -> int:
     ap.add_argument("--note", default="")
     ap.add_argument("--steps", required=True, help="path to a JSON list of step objects")
     ap.add_argument("--generated", default="", help="ISO stamp; defaults to now")
+    ap.add_argument("--walked-at", default="", help="local ISO time the walk RAN (its records file); a red receipt from a "
+                                                    "walk older than an existing green receipt is refused")
     ap.add_argument("--unproven", default="", help="force ok=false: the walk ran but does not settle the row")
     # wave 4 (2026-09-14): what the ledger asks a W4 receipt to carry
     ap.add_argument("--axis", default="", help="W4: '<device> <language>', e.g. 'phone-390 en' / 'narrow-320 en' / 'phone-390 fil'")
@@ -187,6 +241,9 @@ def main() -> int:
     ap.add_argument("--witness", default="", help="W4 contract-layer story (S/AU/L/D/A/AV/C/CI/LB/RL): the non-browser evidence - the refusal received as the person, the trail row, the provenance, the served headers, the limit met")
     ap.add_argument("--lens", default="", help="W4 design story: the lens walked (slop/craft/audit/copy/motion/figma/critique)")
     ap.add_argument("--viewports", default="", help="W4 design story: 'phone-390,desktop-1280' - both, one batched round")
+    ap.add_argument("--sublayer", default="", help="LM story: the LLM sub-layer walked (X G S R P A V L E O)")
+    ap.add_argument("--live-model", default="", help="LM-G / LM-R story: '<model> <tokens spent>'")
+    ap.add_argument("--as-persona", default="", help="LXP story: the persona the walk signed in AS (worker, assistive-tech, driver-worker, returner, oversight, adversary, new-user, any)")
     ap.add_argument("--detector", default="", help="W4 design story: path to the page's `impeccable detect --json` output")
     ap.add_argument("--detector-disproven", default="",
                     help="W4 design story: JSON {antipattern: {count, why}} the banker pinned - findings a LIVE "
@@ -197,6 +254,8 @@ def main() -> int:
     args = ap.parse_args()
     scores = json.loads(args.scores) if args.scores else None
     w4 = {k: v for k, v in (("axis", args.axis), ("effect", args.effect), ("layer", args.layer),
+                            ("as_persona", args.as_persona),
+                            ("sublayer", args.sublayer), ("live_model", args.live_model),
                             ("hub_controls", args.hub_controls), ("fixture_provenance", args.fixture_provenance),
                             ("witness", args.witness), ("lens", args.lens), ("viewports", args.viewports),
                             ("detector", args.detector),
@@ -220,6 +279,24 @@ def main() -> int:
         return 1
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     out = OUT_DIR / f"{args.id}.json"
+    # ★AN OLDER WALK NEVER OVERWRITES A NEWER GREEN RECEIPT (2026-10-12). A kind batch is banked when the NEXT batch is
+    # written, so a batch walked at 11:5x was banked at 12:22 - after a write walk at 12:19 had proven the same rows -
+    # and its NOT PROVEN receipts replaced eight green ones (W4214 ... W4707). A receipt now carries the time its walk
+    # ran (--walked-at, the walk's records file), and a red receipt from a walk older than an existing green one is
+    # refused here, for every driver at once.
+    if args.walked_at:
+        doc["walked_at"] = args.walked_at
+        if out.exists() and not doc["results"][0]["ok"]:
+            try:
+                old = json.loads(out.read_text(encoding="utf-8"))
+                old_ok = bool((old.get("results") or [{}])[0].get("ok"))
+                old_when = str(old.get("walked_at") or old.get("generated") or "")
+                if old_ok and old_when and old_when > args.walked_at:
+                    print(f"KEPT {out.relative_to(ROOT)} - {args.id}: a green receipt from {old_when} is newer than this "
+                          f"walk ({args.walked_at}); an older walk does not overwrite it")
+                    return 0
+            except (OSError, ValueError, IndexError, AttributeError):
+                pass   # an unreadable old receipt is replaced, as before
     tmp = out.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(doc, indent=1, ensure_ascii=False), encoding="utf-8")
     os.replace(tmp, out)
@@ -330,10 +407,42 @@ def _self_test() -> int:
                          + ", ".join(repr(x) for x in unwritable))
     except Exception as e:   # the manifest is the gate's file, not this one's - say so rather than pass silently
         fails.append(f"could not cross-check MCP_FOR_KIND against KNOWN_INSTRUMENTS: {e}")
+    # ★THE LXP GUARD MUST BITE, OR §LXP's "both viewports" IS PROSE (2026-09-30). The roadmap states that a
+    # LAYER-UX x PERSONA row closes only when it was measured at phone-390 AND desktop-1280, as a NAMED
+    # person. Desktop-class rows were under 9% of the program when that wave was seeded, so the desktop half
+    # is the half that gets dropped - which makes this the one guard whose absence would be invisible.
+    _BOTH = "phone-390,desktop-1280"
+    _sb = [{"step": "sign in as assistive-tech", "viewport": "phone-390", "fit": {"findings": 0}},
+           {"step": "reach alert-hub", "viewport": "desktop-1280", "fit": {"findings": 0}}]
+    _phone_only = [_sb[0]]
+
+    def _lxp_refused(w4, steps):
+        try:
+            build_receipt("LXP1", "playwright-mcp + postgres-mcp", "normal", "Gloria Tan",
+                          steps, "note", "2026-09-30T00:00:00Z", w4=w4)
+            return False
+        except ValueError:
+            return True
+
+    _lxp_cases = [
+        ("an LXP receipt with no --layer", {"as_persona": "assistive-tech", "viewports": _BOTH}, _sb, True),
+        ("an LXP receipt with no --as-persona", {"layer": "AU", "viewports": _BOTH}, _sb, True),
+        ("an LXP receipt declaring one viewport",
+         {"layer": "AU", "as_persona": "assistive-tech", "viewports": "phone-390"}, _sb, True),
+        ("an LXP receipt declaring both but WALKING phone-only",
+         {"layer": "AU", "as_persona": "assistive-tech", "viewports": _BOTH}, _phone_only, True),
+        ("a complete LXP receipt",
+         {"layer": "AU", "as_persona": "assistive-tech", "viewports": _BOTH}, _sb, False),
+    ]
+    for _label, _w4, _steps, _want in _lxp_cases:
+        if _lxp_refused(_w4, _steps) != _want:
+            fails.append(f"{_label} was {'accepted' if _want else 'refused'} - the LXP guard does not bite")
+
     print("FAIL record_mcp_walk self-test - " + "; ".join(fails) if fails
           else "self-test OK: a full walk passes; a 69-char step, a lost identity, an empty walk and an "
                "unknown instrument are each refused or reddened, an --unproven walk cannot read green, and "
-               "every instrument live_walk_manifest.MARKERS can demand is one this recorder can write")
+               "every instrument live_walk_manifest.MARKERS can demand is one this recorder can write, and "
+               "an LXP receipt is refused without its layer, its persona, or STEPS at both viewports")
     return 1 if fails else 0
 
 

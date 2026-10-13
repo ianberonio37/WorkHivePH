@@ -2,16 +2,16 @@
 name: table-rls-ai_cost_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_cost_log
-source_sha: 79b3f297d3fbf96c
+source_sha: 02246679ba813895
 last_verified: 2026-07-13
 supersedes: null
 ---
 
 ## table-rls · `ai_cost_log` — RLS posture (tenant table)
 
-RLS enabled: **True** · has hive_id: True · has auth_uid: False
+RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, fn*, hive_id, worker_name, model*, provider, prompt_tokens, output_tokens, total_tokens, cost_usd, latency_ms, status*, created_at*, schema_compliance, user_feedback, prompt_hash, quality_rating
+Columns (*=NOT NULL): id*, fn*, hive_id, worker_name, model*, provider, prompt_tokens, output_tokens, total_tokens, cost_usd, latency_ms, status*, created_at*, schema_compliance, user_feedback, prompt_hash, quality_rating, trace_id, auth_uid, tokens_estimated, kind*, providers_tried, audio_seconds, late*
 
 Policies:
 - `ai_cost_log_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`

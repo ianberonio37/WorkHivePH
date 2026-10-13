@@ -20,7 +20,7 @@
 //   node tools/prove_calc_handoff.mjs --live 6     # walk N of them live
 import { chromium } from 'playwright';
 import { readdirSync, existsSync, readFileSync } from 'node:fs';
-import { SEEDER, signIn } from './prover_harness.mjs';
+import { SEEDER, signIn, assertSignedIn } from './prover_harness.mjs';
 
 const LIVE = (() => { const i = process.argv.indexOf('--live'); return i >= 0 ? Number(process.argv[i + 1]) : 4; })();
 
@@ -68,7 +68,7 @@ let liveBad = 0, liveRun = 0;
 if (deep.length && LIVE > 0) {
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const step = Math.max(1, Math.floor(deep.length / LIVE));
   for (let i = 0; i < deep.length && liveRun < LIVE; i += step) {
     const d = deep[i];

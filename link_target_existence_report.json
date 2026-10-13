@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 42,
-    "total_links": 320,
+    "total_links": 330,
     "total_broken": 0,
     "baseline": 0
   },
@@ -33,7 +33,7 @@
     },
     {
       "page": "analytics.html",
-      "link_count": 10,
+      "link_count": 11,
       "broken": []
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "page": "marketplace-seller-profile.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
@@ -138,12 +138,12 @@
     },
     {
       "page": "ph-intelligence.html",
-      "link_count": 4,
+      "link_count": 7,
       "broken": []
     },
     {
       "page": "plant-connections.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {
@@ -173,7 +173,7 @@
     },
     {
       "page": "public-feed.html",
-      "link_count": 5,
+      "link_count": 7,
       "broken": []
     },
     {
@@ -193,7 +193,7 @@
     },
     {
       "page": "skillmatrix.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {
@@ -213,7 +213,7 @@
     },
     {
       "page": "voice-journal.html",
-      "link_count": 2,
+      "link_count": 3,
       "broken": []
     }
   ]

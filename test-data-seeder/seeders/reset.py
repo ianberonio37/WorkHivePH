@@ -262,6 +262,10 @@ RESET_TABLES_NON_ID = {
     "ai_user_rate_limits":  ("user_id", "00000000-0000-0000-0000-000000000000"),
     "wh_traces":            ("trace_id", "__none__"),
     "wh_health_status":     ("surface", "__none__"),
+    # 2026-10-13 (mig 20261013000001): the per-person known-devices list behind the new-device sign-in alert. Its PK is
+    # (auth_uid, fp), no `id`. Left behind by a reset, a reseeded person's first sign-in would read as a KNOWN device
+    # and the alert the walk expects would never fire.
+    "worker_known_devices": ("auth_uid", "00000000-0000-0000-0000-000000000000"),
 }
 
 

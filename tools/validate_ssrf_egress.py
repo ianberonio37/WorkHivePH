@@ -74,6 +74,32 @@ def detect_raw_fetch(src: str, provider_aware: bool = False) -> list[str]:
     return hits
 
 
+# ★LAYER 3 - AN ALLOWANCE MUST BE LOCAL-ONLY (2026-10-12, UFAI edge walk W4331). cmms-sync now lets the seeder's mock
+# CMMS (http://host.docker.internal:5000/mock/) through the guard so a local sync can be proven end to end. That is
+# only safe while the allowance is unreachable in production, so every allowHosts / allowHttp passed to the guard must
+# be chosen by a constant built from the LOCAL-RUNTIME test (SUPABASE_URL is kong / localhost / 127.0.0.1 locally,
+# *.supabase.co in production) - the same test observability.ts uses to honour x-wh-walk-no-model.
+_LOCAL_TEST = re.compile(r"const\s+(\w+)\s*=\s*/\\/\\/\(kong\|localhost\|127\\.0\\.0\\.1\)[^\n]*SUPABASE_URL")
+_ALLOWANCE = re.compile(r"\ballow(Hosts|Http)\s*:")
+
+
+def unguarded_allowances(src: str) -> list[str]:
+    """allowHosts/allowHttp uses not decided by a local-runtime constant (empty list = all guarded)."""
+    locals_ = set(_LOCAL_TEST.findall(src))
+    bad = []
+    for m in _ALLOWANCE.finditer(src):
+        window = src[max(0, m.start() - 300):m.start()]
+        # the allowance must be chosen by a local-runtime constant, directly or through a const derived from one
+        names = set(locals_)
+        for d in re.finditer(r"const\s+(\w+)\s*=\s*([^;\n]+)", src):
+            if any(re.search(r"\b%s\b" % re.escape(n), d.group(2)) for n in locals_):
+                names.add(d.group(1))
+        if not names or not any(re.search(r"\b%s\b" % re.escape(n), window) for n in names):
+            line = src.count("\n", 0, m.start()) + 1
+            bad.append(f"line {line}: allow{m.group(1)} not behind a local-runtime test")
+    return bad
+
+
 def self_test() -> bool:
     ok = True
     bad = detect_raw_fetch("const r = await fetch(endpointUrl, { headers });")
@@ -91,6 +117,16 @@ def self_test() -> bool:
         provider_aware=True)
     if azure:
         print(f"{R}self-test FAIL: provider-aware flagged an Azure fetch: {azure}{X}"); ok = False
+    # Layer 3 teeth: a bare allowance fails; one chosen by the local-runtime constant passes
+    bare = unguarded_allowances('const r = await safeFetch(u, {}, { allowHttp: true, allowHosts: ["x.internal"] });')
+    if len(bare) != 2:
+        print(f"{R}self-test FAIL: an unguarded allowance was not flagged: {bare}{X}"); ok = False
+    local = unguarded_allowances(
+        'const _L = /\\/\\/(kong|localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");\n'
+        'const _mock = _L && url.startsWith("http://h/");\n'
+        'const r = await safeFetch(url, {}, _mock ? { allowHttp: true, allowHosts: ["h"] } : {});')
+    if local:
+        print(f"{R}self-test FAIL: a local-only allowance was flagged: {local}{X}"); ok = False
     print((G + "self-test PASS - call-site detector has teeth." + X) if ok else (R + "self-test FAILED." + X))
     return ok
 
@@ -133,6 +169,11 @@ def main() -> int:
         raw = detect_raw_fetch(src, provider_aware=True)
         if raw:
             other_unguarded.append((fn, raw))
+
+    # Layer 3: every guard allowance is local-only
+    for p in sorted(FUNCS.glob("*/index.ts")):
+        for b in unguarded_allowances(p.read_text(encoding="utf-8", errors="replace")):
+            fails.append(f"{p.parent.name}: {b}")
 
     print(f"{B}SSRF egress gate (Arc R / Z-lens, OWASP A10){X}")
     print(f"  guard: {'present' if GUARD.exists() else 'MISSING'}  ·  tenant-URL fns guarded: "

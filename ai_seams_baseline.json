@@ -1,12 +1,13 @@
 {
   "_meta": {
-    "description": "C4 Phase 1 \u2014 frozen seam counts per kind. Forward-only ratchet (new seams require catalog commit)."
+    "description": "C4 Phase 1 — frozen seam counts per kind. Forward-only ratchet (new seams require catalog commit)."
   },
   "by_kind": {
-    "ai\u2192ai": 1,
-    "ai\u2192quota": 50,
-    "ai\u2192tenant": 86,
-    "saas\u2192ai": 40
+    "ai→ai": 1,
+    "ai→quota": 49,
+    "ai→tenant": 89,
+    "saas→ai": 46
   },
-  "seam_count": 177
+  "seam_count": 185,
+  "_review_2026_10_13": "2026-10-13 release re-baseline, reviewed seam by seam: of the 14 new seams, 9 'saas->ai' are TEST HARNESSES (tools/w4_*_walk.body.js, tools/lm_walk*.js, tools/dialog_targets.mjs) that stub or call AI functions - not product surface; 2 'ai->quota' are agentic-rag-loop and temporal-rag-orchestrator newly importing the rate limiter (a hardening); 3 'ai->tenant' are hive-scoped reads (ai-eval-runner's own eval hive; ai-gateway's v_logbook_truth filtered by hive_id). Queued: exclude tools/ harnesses from the product seam miner."
 }

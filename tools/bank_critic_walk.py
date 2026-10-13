@@ -126,6 +126,8 @@ def main() -> int:
     ap.add_argument("--ids", required=True, help="comma-separated critic row ids this walk covers")
     ap.add_argument("--surveys", required=True, help="glob of __RUBRIC.survey() outputs, one per page")
     ap.add_argument("--note", default="", help="what the walk saw that a page-at-rest board cannot")
+    ap.add_argument("--lens-sha", default="", help="the sha12 of the survey_ufai_rubric.js that GRADED these surveys "
+                    "(a batch passes the lens it loaded at start; without it the file on disk at bank time is hashed)")
     ap.add_argument("--apply", action="store_true")
     args = ap.parse_args()
 
@@ -184,17 +186,65 @@ def main() -> int:
     # after it both read "rubric 975123b63769" and are otherwise indistinguishable. That is the gap the
     # retraction tool has to close by hand. Stamping the lens per row makes it answerable by query:
     # a reader can ask which rows were graded by the ruler that had the bug.
-    lens_sha = ""
+    # ★AND THE STAMP MUST BE THE LENS THAT GRADED, NOT THE ONE ON DISK AT BANK TIME (2026-10-13). A batch loads the
+    # lens once at start and banks for an hour; the DP1 rule was refined mid-run, and every row banked after that
+    # edit was stamped with the NEW lens while graded by the OLD one - the very confusion this stamp exists to end.
+    # A caller that knows which lens graded passes --lens-sha; the file hash is only the fallback.
+    lens_sha = (args.lens_sha or "").strip()[:12]
     lens = ROOT / "survey_ufai_rubric.js"
-    if lens.exists():
+    if not lens_sha and lens.exists():
         import hashlib
         lens_sha = hashlib.sha256(lens.read_bytes()).hexdigest()[:12]
 
+    # ★ONE WRITER AT A TIME (2026-10-13). This is a read-modify-write of the whole registry, and a hand re-bank ran
+    # while a batch was banking: either write could have replaced the other's. An exclusive lock file serialises
+    # writers (a stale lock older than 120 s is taken over), and the registry is RE-READ under the lock so the update
+    # applies to the newest version, never to the copy read before the wait.
+    lock = str(CRITIC) + ".lock"
+    import time as _time
+    deadline = _time.time() + 60
+    while True:
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                if _time.time() - os.path.getmtime(lock) > 120:
+                    os.remove(lock)
+                    continue
+            except OSError:
+                pass
+            if _time.time() > deadline:
+                print("refused: critic_registry.json is locked by another writer (60 s) - nothing written")
+                return 1
+            _time.sleep(0.25)
+    try:
+        reg = json.loads(io.open(CRITIC, encoding="utf-8").read())
+        by = {r["id"]: r for r in reg.get("rows") or []}
+        wrong = [i for i in ids if i not in by or by[i].get("status") not in ("pending", "critiqued")]
+        if wrong:
+            print(f"refused: changed while waiting for the lock - not pending/critiqued now: {', '.join(wrong[:5])}")
+            return 1
+        return _write_bank(reg, by, ids, lens_sha, graded, findings, note)
+    finally:
+        try:
+            os.remove(lock)
+        except OSError:
+            pass
+
+
+def _write_bank(reg, by, ids, lens_sha, graded, findings, note) -> int:
     today = datetime.date.today().isoformat()
+    closed = 0
     for i in ids:
         r = by[i]
+        prior = list(r.get("findings") or []) if r.get("status") == "critiqued" else []
         r["status"] = "critiqued"
         r["walked_at"] = today
+        # the moment, not just the day: close_critic_findings.py only lets a sweep NEWER than the bank clear a finding
+        r["banked_at"] = datetime.datetime.now().isoformat(timespec="seconds")
+        r.pop("banked_at_note", None)
         if lens_sha:
             r["lens_sha"] = lens_sha
         r["dims_graded"] = graded + ["IN-MOTION"]
@@ -202,10 +252,33 @@ def main() -> int:
         r["target_source"] = "mcp-in-motion-walk"
         r["clean_note"] = note
         r.pop("improvement_refs", None)
+        # ★CLOSE BY RE-WALK (2026-10-13). The board-sweep closer can only vouch for the screens a sweep sees (a supervisor's,
+        # or a signed-out one), so 2,271 rows walked as workers, buyers, solo owners... had no honest way to improving. A
+        # re-walk as the row's OWN cast, with the full lens, is the strongest evidence there is: if a row that had
+        # findings comes back with none, its fixes landed. It moves to improving, and the earlier findings are kept for
+        # audit. A re-walk that still finds anything leaves the row critiqued with what it found now, never improving.
+        if prior and not findings:
+            r["status"] = "improving"
+            r["findings_before"] = prior
+            # the receipt names its lock like the closer's does; critic_lock_promote.py cashes it on a full board
+            r["improvement_refs"] = [f"{today}: re-walked as the same cast ({r.get('cell') or '?'}) with the full lens; "
+                                     f"none of its {len(prior)} earlier finding(s) recur; lock = family-rubric-ratchet on the full board"]
+            closed += 1
     tmp = str(CRITIC) + ".tmp"
     io.open(tmp, "w", encoding="utf-8").write(json.dumps(reg, indent=1, ensure_ascii=False))
-    os.replace(tmp, CRITIC)
-    print(f"banked {len(ids)} row(s) -> critiqued | {len(graded)} dims | {len(findings)} findings")
+    # Windows refuses to replace a file another process has OPEN (an editor, an indexer, a reader script) - the lock
+    # serialises writers, not readers. Five banks in one batch run failed on exactly this; a short retry clears it.
+    import time as _t
+    for _attempt in range(20):
+        try:
+            os.replace(tmp, CRITIC)
+            break
+        except PermissionError:
+            if _attempt == 19:
+                raise
+            _t.sleep(0.25)
+    print(f"banked {len(ids)} row(s) -> critiqued | {len(graded)} dims | {len(findings)} findings"
+          + (f" | {closed} re-walked row(s) found clean -> improving" if closed else ""))
     return 0
 
 

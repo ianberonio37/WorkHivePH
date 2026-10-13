@@ -8,7 +8,12 @@
  * to per-page handlers registered via WHVoice.register(kind, handler).
  *
  * Public API:
- *   WHVoice.register(kind, handler)  — page tells WHVoice it can handle this intent
+ *   WHVoice.register(kind, handler, { effect })
+ *                                    — page tells WHVoice it can handle this intent, and
+ *                                      what its handler does: 'read' (opens/shows),
+ *                                      'prefill' (fills a form or filter the person then
+ *                                      saves), or 'write' (saves by itself). Undeclared
+ *                                      counts as 'write' and needs a second, Save press.
  *   WHVoice.open()                   — show the voice overlay (start recording)
  *   WHVoice.close()                  — hide the overlay
  *   WHVoice.dispatch(intent, ctx)    — programmatic dispatch (for tests)
@@ -61,6 +66,29 @@
     return _db;
   }
 
+  // ★WHO IS SPEAKING, NOT WHICH HIVE (LM-V walk, LM473, 2026-10-07). A signed-in person with no hive - a solo
+  // owner - is served by every step of voice on their own identity: voice-transcribe keys its limit on them,
+  // voice-action-router resolves machines against their own register, and ai-gateway grounds the answer in their
+  // own records (its solo snapshot). Each of those servers can only do that if the request CARRIES the person: the
+  // publishable key alone makes every caller anonymous. 'in' / 'out' / 'unknown' - a session read that could not run
+  // is not a person who is signed out, so only a definite 'out' is ever told to sign in.
+  async function _sessionState() {
+    const db = _getDb();
+    if (!db || !db.auth || typeof db.auth.getSession !== 'function') return 'unknown';
+    try {
+      const { data, error } = await db.auth.getSession();
+      if (error) return 'unknown';
+      return (data && data.session && data.session.access_token) ? 'in' : 'out';
+    } catch (_) { return 'unknown'; }
+  }
+  async function _callerBearer() {
+    const db = _getDb();
+    try {
+      const s = db && db.auth ? ((await db.auth.getSession()) || {}).data : null;
+      return (s && s.session && s.session.access_token) || SUPABASE_KEY;
+    } catch (_) { return SUPABASE_KEY; }   /* empty-catch-allow: no readable session = the anonymous key */
+  }
+
   // Read identity / hive context from localStorage (canonical pattern)
   function _ctx() {
     return {
@@ -105,8 +133,21 @@
     return body || {};
   }
 
+  // The id the answering endpoint returned for this call - ai-gateway's envelope trace_id, or agentic-rag-loop's
+  // trace_id (its agentic_rag_traces row) - read from the RAW body (the envelope's id sits beside .data, so it is
+  // gone after _unwrapGateway). It rides with the bubble so a rating names the call it judged (LM-E, 2026-10-08).
+  // utils.js's whTraceIdOf owns the shape rule; without it there is no id to keep, and none is made up.
+  function _traceIdOf(body) {
+    return (typeof window.whTraceIdOf === 'function') ? window.whTraceIdOf(body) : null;
+  }
+
   // ─── State ───────────────────────────────────────────────────────────────
   const handlers = {};            // kind -> async fn(intent, asset_resolution)
+  // kind -> 'read' | 'prefill' | 'write', declared by the page in register(); see register() and
+  // _preflightAction for why an undeclared handler is treated as one that writes.
+  const _VOICE_EFFECTS = new Set(['read', 'prefill', 'write']);
+  const _handlerEffects = Object.create(null);
+  function _intentEffect(kind) { return _handlerEffects[kind] || 'write'; }
   let _stream = null;
   let _recorder = null;
   let _micQualityMeter = null;  // T63 — AnalyserNode wrapper; stopped on close
@@ -323,6 +364,12 @@
        recording" is still unmistakable without the shadow pulse; .wh-voice-dot sets no opacity of
        its own and its keyframes only dip to 0.4, so animation:none leaves it at full opacity,
        brighter than mid-pulse rather than dimmer; the dots and the bubble simply appear. */
+    /* read by a screen reader, drawn nowhere: the two live regions that carry each final reply and result */
+    .wh-voice-sr {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .wh-voice-btn.recording,
       .wh-voice-dot,
@@ -340,7 +387,15 @@
     <div id="wh-voice-overlay" class="wh-voice-overlay" role="dialog" aria-modal="true" aria-labelledby="wh-voice-status">
       <div class="wh-voice-card">
         <div class="wh-voice-title">Voice command</div>
-        <div id="wh-voice-status" class="wh-voice-status">Listening...</div>
+        <!-- ★A SCREEN-READER USER WHO ASKED BY VOICE HEARD NOTHING BACK (LM-V walk, LM490, assistive-tech persona,
+             2026-10-07). Status, reply and result were plain divs, so "Transcribing...", the answer and what Confirm
+             did all changed in silence. The status line is now a polite live region. The reply and the result are
+             NOT made live where they are drawn - those nodes are rebuilt several times per turn (thinking dots, then
+             the bubble with its rating buttons) and #wh-voice-result toggles display:none, which a live region cannot
+             survive - so each FINAL sentence is copied once into the two regions at the end of this card: the polite
+             one for answers and results, role=alert for a failure. Both live INSIDE the aria-modal dialog: a region
+             outside it is outside what a screen reader reads while the dialog is open. -->
+        <div id="wh-voice-status" class="wh-voice-status" role="status" aria-live="polite" aria-atomic="true">Listening...</div>
         <div id="wh-voice-rec-row" class="wh-voice-rec-row">
           <span class="wh-voice-dot"></span>
           <span class="wh-voice-elapsed" id="wh-voice-elapsed">0:00</span>
@@ -370,6 +425,8 @@
           <button id="wh-voice-stop" class="wh-voice-btn-action wh-voice-stop" type="button">Stop</button>
           <button id="wh-voice-confirm" class="wh-voice-btn-action wh-voice-confirm" type="button" style="display:none;">Confirm</button>
         </div>
+        <div id="wh-voice-aria-live" class="wh-voice-sr" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div id="wh-voice-alert" class="wh-voice-sr" role="alert" aria-atomic="true"></div>
       </div>
     </div>`;
 
@@ -384,6 +441,11 @@
     style.id = 'wh-voice-styles';
     style.textContent = STYLE;
     document.head.appendChild(style);
+
+    // a region _announceForScreenReader made before the overlay existed sits outside the dialog; the overlay
+    // brings its own, and two elements may not share the id
+    const early = document.getElementById('wh-voice-aria-live');
+    if (early && early.parentNode) early.parentNode.removeChild(early);
 
     const ovDiv = document.createElement('div');
     ovDiv.innerHTML = OVERLAY_HTML.trim();
@@ -432,6 +494,9 @@
     el.style.display = 'block';
     el.classList.toggle('error', !!isError);
     el.textContent = text;
+    // spoken once: a failure interrupts (role=alert), anything else waits its turn
+    if (isError) _announceAlert(text);
+    else _announceForScreenReader(text);
   }
 
   function _setRecRowVisible(v) {
@@ -480,6 +545,7 @@
           "I just replaced the V-belt on Pump P-5, took 20 minutes"
           or "Show me Pump 5".</div>
       </div>`;
+      _announceForScreenReader('No actionable command detected.');
       return;
     }
     const ar = assetResolution || {};
@@ -505,6 +571,11 @@
         <div class="wh-voice-summary">${idx === 0 ? assetHtml : ''}${escHtml(_summariseIntent(it))}</div>
       </div>
     `).join('');
+    // what Confirm would act on, said once - including the warning the red pill only shows
+    const heard = intents.map(it => _summariseIntent(it)).join(' ');
+    const warn = ambiguous ? ' More than one machine matches.'
+      : ((!primary && candidates.length === 0 && (ar.mentioned_assets || []).length) ? ' No matching machine was found.' : '');
+    _announceForScreenReader(heard + warn);
   }
 
   // ─── Recording ────────────────────────────────────────────────────────────
@@ -527,6 +598,22 @@
       try { window.WHTts.stop(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
     } else if (window.speechSynthesis) {
       try { window.speechSynthesis.cancel(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
+    }
+    // ★"VOICE NEEDS A HIVE", SAID TO A SOLO OWNER AFTER THEY HAD SPOKEN (LM-V walk, LM473, 2026-10-07). The refusal
+    // sat in _onStopRecording: a signed-in person with no hive tapped the mic, said their sentence, tapped Stop, and
+    // only then heard that voice was not for them. It was not even true - no step of voice needs a hive (transcribe
+    // primes on one only if it is there; the router resolves a solo owner's own machines; the gateway answers from
+    // their own records). What voice does need is to know WHOSE records, so the only refusal left is for somebody
+    // with neither a hive nor a session, and it is said HERE, before the microphone opens. A hive member without a
+    // session keeps the old path (the server's own sign-in sentence) - nothing they could do worked differently.
+    if (!_ctx().hive_id && (await _sessionState()) === 'out') {
+      _setRecRowVisible(false);
+      const stopEarly = document.getElementById('wh-voice-stop');
+      if (stopEarly) stopEarly.style.display = 'none';
+      _setStatus('Sign in to use voice.');
+      _setResult('Voice works with or without a hive, but it answers from your own records, so it needs to know '
+        + 'who you are. Sign in, then tap the mic again. Nothing was recorded.', true);
+      return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       _setStatus('Voice not supported on this browser.');
@@ -600,10 +687,9 @@
     }
     const blob = new Blob(_chunks, { type: _recorder?.mimeType || 'audio/webm' });
     const ctx = _ctx();
-    if (!ctx.hive_id) {
-      _setStatus('Voice needs a hive. Join or create one first.');
-      return;
-    }
+    // No hive check here (LM473): a person who reached this point has already spoken, and every step below
+    // serves a signed-in person with no hive. The one refusal voice still makes is said before recording, in
+    // _startRecording.
     try {
       // Step 1: voice-transcribe (multipart/form-data)
       // Force English transcription. Whisper's auto-detect was hallucinating
@@ -618,17 +704,21 @@
       fd.append('language', 'en');
       // Pass the active hive so the indigenous ASR primes on + repairs this hive's real asset tags (CL12).
       if (ctx && ctx.hive_id) fd.append('hive_id', ctx.hive_id);
+      // The person's own token, not the bare publishable key (LM473): voice-transcribe proves the hive above by
+      // membership, which needs to know who is asking - with the anonymous key no hive was ever proven, so no
+      // vocabulary was primed for anyone - and it keys its limit on that person rather than on a shared address.
+      const _tBearer = await _callerBearer();
       // T146 (2026-08-26): bounded via the platform's fetchWithTimeout - an unbounded call to a
       // slow-by-nature endpoint has no failure mode, only a control stuck in its working state.
       const tResp = (typeof fetchWithTimeout === 'function')
         ? await fetchWithTimeout(SUPABASE_URL + '/functions/v1/voice-transcribe', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            headers: { 'Authorization': 'Bearer ' + _tBearer, 'apikey': SUPABASE_KEY },
             body: fd,
           }, 45000)
         : await fetch(SUPABASE_URL + '/functions/v1/voice-transcribe', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            headers: { 'Authorization': 'Bearer ' + _tBearer, 'apikey': SUPABASE_KEY },
             body: fd,
           });
       if (!tResp) throw new Error('That took too long to transcribe. Try again, or type it instead.');
@@ -658,7 +748,8 @@
         body: {
           agent:   'voice-action',
           message: transcript,
-          hive_id: ctx.hive_id,
+          // none = a hive-less person, served on their own identity (the router reads their own register)
+          hive_id: ctx.hive_id || null,
           context: {
             page:     _currentPage(),
             asset_id: _currentAssetId(),
@@ -720,6 +811,9 @@
         if (confirmBtn) {
           confirmBtn.style.display = 'block';
           confirmBtn.disabled = false;
+          // a new card starts at Confirm: "Tap to talk again" reaches here without open(), so the
+          // button could still read 'Done' or 'Save' from the command before
+          confirmBtn.textContent = 'Confirm';
           confirmBtn.onclick = () => _confirm(routerData);
         }
         _setStatus('Review and confirm.');
@@ -741,24 +835,57 @@
     } catch (err) {
       console.error('[WHVoice]', err);
       _setStatus('Could not process voice command.');
-      _setResult((err && err.message) || String(err), true);
+      // ★THE LIBRARY'S PLACEHOLDER WAS SHOWN AS THE REASON (LM-V walk, LM416, 2026-10-07): when ai-gateway failed after
+      // the words were heard, the overlay printed err.message - supabase-js's "Edge Function returned a non-2xx status
+      // code" - under the actionable line. whFnError reads the function's OWN sentence (or maps the status); the
+      // placeholder never reaches the person.
+      let _why = '';
+      try {
+        _why = (typeof window.whFnError === 'function')
+          ? await window.whFnError(err, 'Nothing was saved. Try again in a moment.') : '';
+      } catch (_) { _why = ''; }   /* empty-catch-allow: the fallback sentence below is shown instead */
+      _setResult((_why && !/non-2xx/i.test(_why)) ? _why : 'Nothing was saved. Try again in a moment.', true);
     }
   }
 
   // ─── Confirm + dispatch ──────────────────────────────────────────────────
-  async function _confirm(routerData) {
+  async function _confirm(routerData, savePressed) {
     const intents = (routerData && routerData.intents) || [];
     const ar = routerData && routerData.asset_resolution;
     const confirmBtn = document.getElementById('wh-voice-confirm');
+
+    // ★A HANDLER THAT SAVES BY ITSELF GETS THE SAME TWO MOMENTS A FORM GETS (LM-V walk, 2026-10-07).
+    // A pre-fill is reviewed on the page and saved there; a handler declared 'write' has no such page
+    // step, so the first Confirm only says so and turns the button into Save - the second press, on a
+    // card that names the record, is the authorisation. It is armed only when the intent would pass the
+    // guard once saved, so an ambiguous machine is refused at once instead of after two presses.
+    const runnable = intents.filter(it => it && it.kind !== 'unknown' && it.kind !== 'query.ask');
+    const hiveless = !_ctx().hive_id;   // LM473: their machines are their own register, see _preflightAction
+    const savesDirectly = runnable.filter(it => handlers[it.kind] && _intentEffect(it.kind) === 'write'
+      && _preflightAction(it.kind, it.params || {}, ar, { effect: 'write', savePressed: true, hiveless }).ok);
+    if (savesDirectly.length && !savePressed && !_isVoiceExecuteAuth()) {
+      _setResult('This one saves straight to the records, with no form to check afterwards. '
+        + 'Read the card above, then tap Save to save it.', false);
+      _setStatus('Tap Save to save it, or Cancel.');
+      if (confirmBtn) {
+        confirmBtn.textContent = 'Save';
+        confirmBtn.disabled = false;
+        confirmBtn.onclick = () => _confirm(routerData, true);
+      }
+      return;
+    }
     if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Working...'; }
 
     const messages = [];
     let anyError = false;
-    for (const intent of intents) {
-      if (intent.kind === 'unknown' || intent.kind === 'query.ask') continue;
+    for (const intent of runnable) {
       // T79: the deterministic guard runs HERE, before anything is written. It used to be
-      // dead code with a passing gate.
-      const pre = _preflightAction(intent.kind, intent.params || {}, ar);
+      // dead code with a passing gate. An intent no handler on this page owns skips it:
+      // dispatch says so, and there is nothing here for the guard to protect.
+      const pre = handlers[intent.kind]
+        ? _preflightAction(intent.kind, intent.params || {}, ar,
+            { effect: _intentEffect(intent.kind), savePressed: !!savePressed, hiveless })
+        : { ok: true, blocker: null };
       if (!pre.ok) {
         anyError = true;
         messages.push(_blockerMessage(pre.blocker, ar));
@@ -767,7 +894,9 @@
       try {
         const result = await dispatch(intent, ar);
         if (result && result.message) messages.push(result.message);
-        if (result && result.ok === false) { anyError = true; messages.push(result.message || 'Failed.'); }
+        // the message was pushed once above; a refusal pushed it twice, and only a bare failure
+        // needs words of its own (unseen while the lock refused every intent before this point)
+        if (result && result.ok === false) { anyError = true; if (!result.message) messages.push('Failed.'); }
       } catch (err) {
         anyError = true;
         messages.push('Error: ' + ((err && err.message) || err));
@@ -2063,6 +2192,14 @@
   // NOT actually dispatch through voice-action-router until the
   // worker has explicitly enabled voice-execute mode. Default is
   // OFF — conservative. The lock is per-device.
+  // ★NOTHING A PERSON COULD REACH EVER SET THIS KEY (LM-V companion-voice walk, 2026-10-07). Only the
+  // test-helper export below calls _setVoiceExecuteAuth, and the refusal pointed at a Settings toggle
+  // that does not exist - so once T79 wired _preflightAction into _confirm, EVERY Confirm on every page
+  // was refused, including asset.lookup (a read) and logbook.create (which only fills the form the
+  // person then saves). The lock now covers only a handler declared 'write' (one that saves by itself),
+  // and for that the person's own second press - Save, on a card that names the record - is what opens
+  // it. The key stays as a per-device standing opt-in that skips that second press; no screen offers
+  // it, and the refusal copy no longer promises one.
   const _VOICE_EXECUTE_KEY = 'wh_voice_execute_authorised';
   function _isVoiceExecuteAuth() {
     try { return localStorage.getItem(_VOICE_EXECUTE_KEY) === '1'; }
@@ -2821,10 +2958,19 @@
     'log_stop','close_pm','start_pm','log_bearing_change',
   ]);
 
-  function _preflightAction(intent, slots, assetResolution) {
+  // ★THE LOCK IS FOR A HANDLER THAT WRITES, AND ITS KEY IS A PERSON'S OWN PRESS (LM-V walk,
+  // 2026-10-07). `opts.effect` is what the page declared its handler does ('read' | 'prefill' |
+  // 'write'); a caller that does not say is treated as 'write', so the lock fails closed. 'read' and
+  // 'prefill' never write - the Confirm press runs them, and the person still saves on the page.
+  // A 'write' passes only on `opts.savePressed` (the second, Save press _confirm asks for) or the
+  // per-device opt-in. Ambiguity is checked first and for every router write kind whatever its
+  // effect: pre-filling the wrong machine is the same wrong record one Save later.
+  function _preflightAction(intent, slots, assetResolution, opts) {
     const i = String(intent || '');
     const s = (slots && typeof slots === 'object') ? slots : {};
     const ar = (assetResolution && typeof assetResolution === 'object') ? assetResolution : null;
+    const o = (opts && typeof opts === 'object') ? opts : {};
+    const effect = _VOICE_EFFECTS.has(o.effect) ? o.effect : 'write';
     if (!i) return { ok: false, blocker: 'no_intent' };
 
     if (_SLOT_WRITE_VERBS.has(i)) {
@@ -2837,7 +2983,15 @@
     if (_ROUTER_WRITE_KINDS.has(i) && ar && ar.ambiguous) {
       return { ok: false, blocker: 'ambiguous_asset' };
     }
-    if (!_isVoiceExecuteAuth()) {
+    // ★A HIVE-LESS PERSON'S MACHINES ARE THEIR OWN REGISTER (LM-V walk, LM473, 2026-10-07). The router resolves a
+    // solo owner's words against the machines registered to them, never a hive's. A lookup that matched none of them
+    // has nothing to open - and the page's own sentence for that case speaks of "this hive", which is not where it
+    // looked. Say what was searched instead. (A write kind is not refused here: the logbook, inventory and PM pages
+    // all take a solo owner's own entry, and the page's form is where an unmatched machine name gets corrected.)
+    if (o.hiveless && i === 'asset.lookup' && !(ar && ar.primary)) {
+      return { ok: false, blocker: 'no_own_asset' };
+    }
+    if (effect === 'write' && !o.savePressed && !_isVoiceExecuteAuth()) {
       return { ok: false, blocker: 'voice_execute_lock' };
     }
     return { ok: true, blocker: null };
@@ -2859,9 +3013,15 @@
       case 'malformed_asset_tag':
         return 'That machine tag was not understood. Nothing was saved. Try the tag as printed, like P-203.';
       case 'voice_execute_lock':
-        return 'Voice actions are locked on this device. Nothing was saved.';
+        // it used to say "Voice actions are locked on this device" and the prompt pointed at a
+        // Settings toggle that never existed; this names the step that actually opens it
+        return 'This one saves straight to the records, so it needs your Save press. Nothing was saved. '
+          + 'Tap Save on the card to save it.';
       case 'no_intent':
         return 'No command was recognised. Nothing was saved.';
+      case 'no_own_asset':
+        return 'None of the machines registered to you matches that. Without a hive, voice looks only at your own '
+          + 'machines. Nothing was opened. Add it in Asset Hub first, or say its tag.';
       default:
         return 'That command was not run. Nothing was saved.';
     }
@@ -2901,13 +3061,12 @@
       const k = _errorKey(hiveId);
       const raw = localStorage.getItem(k);
       const data = raw ? (JSON.parse(raw) || {}) : {};
-      const today = new Date().toISOString().slice(0, 10);
+      const today = whManilaYmd();
       data[today] = data[today] || {};
       const errKind = String(kind || 'unknown').slice(0, 32);
       data[today][errKind] = (data[today][errKind] || 0) + 1;
       // Prune older than 7 days.
-      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        .toISOString().slice(0, 10);
+      const cutoff = whManilaYmd(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));   // keys are Manila dates (today above)
       Object.keys(data).forEach(day => { if (day < cutoff) delete data[day]; });
       localStorage.setItem(k, JSON.stringify(data));
       return data[today][errKind];
@@ -3177,11 +3336,10 @@
       const key = _SENTIMENT_KEY + String(workerName).slice(0, 60);
       const raw = localStorage.getItem(key);
       const log = raw ? (JSON.parse(raw) || {}) : {};
-      const today = new Date().toISOString().slice(0, 10);
+      const today = whManilaYmd();
       log[today] = sentiment;
       // Prune older than 14 days.
-      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
-        .toISOString().slice(0, 10);
+      const cutoff = whManilaYmd(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000));   // keys are Manila dates (today above)
       Object.keys(log).forEach(d => { if (d < cutoff) delete log[d]; });
       localStorage.setItem(key, JSON.stringify(log));
       return true;
@@ -3708,30 +3866,46 @@
   // Phase 4.130 (turn #128) SCREEN-READER ANNOUNCE — every reply
   // is mirrored into an aria-live="polite" region so AT users
   // hear the companion's reply without needing to focus the
-  // bubble. The region is created on first use.
+  // bubble.
+  // ★AND FOR A YEAR NOTHING CALLED IT (LM-V walk, LM490, 2026-10-07). The two functions below existed, and the
+  // accessibility validator certified them by name, and no reply, result or failure ever reached them - a person
+  // using a screen reader heard the companion's greeting and then silence. The callers are now _renderReplyBubble,
+  // _renderIntents and _setResult, each at the moment its text is FINAL. The region ships inside the overlay
+  // (OVERLAY_HTML); it is created here only when a caller announces before the overlay is mounted, and then inside
+  // the dialog card if there is one.
   function _ensureAriaLiveRegion() {
     let region = document.getElementById('wh-voice-aria-live');
     if (region) return region;
     try {
       region = document.createElement('div');
       region.id = 'wh-voice-aria-live';
+      region.className = 'wh-voice-sr';
       region.setAttribute('aria-live', 'polite');
       region.setAttribute('aria-atomic', 'true');
       region.setAttribute('role', 'status');
-      region.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;';
-      document.body.appendChild(region);
+      region.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;';
+      (document.querySelector('#wh-voice-overlay .wh-voice-card') || document.body).appendChild(region);
       return region;
     } catch (_) { return null; }
   }
-  function _announceForScreenReader(text) {
-    const r = _ensureAriaLiveRegion();
-    if (!r) return false;
+  // Emptied, then filled a beat later, so the same sentence twice in a row is still heard. Each region gets only
+  // the FINAL text of a turn - never the "thinking" render - so nothing is announced twice or half-written.
+  function _speakInto(region, text) {
+    if (!region) return false;
     try {
-      // Force a content change so AT picks it up even on identical text.
-      r.textContent = '';
-      setTimeout(() => { r.textContent = String(text || '').slice(0, 800); }, 30);
+      region.textContent = '';
+      const t = String(text || '').trim().slice(0, 800);
+      if (t) setTimeout(() => { region.textContent = t; }, 30);
       return true;
     } catch (_) { return false; }
+  }
+  function _announceForScreenReader(text) {
+    return _speakInto(_ensureAriaLiveRegion(), text);
+  }
+  // A failure is said at once (role=alert interrupts), not queued behind whatever was being read.
+  function _announceAlert(text) {
+    const r = document.getElementById('wh-voice-alert');
+    return r ? _speakInto(r, text) : _announceForScreenReader(text);
   }
 
   // Phase 4.131 (turn #129) KEYBOARD NAVIGATION — workers wearing
@@ -4545,7 +4719,7 @@
   function _buildEmailDigestBody(digest) {
     if (!digest || typeof digest !== 'object') return null;
     const lines = [
-      'Daily Digest — ' + new Date().toISOString().slice(0, 10),
+      'Daily Digest — ' + whManilaYmd(),
       '',
       '1) Open alerts: ' + (digest.open_alerts || 0),
       '2) Closed PMs: ' + (digest.closed_pms || 0),
@@ -6158,7 +6332,7 @@
       }
       console.log('[WHVoice] Snapshot: recovered hiveId from localStorage:', hiveId); // console-log-allow: snapshot hiveId recovery diagnostic
     }
-    const today = new Date().toISOString().slice(0, 10);
+    const today = whManilaYmd();
 
     const fetches = await Promise.allSettled([
       db.from('v_kpi_truth').select('machine,mtbf_30d,mttr_30d,total_downtime_30d,failures_30d').eq('hive_id', hiveId).limit(50),
@@ -6277,8 +6451,8 @@
     }
 
     // Day Planner breakdown — match the UI's TODAY / THIS WEEK / OVERDUE counters
-    const weekStart = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-    const weekEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+    const weekStart = whManilaYmd(new Date(Date.now() - 7 * 86400000));
+    const weekEnd = whManilaYmd(new Date(Date.now() + 7 * 86400000));
     const todayItems = schedule.filter(s => s.date === today);
     const thisWeekItems = schedule.filter(s => s.date >= weekStart && s.date <= weekEnd);
     const overdueItems = schedule.filter(s => s.date && s.date < today && s.item_status !== 'closed' && s.item_status !== 'done');
@@ -6747,14 +6921,18 @@
     // confirmation / replay / queue) must NOT auto-dispatch. The
     // companion confirms verbally + tells the worker to tap the
     // typed-confirm button. Default OFF (conservative).
-    const _voiceExecuteOn = _isVoiceExecuteAuth();
-    const voiceExecuteLockAnchor = !_voiceExecuteOn
-      ? 'VOICE EXECUTE LOCK — voice-execute is OFF for this device. If the worker ' +
-        'asks you to perform a write action (log, schedule, notify, file ticket), ' +
-        'DO confirm what you understood ("you want me to log a stop on P-203 for ' +
-        '15 minutes — confirm?") but tell them to tap the confirm button in the ' +
-        'overlay — voice-confirm-only is disabled until they turn it on in Settings.\n'
-      : '';
+    // ★NOW UNCONDITIONAL, AND WITHOUT THE SETTING IT PROMISED (LM-V companion-voice walk, 2026-10-07).
+    // This prompt drives the CONVERSATIONAL reply, and nothing on that path can save anything whatever
+    // the device key says - only the overlay's Confirm runs a page handler, and it only appears on the
+    // page that owns the intent. The old text had the model tell the person voice-confirm "is disabled
+    // until they turn it on in Settings": a toggle that does not exist, so the model was instructed to
+    // send them looking for it.
+    const voiceExecuteLockAnchor =
+      'VOICE EXECUTE LOCK — nothing you say here saves, schedules, notifies or files anything. If ' +
+      'the worker asks for a write action (log, schedule, notify, file ticket), say back what you ' +
+      'understood ("you want to log a stop on P-203 for 15 minutes?") and tell them it is saved only ' +
+      'when they review it on the page that owns it (Logbook for a log entry, PM Scheduler for a PM, ' +
+      'Inventory for parts) and tap Save there. Never say it was saved, logged, scheduled or sent.\n';
 
     // Phase 4.75 (turn #73) ACCENT MATCH — if a stored accent pref
     // is set OR the session is leaning Tagalog/Cebuano, the reply
@@ -7035,9 +7213,11 @@
     const persona = (typeof window.getPersona === 'function')
       ? window.getPersona() : 'zaniah';
     const personaName = persona === 'zaniah' ? 'Zaniah' : 'Hezekiah';
-    const hiveName = (function () {
+    // a hive name left in storage by a hive this person is no longer in is not their hive (LM473: the prompt
+    // would have told the model "Their hive: X" about a solo owner)
+    const hiveName = ctx.hive_id ? (function () {
       try { return localStorage.getItem('wh_hive_name') || ''; } catch (_) { return ''; }
-    })();
+    })() : '';
     const pageLabel = _currentPage();
     const unhandledKind = opts && opts.unhandledKind;
     const routerIntents = opts && opts.routerIntents;
@@ -8124,11 +8304,12 @@
         let _ragOutcome = { answered: false, checker: null };
         if (ragResp && ragResp.ok) {
           const ragData = await ragResp.json().catch(() => ({}));
-          const ragAnswer = String((ragData && ragData.answer) || '').trim();
+          // LM-S (2026-10-07): only TEXT is an answer - String() of a structured model reply is the literal "[object Object]".
+          const ragAnswer = (ragData && typeof ragData.answer === 'string') ? ragData.answer.trim() : '';
           _ragOutcome = { answered: !!ragAnswer && ragAnswer.length > 20, checker: ragData.checker_passed };
           if (ragAnswer && ragAnswer.length > 20 && ragData.checker_passed !== false) {
             _setStatus(personaName + ' (agentic-RAG) says:');
-            _renderReplyBubble(ragAnswer, persona);
+            _renderReplyBubble(ragAnswer, persona, _traceIdOf(ragData));
             if (typeof window.speakPersona === 'function') {
               window.speakPersona(ragAnswer, { persona });
             }
@@ -8160,6 +8341,9 @@
       console.warn('[WHVoice] agentic-rag-loop opt-in failed, falling back to ai-gateway:', ragErr && ragErr.message);
     }
 
+    // true once the gateway has written this turn to the journal itself, so the failure path below does not add a
+    // second copy (see the !resp.ok branch)
+    let _gwServerKept = false;
     try {
       // 2026-05-19 Companion Streamline Step C/D: route through ai-gateway
       // (agent: "voice-journal") instead of the legacy Cloudflare Worker.
@@ -8191,26 +8375,53 @@
       const _whTrace = (window.crypto && window.crypto.getRandomValues
         ? Array.from(window.crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join('')
         : Math.random().toString(16).slice(2, 18).padStart(16, '0'));
+      // ★THE ANSWER WAS ASKED FOR ANONYMOUSLY (LM-V walk, LM473, 2026-10-07). This call carried the bare publishable
+      // key, so ai-gateway saw nobody: no membership proven, no person-keyed limit, no server-side journal write (the
+      // [journal-single-write] note below assumed one), and for a solo owner no grounding at all - the gateway's
+      // solo snapshot is built from the VERIFIED caller's own records, and this page builds none for a person with
+      // no hive. The person's own token goes now; with no session it is still the publishable key, and voice-journal
+      // stays open to an anonymous caller exactly as before.
+      const _gwBearer = await _callerBearer();
+      const _gwIdentified = _gwBearer !== SUPABASE_KEY;
       const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
           'apikey':        SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Authorization': 'Bearer ' + _gwBearer,
           'x-wh-trace':    _whTrace,
         },
         body: JSON.stringify(gatewayBody),
       }, 25000);
-      if (!resp)        throw new Error('Network timeout');
-      if (!resp.ok)     throw new Error('Gateway error ' + resp.status);
+      if (!resp) {
+        // a timeout aborts a request the server has already received (a request that never left fails as a
+        // TypeError, not here), and an identified caller's note is written on arrival
+        if (_gwIdentified) _gwServerKept = true;
+        throw new Error('Network timeout');
+      }
+      if (!resp.ok) {
+        // For an identified caller the gateway writes the note BEFORE its quota gates (T12 work_survives_quota), so a
+        // limit (429) or a failure after it (5xx) has already kept the words; only a refusal before that point - the
+        // membership check that could not run (503 membership_unverified), a 4xx - has not. The catch below adds the
+        // client copy only when the server has none.
+        let _code = '';
+        try { _code = String(((await resp.json()) || {}).code || ''); } catch (_) { _code = ''; }   /* empty-catch-allow: an unreadable error body names no code */
+        if (_gwIdentified && (resp.status === 429 || (resp.status >= 500 && _code !== 'membership_unverified'))) {
+          _gwServerKept = true;
+        }
+        throw new Error('Gateway error ' + resp.status);
+      }
       // ai-gateway's success path wraps the payload in the standard envelope
       // ({ ok, data:{answer}, ... }); its error/gibberish paths are flat.
       // _unwrapGateway returns the inner payload on success so data.answer
       // resolves — reading the raw body's top-level .answer was undefined on
       // every successful turn (silent fail-through). See [[project_companion_unification]].
-      const data = _unwrapGateway(await resp.json());
+      const _gwBody = await resp.json();
+      const data = _unwrapGateway(_gwBody);
+      const _gwTraceId = _traceIdOf(_gwBody);   // kept for the rating of THIS answer only (not a clarify line)
       if (data && data.error) throw new Error(String(data.error));
-      const answer = String((data && data.answer) || '').trim();
+      // LM-S (2026-10-07): only TEXT is an answer - String() of a structured model reply is the literal "[object Object]".
+      const answer = (data && typeof data.answer === 'string') ? data.answer.trim() : '';
       if (!answer) {
         _setStatus('No reply came back. Tap to try again.');
         _renderReplyBubble('(no reply)', persona);
@@ -8271,7 +8482,7 @@
       _resetClarifyStreak();
 
       _setStatus(personaName + ' says:');
-      _renderReplyBubble(answer, persona);
+      _renderReplyBubble(answer, persona, _gwTraceId);
       const ttsStartMs = Date.now();
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(answer, { persona });
@@ -8333,8 +8544,9 @@
       // Session-memory turn (capture both success and fallback responses).
       _appendSessionTurn(transcript, fallbackReply);
       // Best-effort save even on failure — capture the transcript so it
-      // doesn't get lost.
-      _saveJournalTurn(db, ctx, transcript, fallbackReply, persona);
+      // doesn't get lost. Not when the gateway already kept it (an identified caller past its persist-first
+      // write): a second row is the double-write [journal-single-write] exists to prevent.
+      if (!_gwServerKept) _saveJournalTurn(db, ctx, transcript, fallbackReply, persona);
       // Phase 6: Cache snapshot even on failure
       _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
       // Phase 7: Log TTS metrics with error marker
@@ -8347,7 +8559,9 @@
     }
   }
 
-  function _renderReplyBubble(text, persona) {
+  // traceId: the answering call's id when this bubble IS that call's answer (gateway / agentic-RAG); omitted for
+  // every locally composed line (cache replay, greeting, clarification, reminder, offline fallback), which no call made.
+  function _renderReplyBubble(text, persona, traceId) {
     const slot = document.getElementById('wh-voice-intents');
     if (!slot) return;
     const avatarHTML = (typeof window.personaAvatarHTML === 'function')
@@ -8380,6 +8594,8 @@
               'border-radius:50%;width:24px;height:24px;line-height:1;cursor:pointer;font-size:.7rem;">👎</button>' +
           '</span>' +
         '</div>';
+      // the reply, said once, now that it is the reply (the thinking-dots render above is never announced)
+      _announceForScreenReader(text);
       // Wire the rating buttons. One-shot — once the worker rates, both
       // buttons disable so they can't double-vote on the same reply.
       const rateBtns = slot.querySelectorAll('button[data-rate]');
@@ -8394,7 +8610,7 @@
           rateBtns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
           // Pass the question (last transcript) + this bubble's answer so the
           // 8.5 harvest can recover what was asked.
-          _recordReplyRating(rating, _lastQuestion, text).then(function (ok) {
+          _recordReplyRating(rating, _lastQuestion, text, traceId).then(function (ok) {
             if (ok) {
               btn.style.background = (rating > 0)
                 ? 'rgba(74,222,128,.20)' : 'rgba(248,113,113,.20)';
@@ -8423,7 +8639,7 @@
   // Best-effort: anon callers (RLS) silently skip; cloud outages don't disturb
   // the conversation. record_ai_reply_rating / ai_cost_log kept referenced in
   // this comment for the intelligence validator's persistence-path check.
-  async function _recordReplyRating(rating, question, answer) {
+  async function _recordReplyRating(rating, question, answer, traceId) {
     const r = Number(rating);
     if (r !== 1 && r !== -1) return false;
     const db = _getDb();
@@ -8449,6 +8665,8 @@
         question:    String(question == null ? (_lastQuestion || '') : question).slice(0, 2000),
         answer:      String(answer == null ? '' : answer).slice(0, 4000),
         rating:      r,
+        // the call this bubble's answer came from (LM-E, 2026-10-08); null for a locally composed line
+        trace_id:    _traceIdOf(traceId),
       });
       if (_fbErr) return false;
       // Phase 4.46 (turn #47) Feedback escalation — if this is a 👎 AND
@@ -8560,6 +8778,9 @@
     ov.classList.add('open');
     _setTranscript('');
     _setResult('');
+    // last session's reply and failure are not this session's - empty both announcers (nothing is spoken)
+    _speakInto(document.getElementById('wh-voice-aria-live'), '');
+    _speakInto(document.getElementById('wh-voice-alert'), '');
     document.getElementById('wh-voice-intents').innerHTML = '';
     const confirmBtn = document.getElementById('wh-voice-confirm');
     if (confirmBtn) { confirmBtn.style.display = 'none'; confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
@@ -8671,9 +8892,17 @@
     if (ov) ov.classList.remove('open');
   }
 
-  function register(kind, handler) {
+  // ★THE PAGE DECLARES WHAT ITS HANDLER DOES (LM-V companion-voice walk, 2026-10-07). The effect is a
+  // property of the HANDLER, not of the intent kind - 'logbook.create' only fills a form today, but a
+  // later handler for the same kind could save by itself - so the claim lives in the register call,
+  // next to the code it describes, and validate_ai_companion_orchestration reads every handler declared
+  // 'read'/'prefill' and fails if its body writes to the database. An undeclared handler counts as
+  // 'write': the lock fails closed, not open.
+  function register(kind, handler, opts) {
     if (typeof handler !== 'function') return;
     handlers[kind] = handler;
+    const eff = opts && opts.effect;
+    _handlerEffects[kind] = _VOICE_EFFECTS.has(eff) ? eff : 'write';
   }
 
   // Debug helper: log current context for troubleshooting voice issues
@@ -8828,6 +9057,7 @@
     _emitAuditEvent,
     _isQuietHours,
     _preflightAction,
+    _intentEffect,
     _blockerMessage,
     _scheduleIdleCleanup,
     _cancelIdleCleanup,

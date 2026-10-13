@@ -52,7 +52,7 @@ await page.waitForTimeout(11000);
 
 const r = await page.evaluate(() => {
   const cards = Array.from(document.querySelectorAll('.card')).map((c) => ({
-    fn: (c.querySelector('.fn span') || {}).textContent,
+    fn: c.dataset.fn || (c.querySelector('.fn span') || {}).textContent,   // the title is a plain name now (W46055)
     cls: c.className.replace('card', '').trim(),
     meta: ((c.querySelector('.meta') || {}).textContent || '').trim(),
   }));

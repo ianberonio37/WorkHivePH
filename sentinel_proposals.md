@@ -1,11 +1,11 @@
 # Sentinel Proposals (v1.4 - check-level)
 
-Generated for 54 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
+Generated for 60 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 82.8% (274 of 331 per-page checks - HONEST behavioral coverage)
-**Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
-**Raw coverage:** 79.0% (327 of 414 validators)
+**Check coverage:** 80.3% (256 of 319 per-page checks - HONEST behavioral coverage)
+**Topic coverage:** 93.5% (43 of 46 per-page validators - loose, validator-level)
+**Raw coverage:** 78.7% (328 of 417 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -206,19 +206,25 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Validator #6: `validate_logbook.py`  -  1 check(s) untested
+## Validator #6: `validate_logbook.py`  -  7 check(s) untested
 
 **Label:** validate_logbook  
 **Likely surface:** logbook.html  
 **Reference pattern:** journey-logbook.spec.ts  
-**Already covered (28):** `audit_trail_wiring`, `auth_gate`, `await_in_non_async`, `category_values`, `closed_at_consistency`, `closed_at_preservation`, `delete_scoped_by_worker`, `edit_in_place`, `entry_kind_readings_shaping`,`
+**Already covered (29):** `audit_trail_wiring`, `auth_gate`, `await_in_non_async`, `category_values`, `closed_at_consistency`, `closed_at_preservation`, `delete_scoped_by_worker`, `edit_in_place`, `entry_kind_readings_shaping`,`
 
-### Uncovered checks (1)
+### Uncovered checks (7)
 
 Each line is one rule that needs a Playwright scenario. The check name
 (in backticks) MUST appear in the test() name so the next sentinel run
 matches the new scenario to the rule.
 
+- `edit_cache_keeps_snapshot`
+- `edit_refills_wo_state`
+- `oc_snapshot_required`
+- `offline_edit_replays_oc`
+- `offline_insert_notifies_assignee`
+- `offline_refusal_parked`
 - `required_field_signposting`
 
 ### LLM prompt
@@ -226,8 +232,14 @@ matches the new scenario to the rule.
 ```
 You are extending Layer 2 of the WorkHive platform.
 
-Validator `validate_logbook.py` (target: `logbook.html`) declares 1
+Validator `validate_logbook.py` (target: `logbook.html`) declares 7
 rules that have NO Playwright test exercising them:
+  - edit_cache_keeps_snapshot
+  - edit_refills_wo_state
+  - oc_snapshot_required
+  - offline_edit_replays_oc
+  - offline_insert_notifies_assignee
+  - offline_refusal_parked
   - required_field_signposting
 
 Read `logbook.html` for selectors, form IDs, routes.
@@ -478,15 +490,16 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Platform-wide gaps (1)
+## Platform-wide gaps (2)
 
 These validators scan ALL pages (LIVE_PAGES list, glob, etc.). Layer 0
 is the right enforcement layer because writing a Playwright scenario per
 page would just duplicate the validator with 50x the runtime.
 
+- `validate_i18n_family_consistency.py` (1 checks) - validate_i18n_family_consistency
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (83)
+## Infrastructure gaps (84)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -495,6 +508,7 @@ layer; no Playwright scenario is needed.
 - `validate_api_adoption.py` (no named checks) - validate_api_adoption
 - `validate_atomic_writes.py` (no named checks) - validate_atomic_writes
 - `validate_au_adoption.py` (no named checks) - validate_au_adoption
+- `validate_author_can_edit_own_work.py` (no named checks) - validate_author_can_edit_own_work
 - `validate_av_adoption.py` (no named checks) - validate_av_adoption
 - `validate_bundle_bloat.py` (4 checks) - validate_bundle_bloat
 - `validate_button_type_in_form.py` (1 checks) - validate_button_type_in_form
@@ -576,4 +590,4 @@ layer; no Playwright scenario is needed.
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 1 platform-wide and 83 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 84 infrastructure._

@@ -2,11 +2,14 @@
 """
 Phase 2: Model A/B Testing Framework
 
-Compares free-tier LLM models for voice companion responses:
-- Groq Scout (primary, fastest)
-- Cerebras Qwen (structured output)
-- Voyage AI (reasoning depth)
-- Jina AI (fallback)
+Compares free-tier LLM models for voice companion responses. Every call goes through the platform chain
+(tools/model_orchestrator.call_model -> tools/ai_chain.call_ai_chain) with the strategy's model tried first;
+the metadata records which model actually answered (2026-10-08: the strategies used to call providers directly,
+including Cerebras, which is now off the platform).
+- scout  -> qwen/qwen3.8-27b
+- qwen   -> mistral-small-latest
+- voyage -> openai/gpt-oss-20b
+- jina   -> openai/gpt-oss-120b
 
 Tracks quality metrics:
 - Latency (response time)
@@ -43,64 +46,27 @@ def call_model(
     Returns:
         (response_text, latency_ms, metadata)
     """
-    from tools.model_orchestrator import get_model_config
+    from tools.model_orchestrator import call_model as chain_call, get_model_config
+    from tools.ai_chain import last_outcome
 
-    model_name, api_url, headers = get_model_config(model_strategy)
-
-    # Check API key
-    if not headers.get("Authorization") or "Bearer" not in headers.get("Authorization", ""):
-        return (
-            None,
-            0,
-            {"error": f"{model_strategy}: API key not configured", "model": model_name},
-        )
-
+    model_name, _url, headers = get_model_config(model_strategy)
+    if not headers.get("Authorization", "").strip().removeprefix("Bearer").strip():
+        return (None, 0, {"error": f"{model_strategy}: API key not configured", "model": model_name})
+    start = time.time()
     try:
-        import requests
-
-        start = time.time()
-
-        resp = requests.post(
-            api_url,
-            headers=headers,
-            json={
-                "model": model_name,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": temperature,
-            },
-            timeout=10,
-        )
-
-        latency_ms = (time.time() - start) * 1000
-
-        if resp.status_code != 200:
-            return (
-                None,
-                latency_ms,
-                {"error": f"HTTP {resp.status_code}", "model": model_name},
-            )
-
-        data = resp.json()
-        answer = (
-            data.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-            .strip()
-        )
-
-        usage = data.get("usage", {})
-        metadata = {
-            "model": model_name,
-            "strategy": model_strategy,
-            "input_tokens": usage.get("prompt_tokens", 0),
-            "output_tokens": usage.get("completion_tokens", 0),
-            "total_tokens": usage.get("total_tokens", 0),
-        }
-
-        return (answer if answer else None, latency_ms, metadata)
+        answer = chain_call(messages, model_strategy, max_tokens=max_tokens, temperature=temperature)
     except Exception as e:
         return (None, 0, {"error": str(e), "model": model_name})
+    latency_ms = (time.time() - start) * 1000
+    served = last_outcome().get("served_by")
+    metadata = {
+        "model": model_name,
+        "strategy": model_strategy,
+        "served_by": served,          # the chain may have answered from a later model when this one was busy
+    }
+    if answer is None:
+        metadata["error"] = "no free model in the chain answered"
+    return (answer, latency_ms, metadata)
 
 
 def test_prompt(prompt: str, models: list = None) -> Dict[str, Any]:

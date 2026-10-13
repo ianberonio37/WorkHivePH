@@ -5,12 +5,12 @@
 // network returns, and the row's card must appear in #fb-list without a manual refresh.
 //   node tools/prove_founder_feedback_backfill.mjs
 import { chromium } from 'playwright';
-import { SEEDER, signIn, psql } from './prover_harness.mjs';   // shared preamble (2026-09-05)
+import { SEEDER, signIn, psql, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const TAG = 'PRB-BACKFILL-' + Date.now();
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 const p = await ctx.newPage();
 await p.goto(`${SEEDER}/workhive/founder-console.html`, { waitUntil: 'load' });
 const joined = await p.waitForFunction(() => typeof _fb !== 'undefined' && _fb.channel && _fb.channel.state === 'joined', null, { timeout: 30000 }).then(() => true).catch(() => false);

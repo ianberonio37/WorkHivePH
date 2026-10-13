@@ -62,7 +62,7 @@ STYLE = """  <style>
        defects the fix_learn_* sweeps had repaired in the OUTPUT files while this generator kept
        emitting them. Every rebuild had been silently reintroducing them. Ported here so the two
        agree: .answer-first and .callout take a full hairline instead of a 3px left edge on a
-       rounded box (DESIGN.md's side-tab don't), and the table-of-contents h4 declares
+       box with round corners (DESIGN.md's side-tab don't), and the table-of-contents h4 declares
        aria-level=2 so the outline runs h1 -> 2 without a jump. The blockquote below KEEPS its
        left rule: a quotation mark in the margin is what a blockquote IS, and the detector does
        not flag it - the don't is about a CARD wearing a coloured tab, not about a quote. */
@@ -205,6 +205,18 @@ def _assert_no_entities(p: dict) -> None:
 # pages shipped with none of this — no CSS, header, footer or fonts — which is the
 # SXO defect V3 opens with. Import these; never re-author the markup, or the two
 # surfaces drift the first time either changes.
+# The Tailwind Play CDN and its tailwind.config left HEAD_ASSETS on 2026-10-13. It was a ~400 KB script that blocked
+# render and built the CSS on the reader's phone: a learn article painted its largest element at ~4.7 s on Slow 4G with
+# a 4x CPU, ~2.2 s of it the CDN. The config it carried - the pinned six-step type ramp (W46084: text-sm had rendered
+# 14px, 0.4px from 13.6, and the h1 ran 30 -> 36 -> 43.2px across breakpoints; pinning it in the config matters because
+# `sm:text-4xl` compiles inside a media query, which adds no specificity) and the brand palette - is now the "ramp"
+# family in tools/tw_pub_families.json, compiled once into /wh-tw-pub-ramp.css by tools/tw_public_build.mjs.
+# The link is the LAST line of <head> (TW_LINK_RAMP, placed just above </head> by each template), because that is
+# where the CDN injected its style: the page's own <style> blocks come first and Tailwind wins the ties it always won.
+# A NEW utility class on a page in this family needs `node tools/tw_public_build.mjs build --family ramp`; the
+# tw-public-sheets gate fails until it is done.
+TW_LINK_RAMP = '<link rel="stylesheet" href="/wh-tw-pub-ramp.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->'
+
 HEAD_ASSETS = """  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- display=optional, NOT swap. T160: the learn template shifted 0.384 CLS at 390 - nearly 4x the
@@ -216,23 +228,6 @@ HEAD_ASSETS = """  <link rel="preconnect" href="https://fonts.googleapis.com" />
        correction silently un-fixed T160 across ph-plant-compliance-guide,
        maintenance-metrics-reliability-guide and start-digital-maintenance-guide. -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: {
-      /* the platform's six-step ramp plus one display step, declared where the utilities read it
-         (W46084, 2026-09-16): text-sm rendered 14px - 0.4px from 13.6 and 1.2px from 15.2, noise
-         rather than a step - and the h1 ran 30 -> 36 -> 43.2px across three breakpoints. Pinning the
-         scale here rather than overriding each class matters because `sm:text-4xl` compiles inside a
-         media query, and a media query adds no specificity. */
-      fontSize: { xs: '0.75rem', sm: '0.95rem', base: '1.05rem', lg: '1.25rem', xl: '1.25rem',
-                  '2xl': '1.75rem', '3xl': '2.25rem', '4xl': '2.25rem', '5xl': '2.25rem' },
-      colors: {
-      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
-      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
-      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
-      steel: '#7B8794', cloud: '#F4F6FA',
-    } } } };
-  </script>
   <style>
     /* The header nav must fit the platform's narrowest stated width. Measured at 320px (W46077,
        2026-09-19): documentElement.scrollWidth 328 on a 320 viewport - "Sign Up Free" ended at 327.7,
@@ -354,6 +349,7 @@ def _page(p: dict) -> str:
 {STYLE}
 {URL_BRIDGE}
 {GA4}
+{TW_LINK_RAMP}
 </head>
 <body class="bg-navy-wh text-white antialiased">
 

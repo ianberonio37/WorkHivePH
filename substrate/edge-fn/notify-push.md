@@ -2,7 +2,7 @@
 name: edge-fn-notify-push
 type: edge-fn
 source: file:supabase/functions/notify-push/index.ts
-source_sha: faad07c7a43fb8f2
+source_sha: e7035a0141491796
 last_verified: 2026-07-13
 supersedes: null
 ---

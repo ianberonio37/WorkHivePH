@@ -2,19 +2,19 @@
 name: page-skillmatrix
 type: page
 source: file:skillmatrix.html
-source_sha: be1e828e54306de1
+source_sha: b1308ab38d2f23ec
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `skillmatrix.html` — Skill Matrix | WorkHive
 
-Size: 100KB · 26 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 107KB · 34 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `skill_profiles.upsert`
 **RPC calls**: `grade_skill_exam`
 **Edge invokes**: `embed-entry`
 **Truth views read**: `v_skill_badges_truth`
 
-**Functions**: _ensureSmQueue, checkScroll, closeExam, closeLesson, closeModal, embedSkillEntry, getActualLevel, init, openDiscipline, openExam, openLesson, openModal, openResult, refreshMatrix, renderDisciplineCards, renderExamQuestion, renderRadarChart, renderSkillSummary, renderTargetGrid, resetExamFlow, selectAnswer, setCard, showMatrix, showOnboarding, showToast, submitExam
+**Functions**: _MINE, _ensureSmQueue, _mineFilter, _rgbaOf, _sel, _smMarkTargetsSaved, _smSyncSaveBtn, _smTargetsDirty, _smTargetsKey, checkScroll, closeExam, closeLesson, closeModal, embedSkillEntry, getActualLevel, init, openDiscipline, openExam, openLesson, openModal, openResult, refreshMatrix, renderDisciplineCards, renderExamQuestion, renderRadarChart, renderSkillSummary, renderTargetGrid, resetExamFlow, selectAnswer, setCard, showMatrix, showOnboarding, showToast, submitExam
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

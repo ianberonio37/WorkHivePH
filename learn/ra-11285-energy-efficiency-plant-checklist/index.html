@@ -80,16 +80,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: {
-        orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
-        blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
-        navy:   { wh: '#162032' },
-      } } }
-    };
-  </script>
   <style>
     /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
        remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
@@ -147,8 +137,9 @@
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
 <link rel="stylesheet" href="/learn-print.css" media="print" />
-<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}</style>
+<style data-wh-chrome-i18n>nav a,header a,footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;}nav a{padding:0 .25rem;}.breadcrumb a,.toc a{display:inline-flex;align-items:center;min-height:44px;}.breadcrumb a{min-width:44px;justify-content:center;}a.text-sm[href$='/learn/'],a.text-sm[href$='/learn/index.html']{display:inline-flex;align-items:center;min-height:44px;}.wh-tap{display:inline-flex;align-items:center;min-height:44px;}td a,th a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;}/*wh-brand-header-gap*/@media (max-width:399px){header nav.flex{gap:.75rem;}}@media (prefers-reduced-motion:reduce){.cta-btn{transition:none;}.cta-btn:hover{transform:none;}}td,th{font-variant-numeric:tabular-nums;}</style>
 <script src="/wh-i18n-lite.js" data-wh-chrome-i18n></script>
+<link rel="stylesheet" href="/wh-tw-pub-article.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
@@ -173,7 +164,7 @@
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
 
     <p class="text-xs uppercase tracking-[0.18em] text-orange-wh font-bold mb-3">WorkHive Learn · Philippines</p>
-    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist</h1>
+    <h1 class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.3] tracking-[-0.02em] mb-5">RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist</h1>
     <div class="flex items-center gap-3 text-xs text-white/45 mb-7">
       <span>By WorkHive Editorial Team</span>
       <span class="opacity-40">·</span>
@@ -214,7 +205,7 @@
       <div class="callout">Part of the <a href="/learn/ph-plant-compliance-guide/">Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285</a>: the hub for what an inspector actually asks to see.</div>
 
       <h2 id="overview-of-ra-11285">Overview of RA 11285</h2>
-      <p>The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, consuming more than 500,000 kWh a year, is a DOE Designated Establishment and must comply - Type 1 below 4 million kWh a year, Type 2 at or above it. Conducting an energy audit is a crucial step in identifying areas for improvement.</p>
+      <p>The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, consuming more than 500,000 kWh a year, is a DOE Designated Establishment and must comply - Type 1 below 4 million kWh a year, Type 2 at or above it.</p>
       <p>The law's purpose is to reduce energy consumption and greenhouse gas emissions. It applies to establishments that use a significant amount of energy, such as industrial plants, commercial buildings, and government institutions. In the Philippines, a shift in-charge at a plant in Pampanga, working a rotating shift, may be responsible for monitoring energy usage and reporting any issues to the plant supervisor. Failure to comply carries penalties that scale with the size of the establishment and with whether the lapse is repeated.</p>
       <p>One of the key requirements of RA 11285 is the submission of an annual energy report to the Department of Energy. This report should include details on energy consumption, energy-saving measures, and plans for future energy efficiency improvements. A maintenance planner at a plant in Batangas, for example, can use the WorkHive Audit Log to track energy-related actions and ensure compliance with the reporting requirements. The Audit Log is append-only by design and worth understanding on that point: a hive member can write to it and a supervisor can read it, but there is no path to edit or delete a row, and a database trigger binds each entry to the account that made it. That is what lets you answer &ldquo;was this figure changed after the fact?&rdquo; with something other than your word.</p>
       <p>Energy audits are a critical component of RA 11285 compliance. An energy audit can help identify areas of inefficiency, such as equipment with high energy consumption, like Pump P-204B or Boiler B-1. By conducting regular energy audits, plant managers can identify opportunities to reduce energy consumption and improve overall efficiency. For example, replacing an old air handling unit, AHU-3, with a more energy-efficient model can lead to significant energy savings.</p>

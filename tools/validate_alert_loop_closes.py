@@ -59,7 +59,9 @@ def check_link(src: str) -> list:
     if "pm-scheduler.html?asset=" not in block:
         out.append("the PM alert carries no deep link to pm-scheduler for the named asset, so the "
                    "person is told a PM is overdue and left to find it")
-    if not re.search(r"actionLabel:\s*'[^']{3,}'", block):
+    # the label may be wrapped in the translator: actionLabel: _t('Open PM Scheduler', '...') is a named action too
+    # (2026-10-13: the gate read the wrapped label as "no action" while the alert offered "Open PM Scheduler")
+    if not re.search(r"actionLabel:\s*(?:_t\(\s*)?'[^']{3,}'", block):
         out.append("the PM alert names no action, so the link (if any) is unlabelled")
     return out
 
@@ -82,6 +84,10 @@ def selftest() -> int:
 
     nolabel = good.replace(", actionLabel: 'Open PM Scheduler'", "")
     chk("an unlabelled link fails", len(check_link(nolabel)), 1)
+
+    wrapped = good.replace("actionLabel: 'Open PM Scheduler'", "actionLabel: _t('Open PM Scheduler', 'Buksan ang PM Scheduler')")
+    chk("a label wrapped in the translator still names the action", len(check_link(wrapped)), 0)
+    chk("an empty translated label still fails", len(check_link(wrapped.replace("_t('Open PM Scheduler'", "_t(''"))), 1)
 
     chk("the live page passes", check_link(io.open(PAGE, encoding='utf-8', errors='replace').read()), [])
     print(f"\n  SELFTEST: {'PASS' if ok else 'FAIL'}")

@@ -28,6 +28,8 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from validator_utils import read_file, format_result
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tools'))
+from bug_repro_inventory import _strip_comments_js  # the shared JS-comment blanker (keeps offsets)
 
 LIVE_PAGES = [
     "logbook.html", "inventory.html", "pm-scheduler.html",
@@ -135,6 +137,17 @@ def check_undefined_canonical_globals(pages):
         script_blocks = re.findall(r'<script(?:\s(?!src)[^>]*)?>(.+?)</script>',
                                    content, re.DOTALL | re.IGNORECASE)
         combined_script = "\n".join(script_blocks)
+        # ...AND STRIP THE JAVASCRIPT COMMENTS TOO, for the reason the note above already gives about HTML
+        # ones. Measured 2026-10-06: this gate FAILED the board at blocker severity claiming
+        # "assistant.html uses 'WORKER_NAME' but never declares it - missing declaration causes
+        # ReferenceError that aborts the script". The page's ONLY occurrence of that token is inside a `//`
+        # comment, and the sentence is literally about the variable NOT being called that: "the inventory
+        # called this scope=\"named\" because the variable is not literally WORKER_NAME". The page works -
+        # it was walked live the same day and rendered the signed-in person's name - so the finding was
+        # manufactured by the reader, and a blocker that reddens on prose is one people learn to scroll
+        # past. Stripping serves BOTH scans: a declaration written in a comment is not a declaration
+        # either, so the same blanking keeps `declared` honest as well.
+        combined_script = _strip_comments_js(combined_script)
         if not combined_script.strip():
             continue
 

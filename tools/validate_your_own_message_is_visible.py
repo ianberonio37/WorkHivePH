@@ -93,9 +93,12 @@ def audit(src: str) -> list:
 
     # 4. the read is still scoped to the person asking (a panel that showed OTHER buyers'
     #    messages would satisfy every clause above and be a privacy defect)
-    if not re.search(r"\.eq\(\s*['\"]buyer_name['\"]\s*,\s*WORKER_NAME\s*\)", body):
-        out.append("marketplace.html: the buyer panel is no longer scoped to .eq('buyer_name', "
-                   "WORKER_NAME) - it would show other people's inquiries")
+    #    The scope may be the NAME or the IDENTITY (2026-10-13): from_me is inquiry_is_from_me(id), i.e.
+    #    buyer_auth_uid = auth.uid() in a SECURITY DEFINER function - the signed-in account, stricter than a name.
+    if not (re.search(r"\.eq\(\s*['\"]buyer_name['\"]\s*,\s*WORKER_NAME\s*\)", body)
+            or re.search(r"\.eq\(\s*['\"]from_me['\"]\s*,\s*true\s*\)", body)):
+        out.append("marketplace.html: the buyer panel is no longer scoped to the person asking - neither "
+                   ".eq('from_me', true) nor .eq('buyer_name', WORKER_NAME) - it would show other people's inquiries")
     return out
 
 
@@ -110,8 +113,11 @@ def selftest() -> int:
                   src.replace("waiting for a reply", "REMOVED"), 1))
     cases.append(("dropping the sent date is caught",
                   src.replace("var sent = r.created_at", "var sent = ''; var _unused = r.created_at"), 1))
+    # remove whichever scope the page uses; a replace that matches nothing would make this case vacuous
+    _scope = ".eq('from_me', true)" if ".eq('from_me', true)" in src else ".eq('buyer_name', WORKER_NAME)"
+    assert _scope in src, "selftest: the page carries neither buyer scope, so this case cannot remove one"
     cases.append(("losing the buyer scope is caught",
-                  src.replace(".eq('buyer_name', WORKER_NAME)", ".eq('hive_id', HIVE_ID)"), 1))
+                  src.replace(_scope, ".eq('hive_id', HIVE_ID)"), 1))
     cases.append(("deleting the whole panel is caught",
                   src.replace("async function " + FN, "async function _retired_" + FN), 1))
     bad = 0

@@ -17,7 +17,7 @@ THE 3-TIER TELEPORT LOOP
 
 REUSES (does not reinvent):
   - ~/.claude-memento/tools/memento_scrape.py : crawl4ai->urllib fetch + HTML stripper + slugify
-  - tools/lib/ai_chain.py  call_ai()          : free-tier distiller (Groq->Cerebras->Gemini->Mistral)
+  - tools/lib/ai_chain.py  call_ai()          : free-tier distiller (Groq->Gemini->Mistral->OpenRouter)
   - ~/.claude-memento/tools/memento_retrieve.py retrieve() : Tier-1 "check the bag"
   - ~/.claude-memento/tools/memento_indexer.py refresh     : make the new chunk retrievable
 

@@ -14,6 +14,8 @@ Layers:
   L1  Admin gate present     — file calls isPlatformAdmin(db) at top-level
   L2  Gate not commented     — the isPlatformAdmin call is not inside //
   L3  Gate logic complete    — file shows no-access UI when gate fails
+  L4  Loopback is opt-in     — a 127.0.0.1/localhost bypass needs localStorage wh_local_founder (2026-10-13)
+  L5  Retired overlay gated  — a "has moved" overlay starts hidden or sits behind a head gate (2026-10-13)
 
 Usage:  python validate_admin_gates.py
 Output: admin_gates_report.json
@@ -29,11 +31,31 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT = Path(__file__).resolve().parent
 
-# HTML files that MUST have an active admin gate
+# HTML files that MUST have an active admin gate. The second group joined 2026-10-13: the whole admin cohort (absent from
+# nav-hub, reached by URL), after a driver persona read five of them in full on a local stack (Ian: "it seems that
+# founder/admins function button or functions can still be seen by non-admins?").
 ADMIN_SURFACES = [
     "founder-console.html",
     "marketplace-admin.html",
+    "platform-actions.html",
+    "llm-observability.html",
+    "agentic-rag-observability.html",
+    "architecture.html",
+    "validator-catalog.html",
+    "symbol-gallery.html",
 ]
+
+LOOPBACK_LIST = re.compile(r"\[\s*['\"]127\.0\.0\.1['\"]\s*,\s*['\"]localhost['\"][^\]]*\]")
+
+
+def _code_only(content: str) -> str:
+    """Blank HTML and JS comments, keeping every newline (so line numbers hold) - a comment that QUOTES a bypass is not one."""
+    def blank(m):
+        return re.sub(r"[^\n]", " ", m.group(0))
+    s = re.sub(r"<!--[\s\S]*?-->", blank, content)
+    s = re.sub(r"/\*[\s\S]*?\*/", blank, s)
+    s = re.sub(r"(?<![:'\"\\])//[^\n]*", blank, s)
+    return s
 
 
 def check_admin_gate_active(html_path: Path) -> list:
@@ -109,6 +131,9 @@ def check_admin_gate_active(html_path: Path) -> list:
         or "no-access" in content
         or "restricted" in content.lower()
         or "not signed in or not admin" in content.lower()
+        # the head-gate pattern (architecture, validator-catalog, symbol-gallery, the two observability pages): the
+        # document stays hidden until the check, and a refusal replaces the body - "Founder access only"
+        or "founder access only" in content.lower()
     )
     if not has_no_access_ui:
         issues.append({
@@ -120,6 +145,45 @@ def check_admin_gate_active(html_path: Path) -> list:
             )
         })
 
+    code = _code_only(content)
+
+    # L4 (2026-10-13): a LOOPBACK bypass is opt-in on the machine. Five admin pages skipped their gate entirely on
+    # 127.0.0.1 / localhost for EVERY signed-in person, so on a local stack a driver read the founder pages in full.
+    # founder-console.html made its bypass opt-in on 2026-10-09 (localStorage wh_local_founder = '1'); every loopback
+    # host list in code must sit with that opt-in.
+    for m in LOOPBACK_LIST.finditer(code):
+        if "wh_local_founder" not in code[m.start(): m.end() + 300]:
+            line = code.count("\n", 0, m.start()) + 1
+            issues.append({
+                "check": "admin_loopback_opt_in",
+                "file": html_path.name,
+                "line": line,
+                "reason": (
+                    f"{html_path.name}:{line} - a loopback host list with no wh_local_founder opt-in beside it: on a "
+                    "local stack this admin page opens to every signed-in person."
+                )
+            })
+
+    # L5 (2026-10-13): a RETIRED overlay on an admin page must not show before the admin check. founder-console and
+    # marketplace-admin rendered "has moved" (Founder Ops dashboard, Platform Actions) to anyone, on every host, because
+    # their boot returned before the gate. Protected means: the overlay starts display:none in the markup, OR the page
+    # hides the whole document until the check passes (the head-gate pattern).
+    ov = re.search(r'<div[^>]*id="wh-retired-overlay"[^>]*style="([^"]*)"', code)
+    if ov:
+        starts_hidden = re.search(r"display\s*:\s*none", ov.group(1)) and not re.search(r"display\s*:\s*(flex|block|grid)", ov.group(1))
+        head_gate = re.search(r"documentElement\.style\.visibility\s*=\s*['\"]hidden['\"]", code)
+        if not (starts_hidden or head_gate):
+            line = code.count("\n", 0, ov.start()) + 1
+            issues.append({
+                "check": "admin_retired_overlay_before_gate",
+                "file": html_path.name,
+                "line": line,
+                "reason": (
+                    f"{html_path.name}:{line} - the retired overlay is visible before the admin check (no display:none "
+                    "in its markup, no head gate): every visitor reads it."
+                )
+            })
+
     return issues
 
 
@@ -128,7 +192,7 @@ def main():
     def red(s):   return f"\033[91m{s}\033[0m"
     def bold(s):  return f"\033[1m{s}\033[0m"
 
-    print(bold("\nAdmin Gate Validator (3-layer)"))
+    print(bold("\nAdmin Gate Validator (5-layer)"))
     print("=" * 55)
 
     all_issues = []

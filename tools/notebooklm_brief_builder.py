@@ -130,7 +130,7 @@ Reliability math is not ML guesswork — Weibull β/η, P-F intervals, FMEA scor
 ISO 50001 EnPI, MTBF/MTTR derivations. Skeptical engineers can verify.
 
 ## Free-tier-only AI chain
-All AI inference uses the free-tier model chain (Groq → Cerebras → SambaNova →
+All AI inference uses the free-tier model chain (Groq → Gemini → Mistral →
 Gemini → OpenRouter :free → DeepSeek). Zero per-token cost. Per-hive AI context
 + RAG over fault knowledge graph.
 """

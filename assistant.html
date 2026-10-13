@@ -394,7 +394,15 @@
      - it steps aside only when the app's text DIFFERS from its own stamp, and this writer stamps
      exactly what it writes, so the two are equal and the dictionary would overwrite it. Removing
      the data-i is what protects this chip; the stamp is not. -->
-<p class="wh-source-chip" id="assistant-scope-chip" style="min-height:62px;font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
+<!-- LXP-D x assistive-tech (2026-09-30): role=status + aria-live, the contract every chip
+     renderSourceChip() emits already carries. This page hand-writes its chip instead (0
+     renderSourceChip calls) and _writeScope() REPLACES its text at runtime - the sentence saying what
+     the assistant's answers are scoped to changes, and without a live region nobody who cannot see the
+     screen is told. The sibling #assistant-scope-chip-chat was already given role="note" so it does NOT
+     announce, which is the platform's one-chip-announces rule (see renderSourceChip: three chips on
+     hive queued 333 characters of provenance after every settle) - that rule was applied to the
+     secondary chip and the PRIMARY one was left with nothing to apply it to. -->
+<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="min-height:62px;font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
@@ -520,7 +528,9 @@
               style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
                      background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);border-radius:999px;
                      color:rgba(255,255,255,0.90);padding:0 12px;cursor:pointer;flex-shrink:0;">EN</button>
-      <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;" data-i="newchat">New Chat</button>
+      <!-- data-wh-local: clearChat() empties the on-screen thread and stores nothing ("the thread here is not kept") -
+           a control that changes no record leaves no trail to owe (UFAI LXC137, layer L, 2026-10-09) -->
+      <button onclick="clearChat()" data-wh-local="true" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;" data-i="newchat">New Chat</button>
     </div>
 
     <!-- Companion Streamline Step C: tab strip [Chat | Journal].
@@ -828,6 +838,7 @@
     // assistant.html had ZERO popstate handlers, so Back from an open conversation left the site and
     // the conversation with it - it lives in memory only. Same shape as index's mobile menu.
     window.addEventListener('popstate', () => {
+      if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a modal gave its entry back; the person did not press Back
       const chat = document.getElementById('chat-screen');
       if (chat && chat.style.display !== 'none') { _whSuppressPush = true; showScreen('setup-screen'); _whSuppressPush = false; }
     });
@@ -958,7 +969,17 @@
         catch (_) { /* empty-catch-allow: proceed; the counts degrade to 'not read', never to 0 */ }
         const num = (r) => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
         const [l, a, pm] = await Promise.all([
-          db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name),
+          // BRP-A (2026-10-04): this count decides whether the assistant tells the person they have NO RECORDS,
+          // so a miss here is not a thin list - it is being told your own work does not exist. `name` is
+          // localStorage text (KEY_WORKER); once it drifts from the worker_name stored on the rows this
+          // counted 0 and the nudge fired at someone with a full logbook. _uid is already in hand two
+          // lines up, so ask by identity OR name - union, because a row whose auth_uid was never bound is
+          // findable only by the name. Scope classifier note: the inventory called this scope="named"
+          // because the variable is not literally WORKER_NAME; reading it shows it IS the signed-in person.
+          (_uid
+            ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
+                .or('auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(name || '')))
+            : db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name)),
           // canonical-allow: the same lightweight counts startChat uses for hasRecords (not truth reads);
           // scopeOwn applies the hive_id/auth_uid scoping, and a signed-out reader gets a known 0.
           _uid ? whScopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true }), _uid) : Promise.resolve({ count: 0 }),
@@ -1096,8 +1117,12 @@
           // told on this very line that blocked items ground every answer. The logbook beside it was already
           // qualified, by the fix this file records two notes above; both on-demand reads are qualified now,
           // and the sentence is shorter for it on a screen that carries too much standing text already.
+          // ★THE LINE A PERSON SEES SAYS WHERE AND WHEN (UFAI LXP83, layer D, walked 2026-10-09). The full scope
+          // sentence sits in the closed disclosure; the summary is the only provenance on screen, and "answers are
+          // grounded in it" named the hive but never WHEN its data is read - which is at the moment of the question.
           _writeSummary((_hive || _t('Your hive', 'Ang hive mo'))
-            + _t(' · answers are grounded in it', ' · nakabatay dito ang mga sagot'));
+            + _t(' · answers use its live data, read when you ask',
+                 ' · nakabatay ang mga sagot sa live na datos nito, binabasa kapag nagtanong ka'));
           _writeScope((_hive ? _hive + ' · ' : _t('Your hive · ', 'Ang hive mo · '))
             + _t('Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock and asset risk · recomputed per question · your logbook and project items only when you ask about them',
                  'Nakabatay ang mga sagot sa live na datos ng hive na ito: bukas na alerts, lagpas na PM, stock ng parts at panganib ng asset · muling kinakalkula sa bawat tanong · ang logbook at project items mo kapag tinanong mo ang tungkol sa mga iyon'));
@@ -1169,7 +1194,10 @@
     (function composerHint() {
       try {
         const h = document.getElementById('assistant-composer-hint');
-        if (h) h.textContent = _t('Enter sends · Shift+Enter for a new line',
+        // A phone's keyboard has no Shift+Enter, so a touch screen is told only what is true there (critique,
+        // 2026-10-13). English only changes; the Filipino half is the original string, untouched.
+        const touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+        if (h) h.textContent = _t(touch ? 'Enter sends' : 'Enter sends · Shift+Enter for a new line',
                                   'Enter para ipadala · Shift+Enter para sa bagong linya');
       } catch (_) { /* empty-catch-allow */ }
     })();
@@ -1196,6 +1224,14 @@
         if (typeof syncSendBtn === 'function') syncSendBtn();
       } catch (_) { /* empty-catch-allow: a rescued draft is a courtesy, never a blocker */ }
     })();
+    // X2 (critic batch, 2026-10-13): an unsent question now survives a refresh, a dropped connection or a phone call,
+    // not only a language switch. The removed draft hook belonged to the dead "Today's context" field (above); this is
+    // the composer itself. whAutoSaveDraft stamps the owner and the hive, so on a shared station tablet the next
+    // worker never sees it; auto:false because sendMessage clears it (Enter sends without any button click).
+    window.addEventListener('load', function () {
+      try { if (window.whAutoSaveDraft) window._chatDraft = whAutoSaveDraft('chat', ['chat-input'], { auto: false }); }
+      catch (_) { /* empty-catch-allow: a draft is a courtesy, never a blocker */ }
+    });
     window.setAssistantLang = function setAssistantLang(next) {
       try {
         const box = document.getElementById('chat-messages');
@@ -1216,6 +1252,9 @@
         if (hasThread && !confirm(_t('Switching language reloads this page. The thread here is not kept, so it will not come back. Continue?',
                                      'Ang paglipat ng wika ay magre-reload ng page. Hindi nakaimbak ang thread dito, kaya hindi na ito babalik. Ituloy?'))) return;
         localStorage.setItem('wh_lang', next === 'fil' ? 'fil' : 'en');
+        // The reload brings the new words and utils.js sets <html lang> at load. Declared here too, so the preference
+        // and the declaration never disagree, even before the reload lands (lang-declared, 2026-10-13).
+        document.documentElement.lang = (next === 'fil') ? 'fil' : 'en';
       } catch (_) { /* empty-catch-allow: a blocked storage still gets the reload below */ }
       location.reload();
     };
@@ -1336,8 +1375,8 @@
     }
 
     async function buildSystemPrompt(name, contextNote) {
-      const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const pastDate   = whManilaYmd(new Date(Date.now() - 3  * 24 * 60 * 60 * 1000));
+      const futureDate = whManilaYmd(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000));
       const hiveIdCtx = whHiveId();
       // Companion Streamline Step D: pull the last 7 days of voice
       // journal entries so the assistant can reference "yesterday's
@@ -1364,7 +1403,7 @@
           ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).order('id').limit(20)
           : Promise.resolve({ data: [] }),
         hiveIdCtx
-          ? db.from('v_pm_compliance_truth').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)
+          ? db.from('v_pm_compliance_truth').select('asset_name,category', { count: 'exact' }).eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)
           : Promise.resolve({ data: [] }),
         db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
       ]);
@@ -1410,8 +1449,16 @@
         : 'No skill badges earned yet.';
 
       // PM health: registered assets with schedules in this hive
+      /* ★A SLICE TOLD AS A TOTAL (2026-10-08, LXP-RL walked on this page's own reads). The read above is capped at 8
+         to keep the prompt small, and the largest hive holds 31 - so the model was handed 8 names as "Assets with PM
+         schedules" and could fairly tell a supervisor their hive has 8. The same request now asks for the exact
+         count, and the prompt states the slice beside the whole. */
+      const pmTotal = (pmRes && typeof pmRes.count === 'number') ? pmRes.count : pmAssets.length;
+      const pmList = pmAssets.map(a => `${a.asset_name} (${a.category || 'General'})`).join(', ');
       const pmText = pmAssets.length
-        ? 'Assets with PM schedules: ' + pmAssets.map(a => `${a.asset_name} (${a.category || 'General'})`).join(', ') + '. Check PM Scheduler for overdue and due-soon tasks.'
+        ? (pmTotal > pmAssets.length
+            ? `Assets with PM schedules: ${pmTotal} in this hive. The first ${pmAssets.length} by name: ${pmList} - a sample, not the full list, so never present it as all of them. Check PM Scheduler for overdue and due-soon tasks.`
+            : 'Assets with PM schedules: ' + pmList + '. Check PM Scheduler for overdue and due-soon tasks.')
         : hiveIdCtx ? 'No PM assets registered in this hive yet.' : 'Not in a hive: noPM schedule visible.';
 
       // Low-stock inventory: only items at or below min_qty (reorder threshold)
@@ -1431,7 +1478,7 @@
           }).join('\n')
         : 'No recent journal entries.';
 
-      const todayISO = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+      const todayISO = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }); // YYYY-MM-DD
       const todayReadable = whFmtDate(new Date(), { long: true, weekday: 'long' }); // FD1a canonical
 
       return `You are a personal work assistant for an industrial worker named ${name}, built into the WorkHive platform.
@@ -1575,7 +1622,9 @@ happens to know maintenance, not a manual.`;
     try {
       const _pn = (typeof window.personaName === 'function') ? window.personaName() : null;
       const _pe = document.getElementById('chat-persona-name');
-      if (_pe && _pn) _pe.textContent = '· ' + _pn;
+      // "· with Zaniah", not "· Zaniah" (critique, 2026-10-13): after the worker's own name a bare persona name read as
+      // part of it ("David Velasco · Zaniah") and said nothing about what Zaniah is - the one this person is talking with.
+      if (_pe && _pn) _pe.textContent = _t('· with ', '· ') + _pn;
     } catch (_) { /* empty-catch-allow: the label is decoration, never block the chat */ }
       // ★SETUP -> START CHAT STACKED A SECOND GREETING ON THE FIRST (round 5, 2026-09-15). This resets
       // sessionMessages and never clears the thread, and showScreen only toggles display - so every round
@@ -1590,7 +1639,13 @@ happens to know maintenance, not a manual.`;
       })();
       if (_resumeExisting) { showScreen('chat-screen'); return; }
       showScreen('chat-screen');
-      addTypingIndicator({ stoppable: false });
+      // ★THE GREETING'S WAIT AND A QUESTION'S WAIT SHARED ONE ID AND ONE TIMER LIST (2026-10-06, assistant x
+      // assistive-tech, PostgREST stopped). Under an outage the records count behind the greeting takes ~9s, and the
+      // composer is live the whole time. A question sent in that window added a SECOND #typing-indicator; when the
+      // greeting settled, removeTypingIndicator() cleared _typingTimers - the question's staged "Still working" notes
+      // with it - so the question waited 26s in silence. The greeting now owns its own indicator and its own timers.
+      const _greetTimers = [];
+      const _greetTyping = addTypingIndicator({ stoppable: false, id: 'typing-indicator-greeting', timers: _greetTimers });
 
       // Build system prompt and welcome message in background.
       // Cold-load 401 sibling: this count runs in PARALLEL with buildSystemPrompt (whose own
@@ -1626,12 +1681,20 @@ happens to know maintenance, not a manual.`;
         const _uid = _authedUser && _authedUser.id;
         const scopeOwn = (q) => whScopeOwn(q, _uid);
         [lc, ac, pc] = await Promise.all([
-          db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
+          // BRP-A (2026-10-04): same count, same consequence - the comment above records a rider with a Click
+            // 125i and 14 PM tasks being told "you don't have any records yet". A display name that has
+            // drifted produces exactly that sentence again, from the other direction. _uid is in hand on
+            // the line above, so ask by identity OR name (union: an unbound row is findable only by name).
+            (_uid
+              ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
+                  .or('auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(workerName || '')))
+              : db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName)),
           _uid ? scopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: lightweight solo hasRecords count (not a truth read); scoped by hive_id/auth_uid via scopeOwn
           _uid ? scopeOwn(db.from('pm_assets').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: solo lane needs auth_uid scope; v_pm_compliance_truth is hive_id-only; scoped hive_id/auth_uid via scopeOwn
         ]);
       } catch (_) { lc = null; /* empty-catch-allow: rejection = unknown, the lcUnknown branch owns the sentence */ }
-      removeTypingIndicator();
+      _greetTimers.forEach(clearTimeout);
+      if (_greetTyping) _greetTyping.remove();
 
       /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
          { count: null, error } instead of throwing, so any failed read — not just the cold-load
@@ -1669,8 +1732,20 @@ happens to know maintenance, not a manual.`;
               "Wala ka pang mga tala. Magdagdag ng logbook entry, isang asset o isang PM schedule para ma-unlock ang personalised insights. Sa ngayon, makakatulong ako sa teknikal na tanong, proseso, o kahit ano pang nasa isip mo.");
       // ★THE ASSISTANT INTRODUCED ITSELF IN ENGLISH (design lens copy, 2026-09-15) - the first sentence on
       // the one surface whose premise is being spoken to in a worker's own words.
-      addAssistantBubble(_t(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
+      // ★AND A LATE GREETING LANDED UNDER A QUESTION ALREADY ASKED (same walk). The thread read: the question, then
+      // "Hi ... What do you need?", then a TRY ASKING block, then the question's failure - a greeting asking what the
+      // person needs, below what they had already said they needed. When a question is already in the thread, the
+      // greeting goes above it and the starter chips are skipped (they exist for an empty thread), and focus is left
+      // wherever the person put it.
+      const _gBox = document.getElementById('chat-messages');
+      const _askedFirst = !!(_gBox && _gBox.querySelector('.bubble-user'));
+      const _greetEl = addAssistantBubble(_t(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
                             `Kumusta ${workerName}! Ako ang iyong WorkHive Work Assistant. ${recordsNote}\n\nAno ang kailangan mo?`));
+      if (_askedFirst) {
+        try { _gBox.insertBefore(_greetEl, _gBox.firstElementChild); } catch (_) { /* empty-catch-allow: order is cosmetic if the move fails */ }
+        _paintQuotaNote();
+        return;
+      }
       // Arc P · Wave 3 (P1/P5): starter-prompt chips guide first use + fill the empty
       // chat void (was a blank area with no next step). Data-aware: grounded prompts
       // when the worker has records, general technical prompts when they don't.
@@ -1935,7 +2010,8 @@ happens to know maintenance, not a manual.`;
     // (the one client-writable sink that carries the question text for the
     // harvest; migration 20260609000006). Best-effort: anon/RLS/offline never
     // disturb the chat. One-shot per reply.
-    async function _recordChatFeedback(rating, question, answer) {
+    // traceId: the id ai-gateway returned for the call whose answer is being rated (null when there was none).
+    async function _recordChatFeedback(rating, question, answer, traceId) {
       const r = Number(rating);
       // An invalid rating is a caller bug, not a failed write - there is nothing to retry, so it does NOT
       // re-enable the buttons. A missing client IS a failed write and must, or the control would keep
@@ -1967,6 +2043,8 @@ happens to know maintenance, not a manual.`;
           question:    String(question == null ? '' : question).slice(0, 2000),
           answer:      String(answer == null ? '' : answer).slice(0, 4000),
           rating:      r,
+          // the call it judged (LM-E, 2026-10-08), so a "wrong" is matched to its trace and not by its words
+          trace_id:    (typeof window.whTraceIdOf === 'function') ? window.whTraceIdOf(traceId) : null,
         });
         if (fbErr) { console.debug('assistant feedback insert failed (best-effort):', fbErr.message); return false; }
         return true;
@@ -1978,7 +2056,7 @@ happens to know maintenance, not a manual.`;
 
     // Append a one-tap 👍/👎 row under a live assistant reply. Built via DOM
     // (not innerHTML) so the captured question/answer are never raw HTML.
-    function _attachChatFeedback(wrapEl, question, answer) {
+    function _attachChatFeedback(wrapEl, question, answer, traceId) {
       if (!wrapEl) return;
       const row = document.createElement('div');
       row.className = 'flex justify-start gap-2 fade-up';
@@ -2069,10 +2147,13 @@ happens to know maintenance, not a manual.`;
           // toast, no error banner and nothing thrown. What changes is that the CONTROL now reflects reality -
           // if the write did not land the buttons come back, so the same tap is available again instead of a
           // dimmed row implying a signal that was never recorded. Silent, but honest.
-          const landed = await _recordChatFeedback(rating, question, answer);
+          const landed = await _recordChatFeedback(rating, question, answer, traceId);
           if (landed === false) {
             [up, down].forEach(b => { b.disabled = false; b.style.opacity = ''; b.style.cursor = ''; });
             btn.style.background = prevBg;
+            // "silent but honest" was silent to a screen reader too: the buttons came back with no word about why
+            // (LM-E walk, LM531, 2026-10-08). The same short sentence the shared trust row says.
+            note.textContent = _t('Not recorded - try again.', 'Hindi naitala - subukan muli.');
           } else {
             // Only on a write that actually landed - never on the best-effort failure path, where saying
             // "noted" would be the same false claim the tint used to make.
@@ -2096,9 +2177,10 @@ happens to know maintenance, not a manual.`;
     // real turn still gets its Stop.
     function addTypingIndicator(opts) {
       const _stoppable = !(opts && opts.stoppable === false);
+      const _timers = (opts && opts.timers) || _typingTimers;
       const container = document.getElementById('chat-messages');
       const wrap = document.createElement('div');
-      wrap.id = 'typing-indicator';
+      wrap.id = (opts && opts.id) || 'typing-indicator';
       wrap.className = 'flex justify-start fade-up';
       // ★THE ONLY WAIT STATE ON THIS PAGE WAS THREE SILENT DOTS. Measured: while the assistant assembles its
       // grounding context and composes a reply, this is the sole in-flight signal — and it carried no text,
@@ -2149,9 +2231,12 @@ happens to know maintenance, not a manual.`;
        [20000, _t('Still working - trying a faster route.', 'Ginagawa pa - sinusubukan ang mas mabilis na ruta.')],
        [40000, _t('Still working - slower than usual today.', 'Ginagawa pa - mas mabagal ngayon kaysa dati.')]
       ].forEach(function (stage) {
-        _typingTimers.push(setTimeout(function () { if (_note) _note.textContent = stage[1]; }, stage[0]));
+        _timers.push(setTimeout(function () { if (_note) _note.textContent = stage[1]; }, stage[0]));
       });
+      // A second indicator (the greeting's) must not duplicate the ids the question's indicator is found by.
+      if (opts && opts.id) { try { wrap.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); }); } catch (_) { /* empty-catch-allow */ } }
       scrollToBottom();
+      return wrap;
     }
 
     function removeTypingIndicator() {
@@ -2246,12 +2331,15 @@ happens to know maintenance, not a manual.`;
 
       // Only clear the composer when the composer is what was sent. A Retry carries its own question, and
       // anything he typed while waiting is his, not this turn's.
-      if (!(typeof preset === 'string' && preset.trim())) { input.value = ''; autoResize(input); }
+      if (!(typeof preset === 'string' && preset.trim())) {
+        input.value = ''; autoResize(input);
+        try { if (window._chatDraft) window._chatDraft.clear(); } catch (_) { /* empty-catch-allow: the sent text must not come back as a draft */ }
+      }
       // The suggestions have served their purpose once a question is really on its way.
       try { const _chips = document.getElementById('assistant-starter-chips'); if (_chips) _chips.remove(); }
       catch (_) { /* empty-catch-allow */ }
       const _myAsk = ++_askGen;
-      _reachedFallback = false;   // false | 'dispatched' | 'written' (round 5)
+      _reachedFallback = false;   // false | 'dispatched' | 'arrived' | 'written' (round 5; 'arrived' 2026-10-06)
       _servedFromCache = false;
       // The identity this TURN is sent under, not the one the chat opened with. getSession reads the stored
       // session instead of the network round-trip getUser makes, on a path that is already slow by
@@ -2283,6 +2371,7 @@ happens to know maintenance, not a manual.`;
         // legacy=null -> sent null. Now mirrors the reads' `wh_active_hive_id || wh_hive_id` resolution.
         const hiveId = whHiveId();
         let reply = null;
+        let replyTraceId = null;   // ai-gateway's id for the call whose answer `reply` IS; set with it, never apart
 
         // ★SIX SECONDS ON EVERY QUESTION, FOR A FIELD NOTHING READS (design lens critique, 2026-09-15).
         // getSemanticContext made a JWT-forwarded semantic-search POST with a 6000ms ceiling on the
@@ -2403,7 +2492,12 @@ happens to know maintenance, not a manual.`;
                 return null;
               }
               const env = r.data;
-              return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
+              const inner = (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
+              // The envelope's trace_id sits BESIDE .data, so unwrapping dropped the one id that names this call.
+              // It rides on the payload (a copy - the response object is not ours to edit) so the reply's rating
+              // can carry it (LM-E, 2026-10-08). whTraceIdOf returns null for no id; none is made up.
+              const traceId = (typeof window.whTraceIdOf === 'function') ? window.whTraceIdOf(env) : null;
+              return (inner && typeof inner === 'object') ? Object.assign({}, inner, { trace_id: traceId }) : inner;
             }).catch(async (e) => {
               const rl = isRateLimited(e);
               setFailure(rl ? 'rate_limit' : 'error', rl ? await _horizon(e) : e);
@@ -2448,10 +2542,13 @@ happens to know maintenance, not a manual.`;
               },
             },
           });
-          // Preserve the 25s ceiling: if the chain is slow, fall back to the
-          // personal assistant rather than hang behind the gateway's own 60s
-          // downstream budget. Unwrap via the shared _raceGatewayData helper.
-          const orchData = await _raceGatewayData(gwInvoke, 25000);
+          // ★THE 25 s RACE PAID FOR EVERY SLOW QUESTION TWICE (LM-R, LM221, 2026-10-07). When the fallback chain was
+          // slow, this race gave up on Step 1 while the orchestrator was still answering, and Step 2 started a
+          // SECOND full path: one question measured 5 model calls and ~14.5K tokens in 42 s, and the first answer
+          // was thrown away when it arrived. Each provider attempt is now capped at 25 s and the gateway forwards
+          // for up to 70 s, so Step 1 is given 50 s - Step 2 runs when Step 1 genuinely fails or hangs, not when
+          // it is merely slower than a timer. Unwrap via the shared _raceGatewayData helper.
+          const orchData = await _raceGatewayData(gwInvoke, 50000);
           // ★THE CATCH BELOW CANNOT FIRE (design lens critique round 3, 2026-09-15). The vendored
           // supabase-js invoke() wraps its own throw in a try whose catch RESOLVES {data:null,error}, so this
           // await never rejects and _authFailure was always null - the session-expired sentence, the only
@@ -2488,10 +2585,12 @@ happens to know maintenance, not a manual.`;
             // assistant answer is a fragment: it either ends like a sentence or has real length.
             // A fragment falls through to Step 2 (and Step 2's own floor throws to the inline
             // error path, which restores the question) — never onto the glass as an answer.
-            const _a = String(orchData.answer).trim();
+            // LM-S (2026-10-07): only TEXT is an answer - String() of a structured model reply is the literal "[object Object]".
+            const _a = (typeof orchData.answer === 'string') ? orchData.answer.trim() : '';
             const _fragment = _a.length < 4 || (!/[.!?…]["')\]]?$/.test(_a) && _a.length < 12);
             if (!_fragment) {
               reply = _a;
+              replyTraceId = orchData.trace_id || null;
               // ★A CACHED ANSWER LOOKED EXACTLY LIKE A FRESH ONE (round 4, 2026-09-15). On a rate limit the
               // gateway serves cacheLookup() with usage.served_from = "adaptive_cache" and a 3600s TTL, so an
               // answer up to an hour old - computed against a different alert count and a different
@@ -2569,7 +2668,17 @@ happens to know maintenance, not a manual.`;
           if (_authedUser) _reachedFallback = 'dispatched';
           const fbData = await _raceGatewayData(fbInvoke, 30000);
           // A resolved fbData, or a failure carrying a real HTTP status, both prove the request arrived.
-          if (_authedUser && (fbData || _gwStatus(window.__whGatewayError))) _reachedFallback = 'written';
+          // ★ARRIVED IS NOT WRITTEN EITHER (2026-10-06, assistant x assistive-tech, PostgREST stopped). A 5xx proves
+          // the gateway was reached, not that its persist-first write landed: that write goes through the same
+          // database the outage took down, and the gateway CATCHES its failure as non-fatal. Measured: the turn was
+          // labelled "no answer - saved to your Journal" while voice_journal_entries gained no row. Only two answers
+          // imply the row exists - a reply, or a 429, because the quota gates run AFTER the write by design (T12).
+          // Any other status is 'arrived': sent, fate unknown, and the label says no more than that.
+          if (_authedUser) {
+            const _fbSt = _gwStatus(window.__whGatewayError);
+            if (fbData || _fbSt === 429) _reachedFallback = 'written';
+            else if (_fbSt) _reachedFallback = 'arrived';
+          }
           if (!fbData || !fbData.answer || fbData.error) {
             // NAME THE CAUSE THE PERSON CAN ACT ON. A rate limit and a slow link need opposite responses —
             // wait vs move somewhere with better signal — so one sentence cannot serve both. The quota case
@@ -2622,7 +2731,8 @@ happens to know maintenance, not a manual.`;
           // T16 stream-orphan guard, fallback half: the same mid-generation death can hand THIS
           // path a fragment too. A fragment here has nowhere lower to fall — throw to the catch,
           // whose inline bubble + input-restore is the designed failure surface.
-          const _fb = String(fbData.answer).trim();
+          // LM-S (2026-10-07): only TEXT is an answer - String() of a structured model reply is the literal "[object Object]".
+          const _fb = (typeof fbData.answer === 'string') ? fbData.answer.trim() : '';
           if (_fb.length < 4 || (!/[.!?…]["')\]]?$/.test(_fb) && _fb.length < 12)) {
             throw _phrased((window.whAiError
                 ? window.whAiError({ message: (typeof navigator !== 'undefined' && navigator.onLine === false) ? 'offline' : 'error' })
@@ -2630,6 +2740,7 @@ happens to know maintenance, not a manual.`;
               + _t(' Nothing you typed was lost.', ' Walang nawala sa inilagay mo.'));
           }
           reply = _fb;
+          replyTraceId = fbData.trace_id || null;   // Step 2's call, not Step 1's - the answer shown is this one
           if (typeof fbData.remaining === 'number') _lastRemaining = fbData.remaining;
         }
 
@@ -2704,7 +2815,7 @@ happens to know maintenance, not a manual.`;
           }
         } catch (_) { /* empty-catch-allow: a nudge must never break the reply */ }
         _paintQuotaNote();
-        if (reply) _attachChatFeedback(replyEl, text, reply);
+        if (reply) _attachChatFeedback(replyEl, text, reply, replyTraceId);
 
       } catch (err) {
         if (_myAsk !== _askGen) return;     // stopped: the person already has their answer, which is none
@@ -2743,7 +2854,9 @@ happens to know maintenance, not a manual.`;
         if (_pendingUserEl) {
           _markTurnUnsent(_pendingUserEl, text, _reachedFallback === 'written'
             ? _t('no answer - saved to your Journal', 'walang sagot - naka-save sa Journal mo')
-            : _t('not sent', 'hindi naipadala'), _failNotice);
+            : _reachedFallback === 'arrived'
+              ? _t('no answer', 'walang sagot')
+              : _t('not sent', 'hindi naipadala'), _failNotice);
           _pendingUserEl = null;
         }
         // D4 recovery (deepwalk): the turn FAILED, so the optimistic input-clear at the top must be
@@ -2916,7 +3029,7 @@ happens to know maintenance, not a manual.`;
             const _pe = document.getElementById('chat-persona-name');
             if (!_pe || !_k || typeof window.personaName !== 'function') return;
             const _nm = window.personaName(_k);
-            if (_nm) _pe.textContent = '· ' + _nm;
+            if (_nm) _pe.textContent = _t('· with ', '· ') + _nm;
           } catch (_) { /* empty-catch-allow: a name is decoration, never a blocker */ }
         }).catch(() => {});
       }
@@ -2927,8 +3040,11 @@ happens to know maintenance, not a manual.`;
         document.getElementById('worker-name').value = savedName;
         startChat();
       } else {
-        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast(_t('Could not load your records: check your connection.',
-                       'Hindi ma-load ang iyong mga record: suriin ang koneksyon mo.')); });
+        // 2026-10-06 (assistant x assistive-tech, PostgREST stopped): this blamed the connection for every failure,
+        // including a service outage with navigator.onLine TRUE. whReadError names the cause it can actually see.
+        loadRecordsSummary().catch(e => { console.error('loadRecordsSummary:', e); showToast(typeof whReadError === 'function'
+                       ? whReadError(e, 'your records')
+                       : _t('Could not load your records.', 'Hindi ma-load ang iyong mga record.')); });
       }
 
       // Deep-link via ?q= (companion-launcher's "continue in Assistant" carries the

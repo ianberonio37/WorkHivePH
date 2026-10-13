@@ -37,7 +37,7 @@ The Resume Builder is one page and the entire flow is five moves. Nothing needs 
 2. **Auto-fill.** Tap **✨ Auto-fill from my WorkHive data** to pull logged work from your Logbook and verified skills from your Skill Matrix.
 3. **Review.** The builder shows what it found. Every line stays editable, each entry shows where it came from, and **↩ Undo** covers mistakes.
 4. **Tailor.** Paste a job ad into **Tailor to a job**, then check your match score for that posting.
-5. **Export.** **👁 Preview & Export** with ATS-plain on; download a PDF or Word .docx, print it, or keep a JSON copy.
+5. **Export.** **👁 Preview & Export** with ATS-plain on; download a PDF or a Word file, print it, or keep a copy of your data with **Data file**.
 
 That is the entire loop. The two steps people get wrong are what to feed the auto-fill and how to tailor without keyword stuffing; the next two sections cover exactly those.
 
@@ -70,7 +70,7 @@ When the preview reads right, export with the **ATS-plain** option on. It keeps 
 - plain fonts with no embedded styling for the parser to choke on
 - the same wording you approved on screen, nothing reformatted behind your back
 
-You get a PDF or Word .docx for online applications, Print for a walk-in at a Subic contractor, and a JSON copy of your data that no website can lock away from you. Saved versions live in **📂 My Resumes**, so you can keep one resume per target role and re-tailor each one in minutes.
+You get a PDF or Word .docx for online applications, Print for a walk-in at a Subic contractor, and a data file of your own (in the open JSON Resume format) that no website can lock away from you. Saved versions live in **📂 My Resumes**, so you can keep one resume per target role and re-tailor each one in minutes.
 
 ## Five habits that beat a better-looking resume
 
@@ -106,7 +106,7 @@ Yes. Every line stays editable with provenance, and Undo reverses a change you d
 
 ### Is my resume data private?
 
-Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a JSON copy any time and keep it offline.
+Your resume lives in your WorkHive account and is not shared with employers or other members. You can download a copy of your data any time with Data file and keep it offline.
 
 **Keep reading:** [build the portable portfolio behind it](https://workhiveph.com/learn/ofw-engineer-portable-portfolio/), or [ground it in a skill matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/).
 
@@ -117,4 +117,4 @@ Your resume lives in your WorkHive account and is not shared with employers or o
 - Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements
 - TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications
 
-<!-- md-twin source-sha: 95d310b413bb4904 -->
+<!-- md-twin source-sha: 0d8002dd67b5181e -->

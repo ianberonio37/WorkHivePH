@@ -2,7 +2,7 @@
 name: table-rls-cmms_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:cmms_audit_log
-source_sha: dcdb341259462b18
+source_sha: d8fdee169b2ef509
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,6 +16,7 @@ Columns (*=NOT NULL): id*, hive_id, batch_id*, operation*, entity_type, system_t
 Policies:
 - `cmms_audit_log_insert` [INSERT · roles=public] USING=`∅` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
 - `cmms_audit_log_select` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`∅`
+- `cmms_audit_log_mark_rolled_back` [UPDATE · roles=authenticated] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)) AND (operation = 'file_import'::te` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)) AND (operation = 'file_import_roll`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

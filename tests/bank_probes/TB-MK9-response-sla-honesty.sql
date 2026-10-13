@@ -28,8 +28,11 @@
 -- Self-minted, begin/rollback, nothing survives.
 begin;
 
+-- (2026-10-08) the NEW seller below is a different PERSON: two names on one account in one hive is what
+-- hive_members_one_per_person_per_hive (20261004000003) now refuses, and it stopped this probe there.
 insert into auth.users(id, email) values
-  ('d1aaaaaa-0000-4000-8000-0000000000d9','tb-mk9-seller@gate.local');
+  ('d1aaaaaa-0000-4000-8000-0000000000d9','tb-mk9-seller@gate.local'),
+  ('d1aaaaaa-0000-4000-8000-0000000000da','tb-mk9-newseller@gate.local');
 insert into public.hive_members(hive_id, worker_name, role, status, auth_uid) values
   ((select id from public.hives order by id limit 1),'TB MK9 Seller','worker','active',
    'd1aaaaaa-0000-4000-8000-0000000000d9');
@@ -98,7 +101,7 @@ $mk9$;
 -- ---- the empty state: inquiries but NO replies must stay NULL, never 0 -------------------------------
 insert into public.hive_members(hive_id, worker_name, role, status, auth_uid) values
   ((select id from public.hives order by id limit 1),'TB MK9 NewSeller','worker','active',
-   'd1aaaaaa-0000-4000-8000-0000000000d9');
+   'd1aaaaaa-0000-4000-8000-0000000000da');
 insert into public.marketplace_listings
   (id, hive_id, seller_name, section, title, category, price, status)
 values ('d1ffffff-0000-4000-8000-0000000000da',

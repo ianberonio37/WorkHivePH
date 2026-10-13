@@ -58,6 +58,7 @@ def _regressions(text: str):
     try:
         import fix_type_floor_sweep as TF, fix_public_funnel_kicker_floor as KF
         import fix_callout_accent_border as CB, fix_mono_stack_unify as MS
+        import fix_calc_cta_crew_context as CTA, fix_calc_method_defaults_split as MD
     except Exception:
         return n
     _, lifted, _ = TF.patch(text)
@@ -68,6 +69,11 @@ def _regressions(text: str):
     if sum(c.values()): n["thick callout border"] = sum(c.values())
     m = text.count(MS.OLD)
     if m: n["Windows-only mono stack"] = m
+    # the two sentence sweeps (critic B3, 2026-10-13): the roster this gate asks must be the roster that fixes
+    r = CTA.retired_count(text)
+    if r: n["retired calculator CTA"] = r
+    j = text.count(MD.OLD)
+    if j: n["joined method note"] = j
 
 
     return n

@@ -91,16 +91,21 @@
          the chrome rather than of the page behind it. The glass look survives: backdrop-filter still
          blurs, and .wf-back:hover already sat at .92, so this is the resting state matching the
          hover state rather than a new value. */
-      '#wh-wayfinding .wf-back,#wh-wayfinding .wf-crumb{pointer-events:auto;display:inline-flex;align-items:center;min-height:44px;background:rgba(17,24,39,.92);color:#f3f4f6;border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.25)}',
+      /* ★THE BAND WAS THE LAST TAILWIND PALETTE ON EVERY PAGE (critiques W45908/W45915/W45936, 2026-10-13): gray-900 pills,
+         gray-100 text, a slate-300 crumb and a blue-300 link - four off-token reads the design walk counted on every page
+         that carries the band. Same roles, the platform's tokens: --wh-navy pills (hover --wh-navy-mid), --wh-cloud text,
+         muted-white crumb, --wh-blue-text link. The .92 opacity stays, for the reason above: over a white document the
+         link still reads about 7:1 (was 7.9 with blue-300), over the dark pages higher. */
+      '#wh-wayfinding .wf-back,#wh-wayfinding .wf-crumb{pointer-events:auto;display:inline-flex;align-items:center;min-height:44px;background:rgba(22,32,50,.92);color:var(--wh-cloud,#F4F6FA);border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.25)}',
       '#wh-wayfinding .wf-back{min-width:44px;justify-content:center;gap:6px;padding:0 14px 0 10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}',
-      '#wh-wayfinding .wf-back:hover{background:rgba(31,41,55,.92)}',
+      '#wh-wayfinding .wf-back:hover{background:rgba(31,46,69,.92)}',
       '#wh-wayfinding .wf-back:active{transform:scale(.96)}',
       '#wh-wayfinding .wf-back svg{flex:0 0 auto}',
-      '#wh-wayfinding .wf-crumb{padding:0 12px;font-size:12px;color:#cbd5e1;gap:6px;max-width:52vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}',
+      '#wh-wayfinding .wf-crumb{padding:0 12px;font-size:12px;color:rgba(255,255,255,.80);gap:6px;max-width:52vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}',
       /* Arc U U5: the crumb container is 44px, but the inner <a>Home</a> is measured on
          its OWN box (~33x14) — give the anchor a 44x44 min hit area. justify-center keeps
          the short label centred; the container is already 44px tall so the row is unchanged. */
-      '#wh-wayfinding .wf-crumb a{color:#93c5fd;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;box-sizing:border-box}',
+      '#wh-wayfinding .wf-crumb a{color:var(--wh-blue-text,#5FCCE8);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;box-sizing:border-box}',
       '#wh-wayfinding .wf-crumb .wf-sep{opacity:.5}',
       '#wh-wayfinding .wf-crumb [aria-current]{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',   // the current-page span ellipsizes itself: text-overflow on an inline-flex box does not reach a child span (phone fit, 2026-09-06)
       '@media (max-width:380px){#wh-wayfinding .wf-back span{display:none}#wh-wayfinding .wf-crumb{max-width:44vw}}',

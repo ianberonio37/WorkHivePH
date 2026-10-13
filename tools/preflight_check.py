@@ -80,7 +80,7 @@ def main():
             if pkg == "groq":
                 check(f"{pkg} (for free AI)", True)
             else:
-                check(f"{pkg} (for cerebras/sambanova/openrouter)", True)
+                check(f"{pkg} (OpenAI-compatible client)", True)
             has_ai_sdk = True
             break
         except ImportError:
@@ -105,9 +105,10 @@ def main():
     print("\n[Environment]")
 
     free_providers = [
+        # the platform chain's providers (tools/ai_chain.py); Cerebras left the platform 2026-10-08 (402 on every call)
         ("GROQ_API_KEY", "https://console.groq.com"),
-        ("CEREBRAS_API_KEY", "https://cerebras.ai"),
-        ("SAMBANOVA_API_KEY", "https://sambanova.ai"),
+        ("GEMINI_API_KEY", "https://aistudio.google.com"),
+        ("MISTRAL_API_KEY", "https://console.mistral.ai"),
         ("OPENROUTER_API_KEY", "https://openrouter.ai"),
     ]
 

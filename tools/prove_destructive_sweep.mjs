@@ -22,7 +22,7 @@
 //   node tools/prove_destructive_sweep.mjs --page inventory.html
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
-import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -75,7 +75,7 @@ const FIND = function find(VIS_JS) {
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0, controls = 0;
 const unreached = [];

@@ -66,7 +66,16 @@ def strip_comments(src: str) -> str:
 
 
 def call_count(text: str, sym: str) -> int:
-    return text.count(sym + "(") - text.count("function " + sym + "(")
+    calls = text.count(sym + "(") - text.count("function " + sym + "(")
+    # ★A HANDLER WIRED BY REFERENCE IS REACHED (2026-10-13). `_recorder.onstop = _onStopRecording;` is how the voice
+    # recorder's stop path runs, and it has no `_onStopRecording(` anywhere, so this read a live capability as dead
+    # and the ratchet failed at 60 > 59 the day a validator began to guard it. Two shapes hand a function to something
+    # that calls it: an assignment (`x.onstop = _f;`) and a callback argument (`.then(_f)`, `addEventListener('x', _f)`).
+    # NOT a list entry: the file's export object names every symbol (`  _f,`), and counting that made all 60 "reached"
+    # on the first try - an export is a door, and only a caller walking through it counts (the "." + s rule below).
+    s = re.escape(sym)
+    refs = len(re.findall(r"(?<![=!<>])=\s*" + s + r"\s*;", text)) + len(re.findall(r"[(,]\s*" + s + r"\s*\)", text))
+    return calls + refs
 
 
 def guarded_symbols(code: str, pattern: str = GUARDS) -> dict[str, set[str]]:
@@ -128,6 +137,14 @@ def selftest() -> int:
     chk("a comment mentioning the symbol is NOT a call",
         unreached(strip_comments("// calls _alpha() one day\nfunction _alpha(){}"), "", {"_alpha": {"g.py"}}),
         ["_alpha"])
+    chk("a handler wired by reference is reached (rec.onstop = _alpha; el.addEventListener('x', _gamma))",
+        unreached("function _alpha(){} function _gamma(){} rec.onstop = _alpha; el.addEventListener('x', _gamma);",
+                  "", {"_alpha": {"g.py"}, "_gamma": {"g.py"}}), [])
+    chk("a name listed in the export object is NOT reached (window.WHVoice = { _alpha, _gamma };)",
+        unreached("function _alpha(){} function _gamma(){} window.WHVoice = {\n    _alpha,\n    _gamma,\n  };",
+                  "", {"_alpha": {"g.py"}, "_gamma": {"g.py"}}), ["_alpha", "_gamma"])
+    chk("a name that only appears in its own definition is still unreached",
+        unreached("function _alpha(){ return 1; }", "", {"_alpha": {"g.py"}}), ["_alpha"])
     chk("a symbol the subject does not define is not guarded",
         sorted(guarded_symbols("function _real(){}", "no_such_glob_*.py")), [])
     print(f"\n  SELFTEST: {GREEN + 'PASS' + RESET if ok else RED + 'FAIL' + RESET}")

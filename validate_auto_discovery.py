@@ -43,13 +43,18 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # Add a comment whenever you extend this list so the why doesn't get lost.
 NON_TOOL_PAGES = {
     "index.html",                    # landing page
-    "architecture.html",             # RETIRED 2026-05-13 — kept on disk for archival, never in nav
+    # RETIRED 2026-05-13 and never in the NAV-HUB — but still REACHABLE, and the old note read as though
+    # nothing links it (2026-09-30): founder-console.html's "Founder Tools" panel links both this and
+    # symbol-gallery.html (founder-console.html:1231 and :1232), so a signed-in founder can be sitting on
+    # either one. That is why both are in the AV2 session-hygiene picture rather than treated as dead
+    # files, and why they are non-production for TRAJECTORY scope but not "unreachable".
+    "architecture.html",             # retired, archival; reachable only from the Founder Tools panel
     "marketplace-admin.html",        # platform admin only, not a worker tool
     "platform-actions.html",         # platform admin ops console (governance queues), not a worker tool
     "marketplace-seller.html",       # seller dashboard, gated separately
     "marketplace-seller-profile.html",  # seller profile editor
     "public-feed.html",              # public community feed (no auth required)
-    "symbol-gallery.html",           # RETIRED 2026-05-13 — kept on disk for archival, never in nav
+    "symbol-gallery.html",           # retired, archival; reachable only from the Founder Tools panel (see above)
     "platform-health.html",          # retired Phase 7, deprecated banner only
     "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
     "founder-console.html",          # Founder Console: admin-only platform-wide dashboard, not a worker tool

@@ -311,7 +311,15 @@
           justify-content: center;
           box-shadow: 0 4px 20px rgba(247,162,27,0.45), 0 0 0 0 rgba(247,162,27,0.3);
           transition: transform 0.2s, box-shadow 0.2s;
-          animation: wh-pulse 3s ease-in-out infinite;
+          /* ★THE IDLE PULSE IS GONE; THE NUDGE KEEPS THE SIGNAL (2026-10-12, the app motion rows W45913/W45941/W45948).
+             wh-pulse ran forever on this button on every app page that loads the launcher, animating BOX-SHADOW - a
+             repaint of a 20px blur every frame - on an element a worker sees tens of times a day, which the motion
+             standards answer with "remove or drastically reduce". It also blunted the one pulse that MEANS something:
+             the nudge below ("I have something for you") reads only against a trigger that is otherwise still. And
+             for most of its life it pulsed UNSEEN: the companion is dormant by design (FAB consolidation) at opacity 0
+             inside the hub, so it repainted a shadow nobody could see. Measured with document.getAnimations() before the
+             change: wh-pulse 3000ms, infinite, box-shadow, on engineering-design, inventory and logbook at both
+             viewports. */
           position: relative;
           overflow: visible;
         }
@@ -322,10 +330,6 @@
         #wh-ai-trigger:hover {
           transform: scale(1.08);
           box-shadow: 0 6px 28px rgba(247,162,27,0.6);
-        }
-        @keyframes wh-pulse {
-          0%, 100% { box-shadow: 0 4px 20px rgba(247,162,27,0.45), 0 0 0 0 rgba(247,162,27,0.25); }
-          50%       { box-shadow: 0 4px 20px rgba(247,162,27,0.45), 0 0 0 10px rgba(247,162,27,0); }
         }
         #wh-ai-trigger svg { pointer-events: none; }
 
@@ -792,7 +796,9 @@
   //
   // Best-effort throughout: anon/RLS denials, offline, or a missing table never
   // disturb the conversation. The rating is one-shot per reply.
-  async function _recordReplyFeedback(rating, question, answer) {
+  // traceId: the id ai-gateway returned for THIS reply (its envelope trace_id, kept by callAPI beside the answer),
+  // or null when the reply came from no traced call. Never minted here (LM-E, 2026-10-08).
+  async function _recordReplyFeedback(rating, question, answer, traceId) {
     const r = Number(rating);
     if (r !== 1 && r !== -1) return;
     // Use the real client (window._whSupabaseClient, lazily built if needed).
@@ -816,7 +822,7 @@
       // auth.uid() and the RLS WITH CHECK binds the row to the caller, so a
       // forged identity is rejected at the DB. We only send the human-readable
       // worker_name for harvest reports.
-      await db.from('ai_reply_feedback').insert({
+      const { error: _fbErr } = await db.from('ai_reply_feedback').insert({
         hive_id:     hiveId,
         worker_name: workerName,
         agent:       config.agent,
@@ -826,43 +832,67 @@
         question:    String(question == null ? '' : question).slice(0, 2000),
         answer:      String(answer == null ? '' : answer).slice(0, 4000),
         rating:      r,
+        trace_id:    _traceIdOf(traceId),
       });
-    } catch (_) { /* non-fatal — feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
+      return !_fbErr;
+    } catch (_) { return false; /* the caller says "not recorded" - the person decides whether to retry */ }
   }
 
   // Append a one-tap 👍/👎 row under a live assistant reply and wire it to
   // _recordReplyFeedback. Built via DOM (not innerHTML) so the XSS validator is
   // satisfied and the captured question/answer are never treated as raw HTML.
-  function _attachFeedback(msgEl, question, answer) {
+  function _attachFeedback(msgEl, question, answer, traceId) {
     if (!msgEl || !msgEl.parentNode) return;
     const row = document.createElement('div');
     row.className = 'wh-msg-rate';
     row.style.cssText = 'align-self:flex-start;display:flex;gap:6px;align-items:center;margin:-4px 0 2px 4px;';
 
+    // ★THE RATING SAID NOTHING AND COULD NOT SAY IT FAILED (LM-E walk, LM527, 2026-10-08): a press only tinted the
+    // button - a screen reader heard nothing - and a failed insert was swallowed, so a person was shown a recorded
+    // rating that never landed. The buttons were also 26 px, under the 44 px touch target. The hit area is 44 px with
+    // the same small ring inside; a polite status says what happened; a failure says so and lets them try again.
     function mkBtn(rating, glyph, label) {
       const b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('data-rate', String(rating));
       b.setAttribute('aria-label', label);
-      b.textContent = glyph;
-      b.style.cssText = 'background:transparent;border:1px solid rgba(255,255,255,.14);' +
-        'color:rgba(255,255,255,.5);border-radius:50%;width:26px;height:26px;line-height:1;' +
-        'cursor:pointer;font-size:.78rem;display:flex;align-items:center;justify-content:center;' +
+      b.style.cssText = 'background:transparent;border:0;padding:0;width:44px;height:44px;cursor:pointer;' +
+        'display:flex;align-items:center;justify-content:center;';
+      const ring = document.createElement('span');
+      ring.setAttribute('aria-hidden', 'true');
+      ring.textContent = glyph;
+      ring.style.cssText = 'border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);border-radius:50%;' +
+        'width:26px;height:26px;line-height:1;font-size:.78rem;display:flex;align-items:center;justify-content:center;' +
         'transition:background .15s,opacity .15s;';
+      b.appendChild(ring);
+      b._ring = ring;
       return b;
     }
     const up   = mkBtn(1,  '👍', 'Helpful reply');
     const down = mkBtn(-1, '👎', 'Unhelpful reply');
     row.appendChild(up);
     row.appendChild(down);
+    const note = document.createElement('span');
+    note.setAttribute('role', 'status');
+    note.setAttribute('aria-live', 'polite');
+    note.style.cssText = 'font-size:.72rem;color:rgba(255,255,255,.72);';
+    row.appendChild(note);
 
-    // One-shot: once rated, both buttons disable so the worker can't double-vote.
+    // One-shot: once rated, both buttons disable so the worker can't double-vote - unless the rating did not land.
     [up, down].forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', async function () {
         const rating = Number(btn.getAttribute('data-rate')) || 0;
-        [up, down].forEach(b => { b.disabled = true; b.style.opacity = '0.45'; b.style.cursor = 'default'; });
-        btn.style.background = (rating > 0) ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
-        _recordReplyFeedback(rating, question, answer);
+        [up, down].forEach(b => { b.disabled = true; b._ring.style.opacity = '0.45'; b.style.cursor = 'default'; });
+        btn._ring.style.background = (rating > 0) ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
+        btn._ring.style.opacity = '1';
+        const ok = await _recordReplyFeedback(rating, question, answer, traceId);
+        if (ok) {
+          note.textContent = rating > 0 ? _tt('Recorded - thank you.', 'Naitala - salamat.')
+            : _tt('Recorded as unhelpful - a person will review it.', 'Naitalang hindi nakatulong - may taong magre-review.');
+        } else {
+          note.textContent = _tt('Not recorded - try again.', 'Hindi naitala - subukan muli.');
+          [up, down].forEach(b => { b.disabled = false; b._ring.style.opacity = '1'; b._ring.style.background = 'transparent'; b.style.cursor = 'pointer'; });
+        }
       });
     });
 
@@ -877,7 +907,13 @@
     const el   = document.createElement('div');
     el.className = 'wh-typing';
     el.id = 'wh-typing-indicator';
-    el.innerHTML = '<span></span><span></span><span></span>';
+    // ★THE WAIT WAS THREE SILENT DOTS (LM-L walk, LM511, 2026-10-08): a screen-reader user who asked heard nothing
+    // until the answer (or the failure) arrived. The indicator is a polite status with words; the dots stay visual.
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>'
+      + '<span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">'
+      + _tt('The assistant is working on an answer.', 'Gumagawa ng sagot ang katulong.') + '</span>';
     msgs.appendChild(el);
     msgs.scrollTop = msgs.scrollHeight;
   }
@@ -1034,6 +1070,10 @@ happens to know maintenance, not a manual.`;
         } catch (_) { /* empty-catch-allow: error.context body not JSON → intentionally keep the default msg */ }
         const e = new Error(msg);
         if (error.context && error.context.status) e.status = error.context.status;
+        // ★THE TIMEOUT WAS THROWN AWAY HERE (LM-L walk, LM511, 2026-10-08): re-throwing as a new Error dropped
+        // error.context - the transport's TimeoutError - so the catch's took-too-long branch never matched and a
+        // person on a good connection was told to check it. The context rides along now.
+        if (error.context) e.context = error.context;
         throw e;
       }
       if (!data)  throw new Error('Empty gateway response');
@@ -1042,7 +1082,8 @@ happens to know maintenance, not a manual.`;
       // Reading top-level data.answer returned undefined -> empty string -> the floating
       // companion rendered NOTHING on every question despite a 200. Unwrap .data.answer
       // first, fall back to a flat .answer for any legacy/flat response shape.
-      return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
+      // The envelope's trace_id rides with the answer so a rating names the call it judged (LM-E, 2026-10-08).
+      return { answer: _answerText(data), traceId: _traceIdOf(data) };
     }
 
     const SUPABASE_URL = (typeof window !== 'undefined' && window.WH_SUPABASE_URL)
@@ -1053,7 +1094,7 @@ happens to know maintenance, not a manual.`;
       : 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
 
     const fetcher = (typeof window !== 'undefined' && window.fetchWithTimeout)
-      ? (u, o) => window.fetchWithTimeout(u, o, 25000)
+      ? (u, o) => window.fetchWithTimeout(u, o, 75000)   // LM109: the fallback chain can take ~50 s
       : fetch;
     const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {
       method: 'POST',
@@ -1074,7 +1115,23 @@ happens to know maintenance, not a manual.`;
     // set, so the invoke branch above is dead) — reading flat data.answer here
     // returned undefined on every success → blank bubble. Unwrap .data.answer
     // first, fall back to flat .answer for any legacy/error-flat shape.
-    return String((data && data.data && data.data.answer) || (data && data.answer) || '').trim();
+    return { answer: _answerText(data), traceId: _traceIdOf(data) };
+  }
+
+  // ★AN OBJECT WHERE THE ANSWER BELONGS WAS PRINTED AS "[object Object]" (LM-S walk, LM200, 2026-10-07). Both read
+  // sites above passed the gateway's answer through String(), so a model that returned structured output instead of
+  // text put the literal words "[object Object]" in the person's chat, on every page that hosts the companion. The
+  // answer is taken only when it IS text; anything else counts as no answer, which handleSend says plainly.
+  function _answerText(data) {
+    const inner = data && data.data ? data.data.answer : undefined;
+    const a = (typeof inner === 'string' && inner.trim()) ? inner : (data && data.answer);
+    return typeof a === 'string' ? a.trim() : '';
+  }
+
+  // The id ai-gateway returned for this call (envelope trace_id), in the shape ai_reply_feedback accepts, else null.
+  // utils.js owns the shape rule (whTraceIdOf); without it there is no id to keep, and none is made up.
+  function _traceIdOf(data) {
+    return (typeof window !== 'undefined' && typeof window.whTraceIdOf === 'function') ? window.whTraceIdOf(data) : null;
   }
 
   // ─── Send Handler ─────────────────────────────────────────────────────────────
@@ -1093,9 +1150,12 @@ happens to know maintenance, not a manual.`;
 
     try {
       let reply;
+      let replyTraceId = null;   // the gateway's id for the call that produced THIS reply; none for demo text
       let liveReply = false;
       if (config.apiEnabled && config.agent) {
-        reply = await callAPI(message);
+        const _res = await callAPI(message);
+        reply = _res.answer;
+        replyTraceId = _res.traceId;
         liveReply = true;
       } else {
         // Demo mode — simulate delay
@@ -1103,12 +1163,16 @@ happens to know maintenance, not a manual.`;
         reply = getMockResponse(ctx.page);
       }
       hideTyping();
-      const replyEl = addMessage('assistant', reply);
+      // A live reply that came back empty (or as something other than text, LM200) is said in a sentence the person
+      // can act on, never shown as an empty bubble - and it is not saved into the conversation history or rated.
+      const emptyLive = liveReply && !reply;
+      if (emptyLive) reply = "The assistant didn't send back an answer this time. Please ask again.";
+      const replyEl = addMessage('assistant', reply, emptyLive);
       // Thumbs feedback only on REAL gateway replies — never on mock/demo
       // responses (rating canned text would poison the harvest). Greetings and
       // proactive nudges go through addMessage directly and stay thumbs-free.
-      if (liveReply && reply) _attachFeedback(replyEl, message, reply);
-      maybeAddBridgeButton(message, reply);
+      if (liveReply && !emptyLive) _attachFeedback(replyEl, message, reply, replyTraceId);
+      if (!emptyLive) maybeAddBridgeButton(message, reply);
     } catch (err) {
       hideTyping();
       // Surface a worker-meaningful message. The per-user rate-limit cap is a
@@ -1160,6 +1224,10 @@ happens to know maintenance, not a manual.`;
       } else if (/limit reached|rate.?limit|too many|\/hour|per-user/i.test(m)) {
         friendly = '⚠️ ' + _tt("You've used up your AI questions for this hour. Try again in a little while — your teammates aren't affected.",
           'Naubos mo na ang mga tanong mo sa AI ngayong oras. Subukan ulit maya-maya — hindi apektado ang mga kasama mo.');
+      } else if (/WH_DB_TIMEOUT|timed? ?out|TimeoutError/i.test(m + ' ' + String((err && err.context && (err.context.name || err.context.message)) || ''))) {
+        // LM-R (2026-10-07): a slow answer is not a bad connection - "check your connection" sent people to their wifi
+        friendly = '⚠️ ' + _tt('The assistant took too long to answer this time. Please ask again.',
+          'Masyadong natagalan ang katulong sa pagsagot. Pakitanong ulit.');
       } else if (m && !OPAQUE_NETWORK.test(m)) {
         friendly = '⚠️ ' + m;
       } else {
@@ -1300,7 +1368,19 @@ happens to know maintenance, not a manual.`;
        WHAssistant.open() there threw "Cannot read properties of null (reading 'classList')" on the line
        below, AFTER already setting body.wh-companion-open: a half-applied open, a console error, and a
        body class describing a panel that does not exist. Anything a page can call, a page can call here. */
-    if (!document.getElementById('wh-ai-panel')) return false;
+    if (!document.getElementById('wh-ai-panel')) {
+      /* ★...AND THE PRESS MUST STILL LAND SOMEWHERE (nav-hub MCP walk, 2026-10-06). The guard above made the
+         call safe but silent: the hub's "Open companion" closed the hub, this returned false, and focus fell
+         to <body> - a named button that did nothing. On a page that suppressed the widget because it IS a
+         chat, opening the companion means going to that chat's own question box. (checkVisibility, not
+         offsetParent: the composer is position:fixed, where offsetParent is always null.) */
+      var own = document.getElementById('chat-input');
+      if (own && (typeof own.checkVisibility !== 'function' || own.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }))) {
+        own.focus();
+        return true;
+      }
+      return false;
+    }
     isOpen = true;
     // FAB-CONSOLIDATION + Axis-3 reveal-decouple: reveal the widget via its OWN body
     // class (delegated to the canonical WHPatterns.revealVia), independent of the nav-hub.

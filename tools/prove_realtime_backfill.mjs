@@ -9,7 +9,7 @@
 //   node tools/prove_realtime_backfill.mjs            # all cases; exit 1 on any that never caught up
 //   node tools/prove_realtime_backfill.mjs --page hive.html
 import { chromium } from 'playwright';
-import { SEEDER, HIVE, WORKER, signIn, psql } from './prover_harness.mjs';   // shared preamble (2026-09-05)
+import { SEEDER, HIVE, WORKER, signIn, psql, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const TAG = 'PRB-BACKFILL-' + Date.now();
 const CASES = [
@@ -27,7 +27,7 @@ const CASES = [
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;
 for (const c of CASES) {

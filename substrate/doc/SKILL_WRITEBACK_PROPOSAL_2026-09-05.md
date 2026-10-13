@@ -2,7 +2,7 @@
 name: doc-SKILL_WRITEBACK_PROPOSAL_2026-09-05
 type: doc
 source: file:SKILL_WRITEBACK_PROPOSAL_2026-09-05.md
-source_sha: 9a9e7ffe46d861f3
+source_sha: f4476b5babe31746
 last_verified: 2026-07-13
 supersedes: null
 ---

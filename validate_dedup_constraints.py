@@ -77,13 +77,26 @@ def _has_unique_over(sql: str, table: str, cols: list[str]) -> bool:
     return False
 
 
-def _client_graceful(page: str) -> bool:
+def _client_graceful(page: str, table: str = "", sql: str = "") -> bool:
     p = ROOT / page
     try:
         t = p.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return False
-    return ("23505" in t) or bool(re.search(r"\.upsert\(", t))
+    if ("23505" in t) or bool(re.search(r"\.upsert\(", t)):
+        return True
+    # ★THE WRITE MOVED INTO AN RPC THAT ABSORBS THE CONFLICT (2026-10-13). asset-hub accepts a staging recommendation
+    # through accept_parts_staging, whose INSERT carries ON CONFLICT (recommendation_id, item_id) DO NOTHING: the 23505
+    # can no longer reach the page. Credited only when the page calls the RPC and that function's own insert into THIS
+    # table carries ON CONFLICT.
+    if table and sql:
+        for fn in set(re.findall(r"\.rpc\(\s*['\"]([a-z_][a-z0-9_]*)['\"]", t)):
+            for m in re.finditer(rf"FUNCTION\s+(?:public\.)?{re.escape(fn)}\s*\(", sql, re.IGNORECASE):
+                body = sql[m.end(): m.end() + 6000]
+                if re.search(rf"INSERT\s+INTO\s+(?:public\.)?{re.escape(table)}\b[\s\S]{{0,800}}?ON\s+CONFLICT\b",
+                             body, re.IGNORECASE):
+                    return True
+    return False
 
 
 def main() -> int:
@@ -93,7 +106,7 @@ def main() -> int:
     issues = []
     for table, cols, page in DEDUP_PATHS:
         db_ok = _has_unique_over(sql, table, cols)
-        cli_ok = True if page is None else _client_graceful(page)
+        cli_ok = True if page is None else _client_graceful(page, table, sql)
         status = G + "PASS" + X if (db_ok and cli_ok) else R + "FAIL" + X
         detail = []
         if not db_ok:

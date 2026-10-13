@@ -2,7 +2,7 @@
 name: edge-fn-embed-entry
 type: edge-fn
 source: file:supabase/functions/embed-entry/index.ts
-source_sha: b01f39531e7cd299
+source_sha: 8e370db5e722718e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -10,7 +10,7 @@ supersedes: null
 
 Auth gate: **no per-user auth idiom; appears service-role/batch (by design) — confirm the CALLER checks membership**
 
-Tables touched: `v_asset_truth`, `v_pm_compliance_truth`
+Tables touched: `pm_knowledge`, `v_asset_truth`, `v_pm_compliance_truth`
 RPCs called: (none)
 
 Links: [[project_platform_knowledge_substrate]]

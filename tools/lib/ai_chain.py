@@ -1,11 +1,15 @@
 """Python replica of supabase/functions/_shared/ai-chain.ts.
 
-Same 19-model fallback chain (Groq → Cerebras → Gemini → Mistral →
-OpenRouter) the edge functions use — kept in lockstep with
+Same free-tier fallback chain (Groq → Gemini → Mistral → OpenRouter, code
+models last) the edge functions use — kept in lockstep with
 _shared/ai-chain.ts PROVIDER_CHAIN (and tools/ai_chain.py). Missing API
 keys cause silent skip — script keeps working with whatever's configured.
 429 / 413 / 503 are recoverable; we move to the next entry (honoring
 Retry-After, P2). Hard errors raise.
+
+PACED (2026-10-08): every call_ai() goes through tools/lib/chain_pacer.process_pacer() - the same process-wide gap,
+cap and quota-exhausted stop as tools/ai_chain.py. A stopped pacer raises AIQuotaExhausted (an AIChainError) without
+sending anything.
 
 Why a local replica:
   - Edge functions can't be invoked from one-shot Python tools cleanly
@@ -67,6 +71,8 @@ class _Provider:
     env_key:       str
     max_tokens_cap: Optional[int] = None
     extra_headers: Optional[dict[str, str]] = None
+    extra_body:    Optional[dict] = None   # provider-specific request fields, as ai-chain.ts extraBody
+    last_resort:   bool = False            # a code model: tried after every general model, as ai-chain.ts lastResort
 
 
 # Order mirrors _shared/ai-chain.ts exactly — change one, change both.
@@ -83,36 +89,45 @@ _CHAIN: list[_Provider] = [
     # A mirror gate that reads two of three mirrors is a gate whose reach is narrower than its rule.
     # It now reads all three; see its L5.
     _Provider("groq", "https://api.groq.com/openai/v1", "qwen/qwen3.8-27b",                           "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-20b",                         "GROQ_API_KEY"),
-    _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b",                        "GROQ_API_KEY"),
-    # Tier 2: Cerebras (1M tokens/day free) - these TWO ARE the list Cerebras serves (asked 2026-09-28;
-    # it was three until gemma-4-31b was retired, which is why the count is written here and checked)
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "gpt-oss-120b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
-    _Provider("cerebras", "https://api.cerebras.ai/v1", "qwen-3.8-27b", "CEREBRAS_API_KEY", max_tokens_cap=4096),
+    # v9 (2026-10-08): reasoning_effort "low" - at the default effort gpt-oss spent the whole max_tokens reasoning and
+    # Groq answered 400 json_validate_failed (failed_generation ""). Mirrors the TS chain.
+    _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-20b",                         "GROQ_API_KEY", extra_body={"reasoning_effort": "low"}),
+    _Provider("groq", "https://api.groq.com/openai/v1", "openai/gpt-oss-120b",                        "GROQ_API_KEY", extra_body={"reasoning_effort": "low"}),
+    # (Tier 2 was Cerebras: REMOVED from the platform 2026-10-08 - 402 payment_required on every call since 2026-09-10.)
     # Tier 3: Google Gemini (free tier)
-    _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",      "GEMINI_API_KEY"),
+    _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash",      "GEMINI_API_KEY", extra_body={"reasoning_effort": "none"}),
+    # v10: a separate per-model free quota; "low" thinking kept a 320-token JSON answer whole. Mirrors the TS chain.
+    _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-3.1-flash-lite", "GEMINI_API_KEY", extra_body={"reasoning_effort": "low"}),
     _Provider("google", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash-lite", "GEMINI_API_KEY"),
     # Tier 4: Mistral (free tier)
     _Provider("mistral", "https://api.mistral.ai/v1", "mistral-medium-latest", "MISTRAL_API_KEY"),
-    _Provider("mistral", "https://api.mistral.ai/v1", "codestral-latest",     "MISTRAL_API_KEY"),
+    # v9: fills a slot Cerebras held. Mirrors the TS chain.
+    _Provider("mistral", "https://api.mistral.ai/v1", "mistral-small-latest",  "MISTRAL_API_KEY"),
     # Tier 5: OpenRouter (200 req/day on :free models)
     _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-super-120b-a12b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-31b-it:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3.5-lightning:free",
-              "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-26b-a4b-it:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-ultra-550b-a55b:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "qwen/qwen3.8-27b:free",
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "dots-studio/dots-3-note-preview:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
+    # v8 (2026-10-07): code-specialist models are last resorts for general calls (mirrors the TS chain).
+    _Provider("mistral", "https://api.mistral.ai/v1", "codestral-latest",     "MISTRAL_API_KEY", last_resort=True),
+    _Provider("openrouter", "https://openrouter.ai/api/v1", "poolside/laguna-s-2.1:free",
+              "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"},
+              last_resort=True),
 ]
 
 
 class AIChainError(RuntimeError):
     pass
+
+
+class AIQuotaExhausted(AIChainError):
+    """The process pacer stopped (cap reached, or every provider answered 429 twice running). Nothing was sent."""
 
 
 # ── Resilience mirror of _shared/ai-chain.ts P1–P3 (2026-06-14) ───────────────
@@ -124,12 +139,13 @@ class AIChainError(RuntimeError):
 def _reorder_chain(spread: bool) -> list[_Provider]:
     """P1 herd-spread (mirrors ai-chain.ts reorderChain spread=true). Shuffle WITHIN each
     provider tier so N concurrent calls don't all stampede the same head model and 429 in
-    lockstep. Tier order (groq -> cerebras -> openrouter) preserved. OFF by default so the
-    deterministic order is kept for non-burst callers + the Node-parity test."""
+    lockstep. Tier order (groq -> google -> mistral -> openrouter) preserved, and last-resort (code) entries
+    stay behind every general one, as in ai-chain.ts. OFF by default so the deterministic order is kept for
+    non-burst callers + the Node-parity test."""
     if not spread:
         return list(_CHAIN)
     out: list[_Provider] = []
-    chain = list(_CHAIN)
+    chain = [e for e in _CHAIN if not e.last_resort] + [e for e in _CHAIN if e.last_resort]
     i = 0
     while i < len(chain):
         j = i + 1
@@ -170,6 +186,7 @@ def _attempt_chain(
     """Walk a given ordered chain once. Returns (result_or_None, max_retry_after_s, errors)."""
     errors: list[str] = []
     max_ra = 0.0
+    statuses = _LAST.setdefault("statuses", [])
     for entry in chain:
         api_key = os.environ.get(entry.env_key)
         if not api_key or api_key.startswith("PASTE_"):
@@ -182,6 +199,8 @@ def _attempt_chain(
                 "temperature": temperature, "max_tokens": effective_max}
         if json_mode:
             body["response_format"] = {"type": "json_object"}
+        if entry.extra_body:
+            body.update(entry.extra_body)
         label = f"{entry.provider}/{entry.model.split('/')[-1]}"
         try:
             res = requests.post(f"{entry.base_url}/chat/completions",
@@ -189,7 +208,9 @@ def _attempt_chain(
         except requests.RequestException as e:
             errors.append(f"{label}: network {e.__class__.__name__}")
             if verbose: print(f"  [ai-chain] {label} network err — next")
+            statuses.append(0)
             continue
+        statuses.append(res.status_code)
         if res.status_code in (429, 413, 503):
             ra = _parse_retry_after(res.headers.get("retry-after"))   # P2: honor Retry-After
             if ra is not None:
@@ -285,9 +306,18 @@ def call_ai(
     if _sovereign is not None:
         return _sovereign
 
+    pm = _pacer()
+    pacer = pm.process_pacer()
+    _LAST.clear()
+    _LAST.update({"statuses": [], "served_by": None})
+    if not pacer.wait():
+        raise AIQuotaExhausted(pacer.stop_reason + " - nothing sent")
+
     # Pass 1 — herd-spread chain (P1)
     result, ra1, errs1 = _attempt_chain(_reorder_chain(spread), messages, **common)
     if result is not None:
+        _LAST["served_by"] = result[1]
+        pacer.record("served")
         return result
 
     # P3 — one bounded jittered retry before failing. Wait the larger of a jitter (0.3–1.2s) or
@@ -298,8 +328,34 @@ def call_ai(
     time.sleep(wait)
     result2, _ra2, errs2 = _attempt_chain(_reorder_chain(spread), messages, **common)
     if result2 is not None:
+        _LAST["served_by"] = result2[1]
+        pacer.record("served")
         return result2
+    pacer.record(pm.outcome_from_statuses(_LAST["statuses"], served=False))
 
     raise AIChainError(
         "All providers failed or unconfigured (2 passes). Tried:\n  " + "\n  ".join(errs1 + errs2)
     )
+
+
+_LAST: dict = {}
+
+
+def last_outcome() -> dict:
+    """What the most recent call_ai() did: {"statuses": [HTTP status per entry asked], "served_by": label|None}."""
+    return dict(_LAST)
+
+
+def _pacer():
+    """The process-wide pacer from tools/lib/chain_pacer.py, loaded by file path so it is ONE object whichever mirror
+    (and whichever sys.path layout) the caller came through."""
+    import importlib.util
+    import sys as _sys
+    mod = _sys.modules.get("wh_chain_pacer")
+    if mod is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chain_pacer.py")
+        spec = importlib.util.spec_from_file_location("wh_chain_pacer", path)
+        mod = importlib.util.module_from_spec(spec)
+        _sys.modules["wh_chain_pacer"] = mod
+        spec.loader.exec_module(mod)
+    return mod

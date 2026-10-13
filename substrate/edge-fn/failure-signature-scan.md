@@ -2,7 +2,7 @@
 name: edge-fn-failure-signature-scan
 type: edge-fn
 source: file:supabase/functions/failure-signature-scan/index.ts
-source_sha: 2c3498d76f2df34e
+source_sha: 9561c09a49152d8f
 last_verified: 2026-07-13
 supersedes: null
 ---

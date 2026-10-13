@@ -2,7 +2,7 @@
 name: doc-UFAI_UIUX_IMPROVEMENT_PLAN
 type: doc
 source: file:UFAI_UIUX_IMPROVEMENT_PLAN.md
-source_sha: 9cbdd205e18e7a8c
+source_sha: 00962e4e8cf3c2a0
 last_verified: 2026-07-13
 supersedes: null
 ---

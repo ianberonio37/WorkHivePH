@@ -11,7 +11,7 @@
 //   node tools/prove_reference_repaint_keeps_focus.mjs            # all; exit 1 on any lost focus/draft
 //   node tools/prove_reference_repaint_keeps_focus.mjs --page logbook.html
 import { chromium } from 'playwright';
-import { SEEDER, signIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
+import { SEEDER, signIn, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const CASES = [
   { file: 'validator-catalog.html', input: '#q', text: 'T15', wait: 6000 },
@@ -29,7 +29,7 @@ const CASES = [
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
-if (CASES.some((c) => c.signin && (!ONLY || c.file === ONLY))) await signIn(ctx);
+if (CASES.some((c) => c.signin && (!ONLY || c.file === ONLY))) await assertSignedIn(signIn(ctx));
 let bad = 0, n = 0;
 for (const c of CASES) {
   if (ONLY && c.file !== ONLY) continue;

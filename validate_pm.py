@@ -219,7 +219,20 @@ def check_scope_payload_fields(content, page):
         return [{"check": "scope_payload_fields", "page": page, "reason": "scopePayload not found"}]
     block  = re.sub(r'\$\{[^}]*\}', '', m.group(1))
     fields = set(re.findall(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*:', block))
-    missing = [f for f in SCOPE_ITEM_REQUIRED if f not in fields]
+    required = list(SCOPE_ITEM_REQUIRED)
+    # ★THE ASSET'S OWN IDS COME FROM THE WRITE THAT CREATES IT (2026-10-13). Sent as p_tasks to
+    # create_pm_asset_with_tasks, the tasks get asset_id and hive_id from the asset the same transaction creates -
+    # the client cannot know that id beforehand, which is why the RPC exists. Then the RPC's migration, not the
+    # payload, must supply them; a direct client insert is still held to every field.
+    if re.search(r"rpc\(\s*['\"]create_pm_asset_with_tasks['\"][^)]*p_tasks\s*:\s*scopePayload", content):
+        from pathlib import Path as _P
+        mig = "\n".join(f.read_text(encoding="utf-8", errors="replace")
+                        for f in (_P(__file__).resolve().parent / "supabase" / "migrations").glob("*.sql")
+                        if "create_pm_asset_with_tasks" in f.read_text(encoding="utf-8", errors="replace"))
+        if re.search(r"INSERT\s+INTO\s+public\.pm_scope_items\s*\(\s*asset_id\s*,\s*hive_id\b[\s\S]{0,200}?"
+                     r"SELECT\s+v_asset\.id\s*,\s*v_asset\.hive_id", mig, re.IGNORECASE):
+            required = [f for f in required if f not in ("asset_id", "hive_id")]
+    missing = [f for f in required if f not in fields]
     return [{"check": "scope_payload_fields", "page": page, "missing_field": f,
              "reason": f"scopePayload missing '{f}' — pm_scope_items record will have null {f}"}
             for f in missing]

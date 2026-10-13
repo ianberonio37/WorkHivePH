@@ -21,7 +21,7 @@
 //   node tools/prove_tile_canonical.mjs            # every pair
 //   node tools/prove_tile_canonical.mjs --page hive.html
 import { chromium } from 'playwright';
-import { SEEDER, HIVE, signIn, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, HIVE, signIn, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 import { execSync } from 'node:child_process';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
@@ -77,7 +77,7 @@ const READ = function read(args) {
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 const pages = [...new Set(PAIRS.map((p) => p.page))].filter((f) => !ONLY || f === ONLY);
 let bad = 0, n = 0;
 for (const file of pages) {

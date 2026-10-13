@@ -2,7 +2,7 @@
 name: table-rls-marketplace_inquiries
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_inquiries
-source_sha: 70558b6d5edf0def
+source_sha: d8db7224873c14fc
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,11 +15,11 @@ Columns (*=NOT NULL): id*, listing_id, hive_id, buyer_name*, buyer_contact, mess
 
 Policies:
 - `mkt_inq_delete` [DELETE · roles=public] USING=`is_marketplace_admin()` CHECK=`∅`
-- `mkt_inq_insert` [INSERT · roles=public] USING=`∅` CHECK=`(buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names))`
-- `mkt_inq_read` [SELECT · roles=public] USING=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a` CHECK=`∅`
-- `mkt_inq_update` [UPDATE · roles=public] USING=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a` CHECK=`((buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR (seller_name IN ( SELECT auth_worker_names() AS a`
+- `mkt_inq_insert` [INSERT · roles=public] USING=`∅` CHECK=`((buyer_auth_uid = auth.uid()) AND (buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)))`
+- `mkt_inq_read` [SELECT · roles=public] USING=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`∅`
+- `mkt_inq_update` [UPDATE · roles=public] USING=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())`
 
-Guard triggers: `trg_text_caps_mkt_inquiries`
+Guard triggers: `trg_bind_inquiry_buyer`, `trg_text_caps_mkt_inquiries`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

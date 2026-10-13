@@ -94,7 +94,7 @@
       border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8125rem;
       border: 1px solid rgba(248,113,113,0.4); transition: background 0.2s; cursor: pointer;
     }
-    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+    .btn-danger:hover { background: rgba(248,113,113,0.1); }
 
     /* Scope item row */
     .scope-row {
@@ -123,15 +123,15 @@
        comment reads "alert / danger FILL (AA text = --wh-red-text)". On this page's cards (rgb(42,61,88))
        it measures 3.98:1; --wh-red-text measures 7.7:1 there. Used wherever red TEXT sits on a card. */
     .wh-red-aa { color: var(--wh-red-text); }
-    .badge-overdue  { background: rgba(239,68,68,0.15); color: var(--wh-red-text); border: 1px solid rgba(239,68,68,0.3); }
-    .badge-duesoon  { background: rgba(251,191,36,0.15); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.3); }
-    .badge-ontrack  { background: rgba(34,197,94,0.15);  color: var(--wh-green); border: 1px solid rgba(34,197,94,0.25); }
+    .badge-overdue  { background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.3); }
+    .badge-duesoon  { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.3); }
+    .badge-ontrack  { background: rgba(74,222,128,0.15);  color: var(--wh-green); border: 1px solid rgba(74,222,128,0.25); }
     /* C2 2026-09-10: #9ca3af (grey-400) on this tint measured 4.13:1 at 0.65rem uppercase, against the
        4.5:1 that small text owes. There is no --wh-grey-text token, but the platform already tuned this
        exact semantic once: utils.js renderKpiTile's "No data" row uses rgba(255,255,255,0.78), raised
        from 0.6 on 2026-09-07 when a 24px APCA reading (Lc 0/45) showed WCAG had waved through what APCA
        would not. Reusing that value keeps one neutral for one meaning instead of a second opinion. */
-    .badge-nodata   { background: rgba(156,163,175,0.15); color: rgba(255,255,255,0.78); border: 1px solid rgba(156,163,175,0.3); }
+    .badge-nodata   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.2); }
 
     .status-badge {
       display: inline-flex; align-items: center; padding: 4px 10px;
@@ -143,15 +143,17 @@
     .asset-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
-      padding: 1rem; cursor: pointer; transition: border-color 0.2s, transform 0.1s;
-      border-left-width: 4px;
+      padding: 1rem; cursor: pointer; transition: border-color 0.2s var(--wh-ease-out, ease-out), transform 0.1s var(--wh-ease-out, ease-out);
+      /* the status hue on a 1px edge, not 4px (critique W45999, 2026-10-13): DESIGN.md - "accent borders are 1px tints of the
+         status hue, NEVER a thick coloured border-left"; inventory's part cards made the same change on 2026-10-12 */
+      border-left-width: 1px;
     }
     .asset-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
     .asset-card:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     .asset-card.overdue  { border-left-color: var(--wh-red); }
     .asset-card.duesoon  { border-left-color: var(--wh-orange); }
     .asset-card.ontrack  { border-left-color: var(--wh-green); }
-    .asset-card.nodata   { border-left-color: rgba(156,163,175,0.4); }
+    .asset-card.nodata   { border-left-color: rgba(255,255,255,0.25); }
 
     /* Category pill */
     .cat-pill {
@@ -168,7 +170,7 @@
     .freq-W  { background: rgba(56,189,248,0.15);  color: var(--wh-blue); }
     .freq-M  { background: rgba(41,182,217,0.15); color: var(--wh-blue); }
     .freq-Q  { background: rgba(167,139,250,0.15); color: var(--wh-violet-text); }
-    .freq-SA { background: rgba(251,191,36,0.15);  color: var(--wh-orange); }
+    .freq-SA { background: rgba(247,162,27,0.15);  color: var(--wh-orange); }
     .freq-Y  { background: rgba(247,162,27,0.15);  color: var(--wh-orange); }
     .freq-Other { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
 
@@ -192,7 +194,11 @@
       height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08);
       overflow: hidden;
     }
-    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    /* the fill grows on TRANSFORM (2026-10-13, the W45997 motion walk): it transitioned WIDTH over 0.4s - a layout property,
+       re-laid-out every frame, and slow for a control's feedback. The value now arrives as --p (0..1) and scales the bar
+       from its left edge on the compositor, in 0.25s easing out. */
+    .progress-fill { height: 100%; width: 100%; border-radius: 2px; transform-origin: left center;
+                     transform: scaleX(var(--p, 0)); transition: transform 0.25s ease-out; }
 
     /* History item */
     .history-row {
@@ -223,8 +229,8 @@
       border: 2px solid rgba(255,255,255,0.2); background: transparent;
       cursor: pointer; transition: all 0.15s; flex-shrink: 0;
     }
-    .complete-btn:hover { border-color: var(--wh-green); background: rgba(34,197,94,0.1); }
-    .complete-btn.done { border-color: var(--wh-green); background: rgba(34,197,94,0.15); }
+    .complete-btn:hover { border-color: var(--wh-green); background: rgba(74,222,128,0.1); }
+    .complete-btn.done { border-color: var(--wh-green); background: rgba(74,222,128,0.15); }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
@@ -337,7 +343,7 @@
     .simple-card .sc-sub   { font-size: 0.75rem; color:rgba(255,255,255,0.80); line-height:1.4; }
     .simple-card .sc-tag   { display:inline-block; font-size: 0.75rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
     .simple-card.tag-green .sc-tag { background:rgba(74,222,128,0.16);  color:var(--wh-green); }
-    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange); }
+    .simple-card.tag-amber .sc-tag { background:rgba(247,162,27,0.16);  color:var(--wh-orange-light); }   /* the AA text token, as components.css and alert-hub (2026-10-13): the fill read 4.93:1 here, borderline */
     .simple-card.tag-red   .sc-tag { background:rgba(248,113,113,0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
     .action-card { background:rgba(41,182,217,0.06); border:1px solid rgba(41,182,217,0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
@@ -380,7 +386,7 @@
 <!-- ── TOP NAV ── -->
 <nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(22,32,50,0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-    <a href="index.html" data-wh-back class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
+    <a href="index.html" data-wh-back aria-label="WorkHive home" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
     </a>
@@ -465,7 +471,7 @@
       <!-- A1 (critic re-sweep 2026-09-07): the one primary button was hidden until the recommendation computed, so the page
            had no visible primary action at first glance (cta=0). It now shows its default from first paint - the list is always
            the next step - and the computed recommendation replaces the label when it lands. -->
-      <a id="pm-action-btn" class="ac-cta" href="#filter-bar" aria-label="Do the recommended next action">Review the asset list &#8594;</a>
+      <a id="pm-action-btn" class="ac-cta" href="#filter-bar">Review the asset list &#8594;</a>
     </div>
 
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
@@ -545,7 +551,7 @@
         <div id="step-indicator" class="flex gap-1.5 items-center"></div>
       </div>
       <div class="progress-bar">
-        <div id="wizard-progress" class="progress-fill" style="background:var(--wh-orange);width:25%;"></div>
+        <div id="wizard-progress" class="progress-fill" style="background:var(--wh-orange);--p:0.25;"></div>
       </div>
     </div>
 
@@ -596,9 +602,9 @@
         <div>
           <label class="block text-xs font-semibold text-white/80 mb-1.5 uppercase tracking-wide" data-i="criticality">Criticality</label>
           <div class="grid grid-cols-3 gap-2" id="crit-group">
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)" data-i="critical">Critical</button>
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(251,191,36,0.5);color:var(--wh-orange-text);background:rgba(251,191,36,0.08);" onclick="setCrit(this)">Major</button>
-            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(34,197,94,0.3);color:var(--wh-green);background:transparent;" onclick="setCrit(this)">Minor</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Critical" style="border-color:rgba(248,113,113,0.3);color:var(--wh-red-text);background:transparent;" onclick="setCrit(this)" data-i="critical">Critical</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all selected" data-val="Major" style="border-color:rgba(247,162,27,0.5);color:var(--wh-orange-text);background:rgba(247,162,27,0.08);" onclick="setCrit(this)">Major</button>
+            <button type="button" translate="no" class="crit-btn py-2.5 rounded-xl border font-semibold text-sm transition-all" data-val="Minor" style="border-color:rgba(74,222,128,0.3);color:var(--wh-green);background:transparent;" onclick="setCrit(this)">Minor</button>
           </div>
         </div>
       </div>
@@ -943,6 +949,23 @@ window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contr
 logPageView(db);
 let _authUid = null; // C3b: populated at init from Supabase Auth session
 
+/* BRP-A (2026-10-04) — "MINE" IS THE UNION OF IDENTITY AND NAME on a READ, and the IDENTITY ALONE on a
+   WRITE guard. WORKER_NAME is localStorage text; a row's worker_name is whatever was written when it was
+   created, so once they diverge a name filter matches nothing - silently on a read, and on a write with no
+   error at all, because PostgREST answers a 0-row update or delete with 204. Reads union so that rows with
+   auth_uid NULL (service-role inserts) stay findable; write guards tighten, because the name can never
+   make a write SAFER - RLS already enforces auth_uid - it can only add a way to match nothing. Quoting via
+   JSON.stringify. ONLY for MY OWN rows, never a named teammate. */
+function _mineFilter() {
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (!uid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+}
+function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
+  (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
+
 // ─────────────────────────────────────
 // IDENTITY + HIVE
 // ─────────────────────────────────────
@@ -1149,11 +1172,20 @@ function formatDate(d) {
   return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
 
+// ★THE DEVICE CLOCK IS NOT THE HIVE'S DAY (critique W45999, 2026-10-13) - the class dayplanner and hive fixed on
+// 2026-10-12. "today" was the DEVICE's midnight and the due date was cut at the device's midnight too, so on a phone in
+// another zone "Due today / 3d overdue" turned over hours away from Manila's midnight, and west of Greenwich a due date
+// (the view's date, parsed as UTC midnight) landed on the day before. whFmtDate already prints that date on Manila's
+// calendar; the day count now uses the same calendar at both ends.
+function _phtDayNumber(d) {
+  const p = {};
+  for (const x of new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(d)) p[x.type] = x.value;
+  return Date.UTC(+p.year, +p.month - 1, +p.day) / 86400000;
+}
+
 function daysLabel(nextDue) {
   if (!nextDue) return 'No date set';
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const due   = new Date(nextDue); due.setHours(0, 0, 0, 0);
-  const diff  = Math.floor((due - today) / 86400000);
+  const diff  = _phtDayNumber(new Date(nextDue)) - _phtDayNumber(new Date());
   if (diff < 0)  return `${Math.abs(diff)}d overdue`;
   if (diff === 0) return 'Due today';
   if (diff === 1) return 'Due tomorrow';
@@ -1228,11 +1260,11 @@ const _typeToCategory = (t) => {
 const CAT_COLORS = {
   'Rotating Equipment': { bg: 'rgba(41,182,217,0.15)', color: '#5FCCE8' },
   'Static Equipment':   { bg: 'rgba(167,139,250,0.15)', color: '#C4B5FD' },
-  'Electrical':         { bg: 'rgba(251,191,36,0.15)',  color: '#f7a21b' },
-  'Instrumentation':    { bg: 'rgba(34,197,94,0.15)',   color: '#4ade80' },
+  'Electrical':         { bg: 'rgba(247,162,27,0.15)',  color: '#f7a21b' },
+  'Instrumentation':    { bg: 'rgba(74,222,128,0.15)',   color: '#4ade80' },
   'HVAC':               { bg: 'rgba(244,114,182,0.15)', color: '#f87171' },
   'Utility Systems':    { bg: 'rgba(247,162,27,0.15)',  color: '#FDB94A' },
-  'Civil / Structural': { bg: 'rgba(156,163,175,0.15)', color: '#c3ccd6' },
+  'Civil / Structural': { bg: 'rgba(255,255,255,0.08)', color: '#c3ccd6' },
   'Material Handling':  { bg: 'rgba(249,115,22,0.15)',  color: '#f7a21b' },
 };
 
@@ -1277,22 +1309,25 @@ function freqBadge(freq) {
   return `<span class="freq-badge freq-Other">${escHtml(String(freq || 'Other'))}</span>`;
 }
 
+const _STATUS_MAP = {
+  overdue:  { cls: 'badge-overdue', label: 'Overdue' },
+  duesoon:  { cls: 'badge-duesoon', label: 'Due Soon' },
+  ontrack:  { cls: 'badge-ontrack', label: 'On Track' },
+  nodata:   { cls: 'badge-nodata',  label: 'No Data' },
+};
+// One source for the status WORD, so the badge a sighted reader sees and the card name a screen reader hears
+// cannot drift apart (see the asset card's aria-label).
+function statusLabel(st) { return (_STATUS_MAP[st] || _STATUS_MAP.nodata).label; }
 function statusBadge(st) {
-  const map = {
-    overdue:  { cls: 'badge-overdue', label: 'Overdue' },
-    duesoon:  { cls: 'badge-duesoon', label: 'Due Soon' },
-    ontrack:  { cls: 'badge-ontrack', label: 'On Track' },
-    nodata:   { cls: 'badge-nodata',  label: 'No Data' },
-  };
-  const m = map[st] || map.nodata;
+  const m = _STATUS_MAP[st] || _STATUS_MAP.nodata;
   return `<span class="status-badge ${m.cls}">${m.label}</span>`;
 }
 
 function critBadge(crit) {
   const map = {
-    Critical: 'background:rgba(239,68,68,0.15);color:var(--wh-red-text);border:1px solid rgba(239,68,68,0.3);',
-    Major:    'background:rgba(251,191,36,0.15);color:#f7a21b;border:1px solid rgba(251,191,36,0.3);',
-    Minor:    'background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.25);',
+    Critical: 'background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.3);',
+    Major:    'background:rgba(247,162,27,0.15);color:#f7a21b;border:1px solid rgba(247,162,27,0.3);',
+    Minor:    'background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.25);',
   };
   return `<span class="status-badge" style="${map[crit] || ''}">${escHtml(crit || '')}</span>`;
 }
@@ -1307,7 +1342,12 @@ async function validateHiveMembership() {
     .from('hive_members')
     .select('role, status')
     .eq('hive_id', HIVE_ID)
-    .eq('worker_name', WORKER_NAME)
+    // BRP-A (2026-10-04): the membership gate keys on the IDENTITY. It used to ask
+    // `worker_name = WORKER_NAME` - localStorage text - so a person whose display name had
+    // drifted from the one on their membership row failed this check and was gated out of a hive
+    // they are still a member of. hive_members' read policy already begins `auth_uid = auth.uid()`,
+    // and 20261004000003 enforces one row per (hive_id, auth_uid), so .maybeSingle() stays safe.
+    .eq('auth_uid', _authUid)
     .maybeSingle();
   if (error) {
     console.warn('PM Scheduler: membership check failed (DB error), using cached role:', error.message);
@@ -1542,7 +1582,7 @@ async function loadData() {
     ? db.from('pm_assets').select('*')
         .or(`hive_id.eq.${HIVE_ID},and(hive_id.is.null,auth_uid.eq.${_authUid})`)
         .order('created_at', { ascending: true }).order('id').limit(500)
-    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).order('id').limit(500)
+    : db.from('pm_assets').select('*').or(_MINE()).order('created_at', { ascending: true }).order('id').limit(500)
   ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
   // The toast alone was not enough: it persisted, but so did "OVERDUE 0 · No overdue PMs · CLEAR" beside
@@ -1980,10 +2020,10 @@ function renderDashboard() {
       // dangerous half. A full reload rebuilds every region from one read set, which is what inventory
       // does and why it recovers cleanly; a targeted re-render only recovers the region it owns.
       if (typeof whListError === 'function') {
-        whListError(noResults, _t('Could not load your PM assets. This is a connection problem, not an ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa koneksyon, hindi ')
+        whListError(noResults, _t('Could not load your PM assets. This is a loading problem, not an ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa pag-load, hindi ')
           + 'empty asset register. Your assets are still there.', () => location.reload());
       } else {
-        noResults.textContent = _t('Could not load your PM assets. This is a connection problem, not an empty ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa koneksyon, hindi walang laman na ')
+        noResults.textContent = _t('Could not load your PM assets. This is a loading problem, not an empty ', 'Hindi ma-load ang mga PM asset mo. Problema ito sa pag-load, hindi walang laman na ')
           + 'asset register. Reload before adding an asset you may already have.';
       }
     }
@@ -2009,13 +2049,16 @@ function renderDashboard() {
       .filter(i => i.nextDue)
       .sort((a, b) => new Date(a.nextDue) - new Date(b.nextDue))[0];
 
+    // ★"NEXT: SEP 4" ON 13 OCTOBER (critique W45999, 2026-10-13). The earliest due date is the line's subject, and on an
+    // overdue asset that date is in the PAST - Oscar's two jeepneys read "Next: Sep 4, 2026" five weeks after it, under a
+    // red OVERDUE badge. The task's own status (the view's is_overdue) decides the verb.
     const nextDueLabel = nextDueItem
-      ? `Next: ${formatDate(nextDueItem.nextDue)} (${(nextDueItem.item_text || '').split(' ').slice(0, 4).join(' ')}...)`
+      ? `${nextDueItem.itemStatus === 'overdue' ? 'Overdue since' : 'Next:'} ${formatDate(nextDueItem.nextDue)} (${(nextDueItem.item_text || '').split(' ').slice(0, 4).join(' ')}...)`
       : 'No scheduled tasks';
 
     return `
       <div class="asset-card ${asset.overall}" onclick="openDetail('${asset.id}')"
-           role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}${asset.tag_id ? ', tag ' + escHtml(asset.tag_id) : (asset.location ? ', ' + escHtml(asset.location) : '')}"
+           role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}${asset.tag_id ? ', tag ' + escHtml(asset.tag_id) : (asset.location ? ', ' + escHtml(asset.location) : '')}, ${escHtml(statusLabel(asset.overall))}"
            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="flex items-start justify-between gap-3 mb-2">
           <div class="flex-1 min-w-0">
@@ -2045,10 +2088,14 @@ function renderDashboard() {
 
         <p class="text-xs text-white/80 mb-2 truncate">${escHtml(nextDueLabel)}</p>
 
+        <!-- ★SIX GREEN BARS UNDER "0 OF 8 ON TRACK" (critique W45999, 2026-10-13). An asset with no PM tasks got --p:1 and,
+             its status being "nodata", fell through to green: a full green bar - the picture of "all on track" - on six of
+             Oscar's eight jeepneys, directly below the tile saying none of the eight is on track. No tasks is no data: the
+             track stays empty and grey, and the words under it ("No scheduled tasks", "0 PM tasks") carry the state. -->
         <div class="progress-bar">
           <div class="progress-fill" style="
-            width:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) : 100}%;
-            background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : 'var(--wh-green)'};
+            --p:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) / 100 : 0};
+            background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : asset.overall === 'nodata' ? 'rgba(255,255,255,0.25)' : 'var(--wh-green)'};
           "></div>
         </div>
         <p class="text-xs text-white/80 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
@@ -2306,7 +2353,7 @@ function markDone(scopeItemId, btn) {
   // Populate sheet
   document.getElementById('sheet-item-text').textContent  = item.item_text;
   document.getElementById('sheet-asset-name').textContent = currentAsset.asset_name;
-  document.getElementById('sheet-date').textContent       = new Date().toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('sheet-date').textContent       = new Date().toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
   document.getElementById('sheet-findings').value         = '';
   document.getElementById('sheet-action').value           = 'PM completed per schedule';
   document.getElementById('sheet-save-label').textContent = 'Save Completion';
@@ -2526,7 +2573,10 @@ async function submitCompletion(kind) {
         const dayStart = new Date(); dayStart.setUTCHours(0, 0, 0, 0);
         const { data: upgraded } = await db.from('pm_completions')
           .update({ status: 'done', notes: findings || null, completed_at: now })
-          .eq('scope_item_id', _sheetScopeItemId).eq('worker_name', WORKER_NAME)
+          .eq('scope_item_id', _sheetScopeItemId)
+        // BRP-A: write guard keys on the IDENTITY. pm_completions is 1618/1618 bound,
+        // and RLS already enforces auth_uid, so the name could only match nothing.
+        .eq('auth_uid', _authUid)
           .eq('status', 'skipped').gte('completed_at', dayStart.toISOString())
           .select();
         if (upgraded && upgraded.length) {
@@ -2685,7 +2735,7 @@ async function _autoLinkPmToProject(compData, asset) {
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
     link_type: 'pm_completion', link_id: compData.id,
-    label: `PM ${asset.asset_name || asset.tag_id || asset.id}: ${new Date(compData.completed_at).toLocaleDateString()}`,
+    label: `PM ${asset.asset_name || asset.tag_id || asset.id}: ${formatDate(compData.completed_at)}`,  // the platform's Manila date, not the device's locale (W45999)
   }));
   const { error: linkErr } = await db.from('project_links').insert(linkRows);
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
@@ -2764,7 +2814,7 @@ async function loadRegisteredAssets() {
 
   // canonical-allow: asset wizard picker uses legacy-aliased col shape (asset_id:tag, type:iso_class) for the existing _assets[] consumers; v_asset_truth uses canonical names
   const queries = [
-    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500),
+    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').or(_MINE()).is('hive_id', null).limit(500),
   ];
   if (HIVE_ID) {
     queries.push(
@@ -2847,9 +2897,9 @@ function pickRegisteredAsset(id) {
     selectedCrit = a.criticality;
     document.querySelectorAll('.crit-btn').forEach(b => {
       const active = b.dataset.val === selectedCrit;
-      if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
-      if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
-      if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
+      if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(248,113,113,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(248,113,113,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(247,162,27,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(247,162,27,0.12)':'transparent'};`;
+      if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(74,222,128,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(74,222,128,0.1)':'transparent'};`;
     });
   }
 
@@ -2892,9 +2942,9 @@ function resetWizard() {
   document.querySelectorAll('.crit-btn').forEach(b => {
     const isDefault = b.dataset.val === 'Major';
     b.classList.toggle('selected', isDefault);
-    if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);background:transparent;';
-    if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(251,191,36,0.5);color:#f7a21b;background:rgba(251,191,36,0.08);';
-    if (b.dataset.val === 'Minor')    b.style.cssText = 'border-color:rgba(34,197,94,0.3);color:#4ade80;background:transparent;';
+    if (b.dataset.val === 'Critical') b.style.cssText = 'border-color:rgba(248,113,113,0.3);color:var(--wh-red-text);background:transparent;';
+    if (b.dataset.val === 'Major')    b.style.cssText = 'border-color:rgba(247,162,27,0.5);color:#f7a21b;background:rgba(247,162,27,0.08);';
+    if (b.dataset.val === 'Minor')    b.style.cssText = 'border-color:rgba(74,222,128,0.3);color:#4ade80;background:transparent;';
   });
 }
 
@@ -2902,9 +2952,9 @@ function setCrit(btn) {
   selectedCrit = btn.dataset.val;
   document.querySelectorAll('.crit-btn').forEach(b => {
     const active = b === btn;
-    if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(239,68,68,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(239,68,68,0.12)':'transparent'};`;
-    if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(251,191,36,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(251,191,36,0.12)':'transparent'};`;
-    if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(34,197,94,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(34,197,94,0.1)':'transparent'};`;
+    if (b.dataset.val === 'Critical') b.style.cssText = `border-color:rgba(248,113,113,${active?'0.6':'0.3'});color:var(--wh-red-text);background:${active?'rgba(248,113,113,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Major')    b.style.cssText = `border-color:rgba(247,162,27,${active?'0.6':'0.3'});color:#f7a21b;background:${active?'rgba(247,162,27,0.12)':'transparent'};`;
+    if (b.dataset.val === 'Minor')    b.style.cssText = `border-color:rgba(74,222,128,${active?'0.5':'0.3'});color:#4ade80;background:${active?'rgba(74,222,128,0.1)':'transparent'};`;
   });
 }
 
@@ -2978,7 +3028,7 @@ function renderStepIndicator(step) {
   }).join('');
 
   const progress = document.getElementById('wizard-progress');
-  progress.style.width = `${(step / 4) * 100}%`;
+  progress.style.setProperty('--p', String(step / 4));
 
   const titles = ['', 'Asset Info', 'PM Scope', 'Anchor Date', 'Review'];
   document.getElementById('wizard-title').textContent = titles[step] || 'Add Asset';
@@ -3080,31 +3130,24 @@ async function saveAsset() {
     last_anchor_date: anchor || null,
   };
 
-  const { data: asset, error: assetErr } = await db
-    .from('pm_assets').insert(assetPayload).select().single();
-
-  if (assetErr) {
-    console.error('save asset:', assetErr.message);
-    showToast(whWriteError(assetErr, _t('The asset did NOT save, so no PM schedule was created. Try again.', 'HINDI na-save ang asset, kaya walang nagawang PM schedule. Subukan muli.')));
-    btn.disabled = false; btn.textContent = 'Save Asset';
-    return;
-  }
-
-  // Save scope items
+  // ★A FAILED TASK SAVE LEFT THE ASSET ON THE SCHEDULE WITH NO SCHEDULE (2026-10-08, UI-write recipes): the asset
+  // insert and the scope-item insert were two writes, so a refused second one left an asset with no PM tasks - counted
+  // in compliance, scheduled for nothing - and the person had to notice and repair it. create_pm_asset_with_tasks
+  // (migration 20261008000013) writes both in ONE transaction: the asset exists with every task, or nothing does.
   const scopePayload = items.map(item => ({
-    asset_id:    asset.id,
-    hive_id:     HIVE_ID || null,
     item_text:   item.text,
     frequency:   canonFreq(item.freq) || item.freq,
     anchor_date: anchor || null,
     is_custom:   item.isCustom || false,
   }));
+  const { data: _made, error: assetErr } = await db.rpc('create_pm_asset_with_tasks', { p_asset: assetPayload, p_tasks: scopePayload });
+  const asset = _made && _made.asset;
 
-  const { error: itemsErr } = await db.from('pm_scope_items').insert(scopePayload);
-
-  if (itemsErr) {
-    console.error('save scope items:', itemsErr.message);
-    showToast(whWriteError(itemsErr, 'The asset saved but its PM TASKS did not, so it has an empty schedule. Open it and add the tasks again.'));
+  if (assetErr || !asset) {
+    console.error('save asset:', assetErr && assetErr.message);
+    showToast(whWriteError(assetErr, _t('The asset and its PM tasks did NOT save - nothing was created. Try again.', 'HINDI na-save ang asset at ang mga PM task nito - walang nagawa. Subukan muli.')));
+    btn.disabled = false; btn.textContent = 'Save Asset';
+    return;
   }
 
   // Reload data
@@ -3289,7 +3332,11 @@ async function deleteAsset() {
   const deletedId   = currentAsset.id;
   const deleteQuery = HIVE_ID
     ? db.from('pm_assets').delete().eq('id', currentAsset.id).eq('hive_id', HIVE_ID)
-    : db.from('pm_assets').delete().eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
+    : db.from('pm_assets').delete().eq('id', currentAsset.id)
+        // BRP-A: write guard keys on the IDENTITY. Safe only because 20261004000004
+        // backfilled pm_assets to 120/120 - tightening first would have made those 20
+        // rows undeletable by their own owners, the defect this wave is clearing.
+        .eq('auth_uid', _authUid);
   // PM12 (PM deepwalk, 2026-07-28): confirm the row actually went. A PostgREST delete matching
   // nothing returns error:null, so the old `if (error)` test read "deleted nowhere" as "deleted" —
   // it toasted success, wrote an audit row for a deletion that never happened, and dropped the
@@ -3516,7 +3563,9 @@ if (window.whModalA11y) {
   }
   function tryRegister() {
     if (window.WHVoice && typeof window.WHVoice.register === 'function') {
-      window.WHVoice.register('pm.complete', pmCompleteHandler);
+      // effect 'prefill' (LM-V walk, 2026-10-07): it filters the asset list to the spoken machine;
+      // the person opens it and ticks the scope items, which is the write to pm_completions.
+      window.WHVoice.register('pm.complete', pmCompleteHandler, { effect: 'prefill' });
       return true;
     }
     return false;

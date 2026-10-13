@@ -19,7 +19,9 @@ the ~40 tool pages (reuse `nav-hub.js`-style shared wiring where possible).
   + 1 `oninput` + 3 `onsubmit`.
 - **11 inline `<script>` blocks** (need a nonce each).
 - **External hosts (the allowlist):** `cdn.jsdelivr.net` (supabase UMD, has SRI), `cdn.tailwindcss.com`
-  (**to be DROPPED** for a built static CSS — the eval surface), `challenges.cloudflare.com` (turnstile),
+  (**DROPPED 2026-10-13** — the app pages compile to `wh-tw.css`, the public pages to `/wh-tw-pub-<family>.css`
+  via `tools/tw_public_build.mjs`; gate `tw-public-sheets` keeps every page off the CDN, and `script-src` in
+  `vercel.json` + `_headers` no longer grants it, which removes the eval surface this arc named), `challenges.cloudflare.com` (turnstile),
   `fonts.googleapis.com` + `fonts.gstatic.com` (fonts), the supabase edge (`127.0.0.1:54321` local /
   `*.supabase.co` prod — connect-src), `www.googletagmanager.com` + `google-analytics.com` (gtag), self.
 

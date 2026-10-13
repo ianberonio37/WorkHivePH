@@ -2,7 +2,7 @@
 name: edge-fn-walkthrough-analyzer
 type: edge-fn
 source: file:supabase/functions/walkthrough-analyzer/index.ts
-source_sha: aa6134cf182c47b5
+source_sha: ba8b225606aa1b58
 last_verified: 2026-07-13
 supersedes: null
 ---

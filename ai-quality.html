@@ -190,6 +190,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // ROI numbers would be noise (no logbook history, no PM compliance
       // signal, no quality feedback yet). Doctrine: surface the gap.
       if (HIVE_ID && window.checkMaturityGate && window.renderMaturityHonestEmpty) {
+        /* ★THE GATE CHECK IS A READ TOO, AND IT WAS A SILENT ONE (2026-10-08, LXP-A walked live: readiness answering 8 s
+           late). #content stays empty until the gate answers, so on a slow line the page sat at its header with
+           nothing saying it was working. The shared skeleton (aria-busy, polite) holds the place until the gate -
+           and then render() or the honest-empty card - replaces it. */
+        if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('content'), 4);
         const gate = await window.checkMaturityGate(db, HIVE_ID, 2);
         if (gate.blocked) {
           const mainEl = document.querySelector('main') || document.body;
@@ -240,7 +245,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('ai-quality load failed:', err);
         // E2 consistent states: inline error + Retry (shared whListError) + toast.
         if (typeof whListError === 'function') {
-          whListError(host, _t("Couldn’t load your AI quality data. Check your connection and try again.", "Hindi ma-load ang AI quality data mo. Suriin ang koneksyon at subukan muli."), () => render());
+          // 2026-10-06 (ai-quality x assistive-tech, PostgREST stopped): this said "Check your connection" to a reader
+          // whose navigator.onLine was TRUE while the SERVICE was down. Split on the only input that can tell them apart.
+          whListError(host, (navigator.onLine === false)
+            ? _t("You are offline, so your AI quality data could not be read. It will load when your connection is back.", "Offline ka, kaya hindi mabasa ang AI quality data mo. Maglo-load ito kapag bumalik ang koneksyon mo.")
+            : _t("Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang AI quality data mo - hindi sumagot ang WorkHive. Subukan muli maya-maya."), () => render());
         }
         if (typeof showToast === 'function') showToast(_t('AI quality failed to load. Tap Retry.', 'Hindi na-load ang AI quality. Pindutin ang Retry.'), 'warn');
         return;
@@ -613,8 +622,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="summary-row">
           <div class="sum-card"><span class="sn">${s.totalCalls}</span><span class="sl">${_t('AI calls (30d)', 'AI call (30 araw)')}</span></div>
           <div class="sum-card"><span class="sn">$${usd}</span><span class="sl">${_t('Spend (30d)', 'Gastos (30 araw)')}</span></div>
-          <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">${_t('Fallback rate', 'Fallback rate')}</span></div>
-          <div class="sum-card ${schemaPct !== '-' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">${_t('Schema compliance', 'Schema compliance')}</span></div>
+          <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">${_t('Fallback rate', 'Rate ng fallback')}</span></div>
+          <div class="sum-card ${schemaPct !== '-' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">${_t('Schema compliance', 'Pagsunod sa schema')}</span></div>
         </div>
       `;
     }

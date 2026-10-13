@@ -28,6 +28,7 @@
 
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
+import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
 import { writeFileSync, readFileSync } from 'fs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
@@ -36,11 +37,8 @@ const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const HIVE = process.env.WH_TEST_HIVE || '4eec150e-4837-417b-bdd8-009b0192acfe'; // hive fallback only — signIn resolves live membership
 const WORKER = process.env.WH_TEST_WORKER || 'Pablo Aguilar';
 
-// Deep-link state a page's REAL use requires (never measure a bounced shell).
-const PAGE_QUERY = { 'marketplace-seller-profile.html': '?worker=Bryan%20Garcia' };
-// Worked-state reveal: a LOCAL compile/render click (no AI/credits) that turns a
-// generator form into the artifact the rubric must grade (★measure the WORKED state).
-const PAGE_REVEAL = { 'project-report.html': /generate/i };
+// PAGE_QUERY (deep-link state) and PAGE_REVEAL (the worked-state click) live in ./page_walk_state.mjs, shared with
+// critic_walk_batch.mjs.
 // Extra settle for pages whose tagged/labelled content lands after a SLOW RPC and whose realtime
 // connection keeps the network busy so `networkidle` never fires — analytics' phase panels carry
 // their data-i labels + readable copy and render ~2s after the panels' RPC (N1 read 1/11 vs 15/15
@@ -104,7 +102,13 @@ const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? arg
 const PAGE_LIST = PAGE_ONLY ? PAGE_ONLY.split(',').map((s) => s.trim()).filter(Boolean) : null;
 // A --page run must never clobber the FULL board (validate_family_rubric_ratchet.py
 // baselines from it; a 1-page overwrite destroyed the sweep-#8 board on 2026-07-16).
-const OUT = PAGE_ONLY ? 'family_rubric_scoreboard.page.json' : 'family_rubric_scoreboard.json';
+// --anon (2026-10-13): sweep SIGNED OUT, for the critic rows a signed-out cast walked. A signed-out visit to a gated
+// page lands on the home page, and that landing is exactly the screen those rows recorded, so it is graded as found
+// (keyed by the requested file). close_critic_findings.py judges a signed-out row ONLY by this file, never by a
+// signed-in sweep of the same filename, which is a different screen. Never writes the main board.
+const ANON = args.includes('--anon');
+const OUT = ANON ? 'family_rubric_scoreboard.page.anon.json'
+  : PAGE_ONLY ? 'family_rubric_scoreboard.page.json' : 'family_rubric_scoreboard.json';
 
 const RUBRIC_SRC = readFileSync('survey_ufai_rubric.js', 'utf8');
 
@@ -254,18 +258,9 @@ async function surveyPage(context, file) {
       if (sig === window.__settle.last) window.__settle.stable++; else { window.__settle.stable = 0; window.__settle.last = sig; }
       return window.__settle.stable >= 3 && window.__settle.polls >= 5;
     }, { timeout: 8000, polling: 400 }).catch(() => {});
-    const reveal = PAGE_REVEAL[file];
-    if (reveal) {
-      const clicked = await page.evaluate((reSrc) => {
-        const re = new RegExp(reSrc, 'i');
-        const vis = (el) => el && el.offsetParent !== null;
-        const btn = [...document.querySelectorAll('button, a[role="button"], [onclick]')]
-          .find((el) => vis(el) && re.test((el.textContent || '').trim()));
-        if (btn) { btn.click(); return (btn.textContent || '').trim().slice(0, 30); }
-        return null;
-      }, reveal.source);
-      if (clicked) await page.waitForTimeout(2500);
-    }
+    // the page's worked state (page_walk_state.mjs, shared with critic_walk_batch.mjs); a reveal that found nothing to
+    // act on is said out loud, because a silent one graded project-report's chooser as the report for a whole batch
+    if (PAGE_REVEAL[file] && !(await revealWorkedState(page, file))) console.log(`[rubric-sweep] ${file}: reveal found nothing to act on`);
     const res = await page.evaluate((src) => {
       eval('(' + src + ')')();
       return window.__RUBRIC.survey({ pageId: location.pathname.split('/').pop() });
@@ -316,7 +311,12 @@ async function surveyPage(context, file) {
     });
     if (n1flip != null && res && res.dims) {
       const i = res.dims.findIndex((d) => d.dim === 'N1');
-      if (i >= 0 && res.dims[i].kind !== 'NA') {
+      // ★ONLY A MEASURED N1 MAY BE RE-GRADED (2026-10-13). This read `kind !== 'NA'`, and the lens's NA()
+      // helper writes 'N/A' - so the test was always true and every not-applicable N1 (a poster, a reference
+      // page, a console, and since 2026-10-13 every page, Filipino being out of the roadmap) got a pct here and
+      // was listed under `failing` while the page's overall correctly left it out. A string compared with a
+      // spelling nothing produces is a branch that never runs; compare with the value the producer writes.
+      if (i >= 0 && res.dims[i].kind === 'MEASURED') {
         // STRICTLY ADDITIVE: the flip recomputes coverage with its OWN labelEl selection, which can
         // disagree with the survey's (different root/vis) — so take max(survey pass, flip pass). This
         // guarantees a page passing on the survey's data-i coverage can NEVER be pulled DOWN (hive:
@@ -468,6 +468,7 @@ const browser = await chromium.launch({ headless: !HEADED });
 // failure the retry above exists to prevent. Recycling without re-auth would have re-introduced it.
 async function newSignedInContext(tag) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  if (ANON) return { ctx, si: { ok: true, anon: true } };   // a fresh context holds no session: signed out by construction
   let si;
   for (let attempt = 1; attempt <= 4; attempt++) {
     si = await signInOnce(ctx);
@@ -479,7 +480,7 @@ async function newSignedInContext(tag) {
 }
 
 let { ctx: context, si } = await newSignedInContext('');
-console.log(`[rubric-sweep] sign-in: ${si.ok ? 'OK' : 'FAIL ' + si.err}`);
+console.log(`[rubric-sweep] ${si.anon ? 'signed OUT (--anon)' : 'sign-in: ' + (si.ok ? 'OK' : 'FAIL ' + si.err)}`);
 if (!si.ok) { await browser.close(); process.exit(1); }
 
 // ── BROWSER RECYCLING (Phase 0 host robustness, 2026-09-05) ──────────────────────────────────

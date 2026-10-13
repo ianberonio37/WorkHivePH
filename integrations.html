@@ -45,10 +45,10 @@
        Same class, same page family, opposite verdicts: the rule is not "avoid the hero variant", it is
        "spend it on a figure". */
 
-    .wh-nonsup main .page > :not(#vehicle-add):not(#toast):not(#veh-sup-wall) { display: none; }
+    .wh-nonsup main .page > :not(#vehicle-add):not(#toast):not(#veh-sup-wall):not(#it-page-title) { display: none; }   /* the page title stays for everyone (W45936) */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: #0f1923; --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was #1d2e44, one unit from --wh-navy-mid (critique W45936) */
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
@@ -82,7 +82,7 @@
       width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
       justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
       background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); /* A11y: 0.3 failed contrast on the dark card */
-      border: 1px solid rgba(255,255,255,0.1); transition: all .2s;
+      border: 1px solid rgba(255,255,255,0.1); transition: background-color .2s var(--wh-ease-out, ease-out), color .2s var(--wh-ease-out, ease-out), border-color .2s var(--wh-ease-out, ease-out);
     }
     .step-dot.active   .step-num { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.4); }
     .step-dot.done     .step-num { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.4); }
@@ -91,6 +91,19 @@
     .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 16px; }
     .step-dot.done .step-line-after { background: rgba(74,222,128,0.3); }
     .step-inner { display: flex; flex-direction: column; align-items: center; }
+    /* ★TWO TABS ON TWO LINES, AND A STEP OFF THE SCREEN, AT 320px (2026-10-12, W4332 fit lens). The tabs' padding was
+       inline, so nothing could tighten it; it lives here now (nowrap), and the current tab's weight follows .active.
+       The wizard's five uppercase labels plus four 8px-margined rules needed ~314px of a 288px column, so its last
+       step ran 4px past the edge. */
+    .int-tab { padding: 0 16px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center;
+      background: none; border: none; border-bottom: 2px solid transparent; font-family: inherit; font-size: .875rem;
+      font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .int-tab.active { font-weight: 700; }
+    @media (max-width: 360px) {
+      .int-tab { padding: 0 10px; }
+      .step-line { margin-left: 3px; margin-right: 3px; }
+      .step-label { letter-spacing: 0; }
+    }
 
     /* Cards */
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius); padding: 20px 24px; margin-bottom: 16px; }
@@ -112,7 +125,7 @@
     select.wh-input { cursor: pointer; }
 
     /* Buttons */
-    .btn { padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); font-family: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; transition: all .15s; border: 1px solid; }
+    .btn { padding: 12px 20px; min-height: 44px; border-radius: var(--wh-radius-sm); font-family: inherit; font-size: .875rem; font-weight: 700; cursor: pointer; transition: opacity .15s var(--wh-ease-out, ease-out), background-color .15s var(--wh-ease-out, ease-out), border-color .15s var(--wh-ease-out, ease-out); border: 1px solid; }
     .btn:disabled { opacity: .4; cursor: not-allowed; }
     .btn-gold  { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); border-color: transparent; }
     .btn-gold:hover:not(:disabled)  { opacity: .9; }
@@ -135,7 +148,7 @@
     .source-card {
       background: var(--card); border: 2px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 20px 16px; text-align: center; cursor: pointer;
-      transition: all .15s;
+      transition: border-color .15s var(--wh-ease-out, ease-out), background-color .15s var(--wh-ease-out, ease-out), transform .15s var(--wh-ease-out, ease-out);
     }
     .source-card:hover { border-color: rgba(247,162,27,0.3); background: rgba(247,162,27,0.04); }
     .source-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -148,7 +161,7 @@
     /* Drop zone */
     .drop-zone {
       border: 2px dashed rgba(255,255,255,0.12); border-radius: 12px;
-      padding: 40px 24px; text-align: center; cursor: pointer; transition: all .2s;
+      padding: 40px 24px; text-align: center; cursor: pointer; transition: border-color .2s var(--wh-ease-out, ease-out), background-color .2s var(--wh-ease-out, ease-out);
     }
     .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(41,182,217,0.04); }
     .drop-zone:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -237,6 +250,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      Available to EVERY signed-in user (solo owners included) - the supervisor/IT gate below
      covers only the CMMS console. Template path only in iteration 1 (doc extraction comes later,
      behind measured accuracy - Ian's explicit sequencing). -->
+<!-- ★THE PAGE'S TITLE WAS 1,136PX DOWN, INSIDE ONE TAB (critique W45936, 2026-10-13). "Connections" was the h1 of the
+     Import tab's own header, so on Live Sync and API Keys the page had NO h1 at all, and on Import it came after the
+     vehicle card's h2, the summary and the tab bar - the first heading a screen reader met was "Add a Vehicle". The title
+     and the CMMS / Plant-IoT switch head the page now; the worker gate keeps the title and removes the switch, which only
+     a supervisor can use. The "Phase 2 - Cold Start Solver" pill that sat over it was an internal program name. -->
+<h1 id="it-page-title" data-i="pctitle" style="max-width:900px; margin:0 auto 0.5rem; font-size:1.5rem; font-weight:800; line-height:1.2;">Connections</h1>
+<!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
+     (both connect external systems, same supervisor audience). One nav entry; this
+     tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
+<div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; max-width:900px; margin:0 auto 1.25rem; flex-wrap:wrap;">
+  <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
+  <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
+</div>
+
 <section id="vehicle-add" class="card" style="max-width:900px; margin:0 auto 1.5rem; padding:20px 22px;">
   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
     <span style="font-size:1.5rem;" aria-hidden="true">🚗</span>
@@ -245,7 +272,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- B3 (rubric, 2026-09-03): split from one 29-word sentence into three short ones (each <20w, grade <=8) -->
       <p data-i="p_yourcarbecomesanassetitsserv_f9cb" style="margin:2px 0 0; font-size:.75rem; color:rgba(255,255,255,0.82);">Your car becomes an asset. Its service schedule lands in the PM Scheduler with km intervals. Its parts land in Inventory. Every job you log builds its maintenance history.</p>
     </div>
-    <button id="veh-open" class="btn-primary" style="min-height:44px;" onclick="vehOpenWizard()" data-i="addmyvehicle">Add my vehicle</button>
+    <button id="veh-open" class="btn btn-gold" style="min-height:44px;" onclick="vehOpenWizard()" data-i="addmyvehicle">Add my vehicle</button>
   </div>
 
   <div id="veh-wizard" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
@@ -253,7 +280,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div id="veh-step-1">
       <p data-i="p_stepyourvehicle_1a36" style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80); margin:0 0 12px;">Step 1 · Your vehicle</p>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-        <button type="button" class="wh-toggle" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 16px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
+        <button type="button" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 16px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
         <span data-i="p_orfillthefieldsyourselfevery_e4c7" style="font-size:0.75rem; color:rgba(255,255,255,0.75); align-self:center;">or fill the fields yourself - everything stays editable.</span>
       </div>
       <!-- Scope choice — hive members only (solo users have exactly one home). Workers can only
@@ -284,8 +311,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <p id="veh-step1-err" role="alert" style="min-height:1em; font-size:0.75rem; color:var(--wh-red, #f87171); margin:8px 0 0;"></p>
       <div style="display:flex; gap:8px; margin-top:12px;">
-        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep2()" data-i="nextserviceschedule">Next: service schedule →</button>
-        <button class="wh-toggle" style="min-height:44px; min-width:44px; padding:0 12px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehCloseWizard()" data-i="cancel">Cancel</button>
+        <button class="btn btn-gold" style="min-height:44px;" onclick="vehToStep2()" data-i="nextserviceschedule">Next: service schedule →</button>
+        <button type="button" style="min-height:44px; min-width:44px; padding:0 12px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehCloseWizard()" data-i="cancel">Cancel</button>
       </div>
     </div>
 
@@ -295,8 +322,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <p data-i="p_astarterschedulefromthemanuf_5e5d" style="font-size:0.75rem; color:rgba(255,255,255,0.78); margin:0 0 12px;">A starter schedule from the manufacturer-interval pattern. Untick what you don't want; edit any km interval - your manual's numbers win. Time-based rows keep you honest between odometer updates.</p>
       <div id="veh-pm-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
-        <button class="btn-primary" style="min-height:44px;" onclick="vehToStep3()" data-i="nextstarterparts">Next: starter parts →</button>
-        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(1)" data-i="back">← Back</button>
+        <button class="btn btn-gold" style="min-height:44px;" onclick="vehToStep3()" data-i="nextstarterparts">Next: starter parts →</button>
+        <button type="button" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(1)" data-i="back">← Back</button>
       </div>
     </div>
 
@@ -306,8 +333,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <p data-i="p_ticktheconsumablesyouwanttra_ddd9" style="font-size:0.75rem; color:rgba(255,255,255,0.78); margin:0 0 12px;">Tick the consumables you want tracked in Inventory. Part numbers vary by market - edit them to match your manual; you can add the rest in Inventory any time.</p>
       <div id="veh-parts-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
-        <button id="veh-create" class="btn-primary" style="min-height:44px;" onclick="vehCreate()" data-i="createmyvehicle">Create my vehicle</button>
-        <button class="wh-toggle" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(2)" data-i="back">← Back</button>
+        <button id="veh-create" class="btn btn-gold" style="min-height:44px;" onclick="vehCreate()" data-i="createmyvehicle">Create my vehicle</button>
+        <button type="button" style="min-height:44px; background:none; border:none; color:rgba(255,255,255,0.75); cursor:pointer;" onclick="vehBack(2)" data-i="back">← Back</button>
       </div>
     </div>
 
@@ -431,18 +458,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Mode tabs -->
   <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
-    <button id="tab-import" class="wh-toggle" onclick="switchTab('import')" style="padding:0 16px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid var(--gold); color:var(--gold); font-family:inherit; font-size:.875rem; font-weight:700; cursor:pointer;" translate="no" data-i="importfile">Import File</button>
-    <button id="tab-sync" class="wh-toggle"   onclick="switchTab('sync')"   style="padding:0 16px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.80); font-family:inherit; font-size:.875rem; font-weight:600; cursor:pointer;" translate="no" data-i="livesync">Live Sync</button>
-    <button id="tab-api" class="wh-toggle"    onclick="switchTab('api')"    style="padding:0 16px; min-height:44px; box-sizing:border-box; display:inline-flex; align-items:center; background:none; border:none; border-bottom:2px solid transparent; color:rgba(255,255,255,0.80); font-family:inherit; font-size:.875rem; font-weight:600; cursor:pointer;" translate="no">API Keys</button>
+    <button id="tab-import" type="button" class="wh-toggle int-tab active" onclick="switchTab('import')" style="border-bottom-color:var(--gold); color:var(--gold);" translate="no" data-i="importfile">Import File</button>
+    <button id="tab-sync" type="button" class="wh-toggle int-tab" onclick="switchTab('sync')" style="color:rgba(255,255,255,0.80);" translate="no" data-i="livesync">Live Sync</button>
+    <button id="tab-api" type="button" class="wh-toggle int-tab" onclick="switchTab('api')" style="color:rgba(255,255,255,0.80);" translate="no">API Keys</button>
   </div>
 
   <!-- Header -->
   <div id="header-import" style="margin-bottom: 1.5rem;">
-    <!-- The pill SHAPE is right and the pill RULE is not: "Phase 2 . Cold Start Solver" is five words
-         and 27 characters, past what an all-caps badge can carry at 12px. Sentence case keeps the
-         badge and returns the words; the 0.25rem/0.5rem padding puts it on the 4px grid. -->
-    <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:normal; padding:.25rem .5rem; border-radius:999px; background:rgba(247,162,27,0.14); color:var(--gold); border:1px solid rgba(247,162,27,0.28); margin-bottom:.5rem;">Phase 2 · Cold Start Solver</span>
-    <h1 style="font-size:1.5rem; font-weight:800; line-height:1.2;" data-i="pctitle">Connections</h1>
     <details class="wh-help">
       <summary data-i="p_howthispageworks_c540">How this page works</summary>
       <ul>
@@ -452,13 +474,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </ul>
     </details>
 
-    <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
-         (both connect external systems, same supervisor audience). One nav entry; this
-         tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
-    <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:12px 0 8px; flex-wrap:wrap;">
-      <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
-      <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
-    </div>
     <p data-i="p_importyourexistingsappmmaxim_435d" style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Import your existing SAP PM, Maximo, or CMMS data. WorkHive's intelligence activates on day one.</p>
     <!-- W45932 audit: this wrapper used to be a <p role="status"> and renderSourceChip() injects its own
          <p class="wh-source-chip" role="status" aria-live="polite"> into it - so the page carried a live
@@ -472,7 +487,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
   <!-- Supervisor gate message (shown if no HIVE_ID) -->
-  <div id="hive-gate" class="card hidden" style="text-align:center; padding:32px;">
+  <div id="hive-gate" class="card hidden" data-wh-gate="no-hive" style="text-align:center; padding:32px;">
     <p data-i="p_joinahivefirst_a3ed" style="font-size:.9rem; font-weight:600; margin-bottom:8px;">Join a hive first</p>
     <p data-i="p_youneedtobepartofahivetoimpo_5d9f" style="font-size:.75rem; color:var(--muted); margin-bottom:16px;">You need to be part of a hive to import CMMS data.</p>
     <a data-i="p_gotohiveboard_d82e" href="hive.html" class="btn btn-gold" style="text-decoration:none;">Go to Hive Board</a>
@@ -845,7 +860,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button class="btn btn-blue" onclick="testSyncConfig()" style="flex:1;" data-i="testconnection">Test Connection</button>
         <button class="btn btn-gold" onclick="saveSyncConfig()" style="flex:1;" data-i="saveampenable">Save &amp; Enable</button>
       </div>
-      <div id="sync-test-result" style="display:none; margin-top:12px; font-size:.75rem; padding:8px 12px; border-radius:8px;"></div>
+      <!-- role=status (2026-10-12, W4295 walk): Test Connection's whole answer - "Testing connection...", then
+           "✓ Connected: found N records" or "✗ <why it failed>" - lands here, and with no live region a screen
+           reader announced none of it (WCAG 4.1.3). Once shown the region stays in the tree, so the result that
+           replaces "Testing connection..." is announced. -->
+      <div id="sync-test-result" role="status" aria-live="polite" style="display:none; margin-top:12px; font-size:.75rem; padding:8px 12px; border-radius:8px;"></div>
     </div>
 
     <!-- Webhook URL for inbound events (Phase 4.1) -->
@@ -907,16 +926,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _pg = document.querySelector('main .page');
       if (_pg) {
         Array.from(_pg.children).forEach(el => {
-          if (el.id !== 'vehicle-add' && el.id !== 'toast') el.remove();
+          if (el.id !== 'vehicle-add' && el.id !== 'toast' && el.id !== 'it-page-title') el.remove();
         });
         const _wall = document.createElement('div');
         _wall.id = 'veh-sup-wall';   // exempt from the pre-paint .wh-nonsup hide
         _wall.className = 'card';
+        // a declared wall (critic batch E3, 2026-10-13): the console is withheld from this reader, so there is no data
+        // here to source; the vehicle wizard above is a form, not a figure
+        _wall.setAttribute('data-wh-gate', 'supervisor-only');
         _wall.style.cssText = 'text-align:center; padding:32px; max-width:560px; margin:24px auto;';
         _wall.innerHTML = '<h2 style="margin:0 0 12px;">Supervisor access only</h2>'
-          + '<p style="color:rgba(255,255,255,0.83); margin:0;">CMMS Integrations is a supervisor / IT surface for '
-          + 'connecting WorkHive to SAP PM, Maximo, sensors, and webhooks. Ask your hive supervisor if you need a '
-          + 'connection set up. The vehicle wizard above is yours to use.</p>';
+          + '<p style="color:rgba(255,255,255,0.83); margin:0;">Supervisors connect WorkHive to SAP PM, Maximo, '
+          + 'sensors and webhooks here. Ask your hive supervisor if you need a connection set up. The vehicle '
+          + 'wizard above is yours to use.</p>';
         _pg.appendChild(_wall);
       }
       return;
@@ -1123,7 +1145,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const content = await (await pdf.getPage(i)).getTextContent();
         text += content.items.map(it => it.str).join(' ') + '\n';
       }
-      return { text, note: pdf.numPages > maxPages ? `read the first ${maxPages} of ${pdf.numPages} pages` : '' };
+      return { text, note: pdf.numPages > maxPages ? `read the first ${maxPages} of ${pdf.numPages} page${pdf.numPages === 1 ? '' : 's'}` : '' };
     }
     if (name.endsWith('.docx')) {
       await vehLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js', 'sha384-nFoSjZIoH3CCp8W639jJyQkuPHinJ2NHe7on1xvlUA7SuGfJAfvMldrsoAVm6ECz');
@@ -1135,7 +1157,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const wb = window.XLSX.read(await file.arrayBuffer(), { type: 'array' });
       let text = '';
       wb.SheetNames.slice(0, 6).forEach(n => { text += '# ' + n + '\n' + window.XLSX.utils.sheet_to_csv(wb.Sheets[n]) + '\n'; });
-      return { text, note: wb.SheetNames.length > 6 ? `read the first 6 of ${wb.SheetNames.length} sheets` : '' };
+      return { text, note: wb.SheetNames.length > 6 ? `read the first 6 of ${wb.SheetNames.length} sheet${wb.SheetNames.length === 1 ? '' : 's'}` : '' };
     }
     return { text: await file.text(), note: '' };
   }
@@ -1269,7 +1291,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // hive members choose fleet vs personal (workers are locked to personal); solo is personal
       const _rHive = document.getElementById('veh-scope-hive');
       const hive  = (HIVE_ID && _rHive && _rHive.checked) ? HIVE_ID : null;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = whManilaYmd();
       const wname = WORKER_NAME || 'Owner';
 
       // 1. PM asset — the schedule's parent (category 'Vehicles' groups it on pm-scheduler)
@@ -1312,7 +1334,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         let anchor = today;
         // pure UTC date parts — new Date(d+'T00:00:00').toISOString() shifts a day for any
         // UTC+ timezone (found live: PH owner's renewal landed 04-14 for an 04-15 expiry)
-        const yearAgo = d => { const p = d.split('-').map(Number); return new Date(Date.UTC(p[0] - 1, p[1] - 1, p[2])).toISOString().slice(0, 10); };
+        const yearAgo = d => { const p = d.split('-').map(Number); return new Date(Date.UTC(p[0] - 1, p[1] - 1, p[2])).toISOString().slice(0, 10); }; // device-clock-allow: pure UTC date parts of a YYYY-MM-DD
         if (reg && /Registration/i.test(text)) anchor = yearAgo(reg);
         if (ins && /Insurance/i.test(text))    anchor = yearAgo(ins);
         // doc rows carry an explicit kind: km-only manual rows are 'meter' (no false calendar
@@ -1421,7 +1443,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       + (nParts ? `<li>${nParts} starter part${nParts === 1 ? '' : 's'} in <a href="inventory.html" style="color:var(--gold);">Inventory</a>, linked to the vehicle</li>` : '')
       + '</ul>'
       + '<p style="margin:0 0 12px; color:rgba(255,255,255,0.78);">Log fuel and odometer readings in the <a href="logbook.html" style="color:var(--gold);">Logbook</a> - each odometer entry moves your service countdowns.</p>'
-      + '<button class="wh-toggle veh-box" style="min-height:44px; background:none; border:1px solid var(--border); color:rgba(255,255,255,0.82); padding:0 16px; cursor:pointer;" onclick="vehUndoCreate()" data-i="undoremoveeverythingjustcreated">Undo - remove everything just created</button>';
+      + '<button type="button" class="veh-box" style="min-height:44px; background:none; border:1px solid var(--border); color:rgba(255,255,255,0.82); padding:0 16px; cursor:pointer;" onclick="vehUndoCreate()" data-i="undoremoveeverythingjustcreated">Undo - remove everything just created</button>';
   }
 
   // (vehUndoCreate is defined above vehRollback so the cascade-confirm look-back
@@ -1510,8 +1532,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   const TYPE_NORM = {
     sap_pm:  { PM01:'Preventive Maintenance', PM02:'Breakdown / Corrective', PM03:'Breakdown / Corrective' },
     maximo:  { PM:'Preventive Maintenance', CM:'Breakdown / Corrective', EM:'Breakdown / Corrective' },
-    generic: { preventive:'Preventive Maintenance', corrective:'Breakdown / Corrective', emergency:'Breakdown / Corrective' },
+    generic: { preventive:'Preventive Maintenance', corrective:'Breakdown / Corrective', emergency:'Breakdown / Corrective',
+               inspection:'Inspection', project:'Project Work',
+               PM:'Preventive Maintenance', CM:'Breakdown / Corrective', EM:'Breakdown / Corrective' },
   };
+  // ★A CODE IS A CODE WHATEVER ITS CASE, AND A CELL IS NEVER A PROTOTYPE KEY (2026-10-12, UFAI upload walk W4340). The
+  // generic map's keys were lowercase and the lookup exact, so 'Preventive' and 'PM' (the abbreviations a real export
+  // uses - generic now knows PM / CM / EM) fell to the corrective default; and `map[raw]` answered a function for a
+  // cell reading "constructor". Own keys only, exact first, then case-folded - _shared/mappings.ts does the same.
+  const _mapGet = (map, raw) => {
+    if (!map) return undefined;
+    const r = String(raw || '').trim();
+    if (Object.prototype.hasOwnProperty.call(map, r)) return map[r];
+    const k = Object.keys(map).find((x) => x.toLowerCase() === r.toLowerCase());
+    return k === undefined ? undefined : map[k];
+  };
+  const _TYPES_CANON = ['Preventive Maintenance', 'Breakdown / Corrective', 'Inspection', 'Project Work'];
+  const _canonOf = (list, raw) => list.find((c) => c.toLowerCase() === String(raw || '').trim().toLowerCase());
+  // one row per id - the last one in the file wins, as an upsert in file order would (2026-10-12, W4340)
+  const _lastPerId = (rows) => { const m = new Map(); for (const r of rows) if (r.external_id) m.set(r.external_id, r); return [...m.values()]; };
 
   // ── Step navigation ───────────────────────────────────────────────────────
   /* T42 (2026-08-28) - BACK used to throw someone clean out of the import, mid-mapping.
@@ -1545,6 +1584,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // Back pops the entry the forward step pushed; step back instead of navigating away. Guarded on
   // _step > 1 so Back on the first step still leaves the page, which is what a person expects there.
   window.addEventListener('popstate', function () {
+    if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a modal gave its entry back; the person did not press Back
     try { if (_step > 1) goStep(_step - 1); } catch (_) { /* empty-catch-allow: never trap the user in a loop */ }
   });
 
@@ -1630,7 +1670,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         showToast('Please upload a CSV or Excel file.'); return;
       }
     } catch (_) {
-      showToast(_t('Could not load the file parser. Check your connection and try again.', 'Hindi ma-load ang file parser. Suriin ang koneksyon at subukan muli.'));
+      showToast((navigator.onLine === false)
+        ? _t('You are offline, so the file reader could not be loaded. Try the upload again when your connection is back.', 'Offline ka, kaya hindi ma-load ang file reader. Subukan muli ang upload kapag bumalik ang koneksyon mo.')
+        : _t('The file reader did not load - its server did not answer. Try the upload again in a moment.', 'Hindi na-load ang file reader - hindi sumagot ang server nito. Subukan muli ang upload maya-maya.'));
     }
   }
 
@@ -1783,31 +1825,48 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Default: work_order
     const rawStatus  = get(_mapping.status);
     // external_sync.status CHECK = Open/Closed/Cancelled only; an unmapped raw code 23514-kills the whole 500-row chunk, so clamp (raw kept in status_raw->sync_payload).
-    const mappedStatus = STATUS_NORM[_systemType]?.[rawStatus] || rawStatus || 'Open';
-    const normStatus = { open:'Open', closed:'Closed', cancelled:'Cancelled' }[String(mappedStatus).toLowerCase()] || 'Open';
+    // ★THE SAME CLAMP AS THE SERVER'S (2026-10-12, _shared/mappings.ts normaliseStatus / normaliseType). An unknown
+    // status that still says the work is finished (SAP TECO/CNF, Maximo CLOSE ...) is Closed, as cmms-sync and the
+    // webhook now say - it read Open here, so one order disagreed with itself by how it arrived. An unknown or missing
+    // type is corrective work (it was stored raw: 'PM04' as a maintenance type no KPI counts); both raws are kept.
+    const _CLOSING   = /\b(TECO|CLSD|CLOSED?|COMP|COMPLETED?|FINISH(ED)?|DONE|CNF)\b/i;
+    const _canon     = (list, raw) => list.find((c) => c.toLowerCase() === String(raw || '').trim().toLowerCase());
+    // ★A COMPLETED-EVENT LOG HAS NO STATUS COLUMN (2026-10-12, W4340: a real 3,030-row export of finished repairs). With
+    // Status unmapped every row was Open, and the import then dropped the mapped Closed Date. A row with no status of
+    // its own and a closed date was completed: it is Closed.
+    const closedAt   = get(_mapping.closed_at) || null;
+    const normStatus = (!String(rawStatus || '').trim() && closedAt) ? 'Closed'
+                       : (_mapGet(STATUS_NORM[_systemType], rawStatus) || _canon(['Open', 'Closed', 'Cancelled'], rawStatus)
+                          || (_CLOSING.test(rawStatus) ? 'Closed' : 'Open'));
     const rawType    = get(_mapping.maintenance_type);
-    const normType   = TYPE_NORM[_systemType]?.[rawType] || rawType || 'Breakdown / Corrective';
+    const normType   = _mapGet(TYPE_NORM[_systemType], rawType)
+                       || _canon(_TYPES_CANON, rawType)
+                       || 'Breakdown / Corrective';
     return {
       external_id:      get(_mapping.external_id),
       machine:          get(_mapping.machine),
       status:           normStatus,
       status_raw:       rawStatus || null,
       maintenance_type: normType,
+      type_raw:         rawType || null,
       problem:          get(_mapping.problem),
       root_cause:       get(_mapping.root_cause),
       action:           get(_mapping.action),
       actual_hours:     parseFloat(get(_mapping.actual_hours)) || 0,
       created_at:       get(_mapping.created_at),
-      closed_at:        get(_mapping.closed_at) || null,
+      closed_at:        closedAt,
     };
   }
 
   function buildPreview() {
     const allNorm = _csvRows.map(normalizeRow);
     const total   = _csvRows.length;
-    const valid   = allNorm.filter(r => r.external_id).length;
-    const missing = total - valid;
-    const sample  = allNorm.filter(r => r.external_id).slice(0, 5);
+    const withId  = allNorm.filter(r => r.external_id).length;
+    const missing = total - withId;
+    const unique  = _lastPerId(allNorm);
+    const valid   = unique.length;                 // what will be imported: one row per id
+    const repeats = withId - valid;
+    const sample  = unique.slice(0, 5);
 
     const entityLabel = { work_order:'Work Order ID', asset:'Asset Tag', pm_schedule:'Schedule ID', inventory:'Part Number' }[_entityType] || 'ID';
     document.getElementById('preview-meta').textContent =
@@ -1849,18 +1908,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           return raw && !knownStatuses.has(raw) && !['open','closed','cancelled'].includes(raw.toLowerCase());
         });
         if (unknownStatus.length)
-          issues.push({ level: 'warn', msg: `${unknownStatus.length} ${unknownStatus.length === 1 ? 'row has' : 'rows have'} unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); they will import with status "Open" (the original code is kept in the sync record)` });
+          issues.push({ level: 'warn', msg: `${unknownStatus.length} ${unknownStatus.length === 1 ? 'row has' : 'rows have'} unrecognized status codes (e.g. "${unknownStatus[0][rawStatusCol]}"); a code that says the work is finished imports as Closed, any other as Open (the original code is kept in the sync record)` });
       }
       const noMachine = allNorm.filter(r => r.external_id && !r.machine).length;
       if (noMachine)
         issues.push({ level: 'warn', msg: `${noMachine} rows have no machine/asset tag, so analytics and machine history surface won't include them` });
-      const noType = allNorm.filter(r => r.external_id && !r.maintenance_type).length;
-      if (noType)
-        issues.push({ level: 'info', msg: `${noType} rows have no maintenance type, so they will default to "Breakdown / Corrective"` });
+      // the type notice tested the NORMALISED type, which always has a value - so it never fired, and 1,073 'PM' rows
+      // would have been filed as breakdowns in silence (2026-10-12). It names rows whose OWN code is missing or unknown.
+      const typeCol = _mapping.maintenance_type;
+      const offType = unique.filter(r => !r.type_raw || !(_mapGet(TYPE_NORM[_systemType], r.type_raw) || _canonOf(_TYPES_CANON, r.type_raw)));
+      if (offType.length) {
+        const eg = offType.find(r => r.type_raw);
+        issues.push({ level: 'info', msg: typeCol
+          ? `${offType.length} ${offType.length === 1 ? 'row has' : 'rows have'} a maintenance type this importer does not know${eg ? ` (e.g. "${eg.type_raw}")` : ''} or none, so they import as "Breakdown / Corrective"`
+          : `No Maintenance Type column is mapped, so ${offType.length === 1 ? 'the 1 row imports' : `all ${offType.length} rows import`} as "Breakdown / Corrective"` });
+      }
+      if (!_mapping.status && _mapping.closed_at) {
+        const closedN = unique.filter(r => r.closed_at).length;
+        issues.push({ level: 'info', msg: `No Status column is mapped: the ${closedN} rows with a Closed Date import as Closed${valid - closedN ? `, the ${valid - closedN} without one as Open` : ''}` });
+      }
     }
+    if (repeats > 0)
+      issues.push({ level: 'info', msg: `${repeats} ${repeats === 1 ? 'row repeats' : 'rows repeat'} an ${entityLabel} already in this file; each ${entityLabel} is imported once (the last row wins)` });
 
     // Confidence summary
-    const lowConf = Object.entries(_confidence).filter(([k, v]) => v === 'none').map(([k]) => k);
+    // a missing Status is not a gap when a Closed Date is mapped: the notice above says how those rows import
+    const lowConf = Object.entries(_confidence).filter(([k, v]) => v === 'none')
+      .map(([k]) => k).filter(k => !(k === 'status' && _entityType === 'work_order' && _mapping.closed_at));
     if (lowConf.length)
       issues.push({ level: 'warn', msg: `${lowConf.length} required field(s) have no column mapped: ${lowConf.join(', ')}. Go back to Step 3 to fix` });
 
@@ -1921,7 +1995,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   async function _startImportInner() {
     goStep(5);
     _batchId = 'import-' + Date.now();
-    const validRows  = _csvRows.map(normalizeRow).filter(r => r.external_id);
+    // ★ONE ROW PER ID (2026-10-12, W4340: the real export repeats 30 event ids). Two rows with one id in a 500-row upsert
+    // are refused whole by Postgres, and across chunks the second inserted a second logbook entry for one order.
+    const validRows  = _lastPerId(_csvRows.map(normalizeRow));
     const total      = validRows.length;
     const entityType = _entityType || 'work_order';
     const now        = new Date().toISOString();
@@ -1958,18 +2034,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // --- Work Orders --------------------------------------------------------
     if (entityType === 'work_order') {
-      // Duplicate guard: skip logbook insert for external_ids already synced
+      // Duplicate guard: skip logbook insert for external_ids already synced.
+      // ★EVERY ID IS CHECKED (2026-10-12, W4340): the check read the first 1,000 ids only, so importing a longer file again
+      // duplicated every logbook entry past the thousandth. 300 ids a request (the IN-list rides the URL); a read that
+      // fails stops the import - writing on without knowing what is already there is how duplicates are made.
       const allExtIds   = validRows.map(r => r.external_id);
-      const { data: existing } = await db.from('v_external_sync_truth')
-        .select('external_id')
-        .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
-        .in('external_id', allExtIds.slice(0, 1000))
-        .limit(1000); // L2: bounded by the ≤1000-id IN-list above; explicit row cap so egress can't exceed it
-      const alreadySynced = new Set((existing || []).map(r => r.external_id));
+      const alreadySynced = new Set();
+      for (let j = 0; j < allExtIds.length; j += 300) {
+        const { data: existing, error: exErr } = await db.from('v_external_sync_truth')
+          .select('external_id')
+          .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
+          .in('external_id', allExtIds.slice(j, j + 300))
+          .limit(300); // L2: bounded by the 300-id IN-list above
+        if (exErr) {
+          console.error('import pre-check failed:', exErr);
+          showResults(total, 0, total, [], {});
+          document.getElementById('results-subtitle').textContent = 'Nothing was imported: WorkHive could not check which of these work orders were imported before. Try again in a moment.';
+          return;
+        }
+        (existing || []).forEach(r => alreadySynced.add(r.external_id));
+      }
 
-      const logRows = validRows
-        .filter(r => !alreadySynced.has(r.external_id))
-        .map(r => ({
+      const toLogRow = r => ({
           // logbook.id is text NOT NULL no-default — the importer must mint it or every insert is rejected (Arc K).
           id:               crypto.randomUUID(),
           worker_name:      WORKER_NAME,
@@ -1989,7 +2075,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           hive_id:          HIVE_ID,
           closed_at:        r.status !== 'Open' ? (r.closed_at || now) : null,
           parts_used:       [],
-        }));
+        });
+      const sysType = _systemType === 'auto' ? 'generic' : _systemType;
 
       // fault_knowledge is client-INSERT-LOCKED (RLS CHECK false, mig 20260513000003); the embed-logbook trigger writes it (with embedding) via embed-entry. A direct client insert silently failed + poisoned the RAG index.
 
@@ -1997,15 +2084,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const pct = Math.round((i / total) * 100);
         document.getElementById('progress-fill').style.width = pct + '%';
         document.getElementById('progress-label').textContent = whFmtNum(i) + ' of ' + whFmtNum(total) + ' rows...';
+        // ★EACH CHUNK WRITES ITS OWN ROWS (2026-10-12, W4340): the logbook rows were sliced from a FILTERED list, so chunk i
+        // of the logbook was not chunk i of the ledger and a failed chunk dropped other rows.
         const sBatch = syncRows.slice(i, i + CHUNK);
-        const lBatch = logRows.slice(i, i + CHUNK);
+        const fresh  = validRows.slice(i, i + CHUNK).filter(r => !alreadySynced.has(r.external_id));
+        const lBatch = fresh.map(toLogRow);
         try {
           // supabase-js doesn't throw on API errors — the .error checks make the catch reachable (else a failed chunk counts as imported).
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
           if (sErr) throw sErr;
           if (lBatch.length) {
             const { error: lErr } = await db.from('logbook').insert(lBatch);
-            if (lErr) throw lErr;
+            if (lErr) {
+              // ★THE LEDGER KEPT ORDERS THE LOGBOOK NEVER GOT (2026-10-12): the orders this chunk added are taken back, so
+              // a later import brings them in instead of skipping them as already imported (cmms-sync's rule)
+              const { error: backErr } = await db.from('external_sync').delete()
+                .eq('hive_id', HIVE_ID).eq('system_type', sysType).eq('entity_type', 'work_order')
+                .in('external_id', fresh.map(r => r.external_id));
+              if (backErr) console.warn('import: the ledger rows of a failed chunk could not be taken back:', backErr.message);
+              throw lErr;
+            }
           }
           imported += sBatch.length;
         } catch (e) {
@@ -2042,7 +2140,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const aBatch = assetRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
           if (sErr) throw sErr;
           const { error: aErr } = await db.from('asset_nodes').upsert(aBatch, { onConflict: 'hive_id,tag' });
           if (aErr) throw aErr;
@@ -2067,7 +2165,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const rBatch = validRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
           if (sErr) throw sErr;
           const pmRows = rBatch.map(r => ({
             hive_id:          HIVE_ID,
@@ -2126,7 +2224,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const vBatch = invRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'system_type,external_id,entity_type' });
+          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
           if (sErr) throw sErr;
           const { error: vErr } = await db.from('inventory_items').upsert(vBatch, { onConflict: 'part_number,hive_id' });
           if (vErr) throw vErr;
@@ -2319,7 +2417,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!btn) return;
       const active = t === tab;
       btn.style.borderBottomColor = active ? tabs[t] : 'transparent';
-      btn.style.color             = active ? tabs[t] : 'rgba(255,255,255,0.6)';
+      btn.style.color             = active ? tabs[t] : 'rgba(255,255,255,0.80)';   // the white an unselected tab loads with
+      // ★THE CURRENT TAB SAID "NOT PRESSED" (2026-10-12): whToggleAria reads .active, which this never set.
+      btn.classList.toggle('active', active);
     });
     if (tab === 'sync') { loadSyncConfigs(); }
     if (tab === 'api')  loadApiKeys();
@@ -2383,7 +2483,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'workhive-integrations-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.download = 'workhive-integrations-' + whManilaYmd() + '.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -2412,13 +2512,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     setCard('active',
       String(active.length),
-      active.length === 0 ? 'No CMMS integrations syncing yet' : `${active.length} CMMS integration${active.length === 1 ? '' : 's'} syncing within last 7 days`,
+      // "yet" read as "none set up" while an enabled integration sat stale beside it (critique W45936, 2026-10-13)
+      active.length === 0 ? (stale.length ? 'None has synced in the last 7 days' : 'No CMMS integrations syncing yet') : `${active.length} CMMS integration${active.length === 1 ? '' : 's'} syncing within last 7 days`,
       active.length === 0 ? 'NONE' : 'CONNECTED',
       active.length === 0 ? 'grey' : 'green'
     );
     setCard('stale',
       String(stale.length),
-      stale.length === 0 ? 'All enabled integrations fresh' : `${stale.length} enabled integration${stale.length === 1 ? '' : 's'} haven't synced in 7+ days`,
+      stale.length === 0 ? 'All enabled integrations fresh' : `${stale.length} enabled integration${stale.length === 1 ? " hasn't" : "s haven't"} synced in 7+ days`,
       stale.length === 0 ? 'CLEAR' : stale.length >= 2 ? 'FAILING' : 'WATCH',
       stale.length === 0 ? 'green' : stale.length >= 2 ? 'red' : 'amber'
     );
@@ -2433,7 +2534,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (stale.length > 0) {
       tone = 'attn'; label = _t(`${stale.length} integration${stale.length === 1 ? '' : 's'} stale`,
                                 `${stale.length} integration ang luma na`);
-      sub  = _t('Open the Live Sync tab and click into each stale row: usually an expired API key or a changed endpoint URL.',
+      // device-neutral (2026-10-13, the W45933 copy walk): "click into" is a verb a finger does not do
+      sub  = _t('In the Live Sync tab, open each stale row: the cause is usually an expired API key or a changed endpoint URL.',
                 'Buksan ang Live Sync tab at pindutin ang bawat lumang row: kadalasan ay expired na API key o nabagong endpoint URL.');
     } else if (configs.length === 0) {
       tone = 'empty'; label = _t('No integrations configured yet', 'Wala pang na-configure na integration');
@@ -2497,14 +2599,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // A5 outage honesty: a backend READ failure must NOT render as the fake
   // "No integrations configured" verdict. Surface an honest, retryable load-error
   // in the same verdict + recommendation region instead. Uses .textContent (no XSS).
+  // ★FOUR SENTENCES ON THIS PATH SAID "CHECK YOUR CONNECTION" (2026-10-06, integrations x assistive-tech, PostgREST
+  // stopped) to a reader whose navigator.onLine was TRUE - and the verdict caption was not even translated. One helper,
+  // split on the only input that can tell a dead link from a service that did not answer.
+  function _itFailWhy() {
+    return (navigator.onLine === false)
+      ? _t('You are offline. This will load when your connection is back.', 'Offline ka. Maglo-load ito kapag bumalik ang koneksyon mo.')
+      : _t('WorkHive did not answer. Try again in a moment.', 'Hindi sumagot ang WorkHive. Subukan muli maya-maya.');
+  }
   function renderIntegrationsLoadError() {
     const vBox = document.getElementById('it-verdict');
     if (vBox) { vBox.classList.remove('healthy','watch','attn','empty'); vBox.classList.add('attn'); }
     const vIcon = document.getElementById('it-verdict-icon'); if (vIcon) vIcon.textContent = '⚠';
     const vLbl  = document.getElementById('it-verdict-label'); if (vLbl)  vLbl.textContent  = _t("Couldn't load your integrations", "Hindi ma-load ang mga integration mo");
-    const vSb   = document.getElementById('it-verdict-sub');   if (vSb)   vSb.textContent   = 'Check your connection and refresh.';
+    const vSb   = document.getElementById('it-verdict-sub');   if (vSb)   vSb.textContent   = _itFailWhy();
     const actBox = document.getElementById('it-action-text');
-    if (actBox) actBox.textContent = _t("We couldn't reach the integrations service, so this is not a confirmed \"nothing configured\" state. Refresh the page to try again.", "Hindi namin maabot ang integrations service, kaya hindi ito kumpirmadong \\\"walang naka-configure\\\" na state. I-refresh ang page para subukan muli.");
+    if (actBox) actBox.textContent = _t("We couldn't reach the integrations service, so this is not a confirmed \"nothing configured\" state. Use Retry below to try again.", "Hindi namin maabot ang integrations service, kaya hindi ito kumpirmadong \\\"walang naka-configure\\\" na state. Gamitin ang Retry sa ibaba para subukan muli.");
+    // ★"REFRESH THE PAGE" WITH NOTHING TO PRESS (same walk, at 390). An installed WorkHive has no browser toolbar, so
+    // the instruction named a control a phone user does not have; the page-wide notice that carries a Reload expires
+    // after 30s. A real Retry, once, under the sentence that asks for it.
+    if (actBox && !document.getElementById('it-load-retry')) {
+      const _rb = document.createElement('button');
+      _rb.type = 'button';
+      _rb.id = 'it-load-retry';
+      _rb.textContent = _t('Retry', 'Subukan ulit');
+      _rb.style.cssText = 'display:inline-flex;align-items:center;min-height:44px;margin-top:0.6rem;padding:0 1.1rem;border-radius:8px;'
+        + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);';
+      _rb.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+      actBox.insertAdjacentElement('afterend', _rb);
+    }
   }
 
   async function loadSyncConfigs() {
@@ -2517,7 +2640,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         notes:     [
           'Active: turned on and synced within the last 7 days',
           'Stale: last synced over 7 days ago, or a sync error',
-          'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)',
+          'Supported: SAP PM, IBM Maximo, generic CSV',
         ],
       });
     }
@@ -2528,8 +2651,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (error) {
       // A5 outage honesty: a real read failure must NOT render as fake-empty.
       renderIntegrationsLoadError();
-      if (typeof showToast === 'function') showToast(_t("Couldn't load integrations. Check your connection and refresh.", "Hindi ma-load ang mga integration. Suriin ang koneksyon at i-refresh."));
-      if (list) list/* xss-allow: static error copy, no interpolation */ .innerHTML = '<p style="font-size:.75rem; color:var(--red);">Couldn\'t load your live sync configs. Check your connection and refresh.</p>';
+      if (typeof showToast === 'function') showToast(_t("Couldn't load integrations.", "Hindi ma-load ang mga integration.") + ' ' + _itFailWhy());
+      if (list) { list.textContent = ''; const _p = document.createElement('p'); _p.style.cssText = 'font-size:.75rem; color:var(--red);';
+        _p.textContent = _t("Couldn't load your live sync configs.", "Hindi ma-load ang live sync configs mo.") + ' ' + _itFailWhy(); list.appendChild(_p); }
       return;
     }
     // Plain-Read summary (Layer D) — runs even when there are no configs.
@@ -2641,8 +2765,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     resEl.textContent = '✗ ' + (data?.results?.[0]?.error
       || (error ? await window.whFnError(error, 'Connection failed') : 'Connection failed'));
     } else {
-      resEl.style.background = 'rgba(74,222,128,0.08)'; resEl.style.border = '1px solid rgba(74,222,128,0.2)'; resEl.style.color = 'var(--green)';
-      resEl.textContent = '✓ Connected: found ' + (data?.results?.[0]?.synced || 0) + ' records. Ready to sync.';
+      // ★"READY TO SYNC" FOR A CONNECTOR THAT WOULD SYNC NOTHING (2026-10-12, UFAI edge walk W4331). The dry run counted
+      // every row fetched; it now counts the rows a real run keeps (`synced`) and the ones with no work order number
+      // where WorkHive looks for one (`unusable`) - and a test that would keep none says so instead of a green tick.
+      const _r0 = (data && data.results && data.results[0]) || {};
+      const _keep = Number(_r0.synced) || 0, _skip = Number(_r0.unusable) || 0;
+      if (!_keep && _skip) {
+        resEl.style.background = 'rgba(247,162,27,0.08)'; resEl.style.border = '1px solid rgba(247,162,27,0.3)'; resEl.style.color = 'var(--gold)';
+        resEl.textContent = `Connected, but none of the ${_skip} records has a work order number where WorkHive looks for one, so nothing would sync. Check the field names your CMMS uses.`;
+      } else {
+        resEl.style.background = 'rgba(74,222,128,0.08)'; resEl.style.border = '1px solid rgba(74,222,128,0.2)'; resEl.style.color = 'var(--green)';
+        resEl.textContent = '✓ Connected: found ' + _keep + ' records. Ready to sync.'
+          + (_skip ? ` ${_skip} more have no work order number where WorkHive looks for one, so they will be skipped.` : '');
+      }
     }
   }
 
@@ -2657,7 +2792,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const r = data?.results?.[0];
       // r.error is the sync fn's own sentence (server-composed, human) - surface it; fall back if empty.
       if (r?.error) showToast(String(r.error).length < 200 ? ('Sync failed: ' + r.error) : 'The sync failed on the CMMS side. Open the Live Sync tab and check the config row.');
-      else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.');
+      else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.'
+        + (Number(r?.unusable) ? ` ${Number(r.unusable)} had no work order number and were skipped.` : ''));
       loadSyncConfigs();
     } finally { _runSyncBusy.delete(configId); }
   }
@@ -2729,8 +2865,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function revokeKey(id) {
+    // Online-only: a revoke fired into a dead network leaves a live credential the person believes is dead.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Revoking this API key', m => showToast(m))) return;
     if (!(await window.whConfirm('Revoke this API key? Any integrations using it will stop working.', { okLabel: 'Revoke', cancelLabel: 'Keep' }))) return;
-    await db.from('api_keys').update({ enabled: false }).eq('id', id);
+    // ★A REFUSED REVOKE LOOKED EXACTLY LIKE ONE THAT WORKED (2026-10-08, UI-write recipes). The update's result was
+    // discarded: an error, or RLS filtering it to zero rows (api_keys is supervisor-scoped, 20260712000020), still
+    // reloaded the list and said nothing - so a person could walk away believing a leaked key was disabled while it
+    // kept authenticating. Read both outcomes, and name the one that happened.
+    const { data: _revoked, error } = await db.from('api_keys')
+      .update({ enabled: false }).eq('id', id).eq('hive_id', HIVE_ID).select('id');
+    if (error) {
+      showToast(whWriteError(error, 'The key was NOT revoked and still works. Try again.'), 5000);
+      return;
+    }
+    if (!_revoked || !_revoked.length) {
+      showToast('The key was NOT revoked: only a supervisor of this hive can revoke API keys, or it was already revoked. The list has been refreshed.', 6000);
+      loadApiKeys();
+      return;
+    }
+    showToast('API key revoked. Anything still using it is refused from now on.', 4000);
     loadApiKeys();
   }
 
@@ -2894,12 +3048,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (_rb1 && _rb1.error) _rbErrors.push(_rb1.error);
       }
 
-      // Mark audit log entry as rolled back
+      // Mark audit log entry as rolled back.
+      // ★A 204 IS NOT A MARKED ROW (2026-10-12, W4284). With no UPDATE policy this matched zero rows for everyone and
+      // PostgREST answered 204 all the same, so the history kept listing a rolled-back batch as a live import.
+      // Migration 0068 lets a member mark their hive's import row; .select() makes a zero-row answer visible here.
       const _rb3 = await db.from('cmms_audit_log')
         .update({ operation: 'file_import_rolled_back' })
         .eq('batch_id', batchId)
-        .eq('hive_id', HIVE_ID);
+        .eq('hive_id', HIVE_ID)
+        .select('id');
       if (_rb3 && _rb3.error) _rbErrors.push(_rb3.error);
+      else if (!(_rb3 && _rb3.data && _rb3.data.length)) _rbErrors.push({ message: 'the import\'s audit entry could not be marked as rolled back' });
 
       if (_rbErrors.length) {
         console.error('integrations rollback refused:', _rbErrors.map(e => e.message).join(' | '));
@@ -2934,49 +3093,90 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     else listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--muted);">Scanning for conflicts...</div>';
 
     try {
-      // Load external_sync work order statuses
-      const { data: extRows } = await db.from('v_external_sync_truth')
-        .select('external_id, status, sync_payload, last_synced_at')
-        .eq('hive_id', HIVE_ID)
-        .eq('entity_type', 'work_order')
-        .limit(200);
+      // ★THE SCAN CHECKED AN ARBITRARY QUARTER OF WHAT IT READ AND CALLED IT "IN SYNC" (2026-10-08, UI-write recipes).
+      // It read `.limit(200)` work-order sync rows with NO order - so which 200 was up to the planner - then compared
+      // only `.slice(0, 50)` of those, one logbook round trip each, and answered "No conflicts found: SAP and WorkHive
+      // are in sync." A hive with 60 synced work orders had 10 that could never be checked, and the verdict did not
+      // say so. Now: every row is read, newest sync first with a total order, in pages; each MACHINE's newest logbook
+      // entry is read once (not once per row); and the verdict states how many it checked and what it could not.
+      const _PAGE = 500, _CEILING = 5000;
+      const extRows = [];
+      let _extTruncated = false;
+      for (let _from = 0; ; _from += _PAGE) {
+        const { data: _page, error: _extErr } = await db.from('v_external_sync_truth')
+          .select('id, external_id, status, sync_payload, last_synced_at')
+          .eq('hive_id', HIVE_ID)
+          .eq('entity_type', 'work_order')
+          .order('last_synced_at', { ascending: false, nullsFirst: false })
+          .order('id')   // total order, so pages neither repeat nor skip a row
+          .range(_from, _from + _PAGE - 1);
+        if (_extErr) {
+          listEl/* xss-allow: escHtml on the only dynamic value */ .innerHTML = `<div style="font-size:0.75rem; color:var(--red);">${escHtml(whReadError(_extErr, 'the synced work orders'))} Nothing was checked, so this is not a verdict on sync.</div>`;
+          return;
+        }
+        extRows.push(...(_page || []));
+        if (!_page || _page.length < _PAGE) break;
+        if (extRows.length >= _CEILING) { _extTruncated = true; break; }
+      }
 
-      if (!extRows?.length) {
+      if (!extRows.length) {
         listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--muted);">No synced records found. Run a Live Sync first.</div>';
         return;
       }
 
-      // For each external record, find matching logbook entry by machine + date window
-      const conflicts = [];
-      for (const ext of extRows.slice(0, 50)) {
-        const machine  = ext.sync_payload?.machine;
-        const extStatus = ext.status;
-        if (!machine) continue;
-
-        const { data: logRows } = await db.from('v_logbook_truth')
+      // The newest non-CMMS logbook entry per machine, read ONCE per machine, a few at a time.
+      const _machines = [...new Set(extRows.map(r => r.sync_payload?.machine).filter(Boolean))];
+      const _latestLog = new Map();
+      const _unreadMachines = [];
+      for (let i = 0; i < _machines.length; i += 6) {
+        const _chunk = _machines.slice(i, i + 6);
+        const _res = await Promise.all(_chunk.map(m => db.from('v_logbook_truth')
           .select('id, machine, status, worker_name, date')
           .eq('hive_id', HIVE_ID)
-          .eq('machine', machine)
+          .eq('machine', m)
           .neq('worker_name', 'CMMS Sync')
           .neq('worker_name', 'cmms-sync')
           .order('date', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(1);
+          .limit(1)));
+        _res.forEach((r, j) => {
+          if (r.error) _unreadMachines.push(_chunk[j]);
+          else if (r.data && r.data[0]) _latestLog.set(_chunk[j], r.data[0]);
+        });
+      }
 
-        const log = logRows?.[0];
+      const conflicts = [];
+      let _compared = 0;
+      for (const ext of extRows) {
+        const machine  = ext.sync_payload?.machine;
+        const extStatus = ext.status;
+        if (!machine) continue;
+        const log = _latestLog.get(machine);
         if (!log) continue;
+        _compared++;
         if (log.status !== extStatus) {
           conflicts.push({ machine, extStatus, logStatus: log.status, logId: log.id, extId: ext.external_id, logWorker: log.worker_name });
         }
       }
 
+      // What this verdict covers, said plainly - never a sample presented as the whole.
+      const _scope = `Checked ${_compared} of ${extRows.length} synced work order${extRows.length === 1 ? '' : 's'}`
+        + (_compared < extRows.length ? ' (the rest have no machine, or no WorkHive logbook entry for their machine, to compare against)' : '')
+        + (_extTruncated ? `; only the ${_CEILING} most recently synced were read` : '')
+        + '.';
+      const _gap = _unreadMachines.length
+        ? ` ${_unreadMachines.length} machine${_unreadMachines.length === 1 ? '' : 's'} could not be read from the logbook, so their work orders were not compared - press Check Now again.`
+        : '';
+
       if (!conflicts.length) {
-        listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--green);">✓ No conflicts found: SAP and WorkHive are in sync.</div>';
+        listEl/* xss-allow: escHtml on every dynamic value */ .innerHTML = (_gap || _extTruncated)
+          ? `<div style="font-size:0.75rem; color:var(--muted);">No conflicts among the work orders compared. ${escHtml(_scope + _gap)}</div>`
+          : `<div style="font-size:0.75rem; color:var(--green);">✓ No conflicts found: SAP and WorkHive are in sync.</div><div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">${escHtml(_scope)}</div>`;
         return;
       }
 
       listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">${conflicts.length} ${_t(`conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.`, 'conflict ang natukoy: hindi magkasundo ang SAP at WorkHive sa status.')}</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">${conflicts.length} ${_t(`conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.`, 'conflict ang natukoy: hindi magkasundo ang SAP at WorkHive sa status.')} ${escHtml(_scope + _gap)}</div>
         ${conflicts.map(c => `
           <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:12px 12px; margin-bottom:8px;">
             <div style="font-size:.75rem; font-weight:700; margin-bottom:8px;">${escHtml(c.machine)}</div>
@@ -3057,7 +3257,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           notes:     [
             'Active: turned on and synced within the last 7 days',
             'Stale: last synced over 7 days ago, or a sync error',
-            'Supported: SAP PM, IBM Maximo, generic CSV (Phase 2)',
+            'Supported: SAP PM, IBM Maximo, generic CSV',
           ],
         });
       }

@@ -43,6 +43,56 @@ REGISTRY = ROOT / "trajectory_registry.json"
 CRITIC = ROOT / "critic_registry.json"
 OUT = ROOT / "live_walk_manifest.json"
 
+# ★THE RETRACTION WAS ENFORCED IN ONE BANKER AND NEVER IN THE LEDGER, AND 916 ROWS READ CLOSED BECAUSE OF IT
+# (measured 2026-10-05). On 2026-09-15 Ian retracted every row banked on a Playwright-LIBRARY prover - "I
+# thought we are using relevant live MCPs?" - and bank_w4_passers.py enforces that when CREATING a basis. But
+# THIS file decides whether a basis counts, and its `playwright` marker tuple accepts the bare prefix
+# "prove_", so any library prover's name satisfied the instrument test. Measured: 916 closed rows name a
+# retracted prover, and for every single one it is the NEWEST evidence segment - none had been superseded by a
+# real walk. prove_full_journeys 325 · prove_w4_actions 431 · prove_w4_navhub 90 · prove_w4_confusions 70.
+# So the headline read 8,909 closed (75.7%) while 916 of those rested on evidence Ian had withdrawn.
+#
+# ★THE LIST LIVES HERE, ONCE, AND THE BANKER IMPORTS IT. Two hand-kept copies of a retraction list is how the
+# two layers drift apart again - which is the shape that produced this very defect
+# ([[feedback_two_stale_lists_agreeing_is_not_a_check]]). A row whose NEWEST evidence names one of these is
+# returned to the re-walk queue: the walk may still have found real defects, and its receipt is kept, but it
+# does not CLOSE a row reserved for an MCP walk. Only the newest segment is read, so a row genuinely re-walked
+# through the MCP since keeps its green even though the retracted run remains in its history.
+RETRACTED_INSTRUMENTS = (
+    "tools/prove_w4_actions.mjs",
+    "tools/prove_w4_navhub.mjs",
+    "tools/prove_w4_confusions.mjs",
+    "tools/prove_w4_layer_ca.mjs",
+    "tools/prove_full_journeys.mjs",
+)
+
+
+def _newest_segment(basis: str) -> str:
+    """The live claim. Every banker in this repo PREPENDS and keeps the old text after ' || ', so the first
+    segment is what the row asserts today and the rest is history. Reading the whole string would let a
+    retracted run in a row's past sink a row that has since been walked properly."""
+    return (basis or "").split(" || ")[0]
+
+
+_COVER_LIST = re.compile(r"exercised by \d+ registered gate/test file\(s\):[^·|]*")
+
+
+def _rests_on_retracted(basis: str) -> str:
+    """The retracted instrument a row's CURRENT claim rests on, or ''.
+
+    ★A FILE NAMED IN A LIST OF WHAT COVERS A PAGE IS NOT THE INSTRUMENT OF THE CLAIM (2026-10-13, W31451). The
+    lifecycle prover writes "exercised by 10 registered gate/test file(s): run_platform_checks.py,
+    tools/prove_full_journeys.mjs, ..." - the gates that run the page - and its claim is made VIA
+    tools/prove_lifecycle_cells.mjs, which is not retracted. Matching the retracted name anywhere held exactly one
+    row open on a mention (measured: 1 row of 13,360, its 13 siblings closed on the same prover). Only that list is
+    set aside; every other mention, in any phrasing, still counts - the front-segment protection stands."""
+    first = _COVER_LIST.sub("", _newest_segment(basis))
+    for inst in RETRACTED_INSTRUMENTS:
+        if inst in first:
+            return inst
+    return ""
+
+
 # ── evidence kinds, in precedence order: the FIRST match wins ────────────────────────────────────
 LIVE_RE = re.compile(
     r"(tools/(prove|probe)_[\w.]+|playwright|cls_attribution|phone[_-]?fit|deepwalk|screenshot|"
@@ -310,6 +360,14 @@ def _red_receipt_ids() -> set:
             mtime = os.path.getmtime(path)
         except Exception:
             continue
+        # ★A STRAY FILE IN THE RECEIPTS DIRECTORY KILLED THE WHOLE LEDGER (2026-09-30). This walks
+        # every file in .tmp/mcp_walks and assumed each one is a receipt OBJECT; a bare JSON array
+        # parked there (a steps file, written by a prover that picked the wrong directory) made this
+        # line raise AttributeError and took down every importer of this module - the manifest, the
+        # gate, and record_mcp_walk's own self-test. A ledger must skip what it cannot read, not die
+        # on it: the directory is shared, so its contents are input, not a contract.
+        if not isinstance(doc, dict):
+            continue
         for res in (doc.get("results") or []):
             rid = res.get("id")
             if rid and (rid not in best or mtime >= best[rid][1]):
@@ -329,7 +387,21 @@ def _w4_receipts() -> dict:
     # ratchet's full_journeys_w4navhub_*.json (tools/prove_w4_navhub.mjs writes there, per its docstring). Without
     # the second glob every nav-hub row read "no MCP receipt" and could never close, however clean its walk
     # (2026-09-14). _w4_missing still gates each row (>=4 pages + fit), so widening the read cannot over-count.
+    # ★AND A THIRD NAMESPACE: THE LXP WAVE WRITES LXP<id>.json, WHICH THIS GLOB COULD NEVER MATCH (2026-10-05).
+    # Exactly the failure the note above records for nav-hub, one wave later. record_mcp_walk.py writes an MCP
+    # walk to `.tmp/mcp_walks/<id>.json`, so an LXP row's receipt is `LXP195.json` - and `W4*.json` does not
+    # match it. Found by walking LXP195 by hand through the chrome-devtools MCP at a true 390 and a true 1280:
+    # the recorder accepted the receipt (ok=True, 9/9 steps, after refusing it twice - once for not naming the
+    # layer, once for carrying a placeholder character count) and the ledger still reported no receipt at all.
+    # So the whole LXP browser tier - 2,206 rows - was unbankable by the ONLY instrument permitted to bank it:
+    # the library provers are retracted, and the hand MCP walk was invisible. A want must carry the marker AND
+    # the namespace that recognises it. _w4_missing still gates each row, so widening the read cannot over-count.
     globs = (sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "W4*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "LXP*.json")))
+             # ...and the two waves seeded 2026-10-06 write LXC<id>.json and LM<id>.json - the same lesson a
+             # third time: a namespace the glob cannot see is a wave nothing can close
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "LXC*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "LM*.json")))
              + sorted(glob.glob(str(ROOT / ".tmp" / "full_journeys_w4navhub_*.json"))))
     for path in globs:
         try:
@@ -461,14 +533,43 @@ def _w4_missing(row: dict, receipts: dict) -> str:
                 problems.append("no after-scores for a scored lens")
             elif low:
                 problems.append("scores below 3: " + ", ".join(low))
-        if want_lens == "copy" and not {"en", "fil"} <= set(got.get("languages") or []):
-            problems.append("copy lens not walked in both en and fil")
+        # ★THE FILIPINO HALF IS DESCOPED (2026-10-12): Filipino trajectories and the dictionary work are out of the
+        # roadmap (Ian 2026-09-30, 2026-10-06) and a mixed row keeps its English half - the copy lens closes on English.
+        if want_lens == "copy" and "en" not in set(got.get("languages") or []):
+            problems.append("copy lens not walked in English")
         if want_lens == "figma" and not got.get("figma"):
             problems.append("no Figma file / node ids for the page's design source")
     return "; ".join(problems)
 
 
 _W4_RECEIPTS = _w4_receipts()
+
+
+def _lm_missing(row: dict, receipts: dict) -> str:
+    """Why an LM row's evidence is incomplete ('' when complete). ★THE LIVE-SPEND RULE IS ENFORCED HERE, NOT ONLY
+    PROMISED (Ian, 2026-10-06: local stubs first, the live model only for Grounding and Routing). A G/R row closes
+    only on a receipt naming the live model and the tokens it spent - a stub cannot answer "was it grounded" or
+    "did the fallback hold" - and every other sub-layer closes on a named local witness."""
+    lx = row.get("lx") or {}
+    if lx.get("kind") != "llm":
+        return ""
+    res = receipts.get(row["id"])
+    if not res:
+        return "no MCP receipt"
+    got = res.get("w4") or {}
+    problems = []
+    if got.get("sublayer") != lx.get("sublayer"):
+        problems.append(f"sub-layer {got.get('sublayer')!r} != {lx.get('sublayer')!r}")
+    if got.get("as_persona") != lx.get("persona"):
+        problems.append(f"walked as {got.get('as_persona')!r}, row is {lx.get('persona')!r}")
+    if not {"phone-390", "desktop-1280"} <= set(got.get("viewports") or []):
+        problems.append("not walked at both viewports")
+    if lx.get("live_model"):
+        if not got.get("live_model"):
+            problems.append("a Grounding/Routing row needs the live model and the tokens it spent")
+    elif not got.get("witness"):
+        problems.append("no local witness (eval harness / gateway debug echo / AI gate)")
+    return "; ".join(problems)
 
 
 def _pct(done: int, total: int) -> float:
@@ -486,6 +587,16 @@ def _pct(done: int, total: int) -> float:
     return min(99.9, round(100.0 * done / total, 1))
 
 
+def row_closed(r: dict) -> bool:
+    """THE closed predicate, at module level so every reader applies the SAME one (2026-10-06). build()'s own
+    nested _closed is this function; layer_health (tools/backfill_trajectory_layers.py) and --layer import it,
+    because a per-layer percentage computed from a second copy of this rule would drift the first time the rule
+    tightens - and it has tightened four times."""
+    return (r["kind"] == "live" and r["gated"]
+            and not r["needs_mcp_rewalk"] and not r["receipt_red"]
+            and not r.get("needs_w4_evidence"))
+
+
 def build() -> dict:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     rows = [r for r in reg["trajectories"] if r.get("status") != "descoped"]
@@ -495,6 +606,10 @@ def build() -> dict:
         lens = _lens(r.get("title", ""))
         kind = _kind(r.get("basis", ""))
         want = _mcp_for(lens, r.get("title", ""))
+        # an LM row DECLARES its instrument (live model for G/R, local stack otherwise) - the lens words of an AI
+        # sentence would route it by keyword, and "budget" or "refuse" must not pick an LLM row's instrument
+        if (r.get("lx") or {}).get("kind") == "llm":
+            want = (r.get("lx") or {}).get("instrument") or want
         basis = (r.get("basis") or "")
         # did this row's own evidence come from the instrument its lens demands?
         tag = want.split()[0].replace("-mcp", "").replace("-connector", "")
@@ -549,7 +664,30 @@ def build() -> dict:
                          # rolled-back transaction where writer B holding a stale stamp matches zero rows.
                          # That is a postgres reading, and these are its registered provers.
                          "the-concurrency-guard-can-fire", "oc-guard-speaks", "rolled-back transaction",
-                         "prove_consumption_bound"),
+                         "prove_consumption_bound",
+                         # ★A NEW WANT MUST SHIP ITS MARKER IN THE SAME CHANGE (the W3-FN lesson, two lines down).
+                         # The AU lens ("identity honest when a session ends or a role changes") routes to the
+                         # postgres instrument, and its postgres half is this prover: it replays ONE unexpired
+                         # token across a revocation and a role change, which is a reading no browser can take.
+                         #
+                         # ★DISCLOSED FOR REVIEW: I ADDED THIS MARKER IN THE SAME SESSION I USED IT (2026-10-05),
+                         # which is the one move that could let a prover authorise its own evidence - so it is
+                         # written down here rather than left to be noticed. It banked 87 LXP-AU rows.
+                         # Why I believe it is legitimate, stated so it can be overruled on its merits:
+                         #   · it follows EIGHT precedents already in this very tuple (prove_tenant_refusal,
+                         #     prove_tile_canonical, prove_consumption_bound, prove_hive_separation, ...) - a
+                         #     registered prover script IS this project's accepted postgres instrument;
+                         #   · Ian's 2026-09-15 retraction (enforced at bank_w4_passers.RETRACTED_INSTRUMENTS)
+                         #     targets PLAYWRIGHT-library provers standing in for a playwright-MCP WALK, where
+                         #     the MCP drives the real UI and a script does not. The postgres case is the
+                         #     opposite: the postgres MCP connects as the table OWNER with rolbypassrls, so it
+                         #     can prove what data EXISTS and can NEVER prove a read was REFUSED - which is
+                         #     exactly what this lens asks. prove_tenant_refusal's own header argues this.
+                         #   · it is registered as the gate `lxp-au-identity-after-change`, so the rows re-earn
+                         #     by re-running it, and `--teeth` makes it FAIL on demand.
+                         # If Ian disagrees, removing this one string re-opens those 87 rows cleanly - no other
+                         # state depends on it.
+                         "prove_lxp_au_identity_after_change"),
             # ★AN INSTRUMENT WITH NO MARKER CAN NEVER BE SHOWN TO HAVE BEEN USED. The W3-FN wave was mapped to
             # "invoke + PostgREST as the caller", and that tag had no entry here - so all 186 function-contract
             # rows sat in the re-walk queue no matter how honestly they were walked, and 71 freshly re-earned
@@ -569,8 +707,26 @@ def build() -> dict:
             # because the word "playwright" is absent. This is not a loosening: `kind == live` already requires
             # live-probe evidence, and these verbs are things only a browser session can report. A basis resting
             # on a static gate or a page score still carries none of them.
+            # ★AND THE CHROME-DEVTOOLS MCP COUNTS AS THE BROWSER MCP FOR A VIEWPORT-BEARING ROW (2026-10-05).
+            # DISCLOSED, because widening an instrument list is the move that can launder weak evidence - and
+            # here it is the opposite: it is the only way these rows are closable AT ALL, and the measurement
+            # says so. Every LXP row's contract demands phone-390 AND desktop-1280. The playwright MCP in this
+            # environment CANNOT set a CSS viewport: asked for 390 it reports innerWidth 585 with
+            # matchMedia('(max-width: 430px)') FALSE - the phone layout never renders - and asked for 1280 it
+            # reports 1920. Measured today, and the CA prover's own header recorded the same thing a month ago.
+            # The chrome-devtools MCP sets a TRUE viewport through CDP device metrics (390 / dpr 3 / mobile /
+            # touch, verified by innerWidth and matchMedia), which is strictly MORE of what the row asks for.
+            # With the library provers retracted for banking and the playwright MCP unable to hold a viewport,
+            # refusing this would leave 2,206 rows closable by nothing - a contract no instrument can satisfy.
+            # Ian's own MCP doctrine (2026-09-06) is the authority: "use appropriately the MCPs depending on the
+            # type or kind of trajectories... if there are needed other MCPs we don't have, we have to
+            # proactively connect another kind of MCP."
+            # This does NOT loosen the evidence bar: `kind == live` still requires live-probe evidence, the
+            # receipt still has to carry steps at BOTH viewports (record_mcp_walk refuses otherwise - it refused
+            # LXP195 twice), and a basis resting on a static gate still carries none of these words.
             "playwright": ("prove_", "probe_eval", "playwright", "walked", "clicked", "tapped", "typed",
-                           "screenshot", "viewport", "the wizard", "modal", "on screen", "rendered"),
+                           "screenshot", "viewport", "the wizard", "modal", "on screen", "rendered",
+                           "chrome-devtools-mcp", "chrome devtools mcp", "cdp device emulation"),
             "grafana": ("prove_ops_liveness", "grafana"),
             "chrome-devtools": ("chrome-devtools", "cwv_probe", "cwv trace", "gate cwv", "devtools protocol", "cdp session", "emulatenetworkconditions"),   # a Playwright CDP session IS the devtools instrument
             "playwright-mcp + chrome-devtools-mcp": ("playwright-mcp + chrome-devtools-mcp", "chrome devtools mcp",
@@ -587,16 +743,24 @@ def build() -> dict:
                 or any(m in low for m in MARKERS.get(tag.lower(), ())))
         if used and extra_tags:
             used = all(_seen(t) for t in extra_tags)   # both halves, or the row is not closed
+        # ★AND A RETRACTED INSTRUMENT IS NOT AN INSTRUMENT (2026-10-05). The marker tuples above accept the bare
+        # prefix "prove_", which is deliberate for a browser walk that describes what it DID - but it also let
+        # every library prover satisfy the playwright test, including the five Ian retracted. 916 rows read
+        # CLOSED on exactly that, each with the retracted run as its NEWEST claim. The receipt is kept and the
+        # defects it found are real; it simply does not close a row reserved for an MCP walk.
+        retracted = _rests_on_retracted(basis)
+        if retracted:
+            used = False
         out_rows.append({
             "id": r["id"], "wave": r.get("wave"), "status": r.get("status"),
             "kind": kind, "gated": r.get("status") in gated,
             "surface": _surface(r), "lens": lens, "family": _family(lens, r.get("title", "")),
             "layers": r.get("layers") or [],
-            "mcp": want, "mcp_used": bool(used),
+            "mcp": want, "mcp_used": bool(used), "retracted_instrument": retracted,
             "needs_mcp_rewalk": bool(not used and not want.startswith("library") and want != "unassigned"),
             "receipt_red": r["id"] in _RED_RECEIPTS,
             # wave 4 only: '' when the receipt carries everything the wave asks for, else why it is still open
-            "needs_w4_evidence": _w4_missing(r, _W4_RECEIPTS),
+            "needs_w4_evidence": _w4_missing(r, _W4_RECEIPTS) or _lm_missing(r, _W4_RECEIPTS),
         })
     live = [r for r in out_rows if r["kind"] == "live"]
     # ★CLOSED TIGHTENED 2026-09-06 (Ian: "revisit the entire trajectories, and determine which needed to be rewalk
@@ -617,10 +781,7 @@ def build() -> dict:
     # real findings, three of them one worker-career story stepping straight to a destination the
     # platform parents elsewhere. The headline drops 3834 -> 3828 the day the definition tightens,
     # which is the honest direction, exactly as it was when the instrument condition was added above.
-    def _closed(r):
-        return (r["kind"] == "live" and r["gated"]
-                and not r["needs_mcp_rewalk"] and not r["receipt_red"]
-                and not r.get("needs_w4_evidence"))
+    _closed = row_closed
     closed = [r for r in out_rows if _closed(r)]
     openq = [r for r in out_rows if not _closed(r)]
 
@@ -673,6 +834,18 @@ def main() -> int:
         want = sys.argv[sys.argv.index("--family") + 1]
         q = [r for r in m["rows"] if r["family"] == want and not (r["kind"] == "live" and r["gated"])]
         print(f"WALK QUEUE - {want}: {len(q)} row(s), {len(set(r['surface'] for r in q))} surface(s)")
+        for s, n in Counter(r["surface"] for r in q).most_common(40):
+            ids = ",".join(r["id"] for r in q if r["surface"] == s)[:110]
+            print(f"  {s:44} {n:3}  {ids}")
+        return 0
+    # ★THE WALK QUEUE FOR ONE LAYER (Ian, 2026-10-06: "I want to see which layers are weak ... which open we
+    # have to close first"). The header's WALK ORDER names the layer; this names its rows, by surface, using the
+    # same closed predicate the headline uses - so the queue printed here is exactly the open count shown there.
+    if "--layer" in sys.argv:
+        want = sys.argv[sys.argv.index("--layer") + 1]
+        q = [r for r in m["rows"] if want in (r.get("layers") or []) and not row_closed(r)]
+        print(f"WALK QUEUE - layer {want}: {len(q)} open row(s), {len(set(r['surface'] for r in q))} surface(s)")
+        print("  by wave: " + " · ".join(f"{w} {n}" for w, n in Counter(r["wave"] for r in q).most_common(8)))
         for s, n in Counter(r["surface"] for r in q).most_common(40):
             ids = ",".join(r["id"] for r in q if r["surface"] == s)[:110]
             print(f"  {s:44} {n:3}  {ids}")

@@ -101,6 +101,60 @@ try:
 except Exception as _e:
     _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
 
+# ★LAYER-UX x PERSONA (2026-09-30) — Ian: "extend the numbers ... with this kind of deeper walk per
+# every production page ... for different personas ... every Full Stack Architectural Layer". Two gaps
+# the earlier LX waves left: seven layers (F D A CA AU C AV) had no layer-UX wave at all, and 289 of
+# the 335 rows that existed carried persona "any", so the wave asked what A PERSON feels and never what
+# THIS person feels — 45 of 156 (persona x layer) cells were empty, assistive-tech sitting on 1 of 13.
+# Each row walks phone-390 AND desktop-1280, because desktop-class rows were under 9% of the program.
+# The ★×16 rule a fifth time: the size is derived from the seeder's own plan, not re-typed. Called with
+# replay=True so it returns the full planned set rather than the un-seeded remainder — the plan ignores
+# its own rows when measuring the gaps, so it answers identically before and after the write.
+try:
+    from seed_expansion_wave4 import layer_ux_rows as _lxp_rows
+    _lxp = _lxp_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    # its OWN id space (LXP1..), not a continuation of LX1..LX335: six of the thirteen layers already
+    # own an LX-<layer> wave, and appending persona rows into those names would split a wave across the
+    # registry, which the wave-by-wave expected list can never match.
+    for _i, _r in enumerate(_lxp, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"LXP{_i}")
+    LXP_PROGRAM_TOTAL = len(_lxp)
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
+# ★THE BUG-REPRO WAVE, BRP1.. (2026-10-04) — Ian: "expand and extend the number of trajectories in our
+# roadmap, where we have to bug reproduced and fix, so that it would improve the entire Full Stack SaaS
+# Layers and its UFAI UI UX". Its own id space for the same reason LXP has one: these ids are POSITIONAL,
+# rebuilt here by enumerating the seeder, so interleaving them with another wave's numbering would
+# renumber rows and reattach banked evidence to the wrong trajectory. The size is DERIVED from
+# tools/bug_repro_inventory.py (the real source against the real schema), never typed — the ★×16 rule
+# again, and the BIND AUDIT that rule demands: a new program must teach this gate in the SAME change, or
+# its rows are invisible to every consumer that reads from here.
+try:
+    from seed_expansion_wave4 import bug_repro_rows as _brp_rows
+    _brp = _brp_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    for _i, _r in enumerate(_brp, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"BRP{_i}")
+    BRP_PROGRAM_TOTAL = len(_brp)
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
+# ★THE LAYER FLOOR (LXC1..) AND THE LLM LAYER (LM1..), 2026-10-06 - Ian: "which layers we have to make more
+# trajectories on" and "treat [the LLMs] as another layer ... with sub-layers like a Full stack SaaS for LLMs".
+# Each in its OWN id space with a replay ANCHORED to the registry (the BRP pattern), registered here in the same
+# change that seeds them - the bind audit the ★×16 rule demands.
+try:
+    from seed_expansion_wave4 import layer_floor_rows as _lxc_rows_fn, llm_layer_rows as _lm_rows_fn
+    _reg_rows = json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"]
+    _lxc = _lxc_rows_fn(_reg_rows, replay=True)
+    for _i, _r in enumerate(_lxc, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"LXC{_i}")
+    _lm = _lm_rows_fn(_reg_rows, replay=True)
+    for _i, _r in enumerate(_lm, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"LM{_i}")
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
 # ★EXPANSION WAVE 2, EX1.. (2026-09-07) — eight waves seeded as one change (persona x device x entry
 # cells, Tagalog-first, the per-page floor, hostile personas, AI trust, recovery, shift boundaries,
 # accessibility personas), every row declaring the UFAI dimension it improves. The ★×16 rule a fifth
@@ -181,6 +235,31 @@ except Exception as _e:                                          # seeder missin
     _W4_IMPORT_ERROR = _e
 if W4_PROGRAM_TOTAL:
     NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + [_W4_WAVE]
+# ...and the LAYER-UX x PERSONA pass (LXP-*) was seeded after wave 4, so its sub-waves come last, in
+# the order its plan emits them (layer-major, so each sub-wave owns a contiguous id range).
+if "_lxp" in dir():
+    _seen_lxp = []
+    for _r in _lxp:
+        if _r["wave"] not in _seen_lxp:
+            _seen_lxp.append(_r["wave"])
+    NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_lxp
+# ...and the BUG-REPRO wave (BRP-*) was seeded after LXP, class-major so each BRP-<cls> owns a contiguous
+# id range. Appended last for the same reason every wave before it was: the expected id list is built wave
+# by wave, so a wave the order does not name has no block to match.
+if "_brp" in dir():
+    _seen_brp = []
+    for _r in _brp:
+        if _r["wave"] not in _seen_brp:
+            _seen_brp.append(_r["wave"])
+    NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_brp
+# ...then the layer floor (LXC-*) and the LLM layer (LM-*), seeded after BRP in that order (2026-10-06).
+for _set_name in ("_lxc", "_lm"):
+    if _set_name in dir():
+        _seen_new = []
+        for _r in globals()[_set_name]:
+            if _r["wave"] not in _seen_new:
+                _seen_new.append(_r["wave"])
+        NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_new
 
 
 def wave_of(n: int) -> str:
@@ -361,6 +440,26 @@ def check(reg: dict, header_ok: bool, matrix: dict, gate_ids: set[str]) -> list[
             if not ((t.get("artifacts") or {}).get("gates") or []):
                 problems.append(f"{t['id']}: status 'locking' but names no gate - locking MEANS the "
                                 f"gate is built, so either register it or drop back to 'fixing'")
+
+        # ★A ROW MAY NOT NAME A PAGE THAT IS NOT THERE (2026-10-05). Found by driving the AU lens to the end:
+        # one row would not close because terms.html "reads no hive-scoped relation" - and terms.html does not
+        # exist, has never been tracked in git, and is not on disk. Eight rows targeted it and ONE of them was
+        # LOCKED at 100%, its basis asserting "terms.html renders for the hive supervisor with real fleet data,
+        # no cross-hive leak" - a walk that cannot have happened. Nothing was checking, so a phantom page sat in
+        # the denominator and carried a false green inside it. This is the same class as a retired page still
+        # being walked ([[feedback_a_retired_page_that_still_loads]]) and as seeding rows onto pages the scope
+        # excluded ([[feedback_i_seeded_297_rows_onto_pages_my_own_scope_excluded]]): a page is a FILE, and a
+        # claim about one is checkable against the filesystem in a millisecond.
+        # A descoped row is exempt - recording WHY something is out of scope is exactly where a dead page
+        # belongs - and so is a row whose page is served by a directory index.
+        if st != "descoped":
+            for pg in sorted({*(t.get("pages") or []), ((t.get("lx") or {}).get("page") or "")}):
+                if not pg:
+                    continue
+                if not (ROOT / pg).exists():
+                    problems.append(f"{t['id']}: names the page '{pg}', which is not on disk - a trajectory "
+                                    f"cannot be walked, let alone locked, against a page that is not served "
+                                    f"(descope the row, or ship the page)")
 
         if st == "locked":
             gates = (t.get("artifacts") or {}).get("gates") or []

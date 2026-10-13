@@ -21,4 +21,15 @@
 
 **Blast radius:** 16 public pages + the app pages that use the CDN. The regeneration-forgetting risk (add a class, forget to rebuild → unstyled element) is the main ongoing cost — mitigate with a gate that greps for classes not present in the built CSS, or a pre-commit rebuild.
 
-**Status:** SKELETON / awaiting Ian's approach decision. Do NOT execute blind — it touches the live public render path.
+**Status (2026-10-13): Approach A executed LOCALLY, without adding a build step — awaiting Ian's deploy.** The
+build-step fork dissolved: the nine app pages had already left the CDN for `wh-tw.css` by letting the Play CDN itself
+compile their classes once on a harvest page (`tools/tw_extract_build.mjs`), and the public pages took the same move
+with `tools/tw_public_build.mjs`. The pages do not share one `tailwind.config`, so there are four compiled sheets, one
+per family (`/wh-tw-pub-ramp.css`, `-article`, `-site`, `-feedback`, 7–9 KB each, Tailwind v3.4.17), each linked as the
+last line of `<head>` where the CDN injected its style. Nothing was "verified by eye": every page was loaded with the CDN
+and with the swap applied, and a page passed only with the same stylesheet order, every rule the CDN generated present
+in the sheet, and an identical computed style on every element and pseudo-element at 390 and 1280
+(`.tmp/tw_pub/verify_*.json`). The generators (`build_pillar_pages.HEAD_ASSETS`, `build_calc_pages`,
+`scaffold_article.py`) emit the link, so a rebuild cannot revert it, and gate `tw-public-sheets` covers the
+regeneration risk named above: it fails any class a page uses that its sheet never compiled. Step 4 (`fetchpriority`
+on the LCP element) and step 6's cold re-measure belong to the audit rows that read this page's performance.

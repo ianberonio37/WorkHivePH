@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** An industrial community of practice is a forum where workers from multiple plants share fault solutions, ask questions, and learn from each other without violating per-plant confidentiality. Done well, the second plant to meet a fault does not start from zero: a worker in Cebu finds the answer a worker in Cabuyao posted last month, and the hours they save are the hours the first plant already paid for. WorkHive Community runs this layer with hive-scoped posting by default, an explicit opt-in to share across plants, and Filipino-friendly moderation. Posts are always signed; what keeps them safe to share is leaving the identifying detail out.
+**Short answer:** An industrial community of practice is a forum where workers from multiple plants share fault solutions, ask questions, and learn from each other without violating per-plant confidentiality. Done well, the second plant to meet a fault does not start from zero: a Cebu plant that meets a bearing fault in 2026 finds the fix a Cabuyao plant posted in 2023, and the hours they save are the hours the first plant already paid for. WorkHive Community runs this layer with hive-scoped posting by default, an explicit opt-in to share across plants, and Filipino-friendly moderation. Posts are always signed; what keeps them safe to share is leaving the identifying detail out.
 
 Who this is for
 
@@ -112,4 +112,4 @@ Allowed with disclosure (vendor identifies themselves and offers a useful answer
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f3360896ee146d82 -->
+<!-- md-twin source-sha: f0012e595f33ce9f -->

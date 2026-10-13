@@ -113,6 +113,10 @@ def function_body(text, name):
         rf"\bfunction\s+{re.escape(name)}\s*\(",
         rf"\b{re.escape(name)}\s*=\s*(?:async\s*)?function\b",
         rf"\b{re.escape(name)}\s*=\s*(?:async\s*)?\([^)]*\)\s*=>\s*",
+        # ★A BARE-PARAMETER ARROW (2026-10-13): `const toLogRow = r => ({ ... auth_uid: AUTH_UID ... })` in
+        # integrations.html read as "omits auth_uid" once the importer mapped each chunk through it (W4340) - the
+        # payload carried auth_uid all along; only `(r) =>` with parentheses was recognised as a function here.
+        rf"\b{re.escape(name)}\s*=\s*(?:async\s*)?[A-Za-z_$][\w$]*\s*=>\s*",
     ]
     for pat in pats:
         m = re.search(pat, text)

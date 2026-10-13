@@ -2,7 +2,7 @@
 name: table-rls-analytics_events
 type: table-rls
 source: db:pg_policies+pg_trigger:analytics_events
-source_sha: 59edb3e888541f6d
+source_sha: f74de8b9ca579db9
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, event_name*, page, props*, auth_uid, worker_name, hiv
 Policies:
 - `analytics_events_insert_anyone` [INSERT · roles=anon,authenticated] USING=`∅` CHECK=`true`
 - `analytics_events_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `analytics_events_select_admin` [SELECT · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM (worker_profiles wp JOIN marketplace_platform_admins mpa ON ((mpa.worker_name = wp.display_name)` CHECK=`∅`
+- `analytics_events_select_admin` [SELECT · roles=authenticated] USING=`is_platform_admin()` CHECK=`∅`
 
 Guard triggers: `trg_bind_analytics_events_submitter`
 

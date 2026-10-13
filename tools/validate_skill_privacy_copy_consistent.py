@@ -26,7 +26,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CHECK_NAMES = ["skill-privacy-copy-consistent"]
 
-PROMISE_RE = re.compile(r"Private to you[^<]{0,140}not to your\s+supervisor or teammates", re.I)
+# the promise in either wording: the 2026-10-13 rewrite split the 20-word sentence (grade 9.9) without changing it
+PROMISE_RE = re.compile(r"Private to you[^<]{0,160}(?:not to your\s+supervisor or teammates|not your\s+supervisor,\s+not your\s+teammates)", re.I)
 # the over-claim: "shows on the hive board" without a nearby privacy qualifier
 OVERCLAIM_RE = re.compile(r"it shows on the hive board(?![^.]{0,60}(private|only to you|as promised))", re.I)
 

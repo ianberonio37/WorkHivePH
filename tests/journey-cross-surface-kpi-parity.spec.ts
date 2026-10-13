@@ -325,7 +325,9 @@ test.describe('cross-surface KPI parity', () => {
     expect(rawSelectHits, `community.html issued GET .../community_posts — raw SELECT is forbidden (writes allowed). Migrate to v_community_posts_truth.`).toEqual([]);
   });
 
-  test('check_marketplace_reads_canonical_view: data load wires to v_marketplace_listings_truth', async ({ whPage }) => {
+  test('check_marketplace_reads_canonical_view: data load wires to the canonical listings view', async ({ whPage }) => {
+    // The canonical read moved from v_marketplace_listings_truth to the account-scoped v_marketplace_listings_public on
+    // 2026-09-07; this asserted the old name for five weeks and would have failed the day anyone ran it (2026-10-13).
     // Locks the turn-1 marketplace_listings migration across 6 consumer
     // surfaces (asset-hub, marketplace, marketplace-admin, marketplace-seller,
     // marketplace-seller-profile, project-manager) + the marketplace-checkout
@@ -335,7 +337,7 @@ test.describe('cross-surface KPI parity', () => {
 
     whPage.on('request', (req) => {
       const url = req.url();
-      if (/\/rest\/v1\/v_marketplace_listings_truth/.test(url)) {
+      if (/\/rest\/v1\/v_marketplace_listings_(?:public|truth)/.test(url)) {
         canonicalHits.push(url);
       } else if (/\/rest\/v1\/marketplace_listings(\?|$)/.test(url) && req.method() === 'GET') {
         rawSelectHits.push(url);
@@ -345,8 +347,8 @@ test.describe('cross-surface KPI parity', () => {
     await whPage.goto('/workhive/marketplace.html', { waitUntil: 'networkidle' });
     await whPage.waitForTimeout(1500);
 
-    expect(canonicalHits.length, `marketplace.html did not query v_marketplace_listings_truth`).toBeGreaterThanOrEqual(1);
-    expect(rawSelectHits, `marketplace.html issued GET .../marketplace_listings — raw SELECT is forbidden (writes allowed). Migrate to v_marketplace_listings_truth.`).toEqual([]);
+    expect(canonicalHits.length, `marketplace.html did not query v_marketplace_listings_public`).toBeGreaterThanOrEqual(1);
+    expect(rawSelectHits, `marketplace.html issued GET .../marketplace_listings — raw SELECT is forbidden (writes allowed). Read v_marketplace_listings_public.`).toEqual([]);
   });
 
   test('check_pm_scheduler_reads_canonical_view: data load wires to v_pm_scope_items_truth', async ({ whPage }) => {

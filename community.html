@@ -96,6 +96,11 @@
     }
     .btn-icon:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
     .btn-icon:active { background: rgba(255,255,255,0.12); transform: scale(0.93); }
+    /* The moderation toggles were SVGs that showed their state by stroke colour; as the library's emoji (critique,
+       2026-10-13) a glyph cannot change colour, so an ON toggle carries a ring in its own state colour (--on, set per
+       button: pinned orange, public green, flagged red). data-on, not aria-pressed: the labels already flip
+       ("Pin post" / "Unpin post"), and aria-pressed on top would announce the state twice. */
+    .btn-icon[data-on="1"] { background: var(--on-bg, rgba(247,162,27,0.14)); box-shadow: inset 0 0 0 1.5px var(--on, #F7A21B); }
 
     /* ── Clickable author identity (person card trigger) ── */
     .author-link {
@@ -472,7 +477,7 @@
 
 <!-- ── TOAST ── -->
 <div id="toast" class="hidden" role="alert" aria-live="polite">
-  <span id="toast-icon">✓</span>
+  <span id="toast-icon" aria-hidden="true">✓</span>
   <span id="toast-text"></span>
 </div>
 
@@ -503,6 +508,12 @@
            grid and the presence bar. Both local reserves are gone and the element carries the
            `wh-source-chip` class, so it inherits the 62px that moved into components.css this afternoon
            after four other pages each patched this same shift on their own. -->
+      <!-- The class STAYS, and it must: the 62px reserve lives in components.css on
+           `.wh-source-chip`, so stripping the class here removed the reservation and re-opened the 0.071
+           shift the note above records (measured: computed min-height fell to 0px the moment the class
+           came off). The chip-inside-a-chip that caused "Read failed · Read failed ·" is fixed in the
+           SHARED settle pass instead, which now prefixes only the innermost chip - that keeps this
+           page's reserve AND covers any future nesting, rather than trading one defect for the other. -->
       <p id="community-source-chip" class="wh-source-chip" style="margin-top:4px;"></p>
     </header>
 
@@ -624,7 +635,7 @@
                    the AA-safe variant for exactly this (#FDB94A), and the C2 contrast cluster established
                    the rule in 2026-07: brand colour as small text uses the -text/-light variant, never the
                    base token. No brand change, no new hex. -->
-              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange-text); font-variant-numeric:tabular-nums;">-</p>
+              <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange-text); font-variant-numeric:tabular-nums;" aria-label="posts: unknown, not loaded">-</p>
               <p data-i="p_posts_a0ca" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
@@ -634,7 +645,7 @@
                    --wh-blue-text (#5FCCE8) scores 65.4. Same mistake as Reject using the danger fill
                    as a label colour -- and this one is a person's XP, the number the whole community
                    surface is built around. -->
-              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue-text); font-variant-numeric:tabular-nums;">-</p>
+              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue-text); font-variant-numeric:tabular-nums;" aria-label="community XP: unknown, not loaded">-</p>
               <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
@@ -870,7 +881,7 @@
 <div id="person-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="person-title">
   <div class="sheet-inner" id="person-sheet" style="max-width:420px; margin:0 auto;">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <h2 data-i="p_member_6853" id="person-title" style="font-size:1rem; font-weight:800; margin:0;">Member</h2>
+      <h2 data-i="p_member_6853" id="person-title" style="font-size:1rem; font-weight:800; margin:0; overflow-wrap:anywhere;">Member</h2>
       <button class="btn-icon" onclick="closePersonCard()" aria-label="Close member card" data-ia="c_close_card">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
@@ -955,6 +966,21 @@
   let _aiTradePeers       = [];  // ["Name (Electrical, ...)", ...] captured from get_hive_trade_peers
   const myPostIds         = new Set(); // post IDs authored by WORKER_NAME — for reply notifications
   let _authUid            = null; // C3: populated at init from Supabase Auth session
+
+/* BRP-A (2026-10-04) — "MINE" IS THE UNION OF IDENTITY AND NAME, NEVER THE NAME ALONE. WORKER_NAME is
+   localStorage text; a row's worker_name is whatever was written when it was created, and once they
+   diverge a name-only read returns nothing with no error. UNION, not swap: 10 of 30 community_xp rows
+   carry auth_uid NULL and resolve to no roster row, so the name is the ONLY way to find them - a uid-only
+   read would lose them. Quoting via JSON.stringify. ONLY for MY OWN rows, never a named teammate. */
+function _mineFilter() {
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  var quoted = 'worker_name.eq.' + JSON.stringify(nm);
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (!uid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+}
+function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
+  (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
   // D Phase 2: cross-hive global feed state
   let _globalPosts        = [];
   let _globalLastCreatedAt = null;
@@ -1108,10 +1134,30 @@
       db.from('v_community_posts_truth').select('id', { count: 'exact', head: true })
         .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME).is('deleted_at', null),
       db.from('community_xp').select('xp_total')
-        .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).maybeSingle(),
+        .eq('hive_id', HIVE_ID)
+        // BRP-A: identity OR name. Safe with .maybeSingle(): community_xp has ZERO duplicate
+        // (hive_id, auth_uid) pairs, so the union cannot return two rows and trip PGRST116.
+        .or(_MINE()).maybeSingle(),
     ]);
-    if (!postsRes.error) { document.getElementById('profile-posts').textContent = postsRes.count ?? 0; _myServerPostCount = postsRes.count ?? 0; }
-    document.getElementById('profile-xp').textContent = xpRes.data?.xp_total ?? 0;
+    if (!postsRes.error) {
+      // a real count speaks for itself, so the 'unknown, not loaded' name on the markup default
+      // goes - a stale aria-label is read INSTEAD of the number, which is worse than none
+      const _pp = document.getElementById('profile-posts');
+      if (typeof whStatValue === 'function') whStatValue(_pp, postsRes.count ?? 0);
+      else { _pp.textContent = postsRes.count ?? 0; _pp.removeAttribute('aria-label'); }
+      _myServerPostCount = postsRes.count ?? 0;
+    }
+    /* ★AND THIS WRITE WAS UNGUARDED: `xpRes.data?.xp_total ?? 0` renders 0 when the read FAILED, so a
+       failed XP read looked like "you have earned no XP" - the same discarded-error shape found eight times
+       elsewhere today, here turning an outage into a statement about the person's contribution. Guarded, so
+       a failure leaves the dash (which now says "community XP: unknown, not loaded") rather than a zero. */
+    {
+      const _xp = document.getElementById('profile-xp');
+      if (_xp && !xpRes.error) {
+        if (typeof whStatValue === 'function') whStatValue(_xp, xpRes.data?.xp_total ?? 0);
+        else { _xp.textContent = xpRes.data?.xp_total ?? 0; _xp.removeAttribute('aria-label'); }
+      }
+    }
     _renderNextMilestone(_myServerPostCount);
     const myTiers = await loadWorkerTiers(db, [WORKER_NAME]);
     _myTopLevel = myTiers[WORKER_NAME] || 0;
@@ -1319,7 +1365,7 @@
     if (error) {
       const msg = (typeof whReadError === 'function')
         ? whReadError(error, 'the leaderboard')
-        : _t('Couldn’t load the leaderboard. Check your connection and try again.', 'Hindi ma-load ang leaderboard. Suriin ang koneksyon at subukan muli.');
+        : _t('Couldn’t load the leaderboard - WorkHive did not answer. Try again in a moment.', 'Hindi ma-load ang leaderboard - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
       el.innerHTML = '<p style="font-size:0.78rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0;">'
                    + escHtml(msg) + '</p>'
                    + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="retry">Retry</button></div>';
@@ -1561,7 +1607,18 @@
         _inline = 'This account does not have access to the community feed. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.';
         _toast  = 'No access to the community feed with this account.';
       } else {
-        _inline = _t('Couldn’t load the community feed. Check your connection and try again.', 'Hindi ma-load ang community feed. Suriin ang koneksyon at subukan muli.');
+        /* ...AND THE FOURTH CAUSE IS THE SERVICE ITSELF, which this fallback used to call a connection
+           problem (2026-10-06, measured with PostgREST stopped and navigator.onLine TRUE). The taxonomy
+           above is right that 429, 401 and 403 each need a different remedy; the same is true of "you are
+           offline" versus "WorkHive did not answer" - waiting helps the first, retrying helps the second,
+           and checking a working connection helps neither. The browser already knows which it is. */
+        var _offl = false;
+        try { _offl = (navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+        _inline = _offl
+          ? _t('You are offline, so the community feed could not be read. It will load when your connection is back.',
+               'Offline ka, kaya hindi mabasa ang community feed. Magloload ito kapag bumalik ang koneksyon mo.')
+          : _t('Couldn’t load the community feed - WorkHive did not answer. Try again in a moment.',
+               'Hindi ma-load ang community feed - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
         _toast  = _t('Could not load posts', 'Hindi ma-load ang mga post');
       }
       // E2 consistent states: inline error + Retry (shared whListError) beside the toast.
@@ -1757,14 +1814,14 @@
       ${isMine ? `<button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
         <span class="ic ic-edit" aria-hidden="true"></span>
       </button>` : ''}
-      <button class="btn-icon" onclick="togglePin('${p.id}', ${p.pinned})" title="${escHtml(p.pinned ? _t('Unpin', 'Alisin sa pin') : _t('Pin', 'I-pin'))}" aria-label="${escHtml(p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'))}">
-        <svg width="15" height="15" fill="${p.pinned ? '#F7A21B' : 'none'}" viewBox="0 0 24 24" stroke="${p.pinned ? '#F7A21B' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      <button class="btn-icon" data-on="${p.pinned ? '1' : '0'}" style="--on:#F7A21B;--on-bg:rgba(247,162,27,0.14)" onclick="togglePin('${p.id}', ${p.pinned})" title="${escHtml(p.pinned ? _t('Unpin', 'Alisin sa pin') : _t('Pin', 'I-pin'))}" aria-label="${escHtml(p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'))}">
+        <span class="ic ic-pin" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" onclick="togglePublic('${p.id}', ${p.public})" title="${escHtml(p.public ? _t('Make private', 'Gawing pribado') : _t('Make public', 'Gawing pampubliko'))}" aria-label="${escHtml(p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'))}">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.public ? '#4ade80' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <button class="btn-icon" data-on="${p.public ? '1' : '0'}" style="--on:#4ade80;--on-bg:rgba(74,222,128,0.12)" onclick="togglePublic('${p.id}', ${p.public})" title="${escHtml(p.public ? _t('Make private', 'Gawing pribado') : _t('Make public', 'Gawing pampubliko'))}" aria-label="${escHtml(p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'))}">
+        <span class="ic ic-globe" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${escHtml(p.flagged ? _t('Unflag', 'Alisin ang flag') : _t('Flag', 'I-flag'))}" aria-label="${escHtml(p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'))}">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="${p.flagged ? '#f87171' : 'currentColor'}" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+      <button class="btn-icon" data-on="${p.flagged ? '1' : '0'}" style="--on:#f87171;--on-bg:rgba(248,113,113,0.12)" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${escHtml(p.flagged ? _t('Unflag', 'Alisin ang flag') : _t('Flag', 'I-flag'))}" aria-label="${escHtml(p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'))}">
+        <span class="ic ic-flag" aria-hidden="true"></span>
       </button>
       <button class="btn-icon" onclick="deletePost('${p.id}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete post', 'Burahin ang post'))}" style="margin-left:22px">
         <span class="ic ic-delete" aria-hidden="true"></span>
@@ -1810,7 +1867,7 @@
             ${_rxButton(p, _rx, 'fire','Fire','🔥')}
             ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
             <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${p.id}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
-              <span class="ic ic-list" aria-hidden="true"></span>
+              <span class="ic ic-message" aria-hidden="true"></span>
               <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
             </button>
             <!-- flex-wrap + justify-end: a supervisor looking at their OWN post gets FIVE icon
@@ -1880,7 +1937,14 @@
 
     if (isActive) {
       const { error } = await db.from('community_reactions')
-        .delete().eq('post_id', postId).eq('hive_id', postHiveId).eq('worker_name', WORKER_NAME).eq('emoji', emoji);
+        .delete().eq('post_id', postId).eq('hive_id', postHiveId)
+          // BRP-C -> A (2026-10-04): community_reactions gained auth_uid in 20261004000007 and is 9/9
+          // bound, so this un-react guard keys on the IDENTITY. It used to key on WORKER_NAME, which is
+          // localStorage text: once it drifted the delete matched nothing, PostgREST answered 204 with no
+          // error, and the button un-highlighted while the reaction stayed in the database. The RLS policy
+          // here scopes by HIVE membership, not by the caller's names, so this filter is the only thing
+          // that makes it MY reaction rather than the hive's - it could not simply be removed.
+          .eq('auth_uid', _authUid).eq('emoji', emoji);
       if (!error) {
         btn.classList.remove('active');
         const n = Math.max(0, parseInt(countEl?.textContent, 10) - 1);
@@ -2186,6 +2250,18 @@
     // scope is stated before posting, so a visibility change lost offline is the worst silent failure here.
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline('Changing who can see this post', (m) => showToast(m, 'error'))) return;
+    // ★ONE TAP ON AN UNLABELLED GLOBE PUBLISHED A HIVE POST TO EVERY OTHER HIVE (critique, 2026-10-13). The comment
+    // above names visibility as the thing a person cannot take back, and only offline was guarded: a mis-tap on the
+    // 44 px icon - no label on a touch screen - put a hive-internal post, a safety report included, in every other
+    // hive's Global feed at once. Delete can offer an undo; this cannot, because the readers exist the moment the
+    // write lands. So becoming PUBLIC asks; becoming private (the safe direction) does not.
+    if (!currentlyPublic && typeof window.whConfirm === 'function') {
+      const ok = await window.whConfirm(
+        'Make this post public? Workers in every other hive will be able to read it in their Global feed. '
+        + 'You can make it private again later, but anyone who has read it by then will have seen it.',
+        { okLabel: _t('Make public', 'Gawing pampubliko'), cancelLabel: 'Keep it in this hive' });
+      if (!ok) return;
+    }
     const { error } = await db.from('community_posts')
       .update({ public: !currentlyPublic })
       .eq('id', postId).eq('hive_id', HIVE_ID);
@@ -2575,15 +2651,71 @@
 
     // Reputation via the DEFINER RPC (within- AND cross-hive safe; public-scoped aggregates only).
     // Seller status from the anon-readable roster. Both hive-scoped to avoid worker_name ambiguity.
+    let _rosterHit = false, _rosterFailed = false;
     const [repRes, sellerRes] = await Promise.all([
       db.rpc('get_community_reputation', { p_worker_name: name, p_hive_id: hiveId }),
-      db.from('v_marketplace_sellers_truth')
-        .select('worker_name, tier, total_sales, rating_avg, rating_count')
-        .eq('worker_name', name).eq('hive_id', hiveId).maybeSingle(),
+      /* ★BRP-A, scope="named" (2026-10-05). This card shows a NAMED person's seller standing - tier,
+          sales, rating - and asked for it by the display name the card was opened with. A seller whose
+          stored worker_name has drifted from the name on the post showed no seller status at all, which on
+          this card reads as "not a seller" rather than "we could not match them". Same root as the hive
+          worker drawer, and the self-union would be WRONG here for the same reason: auth_uid.eq.<me> would
+          show MY standing under THEIR name.
+          The identity is resolved ONCE from the roster - the mapping the database itself uses - because
+          this function cannot always be HANDED one: five callers pass a post author's name and the sixth is
+          a shareable ?person= deep link that carries only a name. With no match it falls back to the name
+          and behaves exactly as before. Union, not swap: a seller row whose auth_uid was never bound is
+          findable only by name. */
+      (async () => {
+        let _sid = '';
+        try {
+          // canonical-allow: the roster is the mapping the DATABASE itself uses for name -> auth_uid, and
+          // it is the right source HERE because this card is opened from a POST, which outlives the
+          // membership. Measured: v_worker_truth holds 23 active + 4 null-status rows while hive_members
+          // holds 24 active + 1 kicked, so the view cannot resolve someone who has LEFT the hive - and
+          // their posts and their seller standing both still exist. Reading the view would silently drop
+          // that person to the name-only fallback, losing the drifted-name case this union was added for.
+          const _r = await db.from('hive_members').select('auth_uid')
+            .eq('hive_id', hiveId).eq('worker_name', name).maybeSingle();
+          _sid = (_r && _r.data && _r.data.auth_uid) || '';
+          // two members sharing a display name is a hit (maybeSingle refuses it), not a miss
+          const _multi = !!(_r && _r.error && /multiple|more than one|PGRST116/i.test(String(_r.error.message || '') + ' ' + String(_r.error.code || '')));
+          _rosterHit = !!(_r && _r.data) || _multi;
+          // a malformed id in the link (22P02) is an answer - "no such hive/member" - not an outage
+          const _bad = !!(_r && _r.error && /22P02|invalid input syntax/i.test(String(_r.error.code || '') + ' ' + String(_r.error.message || '')));
+          _rosterFailed = !!(_r && _r.error) && !_multi && !_bad;
+        } catch (_) { _rosterFailed = true; /* fall back to the name */ }
+        const _q = db.from('v_marketplace_sellers_truth')
+          .select('worker_name, tier, total_sales, rating_avg, rating_count').eq('hive_id', hiveId);
+        return _sid
+          ? _q.or('auth_uid.eq.' + _sid + ',worker_name.eq.' + JSON.stringify(String(name))).maybeSingle()
+          : _q.eq('worker_name', name).maybeSingle();
+      })(),
     ]);
     if (!document.getElementById('person-overlay').classList.contains('open')) return; // closed mid-fetch
     const rep    = (repRes    && repRes.data && repRes.data[0]) || null;
     const seller = (sellerRes && sellerRes.data) || null;
+    // ★THE CARD INVENTED A MEMBER FOR ANY NAME IT WAS HANDED (2026-10-06, community x adversary, layer F). The ?person=
+    // deep link carries only a name, and with no reputation row the card fell back to "🌱 New Member - This member
+    // hasn't shared publicly yet. Their private hive activity stays private." - a plausible profile for someone who
+    // is not a member at all (walked with a name made of an HTML image-tag payload and a 100-character run). The same sentence
+    // also covered a reputation read that FAILED. Three different truths now get three different sentences: a known
+    // member with no public posts keeps the original; a name nobody in the hive's roster or the seller list carries
+    // is said to be not found; a failed read says it could not be read. (The seller-profile page learned the same
+    // rule as JA1 arrival fidelity: a name that resolves to no one must say so, never fabricate.)
+    const _repFailed = !!(repRes && repRes.error)
+      && !/22P02|invalid input syntax/i.test(String(repRes.error.code || '') + ' ' + String(repRes.error.message || ''));
+    if (!rep && !seller && (_repFailed || _rosterFailed)) {
+      body.innerHTML = '<p style="font-size:0.82rem;color:rgba(255,255,255,0.80);line-height:1.5;margin:0;overflow-wrap:anywhere;">'
+        + escHtml('This member\u2019s community standing could not be read just now - WorkHive did not answer. Close this and try again in a moment.')
+        + '</p>';
+      return;
+    }
+    if (!rep && !seller && !_rosterHit) {
+      body.innerHTML = '<p style="font-size:0.82rem;color:rgba(255,255,255,0.80);line-height:1.5;margin:0;overflow-wrap:anywhere;">'
+        + escHtml('No member named \u201c' + name + '\u201d was found in this hive. The link may be out of date, or the name may have changed.')
+        + '</p>';
+      return;
+    }
     body.innerHTML = renderPersonCard(name, rep, seller);
   }
 
@@ -2597,7 +2729,7 @@
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:0.85rem;">
         <div style="flex-shrink:0;">${renderWorkerAvatar(name, tier, 48)}</div>
         <div style="min-width:0;">
-          <p style="font-size:0.95rem; font-weight:800; margin:0;">${escHtml(name)}${isMe ? ' <span style="font-weight:500;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</p>
+          <p style="font-size:0.95rem; font-weight:800; margin:0; overflow-wrap:anywhere;">${escHtml(name)}${isMe ? ' <span style="font-weight:500;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</p>
           <span class="pc-tier ${tierKey}" style="margin-top:4px;">${t.icon} ${escHtml(t.label)}</span>
         </div>
       </div>`;
@@ -3249,9 +3381,19 @@
 
   // ── @mentions ────────────────────────────────────────────────────────────────
   async function loadHiveMembers() {
-    const { data } = await db.from('v_worker_truth')
+    // ★@MENTIONS HAD AN EMPTY ROSTER FOR EVERY READER (W4 write walk W4136, 2026-10-08). This read
+    // v_worker_truth, whose rows come from worker_profiles - and profiles are RLS-scoped to their owner
+    // (profiles_read_own), so a member asking for "my hive's roster" got exactly ONE row: themselves.
+    // Measured as Bryan Garcia in Baguio: 1 row from v_worker_truth, 4 from hive_members. The filter below
+    // then removed that one row, _hiveMembers was always [], parseMentions() never matched a name, no
+    // mention was ever highlighted and the mention push was never sent - the feature was dead on
+    // arrival for everyone. hive_members is the roster a member is allowed to read (hive.html's own
+    // member list reads it), and its worker_name is the hive's attribution name - the name a person
+    // types after '@'.
+    // canonical-allow: the @mention roster needs every co-member's hive name; v_worker_truth is profile-scoped by RLS and returns only the caller, so the membership table is the readable source (as on hive.html).
+    const { data } = await db.from('hive_members')
       .select('worker_name, role')
-      .eq('hive_id', HIVE_ID).neq('hive_status', 'kicked').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
+      .eq('hive_id', HIVE_ID).neq('status', 'kicked').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
     _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
   }
 
@@ -3463,7 +3605,7 @@
     const d = (Date.now() - new Date(ts).getTime()) / 86400000;
     if (d < 7 && typeof whFmtAgo === 'function') return whFmtAgo(ts);
     if (typeof whFmtDate === 'function') return whFmtDate(ts);
-    return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    return new Date(ts).toLocaleDateString('en-GB', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────────

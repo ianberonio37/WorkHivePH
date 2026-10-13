@@ -13,7 +13,7 @@ This validator catches drift between the two chains.
 Layer 1: Both files exist and parse
 Layer 2: Same set of (provider, model) entries appear in both chains
 Layer 3: Same env_key per provider in both chains
-Layer 4: Order roughly matches (same provider grouping: Groq -> Cerebras ->
+Layer 4: Order roughly matches (same provider grouping: Groq -> Gemini -> Mistral ->
          OpenRouter). Strict-order isn't required because Python and TS
          may legitimately reorder within a provider tier, but the
          provider tier order must match.
@@ -221,7 +221,7 @@ def check_env_keys_match():
 
 
 def check_provider_tier_order():
-    """The provider TIER ORDER (groq -> cerebras -> openrouter) must match
+    """The provider TIER ORDER (groq -> google -> mistral -> openrouter) must match
     so fallback semantics align between Python and TS callers."""
     issues = []
     py_content = read_file(PY_CHAIN_PATH)
@@ -258,7 +258,7 @@ CHECK_LABELS = {
     "files_parse":         "L1  All THREE chain files exist and parse",
     "models_match":        "L2  (provider, model) pairs match across Python and TS chains",
     "env_keys_match":      "L3  Same provider uses same env_key in both chains",
-    "provider_tier_order": "L4  Provider tier order (groq -> cerebras -> openrouter) matches",
+    "provider_tier_order": "L4  Provider tier order (groq -> google -> mistral -> openrouter) matches",
     "third_mirror":        "L5  tools/lib/ai_chain.py (the THIRD mirror) matches ai-chain.ts",
 }
 

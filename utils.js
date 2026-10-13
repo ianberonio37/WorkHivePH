@@ -82,6 +82,16 @@
        copy: Taglish, technical nouns left in English (session, AI service, koneksyon). */
     var T = (typeof window !== 'undefined' && typeof window._t === 'function')
       ? window._t : function (en) { return en; };
+    /* ★A TIMEOUT WAS CALLED A NETWORK PROBLEM (LM-L walk, LM511, 2026-10-08): supabase-js wraps the transport's
+       75 s abort (DOMException TimeoutError "WH_DB_TIMEOUT", set by _timeoutFetch) as FunctionsFetchError "Failed to
+       send a request to the Edge Function" - and "failed to" + "request" fell to the network branch below, so an AI
+       report that never finished told a person on a good connection to check it. The wrapped cause is read first;
+       a timeout joins the could-not-answer band, which is true for it. */
+    try {
+      var _inner = err && (err.context || err.cause);
+      var _innerTxt = _inner ? String((_inner.name || '') + ' ' + (_inner.message || '')) : '';
+      if (/WH_DB_TIMEOUT|TimeoutError/i.test(_innerTxt) || /WH_DB_TIMEOUT|TimeoutError/i.test(m)) m = 'timeout ' + m;
+    } catch (_) { /* empty-catch-allow: reading the wrapped cause is best-effort; m stays as it was */ }
     /* ★403 IS NOT 401 (design lens critique round 5 on assistant.html, 2026-09-15). They were one branch,
        so "you are not a member of this hive" was reported as "your session has expired" - and the reader
        then does the one thing that cannot help, on pages that often have no sign-in control anyway. The
@@ -143,8 +153,13 @@
       return T('That question is too long. Shorten it and send again.',
                'Masyadong mahaba ang tanong. Paikliin at ipadala muli.');
     if (/\b40[8]\b|\b50[0-4]\b|unavailable|overloaded|timeout|timed out/i.test(m))
-      return T('The AI service is busy right now. Please try again shortly.',
-               'Busy ang AI service ngayon. Subukan muli mamaya.');
+      /* ★"BUSY" WAS A CAUSE NOBODY MEASURED (2026-10-06, assistant x assistive-tech, PostgREST stopped). This band
+         is every 5xx, a 408 and a timeout - a function that threw, a database that was down, a proxy that gave up.
+         Exactly one of those is load. With the DATABASE stopped, the assistant told a worker "The AI service is busy
+         right now", which reads as "everyone is using it, wait your turn" about an outage. The sentence now says
+         what every case in the band shares, and keeps the one instruction that is true for all of them. */
+      return T('The AI service could not answer just now. Please try again shortly.',
+               'Hindi nakasagot ang AI service ngayon. Subukan muli mamaya.');
     if (/network|failed to fetch|offline|connection|name resolution/i.test(m))
       return T('Network problem: check your connection and try again.',
                'May problema sa koneksyon: suriin ang koneksyon at subukan muli.');
@@ -153,6 +168,135 @@
     return fallback || T('Something went wrong. Please try again.', 'May naganap na mali. Subukan muli.');
   };
 })();
+
+/* ── A RETIRED PAGE'S OVERLAY COVERS THE EYES, NOT THE TAB KEY (2026-10-06) ─────────────────
+ * Four pages are retired behind `#wh-retired-overlay` (position:fixed, inset:0, z-index:100000, opaque
+ * background) and their own boot guards correctly skip the retired page's WORK. But the old page is still
+ * in the document, and the overlay never removed it from the tab order.
+ * MEASURED on founder-console.html at a true 1280: 32 tabbable controls, only 2 of them in the overlay -
+ * so 30 belong to the retired console, and elementFromPoint confirmed every sampled one is covered by the
+ * opaque overlay. A keyboard user therefore tabs through thirty invisible controls on a page that says it
+ * has moved, and a screen-reader user hears the whole retired console read out underneath the notice.
+ * This is the same shape as this platform's own sign-in modal fix (_signinInertPage in index.html), whose
+ * note records what one measurement taught: inert alone removes the subtree for assistive tech in modern
+ * engines, but a role query still counted the hidden controls, so aria-hidden is the belt to that brace.
+ * It lives HERE rather than being pasted into each retired page because the overlay being duplicated four
+ * times is what let this go unnoticed in the first place; any page retired later inherits the fix.
+ * Reversal is unchanged: deleting the overlay div un-retires the page, and this block then does nothing. */
+(function whInertBehindRetiredOverlay() {
+  function apply() {
+    try {
+      var ov = document.getElementById('wh-retired-overlay');
+      if (!ov || !ov.parentElement) return;
+      var kids = ov.parentElement.children;
+      // ★INERT ONLY WHILE THE OVERLAY IS SHOWN (2026-10-13). The overlay now opens only for a platform admin; anyone
+      // else gets the page's own no-access gate instead. Inerting its siblings while it is HIDDEN would leave that
+      // gate - and its Back link - dead to a keyboard and silent to a screen reader. Hidden: undo what an earlier pass
+      // set (only what it set). Shown: inert everything beside it, as before.
+      var shown = window.getComputedStyle(ov).display !== 'none';
+      for (var i = 0; i < kids.length; i++) {
+        var sib = kids[i];
+        if (sib === ov || sib.tagName === 'SCRIPT' || sib.tagName === 'STYLE' || sib.tagName === 'LINK') continue;
+        if (!shown) {
+          if (sib.getAttribute('data-wh-retired-inert') === '1') {
+            sib.removeAttribute('inert');
+            if (sib.getAttribute('data-wh-retired-aria') === '1') sib.removeAttribute('aria-hidden');
+            sib.removeAttribute('data-wh-retired-inert');
+            sib.removeAttribute('data-wh-retired-aria');
+          }
+          continue;
+        }
+        if (sib.hasAttribute('data-wh-retired-inert')) continue;
+        sib.setAttribute('inert', '');
+        sib.setAttribute('data-wh-retired-inert', '1');
+        // Only set aria-hidden where the page had not already made a decision, so an element hidden by
+        // design keeps its own state (the same restraint _signinInertPage uses).
+        if (!sib.hasAttribute('aria-hidden')) { sib.setAttribute('aria-hidden', 'true'); sib.setAttribute('data-wh-retired-aria', '1'); }
+      }
+    } catch (e) { /* empty-catch-allow: a retired page must still render its notice */ }
+  }
+  // a page that shows its overlay later (after its admin check) calls this to inert what is beside it
+  window.whApplyRetiredInert = apply;
+  // The overlay sits in the BODY and utils.js can load before it (measured: utils.js at line 55 vs the
+  // overlay at 142 on agentic-rag-observability), so try now and again once the document is parsed.
+  apply();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  /* AND AGAIN FOR THE CHROME THAT ARRIVES AFTER THE DOCUMENT DOES. One DOMContentLoaded pass left FOUR
+   * controls focusable on marketplace-admin, measured: the skip link, #wh-hub's Hive Board FAB, and
+   * wayfinding's Back and Home. They are injected into the body later, so the single pass never saw them.
+   * It is worth saying why they are inerted rather than kept as escape hatches, since "go somewhere else"
+   * is the one useful action on a retired page: they are NOT VISIBLE here. Their z-indexes are 9000-10001
+   * against the overlay's 100000, and elementFromPoint confirmed the overlay is the top-most element at
+   * each of their centres. Leaving them focusable would reproduce the defect in miniature - a sighted
+   * reader sees two links in the notice, a keyboard reader finds six - and the overlay's own links are the
+   * exits that ARE visible. A bounded observer, the same shape as _whWatchStuckLoaders in this file: it
+   * stops after 15s, because chrome that has not mounted by then is not mounting. */
+  try {
+    if (typeof MutationObserver === 'function' && document.body) {
+      var _obs = new MutationObserver(apply);
+      _obs.observe(document.body, { childList: true });
+      setTimeout(function () { try { _obs.disconnect(); } catch (_) { /* empty-catch-allow */ } }, 15000);
+    }
+  } catch (e) { /* empty-catch-allow: the one-shot passes above still cover the static case */ }
+})();
+
+/* ── A TOAST MUST FIT THE SCREEN IT IS SHOWN ON (2026-10-06, pm-scheduler x adversary, layer F) ──────────────
+ * Sixteen pages style their own #toast, centred with left:50% + translateX(-50%), and five of them add
+ * white-space:nowrap. Measured on pm-scheduler at a true 390: the unmatched-tag toast ("Could not find ...: showing
+ * all PM assets") was 1,895px wide with its left edge at -752px - unreadable - and any ordinary sentence longer than
+ * the screen does the same on those five pages. Wrapping alone is not enough: a left:50% box shrinks to HALF the
+ * viewport, so the rule sets the width to the content and caps it at the screen (16px a side) or 560px, whichever is
+ * smaller, and lets a long unbroken run break. html body #toast outranks each page's own #toast rule. */
+(function () {
+  try {
+    if (typeof document === 'undefined' || document.getElementById('wh-toast-fit')) return;
+    var st = document.createElement('style');
+    st.id = 'wh-toast-fit';
+    st.textContent = 'html body #toast{width:max-content;max-width:min(calc(100vw - 32px),560px);box-sizing:border-box;'
+      + 'white-space:normal;overflow-wrap:anywhere;}';
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) { /* empty-catch-allow: a toast that cannot be capped still shows */ }
+})();
+
+/* ── A DASH IS "UNKNOWN" TO THE EYES ONLY ─ give the figure words (2026-10-06) ──────────────
+ * whStatUnknown(el, unit) writes the em dash AND an accessible name saying it is unknown; whStatValue(el, v)
+ * writes the real value AND REMOVES that name. They are a pair on purpose: an aria-label left behind after
+ * the data lands would be read INSTEAD of the live number, which is worse than having none.
+ * Measured on inventory.html during a real outage: "— parts" / "— low" / "— out" with no accessible name on
+ * any of them, so the dash - this platform's own token for "unknown" since logbook's _dashPill - carried
+ * nothing at all to a screen reader. The page announced the FAILURE correctly in two live regions; what it
+ * could not say was WHICH figures were missing.
+ * `unit` is the noun beside the figure ("parts", "low", "out"), so the announcement is "parts: unknown, not
+ * loaded" rather than a bare "unknown" repeated three times with no way to tell them apart. */
+/* \u2605AND THE NAME WAS ON AN ELEMENT THAT CANNOT CARRY ONE (2026-10-06, marketplace-seller x assistive-tech). The figures
+ * are plain <div>/<span> - role "generic" - and ARIA 1.2 PROHIBITS aria-label on generic, so screen readers are free
+ * to ignore it and the common ones do: the label existed in the DOM and was spoken nowhere. The dash is now hidden from
+ * assistive technology and the words travel as TEXT beside it, visually hidden, which every reader speaks in reading
+ * order. whStatValue's textContent write removes both children, so the pair still cannot leave a stale word behind. */
+window.whStatUnknown = function (el, unit) {
+  try {
+    if (!el) return;
+    var _tS = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+    el.textContent = '';
+    el.removeAttribute('aria-label');
+    var _d = document.createElement('span');
+    _d.setAttribute('aria-hidden', 'true');
+    _d.textContent = '\u2014';
+    var _w = document.createElement('span');
+    _w.className = 'wh-sr-unknown';
+    _w.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;';
+    _w.textContent = (unit ? unit + ': ' : '') + _tS('unknown, not loaded', 'hindi alam, hindi na-load');
+    el.appendChild(_d);
+    el.appendChild(_w);
+  } catch (e) { /* empty-catch-allow: a figure that cannot be labelled must still render its dash */ }
+};
+window.whStatValue = function (el, v) {
+  try {
+    if (!el) return;
+    el.textContent = String(v);
+    el.removeAttribute('aria-label');   // the live number speaks for itself; a stale label would override it
+  } catch (e) { /* empty-catch-allow */ }
+};
 
 // ── Edge-function error unwrap (T82, 2026-08-26) ──────────────────────────────────────────
 // supabase-js collapses EVERY non-2xx from functions.invoke into one FunctionsHttpError whose
@@ -186,8 +330,21 @@ window.whFnError = async function (err, fallback) {
     }
   } catch (_) { /* empty-catch-allow: never let diagnostics throw over the real failure */ }
 
-  var own = body && (body.error || body.message);
-  if (typeof own === 'string' && own.trim() && !/non-2xx/i.test(own)) return own.trim();
+  // ★IT READ THE CODE AND SKIPPED THE SENTENCE (2026-10-12, UFAI edge walk W4238). This took `body.error || body.message`
+  // - but functions answer in three shapes, and only one of them puts the sentence in `error`:
+  //   {error: "<sentence>"}                          most functions (51)
+  //   {error: "<code>", message: "<sentence>"}       login, supervisor-reset-password (19 refusals)
+  //   {ok: false, error: {code, message}}            the _shared/envelope fail() (6 functions, 37 refusals)
+  // Measured on the hive roster: a supervisor pressing Reset PW past the limit read "rate_limited" - the function had
+  // also sent "Too many password resets. Try again later." - and the envelope's sentence was never read at all (an
+  // object is not a string, so it fell to the status line). The sentence wins wherever it is; a bare code
+  // (no space in it) is not something to show a person, so it falls through to the status taxonomy.
+  var _sentence = function (v) {
+    return (typeof v === 'string' && /\s/.test(v.trim()) && !/non-2xx/i.test(v)) ? v.trim() : '';
+  };
+  var own = body && (_sentence(body.message) || _sentence(body.error)
+    || (body.error && typeof body.error === 'object' ? _sentence(body.error.message) : ''));
+  if (own) return own;
 
   // No usable body: hand the STATUS to the taxonomy, since the message never carried it.
   if (status && typeof window.whAiError === 'function') {
@@ -554,6 +711,49 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
 // If the page closes it by its own means (X / Esc / backdrop) we consume our entry so history stays
 // balanced and a second Back doesn't dead-click. Defensive throughout; a failure degrades to the old
 // behaviour, never to a navigation loop.
+// ★A GIVE-BACK IS NOT A PERSON'S BACK (2026-10-12, UFAI W4791). skillmatrix's "Take Exam" closes the lesson and
+// opens the exam in one click, and the exam vanished the same instant - the skill exam could not be taken at all.
+// The lesson, closing, handed its history entry back with history.back(); the popstate that traversal fired reached
+// every Back listener on the page, and two of them (this one, and __whSheetRelease below) closed whatever overlay
+// was open - the exam that had just opened. Nothing distinguished "a modal tidied up its entry" from "the person
+// pressed Back". Measured, not inferred: an instrumented walk logged lesson.deactivate -> history.back ->
+// exam.activate -> pushState -> popstate -> exam closed; with only this listener taught, the walk then left
+// skillmatrix for index.html, because Chrome resolves the back against the entry BEFORE the exam's push.
+//
+// So a give-back is ONE platform primitive, and every popstate listener on the platform asks about it:
+//   whBookkeepingBack(n)   - give n entries back. Counted in __whModalBackSuppress, issued as ONE history.go(-n)
+//                            (two backs in flight can collapse into one step, which leaves a dead Back behind).
+//   whIsBookkeepingBack()  - true while that traversal is landing. Every listener returns early on it. The count
+//                            is lowered a task AFTER the popstate, so every listener sees it whatever order it was
+//                            added in; a traversal that never lands stops counting after 2 s, so it can never
+//                            swallow a real Back for longer than that.
+// The gate validate_modal_back_contract fails on any popstate listener in a shipped page that does not ask.
+(function whBookkeepingTraversal() {
+  try {
+    if (typeof window === 'undefined' || typeof history === 'undefined' || window.whBookkeepingBack) return;
+    window.whBookkeepingBack = function (n) {
+      n = n | 0;
+      if (n <= 0) return;
+      window.__whModalBackSuppress = (window.__whModalBackSuppress | 0) + 1;
+      window.__whModalBackSuppressAt = Date.now();
+      try { history.go(-n); } catch (_) { window.__whModalBackSuppress = Math.max(0, (window.__whModalBackSuppress | 0) - 1); }
+    };
+    window.whIsBookkeepingBack = function () {
+      if ((window.__whModalBackSuppress | 0) <= 0) return false;
+      if (Date.now() - (window.__whModalBackSuppressAt || 0) > 2000) { window.__whModalBackSuppress = 0; return false; }
+      return true;
+    };
+    window.addEventListener('popstate', function () {
+      if ((window.__whModalBackSuppress | 0) <= 0) return;
+      setTimeout(function () {
+        window.__whModalBackSuppress = Math.max(0, (window.__whModalBackSuppress | 0) - 1);
+        // a modal that opened while the give-back was landing pushes its entry now (whModalA11y, below)
+        if (!window.__whModalBackSuppress && typeof window.__whModalBackFlush === 'function') window.__whModalBackFlush();
+      }, 0);
+    });
+  } catch (_) { /* empty-catch-allow: history is an enhancement, never a dependency */ }
+})();
+
 (function whOverlayBackDismiss() {
   try {
     if (typeof document === 'undefined' || typeof history === 'undefined' || !history.pushState) return;
@@ -561,21 +761,40 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
     window.__whOverlayBack = true;
     var SEL_OPEN = '.sheet-overlay.open, .modal-overlay.open';
     var pushed = false;
-    var anyOpen = function () { try { return document.querySelector(SEL_OPEN); } catch (_) { return null; } };
+    // ★ONE OWNER PER OVERLAY (2026-10-12). whSheetA11y (below) wires whModalA11y onto every .sheet-overlay and
+    // .modal-overlay, and whModalA11y keeps its own per-modal history entry - so every one of these overlays was
+    // owned by BOTH, with two entries per open and one left behind after every X-close (a Back that did nothing).
+    // This listener now owns only an overlay whModalA11y has not wired: the fallback it always should have been.
+    var anyOpen = function () {
+      try {
+        var all = document.querySelectorAll(SEL_OPEN);
+        // a scrim (whSheetA11y) is its sheet's backdrop: the sheet owns Back for both
+        for (var i = 0; i < all.length; i++) { if (!all[i].__whModalA11y && !all[i].__whScrim) return all[i]; }
+      } catch (_) { /* empty-catch-allow: selector unsupported */ }
+      return null;
+    };
     var sync = function () {
       var isOpen = !!anyOpen();
       if (isOpen && !pushed) {
         pushed = true;
         try { history.pushState({ whOverlay: 1 }, ''); } catch (_) { pushed = false; }
       } else if (!isOpen && pushed) {
-        // closed by the page (X / Esc / backdrop) -> consume the entry we added
+        // closed by the page (X / Esc / backdrop) -> give back the entry we added
         pushed = false;
-        try { if (history.state && history.state.whOverlay) history.back(); } catch (_) { /* empty-catch-allow */ }
+        try { if (history.state && history.state.whOverlay) window.whBookkeepingBack(1); } catch (_) { /* empty-catch-allow */ }
       }
     };
-    var mo = new MutationObserver(sync);
+    // Read a task later, so an overlay injected and opened in the same turn is already wired by whSheetA11y
+    // when we look - otherwise this observer, created first, would claim it before its real owner could.
+    var queued = false;
+    var mo = new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      setTimeout(function () { queued = false; sync(); }, 0);
+    });
     mo.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
     window.addEventListener('popstate', function () {
+      if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a give-back, not a person's Back
       var el = anyOpen();
       if (!el) return;                                       // a real navigation, not our overlay entry
       pushed = false;
@@ -958,6 +1177,22 @@ if (typeof window !== 'undefined') window.whBuildVersion = whBuildVersion;
    did not fix the defect it was written for is how the next regression gets made, so the measurement is
    recorded here and the behaviour is unchanged. */
 function _whShowNotice(id, msg, bottomPx) {
+  /* ★A RETIRED PAGE MAKES NO DATA CLAIMS, SO IT REPORTS NO DATA FAILURES (2026-10-06, found walking
+   * LXP209 with PostgREST stopped). founder-console is retired behind #wh-retired-overlay and its boot
+   * guard skips the console's work - yet at ~45s a connection notice mounted anyway, carried by the
+   * page-view log's own failed request, and it was the one thing on that page a reader could not see but
+   * COULD focus: measured as two escapers ("Reload" and the dismiss "✕") at t=46s, after the inerting
+   * observer's bounded window had closed, inside a notice that then self-expired at ~75s.
+   * Extending that observer forever would have hidden the symptom. The honest statement is upstream: this
+   * page shows the reader no data, so "part of this page could not be loaded" is not true of anything they
+   * are looking at, and a notice nobody can see is pure cost - an invisible focus trap plus a claim about
+   * a surface that has moved. The notice is suppressed at its single shared entry point, so all three
+   * kinds (session, permission, transport) are covered at once.
+   * Deleting the overlay un-retires the page and restores the notices with it, which keeps the documented
+   * one-step reversal honest. */
+  try {
+    if (document.getElementById('wh-retired-overlay')) return;
+  } catch (_) { /* empty-catch-allow: if the DOM cannot be queried the notice is the least of it */ }
   // the SAME words dismissed within the last minute stay dismissed (see the Dismiss control below)
   var _dis = (window._whNoticeDismissed || {})[id];
   if (_dis && _dis.msg === String(msg || '') && (Date.now() - _dis.at) < 60000) return;
@@ -972,10 +1207,17 @@ function _whShowNotice(id, msg, bottomPx) {
     // On a phone it stays edge to edge; from 700px it is at most 560px wide, anchored bottom-RIGHT: the page's content
     // is left-aligned, so a bottom-left toast sat on the action card's CTA at 1280 (W45855, alert-hub, 2026-09-15).
     var _wide = (window.innerWidth || 0) >= 700;
+    // ★"A NEW VERSION IS READY" WAS PAINTED AS AN ERROR (critique W45929, 2026-10-13). This renderer was written for
+    // three failures - session, permission, connection - and the service-worker update notice borrowed it, so after
+    // every deploy every page showed a benign message in the danger red the platform keeps for things that broke.
+    // The update notice is information: navy, cloud text, a blue edge. The three failures keep their red.
+    var _info = (id === 'wh-update-notice');
     el.style.cssText = 'position:fixed;left:8px;' + (_wide ? 'left:auto;right:16px;max-width:560px;' : 'right:8px;') + 'bottom:calc(' + bottomPx
       + ' + env(safe-area-inset-bottom,0px));'
       + 'z-index:2147483000;padding:12px 14px;border-radius:12px;font-size:0.8rem;line-height:1.45;'
-      + 'background:rgba(60,20,24,0.97);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.35);'
+      + (_info
+        ? 'background:rgba(22,32,50,0.97);color:var(--wh-cloud, #F4F6FA);border:1px solid rgba(41,182,217,0.45);'
+        : 'background:rgba(60,20,24,0.97);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.35);')
       + 'box-shadow:0 8px 28px rgba(0,0,0,0.45)';
     (document.body || document.documentElement).appendChild(el);
   }
@@ -1004,8 +1246,11 @@ function _whShowNotice(id, msg, bottomPx) {
   // the notice speaks the page's language (design lens copy on ai-quality, 2026-09-15: Reload / Dismiss were English on a Filipino page)
   var _tN = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   _rb.textContent = _isSession ? _tN('Sign in', 'Mag-sign in') : ((typeof window.whPageRetry === 'function') ? _tN('Retry', 'Subukan ulit') : _tN('Reload', 'I-reload'));
+  var _infoTone = (id === 'wh-update-notice');
   _rb.style.cssText = 'margin-left:10px;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;'
-    + 'cursor:pointer;background:rgba(253,201,201,0.14);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.45);'
+    + (_infoTone
+      ? 'cursor:pointer;background:rgba(41,182,217,0.14);color:var(--wh-cloud, #F4F6FA);border:1px solid rgba(41,182,217,0.45);'
+      : 'cursor:pointer;background:rgba(253,201,201,0.14);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(253,201,201,0.45);')
     + 'min-height:44px;vertical-align:middle';   /* 44px tap floor (was 32; measured 68x32 on the update notice, 2026-09-15) */
   _rb.addEventListener('click', function () {
     if (_isSession) {
@@ -1037,7 +1282,7 @@ function _whShowNotice(id, msg, bottomPx) {
   _cb.title = _tN('Dismiss', 'Isara');
   _cb.textContent = '✕';
   _cb.style.cssText = 'position:absolute;top:0;right:0;min-width:44px;min-height:44px;padding:0;border:0;'
-    + 'background:transparent;color:var(--wh-red-text, #FDC9C9);font-size:16px;line-height:44px;text-align:center;cursor:pointer;'
+    + 'background:transparent;color:' + (_infoTone ? 'var(--wh-cloud, #F4F6FA)' : 'var(--wh-red-text, #FDC9C9)') + ';font-size:16px;line-height:44px;text-align:center;cursor:pointer;'
     + 'border-radius:0 12px 0 12px';
   _cb.addEventListener('click', function () {
     window._whNoticeDismissed = window._whNoticeDismissed || {};
@@ -1057,9 +1302,11 @@ function _whShowNotice(id, msg, bottomPx) {
   var _ref = document.createElement('span');
   _ref.className = 'wh-notice-ref';
   _ref.style.cssText = 'display:block;margin-top:6px;font-size:0.75rem;opacity:0.8;';
-  var _now = new Date();
-  var _hhmmss = String(_now.getHours()).padStart(2, '0') + ':' + String(_now.getMinutes()).padStart(2, '0')
-              + ':' + String(_now.getSeconds()).padStart(2, '0');
+  // the ref is for matching a report against the logs by hand, so it is the platform's clock, labelled - the device's
+  // clock read 05:22 on a host in New Zealand while the logs said 00:22 PHT (critique W45929, 2026-10-13)
+  var _hhmmss;
+  try { _hhmmss = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false }) + ' PHT'; }
+  catch (e) { void e; _hhmmss = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(11, 19) + ' PHT'; }
   _ref.textContent = 'ref ' + _hhmmss;
   el.appendChild(_ref);
   if (typeof whBuildVersion === 'function') {
@@ -1191,10 +1438,17 @@ function _whShowNotice(id, msg, bottomPx) {
   // Intersection, not mere presence: a popover elsewhere on screen does not silence the message.
   var _OVERLAYS = '[aria-modal="true"], [role="dialog"], .sheet.open, #wh-hub-panel, #wh-ai-panel, '
                 + '#wh-feedback-panel, .wh-fb-panel.open';
+  // ★AND THE YIELD BLINKED FOUR TIMES A SECOND (2026-10-06, hive x assistive-tech at 390, PostgREST stopped). hive opened
+  // a full-screen aria-modal dialog; the notice correctly hid under it - and on the next tick a HIDDEN notice measured
+  // 0x0, which the line below read as "nothing to compare, show it again". Show, measure, covered, hide, measure 0x0,
+  // show: a flip every half-second, and every re-show was a role=status region appearing again. The fix is to remember
+  // where the notice was when it could last be measured and test THAT box while it is hidden.
   var _yieldToOverlay = function () {
     try {
       var nr = el.getBoundingClientRect();
-      if (!nr.width || !nr.height) { if (el.style.display === 'none') { el.style.display = ''; } return; }
+      if (nr.width && nr.height) { el._whLastRect = { top: nr.top, bottom: nr.bottom, left: nr.left, right: nr.right }; }
+      else if (el.style.display === 'none' && el._whLastRect) { nr = el._whLastRect; }
+      else { if (el.style.display === 'none') { el.style.display = ''; } return; }
       var covered = Array.prototype.some.call(document.querySelectorAll(_OVERLAYS), function (o) {
         if (!o || o === el || el.contains(o) || o.contains(el)) return false;
         var cs = window.getComputedStyle(o);
@@ -1214,12 +1468,18 @@ function _whShowNotice(id, msg, bottomPx) {
   });
   // Lives exactly as long as the notice: created with it, cleared by the same 30s cleanup below, so
   // no page carries a timer for a message that is gone.
+  // One watcher per notice ELEMENT. A re-show reuses the same element, and each re-show used to add another interval
+  // while the old ones kept running against it (measured: flips every ~250ms, i.e. at least two stacked watchers).
+  if (el._whYieldTimer) { try { clearInterval(el._whYieldTimer); } catch (e) { void e; } }
   var _yieldTimer = setInterval(function () {
     if (document.getElementById(id) !== el) { clearInterval(_yieldTimer); return; }
     _yieldToOverlay();
   }, 500);
+  el._whYieldTimer = _yieldTimer;
   var _onResize = function () { if (document.getElementById(id) === el) _placeNotice(); else window.removeEventListener('resize', _onResize); };
+  if (el._whOnResize) window.removeEventListener('resize', el._whOnResize);   // one per element, as above
   window.addEventListener('resize', _onResize);
+  el._whOnResize = _onResize;
   var key = '_whNoticeTimer_' + id;
   if (window[key]) clearTimeout(window[key]);
   window[key] = setTimeout(function () {
@@ -1271,6 +1531,25 @@ function _whNoteAuthFailure(res) {
    * well as code. So on this file, a purely documentary edit outside a function is as expensive as a
    * code change: it expires every row anchored to utils.js. Prose about a function belongs inside it.
    * (_whAuthNoticeTimer was already a window property for the same blast-radius reason.) */
+  /* ★A 503 FROM THE GATEWAY FELL BETWEEN BOTH NOTICES, SO AN OUTAGE WAS NEVER NAMED AT ALL (2026-10-06,
+   * measured on assistant.html with PostgREST genuinely stopped). The two notices beside this one split the
+   * failure space by whether a RESPONSE exists: _whNoteTransportFailure handles a rejected fetch (no status),
+   * and this function handled 401/403. A stopped service behind Kong is neither - Kong answers in 15ms with a
+   * real 503 - so the .catch never ran, this guard returned on the first line, and the consequences compounded:
+   * no notice, and - because the settle passes are armed from inside _whNoteTransportFailure - nothing ever
+   * settled. Measured at 102s with ZERO reads in flight: _whSettled 0, no failure sentence anywhere on the
+   * page, and the 6s slow hint still reading "still loading" when nothing was loading and nothing ever would.
+   * The person was left under a permanent lie with no action offered. Every 5xx is routed into the transport
+   * notice, which already carries the honest online/offline wording ("The server could not be reached"), the
+   * per-burst throttle, the settle passes and the clear-on-next-ok - none of which needed rebuilding here.
+   * The 4xx family is deliberately NOT routed: a 404 or 422 is a request this page got wrong, which belongs to
+   * the caller's own {data, error}, not to a platform-wide outage banner. */
+  /* ★AN AI ANSWER THAT FAILED WAS ANNOUNCED AS A PAGE OUTAGE (LM-R, LM75, 2026-10-07): the companion's model call
+   * returned 503, this line routed it into the page-wide notice, and a screen reader heard "The server could not be
+   * reached, so part of this page could not be loaded" while the data chip flipped to "Read failed" - though every
+   * read of the page had succeeded. An edge function is an ACTION with its own error sentence at its caller (the
+   * companion, Asset Brain, the coach); only the page's own reads (rest/auth/storage/realtime) speak for the page. */
+  if (res && res.status >= 500) { if (_whSvcOf(res.url) === 'functions') return; _whNoteTransportFailure({ name: 'ServerError', message: 'WH_SERVER_' + res.status }, _whSvcOf(res.url)); return; }
   if (!res || (res.status !== 401 && res.status !== 403)) return;
   var dead = res.status === 401;
   var now = Date.now();
@@ -1323,7 +1602,19 @@ function _whNoteAuthFailure(res) {
  * "check your connection" is useless advice for the first and the only useful advice for the second.
  * Unlike the permission notice, this one IS falsified by the next successful read — the network is
  * demonstrably back — so it is cleared on res.ok alongside the session notice. */
-function _whNoteTransportFailure(err) {
+// Which backend service a request went to - the connection notice is about a SERVICE, not "the network" (2026-10-06).
+function _whSvcOf(u) {
+  var m = String(u || '').match(/\/(rest|auth|storage|functions|realtime)\/v1\//);
+  return m ? m[1] : 'other';
+}
+
+function _whNoteTransportFailure(err, svc) {
+  // an edge function that timed out or could not be sent is reported by its caller, not as a page that failed to
+  // load (LM-R, LM75/LM109, 2026-10-07 - see _whNoteAuthFailure)
+  if (svc === 'functions') return;
+  // ★REMEMBER WHICH SERVICE FAILED, so only that service answering again may clear the notice (see _whClearAuthNotice).
+  // Recorded before the 8s throttle below: a second failure of another service inside the window still counts.
+  try { (window._whConnFailedSvcs = window._whConnFailedSvcs || {})[svc || 'other'] = 1; } catch (_) { /* empty-catch-allow */ }
   try {
     var name = String((err && err.name) || '');
     var msg  = String((err && err.message) || '');
@@ -1348,12 +1639,23 @@ function _whNoteTransportFailure(err) {
         : _tC('You appear to be offline, so part of this page could not be loaded. Your work is safe, and it will load again once your connection is back.',
               'Mukhang offline ka, kaya hindi na-load ang bahagi ng page na ito. Ligtas ang trabaho mo, at magloload ulit ito kapag bumalik ang koneksyon.');
     _whShowNotice('wh-connection-notice', text, '232px');
+    // the specific notice replaces the generic wait hint (see whSlowRead.show in offline-banner.js, 2026-10-06)
+    try { if (window.whSlowRead) window.whSlowRead.clear(); } catch (_) { /* empty-catch-allow: a hint never breaks a notice */ }
     // A notice above a page that keeps pulsing skeletons and 'Computing...' texts is two contradictory claims. Settle
     // the stuck loaders into the shared error card once the retry envelope has passed (2026-09-05: 13 of 21 DB pages
     // sat on skeletons / frozen progress text / 'Live' chips while every read had failed).
     // Three passes, not one (2026-09-05 probe): the first failed fetch fires at load, but 'Computing hive health...' texts,
     // skeletons and 'Live' chips are painted by renders that run AFTER the retry envelope (~9 s), so a single settle at +3 s
     // ran before the elements it was meant to settle existed. Idempotent, so the later passes are free.
+    // ★AND ONE PASS IMMEDIATELY, because the FIRST thing to settle is the chip that is already on screen
+    // (2026-10-06, measured on community.html at a true 390 with PostgREST stopped). The three delayed
+    // passes exist for elements painted AFTER the retry envelope, which is right - but a source chip is
+    // painted at load, so it sat claiming "Live" at 15s and 29s while the page beside it already said
+    // "Could not load posts", and only flipped to "Read failed" at 51s. That is ~20s of two elements on
+    // one screen contradicting each other, the same defect this whole pass exists to end, in a timing
+    // form. A pass at zero marks what is already there; the later ones still catch what arrives next, and
+    // the function is idempotent so the extra call costs nothing.
+    _whSettleStuckLoaders();
     setTimeout(_whSettleStuckLoaders, 3000);
     setTimeout(_whSettleStuckLoaders, 10000);
     setTimeout(_whSettleStuckLoaders, 15000);
@@ -1395,6 +1697,20 @@ function _whSettleStuckLoaders() {
     for (var k = 0; k < chips.length; k++) {
       var c = chips[k];
       if (!vis(c) || c.getAttribute('data-wh-read-failed')) continue;
+      /* ★ONLY THE INNERMOST CHIP (2026-10-06, measured on community.html at a true 1280 with PostgREST
+       * stopped). renderSourceChip() returns a COMPLETE <p class="wh-source-chip">, and a page may assign
+       * that output as the innerHTML of an element that ALSO carries the class - community.html does,
+       * because the 62px reserve that fixes its 0.071 layout shift lives on `.wh-source-chip` in
+       * components.css, so the container has to carry it. Both elements then matched this query, both were
+       * prefixed, and the reader saw "Read failed ·" followed on the next line by "Read failed · showing
+       * the last data loaded · ...". The count was stable at exactly 2, which is what told it apart from a
+       * repeated-prefix loop: the outer <p> was reporting its own prefix plus its nested child's.
+       * Fixing it HERE rather than on the page is deliberate. Stripping the class from the container was
+       * tried first and removed the reserve - computed min-height fell to 0px - trading a copy stutter for
+       * a layout shift four other pages had already each patched. This keeps the reserve, marks the chip
+       * that actually holds the sentence, and covers any future page that nests one the same way.
+       * A chip with no nested chip is unaffected: 31 of the platform's 32 renderSourceChip sites. */
+      if (c.querySelector('.wh-source-chip')) continue;
       var txt = (c.textContent || '').trim();
       if (c.getAttribute('data-wh-fresh') === '1' || /^Live\b/i.test(txt)) {
         c.setAttribute('data-wh-read-failed', '1');
@@ -1407,7 +1723,14 @@ function _whSettleStuckLoaders() {
         // is what the page is showing. The rest of the chip (what the figures are based on) stays.
         var _fn = c.firstChild ? c.firstChild.nextSibling : null;
         if (_fn && _fn.nodeType === 3) {
-          _fn.nodeValue = _fn.nodeValue.replace(/^\s*Live\b[^·]*(?:·\s*[^·]*refresh[^·]*)?\s*·\s*/i,
+          /* ★"Live" WAS NOT THE ONLY WORD FOR FRESH (2026-10-06, measured on analytics.html during a real
+             outage). This clause strips the freshness half of a chip once the read has failed, and it only
+             recognised a leading "Live". analytics' chip opens "Recomputed just now", so the result read
+             "Read failed · Recomputed just now · saved copy could not be read" - a failure notice and a
+             claim of a fresh recompute in one sentence, which is the exact self-contradiction the prefix
+             exists to prevent. The alternation now covers the other words this platform actually uses to
+             assert freshness; anything else still falls through untouched rather than being guessed at. */
+          _fn.nodeValue = _fn.nodeValue.replace(/^\s*(?:Live|Recomputed|Refreshed|Updated)\b[^·]*(?:·\s*[^·]*refresh[^·]*)?\s*·\s*/i,
             _tRF('showing the last data loaded · ', 'ipinapakita ang huling na-load na data · '));
         }
       }
@@ -1419,7 +1742,57 @@ function _whSettleStuckLoaders() {
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     var node, hits = [];
     while ((node = walker.nextNode())) { var t = (node.textContent || '').trim(); if (t && PROG.test(t) && node.parentElement && vis(node.parentElement)) hits.push(node); }
-    for (var j = 0; j < hits.length; j++) { hits[j].textContent = 'Not loaded - connection problem. Retry when you are back online.'; hits[j].parentElement.setAttribute('data-wh-read-failed', '1'); }
+    // ★"RETRY WHEN YOU ARE BACK ONLINE" TOLD PEOPLE TO FIX SOMETHING THAT WAS NOT BROKEN (2026-10-06). Found
+    // on an MCP walk of assistant.html with PostgREST genuinely stopped: the page showed its connection chip
+    // reading "Online" - correctly, navigator.onLine was TRUE - beside this sentence telling the reader to wait
+    // until they were "back online". They had never left. The one action the sentence offers is the one action
+    // that cannot help, and on a plant floor it sends somebody to re-seat a wifi dongle while the SERVICE is the
+    // thing that is down. This string is shared chrome: it lands on ~26 pages that render a read.
+    // The two cases are genuinely different and are now told apart by the only thing that can tell them apart:
+    //   offline  -> their connection IS the problem, and waiting is the right advice
+    //   online   -> the service did not answer, so Retry now is the right advice
+    // Translated through _t like the rest of this file's user-facing copy, so the Filipino reader gets the same
+    // distinction rather than the English fallback.
+    // _t is NOT in lexical scope in this file - it lives on window and every one of the other 17 call sites
+    // aliases it through this exact guard. A bare _t() here would throw a ReferenceError straight into this
+    // pass's `empty-catch-allow`, which would silently DELETE the whole settle pass (no failure sentence at
+    // all) rather than fail loudly. Caught on the verifying walk, not in review.
+    var _tP = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+    var _offline = false;
+    try { _offline = (navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+    var _failMsg = _offline
+      ? _tP('Not loaded - you are offline. It will load when your connection is back.',
+           'Hindi na-load - offline ka. Maglo-load ito kapag bumalik ang koneksyon mo.')
+      : _tP('Not loaded - the service did not answer.',
+           'Hindi na-load - hindi sumagot ang serbisyo.');
+    // ★"TAP RETRY" POINTED AT A BUTTON THAT DID NOT EXIST (2026-10-06, engineering-design x assistive-tech, PostgREST
+    // stopped). This pass only rewrites a TEXT NODE, so the History tab read "Not loaded - the service did not answer.
+    // Tap Retry." inside a div with no button in it - and the page-wide notice that does carry a Reload expires after
+    // 30s. An instruction is a claim that its control exists. The pass now ADDS the control where the container is a
+    // block with room for a 44px button, and drops the pointer where it cannot (an inline stat value, a chip).
+    // Reload, as the skeleton pass below does: this pass cannot know which page function re-runs the read.
+    var _retryLbl = _tP('Retry', 'Subukan ulit');
+    for (var j = 0; j < hits.length; j++) {
+      var _pe = hits[j].parentElement;
+      hits[j].textContent = _failMsg;
+      _pe.setAttribute('data-wh-read-failed', '1');
+      if (_offline) continue;   // offline: the sentence says it will load on its own; a Retry cannot help
+      try {
+        var _peCs = getComputedStyle(_pe);
+        var _roomy = /^(block|flex|grid|list-item)$/.test(_peCs.display) && _pe.getBoundingClientRect().width >= 160;
+        if (_roomy && !_pe.querySelector('button')) {
+          var _rb = document.createElement('button');
+          _rb.type = 'button';
+          _rb.className = 'wh-list-retry wh-settle-retry';
+          _rb.textContent = _retryLbl;
+          _rb.style.cssText = 'display:block;margin:0.5rem auto 0;min-height:44px;padding:0 1.1rem;border-radius:8px;'
+            + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);'
+            + 'border:1px solid rgba(247,162,27,0.4);';
+          _rb.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+          _pe.appendChild(_rb);
+        }
+      } catch (_) { /* empty-catch-allow: the sentence already stands without its button */ }
+    }
     window._whSettled++;
   } catch (e) { /* empty-catch-allow: text pass is best-effort */ }
   try {
@@ -1428,12 +1801,45 @@ function _whSettleStuckLoaders() {
     window._whSettled++;
   } catch (e) { /* empty-catch-allow: aria-busy pass is best-effort */ }
   try {
+    /* ★A VERDICT'S CAPTION KEPT COUNTING AFTER ITS LABEL SAID IT HAD FAILED (2026-10-06, achievements x assistive-tech,
+       PostgREST stopped). Fifteen pages share the verdict box: a *-verdict-label plus a *-verdict-sub whose markup
+       default is a present-tense progress line ("Counting overdue, due-this-week...", "Adding this week's XP and
+       counting active domains."). The text pass above turns a frozen "Computing XP progress..." label into "Not loaded
+       - the service did not answer. Tap Retry." - and nothing touched its caption, so one box said in the same breath
+       that it had failed and that it was still counting. The label already says what happened, so a caption still in
+       its progress tense is EMPTIED rather than given new copy - and only when its paired label states a failure, so
+       a page that wrote its own honest caption keeps it. */
+    var _subs = document.querySelectorAll('[id$="-verdict-sub"]');
+    var _PROG = /^\s*(Counting|Rolling up|Reading|Adding|Computing|Loading|Fetching|Checking|Gathering)\b/i;
+    var _FAILED = /not loaded|could not|couldn|did not answer|failed|hindi na-load/i;
+    for (var v = 0; v < _subs.length; v++) {
+      var _lbl = document.getElementById(_subs[v].id.replace(/-verdict-sub$/, '-verdict-label'));
+      if (_lbl && _FAILED.test(_lbl.textContent || '') && _PROG.test(_subs[v].textContent || '')) _subs[v].textContent = '';
+    }
+    window._whSettled++;
+  } catch (e) { /* empty-catch-allow: verdict-caption pass is best-effort */ }
+  try {
+    // ★THE THIRD "CHECK YOUR CONNECTION" IN ONE FUNCTION, AND IT WAS ALSO UNTRANSLATED (2026-10-06).
+    // Measured at a true 1280 on logbook with PostgREST stopped: this sentence is what a reader sees at
+    // t=18s, BEFORE the page's own read-failed panel lands at ~58s - so for forty seconds the only thing
+    // on screen blamed a connection that navigator.onLine said was fine, and said it in English on a
+    // page that can be Filipino. Same branch as the two passes above; the translator is aliased locally
+    // because each pass here carries its own guard (a bare _t would throw into this pass's empty catch
+    // and leave the skeletons shimmering forever, which is the failure this pass exists to end).
+    var _tS = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+    var _skelOff = false;
+    try { _skelOff = (navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+    var _skelMsg = _skelOff
+      ? _tS('Could not load this section - you are offline. It will load when your connection is back.',
+            'Hindi na-load ang seksyong ito - offline ka. Maglo-load ito kapag bumalik ang koneksyon mo.')
+      : _tS('Could not load this section - WorkHive did not answer. Retry.',
+            'Hindi na-load ang seksyong ito - hindi sumagot ang WorkHive. Subukan ulit.');
     var skels = Array.prototype.slice.call(document.querySelectorAll('.wh-skeleton'));
     for (var i = 0; i < skels.length; i++) {
       var sk = skels[i]; if (!vis(sk)) continue;
       var host = sk.parentElement; if (!host || host.querySelector('.wh-list-error')) continue;
-      if (typeof whListError === 'function') whListError(host, 'Could not load this section - check your connection and retry.', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
-      else host.innerHTML = '<div class="wh-list-error" role="alert">Could not load this section - check your connection and retry.</div>';
+      if (typeof whListError === 'function') whListError(host, _skelMsg, function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+      else host.innerHTML = '<div class="wh-list-error" role="alert">' + _skelMsg.replace(/[<>&]/g, '') + '</div>';
     }
     window._whSettled++;
   } catch (e) { /* empty-catch-allow: skeleton pass is best-effort */ }
@@ -1511,16 +1917,33 @@ window.whFocusRestore = whFocusRestore;
  * here would make the message vanish on every real page (one refused read among twenty good ones) while
  * an oracle that refuses EVERY read still saw it and reported PASS - a false green that looks like a fix.
  * The permission notice is bounded by its own 30s self-expiry instead. */
-function _whClearAuthNotice() {
-  _whUnwatchStuckLoaders();   // a read succeeded: stop re-settling, the renderers are painting real data again
+function _whClearAuthNotice(svc) {
+  /* ★A SUCCESS FROM ANOTHER SERVICE PROVES NOTHING ABOUT THE ONE THAT FAILED (2026-10-06, achievements x assistive-tech,
+     PostgREST stopped). This cleared the connection notice on ANY ok response, so an auth call answered by GoTrue - a
+     different service, up while PostgREST was down - would remove "the server could not be reached" over a page whose
+     reads were all still failing: a false all-clear. The services that failed are now remembered
+     (_whNoteTransportFailure); an answer from one of THEM removes it, and the notice and the stuck-loader watcher stand
+     down only when none is left failing. A caller passing no service keeps the old behaviour.
+     VERIFIED directly, not inferred: with PostgREST stopped, a REST read raised the notice and a successful
+     auth.getUser() then left it standing. (An earlier reading on the same walk - notice up at 18s, gone at 76s, back
+     at 91s - was NOT this: _whShowNotice expires every notice 30s after its last re-show, by design, and a later
+     background failure raised it again. Caught with a removeChild stack trace before it became this comment's claim.) */
+  var _failed = window._whConnFailedSvcs || {};
+  if (!svc) { window._whConnFailedSvcs = {}; _failed = {}; }
+  else if (_failed[svc]) { delete _failed[svc]; }
+  var _allClear = Object.keys(_failed).length === 0;
+  if (_allClear) _whUnwatchStuckLoaders();   // a read succeeded: stop re-settling, the renderers are painting real data again
   var n = document.getElementById('wh-auth-expired-notice');
   if (n && n.parentNode) n.parentNode.removeChild(n);
   // The CONNECTION notice is cleared here too, and for the same reason the session one is: a successful
   // read proves the network came back, so the message is false from that instant. The PERMISSION notice
   // is still deliberately excluded — reading table A never falsifies being refused table B.
-  var cn = document.getElementById('wh-connection-notice');
-  if (cn && cn.parentNode) cn.parentNode.removeChild(cn);
-  window._whConnNoted = 0;
+  // (2026-10-06: only once no failed service is left - see the note at the top of this function)
+  if (_allClear) {
+    var cn = document.getElementById('wh-connection-notice');
+    if (cn && cn.parentNode) cn.parentNode.removeChild(cn);
+    window._whConnNoted = 0;
+  }
   if (window._whAuthNoticeTimer) { clearTimeout(window._whAuthNoticeTimer); window._whAuthNoticeTimer = 0; }
   _WH_AUTH_NOTED = 0;
 }
@@ -1528,6 +1951,43 @@ function _whClearAuthNotice() {
 window.getDb = function(url, key) {
   if (window._whSupabaseClient) return window._whSupabaseClient;
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+    // ★THE CLIENT LIBRARY DID NOT ARRIVE, AND THE PAGE SAID NOTHING (W3-JN J16 offline-3g MCP walk, 2026-10-07).
+    // On a dropping network the vendored supabase-js request was the one lost on shift-brain: utils.js HAD loaded,
+    // so the page's own "utils.js did not load" guard stayed quiet, this throw killed the inline boot, and the
+    // person saw the page title and nothing else - no data, no reason, no way on. utils.js is present in exactly
+    // this case, so it can speak: the same shared alert the page guards build (same class, so they never double).
+    try {
+      const _say = function () {
+        const m = document.querySelector('main') || document.body;
+        if (!m || m.querySelector('.wh-shared-missing')) return;
+        const d = document.createElement('div');
+        d.className = 'honest-empty wh-shared-missing';
+        d.setAttribute('role', 'alert');
+        d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;'
+          // the AA text token, with the old literal as its fallback (component-purity, 2026-10-13)
+          + 'background:rgba(248,113,113,.08);color:var(--wh-red-text, #fca5a5);font:14px/1.5 system-ui,sans-serif;';
+        d.appendChild(document.createTextNode('Part of this page did not arrive (its database connection script), so it cannot show your data. '));
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = 'Reload to try again';
+        b.style.cssText = 'color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;';
+        b.addEventListener('click', function () { location.reload(); });
+        d.appendChild(b);
+        m.insertBefore(d, m.firstChild);
+      };
+      // ...but only if the library is STILL missing once the page has finished loading. Some scripts call getDb()
+      // speculatively before the vendor tag has run and catch this throw - the first draft spoke at throw time and
+      // put "did not arrive" over a fully loaded index.html (W3125, normal condition). Ask again after load.
+      if (!window._whLibCheckArmed) {
+        window._whLibCheckArmed = true;
+        const _check = function () {
+          setTimeout(function () {
+            if (!window.supabase || typeof window.supabase.createClient !== 'function') _say();
+          }, 1500);
+        };
+        if (document.readyState === 'complete') _check(); else window.addEventListener('load', _check, { once: true });
+      }
+    } catch (_) { /* empty-catch-allow: the throw below still names the cause in the console */ }
     throw new Error('getDb() called before @supabase/supabase-js loaded');
   }
   // ★AN ERROR MESSAGE IS A CLAIM, AND THE LIBRARY'S ONE IS TRUE ABOUT ITSELF AND MISLEADING ABOUT US
@@ -1567,13 +2027,59 @@ window.getDb = function(url, key) {
     init = init || {};
     if (init.signal) return fetch(input, init); // fetch-error-allow: transport wrapper (see above)
     const ctrl = new AbortController();
+    // ★A MODEL CALL WAS ABORTED WHILE THE CHAIN WAS STILL ANSWERING (LM-R, LM109, 2026-10-07): the fallback chain
+    // took 50 s (429 -> 503 -> 402 -> 429 -> served) and this 45 s abort threw the answer away. A /functions/v1/
+    // call gets 75 s - longer than the gateway's own 70 s forward timeout, so the gateway's honest sentence (or the
+    // answer) always arrives before the browser gives up. Database reads keep TIMEOUT_MS.
+    const _fnCall = /\/functions\/v1\//.test(String((input && input.url) || input || ''));
     const t = setTimeout(() => {
       try { ctrl.abort(new DOMException('WH_DB_TIMEOUT', 'TimeoutError')); }
       catch (_) { ctrl.abort(); } // older engines: abort() takes no reason
-    }, TIMEOUT_MS);
+    }, _fnCall ? Math.max(TIMEOUT_MS, 75000) : TIMEOUT_MS);
+    // ★TELL THE PERSON IT IS SLOW LONG BEFORE WE GIVE UP (2026-10-05). Measured by walking LXP195 through the
+    // chrome-devtools MCP with PostgREST genuinely stopped: achievements.html showed "Loading…" with no failure
+    // language for ~42 SECONDS. The page was blameless - its error branch fires the instant an error arrives -
+    // and so is the 45s above: Kong takes 41.8s to give up (measured: connects in 0.02s, 500 at 41.8s), and
+    // TIMEOUT_MS is deliberately generous because, as its own comment says, legit slow ops on 2G need the room.
+    // Lowering it would abort the uploads this platform exists to serve.
+    // So INFORMING is separated from ABORTING: the read keeps its whole 45s budget and the person is simply told
+    // at SLOW_HINT_MS that the connection is slow. One install here covers every db.from()/rpc()/auth/storage
+    // call on all 26 pages that render a read, which is the same argument this wrapper already makes for owning
+    // the timeout. The hint is CLEARED on settle - success or failure - so it never outlives the wait it
+    // describes, and it is skipped while offline because that banner is more specific and already up.
+    // It is a NOTICE, not a guard: it does not gate a write (whRequireOnline does), because a passive warning
+    // does not stop a button ([[feedback_banner_adoption_is_not_write_refusal]]).
+    // ★AND IT IS REFERENCE-COUNTED, because the first version cleared on the FIRST settle while siblings were
+    // still pending (found on the very next walk, alert-hub LXP198, 2026-10-05). A page loads its reads in a
+    // Promise.all; one of them settled at ~20s, the hint vanished, and the page then sat for another 15s with
+    // NEITHER the hint nor a failure — a silent window re-opened by the fix that existed to close it. So the
+    // count tracks how many reads are in flight and the hint is withdrawn only when the LAST one settles.
+    const SLOW_HINT_MS = window.WH_SLOW_HINT_MS || 6000;
+    // ★AN AI CALL IS NOT A READ, AND IT HELD THE PAGE-WIDE "STILL LOADING" FOR A MINUTE (2026-10-06, shift-brain x
+    // assistive-tech). The note above scopes this hint to READS, and an edge-function call is not one: an AI compose
+    // is slow BY DESIGN (shift-planner-orchestrator's own note: ">10s"), and the pages that make these calls show
+    // their own AI-working state. Measured on shift-brain with a healthy stack: the plan rendered at ~20s, but
+    // analytics-orchestrator - a background ENRICHMENT, whose caller keeps the stored brief as "the instant
+    // fallback" - ran to the full 45s cap, and the banner told the worker the page was "still loading" until some
+    // time between 93s and 118s, over a page that had finished. So /functions/v1/ calls neither raise the hint nor
+    // hold it; every REST/auth/storage read still does, exactly as before.
+    const _isFn = /\/functions\/v1\//.test(String((input && input.url) || input || ''));
+    if (!_isFn) window.__whInFlight = (window.__whInFlight || 0) + 1;
+    const slowT = _isFn ? 0 : setTimeout(() => {
+      try { if (window.whSlowRead) window.whSlowRead.show(); }
+      catch (_) { /* empty-catch-allow: a hint must never break the read it describes */ }
+    }, SLOW_HINT_MS);
+    const _clearSlow = () => {
+      if (_isFn) return;                               // never counted, so never uncounted
+      clearTimeout(slowT);
+      window.__whInFlight = Math.max(0, (window.__whInFlight || 1) - 1);
+      if (window.__whInFlight > 0) return;            // siblings still waiting: the person is still waiting
+      try { if (window.whSlowRead) window.whSlowRead.clear(); }
+      catch (_) { /* empty-catch-allow */ }
+    };
     // fetch-error-allow: transport wrapper — error surfaces via the client's {data, error}
     return fetch(input, { ...init, signal: ctrl.signal })
-      .then(res => { if (res && res.ok) { _whClearAuthNotice(); } else { _whNoteAuthFailure(res); } return res; })
+      .then(res => { if (res && res.ok) { _whClearAuthNotice(_whSvcOf((input && input.url) || input)); } else { _whNoteAuthFailure(res); } return res; })
       // A TRANSPORT failure never produces a `res`, so the .then above is SKIPPED ENTIRELY and the notice
       // machinery beside it never ran. That gap was measured 2026-08-14 by rejecting every REST read on
       // logbook: zero page errors, zero console errors, and not one word on screen — the page caught the
@@ -1583,8 +2089,8 @@ window.getDb = function(url, key) {
       // THIS NOTICES AND RE-THROWS — it does not swallow. The note above forbids a .catch that eats the
       // error the client must surface, and that remains true: `throw err` keeps every caller's
       // {data, error} exactly as it was.
-      .catch(err => { _whNoteTransportFailure(err); throw err; })
-      .finally(() => clearTimeout(t));
+      .catch(err => { _whNoteTransportFailure(err, _whSvcOf((input && input.url) || input)); throw err; })
+      .finally(() => { clearTimeout(t); _clearSlow(); });
   };
   window._whSupabaseClient = window.supabase.createClient(url, key, {
     global: { fetch: _timeoutFetch },
@@ -1852,7 +2358,17 @@ function _whFriendlySource(src) {
     var s = segs[i].trim();
     if (!s) continue;
     var m = s.match(/^[A-Za-z0-9_.-]+/);  // leading table/view identifier (hyphen for edge-fn anchor tokens)
-    var label = _whFriendlySourceToken(m ? m[0] : s);
+    // A PROSE SEGMENT IS NOT AN IDENTIFIER, and taking its first word SILENTLY TRUNCATES IT (2026-10-06,
+    // found by walking LXP199). analytics-report.html passed the sentence 'your hive logbook, PM records and
+    // asset history'; the regex above matched 'your', no label existed, the humaniser returned 'your', and the
+    // chip on a print-ready client deliverable read "Based on your ·" with the noun missing. Nothing threw and
+    // nothing was logged - a plausible-looking chip with its subject deleted. So a segment that OPENS with an
+    // English function word is treated as prose and kept WHOLE: an unexpected caller now reads slightly long
+    // rather than ungrammatically empty. Canonical token strings are unaffected (no table is named 'your').
+    var PROSE_LEAD = /^(your|the|this|these|those|a|an|our|its|their|all|and|from|via|based)$/i;
+    var label = (m && PROSE_LEAD.test(m[0]) && s.length > m[0].length)
+      ? s.replace(/\s+/g, ' ').trim()
+      : _whFriendlySourceToken(m ? m[0] : s);
     if (label && out.indexOf(label) === -1) out.push(label);
   }
   if (out.length === 0) return '';
@@ -1964,8 +2480,26 @@ function whI18nApply(dict) {
     if (merged[k] == null) return;
     var stamp = el.getAttribute('data-i-applied');
     if (stamp !== null && el.textContent !== stamp) return;   // the app owns this text now
+    // ★THE SWAPPED LABEL DECLARES ITS OWN LANGUAGE - THE LESSON LANDED IN THE SMALL APPLIER AND NEVER
+    // REACHED THIS ONE (2026-09-29). wh-i18n-lite.js learned this on 2026-09-11, after a learn article
+    // measured "Matuto / Mag-sign In" under <html lang="en"> and a screen reader announced Filipino words
+    // with English phonetics (WCAG 3.1.2, Language of Parts). But that file serves only the static public
+    // pages; THIS is the swapper every app surface uses, and it wrote textContent and nothing else - so
+    // ~32 signed-in pages had the identical defect the whole time, and the phone-fit prover under FIL
+    // reported them page after page as "marked no part lang=fil". Same shape as
+    // [[feedback_fix_every_path_that_mutates_not_just_the_walked_one]]: the walked path got the fix.
+    // The whole-document lang is deliberately NOT flipped - on most surfaces the chrome becomes Filipino
+    // while live DATA stays as entered, so lang="fil" on <html> would be as untrue as lang="en", and the
+    // primary-language call is Ian's. Language OF PARTS needs no such decision.
+    // ★AND IT IS DECLARED ONLY WHEN THE TEXT ACTUALLY CHANGED LANGUAGE. An IDENTITY entry ("Pump":"Pump")
+    // is the platform's authored ruling that a term STAYS ENGLISH - logbook.json alone carries 56 of them,
+    // 108 across i18n/*.json - so stamping lang="fil" on every swapped element would declare English words
+    // Filipino and commit the exact inverse of the defect being fixed. The English is captured once, from
+    // the markup, before the first swap.
+    if (stamp === null && !el.hasAttribute('data-i-en')) el.setAttribute('data-i-en', el.textContent);
     el.textContent = merged[k];
     el.setAttribute('data-i-applied', merged[k]);
+    if (merged[k] !== el.getAttribute('data-i-en')) el.lang = 'fil';
   });
   // ★NO ACCESSIBLE NAME ON THE PLATFORM COULD BE TRANSLATED (design lens copy, 2026-09-15). This swapper
   // wrote textContent and nothing else, so a control whose name comes from aria-label announced English to
@@ -2068,8 +2602,11 @@ function whProgressStrip(label, done, total, opts) {
 // showed an answer with no way to be heard. Same contract as assistant.html's _attachChatFeedback:
 // best-effort, never disturbs the surface, and the CONTROL reflects reality - buttons come back when
 // the write did not land, an inline role="status" line says so when it did.
-//   whAiTrustRow(containerEl, { agent, source, page, question, answer, groundedOn })
+//   whAiTrustRow(containerEl, { agent, source, page, question, answer, groundedOn, traceId })
 //     groundedOn - a short sentence for the source chip ("your logbook, PM schedule and parts")
+//     traceId    - the id the ANSWERING call returned for this reply (ai-gateway's envelope trace_id); pass it
+//                  whenever the surface has one, never mint one. It is what lets a "wrong" be matched to the
+//                  call it judged instead of by its words (LM-E, 2026-10-08; see whTraceIdOf below).
 //     returns the row element (or null when there is nothing to attach to); one row per container.
 function whAiTrustRow(container, opts) {
   if (!container || typeof document === 'undefined') return null;
@@ -2134,6 +2671,7 @@ function whAiTrustRow(container, opts) {
             question: String(opts.question == null ? '' : opts.question).slice(0, 2000),
             answer: String(opts.answer == null ? '' : opts.answer).slice(0, 4000),
             rating: rating,
+            trace_id: whTraceIdOf(opts.traceId),
           });
           landed = !res || !res.error;
         }
@@ -2151,6 +2689,21 @@ function whAiTrustRow(container, opts) {
   return row;
 }
 if (typeof window !== 'undefined') window.whAiTrustRow = whAiTrustRow;
+
+// whTraceIdOf — the id of the call that produced an AI answer, or null (LM-E, 2026-10-08).
+// ★A "WRONG" COULD ONLY BE MATCHED TO ITS CALL BY ITS WORDS: ai_reply_feedback stored the question and the answer
+// text and nothing that named the call, while the answering endpoint had already handed the page an id for it.
+// Accepts the id itself or the endpoint's response body - ai-gateway's envelope { ok, data, trace_id } or
+// agentic-rag-loop's { answer, trace_id } - and returns it only in one of the two shapes the platform mints:
+// 8-32 lowercase hex (wh_traces.trace_id) or a uuid (agentic_rag_traces.id). That is exactly what the
+// ai_reply_feedback_trace_id_shape CHECK admits, so a malformed value becomes NULL instead of costing the person
+// their rating. It never invents one: no id in, null out.
+function whTraceIdOf(x) {
+  var v = (x && typeof x === 'object') ? x.trace_id : x;
+  if (typeof v !== 'string') return null;
+  return (/^[0-9a-f]{8,32}$/.test(v) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v)) ? v : null;
+}
+if (typeof window !== 'undefined') window.whTraceIdOf = whTraceIdOf;
 
 // whLevelWord — the four level words every card paints (critical / high / medium / low), in the person's
 // language (EX-TL, 2026-09-07). Asset Hub's fleet is 30 cards × "medium risk 62%" + a criticality pill; under
@@ -2226,9 +2779,39 @@ function renderSourceChip(opts) {
   var method    = Array.isArray(opts.method) ? opts.method : [];
 
   var parts = [];
-  if (freshness) parts.push(escHtml(_whFreshnessPhrase(freshness, _tt)));   // C-AK
-  if (source) {
-    var friendly = _whFriendlySource(source);
+  if (freshness) {
+    var _fp = _whFreshnessPhrase(freshness, _tt);   // C-AK
+    /* ★"LIVE" NAMES ITS INSTANT AND ITS CLOCK (2026-10-09, UFAI layer C: asset-hub read 56 figures with no period and
+       no clock). A live chip said "Live + daily snapshot" or "Live · refreshed on load" and never WHEN it read, or on
+       whose clock - and a count of assets has no window but the moment it was taken. The chip renders when the page's
+       data lands, so that moment is now: the chip adds it, in the platform's day (Asia/Manila, migration
+       20261009000066), unless the caller already named a time or a clock. */
+    if (/^live\b/i.test(String(freshness).trim()) && !/\b(PHT|UTC|GMT|as of)\b|\d{1,2}:\d{2}/i.test(String(freshness))) {
+      var _hm = '';
+      try { _hm = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', hour12: false }); }
+      catch (e) { _hm = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(11, 16); }
+      if (_hm) _fp += ' · as of ' + _hm + ' PHT';
+    }
+    parts.push(escHtml(_fp));
+  }
+  /* ★"YOUR" WAS A CLAIM THE RENDERER MADE FOR EVERY PAGE (2026-10-06, public-feed x assistive-tech, layer D).
+     The template below prepends "your" to any source that does not already start with it, so every chip says
+     the figures are the reader's own. True on most pages - and false wherever a page shows OTHER people's data:
+     public-feed read "Based on your community posts" over public posts from every hive (its query has no hive
+     filter), marketplace said "your marketplace listings" to a buyer browsing other sellers', and a seller's
+     public profile said "your" to whoever was looking at it. The caller's own qualifier could not save it either:
+     public-feed passed 'v_community_posts_truth (public posts only)' and _whFriendlySource reads only the leading
+     identifier. So a caller that shows someone else's data says so: `possessive: false` drops the "your", and
+     `sourceLabel` gives the plain words while `source` keeps the relation name the chip gates check. Default
+     unchanged for every other caller. */
+  var _own = opts.possessive !== false;
+  if (source || opts.sourceLabel) {
+    var friendly = opts.sourceLabel ? String(opts.sourceLabel) : _whFriendlySource(source);
+    if (friendly && !_own) {
+      var fx = escHtml(friendly);
+      parts.push(_tt('Based on ' + fx, 'Batay sa ' + fx));
+      friendly = '';
+    }
     if (friendly) {
       // One whole template per locale with a single slot, rather than gluing a
       // prefix onto a noun -- the possessive sits differently in Filipino (N1).
@@ -2304,9 +2887,11 @@ function renderSourceChip(opts) {
       // template is the C-AK class ("Batay sa your schedule") this file already fixed once above.
       var _subject = String(opts.subject || '').replace(/\s+/g, ' ').trim();
       var _subjectFil = String(opts.subjectFil || _subject).replace(/\s+/g, ' ').trim();
+      // Active voice (critic B3, 2026-10-13): "How the open-items summary is computed" was the passive sentence B3
+      // found on every hive board survey; the subject names stay the callers'.
       var _summary = _subject
-        ? _tt('How ' + _subject + ' is computed', 'Paano kinalkula ang ' + _subjectFil)
-        : _tt('How this is computed', 'Paano ito kinalkula');
+        ? _tt('How we compute ' + _subject, 'Paano kinalkula ang ' + _subjectFil)
+        : _tt('How we compute this', 'Paano ito kinalkula');
       chipHtml += '<details class="wh-method">'
         + '<summary>' + escHtml(_summary) + '</summary>'
         + '<ul>' + mItems + '</ul>'
@@ -2428,8 +3013,9 @@ function whCardSkeleton(el, count, opts) {
 //
 //   whFreshnessChip('#my-anchor', tsMillis)   // or pass the element
 //
-// role="status" + aria-live="polite" make it announce to a screen reader WITHOUT stealing
-// focus; the dot goes amber past an hour (stale). i18n via the shared _t. Self-contained —
+// role="status" keeps it a findable, readable status region; aria-live is "off" because it re-renders
+// on a timer and a timestamp drifting a minute is not an event (see the 2026-10-06 note in the body).
+// The dot goes amber past an hour (stale). i18n via the shared _t. Self-contained —
 // no page CSS needed. Call again on each refresh to re-stamp the time.
 function whFreshnessChip(target, tsMillis, opts) {
   opts = opts || {};
@@ -2467,8 +3053,25 @@ function whFreshnessChip(target, tsMillis, opts) {
   // escHtml it — a page might pass user-influenced text — reusing the shared escaper.
   var esc = (typeof window.escHtml === 'function') ? window.escHtml : function (x) { return x; };
   var suffix = opts.suffix ? ' <span class="wh-fresh-suffix">' + esc(opts.suffix) + '</span>' : '';
+  /* ★THE THING THAT MUST TICK MUST NOT ANNOUNCE (2026-10-06, grading alert-hub as an ASSISTIVE-TECH user).
+     The tick above is correct — a chip that never re-renders lies after an hour. But it was ticking inside
+     an aria-live="polite" region, so every re-render was ANNOUNCED. Measured with a MutationObserver on
+     alert-hub's live regions for 78 seconds: the source chip rewrote 0 times (it carries a fact that does
+     not change, which is why renderSourceChip announcing is right and stays), while THIS strip rewrote
+     FOUR times, oscillating "Updated just now" ↔ "Updated 1 min ago" — because alert-hub's own 60s loadAll
+     re-stamps it to now AND the shared 60s tick then counts it forward, so two writers alternate. That is
+     an interruption every ~20 seconds, forever, for someone reading 73 critical alerts.
+     A relative timestamp drifting from "just now" to "1 min ago" is not an EVENT — nothing happened; the
+     same data is simply a minute older. So role="status" STAYS (the region is still findable for G1 and
+     still readable on demand, which is the whole point of the 2026-09-30 chip-semantics clause in
+     validate_source_chip_freshness) and aria-live is explicitly "off", which overrides the role's implicit
+     polite. The words still carry staleness truthfully when read — "1h ago" says it, so the amber dot is a
+     second channel rather than the sole carrier, and nothing is lost by not shouting it.
+     Scope, measured rather than assumed: alert-hub is the ONLY page calling whFreshnessChip today, so this
+     fixes one live page and disarms the trap for every future adopter — which is why it belongs in the
+     component and not in the page. */
   el.setAttribute('role', 'status');
-  el.setAttribute('aria-live', 'polite');
+  el.setAttribute('aria-live', 'off');
   el.innerHTML =
     '<span class="wh-fresh-dot" aria-hidden="true" style="width:8px;height:8px;border-radius:50%;'
     + 'display:inline-block;margin-right:6px;background:' + (stale ? 'var(--wh-orange)' : 'var(--wh-green, #4ade80)') + ';"></span>'
@@ -3289,20 +3892,49 @@ if (typeof window !== 'undefined') window.whHiveContextNotice = whHiveContextNot
    ★FAILS OPEN, deliberately: a DB error returns false. "I could not ask" is not "you were removed", and
    manufacturing a removal from an unreachable database would put a false accusation on screen during an
    ordinary outage - the same reasoning the two existing copies use when they trust the cached role. */
+/* ★IT FAILED OPEN FOR AN OUTAGE AND FAILED CLOSED FOR A RENAME (BRP-A, 2026-10-04). The note above is
+   emphatic that "I could not ask" must never become "you were removed" - and then the question was asked
+   by DISPLAY NAME. `workerName` reaches here from localStorage (wh_last_worker); the membership row's
+   worker_name is whatever was stored when the row was written. Once those diverge by a single character
+   the probe finds no row, `!m` is true, and this returns TRUE - manufacturing exactly the false
+   accusation this function exists to prevent, through a door its author did not have in view.
+   Consequences, measured live: with a one-character case drift the hive board, project-manager,
+   pm-scheduler and asset-hub all gated the person out and wh_active_hive_id was cleared - a renamed
+   person loses their hive. It surfaced as an asset-picker prover that passed and failed on alternate
+   runs, the difference being only whether a hive was active.
+
+   So the probe now asks by IDENTITY, read from the session rather than from a parameter, which fixes all
+   four callers without touching one of them. hive_members' read policy already begins
+   `auth.uid() = auth_uid`, so this is the key the database itself uses, and 20261004000003 enforces one
+   row per (hive_id, auth_uid) so .maybeSingle() cannot see two. The name stays as the FALLBACK for the
+   case that has no session uid to use, and the fail-open contract is unchanged: every error path, and the
+   missing-session path, still answer false. */
 function whHiveMembershipLost(db, hiveId, workerName) {
-  if (!db || !hiveId || !workerName) return Promise.resolve(false);
-  try {
+  if (!db || !hiveId) return Promise.resolve(false);
+  function ask(col, val) {
     // canonical-allow: auth-check probe on membership row presence; access gate, not a display read
     return db.from('hive_members')
       .select('status')
       .eq('hive_id', hiveId)
-      .eq('worker_name', workerName)
+      .eq(col, val)
       .maybeSingle()
       .then(function (r) {
         if (r && r.error) return false;                       // could not ask
         var m = r && r.data;
         return !m || m.status === 'kicked';
       }, function () { return false; });
+  }
+  try {
+    if (db.auth && typeof db.auth.getSession === 'function') {
+      return db.auth.getSession().then(function (s) {
+        var uid = s && s.data && s.data.session && s.data.session.user && s.data.session.user.id;
+        if (uid) return ask('auth_uid', uid);
+        if (!workerName) return false;                        // no identity and no name: cannot ask
+        return ask('worker_name', workerName);
+      }, function () { return false; });                      // could not read the session
+    }
+    if (!workerName) return Promise.resolve(false);
+    return ask('worker_name', workerName);
   } catch (e) { return Promise.resolve(false); }
 }
 if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;
@@ -3355,11 +3987,28 @@ function whReadError(err, what) {
   // no reason to know the product ships .html files. It is also redundant as an instruction: the card
   // this sentence renders inside already carries a real, tappable link to the same page, at the 44px
   // floor, directly underneath. So the sentence names the place and lets the link do the going.
-  return T('Couldn’t load ' + thing + '. Check your connection and try again. Still failing on good '
-       + 'internet? The Status page below shows whether WorkHive itself is having trouble.',
-           'Hindi ma-load ang ' + thingFil + '. Suriin ang koneksyon at subukan muli. Hindi pa rin '
-         + 'gumagana kahit maayos ang internet? Ipinapakita ng Status page sa ibaba kung '
-         + 'may problema ang WorkHive mismo.');
+  // ★AND IT LED WITH "CHECK YOUR CONNECTION" FOR A READER WHO WAS DEMONSTRABLY ONLINE (2026-10-06,
+  // found on a walk of logbook.html with PostgREST stopped and navigator.onLine TRUE). T71 above is
+  // right that the sentence has to answer "is it me or them?", and the Status-page pointer does that
+  // honestly - but it answers in the SECOND clause, after telling the person to go and check a
+  // connection that is fine. On a plant floor the first clause is the one that gets acted on, so the
+  // technician goes to re-seat a wifi dongle while the service is what is down.
+  // The browser already knows which case this is, so the two cases get their own leading clause and the
+  // Status pointer stays on the ONLINE one, where it is the useful next step. When the person really is
+  // offline, "check your connection" IS the answer and the Status page is unreachable anyway.
+  var _off = false;
+  try { _off = (typeof navigator !== 'undefined' && navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+  if (_off) {
+    return T('You are offline, so ' + thing + ' could not be loaded. It will load when your connection '
+         + 'is back.',
+             'Offline ka, kaya hindi na-load ang ' + thingFil + '. Magloload ito kapag bumalik ang '
+           + 'koneksyon mo.');
+  }
+  return T('Couldn’t load ' + thing + ' - WorkHive did not answer. Try again in a moment. If it keeps '
+       + 'failing, the Status page below shows whether WorkHive itself is having trouble.',
+           'Hindi ma-load ang ' + thingFil + ' - hindi sumagot ang WorkHive. Subukan muli maya-maya. '
+         + 'Kung patuloy na nabibigo, ipinapakita ng Status page sa ibaba kung may problema ang '
+         + 'WorkHive mismo.');
 }
 if (typeof window !== 'undefined') window.whReadError = whReadError;
 // whQueryTimeout — an upper bound for a supabase-js READ, so a hung request cannot become an eternal
@@ -3727,6 +4376,25 @@ function whFmtDate(d, opts) {
   var _loc = (typeof window !== 'undefined' && window.WH_LANG === 'fil') ? 'fil-PH' : 'en-PH';
   return dt.toLocaleString(_loc, fmt);
 }
+/* ★"TODAY" AS A DATE KEY WAS UTC'S DAY (2026-10-13, the device-clock-day ratchet). Thirty sites wrote today's date
+   as new Date().toISOString().slice(0, 10) - export file names, a query's "today", a form's default date, a voice
+   command's schedule date. That is UTC's calendar day, and from 00:00 to 08:00 Manila it is still YESTERDAY. WorkHive's
+   day is the Manila day, so a date KEY (YYYY-MM-DD) comes from here: the Manila calendar date of an instant (now by
+   default). 'en-CA' is the locale whose date format IS YYYY-MM-DD, so no string surgery is needed. */
+function whManilaYmd(d) {
+  var dt = (d instanceof Date) ? d : (d == null ? new Date() : new Date(d));
+  if (isNaN(dt.getTime())) return '';
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(dt);
+}
+/* The instant the Manila day of `d` (now by default) began - for a query window such as "today's entries". Manila keeps
+   no daylight saving, so its midnight is always 16:00 UTC the day before. Replaces `new Date(); x.setHours(0,0,0,0)`,
+   which is the DEVICE's midnight (on a New Zealand host the hive's "today" began at 19:00 Manila the day before). */
+function whManilaMidnight(d) {
+  var ymd = whManilaYmd(d);
+  if (!ymd) return new Date(NaN);
+  var p = ymd.split('-');
+  return new Date(Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2])) - 8 * 3600 * 1000);
+}
 function whFmtDuration(value, unit) {
   var v = Number(value);
   if (!isFinite(v)) return '-';
@@ -3754,7 +4422,7 @@ function whFmtAgo(d) {
 if (typeof window !== 'undefined') {
   window.whFmtPeso = whFmtPeso; window.whFmtNum = whFmtNum;
   window.whFmtDate = whFmtDate; window.whFmtDuration = whFmtDuration;
-  window.whFmtAgo = whFmtAgo;
+  window.whFmtAgo = whFmtAgo; window.whManilaYmd = whManilaYmd; window.whManilaMidnight = whManilaMidnight;
 }
 
 // ─────────────────────────────────────────────
@@ -3894,35 +4562,14 @@ if (typeof window !== 'undefined') {
   })();
 }
 
-// ── whModalHistory — hardware Back closes the modal, not the page (T42, 2026-09-02) ─────────────
-// Walked live at 390: opening inventory's Add-Part modal pushed NO history entry, so the phone's
-// Back gesture (a constant on Android) NAVIGATED AWAY from the whole page — a worker mid-form lost
-// the task and their input with one natural gesture; no page on the platform wired Back to modal
-// state. The contract: a modal calls .opened(closeFn) when it shows (pushes one history entry) and
-// .closed() when dismissed by its own controls (consumes that entry via history.back()); the
-// popstate listener closes the top modal instead of leaving the page. Back with no modal open
-// behaves exactly as before. Re-entrancy safe: the explicit-close path pops the stack BEFORE
-// calling history.back(), so the resulting popstate finds nothing to close.
-(function () {
-  if (typeof window === 'undefined') return;
-  var _stack = [];
-  window.whModalHistory = {
-    opened: function (closeFn) {
-      if (typeof closeFn !== 'function') return;
-      _stack.push(closeFn);
-      try { history.pushState({ whModal: _stack.length }, ''); } catch (_) { /* empty-catch-allow: history may be sandboxed; Back then simply leaves as before */ }
-    },
-    closed: function () {
-      if (!_stack.length) return;           // popstate path already consumed it (or never opened)
-      _stack.pop();
-      try { history.back(); } catch (_) { /* empty-catch-allow: worst case a spare entry remains */ }
-    },
-  };
-  window.addEventListener('popstate', function () {
-    var fn = _stack.pop();
-    if (fn) { try { fn(); } catch (_) { /* empty-catch-allow: a broken closeFn must not break Back */ } }
-  });
-})();
+// ── whModalHistory — RETIRED 2026-10-12 (one owner per modal) ─────────────────────────────────
+// T42 (2026-09-02) shipped this for inventory's Add-Part modal, and the same day folded the same
+// contract into whModalA11y, which inventory ALSO wired onto that modal - so the part modal pushed
+// two history entries per open, owned by two stacks. Its X and Cancel buttons passed the click event
+// as `fromBack`, so they never gave this stack's entry back; it only ever drained because
+// whModalA11y's give-back traversal happened to pop it. One owner now: whModalA11y (wired by
+// inventory at DOMContentLoaded, and by whSheetA11y on every .sheet-overlay/.modal-overlay).
+// validate_modal_back_helper fails if a second modal-history stack comes back.
 // ── C11 AUTO-WIRE (critic deepwalk, 2026-09-02): BUILT-BUT-BARELY-CALLED, closed. ─────────────
 // whReconcileHiveName existed and worked, but only hive.html ever called it — every OTHER page
 // still trusted localStorage.wh_hive_name blindly, which is exactly how the walked receipt
@@ -3976,13 +4623,16 @@ if (typeof window !== 'undefined') { window.whHiveId = whHiveId; window.whWorker
 // Severity badge for the shared strips. The class alone was emitted for months with
 // NO stylesheet anywhere defining it, so the chips inherited the parent <a>'s UA
 // link-blue (rgb(0,0,238) — 1.24:1 on the card). Styles live inline like the rest
-// of these renderers; text colors are the -300 tints that clear WCAG AA on dark.
+// of these renderers. ★THE SEVERITY COLOURS ARE THE PLATFORM'S TOKENS (critique W45929, 2026-10-13): they were Tailwind
+// -300 tints, and critical's #FECACA sat one unit from --wh-red-text #FDC9C9 - a near-miss reads as slightly wrong rather
+// than deliberate (index's home, hive's "#86efac", shift-brain and alert-hub all paint through here). Each level is now its
+// token as text over that token's channels: red-text, orange-text, amber, green - all clear AA as text on the dark card.
 function whOhBadge(lvl, text) {
   var c = {
-    critical: ['rgba(252,165,165,0.16)', '#FECACA'],
-    high:     ['rgba(253,186,116,0.16)', '#FDBA74'],
-    medium:   ['rgba(253,224,71,0.14)',  '#FDE047'],
-    low:      ['rgba(134,239,172,0.14)', '#86EFAC'],
+    critical: ['rgba(248,113,113,0.16)', 'var(--wh-red-text, #FDC9C9)'],
+    high:     ['rgba(247,162,27,0.16)',  'var(--wh-orange-text, #FDB94A)'],
+    medium:   ['rgba(250,204,21,0.14)',  'var(--wh-amber, #facc15)'],
+    low:      ['rgba(74,222,128,0.14)',  'var(--wh-green, #4ade80)'],
   }[String(lvl || '').toLowerCase()] || ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.75)'];
   return '<span class="oh-badge oh-badge-' + escHtml(String(lvl || '')) + '" style="font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px;background:' + c[0] + ';color:' + c[1] + ';white-space:nowrap;">' + escHtml(String(text == null ? lvl : text)) + '</span>';
 }
@@ -4030,7 +4680,7 @@ function renderRiskStrip(rows, opts) {
    a drift looks like from the inside, not a defence. The objection is the THICKNESS, so 1px is the
    minimal compliant change and keeps the status hue doing its job. */
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid var(--wh-red, #f87171);">'
-    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
     +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
     +     '<a href="asset-hub.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
     +   '</div>' + inner + '</div>';
@@ -4095,7 +4745,7 @@ function renderPmDueStrip(rows, opts) {
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:pm_due_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid var(--wh-blue, #29B6D9);">'
-    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
     +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-blue, #29B6D9);margin:0;">' + e(opts.title) + '</p>'
     +     (scopeChip || '<a href="pm-scheduler.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">PM Scheduler &#8594;</a>')
     +   '</div>' + inner + '</div>';
@@ -4183,7 +4833,7 @@ function renderPartsStrip(rows, opts) {
   var inner = '<div style="display:flex;flex-direction:column;gap:8px;">' + rowsHtml + '</div>';
   if (!opts.title) return inner;
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:parts_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid #fb923c;">'
-    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
     +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#fb923c;margin:0;">' + e(opts.title) + '</p>'
     +     '<a href="inventory.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">Inventory &#8594;</a>'
     +   '</div>' + inner + '</div>';
@@ -4206,6 +4856,9 @@ function renderActionBrief(brief, opts) {
   var e = escHtml;
   if (!brief || typeof brief !== 'object') return '';
   var summary = brief.summary || brief.narration || '';
+  // the plan's own words are model output unless the orchestrator built it from records: marked so the copy lenses
+  // grade them as AI output, like shift-brain's brief (critic B3, 2026-10-13)
+  var _ai = (brief._engine && brief._engine.deterministic) ? '' : ' data-ai-generated';
   var asLine = function (it) {
     if (it == null) return '';
     if (typeof it === 'string') return e(it);
@@ -4230,7 +4883,7 @@ function renderActionBrief(brief, opts) {
     if (!arr.length) return '';
     return '<div style="margin-top:10px;">'
       + '<p style="font-size:.75rem;font-weight:700;color:' + color + ';margin:0 0 4px;">' + e(label) + '</p>'
-      + '<ul style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;max-width:68ch;">'
+      + '<ul' + _ai + ' style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;max-width:68ch;">'
       + arr.slice(0, 8).map(function (it) { return '<li style="font-size:.875rem;color:rgba(255,255,255,.82);line-height:1.4;">' + asLine(it) + '</li>'; }).join('')
       + '</ul></div>';
   };
@@ -4239,14 +4892,27 @@ function renderActionBrief(brief, opts) {
     : '';
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:action_brief') + '" data-rag-label="' + e(opts.title || 'Action Brief') + '" style="padding:16px;border-left:1px solid var(--wh-violet, #a78bfa);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
-    +     '<p style="font-size:.75rem;font-weight:700;color:var(--wh-violet-text, #C4B5FD);margin:0;">' + e(opts.title || _t('Action brief', 'Action brief')) + '</p>' + hChip
+    +     '<p style="font-size:.75rem;font-weight:700;color:var(--wh-violet-text, #C4B5FD);margin:0;">' + e(opts.title || _t('Action brief', 'Buod ng aksyon')) + '</p>' + hChip
     +   '</div>'
-    +   (summary ? '<p style="font-size:.875rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);margin:0;line-height:1.4;max-width:68ch;">' + e(summary) + '</p>' : '')
+    +   (summary ? '<p' + _ai + ' style="font-size:.875rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);margin:0;line-height:1.4;max-width:68ch;">' + e(summary) + '</p>' : '')
     +   listBlock(opts.horizon === 'strategic' ? _t('This quarter', 'Ngayong quarter') : opts.horizon === 'shift' ? _t('This shift', 'Ngayong shift') : opts.horizon === 'today' ? _t('Today', 'Ngayon') : _t('This week', 'Ngayong linggo'), brief.this_week, 'var(--wh-red-text, #FDC9C9)')
     +   listBlock(_t('Watch list', 'Bantayan'), brief.watch_list, 'var(--wh-orange, #F7A21B)')
     + '</div>';
 }
 if (typeof window !== 'undefined') window.renderActionBrief = renderActionBrief;
+
+/* ★AN EMPTY PLAN ERASED A REAL BRIEF (2026-10-09). When no model answers, analytics-orchestrator's synthesis is "{}",
+   and alert-hub / shift-brain tested the plan with `if (ap)` - an empty object is truthy - so a model outage replaced
+   the stored brief already on screen with an "Action Brief" card holding nothing, stamped "refreshed live". A plan is
+   something to show only when it carries words renderActionBrief draws: a summary (or narration), or an item in
+   this_week / watch_list. Anything else leaves the page as it was. */
+function whActionPlanHasContent(ap) {
+  if (!ap || typeof ap !== 'object') return false;
+  var has = function (v) { return typeof v === 'string' ? v.trim().length > 0 : !!(v && typeof v === 'object'); };
+  if (has(ap.summary) || has(ap.narration)) return true;
+  return ['this_week', 'watch_list'].some(function (k) { return Array.isArray(ap[k]) && ap[k].some(has); });
+}
+if (typeof window !== 'undefined') window.whActionPlanHasContent = whActionPlanHasContent;
 
 // reflowIdDump — E4 "digest, don't dump": when a SINGLE line crams many asset codes
 // (the CODE shape TT-002 / GEN-003 / HVAC-02), wrap them onto multiple short rows so the
@@ -4850,16 +5516,26 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       // real close logic runs (removes .open / adds .hidden / clears state) — no
       // sticky inline display:none that would break the next open. Fall back to
       // adding .hidden only if the modal has no close affordance.
+      // The platform's dedicated close controls (2026-10-12: .btn-close-sheet, .modal-close-btn and
+      // .fb-drawer-close carry longer labels such as "Close this editor without saving", so the exact
+      // "Close" label missed them). Never a "Close…" PREFIX: "Close the loop: … add it to your plant's
+      // inventory" is an action, and Back must not press it.
       var closer = null;
-      try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close'); }
+      try { closer = modalEl.querySelector('[data-wh-close],[aria-label="Close" i],.modal-close,.sheet-close,.btn-close-sheet,.modal-close-btn,.fb-drawer-close'); }
       catch (_) { /* empty-catch-allow: querySelector case-flag unsupported */ }
       if (closer) closer.click();
       // No close affordance (e.g. a sheet whose content — and its Close button —
       // is injected on open, opened here while empty): close by the overlay's OWN
       // open-state class so it can't get stuck open. .sheet-overlay opens via
       // `.open`; some modals via `.active`/`.show`; display-toggle modals via
-      // `.hidden`. Strip the open-state classes AND add .hidden — universal close.
-      else { modalEl.classList.remove('open', 'active', 'show'); modalEl.classList.add('hidden'); }
+      // `.hidden`. Strip the open-state classes; add .hidden ONLY if that did not
+      // close it (2026-10-12: a class-toggled .sheet stamped .hidden never showed
+      // again on its next open), and as a last resort hide it inline.
+      else {
+        modalEl.classList.remove('open', 'active', 'show');
+        if (isOpen()) modalEl.classList.add('hidden');
+        if (isOpen()) modalEl.style.display = 'none';
+      }
     }
     function onKey(e) {
       if (e.key === 'Escape') {
@@ -4890,8 +5566,14 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
         window.__whModalBackStack = window.__whModalBackStack || [];
         if (!window.__whModalBackWired) {
           window.__whModalBackWired = true;
+          // entries owed by modals that opened while a give-back was landing (see below)
+          window.__whModalBackFlush = function () {
+            var owed = window.__whModalBackOwed | 0;
+            window.__whModalBackOwed = 0;
+            while (owed-- > 0) { try { history.pushState({ whModalBack: true }, ''); } catch (_) { /* empty-catch-allow */ } }
+          };
           window.addEventListener('popstate', function () {
-            if (window.__whModalBackSuppress) { window.__whModalBackSuppress = false; return; }
+            if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a give-back, not a person's Back
             var stk = window.__whModalBackStack;
             if (stk && stk.length) {
               var top = stk.pop();
@@ -4899,7 +5581,13 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
             }
           });
         }
-        history.pushState({ whModalBack: true }, '');
+        // ★A MODAL THAT OPENS AS ANOTHER CLOSES TAKES OVER ITS ENTRY (2026-10-12, W4791: lesson -> exam,
+        // exam -> result, result -> lesson). The closing modal's give-back is deferred a task (deactivate), so
+        // an open in the same turn simply keeps the entry - no back, no push, nothing for Chrome to reorder.
+        // An open while a give-back is still landing pushes once it has landed (whBookkeepingTraversal).
+        if ((window.__whModalBackPending | 0) > 0) window.__whModalBackPending--;
+        else if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) window.__whModalBackOwed = (window.__whModalBackOwed | 0) + 1;
+        else history.pushState({ whModalBack: true }, '');
         window.__whModalBackStack.push({ el: modalEl, close: closeViaOwnPath });
       } catch (_) { /* empty-catch-allow: history unavailable → behavior degrades to pre-contract */ }
       // Respect a page that already autofocused something inside the modal
@@ -4914,15 +5602,28 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     function deactivate() {
       if (!keyBound) return;
       keyBound = false;
-      // T42 back-contract bookkeeping: if THIS modal's history entry is still on top
-      // (it closed via X / backdrop / save, not via Back), consume the entry with a
-      // suppressed back so the next hardware-Back exits the page, not a ghost state.
+      // T42 back-contract bookkeeping: if THIS modal still holds an entry (it closed via
+      // X / backdrop / save, not via Back), give the entry back so the next hardware-Back
+      // exits the page, not a ghost state. Entries are interchangeable, so a modal that
+      // closes from under another gives one back too. The give-back waits a task: a modal
+      // opening in the same turn takes the entry over instead (activate, above).
       try {
-        var stk = window.__whModalBackStack;
-        if (stk && stk.length && stk[stk.length - 1].el === modalEl) {
-          stk.pop();
-          window.__whModalBackSuppress = true;
-          history.back();
+        var stk = window.__whModalBackStack, at = -1;
+        if (stk) { for (var k = stk.length - 1; k >= 0; k--) { if (stk[k].el === modalEl) { at = k; break; } } }
+        if (at >= 0) {
+          stk.splice(at, 1);
+          if ((window.__whModalBackOwed | 0) > 0) window.__whModalBackOwed--;   // its entry was never pushed
+          else {
+            window.__whModalBackPending = (window.__whModalBackPending | 0) + 1;
+            if (!window.__whModalBackTimer) {
+              window.__whModalBackTimer = setTimeout(function () {
+                window.__whModalBackTimer = 0;
+                var n = window.__whModalBackPending | 0;
+                window.__whModalBackPending = 0;
+                if (n > 0 && window.whBookkeepingBack) window.whBookkeepingBack(n);
+              }, 0);
+            }
+          }
         }
       } catch (_) { /* empty-catch-allow: history unavailable */ }
       try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow */ }
@@ -4944,13 +5645,52 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   // and watches for overlays injected later. Idempotent — whModalA11y guards with
   // __whModalA11y, and only arms the trap when the overlay is actually open. This is
   // the Arc-U (WCAG 2.1.2 No-Keyboard-Trap-escape / 2.4.3 Focus-Order) shared lever.
+  //
+  // ★A SCRIM IS NOT A DIALOG (2026-10-12, W4791 follow-through; recorded on marketplace-seller 2026-09-18 as
+  // "that module's row"). marketplace and marketplace-seller draw a sheet as TWO siblings: an EMPTY
+  // .sheet-overlay#overlay-<name> (the dimmed backdrop) and the .sheet#sheet-<name> holding the form. Wiring
+  // every .sheet-overlay made the empty backdrop the dialog: a screen reader entering it found nothing, and it
+  // took its own Back entry - measured on marketplace: one Back closed only the backdrop, the fallback close
+  // stamped it .hidden for good (every later open had no backdrop), and the sheet stayed open. An empty overlay
+  // whose content lives in a sibling .sheet is now marked as that sheet's scrim (__whScrim): it loses the
+  // dialog role, and the SHEET is wired instead - one dialog, one Back entry, closed through its own control.
+  function whScrimPartner(el) {
+    if (!el || el.children.length) return null;
+    var id = el.id || '';
+    var sheet = id.indexOf('overlay-') === 0 ? document.getElementById('sheet-' + id.slice(8)) : null;
+    if (!sheet) { var nx = el.nextElementSibling; if (nx && nx.classList && nx.classList.contains('sheet')) sheet = nx; }
+    return sheet;
+  }
+  function whWireOverlay(el) {
+    if (!el || el.__whScrim || el.__whModalA11y) return;
+    var sheet = whScrimPartner(el);
+    if (sheet) {
+      el.__whScrim = true;
+      var lbl = el.getAttribute('aria-labelledby');
+      if (lbl && !sheet.getAttribute('aria-labelledby') && !sheet.getAttribute('aria-label')) sheet.setAttribute('aria-labelledby', lbl);
+      el.removeAttribute('role'); el.removeAttribute('aria-modal'); el.removeAttribute('aria-labelledby');
+      try { window.whModalA11y(sheet); } catch (_) { /* empty-catch-allow */ }
+      // The scrim follows its sheet closed, whoever closed the sheet: a backdrop left open over nothing is
+      // the orphan prove_back_nav measured on marketplace-seller (#overlay-edit) once the sheet owned Back.
+      // Only on the sheet's open -> closed edge, so no other class change on a closed sheet touches the scrim.
+      try {
+        var wasOpen = sheet.classList.contains('open');
+        new MutationObserver(function () {
+          var nowOpen = sheet.classList.contains('open');
+          if (wasOpen && !nowOpen && el.classList.contains('open')) el.classList.remove('open');
+          wasOpen = nowOpen;
+        }).observe(sheet, { attributes: true, attributeFilter: ['class'] });
+      } catch (_) { /* empty-catch-allow: MutationObserver unavailable - the page's own close still runs */ }
+      return;
+    }
+    try { window.whModalA11y(el); } catch (_) { /* empty-catch-allow */ }
+  }
+  window.whIsScrim = function (el) { return !!(el && el.__whScrim); };
   function whSheetA11y(root) {
     if (typeof document === 'undefined' || !window.whModalA11y) return;
     root = root || document;
     var els = root.querySelectorAll('.sheet-overlay, .modal-overlay');
-    Array.prototype.forEach.call(els, function (el) {
-      try { window.whModalA11y(el); } catch (_) { /* empty-catch-allow */ }
-    });
+    Array.prototype.forEach.call(els, whWireOverlay);
   }
   window.whSheetA11y = whSheetA11y;
 
@@ -4984,9 +5724,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
             for (var j = 0; j < added.length; j++) {
               var n = added[j];
               if (!n || n.nodeType !== 1) continue;
-              if (n.matches && n.matches('.sheet-overlay, .modal-overlay')) {
-                try { window.whModalA11y(n); } catch (_) { /* empty-catch-allow */ }
-              }
+              if (n.matches && n.matches('.sheet-overlay, .modal-overlay')) whWireOverlay(n);
               if (n.querySelectorAll) whSheetA11y(n);
             }
           }
@@ -5016,15 +5754,29 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   //
   // It only ever REMOVES state, so it cannot close a sheet a person just opened: both events fire on a
   // history move or a bfcache restore, never during normal interaction.
+  //
+  // ★"NEVER DURING NORMAL INTERACTION" WAS FALSE (2026-10-12, W4791). A modal closed by its X gives its
+  // history entry back, and that traversal fires popstate in the middle of an ordinary click - so this
+  // listener closed the exam skillmatrix had just opened in the same click. On popstate it now (1) ignores
+  // a give-back (whIsBookkeepingBack), and (2) runs a task later and leaves alone any overlay whModalA11y
+  // owns: Back closes ONE of those, the top one, through its own close path, and stripping the rest here
+  // would close every layer at once and make the closed ones give back entries the person never pressed.
+  // The lock is released only when nothing is left open. A bfcache restore still releases everything.
   if (typeof window !== 'undefined' && typeof document !== 'undefined' && !window.__whSheetRelease) {
-    window.__whSheetRelease = function () {
-      var open = document.querySelectorAll('.sheet.open, .sheet-overlay.open, .modal-overlay.open, [id^="overlay-"].open, [id^="sheet-"].open');
-      Array.prototype.forEach.call(open, function (el) { el.classList.remove('open'); });
+    var SHEET_OPEN = '.sheet.open, .sheet-overlay.open, .modal-overlay.open, [id^="overlay-"].open, [id^="sheet-"].open';
+    window.__whSheetRelease = function (opts) {
+      var skipOwned = !!(opts && opts.skipOwned);
+      var open = document.querySelectorAll(SHEET_OPEN);
+      Array.prototype.forEach.call(open, function (el) { if (!(skipOwned && (el.__whModalA11y || el.__whScrim))) el.classList.remove('open'); });
       // Clear the inline lock only -- a page whose stylesheet legitimately sets overflow keeps it.
+      if (document.querySelector(SHEET_OPEN)) return;
       if (document.body && document.body.style.overflow === 'hidden') document.body.style.overflow = '';
     };
     window.addEventListener('pageshow', function (e) { if (e.persisted) window.__whSheetRelease(); });
-    window.addEventListener('popstate', function () { window.__whSheetRelease(); });
+    window.addEventListener('popstate', function () {
+      if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a give-back, not a person's Back
+      setTimeout(function () { window.__whSheetRelease({ skipOwned: true }); }, 0);
+    });
   }
 })();
 
@@ -5089,7 +5841,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       '<div style="background:var(--wh-navy, #162032);border:1px solid rgba(255,255,255,0.1);border-radius:14px;' +
         'padding:20px 22px;max-width:440px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.5);">' +
         '<p id="' + escHtml(titleId) + '" style="font-size:0.95rem;font-weight:600;color:var(--wh-cloud, #F4F6FA);' +
-          'margin:0 0 14px;line-height:1.45;">' + escHtml(message) + '</p>' +
+          'margin:0 0 14px;line-height:1.45;overflow-wrap:anywhere;">' + escHtml(message) + '</p>' +
         // VISIBLE label, not aria-label alone (live journey walk 2026-07-24, supervisor approval
         // chain). The reject-asset prompt rendered a bare 394x44 box: a screen reader announced
         // "Reason (helps the submitter fix it)", but a SIGHTED supervisor saw an unexplained
@@ -5114,10 +5866,10 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
           : ''
         ) +
         '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
-          '<button type="button" data-wh-modal-cancel ' +
+          (cancelLabel ? '<button type="button" data-wh-modal-cancel ' +
             'style="background:transparent;color:rgba(255,255,255,0.83);border:1px solid rgba(255,255,255,0.12);' +
             'border-radius:8px;padding:9px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;' +
-            'min-height:44px;font-family:inherit;">' + escHtml(cancelLabel) + '</button>' +
+            'min-height:44px;font-family:inherit;">' + escHtml(cancelLabel) + '</button>' : '') +
           '<button type="button" data-wh-modal-ok ' +
             'style="background:var(--wh-orange, #F7A21B);color:var(--wh-navy, #162032);border:none;border-radius:8px;padding:9px 16px;' +
             'font-size:0.85rem;font-weight:700;cursor:pointer;min-height:44px;font-family:inherit;">' +
@@ -5154,18 +5906,26 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     }
     document.addEventListener('keydown', onKey, true);
 
-    cancelEl.addEventListener('click', () => dispose(withInput ? null : false));
+    if (cancelEl) cancelEl.addEventListener('click', () => dispose(withInput ? null : false));
     okEl.addEventListener('click',     () => dispose(withInput ? (inputEl.value || '') : true));
     overlay.addEventListener('click', (e) => { if (e.target === overlay) dispose(withInput ? null : false); });
   }
 
+  // ★A NOTICE OFFERED A CANCEL THAT CANCELLED NOTHING (2026-10-12, UFAI edge walk W4238). Seven callers show a
+  // notice, not a question - "Password updated", "Temporary password for <name>", the export result - and say so
+  // with cancelLabel null or ''. This read `opts.cancelLabel || 'Cancel'`, so every one of them still rendered
+  // [Cancel] [Done]: after a password reset that had already happened, "Cancel" reads as an undo that does not exist.
+  // An explicit null or '' now means one button; Escape and the backdrop still dismiss it. Omitting the option keeps
+  // the default 'Cancel', so every question keeps its way out.
   window.whConfirm = function whConfirm(message, opts) {
     opts = opts || {};
+    const noCancel = Object.prototype.hasOwnProperty.call(opts, 'cancelLabel')
+      && (opts.cancelLabel === null || opts.cancelLabel === '');
     return new Promise((resolve) => {
       _mount({
         message,
         okLabel:     opts.okLabel || 'OK',
-        cancelLabel: opts.cancelLabel || 'Cancel',
+        cancelLabel: noCancel ? '' : (opts.cancelLabel || 'Cancel'),
         withInput:   false,
         onResolve:   resolve,
       });
@@ -5288,7 +6048,31 @@ async function restoreIdentityFromSession(db) {
   // current one — a stale identity that role-gates (e.g. the marketplace admin link) then read as the
   // wrong user. The SESSION is authoritative: reconcile the cache against it every load.
   try {
-    const { data: { session } } = await db.auth.getSession();
+    const { data: _sdata, error: _sessErr } = await db.auth.getSession();
+    const session = _sdata && _sdata.session;
+    /* ★"SIGNED OUT" AND "COULD NOT TELL" WERE THE SAME BRANCH, SO AN OUTAGE EJECTED A SIGNED-IN PERSON
+       AND DELETED THEIR IDENTITY ON THE WAY OUT (2026-10-06, found by walking LXP204 with PostgREST
+       stopped). getSession() refreshes an expired token, and when that refresh cannot reach the service
+       it yields no session - which this branch read as a sign-out. Two things then happened, in order:
+       the cached worker name was REMOVED, and '' was returned, so every page gating on identity sent the
+       person to the sign-in wall. Measured on audit-log.html: redirected to index.html?signin=1 while
+       `sb-127-auth-token` was still sitting in localStorage - the device plainly HAD a session - and
+       wh_last_worker had been wiped, so the damage outlived the outage that caused it.
+       The reconciliation this function does is right and stays (a prior user's cached name must never
+       stand in - shared devices are real). What was missing is the THIRD state: signed in, signed out,
+       and NO ANSWER. A stored sb-*-auth-token is the discriminator, because supabase-js removes that key
+       on an explicit signOut: its presence beside a null session means "could not verify", not "not
+       signed in". In that state the cache is KEPT and returned as a best-effort label, which is safe -
+       every read is RLS-scoped by the JWT, not by this string, so a stale label cannot unlock data; a
+       genuinely dead session simply 401s and the page says "your session expired" with a way back in.
+       That is strictly better than ejecting someone whose only problem was that a server was down. */
+    var _hasStoredToken = false;
+    try {
+      for (var _k = 0; _k < localStorage.length; _k++) {
+        if (/^sb-.*-auth-token$/.test(localStorage.key(_k) || '')) { _hasStoredToken = true; break; }
+      }
+    } catch (_) { /* empty-catch-allow: storage blocked (private mode) - fall through to the old behaviour */ }
+    if (_sessErr || (!session && _hasStoredToken)) return cached;
     // Signed OUT: any lingering cache belongs to a prior user — clear it so nothing reads a stale identity.
     if (!session) {
       // Signed OUT: drop a prior user's cached name so nothing downstream role-gates on a stale identity.
@@ -5556,10 +6340,21 @@ function renderWorkerAvatar(workerName, topLevel, size) {
      down for small sizes and the border never did. Proportional, floored at 1px so the tier colour
      still reads at any size. */
   const bw = Math.max(1, Math.min(4, Math.round(sz / 11)));
-  return '<div class="wh-avatar wh-tier-' + tier.id + '" '
+  /* ★A SCREEN READER HEARD "BG 60" (2026-10-06, community x assistive-tech, layer D). The avatar's glyphs are
+     two initials and a level number; its MEANING - whose avatar, which tier, which level - lived only in
+     title="Bryan Garcia - Gold Lv.60", which touch never shows and screen readers treat as an optional
+     description. Measured in community's feed: each post's spoken text began "BG | 60 | Bryan Garcia",
+     where "BG" repeats the name in a form nobody says aloud and "60" is a number with no unit. So the
+     avatar is now an image with a name: role="img" + an aria-label carrying name, tier and level, and the
+     glyphs inside go aria-hidden. It is named in full rather than trimmed to the tier because the avatar
+     is not always beside a printed name, and a picture of a person should say who it is wherever it lands.
+     "level" is spelled out because "Lv." is read letter by letter. The title stays for mouse hover. */
+  const _tA = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
+  const _avName = escHtml(workerName) + ' - ' + tier.label + ' ' + _tA('level', 'antas') + ' ' + (topLevel || 0);
+  return '<div class="wh-avatar wh-tier-' + tier.id + '" role="img" aria-label="' + _avName + '" '
     + 'style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + fs + ';border-width:' + bw + 'px;--tier-clr:' + tier.color + ';" '
     + 'title="' + escHtml(workerName) + ' - ' + tier.label + ' Lv.' + (topLevel || 0) + '">'
-    + init + badge + '</div>';
+    + '<span aria-hidden="true">' + init + '</span>' + (badge ? badge.replace('<span class="wh-avatar-lvl">', '<span class="wh-avatar-lvl" aria-hidden="true">') : '') + '</div>';
 }
 
 // Batch-load highest achievement level per worker.

@@ -6,8 +6,6 @@ Philippine plant floor
 
 Source: https://workhiveph.com/learn/
 
-WorkHive Learn
-
 Static · the Learn library index, rendered as of this page load · articles link to their own sources
 
 C5: /70 sat at Lc 64/75 at 18px (2026-09-05) 
@@ -250,4 +248,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: ad49d78768cb54ad -->
+<!-- md-twin source-sha: f90c86df4578f1c9 -->

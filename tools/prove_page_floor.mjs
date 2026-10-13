@@ -30,7 +30,7 @@
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const read = (f) => { try { return readFileSync(f, 'utf8'); } catch { return ''; } };
@@ -57,7 +57,7 @@ for (const [page, rows] of Object.entries(byPage)) {
 
   // one signed-in walk at phone width, with CLS observed from before load
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.addInitScript(() => { window.__cls = 0; try { new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true }); } catch (e) { void e; } }).catch(() => {});
   await p.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(() => {});

@@ -54,7 +54,21 @@ def rows() -> list[dict]:
     # prover could never look at it again - so the twenty rows already banked on the file-only reading were
     # invisible to the very check that could tell whether their cap is being exceeded TODAY.
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
-    return [t for t in reg["trajectories"] if MARK in (t.get("title") or "")]
+    # ...but a DESCOPED row is not part of the claim at all: its subject is a non-production page (architecture,
+    # symbol-gallery, offline-fallback, validator-catalog) that no person is asked about (2026-10-08)
+    return [t for t in reg["trajectories"] if MARK in (t.get("title") or "") and t.get("status") != "descoped"]
+
+
+def page_of(t: dict) -> str:
+    """The page a row is ABOUT. ★FOR A LAYER-UX ROW THAT IS lx.page, NOT pages[0] (2026-10-08). A W3 row's route
+    starts on its subject, so pages[0] was right when this was written; an LXP/LXC row's `pages` is the ROUTE to its
+    subject - index -> hive -> ... -> the page - so pages[0] is index.html for almost all of them. Measured: 144 of
+    the 149 LXP-RL rows were banked "MEASURED on index.html" while their row named achievements, alert-hub, audit-log,
+    ... - one page's bound answering for thirty others. The row states its own subject; read that."""
+    lx_page = (t.get("lx") or {}).get("page")
+    if lx_page:
+        return lx_page
+    return (t.get("pages") or [""])[0]
 
 
 # ★"THE DAY THE DATA PASSES THE CAP" IS A DATE, AND IT MAY ALREADY HAVE PASSED. The file-only reading can
@@ -109,6 +123,65 @@ def capped_reads(src: str) -> list[tuple[str, int]]:
         if cap > 0 and not WINDOWED.search(chain):
             out.append((table, cap))
     return sorted(set(out))
+
+
+def windowed_reads(src: str) -> list[tuple[str, int, bool]]:
+    """The capped reads capped_reads() set aside because they are NARROWED - (table, cap, hive_scoped).
+
+    ★A WHOLE-TABLE COUNT CANNOT SAY A WINDOWED CAP IS EXCEEDED, BUT IT CAN SAY IT NEVER WILL BE (2026-10-08).
+    The note above is right that judging a 7-day cap against a whole-table count manufactures findings. The
+    converse is sound, though: a filter only ever NARROWS, so the rows a windowed read can return are at most the
+    rows the same table holds for that hive (a hive-scoped read) or at all (any other read). When even that upper
+    bound sits far under the cap, the cap cannot be hiding anything from anybody - the read is insurance, measured.
+    Without this, every person-scoped or period-scoped read on 28 LX rows' pages read "no table+cap could be
+    resolved", which is the reader's blind spot reported as a fact about the page."""
+    out = []
+    for m in CAP_CALL.finditer(COMMENT.sub(" ", src)):
+        table, chain, cap = m.group(1), m.group(2), int(m.group(3))
+        if cap > 1 and WINDOWED.search(chain):
+            out.append((table, cap, bool(re.search(r"\.eq\(\s*['\"`]hive_id['\"`]", chain))))
+    return sorted(set(out))
+
+
+_whole: dict = {}
+
+
+def whole_table(table: str) -> int | None:
+    """Every row the table holds - the upper bound of ANY read of it, however it is filtered."""
+    if table in _whole:
+        return _whole[table]
+    val = None
+    try:
+        out = subprocess.run(["docker", "exec", "-i", "supabase_db_workhive", "psql", "-U", "postgres", "-d",
+                              "postgres", "-tA", "-c", f"select count(*) from {table}"],
+                             capture_output=True, text=True, timeout=30, encoding="utf-8", errors="replace")
+        txt = (out.stdout or "").strip()
+        val = int(txt) if txt.isdigit() else None
+    except Exception:
+        val = None
+    _whole[table] = val
+    return val
+
+
+# a sentence that names a slice as a slice: "not the full list", "${n} of ${total}", "the first ${n} by name"
+TOLD_IN_STRING = re.compile(r"not the full list|\$\{[^}]{1,80}\}\s+of\s+\$\{[^}]{1,80}\}|"
+                            r"(?:the\s+)?first\s+\$\{[^}]{1,80}\}\s+(?:of|by)\b", re.I)
+_STRING = re.compile(r"`(?:[^`\\]|\\.)*`|'(?:[^'\\\n]|\\.)*'|\"(?:[^\"\\\n]|\\.)*\"", re.S)
+
+
+def string_literals(src: str) -> list[str]:
+    """The page's string and template literals - where a sentence a reader (or a model) is TOLD can live; an
+    identifier never matches inside one."""
+    return [m.group(0) for m in _STRING.finditer(COMMENT.sub(" ", src))]
+
+
+def knows_total(src: str, table: str) -> bool:
+    """The capped read of `table` asks for the exact total in the SAME request (count: 'exact'), so the page can
+    state the whole beside the slice instead of guessing it."""
+    for m in re.finditer(r"\.from\(\s*['\"`]" + re.escape(table) + r"['\"`]\s*\)(.{0,400}?)\.limit\(", src, re.S):
+        if re.search(r"count\s*:\s*['\"`]exact['\"`]", m.group(1)):
+            return True
+    return False
 
 
 def summed_caps(src: str) -> list[tuple[str, int, str]]:
@@ -208,13 +281,20 @@ def main() -> int:
 
     out, bad = [], 0
     for t in rows():
-        page = (t.get("pages") or [""])[0]
+        page = page_of(t)
         src = source_of(page)
         own_src = ""
         try:
             own_src = (ROOT / page).read_text(encoding="utf-8", errors="replace")
         except OSError:
             own_src = ""
+        # ★THE PAGE'S OWN SCRIPT IS THE PAGE (2026-10-08). "The bound must be this page's own" rightly keeps utils.js
+        # out - but engineering-design.html keeps every read in engineering-design.js, so its own `.limit(50)` was
+        # filed as "the cap belongs to a shared script". Only the same-basename sibling is folded in, the rule
+        # tools/bank_tenant_refusal_rows.page_source already applies; shared chrome stays its own subject.
+        _sib = ROOT / (page[:-5] + ".js") if page.endswith(".html") else None
+        if own_src and _sib is not None and _sib.exists() and f'src="{_sib.name}"' in own_src:
+            own_src += "\n" + _sib.read_text(encoding="utf-8", errors="replace")
         # ★A RETIRED PAGE CANNOT MISLEAD ANYBODY, BECAUSE NOBODY CAN READ IT. Four surfaces sit under a
         # fixed, full-screen "moved to Grafana" card; reporting that one of them shows a wrong total is a
         # finding against a page whose whole content is covered.
@@ -310,6 +390,29 @@ def main() -> int:
                 # ceiling is a display slice or insurance is exactly what cannot be told from here, and
                 # calling it a defect would be asserting the half I could not measure.
                 if not caps:
+                    # a narrowed read of ONE row is still one row - "a lone row cannot be mistaken for a total" holds
+                    # whatever filter picked it (shift-brain reads its latest plan: .eq(...).limit(1))
+                    singles = sorted({m.group(1) for m in CAP_CALL.finditer(COMMENT.sub(" ", own))
+                                      if int(m.group(3)) == 1})
+                    if singles and not windowed_reads(own):
+                        out.append({"id": t["id"], "page": page, "wave": t.get("wave"), "verdict": "ok",
+                                    "line": f'its only bounds are single-row reads ({", ".join(singles[:4])} limit 1) - '
+                                            'a lone row cannot be mistaken for a total, so there is nothing to say'})
+                        continue
+                    # the narrowed reads, judged by the only count that is sound for them: an UPPER bound
+                    wins = windowed_reads(own)
+                    annotated_w = INSURANCE.search(own)
+                    bounds = [(tb, cb, (biggest_hive(tb) if hs else whole_table(tb)), hs) for tb, cb, hs in wins]
+                    if wins and annotated_w and all(ub is not None and ub <= cb * 0.6 for _tb, cb, ub, _hs in bounds):
+                        out.append({"id": t["id"], "page": page, "wave": t.get("wave"), "verdict": "ok",
+                                    "line": (f'bounds its narrowed reads and its source classifies the ceilings as '
+                                             f'insurance ("{annotated_w.group(0)[:26]}"); measured against an UPPER '
+                                             f'bound no filter can exceed - ' + "; ".join(
+                                                 f'{tb} cap {cb}, at most {ub} for '
+                                                 f'{"any one hive" if hs else "the whole table"}'
+                                                 for tb, cb, ub, hs in bounds[:4])
+                                             + ' - so no reader can be shown a slice as a total')})
+                        continue
                     out.append({"id": t["id"], "page": page, "wave": t.get("wave"), "verdict": "n/a",
                                 "line": f'bounds at "{b.group(0)[:18]}" but no table+cap could be resolved from '
                                         'its own source, so whether that ceiling hides anything is unmeasured here'})
@@ -321,6 +424,23 @@ def main() -> int:
                            "line": f'bounds at "{b.group(0)[:18]}" and its source classifies that as an insurance '
                                    f'cap ("{annotated.group(0)[:26]}"); measured, no hive is within 60% of it, '
                                    'so there is no slice for a reader to mistake for a total'}
+                    out.append({"id": t["id"], "page": page, "wave": t.get("wave"), **rec})
+                    continue
+                # ★A SLICE HANDED TO A MODEL IS TOLD IN THE PROMPT, NOT IN THE MARKUP (2026-10-08). assistant.html
+                # caps v_pm_compliance_truth at 8 (31 in the largest hive) to keep its system prompt small, and the
+                # person never sees that list - the MODEL does, and was told "Assets with PM schedules: <8 names>"
+                # as if that were all of them. The say-so for that reader lives in the prompt string. It counts only
+                # when the page demonstrably KNOWS the total (the capped read itself asks count: 'exact') AND a
+                # string literal states the slice beside it - an identifier or a comment cannot satisfy it.
+                told = [tb for tb, cb in caps if (tb in [o.split(" holds ")[0] for o in over] or tb in near)
+                        and knows_total(own, tb)]
+                pending = {o.split(" holds ")[0] for o in over} | set(near)
+                if pending and set(told) >= pending and TOLD_IN_STRING.search(" ".join(string_literals(own))):
+                    m_t = TOLD_IN_STRING.search(" ".join(string_literals(own)))
+                    rec = {"verdict": "ok",
+                           "line": (f'bounds what it loads; the capped read(s) {", ".join(sorted(told))} ask for the '
+                                    f'exact total in the same request and the page states the slice beside it '
+                                    f'("{m_t.group(0)[:48]}") - {"; ".join(over) or "near the cap"}')}
                     out.append({"id": t["id"], "page": page, "wave": t.get("wave"), **rec})
                     continue
                 rec = ({"verdict": "BAD",
@@ -350,7 +470,7 @@ def main() -> int:
     # where the largest any single source has ever paid is 4 against a cap of 20.
     seen_sums: list[str] = []
     for t in rows():
-        page = (t.get("pages") or [""])[0]
+        page = page_of(t)
         if not page:
             continue
         try:

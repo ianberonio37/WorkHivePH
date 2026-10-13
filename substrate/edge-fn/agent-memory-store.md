@@ -2,13 +2,13 @@
 name: edge-fn-agent-memory-store
 type: edge-fn
 source: file:supabase/functions/agent-memory-store/index.ts
-source_sha: 772b9d842e826f5f
+source_sha: 6a27f590a3e9bf88
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## edge-fn · `agent-memory-store` (supabase/functions/agent-memory-store)
 
-Auth gate: **no per-user auth idiom; appears service-role/batch (by design) — confirm the CALLER checks membership**
+Auth gate: **auth idiom detected in body (verify it gates the hive_id it uses)**
 
 Tables touched: (none)
 RPCs called: (none)

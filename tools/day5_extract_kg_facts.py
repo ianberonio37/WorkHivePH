@@ -19,7 +19,7 @@ Schema constraints enforced:
   Unique key: (subject_ref, predicate, object_ref, source_ref) -- idempotent
 
 Why the chain (not just Groq): pinning to one Groq model hits the per-model
-TPM ceiling and stalls. The chain rolls Groq -> Cerebras -> OpenRouter
+TPM ceiling and stalls. The chain rolls Groq -> Gemini -> Mistral -> OpenRouter
 automatically on 429.
 
 autocommit=True: each INSERT is its own transaction, so one bad row can't
@@ -120,7 +120,7 @@ def extract_triples(chunk_text: str, standard_code: str) -> tuple[list[dict], st
 def main() -> int:
     print("=" * 72)
     print("L5 EXTRACTOR -> platform_knowledge_graph_facts (hive-agnostic)")
-    print("Provider chain: Groq -> Cerebras -> OpenRouter (tools/lib/ai_chain.py)")
+    print("Provider chain: Groq -> Gemini -> Mistral -> OpenRouter (tools/lib/ai_chain.py)")
     print("=" * 72)
 
     conn = psycopg2.connect(host="127.0.0.1", port=54322,

@@ -154,7 +154,13 @@
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
   <p data-i="p_compareyourhivewithanonymous_8e2f">Compare your hive with anonymous plants in your segment. Benchmarks unlock at 5+ hives in a segment and 30 days of your own history.</p>
 </details>
-<p class="wh-source-chip" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<!-- LXP-D x assistive-tech (2026-09-30): role=status, so this page's provenance is a findable status
+     region rather than a bare <p>. The page hand-writes the chip (0 renderSourceChip calls) and copied
+     the class and the inline styles without the semantics that renderSourceChip() attaches to every chip
+     it emits. aria-live is included to match that contract exactly and the ten other static copies on
+     the platform; this particular sentence is not rewritten by JS, so the live region is inert here
+     rather than load-bearing - it costs nothing and keeps one rule for all fourteen chips. -->
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -193,6 +199,13 @@
     <div class="action-card">
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="ph-action-text">Computing recommendation...</div>
+      <!-- ★"UNTIL SOMEONE GENERATES A NEW ONE" - AND NOTHING TO PRESS (2026-10-12, UFAI edge walk W4589). Nothing
+           regenerates this report on a schedule (T66), and the only control that ran intelligence-report lived in the
+           no-report state, which disappears the moment one report exists. So the first report was the last: once hives
+           opted in, nobody could refresh it, while this card said it "will stay this old until someone generates a new
+           one". The control that sentence names, on the report itself. -->
+      <button type="button" id="ph-regenerate-btn" class="btn-gold" onclick="generateReport(this)"
+              style="margin-top:10px;padding:8px 16px;min-height:44px;">Generate a fresh report</button>
     </div>
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details" data-i="showdetails">Show details</button>
     <div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer"
@@ -323,11 +336,28 @@
       // to report ON — that is a permission boundary, not an empty report. Say "join or create a
       // hive" so it is never mistaken for "your hive has no PH Intelligence data yet". Static
       // markup, no interpolated user data (XSS-safe).
+      // ★THE GATE NAMED AN ACTION AND OFFERED NO WAY TO TAKE IT (W4 learn-cta walk, CGW41004, 2026-10-08): the guide's
+      // "Open PH Intelligence" brought a stranger here, and the page said "Join or create a hive" with nothing to press -
+      // its only controls were Home and Back. Its sister gates (analytics-report, project-manager, shift-brain) offer
+      // "Go to Hive". The way forward now sits inside the gate: signed out -> sign in / create a free account, both
+      // returning here; signed in without a hive -> Go to Hive. Static markup, no interpolated user data (XSS-safe).
       const main = document.querySelector('main') || document.body;
+      const _btn = 'display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius,12px);font-weight:700;text-decoration:none;';
+      const _primary = _btn + 'background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);';
+      const _secondary = _btn + 'background:rgba(var(--wh-orange-rgb,247,162,27),0.12);border:1px solid rgba(var(--wh-orange-rgb,247,162,27),0.45);color:var(--wh-orange-text,#FFC65C);';
+      const _ret = encodeURIComponent('ph-intelligence.html');
+      const _way = WORKER_NAME
+        ? '<a href="hive.html" style="' + _primary + '">Go to Hive</a>'
+        : '<a href="index.html?signin=1&return=' + _ret + '" style="' + _primary + '">Sign in</a>' +
+          '<a href="index.html?signup=1&return=' + _ret + '" style="' + _secondary + '">Create a free account</a>';
+      // The gate replaces the whole of <main>, the page's h1 included, so its title IS the page's heading now; as a bold
+      // <p> it left the page with no heading at all (critic batch A1/A2, 2026-10-13). Same size and weight as before.
+      // heading-allow: replaces <main>, so this h1 is the only one shown
       if (main) main.innerHTML =
-        '<div class="empty-state" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto">' +
-        '<p style="font-weight:700;margin-bottom:8px">Join or create a hive to see PH Intelligence</p>' +
-        '<p style="opacity:.75;line-height:1.5">PH Intelligence benchmarks your plant against anonymised peers. It is a team tool, so you need a hive first. This is not an empty report; there is no hive to report on yet.</p></div>';
+        '<div class="empty-state" data-wh-gate="no-hive" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto">' +
+        '<h1 style="font-size:1rem;font-weight:700;line-height:1.5;margin:0 0 8px">Join or create a hive to see PH Intelligence</h1>' +
+        '<p style="opacity:.75;line-height:1.5">PH Intelligence benchmarks your plant against anonymised peers. It is a team tool, so you need a hive first. This is not an empty report; there is no hive to report on yet.</p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">' + _way + '</div></div>';
       return true;
     }
     if (!window.checkMaturityGate || !window.renderMaturityHonestEmpty) return false;
@@ -349,10 +379,10 @@
       // report's own N>=5 rule where it belongs: as what happens AFTER the stair clears.
       window.renderMaturityHonestEmpty(main, gate, {
         pageName: 'PH Intelligence',
-        why: 'This page needs your hive at Stair 3, which is about PM discipline: preventive work done on '
-           + 'time, logbook entries filled in properly, and a supervisor signing off each week. Your '
-           + 'next step is below. Once you are at Stair 3, benchmarks appear as soon as five plants in '
-           + 'your segment have opted in - that part is on us, not on you.',
+        why: 'This page needs your hive at Stair 3, which is about PM discipline. That means PM work done '
+           + 'on time, complete logbook entries, and a supervisor sign-off each week. Your next step is '
+           + 'below. At Stair 3, benchmarks appear once five plants in your segment have opted in. That '
+           + 'part is on us, not on you.',
         alternateSuggestion: 'open the Analytics Engine and read MTBF, MTTR and OEE on your own data. It '
            + 'works at any stair, and it is the same maintenance picture without the peer comparison.',
         alternateActions: [{ label: 'Open Analytics Engine →', href: 'analytics.html' }],
@@ -389,13 +419,30 @@
       // E2 consistent states: a failed fetch surfaces a toast, distinct from the
       // no-report empty state handled below.
       console.warn('ph-intelligence load failed:', err.message || err);
-      if (typeof showToast === 'function') showToast('Couldn’t load PH Intelligence. Please retry.');
       error = err;
+    }
+
+    // ★A FAILED READ SHOWED "NO REPORT GENERATED YET" AND A "GENERATE NOW" BUTTON (2026-10-06, ph-intelligence x
+    // assistive-tech, PostgREST stopped). The comment above promised the failure was "distinct from the no-report
+    // empty state" - and then `error || !data` sent both to the same card, so the page told a reader no report
+    // existed and offered to generate one, beside a toast saying "Please retry" with nothing to press. A failed read
+    // now keeps the loading card's place as the shared error card with a real Retry; only a read that SUCCEEDED and
+    // found nothing shows the empty state.
+    const _tPh = (en, fil) => (typeof window._t === 'function') ? window._t(en, fil) : en;
+    if (error) {
+      const _msg = (navigator.onLine === false)
+        ? _tPh('You are offline, so the PH Intelligence report could not be read. It will load when your connection is back.',
+             'Offline ka, kaya hindi mabasa ang PH Intelligence report. Maglo-load ito kapag bumalik ang koneksyon mo.')
+        : _tPh('Couldn’t load the PH Intelligence report - WorkHive did not answer. This does not mean there is no report.',
+             'Hindi ma-load ang PH Intelligence report - hindi sumagot ang WorkHive. Hindi ibig sabihin na walang report.');
+      if (typeof whListError === 'function') { whListError(loading, _msg, () => { loadReport(); }); return; }
+      loading.textContent = _msg;
+      return;
     }
 
     loading.classList.add('hidden');
 
-    if (error || !data) {
+    if (!data) {
       const noRpt = document.getElementById('no-report-state');
       if (noRpt) noRpt.classList.remove('hidden');
       return;
@@ -500,6 +547,9 @@
     if (!badgeEl) return;
     const r  = data.report_json  || {};
     const n  = data.narrative    || {};
+    // LM-S (LM208, 2026-10-07): the narrative is model output stored by intelligence-report - only TEXT is shown;
+    // an object in a narrative field rendered as the literal "[object Object]" in three sections.
+    const nTxt = (v) => (typeof v === 'string' ? v.trim() : '');
     const periodLabel = data.period ? 'Report: ' + data.period : 'Latest Report';
 
     badgeEl.textContent = periodLabel;
@@ -516,10 +566,27 @@
       { n: (r.summary?.period_days || 90) + 'd', l: 'Period' },
     ].map(s => `<div class="stat-chip"><span class="sn">${s.n}</span><span class="sl">${s.l}</span></div>`).join('');
 
+    // ★THREE AI-WRITTEN PASSAGES AND NO WAY TO CALL ONE WRONG (LM-E walk, 2026-10-08). The executive summary, seasonal
+    // insight and recommendation below are the intelligence-report model's prose; a supervisor acts on the
+    // recommendation. Each card carries the shared "was this right?" row recording that card's exact words - three
+    // passages, three rows, so a wrong recommendation is not filed against a right summary. A reload re-renders.
+    const _plantsN = Number(data.hive_count) || 0;
+    const _trustGround = 'anonymised maintenance records from ' + _plantsN + ' contributing plant' + (_plantsN === 1 ? '' : 's')
+      + ' over the last ' + ((r.summary && r.summary.period_days) || 90) + ' days';
+    const _trustCard = (cardId, section, text) => {
+      const card = document.getElementById(cardId);
+      if (!card || !text || typeof whAiTrustRow !== 'function') return;
+      // trace-allow: the report shown is always the STORED ph_intelligence_reports row (Generate reloads the page and reads
+      // it back); that table keeps no trace id, so there is no id of the producing call to send (LM-E, 2026-10-08)
+      whAiTrustRow(card, { db, agent: 'intelligence-report', source: section, page: 'ph-intelligence', traceId: null,
+        question: 'PH Intelligence ' + section + (data.period ? ', ' + data.period : ''), answer: text, groundedOn: _trustGround });
+    };
+
     // Executive summary
-    if (n.executive_summary) {
-      document.getElementById('exec-summary-text').textContent = n.executive_summary;
+    if (nTxt(n.executive_summary)) {
+      document.getElementById('exec-summary-text').textContent = nTxt(n.executive_summary);
       document.getElementById('exec-summary-card').style.display = 'block';
+      _trustCard('exec-summary-card', 'executive summary', nTxt(n.executive_summary));
     }
 
     // MTBF chart
@@ -548,15 +615,17 @@
     }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No failure mode data yet.</p>';
 
     // Seasonal
-    if (n.seasonal_insight) {
-      document.getElementById('seasonal-text').textContent = n.seasonal_insight;
+    if (nTxt(n.seasonal_insight)) {
+      document.getElementById('seasonal-text').textContent = nTxt(n.seasonal_insight);
       document.getElementById('seasonal-card').style.display = 'block';
+      _trustCard('seasonal-card', 'seasonal insight', nTxt(n.seasonal_insight));
     }
 
     // Recommendation
-    if (n.recommendation) {
-      document.getElementById('recommendation-text').textContent = n.recommendation;
+    if (nTxt(n.recommendation)) {
+      document.getElementById('recommendation-text').textContent = nTxt(n.recommendation);
       document.getElementById('recommendation-card').style.display = 'block';
+      _trustCard('recommendation-card', 'recommendation', nTxt(n.recommendation));
     }
 
     // Your plant vs network (if logged in with hive)
@@ -600,13 +669,15 @@
     }).join('');
   }
 
-  async function generateReport() {
-    const btn = document.querySelector('#no-report-state .btn-gold');
-    if (!btn) return;
+  async function generateReport(btnEl) {
+    // the button that was pressed: the no-report state's "Generate Now" or the report's "Generate a fresh report"
+    const btn = btnEl || document.querySelector('#no-report-state .btn-gold');
+    if (!btn || btn.disabled) return;
+    const _label = btn.textContent;
     btn.textContent = 'Generating...'; btn.disabled = true;
     const { error } = await db.functions.invoke('intelligence-report', { body: {} });
     if (error) {
-      btn.textContent = 'Generate Now'; btn.disabled = false;
+      btn.textContent = _label; btn.disabled = false;
       // T39 (2026-08-26): error.message is supabase-js's placeholder, so pressing Generate Now
       // and failing said 'Generation failed: Edge Function returned a non-2xx status code' -
       // on the only control that produces this page's content. whFnError carries the reason.

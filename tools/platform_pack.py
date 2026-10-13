@@ -11,7 +11,7 @@ several long-form bodies came back at 50% of the asked word count. With
 multi-call each AI round-trip only has to produce ONE focused section, so
 it never has to choose what to truncate.
 
-Stays on the same free fallback chain (Groq -> Cerebras -> OpenRouter) via
+Stays on the same free fallback chain (Groq -> Gemini -> Mistral -> OpenRouter) via
 tools.video_idea_generator.ai_call. 8-12 AI calls per pack, ~30-90 sec total.
 
 Same public API as v2: generate_platform_pack() returns a dict including

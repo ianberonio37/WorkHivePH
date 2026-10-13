@@ -22,7 +22,7 @@
 //   node tools/prove_page_as_destination.mjs
 //   node tools/prove_page_as_destination.mjs --page status.html
 import { chromium } from 'playwright';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 
@@ -44,7 +44,7 @@ for (const [file, who] of (ONLY ? DESTINATIONS.filter((d) => d[0] === ONLY) : DE
   n++;
   // a fresh context per page: an arrival carries no history of the app
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-  await signIn(ctx);
+  await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(SETTLE_MS);

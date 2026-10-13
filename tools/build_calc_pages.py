@@ -56,7 +56,7 @@ if str(_HERE) not in sys.path:
 
 # The site shell, imported so the calculator pages render identically to /learn.
 # They shipped with NO css/header/footer/fonts (V3 §6) — never re-author this markup.
-from build_pillar_pages import HEAD_ASSETS, SITE_HEADER, STYLE, site_footer, PUB  # noqa: E402
+from build_pillar_pages import HEAD_ASSETS, SITE_HEADER, STYLE, TW_LINK_RAMP, site_footer, PUB  # noqa: E402
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -795,12 +795,23 @@ def _headline_rows(data: dict, r: dict) -> tuple[list, list]:
 def _answer_text(data: dict, r: dict, rows: list) -> str:
     std = r.get("standard") or data.get("standard", "")
     parts = ", ".join(f"{label} = {val}{(' ' + unit) if unit else ''}" for label, val, unit in rows)
-    tail = f" (per {std})" if std else ""
+    tail = f" (per {_std_prose(std)})" if std else ""
     return f"{data['blurb']} Example: for {data['example_desc']}, {parts}{tail}."
 
 
 # the letters whose NAME begins with a vowel sound - "an HVAC", "an OEE", "an RPM", but "a UPS", "a kVA"
 _VOWEL_LETTER_NAMES = set("AEFHILMNORSX")
+
+
+def _std_prose(std: str) -> str:
+    """A standards string as a reader meets it in a sentence (2026-10-12, the copy lens): the engine reports
+    "ASHRAE 62.1 | ASHRAE 90.1 | SMACNA", and pipes inside prose read as a data dump. "A, B and C"; one item stays
+    as it is; a trailing period is left for the sentence to supply."""
+    parts = [p.strip() for p in str(std or "").split("|") if p.strip()]
+    if not parts:
+        return ""
+    out = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " and " + parts[-1]
+    return out.rstrip(".")
 
 
 def _article(kw: str) -> str:
@@ -851,8 +862,10 @@ def _default_faqs(data: dict) -> list[tuple[str, str]]:
     kw, title = data["keyword"], data["title"]
     std = data.get("standard", "")
     return [
-        (f"What is {_article(kw)} {kw}?", f"The {title} is a free online tool that {_lede(data)} It shows the formula and a fully worked example so you can check the method, not just the number."),
-        (f"How is it calculated?", f"{data.get('formula', 'The result is computed from your inputs')} following {std or 'recognised engineering practice'}. The worked example on this page shows a real computation with real numbers."),
+        # the KEYWORD is a search string, not a sentence (2026-10-12): "What is an air handling unit sizing calculator
+        # CFM?" was the question on every page without hand-written FAQs. The title is what a person names.
+        (f"What is the {title}?", f"The {title} is a free online tool that {_lede(data)} It shows the formula and a fully worked example so you can check the method, not just the number."),
+        (f"How is it calculated?", f"{data.get('formula', 'The result is computed from your inputs')} following {_std_prose(std) or 'recognised engineering practice'}. The worked example on this page shows a real computation with real numbers."),
         ("Is the calculator free?", "Yes. WorkHive is free: this worked example is open to everyone, and the interactive calculator runs inside the free Engineering Design suite after a free sign-up (your work is saved to your account). WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants."),
     ]
 
@@ -907,7 +920,7 @@ def _steps(data: dict) -> list[str]:
     # lives inside Engineering Design. The steps now describe what the page actually offers.
     return [
         f"Read the worked example — it uses {data['example_desc']} and shows every number in the method.",
-        f"Follow the formula with your own figures: it returns {labels}, computed per {std.rstrip(chr(46))}.",
+        f"Follow the formula with your own figures: it returns {labels}, computed per {_std_prose(std)}.",
         f"To compute interactively, open the {data['title']} inside WorkHive's free Engineering Design suite (link below) — it runs the same method with your inputs.",
     ]
 
@@ -939,21 +952,29 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     rows, missing = _headline_rows(data, r)
     e = html.escape
     std = r.get("standard") or data.get("standard", "")
+    # ★ONE PAGE, ONE STANDARD (2026-10-12): the body printed the ENGINE's standard while the FAQ, the how-to and the
+    # JSON-LD read the hand-typed fallback, so one page named its standards two different ways. The resolved one
+    # now reaches every sentence (and the structured data, which must match the visible FAQ verbatim).
+    if std:
+        data = dict(data, standard=std)
     answer = _answer_text(data, r, rows)
     faqs = data.get("faqs") or _default_faqs(data)
     # a standard that already ends in a period must not get another (2026-09-16): three modules return
     # strings like "Shigley's MED 10th Ed." and "Rao Mechanical Vibrations 6th Ed.", and the template
     # appended its own, so six sentences across three public pages rendered "... 10th Ed.." Strip the
     # trailing one only - the internal periods of "ASME B106.1M" are part of the designation.
-    formula = (data.get("formula") or f"Computed from your inputs per {std.rstrip(chr(46))}.")
+    # the page has no inputs - it teaches the method with a worked example (2026-10-12): say what the calculator
+    # follows; the next sentence already says where the inputs live
+    formula = (data.get("formula") or f"The calculator follows {_std_prose(std)}.")
     # ★THE DEFAULTS ARE PART OF THE METHOD, SO THE METHOD SECTION NAMES THEM (2026-09-16). Every one
     # of these pages promises it "shows every number in the method", and a dozen of them lean on a
     # standard constant the worked example never states - the bolt page's 0.20 nut factor sets its
     # printed torque outright. The factors that were a design DECISION are named individually in the
     # example itself; this covers the standard-practice tail without turning that line into a
     # parameter dump, which would bury the ones worth singling out.
-    formula += (" Anything the worked example does not state uses this calculator's standard default;"
-                " the interactive version shows every input and lets you change it.")
+    # two sentences, not one joined by a semicolon (critic B3, 2026-10-13; served pages: fix_calc_method_defaults_split)
+    formula += (" Anything the worked example does not state uses this calculator's standard default."
+                " The interactive version shows every input and lets you change it.")
     table_rows = "\n".join(
         f"          <tr><td>{e(l)}</td><td>{e(v)}{(' ' + e(u)) if u else ''}</td></tr>" for l, v, u in rows)
     faq_html = "\n".join(
@@ -1019,6 +1040,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
      head deliberately: the language must be known before paint, so a Filipino reader is not shown English
      headings that then change under them. -->
 <script src="/wh-i18n-lite.js"></script>
+{TW_LINK_RAMP}
 </head>
 <body class="bg-navy-wh text-white antialiased">
 <!-- W46285 audit: all sixty published calculator pages carried a <main> landmark and NOT ONE a skip
@@ -1065,7 +1087,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         </tbody>
       </table>
       <!-- "live" was the untrue half: the engine is real, the timing was not. See the chip's note above. -->
-      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: {e(std)}.</small></p>
+      <p><small>Computed by WorkHive's calculation engine when this page was built; standard: {e(_std_prose(std))}.</small></p>
     </section>
 
     <section aria-labelledby="howto">
@@ -1081,8 +1103,23 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     </section>
 
     <section aria-labelledby="try">
+      <!-- ★WHAT THIS IS FOR A MAINTENANCE CREW, NOT JUST WHAT IT SAVES (CA layer, 2026-10-05). The CA walk
+           read all 57 generated calculator pages as "the words a Philippine maintenance crew uses" and every
+           one scored 1-3 against a floor of 4 - identically, which is what pointed at this generator rather
+           than at 57 pages. The old CTA said "saves your calculations, BOMs and scope-of-works to your
+           account", which is true and tells a technician nothing about their work.
+           ★EVERY CLAUSE BELOW WAS CHECKED AGAINST THE SCHEMA FIRST, and the version I drafted before checking
+           was FALSE: I was about to write "ties them to the asset, the PM schedule and the work order", and
+           `engineering_calcs` has no asset_id and no project_id at all - it carries hive_id, worker_name,
+           project_name (text), bom_data, sow_text. What IS true, and what it now says: the row is saved to
+           the HIVE, under that text project name, and `engineering_calcs_read` admits any ACTIVE member of
+           that hive - so "the next technician on that job reads the same numbers" is the actual behaviour.
+           Measured: 31 of 31 rows carry a project_name, 30 carry bom_data, 30 carry sow_text.
+           This is shared CHROME, not body copy, so repeating it across 57 pages is not the thin-content
+           duplication this generator's docstring warns about - the formula and the worked numbers stay
+           unique per page. -->
       <h2 id="try" data-i="calc_try">Run it on your own numbers</h2>
-      <p><a href="/engineering-design.html" class="cta">Open the interactive {e(data['title'])} in WorkHive</a> — free; a free sign-up saves your calculations, BOMs and scope-of-works to your account.</p>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive {e(data['title'])} in WorkHive</a>. Free to use. A free account saves the calculation, its bill of materials and its scope of works to your hive. Your team finds them under the project name it already uses. The next technician on that job reads the same numbers instead of re-deriving them.</p>
     </section>
 
     <section aria-labelledby="related">
@@ -1153,6 +1190,50 @@ def build(slugs: list[str]) -> int:
     return built
 
 
+# ★THE GENERATOR MUST RUN THE SWEEPS IT WOULD OTHERWISE REVERT (2026-10-05, the THIRD occurrence of this
+# class in this repo). A year of `fix_*.py` sweeps patch `tools/*/index.html`; these 57 pages are GENERATED,
+# so every rebuild silently undoes them. The same trap was paid for twice on build_pillar_pages.py - once
+# costing a WCAG AA breadcrumb failure that was live for ten days - and its recorded remedy is exactly this:
+# make the generator RUN the idempotent sweeps after it writes, so the output is correct BY CONSTRUCTION
+# rather than by someone remembering to re-run them. Each entry is idempotent and reports 0 changes on a
+# clean tree, so this is safe to run every build. A sweep that fails is REPORTED and does not fail the build,
+# because a half-swept page is still better than a reverted one - but it is printed loudly.
+# Audited against a measured baseline: all seven were green BEFORE the first rebuild, so anything they change
+# afterwards is precisely what the rebuild reverted.
+_POST_BUILD_SWEEPS = [
+    "fix_breadcrumb_contrast",      # WCAG AA on the breadcrumb; the one that was live-broken for ten days
+    "fix_calc_related_links",       # keeps each Related list matching the generator's own graph
+    "fix_cta_specificity",          # .prose-wh a out-specifies .cta-btn; raises the button to (0,2,1)
+    "fix_mono_stack_unify",         # the shipped mono stack recorded in DESIGN.md
+    "fix_public_pages_chrome",      # shared public chrome
+    "fix_type_floor_sweep",         # 12px type floor
+    # ★THE RUNNER MUST COVER EXACTLY WHAT THE GATE CHECKS. prove_calc_staging_not_stale asks four sweep tools
+    # what a staged page would reintroduce - type_floor, public_funnel_kicker_floor, callout_accent_border and
+    # mono_stack_unify. Two of those were missing here, so the generator could leave behind precisely the
+    # regressions the gate is built to catch. A sweep list that is narrower than its gate's list is the
+    # bind-audit error: the check and the fix must read the same roster.
+    "fix_public_funnel_kicker_floor",   # the 10.4px kicker, 60 copies of which the gate once found staged
+    "fix_callout_accent_border",        # 120 thick callout borders, same measurement
+]
+
+
+def _run_post_build_sweeps() -> None:
+    import subprocess
+    print("  post-build sweeps (the generator re-applies what a rebuild would revert):")
+    for name in _POST_BUILD_SWEEPS:
+        script = Path(__file__).resolve().parent / (name + ".py")
+        if not script.exists():
+            print(f"    MISSING {name}.py - sweep skipped; it cannot be re-applied by this build")
+            continue
+        try:
+            r = subprocess.run([sys.executable, str(script), "--apply"], capture_output=True, text=True,
+                               timeout=300, encoding="utf-8", errors="replace")
+            tail = [ln for ln in (r.stdout or "").splitlines() if ln.strip()]
+            print(f"    {'ok  ' if r.returncode == 0 else 'WARN'} {name:26} {(tail[-1] if tail else '')[:92]}")
+        except Exception as e:                                        # noqa: BLE001
+            print(f"    WARN {name:26} did not run: {str(e)[:80]}")
+
+
 def main() -> int:
     args = sys.argv[1:]
     if "--slug" in args:
@@ -1160,6 +1241,8 @@ def main() -> int:
     else:
         slugs = list(CALC_DATA.keys())
     build(slugs)
+    if "--no-sweeps" not in args:
+        _run_post_build_sweeps()
     return 0
 
 

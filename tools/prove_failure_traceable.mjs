@@ -19,7 +19,7 @@
 //   node tools/prove_failure_traceable.mjs --page hive.html
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
-import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -41,7 +41,7 @@ const QUOTABLE = /\b([0-9a-f]{8,}|[A-Z][A-Z0-9_]{3,}|\d{3}\b|\d{4}-\d{2}-\d{2}|\
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
-await signIn(ctx);
+await assertSignedIn(signIn(ctx));
 
 // what the observability tables held before any of this
 const before = {

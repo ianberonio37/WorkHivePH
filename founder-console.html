@@ -45,7 +45,7 @@
       gap:1rem; padding:2rem; background:var(--bg); text-align:center;
     }
     .gate[hidden] { display: none !important; }
-    .gate h2 { font-size: 1.2rem; font-weight:700; color:var(--gold); }
+    .gate h1, .gate h2 { font-size: 1.2rem; font-weight:700; color:var(--gold); }
     .gate p  { font-size:.85rem; color:var(--muted); max-width:380px; }
     /* U2 + U5 (deep UFAI probe, 2026-07-29): these two links carry class="btn" but NO rule
        existed for a bare .btn on this page, so they rendered as default-blue anchors - 1.88:1
@@ -738,10 +738,10 @@
      This overlay retires the page (redirect-first, REVERSIBLE — the original
      markup is preserved below intact, so the ~35 static validators that scan this
      file still pass). To un-retire: delete this <div id="wh-retired-overlay"> block. -->
-<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:var(--bg); color:var(--text); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:var(--bg); color:var(--text); display:none; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <p data-i="p_thefounderconsolehasmovedtog_da6c" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--gold);" role="note">The Founder Console has moved to Grafana</p><!-- was an <h1>: the page carried TWO visible h1s (this banner + the title), rubric A1/heading-order 2026-09-05 -->
+    <h1 data-i="p_thefounderconsolehasmovedtog_da6c" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--gold);">The Founder Console has moved to Grafana</h1><!-- was an <h1>: the page carried TWO visible h1s (this banner + the title), rubric A1/heading-order 2026-09-05 -->
     <p style="color:var(--text); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
       Every metric (platform health, usage, growth, AI cost, marketplace volumes, hive maturity,
       admin activity, companion eval, memento cache) is now a live Grafana panel, never stale.
@@ -776,14 +776,17 @@
   </div>
 
   <!-- Gate: not signed in or not admin -->
-  <div id="no-access-gate" class="gate" hidden>
-    <h2 data-i="p_founderconsole_d5d2">Founder Console</h2>
-    <p>This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via <code>marketplace_platform_admins</code>.</p>
+  <div id="no-access-gate" class="gate" data-wh-gate="no-access" hidden>
+    <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the console) -->
+    <h1 data-i="p_founderconsole_d5d2">Founder Console</h1>
+    <p>This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
     <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
   </div>
 
   <!-- Main console -->
-  <div id="console">
+  <!-- hidden until access is confirmed (2026-10-09): visible by default, it rendered the whole console UNDER the retired
+       overlay and under the no-access gate - covered for the eye, read out in full by a screen reader -->
+  <div id="console" hidden>
     <!-- Header -->
     <div class="hdr">
       <div class="hdr-left">
@@ -1192,11 +1195,11 @@
             </div>
             <div class="panel-body">
               <div class="fb-tabs" role="tablist" aria-label="Filter by status">
-                <button class="fb-tab active" type="button" data-status="new"        role="tab" aria-selected="true">New <span class="fb-tab-count" id="fb-count-new">0</span></button>
-                <button class="fb-tab"        type="button" data-status="triaged"    role="tab" aria-selected="false">Triaged <span class="fb-tab-count" id="fb-count-triaged">0</span></button>
-                <button class="fb-tab"        type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span class="fb-tab-count" id="fb-count-in_progress">0</span></button>
-                <button class="fb-tab"        type="button" data-status="resolved"   role="tab" aria-selected="false">Resolved <span class="fb-tab-count" id="fb-count-resolved">0</span></button>
-                <button class="fb-tab"        type="button" data-status="*"          role="tab" aria-selected="false">All <span class="fb-tab-count" id="fb-count-all">0</span></button>
+                <button class="fb-tab active" type="button" data-status="new"        role="tab" aria-selected="true">New <span class="fb-tab-count" id="fb-count-new">—</span></button>
+                <button class="fb-tab"        type="button" data-status="triaged"    role="tab" aria-selected="false">Triaged <span class="fb-tab-count" id="fb-count-triaged">—</span></button>
+                <button class="fb-tab"        type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span class="fb-tab-count" id="fb-count-in_progress">—</span></button>
+                <button class="fb-tab"        type="button" data-status="resolved"   role="tab" aria-selected="false">Resolved <span class="fb-tab-count" id="fb-count-resolved">—</span></button>
+                <button class="fb-tab"        type="button" data-status="*"          role="tab" aria-selected="false">All <span class="fb-tab-count" id="fb-count-all">—</span></button>
               </div>
               <div class="fb-filters">
                 <select class="fb-filter" id="fb-filter-kind" aria-label="Filter by kind" data-select-placeholder-allow="filter defaults to 'All kinds' (broadest match)">
@@ -1287,7 +1290,11 @@
     // ── Admin gate (Layer 2 finding 2026-05-17: must be enabled in prod) ──
     // Localhost bypass: founder always has access on their own dev machine.
     // Self-disables on any non-loopback host (workhiveph.com, Vercel previews).
-    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
+    // ★OPT-IN ON THE MACHINE TOO (2026-10-09): on loopback it opened the console to EVERY signed-in person, so local walks
+    // judged crew personas on a screen production never shows them. The founder sets it once on this machine:
+    //   localStorage.setItem('wh_local_founder', '1')   - seeded local admins (marketplace_platform_admins) need nothing.
+    const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname)
+      && (() => { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })();
     (async () => {
       /* W3-AR (2026-09-09): A RETIRED PAGE THAT STILL LOADS IS THE MOST EXPENSIVE PAGE ON THE PLATFORM,
          because nobody will ever see the cost. The retirement above is markup only - a fixed overlay at
@@ -1301,16 +1308,29 @@
          thing that replaced it. Stop before any of it: the overlay is the page's own declaration that it
          is retired, so it is the honest thing to test. Deleting the overlay to un-retire (the documented
          reversal) restores the load as well, because this guard reads the overlay rather than a flag. */
-      if (document.getElementById('wh-retired-overlay')) {
+      const _retiredOv = document.getElementById('wh-retired-overlay');
+      if (_retiredOv) {
         /* Keep the page VIEW while dropping the page's WORK. Someone arriving here is the signal that
            tells you the old link is still in circulation and whether the pointer to Grafana is doing its
            job; silencing it would retire the evidence along with the console. marketplace-admin.html
            logs its view outside its boot block and so keeps this by construction - this branch makes the
            two retired pages agree rather than leaving one quietly under-reporting. */
         logPageView(db, { console: 'founder', retired: true });
+        // ★A RETIRED ADMIN PAGE IS STILL AN ADMIN PAGE (2026-10-13, Ian: "it seems that founder/admins function button or
+        // functions can still be seen by non-admins?"). This branch returned BEFORE the gate, so the overlay - "Founder Ops
+        // dashboard", "Platform Actions", the list of every founder metric - was shown to anyone who opened the URL, on
+        // every host. It now starts hidden in the markup and opens only for a platform admin; anyone else gets the same
+        // no-access gate the live console gave. The console's work stays skipped either way.
+        const checkingR = document.getElementById('checking-gate');
+        if (checkingR) checkingR.hidden = false;
+        const okR = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
+        if (checkingR) checkingR.hidden = true;
+        if (okR) { _retiredOv.style.display = 'flex'; if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert(); }
+        else document.getElementById('no-access-gate').hidden = false;
         return;
       }
       const checking = document.getElementById('checking-gate');
+      checking.hidden = false;   // the console stays hidden (markup) until access is confirmed - say what is happening
       const ok = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
       if (!ok) {
         checking.hidden = true;
@@ -1484,7 +1504,7 @@
     async function fetchAiCostToday(/*signal*/) {
       // ai_cost_log: sum cost_usd today (table exists per memory entry / migration 20260511000005)
       try {
-        const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+        const startOfDay = whManilaMidnight();   // the platform's day, not the device's (device-clock-day ratchet)
         const { data, error } = await db.from('ai_cost_log')
           .select('cost_usd')
           .gte('created_at', startOfDay.toISOString())
@@ -1859,7 +1879,7 @@
         if (error) return { _error: error.message };
         const byDay = {}; let nEvents = 0;
         for (const r of (data || [])) { byDay[String(r.day).slice(0, 10)] = Number(r.dau) || 0; nEvents += Number(r.events) || 0; }
-        const manilaKey = (d) => new Date(d.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10);   // Asia/Manila = UTC+8, no DST
+        const manilaKey = (d) => new Date(d.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10);   // Asia/Manila = UTC+8, no DST. device-clock-allow: shifted +8h
         const days = [];
         for (let k = 13; k >= 0; k--) { const key = manilaKey(new Date(Date.now() - k * 86400000)); days.push({ date: key, count: byDay[key] || 0 }); }
         const todayCount = byDay[manilaKey(new Date())] || 0;
@@ -2223,7 +2243,7 @@
             (v.segment ? ' · ' + e(v.segment) : ' · both segments') +
             '<div style="font-size: 0.75rem;opacity:.8;font-variant-numeric:tabular-nums;">' + e(cap) +
             ' · reimbursed ₱' + cost.toLocaleString() +
-            (v.expires_at ? ' · expires ' + e(new Date(v.expires_at).toLocaleDateString()) : '') + '</div></div>' +
+            (v.expires_at ? ' · expires ' + e(new Date(v.expires_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' })) : '') + '</div></div>' +
             '<button type="button" onclick="svcToggleVoucher(\'' + e(v.id) + '\', ' + (v.active ? 'false' : 'true') + ')" ' +
             'style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;">' +
             (v.active ? 'Pause' : 'Resume') + '</button></div>';
@@ -2320,7 +2340,7 @@
             .select('id,title,section,category,price,seller_name,created_at')
             .eq('status','draft').order('created_at',{ascending:true}).order('id').limit(50),   // cap-ok: the unverified-sellers queue renders rows only, no total is painted
           db.from('v_marketplace_sellers_truth')
-            .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
+            .select('id,worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).order('id').limit(50),
         ]);
         return {
@@ -2360,8 +2380,8 @@
         else {
           const rows = (m.sellers||[]).map(s => {
             const parts = [];
-            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" data-i="verifyid">Verify ID</button>`);
-            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" data-i="verifycerts">Verify certs</button>`);
+            if (!s.kyb_verified) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-kyb" data-name="${e(s.worker_name)}" data-seller-id="${e(s.id)}" data-i="verifyid">Verify ID</button>`);
+            if (!s.cert_verified && s.certifications) parts.push(`<button class="mod-btn ok" data-mkt-act="verify-cert" data-name="${e(s.worker_name)}" data-seller-id="${e(s.id)}" data-i="verifycerts">Verify certs</button>`);
             if (!parts.length) return '';
             return `
             <div class="mod-row">
@@ -2444,7 +2464,19 @@
             const upd = act === 'verify-kyb'
               ? { kyb_verified: true, kyb_verified_at: nowIso, updated_at: nowIso }
               : { cert_verified: true, cert_verified_at: nowIso, updated_at: nowIso };
-            const { error } = await db.from('marketplace_sellers').update(upd).eq('worker_name', btn.dataset.name);
+            // ★BRP-A (2026-10-04): A TRUST BADGE MUST NOT BE WRITTEN BY DISPLAY NAME. This update sets
+        // kyb_verified / cert_verified - the marketplace's verification badges - and it keyed on
+        // btn.dataset.name, a mutable display string. Two sellers sharing a name, or a name that has
+        // drifted from the row it was rendered from, and the verification lands on the WRONG seller or
+        // on none at all (PostgREST answers a 0-row update with 204 and no error, so the admin is told
+        // it worked). Measured: marketplace_sellers holds 16 rows with 0 duplicate worker_name today,
+        // so this is latent rather than live - which is the right time to fix it. The row's PRIMARY KEY
+        // is carried in the dataset instead, falling back to the name only if an older rendered DOM has
+        // no id attribute, so nothing breaks mid-session.
+        const _sellerId = btn.dataset.sellerId || '';
+        // ★BY ID ONLY (2026-10-13): the by-name fallback is gone - the buttons and this handler come from the same page load and every button carries data-seller-id, so it never ran; had it run, it would have verified EVERY seller sharing the display name. A row without an id is refused, not guessed.
+        if (!_sellerId) { if (typeof showToast === 'function') showToast('This seller row has no id, so nothing was verified. Reload and try again.', 'error'); return; }
+        const { error } = await db.from('marketplace_sellers').update(upd).eq('id', _sellerId);
             if (error) throw error;
             if (typeof writeAuditLog === 'function') writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
@@ -3064,7 +3096,7 @@
       if (diff < 3600)      return Math.floor(diff / 60) + 'm ago';
       if (diff < 86400)     return Math.floor(diff / 3600) + 'h ago';
       if (diff < 86400 * 7) return Math.floor(diff / 86400) + 'd ago';
-      return new Date(iso).toLocaleDateString();
+      return new Date(iso).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' });
     }
 
     // ── Drawer ──────────────────────────────────────────────────────────

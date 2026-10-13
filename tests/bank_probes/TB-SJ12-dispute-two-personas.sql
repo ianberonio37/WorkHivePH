@@ -46,6 +46,17 @@ insert into public.marketplace_sellers(id, worker_name, auth_uid, tier, kyb_veri
 
 insert into public.marketplace_platform_admins(worker_name, granted_by) values ('TB SJ12 Admin','tb-fixture');
 
+-- (2026-10-08) A DISPUTE NEEDS A PARTY (20260907000003): an inquiry about a listing, or an order of one. The first
+-- version of this probe opened a dispute about nothing, which the platform has refused since 2026-09-07 - so every
+-- leg after the open read as a failure. The journey is now walked over a real deal: the SELLER's listing and the
+-- BUYER's order of it, each owned by its account (20261008000060/62 key the parties on accounts, not names).
+insert into public.marketplace_listings(id, seller_name, auth_uid, section, title, category, price, status) values
+  ('5b000000-0000-4000-8000-0000000000d1','TB SJ12 Seller','5b000000-0000-4000-8000-00000000000b',
+   'parts','TB SJ12 pump','Pumps',5000,'draft');
+insert into public.marketplace_orders(id, listing_id, buyer_name, seller_name, buyer_auth_uid, price, status) values
+  ('5b000000-0000-4000-8000-0000000000d2','5b000000-0000-4000-8000-0000000000d1','TB SJ12 Buyer','TB SJ12 Seller',
+   '5b000000-0000-4000-8000-00000000000a',5000,'escrow_hold');   -- paid and held: the state a dispute is opened from
+
 do $probe$
 declare
   n int; v_seen int; v_status text;
@@ -57,9 +68,9 @@ begin
   -- ── S-OPEN, as the BUYER ────────────────────────────────────────────────────────────────────────────
   perform set_config('request.jwt.claims', BUYER, true); set local role authenticated;
   begin
-    insert into public.marketplace_disputes(id, opened_by, seller_name, reason, description, status)
-    values ('5b000000-0000-4000-8000-0000000000e1','TB SJ12 Buyer','TB SJ12 Seller',
-            'item_not_as_described','Pump arrived with a cracked housing','open');
+    insert into public.marketplace_disputes(id, order_id, listing_id, opened_by, seller_name, reason, description, status)
+    values ('5b000000-0000-4000-8000-0000000000e1','5b000000-0000-4000-8000-0000000000d2','5b000000-0000-4000-8000-0000000000d1',
+            'TB SJ12 Buyer','TB SJ12 Seller','item_not_as_described','Pump arrived with a cracked housing','open');
     get diagnostics n = row_count;
     raise notice 'RESULT buyer_opens_dispute=%', case when n > 0 then 'allowed' else 'BLOCKED' end;
   exception when others then raise notice 'RESULT buyer_opens_dispute=BLOCKED %', sqlstate; end;
@@ -67,8 +78,9 @@ begin
   -- IDENTITY IS NOT A FREE-TEXT FIELD: opening a dispute in someone ELSE'S name must be refused, or the
   -- court of last resort becomes a way to smear a competitor.
   begin
-    insert into public.marketplace_disputes(id, opened_by, seller_name, reason, status)
-    values ('5b000000-0000-4000-8000-0000000000e2','TB SJ12 Stranger','TB SJ12 Seller','forged','open');
+    insert into public.marketplace_disputes(id, order_id, listing_id, opened_by, seller_name, reason, status)
+    values ('5b000000-0000-4000-8000-0000000000e2','5b000000-0000-4000-8000-0000000000d2','5b000000-0000-4000-8000-0000000000d1',
+            'TB SJ12 Stranger','TB SJ12 Seller','forged','open');
     get diagnostics n = row_count;
     raise notice 'RESULT open_as_someone_else=%', case when n > 0 then 'ALLOWED' else 'blocked' end;
   exception when others then raise notice 'RESULT open_as_someone_else=blocked'; end;

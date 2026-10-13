@@ -28,6 +28,18 @@ import re
 import sys
 from pathlib import Path
 
+
+# Where "the end of <head>" is (2026-10-13). The public pages' compiled Tailwind link (tools/tw_public_build.mjs) must
+# stay the LAST thing in <head>, because that is where the Play CDN used to inject its style: a block appended BELOW it
+# would start winning the ties Tailwind used to win. So an append lands above that link when a page has one.
+_TW_PUB_LINK = re.compile(r'^<link rel="stylesheet" href="/wh-tw-pub-[\w-]+\.css">', re.M)
+
+
+def _head_end(html: str) -> int:
+    m = _TW_PUB_LINK.search(html)
+    end = html.find("</head>")
+    return m.start() if m and (end == -1 or m.start() < end) else end
+
 ROOT = Path(__file__).resolve().parents[1]
 MARK = "wh-chrome-i18n"                 # the marker that makes this idempotent and revertible
 
@@ -98,9 +110,66 @@ CHROME_CSS = (
     # does not cover them either; and being adjacent, they cannot claim WCAG's spacing exception. A cell can
     # simply grow, so cell links get the height with nothing to lose - which is why this is a rule and not
     # another special case in the marker.
-    "td a,th a{display:inline-flex;align-items:center;min-height:44px;}"
+    # ★AND THE CELL RULE GAVE HEIGHT ONLY, SO A SHORT LINK STAYED NARROW (2026-10-13, critic batch F1). The
+    # calculators guide's "FCU" and "OEE" came out 31x44 and 32x44, and the platform guide's first column was
+    # squeezed to 43px wide. That is the same lesson this rule's own header records for the nav links: the
+    # measure asks for both sides. min-width without centring, so a short link keeps the column's left edge and
+    # the extra width trails after the word.
+    "td a,th a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;}"
+    # the guides' .cta-btn lifts 2px on hover with no reduced-motion guard (2026-10-13). One stamp reaches all 54.
+    "@media (prefers-reduced-motion:reduce){.cta-btn{transition:none;}.cta-btn:hover{transform:none;}}"
+    # no guide set tabular numerals, so a column of figures (99.0%, 808, 4.2) used proportional digits and did not line
+    # up (critic batch C4, 2026-10-13). Digit width only: text in a cell is unaffected.
+    "td,th{font-variant-numeric:tabular-nums;}"
     "</style>"
 )
+
+# ★A MARKER MAKES A FIX IDEMPOTENT, AND IT ALSO MEANS A CHANGED RULE NEVER REACHES A PAGE THAT ALREADY HAS IT
+# (2026-10-13). fix_one() returns any marked page unchanged, so editing CHROME_CSS above changed nothing on the
+# 54 articles, and --check still exited 0. A marked page that lacks one of CHROME_CSS's rules is stale: --check
+# reports it and fails, --apply brings that rule up to date. The tags and the wh-tap marks are left alone.
+# ★RULE BY RULE, NEVER THE WHOLE BLOCK. The first version replaced the whole <style> block with CHROME_CSS and
+# deleted, from 51 guides, the 320px gap rule tools/fix_learn_brand_header.py appends to this same block
+# (learn-brand-header went red). tools/fix_public_pages_chrome.py had already recorded this trap for its own block:
+# "it already has the marker" is not "it already has the rule", and two sweeps that share a block must each assert
+# only their own rules. So each of our rules is checked verbatim; an older rule with the same selector is replaced
+# in place; a missing one is added before </style>. Anything else in the block is never touched.
+_STYLE_BLOCK = re.compile(r"<style data-" + MARK + r">(.*?)</style>", re.S)
+
+
+def _split_rules(css: str) -> list[str]:
+    """Top-level rules, braces balanced, so an @media block is one rule with its nested rules inside it."""
+    out, depth, start = [], 0, 0
+    for i, ch in enumerate(css):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                out.append(css[start:i + 1])
+                start = i + 1
+    return out
+
+
+_OUR_RULES = _split_rules(CHROME_CSS[len("<style data-" + MARK + ">"):-len("</style>")])
+
+
+def refresh_style(raw: str):
+    """Return (new_html, n) where n is how many of our rules were added or updated in a marked page's block."""
+    m = _STYLE_BLOCK.search(raw)
+    if not m:
+        return raw, 0
+    body, n = m.group(1), 0
+    for rule in _OUR_RULES:
+        if rule in body:
+            continue
+        sel = rule[:rule.index("{")].strip()
+        old = next((r for r in _split_rules(body) if r[:r.index("{")].strip() == sel), None)
+        body = body.replace(old, rule, 1) if old else body + rule
+        n += 1
+    if not n:
+        return raw, 0
+    return raw[:m.start(1)] + body + raw[m.end(1):], n
 
 # the shared footer links, matched by their href and their exact visible text so nothing else is touched
 LINKS = [
@@ -166,9 +235,13 @@ def fix_one(raw: str):
     # 2. the platform's own chrome rule, and the translator in the head where the language is known before
     #    paint - so a Filipino reader is not shown English headings that then change under them
     if f'<style data-{MARK}>' not in raw:
-        raw = raw.replace("</head>", f"{CHROME_CSS}\n</head>", 1)
+        at = _head_end(raw)
+        if at != -1:
+            raw = raw[:at] + f"{CHROME_CSS}\n" + raw[at:]
     if "wh-i18n-lite.js" not in raw:
-        raw = raw.replace("</head>", f"{SCRIPT}\n</head>", 1)
+        at = _head_end(raw)
+        if at != -1:
+            raw = raw[:at] + f"{SCRIPT}\n" + raw[at:]
     if "whI18nApply(window.WH_FIL_PUBLIC" not in raw:
         raw = raw.replace("</body>", f"{APPLY}\n</body>", 1)
     return raw, changes
@@ -200,7 +273,13 @@ def main() -> int:
                 touched.append(p.parent.name)
             continue
         if f"data-{MARK}" in raw:
-            already.append(p.parent.name)
+            new, n = refresh_style(raw)
+            if not n:
+                already.append(p.parent.name)
+                continue
+            touched.append(f"{p.parent.name} (older chrome rule)")
+            if mode == "--apply":
+                p.write_text(new, encoding="utf-8", newline="")
             continue
         new, n = fix_one(raw)
         if not n:

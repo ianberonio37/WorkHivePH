@@ -87,8 +87,12 @@ try {
       const t = (card.innerText || '').replace(/\s+/g, ' ').trim();
       return {
         shown,
-        saysNotGenerated: /not generated|was not generated/i.test(t),
-        namesCadence: /6am/i.test(t),
+        // ★THE CARD LEARNED NEW WORDS FOR THE SAME FACT (2026-10-08, LM walk): with no stored brief it now composes one
+        // live and says "no stored brief for this shift" and "the 6 am brief has not run yet". Absence is still
+        // spoken and the cadence still named; this oracle knew only "not generated" and "6am", so it failed a card
+        // that does both (found 2026-10-13). An oracle's vocabulary is part of the oracle.
+        saysNotGenerated: /not generated|was not generated|no stored brief|has not run yet|did not run/i.test(t),
+        namesCadence: /6\s?am/i.test(t),
         stillSkeleton: !!document.getElementById('amc-loading'),
         text: t.slice(0, 130),
       };

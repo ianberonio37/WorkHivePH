@@ -93,7 +93,22 @@
         // lang="fil" on <html> would be as untrue as lang="en" and the primary-language call is Ian's.
         // Language OF PARTS needs no such decision - each element this function actually changed says
         // what it now is, which is exactly what 3.1.2 asks and is true in both directions.
-        if (el.children.length === 0) { el.textContent = val; el.lang = 'fil'; swapped++; }
+        // ★AND ONLY WHEN THE TEXT ACTUALLY CHANGED LANGUAGE (2026-09-29). This stamped lang="fil" on
+        // every element it touched, including the ones whose dictionary entry is an IDENTITY - and the
+        // shared dict right above ships one deliberately: `home: 'Home'`, because "Home" is what the
+        // platform itself says. So the nav's first link announced an English word with Filipino
+        // phonetics: the exact defect the note above says this stamp exists to prevent, committed in
+        // the other direction. An identity entry is an authored "this term stays English" ruling
+        // (i18n/*.json carries 108 of them), so the text is still English and must not claim otherwise.
+        if (el.children.length === 0) {
+          var wasEnglish = el.textContent;
+          el.textContent = val;
+          // Counted only when the text actually became Filipino, for the same reason the lang stamp is:
+          // an identity entry leaves the element English, so counting it would report Filipino on screen
+          // where there is none. The tally is what tools/phone_fit_audit.mjs reads to tell an English-by
+          // -design page (nothing to declare) from one rendering undeclared Filipino.
+          if (val !== wasEnglish) { el.lang = 'fil'; swapped++; }
+        }
       }
       window.__whI18nSwapped = (window.__whI18nSwapped || 0) + swapped;
       return swapped;

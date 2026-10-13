@@ -72,17 +72,6 @@
        paint, so a Filipino reader is not shown English headings that then change under them. The hub's
        own swap ran on DOMContentLoaded, i.e. after first paint. -->
   <script src="/wh-i18n-lite.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: {
-        orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
-        blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
-        navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
-        steel: '#7B8794', cloud: '#F4F6FA',
-      } } }
-    };
-  </script>
   <style>
     * { font-family: 'Poppins', sans-serif; }
     body { background: #162032; color: #F4F6FA; }
@@ -144,7 +133,7 @@
     .lh-hidden { display: none !important; }
     #lh-empty { display: none; }
     #lh-empty.show { display: block; }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+    nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ @media (max-width: 360px) { nav.flex { gap: 0.25rem; } } /* ...and with Poppins loaded the five links still ran 7px past 320 (control-within-viewport, 2026-10-13): 4px gaps between 44px targets keep every link */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
     nav a.nav-link:hover { color: #F4F6FA; }
   </style>
   <script>
@@ -204,6 +193,7 @@
   </script>
   <script src="/wh-ga4.js" defer></script>
   <!-- /WorkHive GA4 -->
+<link rel="stylesheet" href="/wh-tw-pub-site.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
@@ -236,7 +226,11 @@
 <!-- ── Hero ── -->
 <section class="hex-pattern py-20 lg:py-28 border-b border-white/[0.06]">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 text-center">
-    <p class="pill pill-orange mb-5">WorkHive Learn</p>
+    <!-- EYEBROW REMOVED (2026-10-13). A "WorkHive Learn" pill sat directly above the oversized h1 - the tiny label
+         over a hero headline that impeccable names as the default AI SaaS hero (hero-eyebrow-chip). The detector could
+         not see it while Tailwind came from the Play CDN, because the h1's size classes did not resolve in static
+         HTML; the compiled sheet made the headline measurable and the finding appeared. It said nothing the header's
+         Learn link and this h1 do not already say. -->
     <h1 data-i="lh-title" class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-[-0.025em] mb-6">
       Free guides for the
       <!-- GRADIENT TEXT REMOVED (craft lens, 2026-09-16). The heading painted an amber gradient and clipped it

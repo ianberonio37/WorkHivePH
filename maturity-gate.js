@@ -103,7 +103,7 @@
     }
     try {
       const { data, error } = await db.from('v_hive_readiness_truth')
-        .select('current_stair, composite_score, blocker_summary, evidence')
+        .select('current_stair, composite_score, blocker_summary, evidence, computed_at')
         .eq('hive_id', hiveId)
         .maybeSingle();
       if (error && error.code !== 'PGRST116') {
@@ -134,6 +134,7 @@
           : 'No readiness snapshot yet for your hive: the daily compute will populate it.',
         evidence: (data && data.evidence) || {},
         compositeScore: data ? Number(data.composite_score) : null,
+        computedAt: (data && data.computed_at) || null,   // the snapshot's own instant: every window below ends here
       };
     } catch (err) {
       console.warn('[maturity-gate] threw:', err && err.message ? err.message : err);
@@ -235,31 +236,56 @@
        blocker under an h1 naming Stair 3 - so clearing it, at real cost, lands her one stair short with
        a new sentence waiting. Nothing said so. `nextStepLabel` says it now, and the criteria rows below
        price the step before it is spent. */
+    /* ★"THIS WEEK" WAS A ROLLING 7 DAYS, AND TWO 30-DAY FIGURES NAMED NO WINDOW (2026-10-09, UFAI LXP859/895/932 on
+       ph-intelligence). compute_hive_readiness counts `created_at >= now() - interval '7 days'` and '30 days' - rolling
+       windows ending when the snapshot was computed - while these labels said "this week" (a calendar week) or nothing
+       at all. hive.html renders the same evidence as "last 7 days" and "(30d)"; the labels now agree with it and with
+       the compute, and the chip at the bottom says WHEN the snapshot was taken, which is when every window ends. */
     const _crit = [
       ['need_assets',                  'asset_count',            T('Assets registered', 'Mga asset na nakarehistro'), ''],
-      ['need_active_workers',          'active_workers_7d',      T('People writing entries this week', 'Mga taong nagsusulat ngayong linggo'), ''],
+      ['need_active_workers',          'active_workers_7d',      T('People writing entries in the last 7 days', 'Mga taong nagsusulat ngayong linggo'), ''],
       ['need_pm_templates',            'pm_template_count',      T('PM templates', 'Mga PM template'), ''],
-      ['need_pm_compliance_pct',       'pm_compliance_30d_pct',  T('PM work done on time', 'PM na natapos sa oras'), '%'],
-      ['need_logbook_hygiene_pct',     'logbook_hygiene_pct',    T('Entries filled in properly', 'Mga entry na kumpleto'), '%'],
-      ['need_supervisor_actions_week', 'supervisor_actions_7d',  T('Supervisor sign-offs this week', 'Mga sign-off ng supervisor ngayong linggo'), ''],
+      ['need_pm_compliance_pct',       'pm_compliance_30d_pct',  T('PM work done on time (last 30 days)', 'PM na natapos sa oras'), '%'],
+      ['need_logbook_hygiene_pct',     'logbook_hygiene_pct',    T('Entries filled in properly (last 30 days)', 'Mga entry na kumpleto'), '%'],
+      ['need_supervisor_actions_week', 'supervisor_actions_7d',  T('Supervisor sign-offs in the last 7 days', 'Mga sign-off ng supervisor ngayong linggo'), ''],
       ['need_history_days',            'history_days',           T('Days of history', 'Araw ng kasaysayan'), ''],
       ['need_rcm_approved',            'fmea_modes_approved',    T('Approved RCM strategies', 'Mga aprubadong RCM na estratehiya'), ''],
     ];
     const _ev = (gate.evidence && typeof gate.evidence === 'object') ? gate.evidence : {};
     const _inputs = _ev.inputs || {};
     const _need = _ev.thresholds_for_next_stair || {};
+    /* ★MET-NESS WAS A DECORATIVE GLYPH, AND THE ONE ROW WHERE THE NUMBERS CONTRADICT IT IS ALWAYS A MET ROW
+       (2026-10-06, grading ai-quality's locked card as an ASSISTIVE-TECH user). The ✓/• span is
+       aria-hidden="true", so what a screen reader actually said - measured by stripping the aria-hidden
+       nodes, not assumed - was "PM templates 30 of 5", with no done/not-yet anywhere in it. For an UNMET
+       row that is survivable, because "0 of 5" implies not-yet on its own. For a MET row it is not:
+       `have` is never clamped, so an over-target row reads "30 of 5", which sounds like broken arithmetic
+       rather than "finished" - and over-target is only reachable when done is true. So the glyph was the
+       sole carrier of the one fact that makes the sentence parse at all.
+       One word fixes each half. "needed" makes "X of Y" coherent at any ratio ("30 of 5 needed" is true,
+       and so is "0 of 5 needed"); a visually-hidden "Done."/"Not yet." hands the accessibility tree the
+       fact that colour and glyph were carrying alone. The glyph stays decorative - it is now a SECOND
+       channel for that fact instead of the only one. Inline styles rather than an .sr-only class: this
+       card renders on pages that do not all ship the same stylesheet, and a class a page never generated
+       is inert.
+       The `have` read also hardened: Number(null) is 0 and isFinite(0) is true, so a null input used to
+       render as a confident "0 of 5 needed · Not yet" and send someone to redo work they may already have
+       done. isFinite here plainly means "we have a real number", so null/'' now fail it like undefined. */
+    const _SR = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;';
     const _rows = _crit.reduce((acc, [needKey, inKey, label, unit]) => {
       if (!(needKey in _need)) return acc;
       const want = Number(_need[needKey]);
-      const have = Number(_inputs[inKey]);
+      const _raw = _inputs[inKey];
+      const have = (_raw === null || _raw === undefined || _raw === '') ? NaN : Number(_raw);
       if (!isFinite(want) || !isFinite(have)) return acc;
       const done = have >= want;
       // The unmet ones are what she can act on; a met one still earns its line, because "2 of 3 done"
       // is a different feeling from a list of failures, and both numbers are true.
       return acc + `<li style="display:flex;gap:8px;align-items:baseline;margin:4px 0;">
         <span aria-hidden="true" style="flex:0 0 auto;color:${done ? 'var(--wh-green, #4ADE80)' : 'var(--wh-orange-light, #FDB94A)'};">${done ? '✓' : '•'}</span>
+        <span style="${_SR}">${esc(done ? T('Done.', 'Tapos na.') : T('Not yet.', 'Hindi pa.'))}</span>
         <span style="flex:1 1 auto;">${esc(label)}</span>
-        <span style="flex:0 0 auto;font-weight:700;font-variant-numeric:tabular-nums;">${esc(String(Math.round(have)))}${unit} ${T('of', 'sa')} ${esc(String(want))}${unit}</span>
+        <span style="flex:0 0 auto;font-weight:700;font-variant-numeric:tabular-nums;">${esc(String(Math.round(have)))}${unit} ${T('of', 'sa')} ${esc(String(want))}${unit} ${esc(T('needed', 'kailangan'))}</span>
       </li>`;
     }, '');
     const criteriaRows = _rows
@@ -291,6 +317,22 @@
                  font-size:12px;font-weight:700;text-decoration:none;">${esc(a.label)}</a>`
             : '')).join('') + `</div>`
       : '';
+
+    /* ★"FROM YOUR HIVE'S LIVE RECORDS" WAS A DAILY SNAPSHOT (2026-10-09, UFAI LXP859/895/932). v_hive_readiness_truth
+       is the newest row of hive_readiness, which the daily compute writes - so the chip claimed a freshness the card
+       does not have, and named no instant for the 7- and 30-day windows above, which end when the snapshot was taken.
+       It now says which snapshot, when (PHT, the platform's day), and that the windows end then. English in both
+       slots: the old Filipino line made the same false "live" claim, and Filipino copy is out of scope. */
+    let _snapAt = '';
+    if (gate.computedAt) {
+      try {
+        _snapAt = new Date(gate.computedAt).toLocaleString('en-GB', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+      } catch (e) { _snapAt = ''; }
+    }
+    const _snapEn = _snapAt
+      ? 'Readiness · the daily snapshot of your hive’s records, computed ' + _snapAt + ' PHT · each window above ends then'
+      : 'Readiness · the daily snapshot of your hive’s records';
+    const _snapLine = T(_snapEn, _snapEn);
 
     const altLine = opts.alternateSuggestion
       ? `<p style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:8px;line-height:1.55;max-width:68ch;">${T('In the meantime:', 'Sa ngayon:')} ${esc(opts.alternateSuggestion)}</p>`
@@ -354,7 +396,7 @@
           </p>
         </details>
         <p class="wh-source-chip" style="font-size:12px;color:rgba(255,255,255,0.72);margin:8px 0 0;line-height:1.4;">
-          ${T('Readiness &middot; from your hive&#39;s live records', 'Readiness &middot; mula sa live na record ng hive mo')}
+          ${esc(_snapLine)}
         </p>
         <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
           <a href="${esc(opts.linkBack || 'hive.html')}#maturity-stairway-card"
