@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1006-files
-source_sha: 2a25da8f0507c55f
+source_sha: 660fb26f07b78020
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -161,7 +161,7 @@ Entries (name · type · sha):
 - `feedback_a_skipped_gate_is_unrun_during_the_wave_that_breaks_it` · feedback · 0259465edc46e5b8
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 199b2079411adb11
-- `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · 54d7b1f8bff39fca
+- `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · 3baa94d29d83f1c8
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_strangers_read_dies_on_a_column_it_never_asked_for` · feedback · 5b16bfb850947922
 - `feedback_a_stuck_skeleton_is_invisible_to_every_gate` · feedback · 8cd98c83294ba95e

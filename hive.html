@@ -3109,7 +3109,7 @@ document.getElementById('btn-leave-hive').addEventListener('click', async () => 
     // (Lucena runs two). Forcing the transfer flow then is friction built on misinformation.
     // With another active supervisor on the roster, leaving is safe: confirm honestly and go.
     const _coSups = (Array.isArray(window._memberRoster) ? window._memberRoster : [])
-      .filter(m => m && m.role === 'supervisor' && (m.status === 'active' || m.status == null) && m.worker_name !== WORKER_NAME) // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors on the roster), not the ambient user role
+      .filter(m => m && m.role === 'supervisor' && (m.status === 'active' || m.status == null) && !_whIsSelf(m)) // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors on the roster), not the ambient user role
       .map(m => m.worker_name);
     if (_coSups.length) {
       if (!(await window.whConfirm(
@@ -3118,10 +3118,11 @@ document.getElementById('btn-leave-hive').addEventListener('click', async () => 
       await performLeave();
       return;
     }
-    const others = memberNames.filter(n => n !== WORKER_NAME);
+    const others = (Array.isArray(window._memberRoster) ? window._memberRoster : []).filter(m => m && m.id && !_whIsSelf(m));
     if (others.length) {
       const sel = document.getElementById('sup-transfer-select');
-      sel.innerHTML = others.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
+      // value = the membership ROW: two members can share a display name, and only one of them is being chosen
+      sel.innerHTML = others.map(m => `<option value="${escHtml(m.id)}">${escHtml(m.worker_name)}</option>`).join('');
       document.getElementById('modal-sup-leave').classList.remove('hidden');
       return;
     }
@@ -3131,16 +3132,18 @@ document.getElementById('btn-leave-hive').addEventListener('click', async () => 
 });
 
 document.getElementById('btn-sup-transfer-leave').addEventListener('click', async () => {
-  const target = document.getElementById('sup-transfer-select').value;
-  if (!target) return;
+  const targetId = document.getElementById('sup-transfer-select').value;
+  if (!targetId) return;
+  const _row = (window._memberRoster || []).find(m => m.id === targetId);
+  const target = _row ? _row.worker_name : '';
   const { error: roleErr } = await db.from('hive_members').update({ role: 'supervisor' })
-    .eq('hive_id', HIVE_ID).eq('worker_name', target);
+    .eq('hive_id', HIVE_ID).eq('id', targetId);   // ONE row: a name match promoted every namesake
   // If the promotion failed, do NOT leave — a hive with no supervisor can't be managed.
   if (roleErr) { showToast(whWriteError(roleErr, _t('Could not transfer supervisor. You are still the supervisor; nothing changed.', 'Hindi nailipat ang pagka-supervisor. Ikaw pa rin ang supervisor; walang nabago.'))); return; }
   // Audit the supervisor handoff BEFORE performLeave deletes our own membership — once the
   // row is gone, hive_audit_log RLS (active member) rejects the insert, so the audit must
   // precede the self-delete (same ordering as the leave-audit). (Hive Board PDDA I5, 2026-07-10.)
-  await writeAuditLog('role_change', 'member', target, target, { from: 'worker', to: 'supervisor', reason: 'supervisor handoff on leave' });
+  await writeAuditLog('role_change', 'member', targetId, target, { from: 'worker', to: 'supervisor', reason: 'supervisor handoff on leave' });
   document.getElementById('modal-sup-leave').classList.add('hidden');
   await performLeave();
 });
@@ -3151,7 +3154,7 @@ document.getElementById('btn-sup-leave-anyway').addEventListener('click', async 
   // no member management, unrecoverable from inside). The modal's intro says so in passing;
   // the irreversible branch deserves its own explicit confirm naming the consequence.
   const _otherSup = (window._whMembersSnapshot || [])
-    .some(m => m.role === 'supervisor' && m.worker_name !== WORKER_NAME && m.status !== 'kicked'); // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors), not the ambient user role
+    .some(m => m.role === 'supervisor' && !_whIsSelf(m) && m.status !== 'kicked'); // role-check-allow: m.role is each listed member's own DB field (counting OTHER supervisors), not the ambient user role
   if (!_otherSup) {
     const ok = await window.whConfirm(
       _t('You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it cannot be fixed from inside the hive. Leave anyway?',
@@ -4873,7 +4876,7 @@ async function loadMembers() {
   } else {
     const [membersRes, openJobsRes] = await Promise.all([
       db.from('hive_members')
-        .select('worker_name, role, status')
+        .select('id, auth_uid, worker_name, role, status')   // id + auth_uid: member actions act on ONE row and know who "me" is (2026-10-14)
         .eq('hive_id', HIVE_ID)
         .neq('status', 'kicked')
         .order('joined_at')
@@ -4900,7 +4903,7 @@ async function loadMembers() {
   memberNames = membersData.map(m => m.worker_name);
   // T56: the leave branch needs ROLES, not just names (co-supervisor detection); membersData is
   // loader-local, so publish the roster alongside the existing memberNames global.
-  window._memberRoster = membersData.map(m => ({ worker_name: m.worker_name, role: m.role, status: m.status }));
+  window._memberRoster = membersData.map(m => ({ id: m.id, auth_uid: m.auth_uid, is_me: m.is_me, worker_name: m.worker_name, role: m.role, status: m.status }));
   // T56: membersData is local to this loader; the kick confirm and the last-supervisor
   // leave guard need the roster (role + status) at decision time — snapshot it.
   window._whMembersSnapshot = membersData;
@@ -4938,7 +4941,7 @@ async function loadMembers() {
     ? `<p class="text-xs text-white/80" style="padding:4px 2px;">${_t('Workload counts are unavailable right now, so no busy/heavy marks are shown.', 'Hindi available ang bilang ng workload ngayon, kaya walang abala/mabigat na marka.')}</p>`
     : '';
   list.innerHTML = _wlNote + membersData.map(m => {
-    const isMe    = m.worker_name === WORKER_NAME;
+    const isMe    = _whIsSelf(m);
     const isSup   = m.role === 'supervisor'; // role-check-allow: m.role is a per-member DB field (the listed member's role), not the ambient user role
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
     const canReset = HIVE_ROLE === 'supervisor' && !isMe && !isSup;  // supervisor resets a WORKER's password (Arc I I3/I)
@@ -4957,7 +4960,7 @@ async function loadMembers() {
       </div>
       ${workloadBadge}
       ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
-      ${canKick ? `<button onclick="kickMember('${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
+      ${canKick ? `<button onclick="kickMember('${escJsAttr(m.id)}', '${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -5005,7 +5008,18 @@ async function resetMemberPassword(workerName) {
   }
 }
 
-async function kickMember(workerName) {
+// ★WHO IS "ME" IS THE ACCOUNT, NOT THE NAME THIS DEVICE STORED (2026-10-14). A drifted device name made a supervisor
+// see Remove on their own row and count themselves as the co-supervisor who keeps the hive supervised when they leave.
+// The board RPC answers it from the JWT (is_me, migration 20261014000001); the direct read's fallback carries auth_uid.
+// A row with no auth_uid (seeded, pre-migration) falls back to the name, as before.
+function _whIsSelf(m) {
+  if (!m) return false;
+  if (typeof m.is_me === 'boolean') return m.is_me;
+  if (m.auth_uid && _authUid) return m.auth_uid === _authUid;
+  return m.worker_name === WORKER_NAME;
+}
+
+async function kickMember(memberId, workerName) {
   if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para lang sa mga supervisor.')); return; }
   // ★ONLINE-ONLY CLASS, AND IT FIRED OFFLINE WITH NOTHING SAID. Removing a member deletes a hive_members row AND writes an audit trail; a revocation that did not land is the dangerous direction, because the supervisor believes access is gone while it is not.
   // Refused BEFORE the confirmation dialog: asking someone to commit to a decision that cannot
@@ -5016,7 +5030,7 @@ async function kickMember(workerName) {
   // but the confirm never said so — the consequence of removing a peer who runs the hive is
   // bigger than removing a worker, so the confirm names it (T50 consequence-naming). No orphan
   // risk on THIS path: the remover is a supervisor and remains one.
-  const _target = (window._whMembersSnapshot || []).find(m => m.worker_name === workerName);
+  const _target = (window._whMembersSnapshot || []).find(m => m.id === memberId);
   // T25 (2026-08-26): the confirm now answers the records-fate question the supervisor is
   // actually weighing - removal ends ACCESS, it does not erase the person's work: their logbook
   // entries, PM completions and history stay in the hive's records under their name (the same
@@ -5027,9 +5041,9 @@ async function kickMember(workerName) {
     : `Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`) + _recordsFate;
   if (!(await window.whConfirm(_kickMsg, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('hive_members')
-    .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('worker_name', workerName);
+    .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('id', memberId);   // ONE row: a name match removed every namesake
   if (error) { showToast(whWriteError(error, _t('Could not remove the member. They are still in the hive.', 'Hindi natanggal ang miyembro. Nasa hive pa rin siya.'))); return; }
-  writeAuditLog('kick_member', 'hive_members', null, workerName, {});
+  writeAuditLog('kick_member', 'hive_members', memberId, workerName, {});
   await loadMembers();
   await loadFeed();
   loadAuditLog();  // refresh the Supervisor Action Log card so the kick shows

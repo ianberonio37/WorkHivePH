@@ -2592,6 +2592,15 @@ refilled the key. The release's account-keyed check stopped the deleting; it cou
   removed all three stay solo and empty. Held statically by `hive-restore-adoption` (29 readers covered, no opt-out
   without a restore). On today's production build, opening Home first re-seats the hive (verified the same way).
 
+- **The same class one step over: membership WRITES by name.** `hive.html` removed a member and handed over the
+  supervisor role with `WHERE worker_name = <name>`, so two members sharing a display name were both removed or both
+  promoted; and "is this me" was a name comparison, so a supervisor with a drifted device name saw Remove on their own
+  row and was counted as the co-supervisor who keeps the hive supervised when they leave. The board RPC now returns
+  each member's row id and `is_me` from the JWT (migration `20261014000001_board_members_carry_row_and_self`, a
+  full-body replace diffed against its last migration first); both writes target the row. Live, with Leandro's device
+  name drifted: "(you)" on his own row, no Remove there, the other 3 Remove buttons carry row ids. Gate
+  `member-writes-by-row` (static; the pre-fix page fails at both sites).
+
 **The front door, decided by Ian** (AskUserQuestion, all four recommendations). Measured before building: since the
 lens learned to see scroll-revealed content, the FAQ's `<details>` count, so O2 (18 help affordances) and A3
 (15 disclosures) already passed on a phone; a new "How it works" panel would have duplicated the FAQ and the hero's

@@ -661,5 +661,6 @@
   "20261013000002_audit_filter_vocab.sql": "f0956a760d80f068285e9cce2905c648b53ad5307530f67f76e10a1073c0db5d",
   "20261013000003_refresh_v_kpi_truth_is_cron_only.sql": "4ed44527cbe6d7f88d848ab773407e03064138c8579728613a78e8d8896ad4cd",
   "20261013000004_episodic_memory_belongs_to_an_account.sql": "0ca64602c6b1f9e27950d333fbad55736d1ed3d3b24c83acd77c41978875fcff",
-  "20261013000005_procedural_match_no_hive_is_solo.sql": "9927e71f9cd1e4c9bcfb49493b51a1dcf1cb4a9edf692693ec488401c33c41e0"
+  "20261013000005_procedural_match_no_hive_is_solo.sql": "9927e71f9cd1e4c9bcfb49493b51a1dcf1cb4a9edf692693ec488401c33c41e0",
+  "20261014000001_board_members_carry_row_and_self.sql": "7572874fa11a91a782d11580f25f8c3f245c897dddcc74b60d3da800a90e3446"
 }

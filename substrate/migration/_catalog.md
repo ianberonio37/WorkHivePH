@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:663
-source_sha: 05797529dc990716
+source: dir:supabase/migrations:664
+source_sha: 230bfffa0b9fb87c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (663 migrations)
+## migration · catalog (664 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000011_credit_policy_knobs` — tables:hive_service_settings
 - `20260731000012_consumer_cashback` — fns:mint_service_cashback · tables:service_credit_ledger
 - `20260731000013_service_knob_pct` — fns:mint_service_cashback,service_knob,service_knob_pct
 - `20260731000014_commission_reads_d9_knob` — fns:mint_settlement_commission
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261013000003_refresh_v_kpi_truth_is_cron_only` — (misc DDL/DML)
 - `20261013000004_episodic_memory_belongs_to_an_account` — (misc DDL/DML)
 - `20261013000005_procedural_match_no_hive_is_solo` — fns:match_procedural_memories
+- `20261014000001_board_members_carry_row_and_self` — fns:get_hive_board_dashboard
 
 (showing last 200)
 
