@@ -7,8 +7,8 @@
 //
 // Semantics:
 //   - If a slot returns >=N failures within M seconds, skip it for a cooldown.
-//   - The "slot" is the upstream service identifier (groq / cerebras /
-//     openrouter / google / mistral), not the specific model — when Groq
+//   - The "slot" is the upstream service identifier (groq / google /
+//     mistral / openrouter), not the specific model — when Groq
 //     throttles, all Groq models throttle together.
 //   - Per-warm-container memory only. Cold starts reset.
 //

@@ -24,19 +24,23 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";
+import { withModelCaller } from "../_shared/model-calls.ts";  // LM-O: each hive's model calls are recorded for that hive  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
 // contract-allow: produces daily shift plan; future Tier C: shift_plan_v1
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive path.
 import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
 // Persona Contract: briefing-signature mode — the shift briefing is an
@@ -217,10 +221,22 @@ async function synthesizeBriefing(
       maxTokens:    BRIEFING_MAX_TOKENS,
       jsonMode:     false,
     });
+    // an exhausted chain answers "{}", it does not throw - so the unavailable branch below never ran and the
+    // stored briefing read "{}" over the signature (2026-10-09, see aiAnswered)
+    if (!aiAnswered(text)) throw new Error("no model answered");
     return `${isoBanner}${text.trim()}\n\n${signedBy}`;
   } catch (err) {
+    // ★THIS BRANCH WAS UNREACHABLE UNTIL 2026-10-09 (the exhausted chain answered "{}" instead of throwing), so its
+    // words were never read by a person: "(Briefing synthesis unavailable: <raw error>)" put an internal message in
+    // front of the crew, and "PMs due: 30" stated the read's CAP as a total (the board shows the same list as "30+").
+    // The error goes to the log; the crew read what happened in their words, and a count that hit its cap says so.
     const msg = err instanceof Error ? err.message : String(err);
-    return `${isoBanner}(Briefing synthesis unavailable: ${msg}). Risk: ${payload.risk_top.length}, PMs due: ${payload.pms_due.length}, carry-forward: ${payload.carry_forward.length}, low-stock parts: ${payload.parts_prestage.length}.\n\n${signedBy}`;
+    console.warn("[shift-planner-orchestrator] briefing not written:", msg);
+    const n = (rows: AnyRow[], cap: number) => (rows.length >= cap ? `${cap}+` : String(rows.length));
+    return `${isoBanner}No written summary for this shift: the AI assistant did not answer, so this plan carries `
+      + `the counts only - ${n(payload.risk_top, RISK_TOP_LIMIT)} high-risk assets, ${n(payload.pms_due, PMS_DUE_LIMIT)} PMs due, `
+      + `${n(payload.carry_forward, CARRY_FWD_LIMIT)} jobs carried forward, ${n(payload.parts_prestage, PARTS_LIMIT)} low-stock parts to stage.`
+      + `\n\n${signedBy}`;
   }
 }
 
@@ -310,7 +326,8 @@ async function planForHive(
 // Handler
 // ---------------------------------------------------------------------------
 
-serveObserved("shift-planner-orchestrator", async (req) => {
+serveObserved("shift-planner-orchestrator", tracedReply("shift-planner-orchestrator", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "shift-planner-orchestrator", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -321,7 +338,7 @@ serveObserved("shift-planner-orchestrator", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "shift-planner-orchestrator");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -394,10 +411,16 @@ serveObserved("shift-planner-orchestrator", async (req) => {
         const _rq = await checkRouteRateLimit(db, single_hive || "", "shift-planner-orchestrator");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "shift-planner-orchestrator", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "shift-planner-orchestrator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-      const rl = await checkAIRateLimit(db, single_hive);
-      if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+      // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+      // again here halved the hive's rate on the shift route (2026-10-08). The per-surface quota above is kept on both
+      // doors: it is keyed on this function's name, a bucket the gateway never touches.
+      const viaGateway = await isTrustedGatewayForward(req);
+      if (!viaGateway) {
+        const rl = await checkAIRateLimit(db, single_hive);
+        if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+      }
     }
 
     let targetHives: string[];
@@ -412,7 +435,7 @@ serveObserved("shift-planner-orchestrator", async (req) => {
     }
 
     const perHive = await Promise.allSettled(
-      targetHives.map(h => planForHive(db, h, shift_window))
+      targetHives.map(h => withModelCaller({ hive_id: h }, () => planForHive(db, h, shift_window)))
     );
 
     const summary = perHive.map((r, idx) => ({
@@ -441,4 +464,4 @@ serveObserved("shift-planner-orchestrator", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "shift-planner-orchestrator", "shift_planner_orchestrator_error", err);
   }
-});
+}));

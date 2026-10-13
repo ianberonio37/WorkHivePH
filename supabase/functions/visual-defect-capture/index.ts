@@ -9,10 +9,11 @@
  *      root_cause, action, problem, knowledge) using AIAG-VDA + ISO 14224
  *      vocabulary biased toward Filipino industrial practice.
  *   2. Tries to OCR an asset tag/label from the photo. If found AND it
- *      matches asset_nodes.tag for the hive, returns the canonical asset_id
- *      so the worker confirms the auto-link rather than re-typing.
+ *      matches asset_nodes.tag for the hive (or, for a hive-less person, their
+ *      own register), returns the canonical asset_id so the worker confirms
+ *      the auto-link rather than re-typing.
  *   3. Fire-and-forget embeds the description into fault_knowledge so future
- *      RAG queries surface this incident.
+ *      RAG queries surface this incident (hive callers only - see the write).
  *
  * The function never writes a logbook entry directly. The worker reviews
  * the draft on the logbook form and taps Save - this preserves the existing
@@ -20,7 +21,8 @@
  *
  * Input  (via platform-gateway or direct):
  *   {
- *     hive_id:        string,
+ *     hive_id?:       string,    // absent/empty = a signed-in hive-less person (served on their verified uid;
+ *                                // own solo bucket, own asset register, no analyze-time knowledge row)
  *     image_data_url: string,    // "data:image/jpeg;base64,..." or https URL
  *     asset_id?:      string,    // canonical uuid (optional pre-link)
  *     voice_note?:    string,    // worker's spoken description, capped 500 chars
@@ -34,6 +36,7 @@
  *       knowledge, asset_tag_extracted, confidence
  *     },
  *     matched_asset: { asset_id, tag, name } | null,
+ *     asset_scope: "hive" | "own",   // where the tag was looked up
  *     fault_knowledge_id: string | null,
  *     remaining: number,
  *     ai_provider_unavailable?: boolean
@@ -55,13 +58,16 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: produces visual defect draft; future Tier C: visual_defect_draft_v1
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAIMultimodal } from "../_shared/ai-chain.ts";
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, limiterUnavailableResponse,
+} from "../_shared/rate-limit.ts";
 import { log } from "../_shared/logger.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -109,7 +115,7 @@ Output schema:
   "action":                <string - one sentence on the recommended corrective action>,
   "problem":               <string - 1-2 sentences describing what is visible>,
   "knowledge":             <string - one sentence of lesson learned a future tech should know>,
-  "asset_tag_extracted":   <string OR null - an asset tag/label visible in the photo (e.g. "PUMP-201", "MTR-3B", "ATS-01")>,
+  "asset_tag_extracted":   <string OR null - the asset tag/label you can READ in the photo, letter for letter (tags usually look like "<LETTERS>-<digits>"); null when none is legible>,
   "confidence":            <number 0..1>,
   "narration":             <string - 1-2 sentence prose summary in your persona's voice; what the worker hears alongside the draft. Paraphrase only what's in the fields above; never invent.>
 }
@@ -177,8 +183,13 @@ function validateImage(dataUrl: string, mimeHint?: string): { ok: boolean; reaso
 
 // ─── Asset tag match ─────────────────────────────────────────────────────────
 
+// ★A PERSON WITH NO HIVE HAS A REGISTER TOO (LM-V walk, LM479, 2026-10-07). A solo owner's machines are
+// asset_nodes rows with hive_id NULL and their own auth_uid - the scope asset-hub, logbook and voice-action-router
+// already read for them. So the match takes EITHER a proven hive OR the caller's VERIFIED uid (never a client-sent
+// id), and with neither it reads nothing: this runs on the service-role client, so an unscoped query here would
+// search every hive's register at once. Both reads below (the explicit asset_id and this OCR match) scope the same way.
 async function matchAssetByTag(
-  db: SupabaseClient, hiveId: string, tag: string | null,
+  db: SupabaseClient, hiveId: string, tag: string | null, ownerUid: string | null = null,
 ): Promise<{ asset_id: string; tag: string; name: string } | null> {
   if (!tag) return null;
   /* A tag reaches an .or() ilike below, so it needs the same treatment as any typed term:
@@ -189,10 +200,13 @@ async function matchAssetByTag(
     .replace(/[,()\\]/g, " ").replace(/\s+/g, " ").trim()
     .replace(/%/g, "\\%").replace(/_/g, "\\_");
   if (!cleaned) return null;
+  if (!hiveId && !ownerUid) return null;
   // Match on tag (case-insensitive) OR name; prefer exact tag match.
-  const { data } = await db.from("v_asset_truth")
-    .select("asset_id, tag, name")
-    .eq("hive_id", hiveId)
+  const base = db.from("v_asset_truth").select("asset_id, tag, name");
+  const scoped = hiveId
+    ? base.eq("hive_id", hiveId)
+    : base.is("hive_id", null).eq("auth_uid", ownerUid as string);
+  const { data } = await scoped
     .or(`tag.ilike.${cleaned},name.ilike.${cleaned}`)
     .limit(1);
   if (data && data[0]) {
@@ -235,7 +249,8 @@ function coerceDraft(parsed: Record<string, unknown>): DraftRow {
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
-serveObserved("visual-defect-capture", async (req) => {
+serveObserved("visual-defect-capture", tracedReply("visual-defect-capture", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "visual-defect-capture", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -243,7 +258,7 @@ serveObserved("visual-defect-capture", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "visual-defect-capture");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -252,13 +267,65 @@ serveObserved("visual-defect-capture", async (req) => {
     const image_data_url = String(body.image_data_url || "").trim();
     const mime_type      = body.mime_type ? String(body.mime_type).toLowerCase().trim() : undefined;
     const voice_note     = body.voice_note ? String(body.voice_note).trim().slice(0, MAX_VOICE_NOTE_CHARS) : "";
-    const worker_name    = body.worker_name ? String(body.worker_name) : null;
+    let worker_name      = body.worker_name ? String(body.worker_name) : null;
 
-    if (!hive_id) {
-      return new Response(
-        JSON.stringify({ error: "Missing required field: hive_id" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+    const db = _whWarmClient || createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+    );
+
+    // Pillar I: service-role client (RLS bypassed) scoped by the CLIENT hive_id
+    // — verify active membership before any read/write, else any signed-in user
+    // could write defect drafts / read assets in another hive. Service-role skips.
+    // ★A SIGNED-IN PERSON WITH NO HIVE WAS TOLD TO JOIN ONE (LM-V walk, LM479, 2026-10-07). A solo owner pressed
+    // Photo defect capture on their own logbook and read "Join a hive to analyze defects with AI." - and had the page
+    // let them through, this function answered 400 "Missing required field: hive_id". Drafting an entry from a photo
+    // needs no hive: the prompt carries no hive data. The hive-only parts are side effects, each handled on its own:
+    //   - rate limit: a hive-less person draws on their OWN solo bucket, keyed on the VERIFIED uid (Pillar P) - the
+    //     bucket ai-gateway and voice-action-router use for them, so one human has one budget at every door;
+    //   - asset match: their own register (hive_id NULL + their auth_uid), never an unscoped read;
+    //   - the analyze-time fault_knowledge row: SKIPPED (see the write below for why);
+    //   - the per-hive route quota: hive-scoped bookkeeping, so it only runs for a hive.
+    // So a person with no hive is served on their verified identity (the LM389 / LM473 precedent): no identity, no
+    // service; a hive that IS sent is still proven by membership exactly as before.
+    // Every hive-scoped step below (both limiters, the cost log, the asset reads, the knowledge row) keys on
+    // verifiedHiveId - the hive membership PROVED (or a trusted service-role caller named), never the raw body field.
+    // "" = no hive: the hive-less person in soloUid.
+    let verifiedHiveId = "";
+    let soloUid: string | null = null;
+    {
+      const { authUid, isServiceRole } = await resolveIdentity(db, req);
+      if (!isServiceRole && !authUid) {
+        // an anonymous caller is refused before any read, any bucket and any model call
+        return new Response(
+          JSON.stringify({ error: "Sign in to analyze a photo.", code: "auth_required" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      if (hive_id) {
+        if (!isServiceRole) {
+          const tenancy = await resolveTenancy(db, authUid, hive_id);
+          if (!tenancy.ok) {
+            return new Response(
+              JSON.stringify({ error: tenancy.message, code: tenancy.code }),
+              { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+          verifiedHiveId = tenancy.hive_id || "";
+          // the name the knowledge row and the cost log carry is the member's own, not a body field
+          worker_name = tenancy.worker_name || worker_name;
+        } else {
+          verifiedHiveId = hive_id;   // a trusted internal caller (platform-gateway forwards its verified hive)
+        }
+      } else if (isServiceRole) {
+        // a service-role caller names nobody, so with no hive there is no one to scope or bucket this on
+        return new Response(
+          JSON.stringify({ error: "Missing required field: hive_id" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      } else {
+        soloUid = authUid;
+      }
     }
 
     const imgOk = validateImage(image_data_url, mime_type);
@@ -269,44 +336,36 @@ serveObserved("visual-defect-capture", async (req) => {
       );
     }
 
-    const db = _whWarmClient || createClient(
-      Deno.env.get("SUPABASE_URL") || "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
-    );
-
-    // Pillar I: service-role client (RLS bypassed) scoped by the CLIENT hive_id
-    // — verify active membership before any read/write, else any signed-in user
-    // could write defect drafts / read assets in another hive. Service-role skips.
-    const { authUid, isServiceRole } = await resolveIdentity(db, req);
-    if (!isServiceRole) {
-      const tenancy = await resolveTenancy(db, authUid, hive_id);
-      if (!tenancy.ok) {
+    // Rate-limit gate FIRST (per ai-engineer skill): a refused request costs zero model tokens.
+    let remaining: number;
+    if (soloUid) {
+      // a hive-less person's own bucket, keyed on the VERIFIED uid - never on a client-sent id
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const srl = await checkSoloRateLimit(db, soloRateLimitKey(soloUid, _ip), undefined, undefined, _ip || null);
+      if (!srl.allowed) return soloRateLimitedResponse(corsHeaders, srl.retry_after_seconds, srl.scope);
+      remaining = srl.remaining;
+    } else {
+      // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
+      // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
+      // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
+      // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
+      // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
+      // fail a real request.
+      try {
+        const _rq = await checkRouteRateLimit(db, verifiedHiveId, "visual-defect-capture");
+        // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
+        // a no-op until an admin sets a cap - while always counting for attribution.
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "visual-defect-capture", _rq.cap, _rq.retry_after_seconds, _rq.scope);
+      } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
+      const rl = await checkAIRateLimit(db, verifiedHiveId, RATE_LIMIT_PER_HOUR);
+      if (!rl.allowed) {
+        if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
         return new Response(
-          JSON.stringify({ error: tenancy.message, code: tenancy.code }),
-          { status: tenancy.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
-    }
-
-    // Rate-limit gate FIRST (per ai-engineer skill).
-    // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
-    // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
-    // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
-    // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
-    // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
-    // fail a real request.
-    try {
-      const _rq = await checkRouteRateLimit(db, hive_id || "", "visual-defect-capture");
-      // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
-      // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "visual-defect-capture", _rq.cap, _rq.retry_after_seconds);
-    } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-    if (!rl.allowed) {
-      return new Response(
-        JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      remaining = rl.remaining;
     }
 
     // Build the user prompt. The image goes in the image_url block; voice
@@ -341,7 +400,7 @@ serveObserved("visual-defect-capture", async (req) => {
     if (!raw || raw === "{}") {
       void logAICost(db, {
         fn:            "visual-defect-capture",
-        hive_id,
+        hive_id:       verifiedHiveId || null,
         worker_name,
         model:         MODEL_VERSION,
         provider:      "vision-chain",
@@ -351,9 +410,10 @@ serveObserved("visual-defect-capture", async (req) => {
       });
       return new Response(
         JSON.stringify({
-          error: "All vision providers are at capacity. Try again in a few minutes.",
+          // "at capacity" claimed load for every cause - an outage, a key problem, a walk with no model (2026-10-12)
+          error: "The photo reader is not answering just now. Try again in a few minutes, or fill the fields by hand.",
           ai_provider_unavailable: true,
-          remaining: rl.remaining,
+          remaining,
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
@@ -365,7 +425,7 @@ serveObserved("visual-defect-capture", async (req) => {
     } catch {
       void logAICost(db, {
         fn:                "visual-defect-capture",
-        hive_id,
+        hive_id:           verifiedHiveId || null,
         worker_name,
         model:             MODEL_VERSION,
         provider:          "vision-chain",
@@ -376,7 +436,7 @@ serveObserved("visual-defect-capture", async (req) => {
         schema_compliance: false,
       });
       return new Response(
-        JSON.stringify({ error: "Vision model returned non-JSON; please retry the capture.", remaining: rl.remaining }),
+        JSON.stringify({ error: "Vision model returned non-JSON; please retry the capture.", remaining }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -385,7 +445,7 @@ serveObserved("visual-defect-capture", async (req) => {
 
     void logAICost(db, {
       fn:                "visual-defect-capture",
-      hive_id,
+      hive_id:           verifiedHiveId || null,
       worker_name,
       model:             MODEL_VERSION,
       provider:          "vision-chain",
@@ -398,10 +458,13 @@ serveObserved("visual-defect-capture", async (req) => {
 
     // Asset auto-link: prefer client-supplied asset_id; otherwise try OCR.
     let matched: { asset_id: string; tag: string; name: string } | null = null;
+    // Both reads are scoped to the proven hive, or to the hive-less caller's own register (see matchAssetByTag).
     if (asset_id_input) {
-      const { data: explicit } = await db.from("v_asset_truth")
-        .select("asset_id, tag, name")
-        .eq("hive_id", hive_id).eq("asset_id", asset_id_input).maybeSingle();
+      const _assetBase = db.from("v_asset_truth").select("asset_id, tag, name");
+      const { data: explicit } = await (verifiedHiveId
+        ? _assetBase.eq("hive_id", verifiedHiveId)
+        : _assetBase.is("hive_id", null).eq("auth_uid", soloUid as string))
+        .eq("asset_id", asset_id_input).maybeSingle();
       if (explicit) {
         matched = {
           asset_id: String(explicit.asset_id),
@@ -411,14 +474,23 @@ serveObserved("visual-defect-capture", async (req) => {
       }
     }
     if (!matched && draft.asset_tag_extracted) {
-      matched = await matchAssetByTag(db, hive_id, draft.asset_tag_extracted);
+      matched = await matchAssetByTag(db, verifiedHiveId, draft.asset_tag_extracted, soloUid);
     }
 
     // Fire-and-forget embed + fault_knowledge insert. Per ai-engineer skill,
     // this MUST NOT be awaited - a slow embed cannot block the worker's
     // logbook draft. We capture the promise for one console.warn handler.
+    // ★HIVE ONLY (LM-V walk, LM479). For a hive-less caller this row is SKIPPED rather than written with
+    // hive_id NULL + their auth_uid, because nothing could ever read it: fault_knowledge's only SELECT policy is
+    // `hive_id IN (the caller's active hives)`, and every knowledge reader - search_fault_knowledge,
+    // search_all_knowledge (the companion's RAG), v_knowledge_truth - filters `hive_id = <hive>`, which a NULL never
+    // equals. The row would be an embedding call spent on a model-authored copy no one can retrieve. What a solo
+    // owner keeps is not lost: when they SAVE the entry, trg_embed_outbox_logbook queues it, and the outbox drain
+    // writes the saved entry's own fault_knowledge row (hive_id NULL, linked by logbook_id, carrying the
+    // ai_assisted_fields they kept) - the approved record, not this unreviewed draft. If hive-less knowledge ever
+    // gets a reader (an auth_uid SELECT policy + an owner-scoped search), this is the place to revisit.
     let fault_knowledge_id: string | null = null;
-    if (draft.confidence >= 0.4 && draft.problem) {
+    if (verifiedHiveId && draft.confidence >= 0.4 && draft.problem) {
       const embeddingText = [
         matched ? `machine: ${matched.tag || matched.name}` : "",
         `category: ${draft.category}`,
@@ -432,7 +504,7 @@ serveObserved("visual-defect-capture", async (req) => {
       generateEmbedding(embeddingText)
         .then(async (embedding) => {
           const { data: ins, error: insErr } = await db.from("fault_knowledge").insert({
-            hive_id,
+            hive_id:          verifiedHiveId,
             logbook_id:       null,  // not yet attached - worker has not saved the logbook entry
             machine:          matched ? (matched.tag || matched.name) : null,
             category:         draft.category,
@@ -454,15 +526,15 @@ serveObserved("visual-defect-capture", async (req) => {
             maintenance_type: "Visual Defect Capture",
           }).select("id").single();
           if (insErr) {
-            log.warn(null, `[visual-defect-capture] fault_knowledge insert failed: ${insErr.message}`);
+            log.warn(trace, `[visual-defect-capture] fault_knowledge insert failed: ${insErr.message}`);
           } else if (ins) {
             // The caller has already received its response; this is purely
             // observability for the runtime.
-            log.info(null, `[visual-defect-capture] fault_knowledge row inserted: ${(ins as { id: string }).id}`);
+            log.info(trace, `[visual-defect-capture] fault_knowledge row inserted: ${(ins as { id: string }).id}`);
           }
         })
         .catch((err) => {
-          log.warn(null, `[visual-defect-capture] embedding failed: ${err instanceof Error ? err.message : String(err)}`);
+          log.warn(trace, `[visual-defect-capture] embedding failed: ${err instanceof Error ? err.message : String(err)}`);
         });
       // fault_knowledge_id stays null in the response because the insert is
       // background; the worker's draft round-trip is independent.
@@ -472,8 +544,10 @@ serveObserved("visual-defect-capture", async (req) => {
       JSON.stringify({
         draft,
         matched_asset: matched,
+        // where the tag was looked up, so the page can say "your registered assets" rather than "this hive"
+        asset_scope: verifiedHiveId ? "hive" : "own",
         fault_knowledge_id,
-        remaining: rl.remaining,
+        remaining,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
@@ -481,4 +555,4 @@ serveObserved("visual-defect-capture", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "visual-defect-capture", "visual_defect_capture_error", err);
   }
-});
+}));

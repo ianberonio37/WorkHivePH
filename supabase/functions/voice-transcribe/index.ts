@@ -1,7 +1,7 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: audio -> text passthrough
 import { transcribeAudio } from "../_shared/audio-chain.ts";
@@ -9,8 +9,8 @@ import { log } from "../_shared/logger.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse } from "../_shared/rate-limit.ts";
 
 // Receives a multipart audio blob from the browser (iOS MediaRecorder output),
@@ -22,7 +22,7 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnid
 //         omit to auto-detect (used by voice-journal for multilingual capture).
 // Output: { text: "transcribed text", lang: "en" }
 
-serveObserved("voice-transcribe", async (req) => {
+serveObserved("voice-transcribe", tracedReply("voice-transcribe", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-transcribe", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -32,7 +32,7 @@ serveObserved("voice-transcribe", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "voice-transcribe");  // I6 observability
+  log.info(_trace, "request_start", { method: req.method });  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
 
   try {
     const contentType = req.headers.get("content-type") || "";
@@ -105,26 +105,56 @@ serveObserved("voice-transcribe", async (req) => {
       if (!_rl.allowed) {
         return _rl.scope === "unidentified"
           ? soloUnidentifiedResponse(corsHeaders)
-          : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+          : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
       }
     }
 
     const filename = audioFile.name || "audio.mp4";
     // Fetch this hive's real asset tags so the indigenous ASR primes on them + repairs garbled codes
-    // (CL12). Best-effort: any failure just means no vocab (transcription still works). Tags are not
-    // sensitive (equipment codes) and only steer decoding — never returned/leaked.
-    let vocab: string[] | undefined;
+    // (CL12). Best-effort: any failure just means no vocab (transcription still works).
+    // ★THE HIVE WAS THE CALLER'S WORD, AND THE REPAIR PUTS TAGS IN THE ANSWER (LM-X walk, 2026-10-07).
+    // The comment that stood here said the tags "only steer decoding - never returned/leaked". The second
+    // half was false: CL12 REPAIRS a garbled code to the nearest vocabulary tag, so the transcript carries the
+    // tag back. And `hive_id` came straight from the form, read on the service-role client with no membership
+    // check - resolveIdentity above proves WHO is calling, not WHICH hive they belong to. Anyone signed in (or
+    // metered by IP) could name another plant's hive and read its asset tags back out of their own speech.
+    // Every sibling voice function (voice-logbook-entry, voice-report-intent) already runs resolveTenancy on
+    // the body's hive. Here an unproven hive gets NO vocabulary rather than a refusal: priming is optional, and
+    // a person whose stored hive is stale should still get their words transcribed.
+    let vocabHive: string | null = null;
     if (hiveId) {
+      if (_id.isServiceRole) {
+        vocabHive = hiveId;
+      } else {
+        const _t = await resolveTenancy(_rlDb, _id.authUid, hiveId);
+        if (_t.ok && _t.hive_id) vocabHive = _t.hive_id;
+        else log.warn(null, "voice-transcribe: unproven hive_id, ASR vocabulary not primed", { code: _t.ok ? "solo" : _t.code });
+      }
+    }
+    let vocab: string[] | undefined;
+    if (vocabHive) {
       try {
-        // canonical-allow: ASR vocabulary priming only (equipment tags steer decoding, never returned/leaked);
+        // canonical-allow: ASR vocabulary priming only (equipment tags steer decoding; a repaired code can appear in
+        // the transcript, which is why the hive must be the caller's own - see above);
         // this is not a displayed metric, so v_asset_truth (the display view) is not the read path here.
         const { data: tagRows } = await _rlDb
-          .from("asset_nodes").select("tag").eq("hive_id", hiveId).not("tag", "is", null).limit(200);
+          .from("asset_nodes").select("tag").eq("hive_id", vocabHive).not("tag", "is", null).limit(200);
         const tags = (tagRows || []).map((r: { tag: string | null }) => (r.tag || "").trim()).filter(Boolean);
         if (tags.length) vocab = tags;
       } catch (_) { /* best-effort: ASR priming/repair is optional */ }
     }
-    const result   = await transcribeAudio(audioFile, filename, language, vocab);
+    // ★NOBODY TRANSCRIBED, AND THE PERSON WAS TOLD "PROCESSING FAILED" (2026-10-12, UFAI edge walk W4805): a chain that
+    // could not transcribe (every provider down, or a walk's no-model switch) threw into the generic catch below - a
+    // non-leaky 500 the page could only call a failure. The cause is known and so is the remedy: say both.
+    let result: Awaited<ReturnType<typeof transcribeAudio>>;
+    try {
+      result = await transcribeAudio(audioFile, filename, language, vocab);
+    } catch (txErr) {
+      log.warn(null, "voice-transcribe: no transcriber answered", { detail: String(txErr instanceof Error ? txErr.message : txErr).slice(0, 160) });
+      return new Response(JSON.stringify({ error: "The voice transcriber is not answering just now, so nothing was transcribed. "
+        + "Type your note instead, or try again in a minute." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // X-FIND (2026-07-12): surface a low-confidence flag so the client CLARIFIES ("did I hear that
     // right?") instead of sending a mis-heard question to the companion, which then confabulates
@@ -149,4 +179,4 @@ serveObserved("voice-transcribe", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-transcribe", "voice_transcribe_error", err);
   }
-});
+}));

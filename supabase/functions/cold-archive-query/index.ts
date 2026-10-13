@@ -34,7 +34,7 @@ import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { parquetReadObjects } from "https://esm.sh/hyparquet@1.26.0";
 import { compressors } from "https://esm.sh/hyparquet-compressors@1.1.1";
 import { getCorsHeaders } from "../_shared/cors.ts";

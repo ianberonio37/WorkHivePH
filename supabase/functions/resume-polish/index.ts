@@ -49,12 +49,14 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, limiterUnavailableResponse, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Envelope adoption (helper imported for conformance; flat {error}/{bullets} JSON
 // shape retained to match the platform error-contract pattern, like visual-defect-capture).
@@ -97,7 +99,7 @@ const SUMMARIZE_SYSTEM = `You write the PROFESSIONAL SUMMARY (the opening sectio
 You are given a fact sheet already computed from the worker's resume: years of experience, their current or most recent role, the list of roles they have held, their top skills, certifications, their strongest quantified achievements, and highest education. Write the summary FROM these facts.
 Respond ONLY with JSON: { "summary": "..." }.
 Rules:
-1. 2 to 4 sentences, written in the implied third person (no "I", no "my"). If years_experience is given, open with the role, that tenure, and the field, for example "Maintenance technician with 8 years across food and beverage plants". If years_experience is EMPTY or absent, do NOT state or imply any length of experience: no "X years", no "less than a year", and do not call them "early-career", "junior", "entry-level", or "seasoned". Instead open with the role and the SCOPE of their work (systems, equipment, records, disciplines) drawn from the facts.
+1. 2 to 4 sentences, written in the implied third person (no "I", no "my"). If years_experience is given, open with the role, that tenure, and the field, in the shape "<role> with <years_experience> years across <field>" (each slot filled from the facts; never copy a role, number, or industry from this instruction). If years_experience is EMPTY or absent, do NOT state or imply any length of experience: no "X years", no "less than a year", and do not call them "early-career", "junior", "entry-level", or "seasoned". Instead open with the role and the SCOPE of their work (systems, equipment, records, disciplines) drawn from the facts.
 2. Synthesize the WHOLE picture: weave in the worker's strongest real skills and ONE flagship achievement from the facts. Prefer an achievement that carries a number, and quote that number exactly as given.
 3. Use ONLY the facts provided. Do NOT invent employers, numbers, percentages, certifications, schools, or skills that are not in the fact sheet. Never state a number that does not appear in an achievement fact.
 4. Confident and recruiter-scannable, in plain professional English. No filler buzzwords (hardworking, team player, detail-oriented) unless a fact backs it.
@@ -120,7 +122,8 @@ function clampStrArr(v: unknown, max: number, cap: number): string[] {
   return v.slice(0, max).map((x) => clampStr(x, cap)).filter(Boolean);
 }
 
-serveObserved("resume-polish", async (req) => {
+serveObserved("resume-polish", tracedReply("resume-polish", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "resume-polish", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -128,7 +131,7 @@ serveObserved("resume-polish", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "resume-polish");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
@@ -149,8 +152,15 @@ serveObserved("resume-polish", async (req) => {
     );
     const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
     // I5: pass clientIp so the always-on CGNAT-aware IP ceiling floors a rotating-uuid script.
-    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp), undefined, undefined, clientIp);
-    if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
+    // the limiter keys on the VERIFIED caller (the JWT), never on `body.auth_uid`, which any caller can set to
+    // someone else's id to spend their bucket (same class as voice-journal-agent's shared bucket, 2026-10-07)
+    const _rlUid = (await resolveIdentity(db, req).catch(() => null))?.authUid ?? null;
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(_rlUid, clientIp), undefined, undefined, clientIp);
+    if (!rl.allowed) {
+      if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+      // the real clearing time, not "an hour" for every scope (a day-cap refusal said an hour, 2026-10-12)
+      return soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds, rl.scope);
+    }
 
     let raw: string;
     if (mode === "polish_bullets") {
@@ -239,4 +249,4 @@ serveObserved("resume-polish", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "resume-polish", "resume_polish_error", err);
   }
-});
+}));

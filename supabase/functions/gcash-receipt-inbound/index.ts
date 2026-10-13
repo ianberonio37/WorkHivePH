@@ -31,7 +31,7 @@
 import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log, logRequestStart } from "../_shared/logger.ts";
 

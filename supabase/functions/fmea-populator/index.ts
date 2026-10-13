@@ -20,12 +20,13 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse, limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -227,7 +228,9 @@ async function classifyCluster(
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
-serveObserved("fmea-populator", async (req) => {
+serveObserved("fmea-populator", tracedReply("fmea-populator", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "fmea-populator", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -235,7 +238,7 @@ serveObserved("fmea-populator", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "fmea-populator");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -289,10 +292,11 @@ serveObserved("fmea-populator", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "fmea-populator");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "fmea-populator", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "fmea-populator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
     const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
     if (!rl.allowed) {
+      if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
       return new Response(
         JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -440,4 +444,4 @@ serveObserved("fmea-populator", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "fmea-populator", "fmea_populator_error", err);
   }
-});
+}));

@@ -16,7 +16,7 @@
 // throughout: a DB miss returns {written:0,...} / [] / "" and never throws into
 // the user-facing path.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 
 export const MAX_ENQUEUE_BATCH        = 5;
 export const MAX_PENDING_PER_WORKER   = 50;   // cap the queue so it can't grow unbounded

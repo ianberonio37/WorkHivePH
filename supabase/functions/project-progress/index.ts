@@ -27,7 +27,7 @@ import { logRequestStart } from "../_shared/logger.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
 // contract-allow: project progress write
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { resolveIdentity, resolveTenancy } from '../_shared/tenant-context.ts';
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
@@ -127,7 +127,7 @@ serveObserved("project-progress", async (req: Request) => {
       // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-      if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds);
+      if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds, _rl.scope);
     }
   }
 

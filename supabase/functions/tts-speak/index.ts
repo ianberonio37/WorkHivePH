@@ -1,5 +1,6 @@
 /**
  * tts-speak - Azure Speech Service TTS with Supabase Storage cache.
+ * contract-allow: returns a playable audio URL (speech synthesis, not a generated answer); JSON only for its error contract.
  *
  * Phase 7 of the WorkHive Persona Contract. Turns narration text +
  * persona key into a playable MP3 URL. The persona key maps to a fixed
@@ -31,10 +32,11 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -42,6 +44,8 @@ import { clampPersona } from "../_shared/persona.ts";
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): Azure TTS is a paid cost surface reachable
 // from the browser (wh-tts.js / voice-journal) — per-person/IP bucket before synth.
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse } from "../_shared/rate-limit.ts";
+// LM-O (2026-10-08): a neural-voice synthesis is a model call; this function makes it itself, so it reports it itself
+import { reportModelCall, reportModelCallFailed, modelCallsRefused } from "../_shared/model-calls.ts";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -76,6 +80,8 @@ const CACHE_BUCKET = "tts-cache";
 // ─── Env wiring ───────────────────────────────────────────────────────────────
 
 const AZURE_KEY    = Deno.env.get("AZURE_SPEECH_KEY")    || "";
+// the same LOCAL test as ai-chain.ts _AI_CHAIN_LOCAL: prod is *.supabase.co, where a walk switch is never honoured
+const _TTS_LOCAL   = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
 const AZURE_REGION = Deno.env.get("AZURE_SPEECH_REGION") || "southeastasia";
 const SB_URL       = Deno.env.get("SUPABASE_URL")        || "";
 const SB_KEY       = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -144,7 +150,7 @@ function buildSsml(voice: string, text: string, personaKey: string): string {
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-serveObserved("tts-speak", async (req) => {
+serveObserved("tts-speak", tracedReply("tts-speak", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "tts-speak", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -152,9 +158,16 @@ serveObserved("tts-speak", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
-  logRequestStart(req, "tts-speak");  // I6 observability
+  log.info(_trace, "request_start", { method: req.method });  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
   if (req.method !== "POST") {
     return json(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
+  }
+  // ★A WALK SPENDS NO PROVIDER CALL (2026-10-12): Azure Speech is called directly, outside the shared chains, so the
+  // walk's no-model switch never reached it - pressing "Speak again" on a walk would synthesise for real. Refused on the
+  // local runtime only, with the sentence a person gets when playback is not set up (the page reads the text instead).
+  if (_TTS_LOCAL && modelCallsRefused()) {
+    console.warn("[tts-speak] no provider call: the request asked for none (x-wh-walk-no-model, local runtime)");
+    return json(corsHeaders, 503, { error: "Voice playback is not available just now. Read the text instead." });
   }
   if (!AZURE_KEY) {
     console.error("misconfigured: AZURE_SPEECH_KEY is not set");   // the operator detail stays in the log (2026-09-06)
@@ -197,7 +210,7 @@ serveObserved("tts-speak", async (req) => {
     // "we cannot tell who you are". Telling the second person to wait an hour would be false twice over.
     return _rl.scope === "unidentified"
       ? soloUnidentifiedResponse(corsHeaders)
-      : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      : soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
   }
 
   const personaKey = clampPersona(body.persona);
@@ -242,6 +255,7 @@ serveObserved("tts-speak", async (req) => {
   const ssml = buildSsml(voice, text, personaKey);
   const azureUrl = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
   let audio: ArrayBuffer;
+  const _t0 = performance.now();   // LM-O: the record's latency
   try {
     const resp = await fetch(azureUrl, {
       method: "POST",
@@ -256,6 +270,8 @@ serveObserved("tts-speak", async (req) => {
     });
     if (!resp.ok) {
       const errText = await resp.text().catch(() => "(no body)");
+      reportModelCallFailed({ kind: "speech", providerName: "azure", modelName: voice,
+        tried: [`azure/${voice}=${resp.status}`], started_at: _t0 });
         console.error("tts-speak: azure returned " + resp.status);
       return json(corsHeaders, 502, {
         error: "Voice playback failed. Try again in a moment.",   // the provider status goes to the log, not to the person (2026-09-06)
@@ -263,8 +279,13 @@ serveObserved("tts-speak", async (req) => {
       });
     }
     audio = await resp.arrayBuffer();
+    // billed per character of the text it spoke; the record's prompt_tokens is that text's estimate, flagged
+    reportModelCall({ kind: "speech", providerName: "azure", modelName: voice, input: text, started_at: _t0,
+      tried: [`azure/${voice}=${resp.status}`] });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    reportModelCallFailed({ kind: "speech", providerName: "azure", modelName: voice,
+      tried: [`azure/${voice}=${/timeout|abort/i.test(msg) ? "timeout" : "threw"}`], started_at: _t0 });
     return json(corsHeaders, 504, { error: "Voice playback timed out. Check the connection and try again.", detail: msg });
   }
 
@@ -287,7 +308,7 @@ serveObserved("tts-speak", async (req) => {
     voice,
     persona: personaKey,
   });
-});
+}));
 
 // Error contract sentinel for validate_edge_contracts.py — every failure path
 // above goes through json() which produces: JSON.stringify({ error: "..." }).

@@ -1,13 +1,14 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { reportModelCall } from "../_shared/model-calls.ts";  // LM-O: this function calls providers itself
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Arc R (LLM01/LLM10): this verify_jwt=false fn was a live OPEN LLM proxy — bound it.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
@@ -25,11 +26,12 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
  * retirement can drop it + its `canonical_agent_contracts` row together; do NOT
  * wire new callers here — use ai-gateway.
  *
- * Multi-model orchestrator with free-tier fallback chain:
- * - Groq Scout (primary): meta-llama/llama-4-scout-17b-16e-instruct
- * - Cerebras Qwen (fallback 1): qwen2.5-7b-instruct
- * - Voyage AI (fallback 2): mistral-large-2411
- * - Jina AI (fallback 3): jina-ai/reader or similar
+ * Multi-model orchestrator with free-tier fallback chain (strategy name -> the model that serves it, all on the
+ * shared chain's free tiers; see _getModelConfig):
+ * - scout (primary): Groq qwen/qwen3.8-27b
+ * - qwen (fallback 1): Mistral mistral-small-latest (was Cerebras - off the platform since 2026-10-08)
+ * - voyage (fallback 2): Groq openai/gpt-oss-20b
+ * - jina (fallback 3): Groq openai/gpt-oss-120b
  *
  * Automatically falls back to next model if primary is rate-limited or down.
  *
@@ -45,7 +47,9 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
  *   - latency_ms: how long the call took
  */
 
-serveObserved("voice-model-call", async (req) => {
+serveObserved("voice-model-call", tracedReply("voice-model-call", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-model-call", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -53,7 +57,7 @@ serveObserved("voice-model-call", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
-  logRequestStart(req, "voice-model-call");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -85,7 +89,7 @@ serveObserved("voice-model-call", async (req) => {
       if (!_id.isServiceRole) {
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
       }
     }
 
@@ -185,7 +189,7 @@ serveObserved("voice-model-call", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-model-call", "voice_model_call_error", err);
   }
-});
+}));
 
 // Get model configuration (name, API URL, API key)
 //
@@ -211,11 +215,12 @@ function _getModelConfig(
   strategy: string
 ): { model: string; api_url: string; api_key: string } {
   switch (strategy.toLowerCase()) {
-    case "qwen":
+    case "qwen":         // kept as a STRATEGY NAME for callers. v9 (2026-10-08): Cerebras answers 402 payment_required
+                         // to this key on every call, so it is served by the shared chain's replacement on Mistral's free tier
       return {
-        model: "qwen-3.8-27b",
-        api_url: "https://api.cerebras.ai/v1/chat/completions",
-        api_key: Deno.env.get("CEREBRAS_API_KEY") || "",
+        model: "mistral-small-latest",
+        api_url: "https://api.mistral.ai/v1/chat/completions",
+        api_key: Deno.env.get("MISTRAL_API_KEY") || "",
       };
     case "voyage":       // kept as a STRATEGY NAME for callers; served by Groq, not by Voyage
       return {
@@ -249,6 +254,7 @@ async function _callModel(
   timeout_ms: number
 ): Promise<string | null> {
   try {
+    const _t0 = performance.now();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeout_ms);
 
@@ -286,6 +292,14 @@ async function _callModel(
 
     const data = await resp.json();
     const answer = data.choices?.[0]?.message?.content || "";
+    // this function bypasses _shared/ai-chain.ts, so it reports its served call to the request's model-call scope
+    // itself - the one record serveObserved writes (LM-O, 2026-10-08)
+    if (answer.trim()) {
+      reportModelCall({
+        providerName: /mistral\./.test(api_url) ? "mistral" : /groq\./.test(api_url) ? "groq" : (new URL(api_url).hostname),
+        modelName: model, usage: data?.usage, input: messages, output: answer, started_at: _t0,
+      });
+    }
 
     return answer.trim() || null;
   } catch (err) {

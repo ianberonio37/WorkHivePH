@@ -1,5 +1,7 @@
 /**
  * marketplace-listing-assist - AI Post-a-Listing helper (Marketplace AI unit).
+ * contract-allow: a listing draft in a flat {ok, category, description, used_image} shape, documented below at the
+ * envelope note; the category is chosen from the server-owned taxonomy. Future Tier C: listing_draft_v1.
  *
  * A seller filling the Post form clicks "AI assist". Given the title, part
  * number, section, condition, and (optionally) a photo, the model suggests:
@@ -26,11 +28,12 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart, log } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI, callAIMultimodal, estimateTokens } from "../_shared/ai-chain.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, callAIMultimodal, estimateTokens, aiAnswered } from "../_shared/ai-chain.ts";
 import { logAICost } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Envelope-conformance: import the shared response-envelope module (matches the
@@ -39,7 +42,12 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // the ok()/fail() helpers are not applied here — the import satisfies the gate
 // without a response-shape change.
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse, rateLimitedResponse,
+  checkSoloRateLimit, peekSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, DEFAULT_RATE_LIMIT_PER_DAY,
+  type RateLimitResult,
+} from "../_shared/rate-limit.ts";
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 const RATE_LIMIT_PER_HOUR = Number(Deno.env.get("WH_RATE_LIMIT_OVERRIDE") || 50);
@@ -93,7 +101,9 @@ function cleanDescription(v: unknown): string | null {
   return d || null;
 }
 
-serveObserved("marketplace-listing-assist", async (req) => {
+serveObserved("marketplace-listing-assist", tracedReply("marketplace-listing-assist", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const _health = await handleHealth(req, "marketplace-listing-assist", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
   }));
@@ -101,7 +111,7 @@ serveObserved("marketplace-listing-assist", async (req) => {
 
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "marketplace-listing-assist");
+  log.info(trace, "request_start", { method: req.method });
 
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -129,8 +139,20 @@ serveObserved("marketplace-listing-assist", async (req) => {
         return json({ error: "Sign in to use AI triage." }, 401);
       }
       if (ident.authUid) {
-        const trl = await checkAIRateLimit(_db, ident.authUid, 20, 100);
-        if (!trl.allowed) return json({ error: "AI triage limit reached. Try again in an hour." }, 429);
+        // ★A PERSON'S BUDGET LIVES ON THE PER-PERSON LIMITER (2026-10-08). This wrote the auth uid into
+        // ai_rate_limits.hive_id, a column with a foreign key to hives: every upsert failed, the error was never read,
+        // and the triage limit never counted a single call. The person's own bucket (keyed on the VERIFIED uid) holds it.
+        // That is the bucket ai-gateway counts for its service-triage agent, so a call it forwarded (proven by the
+        // header it mints, never a body field) is held to triage's tighter ceiling by READING the count - counting it
+        // again would spend the person's allowance twice for one question.
+        const triageViaGateway = await isTrustedGatewayForward(req);
+        let trl: RateLimitResult;
+        if (triageViaGateway) {
+          trl = await peekSoloRateLimit(_db, soloRateLimitKey(ident.authUid, null), 20, 100);
+        } else {
+          trl = await checkSoloRateLimit(_db, soloRateLimitKey(ident.authUid, null), 20, 100, null, true);
+        }
+        if (!trl.allowed) return soloRateLimitedResponse(corsHeaders, trl.retry_after_seconds, trl.scope);
       }
       const { data: catRows } = await _db.from("v_service_catalog_truth")
         .select("category").limit(200);
@@ -145,6 +167,11 @@ serveObserved("marketplace-listing-assist", async (req) => {
       try {
         aiRaw = await callAI(desc, { systemPrompt: sys, temperature: 0.1, maxTokens: 120, jsonMode: true });
       } catch { /* chain down: fall through to nulls, the composer stays untouched */ }
+      // ★NO ANSWER IS NO SUGGESTION, NOT "NO CLEAR MATCH" (2026-10-12, UFAI edge walk W4578). With the chain down (or a
+      // walk's no-model switch) aiRaw is "{}", the three fields came back null, and the page said "No clear match; pick
+      // the fields yourself." - as if the AI had weighed the job and found nothing. triage:null is the page's own
+      // honest branch ("No suggestion this time. Pick the fields yourself."), and an empty answer is not remembered.
+      if (!aiAnswered(aiRaw)) return json({ answer: "", triage: null });
       let out: { category?: string; urgency?: string; mode?: string } = {};
       try { out = JSON.parse(String(aiRaw || "{}").replace(/```json|```/g, "").trim()); } catch { /* fall through to nulls */ }
       const category = cats.includes(String(out.category)) ? String(out.category) : null;
@@ -161,7 +188,6 @@ serveObserved("marketplace-listing-assist", async (req) => {
     const condition   = String(body.condition || "").trim().slice(0, 60);
     const imageRaw    = typeof body.image_data_url === "string" ? body.image_data_url : "";
 
-    if (!hive_id) return json({ error: "Missing required field: hive_id" }, 400);
     if (!SERVER_CATS[section]) return json({ error: "Unknown section. Use parts, training, or jobs." }, 400);
     if (!title && !part_number) return json({ error: "Add a title or part number first, then AI can help." }, 400);
 
@@ -176,11 +202,28 @@ serveObserved("marketplace-listing-assist", async (req) => {
 
     // Pillar I (Gateway Spine): verify the caller is an active member of this hive
     // before spending an AI call on its behalf.
+    // ★A SIGNED-IN SELLER WITH NO HIVE WAS TOLD TO "SIGN IN" (LM-A walk, LM389, 2026-10-07): posting a listing
+    // needs only an account, but the draft needed a hive, so a solo owner who opened the post sheet and pressed
+    // AI assist got the sign-in card. A person with no hive is now served on their own verified identity and
+    // rate-limited on it (Pillar P - the key is the AUTH UID, never a client-sent id), exactly as this function's
+    // triage path already serves hive-less consumers. A hive_id that IS sent is still proven by membership.
+    let soloUid: string | null = null;          // the VERIFIED person a hive-less draft is limited on
+    let verifiedHiveId: string | null = null;   // the hive the limiters count on: membership-proven, or a service caller's
     {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
-        const tenancy = await resolveTenancy(db, authUid, hive_id);
-        if (!tenancy.ok) return json({ error: tenancy.message, code: tenancy.code }, tenancy.status);
+        if (hive_id) {
+          const tenancy = await resolveTenancy(db, authUid, hive_id);
+          if (!tenancy.ok) return json({ error: tenancy.message, code: tenancy.code }, tenancy.status);
+          verifiedHiveId = tenancy.hive_id || hive_id;
+        } else {
+          if (!authUid) return json({ error: "Sign in to use AI assist." }, 401);
+          soloUid = authUid;
+        }
+      } else if (!hive_id) {
+        return json({ error: "Missing required field: hive_id" }, 400);
+      } else {
+        verifiedHiveId = hive_id;   // a service-role caller is trusted with the hive it names
       }
     }
 
@@ -191,14 +234,27 @@ serveObserved("marketplace-listing-assist", async (req) => {
     // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
     // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
     // fail a real request.
-    try {
-      const _rq = await checkRouteRateLimit(db, hive_id || "", "marketplace-listing-assist");
+    if (verifiedHiveId) try {
+      const _rq = await checkRouteRateLimit(db, verifiedHiveId, "marketplace-listing-assist");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "marketplace-listing-assist", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "marketplace-listing-assist", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-    if (!rl.allowed) { log.warn(null, "rate_limit_hit", { hive_id, section }); return json({ error: "AI call limit reached for this hive. Try again in an hour." }, 429); }
+    // ★A HIVE-LESS SELLER WAS NEVER COUNTED (2026-10-08). Their auth uid went to checkAIRateLimit as if it were a hive:
+    // ai_rate_limits.hive_id has a foreign key to hives, so every upsert failed, the error was discarded, and each call
+    // saw an empty bucket - an unmetered AI endpoint for anyone with an account and no hive. A hive caller still draws
+    // on the hive's bucket; a person with no hive draws on their OWN (the per-person limiter, keyed on the verified
+    // uid) with the budget a single-person hive gets: RATE_LIMIT_PER_HOUR an hour, the hive default a day. A limiter
+    // that cannot count refuses (503), it never waves the call through.
+    const rl = verifiedHiveId
+      ? await checkAIRateLimit(db, verifiedHiveId, RATE_LIMIT_PER_HOUR)
+      : await checkSoloRateLimit(db, soloRateLimitKey(soloUid, null), RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY, null, true);
+    if (!rl.allowed) {
+      log.warn(null, "rate_limit_hit", { hive_id: verifiedHiveId, section, scope: rl.scope ?? null });
+      return verifiedHiveId
+        ? rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds)
+        : soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds, rl.scope);
+    }
 
     const cats = SERVER_CATS[section];
     const userPayload = JSON.stringify({
@@ -232,6 +288,11 @@ serveObserved("marketplace-listing-assist", async (req) => {
       return json({ error: "AI is busy right now. Fill the listing manually or try again shortly." }, 503);
     }
 
+    // ★"NO SUGGESTION" FROM AN AI THAT NEVER ANSWERED (2026-10-12, UFAI edge walk W4580). callAI degrades to "{}" when
+    // every provider fails (or a walk asked for no model), and this answered ok:true with no category and no description -
+    // so the seller read "No suggestion this time", a verdict about their item from a model that never saw it. The reply
+    // says whether a model answered; the page says the assist could not answer.
+    const answered = aiAnswered(raw);
     let parsed: Record<string, unknown> = {};
     try { parsed = JSON.parse(raw); } catch { parsed = {}; }
 
@@ -242,19 +303,19 @@ serveObserved("marketplace-listing-assist", async (req) => {
     try {
       await logAICost(db, {
         fn:                "marketplace-listing-assist",
-        hive_id,
+        hive_id:           hive_id || null,
         model:             servedModel || (useImage ? "multimodal" : "chain"),
         prompt_tokens:     estimateTokens(SYSTEM_PROMPT + userPayload),
         output_tokens:     estimateTokens(raw),
-        status:            (category || description) ? "success" : "fallback",
+        status:            !answered ? "failed" : (category || description) ? "success" : "fallback",
         schema_compliance: Boolean(category || description),
       });
     } catch { /* observability, not the critical path */ }
 
     log.info(null, "listing_assist_served", { section, has_category: Boolean(category), has_description: Boolean(description), used_image: useImage });
-    return json({ ok: true, category, description, used_image: useImage });
+    return json({ ok: true, answered, category, description, used_image: useImage });
   } catch (_e) {
     log.error(null, "listing_assist_error", {});
     return json({ error: "Could not generate a suggestion. Please fill the listing manually." }, 500);
   }
-});
+}));

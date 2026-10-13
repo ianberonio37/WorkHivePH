@@ -26,12 +26,12 @@
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { STATUS_MAP, TYPE_MAP, DEFAULT_INVENTORY_FIELD_MAPS } from "../_shared/mappings.ts";
+import { DEFAULT_INVENTORY_FIELD_MAPS, normaliseStatus, normaliseType } from "../_shared/mappings.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -84,7 +84,7 @@ async function verifySignature(
 // Status / type normalization
 // ---------------------------------------------------------------------------
 
-// STATUS_MAP, TYPE_MAP — imported from _shared/mappings.ts
+// normaliseStatus, normaliseType — imported from _shared/mappings.ts (the code tables and their clamp)
 
 /* ★EVERY WRITE ON THIS PATH, NOT ONLY THE ONE THAT WAS WALKED (2026-09-09). The work_order upsert was
    found returning ok:true over a failed write; the asset.updated, inventory.updated and pm.overdue
@@ -98,16 +98,15 @@ async function putSync(
   what: string,
 ): Promise<void> {
   const { error } = await db.from("external_sync")
-    .upsert(row, { onConflict: "system_type,external_id,entity_type" });
+    .upsert(row, { onConflict: "hive_id,system_type,external_id,entity_type" });
   if (error) {
     console.error(`cmms-webhook-receiver: ${what} external_sync upsert failed -`, error.message);
     throw new Error(`${what} could not be recorded: ${error.message}`);
   }
 }
 
-// the vocabularies a CMMS uses for "this work is finished", beyond the code tables above. Used only to
-// clamp an UNMAPPED status into the three the database allows - never to override a real mapping.
-const CLOSING_HINT = /\b(TECO|CLSD|CLOSED?|COMP|COMPLETED?|FINISH(ED)?|DONE|CNF)\b/i;
+// the clamp of an UNMAPPED status (and type) lives in _shared/mappings.ts since 2026-10-12, so cmms-sync uses the
+// same one: normaliseStatus / normaliseType, with CLOSING_HINT beside them.
 
 // ---------------------------------------------------------------------------
 // Event processors
@@ -160,11 +159,8 @@ function extractWorkOrder(
      killed the whole write. integrations.html already learned this exact lesson on its import path and
      clamps, keeping the raw code in the payload; the webhook path never got the same treatment. Clamp to a
      legal value, and keep what the sender actually said in sync_payload.status_raw so nothing is lost. */
-  const _mapped = STATUS_MAP[systemType]?.[rawStatus];
-  const LEGAL_STATUS = ["Open", "Closed", "Cancelled"];
-  const normStatus = _mapped
-    ?? (LEGAL_STATUS.includes(rawStatus) ? rawStatus : (CLOSING_HINT.test(rawStatus) ? "Closed" : "Open"));
-  const normType   = TYPE_MAP[systemType]?.[rawType]     ?? rawType   ?? "Breakdown / Corrective";
+  const normStatus = normaliseStatus(systemType, rawStatus);
+  const normType   = normaliseType(systemType, rawType);
 
   const syncRow = {
     hive_id:        hiveId,
@@ -176,7 +172,7 @@ function extractWorkOrder(
     // status_raw: what the SENDER actually said, kept whenever we had to clamp it into the three values
     // the column allows - so a support question ("SAP says TECO, why does WorkHive say Closed?") can be
     // answered from the row instead of guessed
-    sync_payload:   { machine, maintenance_type: normType, problem, action, actual_hours: parseFloat(hoursStr) || 0, created_at: createdAt, closed_at: closedAt || null, status_raw: rawStatus || null },
+    sync_payload:   { machine, maintenance_type: normType, problem, action, actual_hours: parseFloat(hoursStr) || 0, created_at: createdAt, closed_at: closedAt || null, status_raw: rawStatus || null, type_raw: rawType || null },
     sync_status:    "active",
     last_synced_at: now,
   };
@@ -370,7 +366,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
          either - BECAUSE the error was discarded, the failure could not even be diagnosed after the fact.
          The row is the claim; if it did not land, say so and let the sender retry. */
       const { error: syncErr } = await db.from("external_sync")
-        .upsert(syncRow, { onConflict: "system_type,external_id,entity_type" });
+        .upsert(syncRow, { onConflict: "hive_id,system_type,external_id,entity_type" });
       if (syncErr) {
         console.error("cmms-webhook-receiver: external_sync upsert failed -", syncErr.message, syncErr.details || "");
         return new Response(JSON.stringify({
@@ -429,7 +425,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
 
     } else if (eventType === "asset.updated") {
       // F1: was a silent no-op contradicting the header contract. Track the external asset in
-      // external_sync (idempotent upsert on system_type,external_id,entity_type).
+      // external_sync (idempotent upsert on hive_id,system_type,external_id,entity_type).
       const a = extractAsset(payload, systemType, hiveId, now);
       if (a) await putSync(db, a, "asset.updated");
 

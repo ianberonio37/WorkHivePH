@@ -8,7 +8,8 @@
  * across the whole platform and resolves asset names via v_asset_truth (the
  * canonical source registered in canonical_sources).
  *
- * Input:  { transcript, hive_id, context_page?, context_asset_id? }
+ * Input:  { transcript, hive_id?, context_page?, context_asset_id? }
+ *         (no hive_id = a signed-in hive-less person; assets resolve against their own register)
  * Output: { transcript, intents[], asset_resolution?, remaining }
  *
  * Intent kinds (v1):
@@ -30,9 +31,13 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, limiterUnavailableResponse,
+} from "../_shared/rate-limit.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P2 Pillar C (Compute & Resilience): cache the deterministic Router LLM call.
@@ -57,6 +62,12 @@ import {
   ASSET_REQUIRED_KINDS, SLOT_FILL_CEILING,
   type VoiceIntent, type AssetCandidate,
 } from "../_shared/voice-router-core.ts";
+// The router's own limiter is skipped ONLY for a call ai-gateway genuinely forwarded (it already limited the
+// person) - proven by a header the gateway mints, never by a body field a caller can set.
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
+// The narration is a PROPOSAL (nothing is saved until the person confirms): a past-tense "logged / saved /
+// deducted" claim in it is false by construction and is replaced by an honest line.
+import { honestProposalNarration } from "../_shared/action_provenance.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -94,7 +105,7 @@ Output schema:
     }
   ],
   "mentioned_assets": [<string>...],
-  "narration": <string - 1-2 sentence prose acknowledgement in your persona's voice; what the worker hears alongside the route decision. Paraphrase only what's in the intents above; never invent.>
+  "narration": <string - 1-2 sentences in your persona's voice that the worker hears alongside the route decision. It is a PROPOSAL, because NOTHING IS SAVED when they hear it: say what WILL happen once they confirm, in future or conditional tense, for example "I can log a <hours>-hour <job> on <machine>. Confirm to fill the form." Paraphrase only what's in the intents above; never invent.>
 }
 
 Kind contracts (params shape per kind):
@@ -140,7 +151,8 @@ Rules:
 3. Never invent values. If the worker did not say a number, return null.
 4. No em dashes in any string. Use colons, commas, parentheses, or restructure.
 5. Filipino industrial vocabulary is fine (PEC, PSME, ISO 14224 terms).
-6. If the sentence is unclear, return one intent of kind "unknown" with confidence 0.0 and the original transcript in params.question.`;
+6. If the sentence is unclear, return one intent of kind "unknown" with confidence 0.0 and the original transcript in params.question.
+7. The narration never says the platform already did something. You only read the sentence: nothing is logged, saved, deducted, recorded or marked complete until the worker confirms on the page. Use "I can log", "Confirm and I will deduct", "Ready to mark the PM complete once you confirm", never "logged", "you logged", "saved", "deducted", "marked complete" or "Done". The worker's OWN physical work may stay in the past tense (they did replace the part).`;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // AssetCandidate and VoiceIntent are imported from _shared/voice-router-core.ts.
@@ -172,12 +184,19 @@ interface RouterResponse {
 
 // ─── Asset resolution via v_asset_truth (canonical) ───────────────────────────
 
+// ★A PERSON WITH NO HIVE HAS A REGISTER TOO (LM-V walk, LM473, 2026-10-07). A solo owner's machines are
+// asset_nodes rows with hive_id NULL and their own auth_uid - the same scope asset-hub, logbook and
+// pm-scheduler already read for them. So the lookup takes EITHER a proven hive OR the caller's VERIFIED
+// uid (never a client-sent id), and with neither it reads nothing: this runs on the service-role client,
+// so an unscoped query here would search every hive's register at once.
 async function resolveAssetCandidates(
   db: SupabaseClient,
   hiveId: string,
   mentioned: string[],
+  ownerUid: string | null = null,
 ): Promise<AssetCandidate[]> {
   if (!mentioned.length) return [];
+  if (!hiveId && !ownerUid) return [];
 
   // Escape LIKE wildcards on each mention so user-controlled input cannot
   // over-match (per security skill rule).
@@ -197,10 +216,13 @@ async function resolveAssetCandidates(
   }
   const orFilter = ors.join(",");
 
-  const { data } = await db.from("v_asset_truth")
-    .select("asset_id, tag, name, hive_id")
-    .eq("hive_id", hiveId)
+  const base = db.from("v_asset_truth").select("asset_id, tag, name, hive_id");
+  const scoped = hiveId
+    ? base.eq("hive_id", hiveId)
+    : base.is("hive_id", null).eq("auth_uid", ownerUid as string);
+  const { data } = await scoped
     .or(orFilter)
+    .order("tag")       // a tie between two of a person's machines resolves the same way every time
     .limit(ASSET_CANDIDATE_CAP);
 
   return (data || []) as AssetCandidate[];
@@ -214,7 +236,9 @@ async function resolveAssetCandidates(
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-serveObserved("voice-action-router", async (req) => {
+serveObserved("voice-action-router", tracedReply("voice-action-router", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -222,12 +246,12 @@ serveObserved("voice-action-router", async (req) => {
   const healthResp = await handleHealth(req, "voice-action-router", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "voice-action-router" });
+  const _logCtx = trace;
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
@@ -239,7 +263,8 @@ serveObserved("voice-action-router", async (req) => {
     const ctxObj = (body.context && typeof body.context === "object")
       ? body.context as Record<string, unknown>
       : {};
-    const viaGateway = body.gateway === true;
+    // (`body.gateway` is NOT read here: whether this call skips its own limiter is decided below from a header
+    // only ai-gateway can mint - any caller can write `gateway: true` into a body.)
     const transcript_raw = String(body.transcript || body.message || "").trim();
     const hive_id        = String(body.hive_id || "").trim();
     const context_page   =
@@ -253,13 +278,6 @@ serveObserved("voice-action-router", async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    if (!hive_id) {
-      return new Response(
-        JSON.stringify({ error: "Missing required field: hive_id" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
     // Cap transcript per ai-engineer skill (prompt-injection / TPM guard).
     const transcript = transcript_raw.slice(0, MAX_TRANSCRIPT_CHARS);
 
@@ -269,49 +287,96 @@ serveObserved("voice-action-router", async (req) => {
     );
 
     // Pillar I: resolves assets/actions for a hive scoped by the client hive_id
-    // on a service-role client — verify membership. The ai-gateway/platform-
-    // gateway forward is service-role and skips.
+    // on a service-role client — verify membership. The ai-gateway forwards the
+    // caller's own JWT, so a person behind the gateway is checked here too; only a
+    // genuine service-role caller skips.
+    // ★A SIGNED-IN PERSON WITH NO HIVE WAS REFUSED AFTER THEY HAD SPOKEN (LM-V walk, LM473, 2026-10-07). This
+    // function answered every hive-less call 400 "Missing required field: hive_id" - and the companion, knowing it
+    // would, told a solo owner "Voice needs a hive" only once they had finished recording. Classifying a sentence
+    // needs no hive: the prompt carries no hive data and the route cache is hive-independent. The one hive read is
+    // asset resolution, and a hive-less person has their own register for that (resolveAssetCandidates). So a person
+    // with no hive is served on their VERIFIED identity (the LM389 precedent, marketplace-listing-assist): no
+    // identity, no service; a hive that IS sent is still proven by membership exactly as before.
+    // Every hive-scoped step below (both limiters, the asset reads) keys on verifiedHiveId - the hive membership PROVED
+    // (or a trusted service-role caller named), never the raw body field (Pillar P; the visual-defect-capture fix,
+    // 2026-10-08). "" = no hive: the hive-less person in soloUid.
+    let verifiedHiveId = "";
+    let soloUid: string | null = null;
     {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
-      if (!isServiceRole) {
-        const t = await resolveTenancy(db, authUid, hive_id);
-        if (!t.ok) {
-          return new Response(
-            JSON.stringify({ error: t.message, code: t.code }),
-            { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-          );
+      if (hive_id) {
+        if (!isServiceRole) {
+          const t = await resolveTenancy(db, authUid, hive_id);
+          if (!t.ok) {
+            return new Response(
+              JSON.stringify({ error: t.message, code: t.code }),
+              { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+          verifiedHiveId = t.hive_id || "";
+        } else {
+          verifiedHiveId = hive_id;   // a trusted internal caller (service role) names the hive it already holds
         }
+      } else if (authUid) {
+        soloUid = authUid;
+      } else {
+        // a service-role caller names nobody, and an anonymous one names no records to resolve against
+        return new Response(
+          JSON.stringify(isServiceRole
+            ? { error: "Missing required field: hive_id" }
+            : { error: "Sign in to use voice commands. They work with or without a hive.", code: "auth_required" }),
+          { status: isServiceRole ? 400 : 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
     }
 
     // Rate limit gate FIRST. A rejected request must cost zero model tokens.
-    // EXCEPTION: when invoked behind ai-gateway (gateway:true), the gateway has
-    // ALREADY gated this call ONCE (hive + per-user). Re-gating here would
-    // double-count the same request against the hive bucket. Skip our own gate
-    // on the gateway path and let the gateway own rate-limiting (Step 4: "inherit
-    // rate-limit for free"). Direct callers still get gated here.
+    // EXCEPTION: when invoked behind ai-gateway, the gateway has ALREADY gated this call ONCE (hive + per-user,
+    // or the solo bucket). Re-gating here would double-count the same request. Skip our own gate on the gateway
+    // path and let the gateway own rate-limiting (Step 4: "inherit rate-limit for free").
+    // ★THE SKIP WAS A BODY FIELD (2026-10-08). It used to be `body.gateway === true` - and the gateway forwards the
+    // person's OWN JWT, so a direct caller and the gateway look identical by bearer: anyone signed in could send
+    // `gateway: true` straight to this function and skip every limiter on it (hive, per-surface and solo) with
+    // free-tier model calls behind each request. The skip now needs the HMAC header ai-gateway mints over the
+    // exact bearer it forwards (_shared/gateway-trust.ts); a direct call - with or without `gateway: true` - is
+    // rate-limited like any other.
+    const viaGateway = await isTrustedGatewayForward(req);
     let remaining = -1;
-    if (!viaGateway) {
+    if (!viaGateway && soloUid) {
+      // a hive-less person's own bucket, keyed on the VERIFIED uid (Pillar P) - the same solo bucket
+      // ai-gateway draws on for them, so one human has one budget whichever door they came through
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const srl = await checkSoloRateLimit(db, soloRateLimitKey(soloUid, _ip), undefined, undefined, _ip || null);
+      if (!srl.allowed) return soloRateLimitedResponse(corsHeaders, srl.retry_after_seconds, srl.scope);
+      remaining = srl.remaining;
+    } else if (!soloUid) {
       // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
       // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
       // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
       // checkRouteRateLimit only enforces when an explicit hive_route_quotas row exists, and
       // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
       // fail a real request.
+      // It runs on BOTH doors (2026-10-08), like every other gateway target's: it is keyed on THIS function's name, a
+      // bucket ai-gateway never counts (the gateway's own route row is keyed on the agent id, "voice-action"), so a cap an
+      // admin sets on this surface now holds whichever door the call came through. Only the hive bucket below is the
+      // gateway's own, and only that is skipped on a proven forward.
       try {
-        const _rq = await checkRouteRateLimit(db, hive_id || "", "voice-action-router");
+        const _rq = await checkRouteRateLimit(db, verifiedHiveId, "voice-action-router");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "voice-action-router", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "voice-action-router", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-      if (!rl.allowed) {
-        return new Response(
-          JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+      if (!viaGateway) {
+        const rl = await checkAIRateLimit(db, verifiedHiveId, RATE_LIMIT_PER_HOUR);
+        if (!rl.allowed) {
+          if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+          return new Response(
+            JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+        remaining = rl.remaining;
       }
-      remaining = rl.remaining;
     }
 
     // Build the prompt with page/asset context so the model can disambiguate
@@ -347,7 +412,9 @@ serveObserved("voice-action-router", async (req) => {
     // call downstream of the cache. The companion battery + flywheel replay the
     // same probe transcripts → high repeat-rate. 6h TTL: absorbs a sweep, short
     // enough that prompt/schema changes don't stick behind stale cache.
-    const routeCacheKey = `voiceroute:${personaKey}::${userPrompt}`;
+    // v2 (2026-10-08): the narration contract changed from an acknowledgement to a PROPOSAL (rule 7). A v1 entry
+    // may hold a past-tense "you logged ..." narration for up to 6h, so the key moves rather than serve it again.
+    const routeCacheKey = `voiceroute:v2:${personaKey}::${userPrompt}`;
     let raw: string;
     try {
       const cr = await cached<string>(
@@ -391,8 +458,9 @@ serveObserved("voice-action-router", async (req) => {
 
     const { intents, mentioned } = sanitiseIntents(parsed);
 
-    // Resolve any mentioned assets against v_asset_truth (canonical).
-    const candidates = await resolveAssetCandidates(db, hive_id, mentioned);
+    // Resolve any mentioned assets against v_asset_truth (canonical): the proven hive's register, or a
+    // hive-less person's own.
+    const candidates = await resolveAssetCandidates(db, verifiedHiveId, mentioned, soloUid);
     const { primary, ambiguous } = pickPrimaryCandidate(candidates, context_asset_id, mentioned);
 
     // P7 unresolved-asset slot-fill (2026-06-14, Family P finding). The blank-asset guard in
@@ -420,8 +488,19 @@ serveObserved("voice-action-router", async (req) => {
     }
 
     // Pull narration from the parsed JSON (capped to keep responses sane).
-    const narrationRaw = typeof parsed.narration === "string" ? parsed.narration.trim() : "";
-    const narration = narrationRaw.slice(0, 280);
+    // ★IT SAID "YOU LOGGED" WHEN NOTHING WAS SAVED (2026-10-07). This function only classifies; the page writes
+    // nothing until the person confirms. The model narrated "Naks, you logged a 2 hour brake pad replacement" anyway,
+    // and the platform's false-done rail never saw it: the gateway applies that rail only to advisory agents, and
+    // listed this route as an executor whose "logged" is true. The prompt now asks for a proposal (rule 7); this is
+    // the deterministic half - any past-tense platform-write claim is removed and an honest line takes its place,
+    // on the direct path and behind the gateway alike (the gateway passes this narration through unchanged).
+    const narrationRaw = typeof (parsed as Record<string, unknown>).narration === "string"
+      ? String((parsed as Record<string, unknown>).narration).trim() : "";
+    const honest = honestProposalNarration(narrationRaw, 280);
+    const narration = honest.narration;
+    if (honest.stripped.length) {
+      log.info(_logCtx, "proposal_done_claim_stripped", { stripped: honest.stripped.length });
+    }
 
     const response: RouterResponse = {
       transcript,
@@ -447,4 +526,4 @@ serveObserved("voice-action-router", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-action-router", "voice_action_router_error", err);
   }
-});
+}));

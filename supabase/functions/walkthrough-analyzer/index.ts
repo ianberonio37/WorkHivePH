@@ -38,20 +38,20 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 // Arc L free-tier B gate (2026-06-23): this PUBLIC (verify_jwt=false) internal QA fn
 // calls vision/text LLMs with NO membership gate — an anon bot could burn unbounded
 // provider tokens. Bound it with a GENEROUS IP cap that fits the internal harness
 // (tools/analyze_walkthrough.py does ~36 page-analyses/run) yet blocks unbounded spam.
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 
 const _WA_URL = Deno.env.get("SUPABASE_URL") || "";
 const _WA_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -160,7 +160,9 @@ Respond ONLY in this JSON shape:
 
 // ── Main handler ──────────────────────────────────────────────────────────────
 
-serveObserved("walkthrough-analyzer", async (req: Request): Promise<Response> => {
+serveObserved("walkthrough-analyzer", tracedReply("walkthrough-analyzer", async (req: Request, trace): Promise<Response> => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "walkthrough-analyzer", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -169,7 +171,7 @@ serveObserved("walkthrough-analyzer", async (req: Request): Promise<Response> =>
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: getCorsHeaders(req) });
   }
-  logRequestStart(req, "walkthrough-analyzer");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
@@ -213,6 +215,7 @@ serveObserved("walkthrough-analyzer", async (req: Request): Promise<Response> =>
         const _waIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _waRl = await checkSoloRateLimit(createClient(_WA_URL, _WA_KEY), soloRateLimitKey(null, _waIp), _WA_RATE_CAP);
         if (!_waRl.allowed) {
+          if (_waRl.scope === "unavailable") return limiterUnavailableResponse(getCorsHeaders(req));
           return new Response(
             JSON.stringify({ error: "Analysis rate limit reached. Try again later." }),
             { status: 429, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } },
@@ -397,4 +400,4 @@ Classify these errors against the 9 Sentinel Agent domains.`;
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "walkthrough-analyzer", "walkthrough_analyzer_error", err);
   }
-});
+}));

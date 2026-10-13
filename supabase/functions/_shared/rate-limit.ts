@@ -12,8 +12,20 @@
 //
 // The function is idempotent within a 1-hour window: each successful gate
 // increments call_count for the hive; the window resets after 60 minutes.
+//
+// ★A LIMITER THAT CANNOT COUNT MUST NOT ADMIT (2026-10-08, marketplace-listing-assist). For a seller with no hive the
+// function passed the person's AUTH UID to checkAIRateLimit, which wrote it into ai_rate_limits.hive_id - a column
+// with a foreign key to hives. Every upsert failed (23503), the error was never read, no row ever existed, so every
+// call saw an empty bucket and was let through: a limiter that did nothing for exactly the callers it was added for.
+// checkUserRateLimit had the twin defect - it wrote hive_id "" (22P02, not a uuid) for intelligence-report's and
+// voice-semantic-rag's hive-less callers - and every limiter here discarded its read and write errors the same way.
+// Now every read and write a limiter makes is checked, and one that fails REFUSES the call (scope "unavailable",
+// a 503 that says the allowance could not be checked - never "limit reached", which would be false). A key is only
+// ever the kind of thing its column holds: a hive id to the hive limiters, a person (or `ip:` floor) to the
+// per-person ones - a hive-less caller is limited per USER with checkSoloRateLimit. Locked by
+// tools/validate_rate_limit_key_is_verified.py (rules U and E).
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 
 // 2026-05-26: honor WH_RATE_LIMIT_OVERRIDE at module load so EVERY caller of
 // checkAIRateLimit (including specialists like voice-logbook-entry and
@@ -36,8 +48,9 @@ export const DEFAULT_RATE_LIMIT_PER_DAY =
 export interface RateLimitResult {
   allowed:   boolean;
   remaining: number;
-  /** Set when the DENY was due to the per-day ceiling (vs the hourly window). */
-  scope?:    "hour" | "day";
+  /** Set on a DENY: the per-day ceiling, the hourly window, a caller with no identity to bucket on (strict solo), or
+   *  a limiter that could not read or write its counter ("unavailable" - the call is refused, not waved through). */
+  scope?:    "hour" | "day" | "unidentified" | "unavailable";
   /**
    * Seconds until the exceeded window resets. Set only on a DENY.
    *
@@ -58,6 +71,40 @@ export interface RateLimitResult {
   retry_after_seconds?: number;
 }
 
+/** How long a refusal says to wait when the limiter itself could not count: a short retry, not a quota window. */
+export const LIMITER_UNAVAILABLE_RETRY_SECONDS = 30;
+
+/** A limiter read or write failed: refuse (fail CLOSED) and say so in the log. Never throws. */
+function limiterUnavailable(where: string, err: { message?: string; code?: string } | null): RateLimitResult {
+  try {
+    console.warn(JSON.stringify({ level: "warn", msg: `rate_limiter_unavailable: ${where}`,
+      code: err?.code ?? null, detail: String(err?.message ?? "").slice(0, 200) }));
+  } catch { /* empty-catch-allow: a log line must never change the verdict */ }
+  return { allowed: false, remaining: 0, scope: "unavailable", retry_after_seconds: LIMITER_UNAVAILABLE_RETRY_SECONDS };
+}
+
+/** What a person is told when the limiter could not count: true of every limiter, AI or not. */
+export const LIMITER_UNAVAILABLE_MESSAGE =
+  "We could not check your usage limit just now, so nothing was run. Try again in about a minute.";
+
+/** The refusal for scope "unavailable": the allowance could not be checked, so nothing ran. 503, not 429 - the
+ *  person reached no limit, and the sentence must not tell them they did. */
+export function limiterUnavailableResponse(corsHeaders: Record<string, string>): Response {
+  const secs = LIMITER_UNAVAILABLE_RETRY_SECONDS;
+  return new Response(
+    JSON.stringify({
+      error: LIMITER_UNAVAILABLE_MESSAGE,
+      scope: "unavailable",
+      retryAfter: secs,
+      retry_after: secs,
+    }),
+    { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(secs) } },
+  );
+}
+
+/** Per-HIVE limiter. `hiveId` must be a hive id: ai_rate_limits.hive_id references hives(id), so any other key (an
+ *  auth uid) can never be written - that write now refuses the call instead of silently admitting it. A hive-less
+ *  caller is limited per person with checkSoloRateLimit. */
 export async function checkAIRateLimit(
   db: SupabaseClient,
   hiveId: string,
@@ -65,17 +112,19 @@ export async function checkAIRateLimit(
   limitPerDay:  number = DEFAULT_RATE_LIMIT_PER_DAY,
 ): Promise<RateLimitResult> {
   if (!hiveId) {
-    // Solo-worker mode (no hive context). Allow without tracking — these
-    // calls are by definition single-user and bounded.
+    // No hive to count against: only a trusted service-role / cron path should arrive here. A person with no hive
+    // must be limited per USER by the caller (checkSoloRateLimit) - this bucket cannot hold them.
     return { allowed: true, remaining: limitPerHour };
   }
   const now     = Date.now();
   const hourAgo = new Date(now - 60 * 60 * 1000);
   const dayAgo  = new Date(now - 24 * 60 * 60 * 1000);
-  const { data } = await db.from("ai_rate_limits")
+  const { data, error: readErr } = await db.from("ai_rate_limits")
     .select("call_count, window_start, day_count, day_window_start")
     .eq("hive_id", hiveId)
     .maybeSingle();
+  // an unread bucket is not an empty one: counting from zero would reset the window and admit the call
+  if (readErr) return limiterUnavailable("ai_rate_limits read", readErr);
 
   // Each window resets independently once its start ages past its span.
   const hourFresh = Boolean(data && new Date(data.window_start) >= hourAgo);
@@ -100,13 +149,15 @@ export async function checkAIRateLimit(
     };
   }
   const nowIso = new Date().toISOString();
-  await db.from("ai_rate_limits").upsert({
+  const { error: writeErr } = await db.from("ai_rate_limits").upsert({
     hive_id:          hiveId,
     call_count:       hourCount + 1,
     window_start:     hourFresh ? data!.window_start : nowIso,
     day_count:        dayCount + 1,
     day_window_start: dayFresh ? data!.day_window_start : nowIso,
   });
+  // a call the counter did not record is a call the limit can never see: refuse it (23503 here = not a hive id)
+  if (writeErr) return limiterUnavailable("ai_rate_limits write", writeErr);
   return { allowed: true, remaining: limitPerHour - (hourCount + 1) };
 }
 
@@ -124,9 +175,12 @@ export async function checkAIRateLimit(
  */
 export function rateLimitedResponse(
   corsHeaders: Record<string, string>,
-  scope: "hour" | "day" = "hour",
+  scope: RateLimitResult["scope"] = "hour",
   retryAfterSeconds?: number,
 ): Response {
+  // a refusal that is not about this hive's quota gets its own true sentence
+  if (scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+  if (scope === "unidentified") return soloUnidentifiedResponse(corsHeaders);
   const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
     ? Math.max(1, Math.round(retryAfterSeconds))
     : undefined;
@@ -294,7 +348,7 @@ export async function checkRouteRateLimit(
   }
   // Look up per-route quota.
   // canonical-allow: hive_route_quotas is rate-limiter control-plane config (per-route quota), not a user-facing cross-surface KPI value — no v_*_truth wrapper applies.
-  const { data: q } = await db
+  const { data: q, error: quotaErr } = await db
     .from("hive_route_quotas")
     .select("hourly_cap, enforce")
     .eq("hive_id", hiveId)
@@ -303,6 +357,11 @@ export async function checkRouteRateLimit(
   const cap     = q?.hourly_cap ?? DEFAULT_RATE_LIMIT_PER_HOUR;
   const enforce = q?.enforce    ?? true;
   const perRoute = Boolean(q);
+  // a counter this limiter could not read or write refuses (scope "unavailable"); per_route says whether an admin cap
+  // applies, so an observe-mode caller (which denies only on per_route) still leaves the decision to the hive limiter
+  const unavailable = (where: string, err: { message?: string; code?: string } | null): RouteRateLimitResult =>
+    ({ ...limiterUnavailable(where, err), cap, per_route: perRoute, enforce });
+  if (quotaErr) return unavailable("hive_route_quotas read", quotaErr);
 
   // Compute hour bucket (truncate to the hour).
   const bucket = new Date();
@@ -311,25 +370,27 @@ export async function checkRouteRateLimit(
 
   // Read current counter.
   // canonical-allow: hive_route_calls is the rate-limiter's control-plane per-hour counter, not a user-facing cross-surface KPI value — no v_*_truth wrapper applies.
-  const { data: c } = await db
+  const { data: c, error: countReadErr } = await db
     .from("hive_route_calls")
     .select("call_count")
     .eq("hive_id", hiveId)
     .eq("route", route)
     .eq("hour_bucket", bucketIso)
     .maybeSingle();
+  if (countReadErr) return unavailable("hive_route_calls read", countReadErr);
   const currentN = c?.call_count ?? 0;
 
   if (currentN >= cap) {
     // Increment anyway so dashboards see the over-cap pressure, but
     // only deny when enforce is true.
-    await db.from("hive_route_calls").upsert({
+    const { error: overErr } = await db.from("hive_route_calls").upsert({
       hive_id:     hiveId,
       route,
       hour_bucket: bucketIso,
       call_count:  currentN + 1,
       updated_at:  new Date().toISOString(),
     });
+    if (overErr) return unavailable("hive_route_calls write", overErr);
     return {
       allowed:   !enforce,
       remaining: 0,
@@ -341,13 +402,14 @@ export async function checkRouteRateLimit(
     };
   }
   // Under cap: increment and allow.
-  await db.from("hive_route_calls").upsert({
+  const { error: incErr } = await db.from("hive_route_calls").upsert({
     hive_id:     hiveId,
     route,
     hour_bucket: bucketIso,
     call_count:  currentN + 1,
     updated_at:  new Date().toISOString(),
   });
+  if (incErr) return unavailable("hive_route_calls write", incErr);
   return {
     allowed:   true,
     remaining: cap - currentN - 1,
@@ -367,13 +429,17 @@ export function routeRateLimitedResponse(
   route: string,
   cap:   number,
   retryAfterSeconds?: number,
+  scope?: RateLimitResult["scope"],
 ): Response {
+  if (scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
   const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
     ? Math.max(1, Math.round(retryAfterSeconds))
     : undefined;
   const when = secs === undefined
     ? "Try again later."
-    : secs >= 60
+    : secs >= 5400   // past 90 minutes a wait reads in hours: a day-cap refusal said "about 1200 minutes" (2026-10-12)
+      ? `Try again in about ${Math.round(secs / 3600)} hour${Math.round(secs / 3600) === 1 ? "" : "s"}.`
+      : secs >= 60
       ? `Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
       : `Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
   const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
@@ -448,19 +514,25 @@ export async function checkUserRateLimit(
     };
   }
   const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  const unavailable = (where: string, err: { message?: string; code?: string } | null): UserRateLimitResult =>
+    ({ ...limiterUnavailable(where, err), user_cap: userLimit, hive_remaining: hive.remaining });
   // canonical-allow: ai_user_rate_limits is an infrastructure counter table (per-user budget inside the per-hive bucket); not a user-facing KPI source. Registered in canonical_sources as domain='rate_limit_infra'.
-  const { data } = await db.from("ai_user_rate_limits")
+  const { data, error: readErr } = await db.from("ai_user_rate_limits")
     .select("call_count, window_start")
     .eq("user_id", userId)
     .maybeSingle();
+  if (readErr) return unavailable("ai_user_rate_limits read", readErr);
   if (!data || new Date(data.window_start) < windowStart) {
     // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
-    await db.from("ai_user_rate_limits").upsert({
+    const { error: openErr } = await db.from("ai_user_rate_limits").upsert({
       user_id:      userId,
-      hive_id:      hiveId,
+      // a hive-less caller (intelligence-report, voice-semantic-rag pass "") has no hive: NULL, never "" - the
+      // column is a uuid, and "" failed every insert (22P02), so their per-user bucket was never opened
+      hive_id:      hiveId || null,
       call_count:   1,
       window_start: new Date().toISOString(),
     });
+    if (openErr) return unavailable("ai_user_rate_limits write", openErr);
     return {
       allowed:        true,
       remaining:      userLimit - 1,
@@ -482,9 +554,10 @@ export async function checkUserRateLimit(
     };
   }
   // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
-  await db.from("ai_user_rate_limits")
+  const { error: incErr } = await db.from("ai_user_rate_limits")
     .update({ call_count: data.call_count + 1 })
     .eq("user_id", userId);
+  if (incErr) return unavailable("ai_user_rate_limits write", incErr);
   return {
     allowed:        true,
     remaining:      userLimit - data.call_count - 1,
@@ -504,7 +577,9 @@ export function userRateLimitedResponse(
   corsHeaders: Record<string, string>,
   userCap: number,
   retryAfterSeconds?: number,
+  scope?: RateLimitResult["scope"],
 ): Response {
+  if (scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
   const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
     ? Math.max(1, Math.round(retryAfterSeconds))
     : undefined;
@@ -589,10 +664,11 @@ async function bumpSoloBucket(
   const hourAgo = new Date(now - 60 * 60 * 1000);
   const dayAgo  = new Date(now - 24 * 60 * 60 * 1000);
   // canonical-allow: ai_user_rate_limits is an infrastructure counter table (rate_limit_infra), not a KPI source.
-  const { data } = await db.from("ai_user_rate_limits")
+  const { data, error: readErr } = await db.from("ai_user_rate_limits")
     .select("call_count, window_start, day_count, day_window_start")
     .eq("user_id", key)
     .maybeSingle();
+  if (readErr) return limiterUnavailable("ai_user_rate_limits read", readErr);
 
   const hourFresh = Boolean(data && new Date(data.window_start) >= hourAgo);
   const dayFresh  = Boolean(data && data.day_window_start && new Date(data.day_window_start) >= dayAgo);
@@ -616,7 +692,7 @@ async function bumpSoloBucket(
 
   const nowIso = new Date().toISOString();
   // canonical-allow: ai_user_rate_limits infrastructure counter (see lookup site).
-  await db.from("ai_user_rate_limits").upsert({
+  const { error: writeErr } = await db.from("ai_user_rate_limits").upsert({
     user_id:          key,
     hive_id:          null,
     call_count:       hourCount + 1,
@@ -624,6 +700,7 @@ async function bumpSoloBucket(
     day_count:        dayCount + 1,
     day_window_start: dayFresh ? data!.day_window_start : nowIso,
   });
+  if (writeErr) return limiterUnavailable("ai_user_rate_limits write", writeErr);
   return { allowed: true, remaining: limitPerHour - (hourCount + 1) };
 }
 
@@ -683,9 +760,45 @@ export async function checkSoloRateLimit(
   if (ip && !identityKey.startsWith("ip:")) {
     const ipGate = await bumpSoloBucket(db, `ip:${ip}`,
       limitPerHour * SOLO_IP_CEILING_MULTIPLIER, limitPerDay * SOLO_IP_CEILING_MULTIPLIER);
-    if (!ipGate.allowed) return { allowed: false, remaining: 0, scope: ipGate.scope };
+    if (!ipGate.allowed) {
+      return { allowed: false, remaining: 0, scope: ipGate.scope, retry_after_seconds: ipGate.retry_after_seconds };
+    }
   }
   return primary;
+}
+
+/**
+ * A tighter per-surface ceiling for a call ai-gateway already COUNTED on this person's bucket (a trusted forward -
+ * isTrustedGatewayForward): READ the bucket, never add to it, so one call is never counted twice. The gateway's
+ * increment already includes this call, so the refusal is at `>` the cap - exactly where a direct call's `>=` (checked
+ * before its own increment) refuses. A read that fails refuses (fail closed), like every limiter here.
+ */
+export async function peekSoloRateLimit(
+  db:           SupabaseClient,
+  identityKey:  string,
+  limitPerHour: number,
+  limitPerDay:  number,
+): Promise<RateLimitResult> {
+  if (!identityKey) return { allowed: false, remaining: 0, scope: "unidentified" };
+  const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const dayAgo  = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  // canonical-allow: ai_user_rate_limits is an infrastructure counter table (rate_limit_infra), not a KPI source.
+  const { data, error: readErr } = await db.from("ai_user_rate_limits")
+    .select("call_count, window_start, day_count, day_window_start")
+    .eq("user_id", identityKey)
+    .maybeSingle();
+  if (readErr) return limiterUnavailable("ai_user_rate_limits read (peek)", readErr);
+  const hourCount = data && new Date(data.window_start) >= hourAgo ? data.call_count : 0;
+  const dayCount  = data && data.day_window_start && new Date(data.day_window_start) >= dayAgo ? (data.day_count ?? 0) : 0;
+  if (dayCount > limitPerDay) {
+    return { allowed: false, remaining: 0, scope: "day",
+             retry_after_seconds: secondsToWindowEnd(data?.day_window_start, 24 * 60 * 60) };
+  }
+  if (hourCount > limitPerHour) {
+    return { allowed: false, remaining: 0, scope: "hour",
+             retry_after_seconds: secondsToWindowEnd(data?.window_start, 60 * 60) };
+  }
+  return { allowed: true, remaining: Math.max(0, limitPerHour - hourCount) };
 }
 
 /**
@@ -717,13 +830,19 @@ export function soloUnidentifiedResponse(corsHeaders: Record<string, string>): R
 export function soloRateLimitedResponse(
   corsHeaders: Record<string, string>,
   retryAfterSeconds?: number,
+  scope?: RateLimitResult["scope"],
 ): Response {
+  // a refusal that is not about a used-up quota gets its own true sentence
+  if (scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+  if (scope === "unidentified") return soloUnidentifiedResponse(corsHeaders);
   const secs = typeof retryAfterSeconds === "number" && isFinite(retryAfterSeconds)
     ? Math.max(1, Math.round(retryAfterSeconds))
     : undefined;
   const when = secs === undefined
     ? "Please try again in an hour."
-    : secs >= 60
+    : secs >= 5400   // past 90 minutes a wait reads in hours: a day-cap refusal said "about 1200 minutes" (2026-10-12)
+      ? `Try again in about ${Math.round(secs / 3600)} hour${Math.round(secs / 3600) === 1 ? "" : "s"}.`
+      : secs >= 60
       ? `Try again in about ${Math.ceil(secs / 60)} minute${Math.ceil(secs / 60) === 1 ? "" : "s"}.`
       : `Try again in ${secs} second${secs === 1 ? "" : "s"}.`;
   const headers: Record<string, string> = { ...corsHeaders, "Content-Type": "application/json" };
@@ -790,6 +909,11 @@ export async function checkClassedRateLimit(
   // when voice usage is low, but voice callers always have their share
   // reserved (their check gates on capForClass even if global usage is low).
   const result = await checkAIRateLimit(db, hiveId, globalCap);
+  // the counter could not be read or written: refuse as-is (the share arithmetic below would read remaining 0 as
+  // "all used" and could still admit a voice call)
+  if (result.scope === "unavailable") {
+    return { ...result, cap_for_class: capForClass, traffic_class: trafficClass };
+  }
   // For voice: must have remaining ≥ (globalCap - capForClass) — i.e. at
   // least the bg-share-floor must still be available. For background:
   // total usage must not exceed (globalCap - voice-share-reservation).

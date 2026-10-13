@@ -1,7 +1,33 @@
 // deno test _shared/action_provenance.test.ts
 // CL10 action-faithfulness rail — regression contract. Run: deno test action_provenance.test.ts
 import { assert, assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { stripFalseActionClaims } from "./action_provenance.ts";
+import {
+  stripFalseActionClaims, stripProposalDoneClaims, honestProposalNarration, PROPOSAL_HONEST_CLARIFIER,
+} from "./action_provenance.ts";
+
+// ---- PROPOSAL rail (voice-action-router narration, 2026-10-08). Same strings as the node behaviour check in
+// tools/validate_voice_router_honesty.py, which is what actually runs them (no deno on the dev host).
+Deno.test("proposal rail: the live-caught 'you logged' is stripped and replaced by the honest line", () => {
+  const h = honestProposalNarration("Naks, you logged a 2 hour brake pad replacement.");
+  assert(!/logged/i.test(h.narration), "no completion claim survives");
+  assertEquals(h.narration, PROPOSAL_HONEST_CLARIFIER);
+});
+
+Deno.test("proposal rail: past-tense platform writes by any subject are stripped", () => {
+  for (const s of ["Deducted 2 V-belts from stock.", "PM marked as complete.", "Done, I've logged it.",
+                   "The entry has been saved.", "You've recorded the job."]) {
+    assert(stripProposalDoneClaims(s).hit, s);
+  }
+});
+
+Deno.test("proposal rail: proposals, negations and the worker's own work are kept", () => {
+  for (const s of ["I can log a 2-hour brake pad replacement. Confirm to fill the form.",
+                   "Once you confirm, the PM on the chiller will be marked complete.",
+                   "You replaced the V-belt on the pump, nice work. Confirm and I will log it.",
+                   PROPOSAL_HONEST_CLARIFIER]) {
+    assert(!stripProposalDoneClaims(s).hit, s);
+  }
+});
 
 // ---- STRIP: fabricated COMPLETED system-write claims (the live-caught defect) ------------------
 Deno.test("live-caught: 'Log entry added to CT-001 maintenance history' is stripped", () => {

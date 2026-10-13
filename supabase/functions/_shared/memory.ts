@@ -10,7 +10,8 @@
 // saveTurn(...) after the agent responds. summariseIfNeeded(...) collapses
 // the oldest turns when the live tail crosses RECENT_TURNS.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { ageLabel, oldestWholeTurns, turnOrder } from "./memory_age.ts";
 
 export const RECENT_TURNS = 10;        // raw turns kept verbatim
 export const SUMMARISE_AT = 12;        // collapse oldest 5 once buffer hits this
@@ -24,6 +25,15 @@ export interface MemoryHandle {
   agent_id:    string;
 }
 
+// ★WHOSE MEMORY (2026-10-13): turns were read back by DISPLAY NAME through the service-role client, where no RLS stands
+// behind the filter. hive_members keeps a name unique within a hive TODAY, but a rename frees the old name, and the next
+// person to join the hive under it inherited the previous person's remembered turns for up to 90 days - a name is not an
+// identity. saveTurn and persistSummary write auth_uid on every row (measured: 0 of 316 turns lack it; 2 of 52 summaries,
+// from July, inside their 90-day expiry), so the ACCOUNT is the key, and the name only for a handle that has none.
+export function memoryKey(h: MemoryHandle): ["auth_uid" | "worker_name", string] {
+  return h.auth_uid ? ["auth_uid", h.auth_uid] : ["worker_name", h.worker_name];
+}
+
 export interface MemoryTurn {
   role:    "user" | "agent";
   text:    string;
@@ -33,6 +43,7 @@ export interface MemoryTurn {
 export interface LoadedMemory {
   recent_turns: MemoryTurn[];
   summary:      string | null;
+  summary_at?:  string | null;   // when the rolling summary was written (2026-10-13: the model is told its age)
 }
 
 /**
@@ -49,7 +60,7 @@ export async function loadMemory(
 
   let recentQuery = db.from("agent_memory")
     .select("turn_text, meta, created_at")
-    .eq("worker_name", h.worker_name)
+    .eq(...memoryKey(h))
     .eq("agent_id",    h.agent_id)
     .eq("kind",        "turn")
     .order("created_at", { ascending: false })
@@ -57,7 +68,7 @@ export async function loadMemory(
 
   let summaryQuery = db.from("agent_memory")
     .select("summary, created_at")
-    .eq("worker_name", h.worker_name)
+    .eq(...memoryKey(h))
     .eq("agent_id",    h.agent_id)
     .eq("kind",        "summary")
     .order("created_at", { ascending: false })
@@ -81,10 +92,14 @@ export async function loadMemory(
       ? "agent" as const : "user" as const;
     recent_turns.push({ role, text, created_at: row.created_at });
   }
+  // a question and its answer share one created_at, and a tie comes back in any order: the person spoke first
+  // (2026-10-13, _shared/memory_age.ts turnOrder)
+  recent_turns.sort(turnOrder);
 
   const summary = summaryRes.data?.[0]?.summary ?? null;
+  const summary_at = summaryRes.data?.[0]?.created_at ?? null;
 
-  return { recent_turns, summary };
+  return { recent_turns, summary, summary_at };
 }
 
 /**
@@ -181,7 +196,7 @@ export async function persistSummary(
     // (no canonical truth view exists for it — it IS the source); same raw-store reads as loadMemory/saveTurn above.
     let staleQ = db.from("agent_memory")
       .select("id")
-      .eq("worker_name", h.worker_name)
+      .eq(...memoryKey(h))
       .eq("agent_id",    h.agent_id)
       .eq("kind",        "summary")
       .order("created_at", { ascending: false })
@@ -216,7 +231,7 @@ export async function summariseIfNeeded(
   try {
     let countQ = db.from("agent_memory")
       .select("id", { count: "exact", head: true })
-      .eq("worker_name", h.worker_name)
+      .eq(...memoryKey(h))
       .eq("agent_id",    h.agent_id)
       .eq("kind",        "turn");
     countQ = h.hive_id ? countQ.eq("hive_id", h.hive_id) : countQ.is("hive_id", null);
@@ -224,15 +239,18 @@ export async function summariseIfNeeded(
     if (!count || count <= SUMMARISE_AT) return null;
 
     let oldestQ = db.from("agent_memory")
-      .select("id, turn_text, meta")
-      .eq("worker_name", h.worker_name)
+      .select("id, turn_text, meta, created_at")
+      .eq(...memoryKey(h))
       .eq("agent_id",    h.agent_id)
       .eq("kind",        "turn")
       .order("created_at", { ascending: true })
-      .limit(SUMMARISE_BATCH);
+      .limit(SUMMARISE_BATCH + 1);   // one past the batch, so a pair at the cut is seen whole
     oldestQ = h.hive_id ? oldestQ.eq("hive_id", h.hive_id) : oldestQ.is("hive_id", null);
-    const { data: oldest } = await oldestQ;
-    if (!oldest || !oldest.length) return null;
+    const { data: fetched } = await oldestQ;
+    if (!fetched || !fetched.length) return null;
+    // ★A PAIR STAYS WHOLE (2026-10-13): five rows of question/answer pairs always split one, leaving half an exchange
+    // behind the summary; and a tie came back answer-first into the transcript the summariser reads.
+    const oldest = oldestWholeTurns(fetched, SUMMARISE_BATCH);
 
     const transcript = oldest.map((r) => {
       const role = (r.meta as Record<string, unknown> | null)?.role === "agent" ? "Assistant" : "User";
@@ -240,7 +258,9 @@ export async function summariseIfNeeded(
     }).join("\n");
 
     const summary_text = (await summarise(transcript) || "").trim();
-    if (!summary_text) return null;
+    // "{}" is the AI chain's "no model answered", never a summary - and keeping it here DELETES the turns it stands
+    // for (persistSummary removes them). Defence in depth behind the gateway's own aiAnswered() check (2026-10-09).
+    if (!summary_text || summary_text === "{}") return null;
 
     await persistSummary(db, h, summary_text, oldest.map((r) => r.id as string));
     return { collapsed: oldest.length };
@@ -254,17 +274,21 @@ export async function summariseIfNeeded(
  * Build a compact context block to prepend to the user's prompt.
  * Order: long-term summary first, then recent turns oldest-to-newest.
  */
-export function formatMemoryContext(loaded: LoadedMemory): string {
+export function formatMemoryContext(loaded: LoadedMemory, now: Date = new Date()): string {
   if (!loaded.recent_turns.length && !loaded.summary) return "";
   const parts: string[] = [];
   if (loaded.summary) {
-    parts.push(`Conversation so far (summary):\n${loaded.summary}`);
+    const summaryAge = ageLabel(loaded.summary_at, now);
+    parts.push(`Conversation so far (summary${summaryAge ? `, written ${summaryAge}` : ""}):\n${loaded.summary}`);
   }
   if (loaded.recent_turns.length) {
-    parts.push("Recent turns:");
+    // ★WHEN each turn was said (2026-10-13): without it, six-day-old questions were read as "four times today"
+    // (_shared/memory_age.ts). The bracket is a duration, true in every timezone.
+    parts.push("Recent turns (oldest first; the bracket is how long ago each was said - a turn from days ago is not today):");
     for (const t of loaded.recent_turns) {
       const tag = t.role === "user" ? "Worker" : "Agent"; // role-allow: LLM chat-message role
-      parts.push(`${tag}: ${t.text}`);
+      const age = ageLabel(t.created_at, now);
+      parts.push(`${age ? `[${age}] ` : ""}${tag}: ${t.text}`);
     }
   }
   return parts.join("\n");

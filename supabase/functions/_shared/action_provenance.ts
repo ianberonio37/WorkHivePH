@@ -115,3 +115,99 @@ export function stripFalseActionClaims(answer: string): ActionProvenanceResult {
 // worker knows the record was NOT written and how to actually persist it.
 export const ACTION_HONEST_CLARIFIER =
   "Note: I can't write to your records directly — I've flagged what to capture, but you'll need to add it in the Logbook or PM page to save it.";
+
+// ============================================================================
+// PROPOSAL-surface rail (2026-10-08, voice-action-router).
+//
+// The voice router CLASSIFIES a spoken sentence and writes nothing. The page shows each intent as a card,
+// and nothing is saved until the person confirms (logbook.create only fills the form they then save). So
+// in the router's `narration`, ANY claim that a platform write already happened is false by construction.
+// The advisory rail above misses the commonest shape, because it guards the assistant's own "I did X" and
+// never looks at "you": live 2026-10-07 the router said "Naks, you logged a 2 hour brake pad replacement"
+// with nothing saved. A proposal surface is therefore STRICTER than an advisory one: the subject does not
+// matter (I / we / you / passive / elided), only that a record-write verb is in the past tense and is not
+// hedged as future ("will be saved", "once logged") or negated ("nothing is saved yet"). The worker's own
+// PHYSICAL work stays past tense and is never touched: "you replaced the V-belt" is true.
+//
+// The gateway's advisory rail stays OFF this route on purpose: its clarifier tells the person to add the
+// record in the Logbook themselves, which is wrong here - the page applies the intent once they confirm.
+// ============================================================================
+
+// Record-write verbs whose past tense, on a proposal surface, can only mean "the platform did it".
+const PROPOSAL_WRITE_VERBS = "logged|recorded|saved|deducted|filed|submitted|posted|entered|booked|stored";
+// Verbs that are a platform write when the assistant is the subject, or when the object is a record.
+const PROPOSAL_SYSTEM_VERBS =
+  PROPOSAL_WRITE_VERBS + "|added|created|updated|scheduled|marked|closed|completed|removed|subtracted|registered|assigned|adjusted|reduced";
+
+// Each pattern names its verb `v`; the text BEFORE that verb decides whether it is hedged or negated.
+const PROPOSAL_DONE_PATTERNS: RegExp[] = [
+  // anyone did the write: "you logged", "you've recorded", "I just saved", "we deducted"
+  new RegExp(String.raw`\b(?:i|we|you)\b(?:'ve|'d|\s+(?:have|had|just|already|also|now|then|all)){0,3}\s+(?<v>${PROPOSAL_WRITE_VERBS})\b`, "gid"),
+  // the assistant did a system change: "I've updated the PM", "we marked it", "I removed two from stock"
+  new RegExp(String.raw`\b(?:i|we)\b(?:'ve|'d|\s+(?:have|had|just|already|also|now|then)){0,3}\s+(?<v>${PROPOSAL_SYSTEM_VERBS})\b`, "gid"),
+  // passive, done: "has been logged", "have already been deducted"
+  new RegExp(String.raw`\b(?:has|have|had)\s+(?:now\s+|just\s+|already\s+)?been\s+(?<v>${PROPOSAL_SYSTEM_VERBS})\b`, "gid"),
+  // passive, state: "is now saved", "was deducted", "it's logged"
+  new RegExp(String.raw`\b(?:is|are|was|were|it's|that's)\s+(?:now\s+|all\s+|already\s+)?(?<v>${PROPOSAL_WRITE_VERBS})\b`, "gid"),
+  // a record as the subject: "stock updated", "PM marked as complete", "log entry added"
+  new RegExp(String.raw`\b(?:stock|inventory|logbook|log\s*entry|entry|record|pm|work\s*order|count)\b[^.?!\n]{0,20}?\b(?<v>${PROPOSAL_SYSTEM_VERBS})\b`, "gid"),
+  // the subject elided (the speaker is the assistant): "Logged it.", "Got it, deducted two", "and saved"
+  new RegExp(String.raw`(?:^|[,;:!]\s*|\band\s+)(?<v>${PROPOSAL_WRITE_VERBS}|added|created|updated|marked|closed)\b`, "gid"),
+  // "marked ... complete / done"
+  new RegExp(String.raw`\b(?<v>marked)\b[^.?!\n]{0,30}\b(?:complete|completed|done|closed|finished)\b`, "gid"),
+  // a bare "Done." / "All done!" as its own clause
+  new RegExp(String.raw`(?:^|[,;:]\s*)(?:all\s+)?(?<v>done)\s*(?:[.!,]|$)`, "gid"),
+];
+// a verb led by these is future or conditional: "will be saved", "once logged", "to get logged"
+const PROPOSAL_FUTURE_LEAD =
+  /\b(?:be|get|gets|getting|being|once|when|after|if|until|before|to)\s+(?:(?:now|then|also|only|automatically|properly|all)\s+)?$/i;
+// a verb led by these is negated: "nothing is saved yet", "hasn't been logged" (idiomatic "no problem" excluded)
+const PROPOSAL_NEGATED_LEAD =
+  /(?:\bnothing\b|\bnot\b|\bnever\b|\bnone\b|\bnor\b|n't\b|\bno\b(?!\s+(?:worries|problem|prob|sweat)\b))[^.,;!?]{0,40}$/i;
+
+/** True if a unit claims, in the past tense, that a platform write already happened. */
+function isProposalDoneClaim(unit: string): boolean {
+  if (!unit || !unit.trim()) return false;
+  for (const re of PROPOSAL_DONE_PATTERNS) {
+    re.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(unit)) !== null) {
+      const v = (m as RegExpExecArray & { indices?: { groups?: Record<string, [number, number]> } }).indices?.groups?.v;
+      const at = v ? v[0] : m.index;
+      const lead = unit.slice(Math.max(0, at - 60), at);
+      if (!PROPOSAL_FUTURE_LEAD.test(lead) && !PROPOSAL_NEGATED_LEAD.test(lead)) return true;
+      if (m[0].length === 0) re.lastIndex++;
+    }
+  }
+  return false;
+}
+
+/**
+ * Proposal rail: removes every unit of a PROPOSAL narration (nothing is saved yet) that claims a platform
+ * write already happened. Future/conditional proposals and the worker's own physical work are kept.
+ */
+export function stripProposalDoneClaims(narration: string): ActionProvenanceResult {
+  if (!narration) return { clean: narration, stripped: [], hit: false };
+  const stripped: string[] = [];
+  const kept = narration.split(UNIT_SPLIT).filter((unit) => {
+    if (isProposalDoneClaim(unit)) {
+      stripped.push(unit.trim());
+      return false;
+    }
+    return true;
+  });
+  const clean = kept.join(" ").replace(/[ \t]+/g, " ").trim();
+  return { clean, stripped, hit: stripped.length > 0 };
+}
+
+// What the person hears instead of a stripped claim: true on every route the router returns.
+export const PROPOSAL_HONEST_CLARIFIER = "Nothing is saved yet. Check the details and confirm to continue.";
+
+/** The router's narration made honest: stripped claims replaced by the clarifier, kept under `cap` chars. */
+export function honestProposalNarration(narration: string, cap = 280): { narration: string; stripped: string[] } {
+  const g = stripProposalDoneClaims(narration || "");
+  if (!g.hit) return { narration: (narration || "").slice(0, cap), stripped: [] };
+  const room = Math.max(0, cap - PROPOSAL_HONEST_CLARIFIER.length - 1);
+  const kept = g.clean.slice(0, room).trim();
+  return { narration: kept ? `${kept} ${PROPOSAL_HONEST_CLARIFIER}` : PROPOSAL_HONEST_CLARIFIER, stripped: g.stripped };
+}

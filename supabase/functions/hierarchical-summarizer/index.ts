@@ -46,7 +46,9 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { noteModelCaller, withModelCaller } from "../_shared/model-calls.ts";  // LM-O: who each model call is for
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -360,7 +362,9 @@ async function rollupOnePeriod(
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serveObserved("hierarchical-summarizer", async (req) => {
+serveObserved("hierarchical-summarizer", tracedReply("hierarchical-summarizer", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -368,7 +372,7 @@ serveObserved("hierarchical-summarizer", async (req) => {
   const healthResp = await handleHealth(req, "hierarchical-summarizer", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
@@ -417,7 +421,7 @@ serveObserved("hierarchical-summarizer", async (req) => {
       const hives = [...new Set((active || []).map((r: { hive_id: string }) => r.hive_id))];
       for (const hive of hives) {
         try {
-          const r = await rollupOnePeriod(dbf, hive, level, period, null);
+          const r = await withModelCaller({ hive_id: hive }, () => rollupOnePeriod(dbf, hive, level, period, null));
           out.push({ hive_id: hive, level, written: r.written, reason: r.written ? undefined : r.reason });
         } catch (e) {
           out.push({ hive_id: hive, level, written: false, reason: String(e).slice(0, 200) });
@@ -448,6 +452,8 @@ serveObserved("hierarchical-summarizer", async (req) => {
   // temporal-rag delegate) use service-role and skip.
   {
     const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    // a service-role caller (cron, the temporal-rag delegate) is trusted with the hive it names
+    if (isServiceRole) noteModelCaller({ hive_id: String(body.hive_id) });
     if (!isServiceRole) {
       const t = await resolveTenancy(db, authUid, body.hive_id);
       if (!t.ok) {
@@ -469,7 +475,7 @@ serveObserved("hierarchical-summarizer", async (req) => {
         const _rq = await checkRouteRateLimit(db, body.hive_id || "", "hierarchical-summarizer");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "hierarchical-summarizer", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "hierarchical-summarizer", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, body.hive_id);
       if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
@@ -508,4 +514,4 @@ serveObserved("hierarchical-summarizer", async (req) => {
     status: result.written ? 200 : 500,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));

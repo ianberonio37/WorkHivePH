@@ -36,13 +36,17 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
+// A call ai-gateway provably forwarded was already counted on this hive's bucket there - see the gate in the handler.
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 // P1 roadmap 2026-05-26: adoption of envelope + /health.
 import { beginRequest, ok } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
@@ -295,14 +299,17 @@ async function runBounded<T, R>(items: T[], limit: number, fn: (it: T) => Promis
 
 // ── Rate limit (per-hive, 1-hour window) ─────────────────────────────────────
 
-async function checkRateLimit(db: SupabaseClient, hiveId: string): Promise<{ allowed: boolean; remaining: number }> {
+async function checkRateLimit(db: SupabaseClient, hiveId: string): Promise<{ allowed: boolean; remaining: number; unavailable?: boolean }> {
   const windowStart = new Date(Date.now() - 60 * 60 * 1000);
   const { data, error } = await db
     .from("ai_rate_limits")
     .select("call_count, window_start")
     .eq("hive_id", hiveId)
     .maybeSingle();
-  if (error) return { allowed: true, remaining: RATE_LIMIT_PER_HOUR };
+  // ★FAIL CLOSED (2026-10-08, the platform-wide limiter rule in _shared/rate-limit.ts): the stance below was fail-open
+  // on availability - a counter that could not be read or advanced waved every call through. It now refuses, and the
+  // caller says so truthfully (503), never "limit reached".
+  if (error) return { allowed: false, remaining: 0, unavailable: true };
   /* ★A LIMITER THAT CANNOT COUNT DOES NOT LIMIT (2026-09-09). Both writes below discarded their result,
      so if either ever failed the counter would stop advancing and every subsequent call would be waved
      through - an unbounded AI bill, produced silently, with nothing in the logs to explain it. Verified
@@ -313,19 +320,45 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string): Promise<{ all
   if (!data || new Date(data.window_start) < windowStart) {
     const { error: openErr } = await db.from("ai_rate_limits")
       .upsert({ hive_id: hiveId, call_count: 1, window_start: new Date().toISOString() });
-    if (openErr) log.warn(null, `[temporal-rag-orchestrator] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - this hive is UNCOUNTED until it succeeds`);
+    if (openErr) {
+      log.warn(null, `[temporal-rag-orchestrator] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - refusing`);
+      return { allowed: false, remaining: 0, unavailable: true };
+    }
     return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - 1 };
   }
   if (data.call_count >= RATE_LIMIT_PER_HOUR) return { allowed: false, remaining: 0 };
   const { error: incErr } = await db.from("ai_rate_limits")
     .update({ call_count: data.call_count + 1 }).eq("hive_id", hiveId);
-  if (incErr) log.warn(null, `[temporal-rag-orchestrator] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - the limit will not trip while this persists`);
+  if (incErr) {
+    log.warn(null, `[temporal-rag-orchestrator] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - refusing`);
+    return { allowed: false, remaining: 0, unavailable: true };
+  }
   return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - data.call_count - 1 };
+}
+
+/* The SAME tighter threshold for a call ai-gateway forwarded, READ-ONLY (2026-10-08). The row above is the hive's shared
+   ai_rate_limits bucket, and the gateway's checkUserRateLimit has already counted this very call on it - so counting it
+   again here moved the hive's bucket twice per historical question. This function's 30/hour is still a real, intentional
+   ceiling (each call fans out N sub-calls), so a forward is held to it by READING the count instead of adding to it. The
+   gateway's increment already includes this call, hence `>`: it refuses exactly where the direct path's `>=` (checked
+   before its own increment) would. Fails open on a read error, the same stance as checkRateLimit. */
+async function temporalCapReachedReadOnly(db: SupabaseClient, hiveId: string): Promise<boolean | "unavailable"> {
+  const windowStart = new Date(Date.now() - 60 * 60 * 1000);
+  const { data, error } = await db
+    .from("ai_rate_limits")
+    .select("call_count, window_start")
+    .eq("hive_id", hiveId)
+    .maybeSingle();
+  if (error) return "unavailable";   // an unread count is not a count under the cap (fail closed, as checkRateLimit)
+  if (!data || new Date(data.window_start) < windowStart) return false;
+  return data.call_count > RATE_LIMIT_PER_HOUR;
 }
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serveObserved("temporal-rag-orchestrator", async (req) => {
+serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrator", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -333,7 +366,7 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
   const healthResp = await handleHealth(req, "temporal-rag-orchestrator", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
@@ -382,9 +415,22 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
     }
   }
 
-  // Rate limit BEFORE any sub-agent runs (cost protection)
-  const rl = await checkRateLimit(db, hiveId);
-  if (!rl.allowed) {
+  // Rate limit BEFORE any sub-agent runs (cost protection). A call ai-gateway forwarded (proven by its header, never a
+  // body field) was already counted on this hive's bucket there, so it is held to the same threshold read-only.
+  const viaGateway = await isTrustedGatewayForward(req);
+  let temporalCapHit: boolean;
+  let temporalLimiterDown = false;
+  if (viaGateway) {
+    const capped = await temporalCapReachedReadOnly(db, hiveId);
+    temporalLimiterDown = capped === "unavailable";
+    temporalCapHit = capped === true;
+  } else {
+    const rl = await checkRateLimit(db, hiveId);
+    temporalLimiterDown = Boolean(rl.unavailable);
+    temporalCapHit = !rl.allowed;
+  }
+  if (temporalLimiterDown) return limiterUnavailableResponse(corsHeaders);
+  if (temporalCapHit) {
     return new Response(JSON.stringify({ error: "Temporal RAG limit reached for this hive. Try again in an hour.", remaining: 0 }),
       { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
@@ -459,4 +505,4 @@ serveObserved("temporal-rag-orchestrator", async (req) => {
   }), {
     status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));

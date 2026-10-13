@@ -5,7 +5,7 @@ import { logRequestStart } from "../_shared/logger.ts";
 // capability: report_email_dispatch
 
 // contract-allow: email sender
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before emailing a hive's report.
@@ -210,7 +210,7 @@ serveObserved("send-report-email", async (req) => {
         }
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip));
-        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+        if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
       }
     }
 

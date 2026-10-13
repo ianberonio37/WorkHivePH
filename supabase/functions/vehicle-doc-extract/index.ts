@@ -29,11 +29,13 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart, log } from "../_shared/logger.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { log } from "../_shared/logger.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, LIMITER_UNAVAILABLE_MESSAGE } from "../_shared/rate-limit.ts";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 
@@ -430,14 +432,16 @@ function mergeMined(fields: Record<string, unknown>, mined: MinedItem[], minedPa
   return fields;
 }
 
-serveObserved("vehicle-doc-extract", async (req) => {
+serveObserved("vehicle-doc-extract", tracedReply("vehicle-doc-extract", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const _health = await handleHealth(req, "vehicle-doc-extract", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
   }));
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "vehicle-doc-extract");
+  log.info(trace, "request_start", { method: req.method });
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
@@ -445,9 +449,11 @@ serveObserved("vehicle-doc-extract", async (req) => {
     const body = await req.json().catch(() => ({}));
     const kind = String(body.kind || "").trim();
     const payload = String(body.payload || "");
-    const auth_uid = body.auth_uid ? String(body.auth_uid).slice(0, 80) : null;
     const minerOnly = body.miner_only === true;
-    const ctx = beginRequest(req, { route: "vehicle-doc-extract", user_id: auth_uid || undefined });
+    // ★THE TRACE NAMES WHO CALLED, NOT WHO THE BODY SAYS (2026-10-13): this read `body.auth_uid`, which any caller sets,
+    // so a request could be filed under someone else's id in the trace and every log line joined to it. The verified
+    // caller is stamped below, once the client exists; until then the trace names no one.
+    const ctx = trace;
     // This function IMPORTED the logger and never called it, so it emitted no structured log at all - the 17th
     // non-adopting edge function, and the one that pushed the Error Tracking & Logs gateway layer past its
     // bypass ratchet. An import is not adoption; the line that emits is. log.* carries the ctx, so the entry
@@ -461,6 +467,8 @@ serveObserved("vehicle-doc-extract", async (req) => {
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+    const _caller = await resolveIdentity(db, req).catch(() => null);
+    ctx.user_id = _caller?.authUid || undefined;
 
     const _clean = sanitizeUntrusted(payload.slice(0, MAX_TEXT_TOTAL));
     const text = normalizeDigitConfusables(normalizeLigatures(_clean.text));
@@ -480,8 +488,14 @@ serveObserved("vehicle-doc-extract", async (req) => {
     // Rate-limit the MODEL path only (the miner_only path is deterministic, no AI cost;
     // throttling it starved the accuracy gate itself - 429, found on VD5).
     const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp), undefined, undefined, clientIp);
-    if (!rl.allowed) return fail(ctx, "RATE_LIMITED", "AI call limit reached. Please try again in an hour.", { status: 429 });
+    // the limiter keys on the VERIFIED caller (the JWT), never on `body.auth_uid`, which any caller can set to
+    // someone else's id to spend their bucket (same class as voice-journal-agent's shared bucket, 2026-10-07)
+    const _rlUid = _caller?.authUid ?? null;
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(_rlUid, clientIp), undefined, undefined, clientIp);
+    if (!rl.allowed) {
+      if (rl.scope === "unavailable") return fail(ctx, "LIMITER_UNAVAILABLE", LIMITER_UNAVAILABLE_MESSAGE, { status: 503 });
+      return fail(ctx, "RATE_LIMITED", "AI call limit reached. Please try again in an hour.", { status: 429 });
+    }
     const remaining = rl.remaining;
 
     // Model pass (chunked map-reduce like resume-extract), then merge with the miners.
@@ -530,4 +544,4 @@ serveObserved("vehicle-doc-extract", async (req) => {
   } catch (err) {
     return await failTracked(req, "vehicle-doc-extract", "vehicle_doc_extract_error", err);
   }
-});
+}));

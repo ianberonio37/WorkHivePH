@@ -12,7 +12,7 @@
 // client's hive RLS still applies — pass the admin client from a server-side
 // caller that has already authorised the hive.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 
 export const VERIFIED_STATE_LIMIT = 12;
 export const VERIFIED_TEXT_CHARS   = 200;

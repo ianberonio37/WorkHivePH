@@ -1,15 +1,17 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // Arc R (A01/LLM10): verify_jwt=false + paid embedding API — bound external anon abuse.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+// LM-O (2026-10-08): this function calls an embedding provider itself, so it reports the call itself
+import { reportModelCall, reportModelCallFailed } from "../_shared/model-calls.ts";
 
 // contract-allow: embedding infrastructure fn, not a brain output producer
 
@@ -33,7 +35,7 @@ import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from ".
  *   - method: "jina" | "local" | "none" (which provider was used)
  */
 
-serveObserved("voice-embeddings", async (req) => {
+serveObserved("voice-embeddings", tracedReply("voice-embeddings", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-embeddings", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -41,7 +43,7 @@ serveObserved("voice-embeddings", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
-  logRequestStart(req, "voice-embeddings");  // I6 observability
+  log.info(_trace, "request_start", { method: req.method });  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
   if (req.method !== "POST") {
     return new Response("That action is not allowed here. Reload the page and try again.", { status: 405 });
   }
@@ -78,7 +80,7 @@ serveObserved("voice-embeddings", async (req) => {
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         if (_ip) {  // only bucket when there is a real client IP (external caller)
           const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
         }
       }
     }
@@ -93,6 +95,7 @@ serveObserved("voice-embeddings", async (req) => {
     // Try Jina API first (free tier: 8k requests/month)
     const jina_key = Deno.env.get("JINA_API_KEY");
     if (jina_key) {
+      const _t0 = performance.now();   // LM-O: the record's latency
       try {
         const resp = await fetch("https://api.jina.ai/v1/embeddings", {
           method: "POST",
@@ -109,6 +112,8 @@ serveObserved("voice-embeddings", async (req) => {
 
         if (resp.status === 200) {
           const data = await resp.json();
+          reportModelCall({ kind: "embedding", providerName: "jina", modelName: String(model), usage: data?.usage ?? null,
+            input: texts, started_at: _t0, tried: [`jina/${model}=200`] });
           const embeddings_data = data.data || [];
 
           // Sort by index to maintain order
@@ -130,9 +135,13 @@ serveObserved("voice-embeddings", async (req) => {
           );
         } else {
           log.warn(null, `Jina API error: ${resp.status}`);
+          reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: String(model),
+            tried: [`jina/${model}=${resp.status}`], started_at: _t0 });
         }
       } catch (err) {
         log.warn(null, "Jina API call failed:", { detail: err });
+        reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: String(model),
+          tried: [`jina/${model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`], started_at: _t0 });
       }
     }
 
@@ -156,4 +165,4 @@ serveObserved("voice-embeddings", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-embeddings", "voice_embeddings_error", err);
   }
-});
+}));

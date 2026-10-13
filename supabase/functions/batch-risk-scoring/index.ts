@@ -4,7 +4,7 @@ import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract: health_score_v1 (canonical_agent_contracts; consumers: predictive.html, asset-hub.html, analytics.html, shift-brain.html)
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
@@ -99,7 +99,7 @@ serveObserved("batch-risk-scoring", async (req) => {
         const _rq = await checkRouteRateLimit(db, reqHiveId || "", "batch-risk-scoring");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "batch-risk-scoring", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "batch-risk-scoring", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const rl = await checkAIRateLimit(db, reqHiveId);
       if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);

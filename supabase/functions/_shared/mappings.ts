@@ -63,6 +63,13 @@ export const TYPE_MAP: Record<string, Record<string, string>> = {
     preventive: "Preventive Maintenance",
     corrective: "Breakdown / Corrective",
     emergency:  "Breakdown / Corrective",
+    // 2026-10-12: the two other logbook types, so a generic inspection is not filed as a breakdown by the default
+    inspection: "Inspection",
+    project:    "Project Work",
+    // the abbreviations real exports use (W4340: a 3,030-row event log typed PM / CM / EM) - 2026-10-12
+    PM:         "Preventive Maintenance",
+    CM:         "Breakdown / Corrective",
+    EM:         "Breakdown / Corrective",
   },
 };
 
@@ -133,12 +140,59 @@ export const ENTITY_TABLE_MAP: Record<string, string> = {
 // Normalisation helpers (used by both cmms-sync and cmms-webhook-receiver)
 // ---------------------------------------------------------------------------
 
-export function normaliseStatus(systemType: string, rawStatus: string): string {
-  return STATUS_MAP[systemType]?.[rawStatus] ?? rawStatus ?? "Open";
+// ★THE DEFAULTS WERE UNREACHABLE (2026-10-12, UFAI edge walk W4331). These read `MAP[...] ?? raw ?? default` - but
+// every caller passes a STRING (String(x ?? "")), and a string is never nullish, so the default never applied and an
+// unmapped code went through RAW. For status that is fatal: external_sync.status is CHECK-constrained to the three
+// values below, so one SAP "TECO" (technically complete - the commonest SAP completion code, not in the map) failed
+// cmms-sync's whole 200-row batch upsert. For type it is quiet: a logbook row typed "" or "PM04" that no KPI counts.
+// The webhook learned the status half on 2026-09-09 with a local clamp; cmms-sync never did. One clamp, here, for both.
+
+/** the only values external_sync.status (a CHECK constraint) and the logbook accept */
+export const CANONICAL_STATUSES = ["Open", "Closed", "Cancelled"];
+/** the maintenance types the logbook, analytics and PM compliance count */
+export const CANONICAL_TYPES = ["Preventive Maintenance", "Breakdown / Corrective", "Inspection", "Project Work"];
+/** a raw status the map does not know that still says the work is finished (SAP TECO/CNF, Maximo CLOSE ...) */
+export const CLOSING_HINT = /\b(TECO|CLSD|CLOSED?|COMP|COMPLETED?|FINISH(ED)?|DONE|CNF)\b/i;
+
+const _canon = (list: string[], raw: string) => list.find((c) => c.toLowerCase() === raw.trim().toLowerCase());
+// ★A CODE IS A CODE WHATEVER ITS CASE, AND A FIELD IS NEVER A PROTOTYPE KEY (2026-10-12, W4340). `MAP[sys]?.[raw]`
+// was exact - "Preventive" and "pm" missed and fell to the default - and answered a function for "constructor".
+// Own keys only, exact first, then case-folded; integrations.html's import does the same.
+function _mapGet(map: Record<string, string> | undefined, raw: string): string | undefined {
+  if (!map) return undefined;
+  const r = raw.trim();
+  if (Object.prototype.hasOwnProperty.call(map, r)) return map[r];
+  const k = Object.keys(map).find((x) => x.toLowerCase() === r.toLowerCase());
+  return k === undefined ? undefined : map[k];
 }
 
+/** a CMMS status code -> one of CANONICAL_STATUSES; never anything else. Keep the raw code beside it (status_raw). */
+export function normaliseStatus(systemType: string, rawStatus: string): string {
+  const raw = String(rawStatus ?? "");
+  return _mapGet(STATUS_MAP[systemType], raw) ?? _canon(CANONICAL_STATUSES, raw) ?? (CLOSING_HINT.test(raw) ? "Closed" : "Open");
+}
+
+/** a CMMS order type -> one of CANONICAL_TYPES; an unknown or missing type is corrective work (the intended default).
+ *  Keep the raw code beside it (type_raw). */
 export function normaliseType(systemType: string, rawType: string): string {
-  return TYPE_MAP[systemType]?.[rawType] ?? rawType ?? "Breakdown / Corrective";
+  const raw = String(rawType ?? "");
+  return _mapGet(TYPE_MAP[systemType], raw) ?? _canon(CANONICAL_TYPES, raw) ?? "Breakdown / Corrective";
+}
+
+// ★EVERY CONNECTOR A PERSON MADE SYNCED NOTHING (2026-10-12, W4331). cmms-sync read `config.field_map || {}`; the column
+// defaults to '{}' and integrations.html never sets it, so a connector created on the page had an EMPTY map: every
+// field read "", every work order had no external id, every row was dropped as unusable - and the run reported
+// success with "Synced 0 records". Only the seeded mocks, which carry an explicit map, ever synced. The comment on
+// DEFAULT_FIELD_MAPS says it plainly - "overridable per hive" - so the defaults ARE the map, and a hive's own entries
+// override them one field at a time (a blank override is no override).
+export function effectiveFieldMap(systemType: string, configured: unknown): FieldMap {
+  const out: Record<string, string> = { ...(DEFAULT_FIELD_MAPS[systemType] || DEFAULT_FIELD_MAPS.generic) } as Record<string, string>;
+  if (configured && typeof configured === "object" && !Array.isArray(configured)) {
+    for (const [k, v] of Object.entries(configured as Record<string, unknown>)) {
+      if (typeof v === "string" && v.trim()) out[k] = v.trim();
+    }
+  }
+  return out as FieldMap;
 }
 
 // ---------------------------------------------------------------------------

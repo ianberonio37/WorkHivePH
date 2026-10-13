@@ -49,8 +49,11 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { modelCallsRefused } from "../_shared/model-calls.ts";  // a walk's no-model switch crosses the hop
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -153,13 +156,14 @@ const EXTRACTOR_SYSTEM = `You decide if any DURABLE facts emerged from this agen
 
 You receive the question, the verified answer, and the existing recalled memories (so we don't duplicate).
 
-Memory types:
-- factual    worker preferences ("prefers Tagalog", "works night shift")
-- procedural successful fix procedures ("P-203 bearing fix: replace SKF 6205-2RS")
-- episodic   notable incidents ("2024-03-15 cooling tower trip, loose VFD wiring")
-- semantic   plant constants ("plant runs 2 shifts", "plant uses Siemens PLCs")
+Memory types (the quoted shapes are STRUCTURE ONLY: each <...> slot is filled from this run's question or verified answer):
+- factual    worker preferences ("prefers <language>", "works <shift> shift")
+- procedural successful fix procedures ("<asset> bearing fix: replace <part>")
+- episodic   notable incidents ("<date> <asset> trip, <cause>")
+- semantic   plant constants ("plant runs <n> shifts", "plant uses <brand> PLCs")
 
 Rules:
+0. Store only what THIS run's question or verified answer actually says. Never store an asset tag, part number, date, count, or name that appears only in these instructions.
 1. Only extract facts the AI would benefit from remembering NEXT session.
 2. content must NOT contain PII (phone numbers, emails, ID numbers, addresses).
 3. importance 0.3 to 0.5 for personal facts, 0.7 plus for plant-wide facts.
@@ -202,7 +206,7 @@ if (Deno.env.get("WH_RATE_LIMIT_RESET") === "1" && _WH_URL && _WH_KEY) {
 
 // ── Rate limit (per-hive, 1-hour window) ─────────────────────────────────────
 
-async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promise<{ allowed: boolean; remaining: number }> {
+async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promise<{ allowed: boolean; remaining: number; unavailable?: boolean }> {
   if (!hiveId) return { allowed: true, remaining: RATE_LIMIT_PER_HOUR };
   const windowStart = new Date(Date.now() - 60 * 60 * 1000);
   const { data, error } = await db
@@ -211,9 +215,12 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promis
     .eq("hive_id", hiveId)
     .maybeSingle();
 
+  // ★FAIL CLOSED (2026-10-08, the platform-wide limiter rule in _shared/rate-limit.ts). This limiter used to fail OPEN
+  // on a read error and on both write errors - loudly, but open: a counter that stopped advancing waved every call
+  // through. A limiter that cannot count now refuses, and the caller says so in a sentence that is true (503).
   if (error) {
     console.warn("[agentic-rag-loop] rate-limit read failed:", error.message);
-    return { allowed: true, remaining: RATE_LIMIT_PER_HOUR };  // fail-open
+    return { allowed: false, remaining: 0, unavailable: true };
   }
 
   /* ★A LIMITER THAT CANNOT COUNT DOES NOT LIMIT (2026-09-09). The identical pair of unchecked writes was
@@ -227,7 +234,10 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promis
       call_count:   1,
       window_start: new Date().toISOString(),
     });
-    if (openErr) console.warn(`[agentic-rag-loop] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - this hive is UNCOUNTED until it succeeds`);
+    if (openErr) {
+      console.warn(`[agentic-rag-loop] rate-limit window could not be opened for ${hiveId}: ${openErr.message} - refusing`);
+      return { allowed: false, remaining: 0, unavailable: true };
+    }
     return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - 1 };
   }
 
@@ -238,7 +248,10 @@ async function checkRateLimit(db: SupabaseClient, hiveId: string | null): Promis
   const { error: incErr } = await db.from("ai_rate_limits")
     .update({ call_count: data.call_count + 1 })
     .eq("hive_id", hiveId);
-  if (incErr) console.warn(`[agentic-rag-loop] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - the limit will not trip while this persists`);
+  if (incErr) {
+    console.warn(`[agentic-rag-loop] rate-limit counter did not advance for ${hiveId}: ${incErr.message} - refusing`);
+    return { allowed: false, remaining: 0, unavailable: true };
+  }
   return { allowed: true, remaining: RATE_LIMIT_PER_HOUR - data.call_count - 1 };
 }
 
@@ -604,12 +617,17 @@ async function retrieverStage(
     }
   }
 
-  // Hive scope guard: if neither lane returned anything AND solo mode, try worker_name
-  if (chunks.length === 0 && workerName && route !== "cold_archive") {
+  // Hive scope guard: if neither lane returned anything AND solo mode, try the person's own entries
+  // ★OWN ENTRIES, IN THIS SCOPE (2026-10-13): this lane read v_logbook_truth by worker_name with NO hive filter, so a
+  // name matched entries in every hive. It now reads by the verified account when there is one, and always within the
+  // scope asked about (the hive, or hive-less entries for a solo caller).
+  if (chunks.length === 0 && (authUid || workerName) && route !== "cold_archive") {
     try {
-      const { data: solo } = await db.from("v_logbook_truth")
-        .select("id, machine, root_cause, action, created_at, status")
-        .eq("worker_name", workerName)
+      let soloQ = db.from("v_logbook_truth")
+        .select("id, machine, root_cause, action, created_at, status");
+      soloQ = authUid ? soloQ.eq("auth_uid", authUid) : soloQ.eq("worker_name", workerName as string);
+      soloQ = hiveId ? soloQ.eq("hive_id", hiveId) : soloQ.is("hive_id", null);
+      const { data: solo } = await soloQ
         .order("created_at", { ascending: false })
         .limit(10);
       for (const row of solo || []) {
@@ -642,6 +660,7 @@ async function graderStage(
   chunks: Chunk[],
   hiveId: string | null,
   workerName: string | null,
+  tenantScope: string,
 ) {
   const t0 = Date.now();
   if (chunks.length === 0) {
@@ -654,7 +673,10 @@ async function graderStage(
   // (question, chunks) — same question + same chunk set → same grading.
   // Repeat-rate is moderate (same question retrieves same chunks within
   // TTL). 3h TTL — Grader is more chunk-sensitive than Router so shorter.
-  const cacheKey = `grader:${question}::${catalog.slice(0, 600)}`;
+  // The grading names and explains THIS tenant's records, and the key only covers the first 600 characters of the
+  // catalog, so two tenants whose catalogs open on the same shared chunk (a def# metric definition) could share one
+  // grading of different records. Scoped to the verified tenant (2026-10-07, the adaptive-cache leak's sibling).
+  const cacheKey = `grader:${tenantScope}:${question}::${catalog.slice(0, 600)}`;
   const { data: raw, hit: cacheHit } = await cached<string>(
     db, "agentic-rag-grader", cacheKey,
     async () => {
@@ -758,6 +780,7 @@ async function checkerStage(
   kept: Chunk[],
   hiveId: string | null,
   workerName: string | null,
+  tenantScope: string,
 ) {
   const t0 = Date.now();
   if (!answer || kept.length === 0) {
@@ -774,7 +797,9 @@ async function checkerStage(
   // verdict. Repeat-rate is lower than Router/Grader (answer differs more)
   // but each call is the heaviest of the three so cache wins are large.
   // 2h TTL — Checker output is most sensitive to model upgrades.
-  const cacheKey = `checker:${question}::${answer.slice(0, 200)}::${block.slice(0, 400)}`;
+  // Its verdict quotes THIS tenant's answer (uncited_claims) and drives the retry query (reformulated_query), and the
+  // key covers only the first 200/400 characters, so it is scoped to the verified tenant too (2026-10-07).
+  const cacheKey = `checker:${tenantScope}:${question}::${answer.slice(0, 200)}::${block.slice(0, 400)}`;
   const { data: raw, hit: cacheHit } = await cached<string>(
     db, "agentic-rag-checker", cacheKey,
     async () => {
@@ -881,6 +906,8 @@ async function invokeEdgeFn<T = unknown>(fnName: string, body: Record<string, un
         "Content-Type":  "application/json",
         "Authorization": `Bearer ${_WH_KEY}`,
         "apikey":        _WH_KEY,
+        // a walk's no-model switch crosses the hop (2026-10-12): local runtime only, see model-calls.ts
+        ...(modelCallsRefused() ? { "x-wh-walk-no-model": "1" } : {}),
       },
       body: JSON.stringify(body),
     });
@@ -906,12 +933,13 @@ interface RecalledMemory {
   last_used_at: string | null;
 }
 
-async function recallMemories(hiveId: string | null, workerName: string | null): Promise<RecalledMemory[]> {
+async function recallMemories(hiveId: string | null, workerName: string | null, authUid: string | null = null): Promise<RecalledMemory[]> {
   if (!hiveId && !workerName) return [];
   const resp = await invokeEdgeFn<{ ok: boolean; memories?: RecalledMemory[] }>("agent-memory-store", {
     op:          "recall",
     hive_id:     hiveId,
     worker_name: workerName,
+    auth_uid:    authUid,   // the asker's account (verified above), so durable memory is read by account (2026-10-13)
     limit:       MEMORY_RECALL_LIMIT,
   });
   return resp?.memories || [];
@@ -940,6 +968,7 @@ async function extractAndStoreMemories(
   answer: string,
   existing: RecalledMemory[],
   traceId: string | null,
+  authUid: string | null = null,
 ): Promise<number> {
   if (!hiveId && !workerName) return 0;
   if (!answer) return 0;
@@ -985,6 +1014,7 @@ async function extractAndStoreMemories(
     op:          "store",
     hive_id:     hiveId,
     worker_name: workerName,
+    auth_uid:    authUid,
     memories,
   }).catch(err => console.warn("[agentic-rag-loop] memory store failed:", String(err).slice(0, 80)));
 
@@ -1125,7 +1155,9 @@ async function lookupHierarchicalSummaries(
 
 // ── Server entry point ───────────────────────────────────────────────────────
 
-serveObserved("agentic-rag-loop", async (req) => {
+serveObserved("agentic-rag-loop", tracedReply("agentic-rag-loop", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
@@ -1135,12 +1167,12 @@ serveObserved("agentic-rag-loop", async (req) => {
   const healthResp = await handleHealth(req, "agentic-rag-loop", async () => ({
     deps: [
       { name: "supabase",     ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain",     ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain",     ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "agentic-rag-loop" });
+  const _logCtx = trace;
   log.info(_logCtx, "request_start", { method: req.method });
 
   if (req.method !== "POST") {
@@ -1164,7 +1196,7 @@ serveObserved("agentic-rag-loop", async (req) => {
 
   const question   = String(body.question || "").trim().slice(0, MAX_QUESTION_CHARS);
   const hiveId     = body.hive_id || null;
-  const workerName = body.worker_name || null;
+  let workerName = body.worker_name || null;
   const authUid    = body.auth_uid || null;
 
   if (!question) {
@@ -1198,13 +1230,26 @@ serveObserved("agentic-rag-loop", async (req) => {
   // Pillar I: RAG over a hive's knowledge scoped by the client hive_id on a
   // service-role client — verify membership using the JWT-derived identity (NOT
   // the client-supplied body.auth_uid). Service-role (gateway/voice) forwards skip.
-  if (hiveId && !_id.isServiceRole) {
-    const t = await resolveTenancy(db, _id.authUid, hiveId);
-    if (!t.ok) {
-      return new Response(
-        JSON.stringify({ error: t.message, code: t.code }),
-        { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+  // ★THE PERSONAL LANES ARE SCOPED BY WHO IS ASKING, NEVER BY A NAME IN THE BODY (2026-10-13). body.auth_uid was
+  // closed this way on 2026-06-15 (below); body.worker_name was left open, and on this service-role client it scopes
+  // memory recall and storage (through agent-memory-store, with the SERVICE key) and the solo logbook lane, which read
+  // v_logbook_truth by worker_name with NO hive filter. So an anonymous caller naming someone, with no hive, reached that
+  // person's durable memories and logbook entries from every hive. A signed-in caller now gets the name the server
+  // resolves for them (their membership in the hive they claim, or their own profile when solo) - replaced, not refused,
+  // so a drifted name on a device still gets its own answer; an anonymous caller has no personal lane at all.
+  if (!_id.isServiceRole) {
+    if (hiveId) {
+      const t = await resolveTenancy(db, _id.authUid, hiveId);
+      if (!t.ok) {
+        return new Response(
+          JSON.stringify({ error: t.message, code: t.code }),
+          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      workerName = t.worker_name;
+    } else {
+      const t = _id.authUid ? await resolveTenancy(db, _id.authUid, null) : null;
+      workerName = t && t.ok ? t.worker_name : null;
     }
   }
 
@@ -1216,10 +1261,14 @@ serveObserved("agentic-rag-loop", async (req) => {
   // upstream) keeps the supplied auth_uid. Anon browser caller → null → Lane A
   // is skipped (no journal to read).
   const effectiveAuthUid = _id.isServiceRole ? authUid : (_id.authUid || null);
+  // The tenant the Grader/Checker caches are scoped to: the hive (membership-proven above for a browser caller,
+  // upstream for a service-role forward) and the identity the personal lane reads by. Both lanes feed those stages.
+  const tenantScope = `h:${String(hiveId || "").toLowerCase()}|u:${String(effectiveAuthUid || "").toLowerCase()}`;
 
   // ── Rate limit ─────────────────────────────────────────────────────────────
   const rl = await checkRateLimit(db, hiveId);
   if (!rl.allowed) {
+    if (rl.unavailable) return limiterUnavailableResponse(corsHeaders);
     return new Response(
       JSON.stringify({ error: "AI call limit reached for this hive. Try again in an hour.", remaining: 0 }),
       { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -1233,7 +1282,7 @@ serveObserved("agentic-rag-loop", async (req) => {
   // Pulls top-N durable facts from agent_episodic_memory so subsequent stages
   // know what the AI already learned about this worker / hive.
   const mR0 = Date.now();
-  const recalledMemories = await recallMemories(hiveId, workerName);
+  const recalledMemories = await recallMemories(hiveId, workerName, effectiveAuthUid);
   const memoryBlock      = memoryBlockFor(recalledMemories);
   stages.push({
     stage: "memory_recall", latency_ms: Date.now() - mR0,
@@ -1279,7 +1328,7 @@ serveObserved("agentic-rag-loop", async (req) => {
         latency_ms: totalLatency,
       });
       // Fire-and-forget memory extraction even on delegated path.
-      extractAndStoreMemories(db, hiveId, workerName, question, delegated.answer, recalledMemories, traceId)
+      extractAndStoreMemories(db, hiveId, workerName, question, delegated.answer, recalledMemories, traceId, effectiveAuthUid)
         .catch(err => console.warn("[agentic-rag-loop] post-delegate memory store failed:", String(err).slice(0, 80)));
       return new Response(JSON.stringify({
         answer:         delegated.answer,
@@ -1321,7 +1370,7 @@ serveObserved("agentic-rag-loop", async (req) => {
     });
 
     // Stage 3: Grader
-    const grader = await graderStage(db, currentQuery, chunks, hiveId, workerName);
+    const grader = await graderStage(db, currentQuery, chunks, hiveId, workerName, tenantScope);
     stages.push({
       stage: `grader${attempt > 0 ? `_retry${attempt}` : ""}`,
       latency_ms: grader.latency,
@@ -1353,7 +1402,7 @@ serveObserved("agentic-rag-loop", async (req) => {
     lastCitations  = generator.parsed.citations || [];
 
     // Stage 5: Checker
-    const checker = await checkerStage(db, currentQuery, lastAnswer, grader.kept, hiveId, workerName);
+    const checker = await checkerStage(db, currentQuery, lastAnswer, grader.kept, hiveId, workerName, tenantScope);
     stages.push({
       stage: `checker${attempt > 0 ? `_retry${attempt}` : ""}`,
       latency_ms: checker.latency,
@@ -1395,7 +1444,7 @@ serveObserved("agentic-rag-loop", async (req) => {
 
   // ── Item 4: Memory store (fire-and-forget — only when Checker passed) ──────
   if (checkerPassed && lastAnswer) {
-    extractAndStoreMemories(db, hiveId, workerName, question, lastAnswer, recalledMemories, traceId)
+    extractAndStoreMemories(db, hiveId, workerName, question, lastAnswer, recalledMemories, traceId, effectiveAuthUid)
       .catch(err => console.warn("[agentic-rag-loop] memory store failed:", String(err).slice(0, 80)));
   }
 
@@ -1415,4 +1464,4 @@ serveObserved("agentic-rag-loop", async (req) => {
     status: 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-});
+}));

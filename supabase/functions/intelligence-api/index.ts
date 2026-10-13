@@ -20,8 +20,9 @@ import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: PH intelligence data fetcher
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { consentedHiveIds, hiveFilter, MIN_CONSENTING_HIVES } from "../_shared/federated-consent.ts";  // cross-hive = consenting hives only
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 
@@ -123,8 +124,12 @@ async function handleFailureModes(db: SupabaseClient, params: URLSearchParams) {
   const MIN_TOTAL      = 20;  // suppress the whole insight below a credible network sample
   const MIN_MODE_COUNT = 3;   // a root cause seen < 3x is not a "top failure mode"
 
-  const { data: faults } = await db.from("fault_knowledge")
+  // ★SOLD WITHOUT CONSENT (2026-10-08): this endpoint served every hive's root causes to API-key holders. Only
+  // hives that opted in to shared benchmarks contribute now (_shared/federated-consent.ts, fails closed).
+  const consented = await consentedHiveIds(db);
+  const { data: faults } = consented.length < MIN_CONSENTING_HIVES ? { data: [] } : await db.from("fault_knowledge")
     .select("root_cause, category")
+    .in("hive_id", hiveFilter(consented))
     .not("root_cause", "is", null)
     .gte("created_at", since)
     .limit(2000);

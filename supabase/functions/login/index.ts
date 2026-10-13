@@ -17,7 +17,7 @@
 // grants) — it never exposes the service key to the client.
 import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 

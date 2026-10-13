@@ -18,7 +18,7 @@
 // "" so the gateway just proceeds without a procedures block (graceful degrade,
 // same contract as episodic recall + verified-state).
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { generateEmbedding } from "./embedding-chain.ts";
 
 export const PROCEDURE_MATCH_LIMIT   = 4;

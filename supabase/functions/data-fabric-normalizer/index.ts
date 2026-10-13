@@ -24,7 +24,7 @@
  */
 
 import { serveObserved, trackHandled } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I: machine-ingest gate — only trusted (service-role) callers may write.

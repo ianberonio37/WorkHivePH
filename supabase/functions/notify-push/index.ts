@@ -19,7 +19,7 @@
  * contract-allow: push fan-out; response = envelope { sent, pruned, failed, targets }.
  */
 import { serveObserved } from "../_shared/observability.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { requireServiceRole } from "../_shared/tenant-context.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";

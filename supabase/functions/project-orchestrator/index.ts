@@ -27,22 +27,35 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 
 // contract-allow: project write coordinator
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { callAI } from '../_shared/ai-chain.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
+import { callAI, aiAnswered } from '../_shared/ai-chain.ts';
+
+// ★AN EMPTY "AI ANSWER" FROM A MODEL THAT NEVER ANSWERED (2026-10-12, UFAI edge walk W4715). callAI degrades to "{}"
+// when no provider answers; JSON.parse("{}") succeeds, so every phase returned empty fields stamped _ai_generated -
+// the intent phase opened a BLANK project wizard recorded as AI-proposed. Unanswered is _unavailable, and the reason
+// is a sentence the person can act on (the page shows it as "AI: <reason>"); the exception text goes to the log.
+const UNANSWERED = 'the assistant could not answer just now. Nothing was changed; try again in a moment.';
+const UNREADABLE = "the assistant's answer could not be read. Nothing was changed; try again in a moment.";
 // Persona Contract: narrated-specialist mode — each AI phase (narrative,
 // intent, lessons) gains a `narration` field in the worker's persona voice.
 // See WORKHIVE_PERSONA_CONTRACT.md.
 import { clampPersona, buildPersonaBlock } from '../_shared/persona.ts';
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
-import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from '../_shared/rate-limit.ts';
+import {
+  checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse, DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY,
+} from '../_shared/rate-limit.ts';
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from '../_shared/gateway-trust.ts';
 import { getCorsHeaders } from '../_shared/cors.ts';
 
 // Warm module-scope Supabase client. Reused across request invocations
@@ -114,9 +127,14 @@ async function runNarrative(
     items_blocked: blocked,
     start_date:   project.start_date,
     end_date:     project.end_date,
-    budget_php:   project.budget_php,
     owner:        project.owner_name,
-    description:  project.description,
+    // v_project_truth carries no budget_php or description (those live on the base table), so the fact pack read them
+    // as undefined and JSON.stringify dropped them - the model was never told a budget. What the view DOES carry is
+    // the hours rule 2 below asks for (and the pack never supplied) and the approved change-order cost (2026-10-07).
+    hours_estimated:        project.estimated_total_hours ?? null,
+    hours_actual:           project.actual_total_hours ?? null,
+    approved_change_orders: project.approved_change_orders ?? null,
+    approved_co_cost_php:   project.approved_co_cost_php ?? null,
     blocked_titles: items.filter((i: Record<string, unknown>) => i.status === 'blocked').map((i: Record<string, string>) => i.title).slice(0, 5),
     pending_titles: items.filter((i: Record<string, unknown>) => i.status === 'pending').map((i: Record<string, string>) => i.title).slice(0, 5),
     in_progress_titles: items.filter((i: Record<string, unknown>) => i.status === 'in_progress').map((i: Record<string, string>) => i.title).slice(0, 3),
@@ -131,7 +149,7 @@ async function runNarrative(
   const systemPrompt = `You write strict-only project narratives for industrial maintenance handover packets in the Philippines. You receive a JSON fact pack and MUST produce three short sections that quote SPECIFIC facts. Never invent values, never reference data not present in the facts. Generic boilerplate is REJECTED.
 
 Mandatory content rules. Your narrative will be considered FAILED if missing any of these:
-1. hero_finding MUST quote the percentage AND the items_done/items_total fraction (e.g. "61% complete with 4 of 7 scope items closed").
+1. hero_finding MUST quote the percentage AND the items_done/items_total fraction, in the shape "<pct>% complete with <items_done> of <items_total> scope items closed" (the <...> slots are filled from the fact pack, never copied).
 2. executive_summary MUST mention progress %, hours_actual vs hours_estimated if both are non-zero, AND name a specific blocker verbatim if recent_blocker_count > 0. If next_pending_item is set, end with "Next: <next_pending_item>".
 3. If status_inconsistency is non-null, mention it as a sign-off readiness flag in the executive_summary.
 4. lessons_synthesis must paraphrase the recurring theme from recent_blocker_examples, or omit if no blockers.
@@ -164,14 +182,16 @@ Generate the JSON narrative.`;
   try {
     aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.05, maxTokens: 800, jsonMode: true });
   } catch (e) {
-    return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
+    console.error('project-orchestrator: every provider failed -', (e as Error).message);
+    return { _unavailable: true, reason: UNANSWERED };
   }
+  if (!aiAnswered(aiResponse)) return { _unavailable: true, reason: UNANSWERED };
 
   let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(aiResponse);
   } catch {
-    return { _unavailable: true, reason: 'AI returned non-JSON', raw: aiResponse.slice(0, 200) };
+    return { _unavailable: true, reason: UNREADABLE, raw: aiResponse.slice(0, 200) };
   }
   return {
     hero_finding:      parsed.hero_finding || null,
@@ -215,7 +235,7 @@ Rules:
    - reliability study / RCA / FMEA → reliability_study (workorder)
    - if no match: leave template_id null
 3. Parse Philippine date phrases ("starting Monday", "next week", "tomorrow") relative to today (${new Date().toISOString().slice(0, 10)}). Output ISO YYYY-MM-DD.
-4. Asset tag like "PUMP-201" or "BLR-001" → put in asset_tag field. Do NOT put in name.
+4. An asset tag the speaker actually says (letters, a dash, digits, in the shape "<LETTERS>-<digits>") → put it in asset_tag exactly as said. Do NOT put it in name. If the transcript names no tag, asset_tag is null; never make one up.
 5. Output STRICT JSON only.
 
 Output schema:
@@ -225,7 +245,7 @@ Output schema:
   "name":         "<short project name; default to template name + asset tag>",
   "start_date":   "YYYY-MM-DD or null",
   "end_date":     "YYYY-MM-DD or null",
-  "asset_tag":    "<tag like PUMP-201 or null>",
+  "asset_tag":    "<the asset tag exactly as said in the transcript, or null>",
   "duration_days": <integer or null>,
   "priority":     "low|medium|high|critical",
   "description":  "<paraphrase of transcript intent in 1-2 sentences>",
@@ -243,8 +263,10 @@ Output the JSON payload.`;
   try {
     aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 500, jsonMode: true });
   } catch (e) {
-    return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
+    console.error('project-orchestrator: every provider failed -', (e as Error).message);
+    return { _unavailable: true, reason: UNANSWERED };
   }
+  if (!aiAnswered(aiResponse)) return { _unavailable: true, reason: UNANSWERED };
   try {
     const parsed = JSON.parse(aiResponse);
     if (parsed && typeof parsed === 'object' && 'narration' in parsed) {
@@ -252,7 +274,7 @@ Output the JSON payload.`;
     }
     return { ...parsed, _ai_generated: true, _ai_at: new Date().toISOString() };
   } catch {
-    return { _unavailable: true, reason: 'AI returned non-JSON', raw: aiResponse.slice(0, 200) };
+    return { _unavailable: true, reason: UNREADABLE, raw: aiResponse.slice(0, 200) };
   }
 }
 
@@ -304,18 +326,21 @@ Draft the lessons-learned bullets.`;
   try {
     aiResponse = await callAI(userPrompt, { systemPrompt: composedSystem, temperature: 0.25, maxTokens: 500, jsonMode: true });
   } catch (e) {
-    return { _unavailable: true, reason: `AI providers all failed: ${(e as Error).message}` };
+    console.error('project-orchestrator: every provider failed -', (e as Error).message);
+    return { _unavailable: true, reason: UNANSWERED };
   }
+  if (!aiAnswered(aiResponse)) return { _unavailable: true, reason: UNANSWERED };
   try {
     const parsed = JSON.parse(aiResponse);
     return { lessons_text: parsed.lessons_text, narration: String(parsed.narration || '').trim().slice(0, 280) || null, _ai_generated: true, _ai_at: new Date().toISOString() };
   } catch {
-    return { _unavailable: true, reason: 'AI returned non-JSON', raw: aiResponse.slice(0, 200) };
+    return { _unavailable: true, reason: UNREADABLE, raw: aiResponse.slice(0, 200) };
   }
 }
 
 /* ── Handler ────────────────────────────────────────────────────────── */
-serveObserved("project-orchestrator", async (req: Request) => {
+serveObserved("project-orchestrator", tracedReply("project-orchestrator", async (req: Request, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "project-orchestrator", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -324,7 +349,7 @@ serveObserved("project-orchestrator", async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req) });
   }
-  logRequestStart(req, "project-orchestrator");  // I6 observability (structured request_start line)
+  log.info(trace, "request_start", { method: req.method });  // I6 observability (structured request_start line)
   if (req.method !== 'POST') {
     return errJson('That action is not allowed here. Reload the page and try again.', 405, req);
   }
@@ -343,11 +368,15 @@ serveObserved("project-orchestrator", async (req: Request) => {
   // Pillar I: narrative/lessons phases read project data scoped by the client
   // hive_id on a service-role client. Verify membership when a hive is claimed
   // (the intent phase is hive-less). Service-role (gateway-forwarded) calls skip.
+  let _verifiedHiveId: string | null = null;   // the hive the limiters count on: proven below, or a service caller's
   if (body.hive_id) {
     const { authUid, isServiceRole } = await resolveIdentity(db, req);
     if (!isServiceRole) {
       const tenancy = await resolveTenancy(db, authUid, body.hive_id);
       if (!tenancy.ok) return errJson(tenancy.message, tenancy.status, req);
+      _verifiedHiveId = tenancy.hive_id || body.hive_id;
+    } else {
+      _verifiedHiveId = body.hive_id;
     }
   }
 
@@ -362,14 +391,36 @@ serveObserved("project-orchestrator", async (req: Request) => {
   // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
   // fail a real request.
   try {
-    const _rq = await checkRouteRateLimit(db, body.hive_id || "" || "", "project-orchestrator");
+    const _rq = await checkRouteRateLimit(db, _verifiedHiveId || "", "project-orchestrator");
     // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
     // a no-op until an admin sets a cap - while always counting for attribution.
     // This fn builds CORS inline per response, so call the shared helper the same way.
-    if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(getCorsHeaders(req), "project-orchestrator", _rq.cap, _rq.retry_after_seconds);
+    if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(getCorsHeaders(req), "project-orchestrator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
   } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-  const rl = await checkAIRateLimit(db, body.hive_id || "");
-  if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req), rl.scope ?? "hour", rl.retry_after_seconds);
+  // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+  // again here halved the hive's rate on the project route (2026-10-08). The per-surface quota above is kept on both
+  // doors: it is keyed on this function's name, a bucket the gateway never touches.
+  const viaGateway = await isTrustedGatewayForward(req);
+  if (!viaGateway && _verifiedHiveId) {
+    const rl = await checkAIRateLimit(db, _verifiedHiveId);
+    if (!rl.allowed) return rateLimitedResponse(getCorsHeaders(req), rl.scope ?? "hour", rl.retry_after_seconds);
+  } else if (!viaGateway) {
+    // ★A CALLER WITH NO HIVE WAS NEVER COUNTED (2026-10-08). checkAIRateLimit(db, "") admits without tracking,
+    // and with verify_jwt = false and no hive claimed nobody was even identified - anyone, with no token at all,
+    // reached the model unmetered. A person is limited on their own bucket (the verified uid) with the budget a
+    // single-person hive gets, an anonymous caller on the IP floor, and a caller with neither is refused.
+    const { authUid: _soloUid, isServiceRole: _soloSvc } = await resolveIdentity(db, req);
+    if (!_soloSvc) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _srl = await checkSoloRateLimit(db, soloRateLimitKey(_soloUid, _ip), DEFAULT_RATE_LIMIT_PER_HOUR,
+        DEFAULT_RATE_LIMIT_PER_DAY, _ip || null, true);
+      if (!_srl.allowed) {
+        return _srl.scope === "unidentified"
+          ? soloUnidentifiedResponse(getCorsHeaders(req))
+          : soloRateLimitedResponse(getCorsHeaders(req), _srl.retry_after_seconds, _srl.scope);
+      }
+    }
+  }
 
   try {
     if (phase === 'narrative') {
@@ -392,4 +443,4 @@ serveObserved("project-orchestrator", async (req: Request) => {
     console.error("project-orchestrator:", (e as Error).message);   // the exception is the operator's (2026-09-06)
     return errJson("Something went wrong on our side. Try again in a moment.", 500, req);
   }
-});
+}));

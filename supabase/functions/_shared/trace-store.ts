@@ -18,7 +18,7 @@
 // Bounded by design (performance doctrine): never scan more than ROW_CAP recent
 // rows; the created_at DESC index makes the windowed read cheap.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 
 const ROW_CAP = 5000;                 // hard ceiling per rollup (recent window)
 const POLICY_REJECTIONS = new Set([401, 403, 429]); // intended, excluded from error-rate

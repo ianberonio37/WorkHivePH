@@ -24,7 +24,7 @@
 // the skill library is semantically matchable by _shared/skill-library.ts; that
 // is the only network call here and it never blocks recall.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { generateEmbedding } from "./embedding-chain.ts";
 
 export const MEMORY_TYPES = ["factual", "procedural", "episodic", "semantic"] as const;
@@ -100,7 +100,7 @@ export async function recallEpisodic(
   db: SupabaseClient,
   hiveId: string | null,
   workerName: string | null,
-  opts: { memoryTypes?: MemoryType[]; limit?: number; query?: string; bump?: boolean } = {},
+  opts: { memoryTypes?: MemoryType[]; limit?: number; query?: string; bump?: boolean; authUid?: string | null } = {},
 ): Promise<RecalledMemory[]> {
   if (!hiveId && !workerName) return [];
 
@@ -116,8 +116,16 @@ export async function recallEpisodic(
     .in("memory_type", memoryTypes as unknown as string[])
     .order("importance", { ascending: false })
     .limit(Math.max(limit * 3, 50));
-  if (hiveId)     q = q.eq("hive_id", hiveId);
-  if (workerName) q = q.eq("worker_name", workerName);
+  // ★NO HIVE MEANS SOLO, NEVER EVERY HIVE (2026-10-13): a recall with a name and no hive added no hive filter, so it
+  // returned that name's memories from every hive - reached anonymously through agent-memory-store and
+  // agentic-rag-loop (both now identify the caller). A hive-less memory is written with hive_id NULL; a hive-less
+  // recall reads exactly those.
+  q = hiveId ? q.eq("hive_id", hiveId) : q.is("hive_id", null);
+  // ★WHOSE DURABLE MEMORY (2026-10-13): by the ACCOUNT when the caller has one - a display name is freed by a rename
+  // and inherited by the next person to join under it. Rows the backfill could tie to no account (machine-written
+  // "status" notes, an empty name) are then nobody's personal memory; a hive-wide recall (no person) still reads them.
+  if (opts.authUid) q = q.eq("auth_uid", opts.authUid);
+  else if (workerName) q = q.eq("worker_name", workerName);
 
   const { data, error } = await q;
   if (error) { console.warn("[episodic-memory] recall fetch failed:", error.message); return []; }
@@ -159,19 +167,24 @@ export async function evictIfOverCap(
   db: SupabaseClient,
   hiveId: string | null,
   workerName: string | null,
+  authUid: string | null = null,
 ): Promise<number> {
   let evicted = 0;
-  const scopes: Array<{ col: "worker_name" | "hive_id"; val: string; cap: number }> = [];
-  if (workerName) scopes.push({ col: "worker_name", val: workerName, cap: PER_WORKER_CAP });
-  if (hiveId)     scopes.push({ col: "hive_id",     val: hiveId,     cap: PER_HIVE_CAP });
+  // ★A WORKER'S CAP COUNTS ONE SCOPE (2026-10-13): the per-worker scope filtered by name alone, so a store under a name
+  // counted - and could EVICT - same-named rows in every other hive. It now counts the worker within the scope written to.
+  const scopes: Array<{ worker: string | null; cap: number }> = [];
+  if (workerName) scopes.push({ worker: workerName, cap: PER_WORKER_CAP });
+  if (hiveId)     scopes.push({ worker: null,       cap: PER_HIVE_CAP });
 
   for (const s of scopes) {
     // canonical-allow: LRU eviction scan, agent infra. The full-scope scan is
     // intentional (must see all in-scope rows to evict the lowest-value ones);
     // the table is self-capped at PER_*_CAP by this very eviction.
-    const { data } = await db.from("agent_episodic_memory")  // unbounded-query-allow: LRU eviction full scan, self-capped
-      .select("id, importance, use_count")
-      .eq(s.col, s.val);
+    let scopeQ = db.from("agent_episodic_memory")  // unbounded-query-allow: LRU eviction full scan, self-capped
+      .select("id, importance, use_count");
+    scopeQ = hiveId ? scopeQ.eq("hive_id", hiveId) : scopeQ.is("hive_id", null);
+    if (s.worker) scopeQ = authUid ? scopeQ.eq("auth_uid", authUid) : scopeQ.eq("worker_name", s.worker);
+    const { data } = await scopeQ;
     const rows = data || [];
     if (rows.length > s.cap) {
       const toEvict = rows
@@ -200,11 +213,13 @@ export async function persistEpisodic(
   hiveId: string | null,
   workerName: string | null,
   memories: StoreInput[],
+  authUid: string | null = null,
 ): Promise<{ written: number; merged: number; evicted: number; errors: string[] }> {
   const errors: string[] = [];
   const rows = (memories || []).slice(0, MAX_STORE_BATCH).map((m) => ({
     hive_id:         hiveId,
     worker_name:     workerName,
+    auth_uid:        authUid,   // ★the account, written at last (2026-10-13: 0 of 120 rows carried one)
     memory_type:     m.memory_type,
     content:         String(m.content || "").slice(0, MAX_CONTENT_CHARS),
     embedding:       null as number[] | null,
@@ -266,7 +281,7 @@ export async function persistEpisodic(
     written = (data || []).length;
   }
 
-  const evicted = await evictIfOverCap(db, hiveId, workerName);
+  const evicted = await evictIfOverCap(db, hiveId, workerName, authUid);
   return { written, merged, evicted, errors };
 }
 

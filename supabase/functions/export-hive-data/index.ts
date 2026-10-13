@@ -41,7 +41,7 @@ import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: PDPA right-to-access export; structured payload, not a brain output
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -59,6 +59,7 @@ const EXPORT_TIMEOUT_MS = 30_000;
 interface AuthCheckResult {
   ok: boolean;
   auth_uid?: string;
+  worker_name?: string;
   reason?: string;
 }
 
@@ -77,7 +78,7 @@ async function checkSupervisor(
   // Membership check via service-role bypass of RLS.
   const { data: member, error: memErr } = await db
     .from("v_worker_truth")
-    .select("role, hive_status")
+    .select("role, hive_status, worker_name")
     .eq("hive_id", hive_id)
     .eq("auth_uid", auth_uid)
     .maybeSingle();
@@ -90,7 +91,7 @@ async function checkSupervisor(
   if (member.hive_status !== "active" || member.role !== "supervisor") {
     return { ok: false, reason: "PDPA right-to-access requires active supervisor role" };
   }
-  return { ok: true, auth_uid };
+  return { ok: true, auth_uid, worker_name: member.worker_name || undefined };
 }
 
 serveObserved("export-hive-data", async (req) => {
@@ -153,17 +154,24 @@ serveObserved("export-hive-data", async (req) => {
     }
 
     // Best-effort audit log so the supervisor's own action is traceable.
+    // ★THE EXPORT WAS NEVER AUDITED (2026-10-12, UFAI edge walk W4235). This inserted actor: null on the belief that
+    // "auth_uid resolves the actor server-side" - but wh_bind_audit_actor binds the actor only when auth.uid() is set,
+    // and this client is the service role, so it never fires; hive_audit_log.actor is NOT NULL, the insert failed,
+    // and supabase-js RETURNS that failure rather than throwing, so the try/catch never saw it. Measured: 0
+    // export_hive_data rows, ever - every PDPA export left no trace. The actor is the supervisor checkSupervisor
+    // already resolved (the same shape supervisor-reset-password uses), and a failed write is now said, not dropped.
     try {
-      await db.from("hive_audit_log").insert({
+      const { error: auditErr } = await db.from("hive_audit_log").insert({
         hive_id,
-        actor:       null,        // auth_uid resolves the actor server-side
+        actor:       authRes.worker_name || "(unknown)",
         action:      "export_hive_data",
         target_type: "hive",
         target_id:   hive_id,
         target_name: "PDPA export",
-        meta:        { bytes: JSON.stringify(payload || {}).length },
+        meta:        { bytes: JSON.stringify(payload || {}).length, actor_auth_uid: authRes.auth_uid },
       });
-    } catch (_) { /* audit best-effort */ }
+      if (auditErr) console.warn("[export-hive-data] audit row not written:", auditErr.message);
+    } catch (e) { console.warn("[export-hive-data] audit row not written:", e instanceof Error ? e.message : String(e)); }
 
     const bytes = JSON.stringify(payload || {}).length;
     return new Response(

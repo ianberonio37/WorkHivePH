@@ -49,13 +49,15 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: produces AMC briefing; future Tier C: amc_brief_v1
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+// LM-O: a call this function stops waiting for is recorded once, late, under this reply's trace id
+import { raceModelCall } from "../_shared/model-calls.ts";
 import { log } from "../_shared/logger.ts";
 // Persona Contract: AMC briefings sign their footer ("Signed by Hezekiah,
 // your WorkHive daily companion"). The brief BODY stays structured —
@@ -434,27 +436,22 @@ async function briefingComposer(
   const t0 = Date.now();
   let raw: string;
   try {
-    raw = await Promise.race([
-      callAI(promptStr, {
+    raw = await raceModelCall(
+      () => callAI(promptStr, {
         systemPrompt: SUMMARY_SYSTEM_PROMPT,
         temperature:  0.25,
         maxTokens:    MAX_TOKENS_SUMMARY,
         jsonMode:     true,
       }),
-      new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error("AMC summary LLM timeout")), LLM_TIMEOUT_MS),
-      ),
-    ]);
+      LLM_TIMEOUT_MS,
+      "AMC summary LLM timeout",
+    );
   } catch {
-    void logAICost(db, {
-      fn:            "amc-orchestrator",
-      hive_id,
-      model:         MODEL_VERSION,
-      provider:      "chain",
-      prompt_tokens: estimateTokens(promptStr) + estimateTokens(SUMMARY_SYSTEM_PROMPT),
-      latency_ms:    Date.now() - t0,
-      status:        "fallback",
-    });
+    // ★A CALL WE STOPPED WAITING FOR IS RECORDED ONCE, AND SAYS IT WAS LATE (LM-O, 2026-10-08). The deadline passed
+    // with the call still in flight, so this reply carries the fallback summary. raceModelCall keeps the worker open
+    // until the call finishes and records it then: one row, under this reply's trace id, late=true, status fallback
+    // if it served (nobody saw that answer) and failed if nothing did. It used to land as an ordinary success row, or
+    // not at all if the worker was torn down first. No row here - it would be a second record of the same call.
     return fallback;
   }
 
@@ -645,7 +642,9 @@ async function buildBriefForHive(
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
-serveObserved("amc-orchestrator", async (req) => {
+serveObserved("amc-orchestrator", tracedReply("amc-orchestrator", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "amc-orchestrator", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -653,7 +652,7 @@ serveObserved("amc-orchestrator", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "amc-orchestrator");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -708,7 +707,7 @@ serveObserved("amc-orchestrator", async (req) => {
           const _rq = await checkRouteRateLimit(db, targetHive || "", "amc-orchestrator");
           // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
           // a no-op until an admin sets a cap - while always counting for attribution.
-          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "amc-orchestrator", _rq.cap, _rq.retry_after_seconds);
+          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "amc-orchestrator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
         } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
         const _rl = await checkAIRateLimit(db, targetHive);
         if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
@@ -794,4 +793,4 @@ serveObserved("amc-orchestrator", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "amc-orchestrator", "amc_orchestrator_error", err);
   }
-});
+}));

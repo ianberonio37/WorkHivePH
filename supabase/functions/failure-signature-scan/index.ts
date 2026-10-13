@@ -16,11 +16,12 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { withModelCaller } from "../_shared/model-calls.ts";  // LM-O: each hive's model calls are recorded for that hive
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -180,7 +181,8 @@ Severity: ${alert.severity}`;
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<think>[\s\S]*$/i, "")
       .trim();
-    if (!cleaned) return { detail: fallback, source: "rule" };
+    // "{}" is the exhausted chain, not a detail - it was stored as the signature's detail, marked source "ai"
+    if (!aiAnswered(cleaned)) return { detail: fallback, source: "rule" };
     return { detail: cleaned.slice(0, 500), source: "ai" };
   } catch {
     return { detail: fallback, source: "rule" };
@@ -283,7 +285,9 @@ async function scanHive(
 // Entry point
 // ---------------------------------------------------------------------------
 
-serveObserved("failure-signature-scan", async (req) => {
+serveObserved("failure-signature-scan", tracedReply("failure-signature-scan", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "failure-signature-scan", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -291,7 +295,7 @@ serveObserved("failure-signature-scan", async (req) => {
   if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  logRequestStart(req, "failure-signature-scan");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
   const db = createClient(
@@ -327,7 +331,7 @@ serveObserved("failure-signature-scan", async (req) => {
         const _rq = await checkRouteRateLimit(db, String(body.hive_id || ""), "failure-signature-scan");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "failure-signature-scan", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "failure-signature-scan", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, String(body.hive_id));
       if (!_rl.allowed) return rateLimitedResponse(cors, _rl.scope ?? "hour", _rl.retry_after_seconds);
@@ -368,7 +372,7 @@ serveObserved("failure-signature-scan", async (req) => {
 
   for (const hiveId of hiveIds) {
     try {
-      const result = await scanHive(db, hiveId, now);
+      const result = await withModelCaller({ hive_id: hiveId }, () => scanHive(db, hiveId, now));
       totalCreated += result.created;
       totalErrors  += result.errors;
     } catch (e) {
@@ -394,4 +398,4 @@ serveObserved("failure-signature-scan", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "failure-signature-scan", "failure_signature_scan_error", err);
   }
-});
+}));

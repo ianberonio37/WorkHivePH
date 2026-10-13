@@ -42,12 +42,19 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI, callAIMultimodal } from "../_shared/ai-chain.ts";
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, callAIMultimodal, aiAnswered } from "../_shared/ai-chain.ts";
+
+// ★THE FILE WAS BLAMED FOR A READER THAT NEVER ANSWERED (2026-10-12, UFAI edge walk W4767). callAI returns "{}" when no
+// model answered (aiAnswered), and this sent "Try a clearer photo or a different file" - a good resume, retaken for
+// nothing. Unanswered says so; a reader that answered and found nothing keeps the file sentence.
+const READER_UNAVAILABLE = "The resume reader is not answering just now, so your file was not read. Nothing is wrong with the file; try again in a few minutes.";
+import { checkSoloRateLimit, soloRateLimitKey, limiterUnavailableResponse, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { canonicalizeSkill, isSectionHeaderLine, PROJECT_ACTION_VERBS } from "../_shared/resume-taxonomy.ts";
 // Envelope adoption (helper imported for conformance; flat {error}/{fields} JSON
@@ -408,7 +415,9 @@ function coerceFields(p: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
-serveObserved("resume-extract", async (req) => {
+serveObserved("resume-extract", tracedReply("resume-extract", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "resume-extract", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -416,7 +425,7 @@ serveObserved("resume-extract", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  logRequestStart(req, "resume-extract");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
@@ -449,8 +458,15 @@ serveObserved("resume-extract", async (req) => {
     // personal document.
     const clientIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
     // I5: pass clientIp so the always-on CGNAT-aware IP ceiling floors a rotating-uuid script.
-    const rl = await checkSoloRateLimit(db, soloRateLimitKey(auth_uid, clientIp), undefined, undefined, clientIp);
-    if (!rl.allowed) return json({ error: "AI call limit reached. Please try again in an hour." }, 429);
+    // the limiter keys on the VERIFIED caller (the JWT), never on `body.auth_uid`, which any caller can set to
+    // someone else's id to spend their bucket (same class as voice-journal-agent's shared bucket, 2026-10-07)
+    const _rlUid = (await resolveIdentity(db, req).catch(() => null))?.authUid ?? null;
+    const rl = await checkSoloRateLimit(db, soloRateLimitKey(_rlUid, clientIp), undefined, undefined, clientIp);
+    if (!rl.allowed) {
+      if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+      // the real clearing time, not "an hour" for every scope (a day-cap refusal said an hour, 2026-10-12)
+      return soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds, rl.scope);
+    }
     const remaining = rl.remaining;
 
     let injectionStripped = 0;
@@ -479,17 +495,19 @@ serveObserved("resume-extract", async (req) => {
         // trailing pages NONE), then merge with dedupe. Parts run sequentially to be
         // gentle on the free-tier chain; a failed or empty part is skipped, not fatal.
         const partials: Array<Record<string, unknown>> = [];
+        let unanswered = 0;   // parts no model answered (thrown, or the chain's "{}")
         for (let i = 0; i < chunks.length; i++) {
           const note = `[Part ${i + 1} of ${chunks.length} of one resume. Extract every fact in THIS part only; another part covers the rest.]\n\n`;
           let pr = "";
           try {
             pr = await callAI(note + chunks[i], { systemPrompt: sysPrompt, temperature: 0.1, maxTokens: MAX_TOKENS_OUT, jsonMode: true, taskProfile: "synthesis_long_output" });
-          } catch (_) { continue; }
-          if (!pr || pr === "{}") continue;
+          } catch (_) { unanswered++; continue; }
+          if (!aiAnswered(pr)) { unanswered++; continue; }
           try { partials.push(JSON.parse(pr)); } catch (_) { /* skip an unparseable part, keep the rest */ }
         }
         if (!partials.length) {
-          return json({ error: "Could not read this file. Try a clearer file or split it into two.", ai_provider_unavailable: true }, 502);
+          if (unanswered === chunks.length) return json({ error: READER_UNAVAILABLE, ai_provider_unavailable: true }, 503);
+          return json({ error: "Could not read this file. Try a clearer file or split it into two." }, 502);
         }
         // Map-reduce honesty: a chunk that 429'd or returned empty was skipped
         // (the `continue`s above), so the merged resume is missing that page's
@@ -508,8 +526,8 @@ serveObserved("resume-extract", async (req) => {
       }
     }
 
-    if (!raw || raw === "{}") {
-      return json({ error: "Could not read this file. Try a clearer photo or a different file.", ai_provider_unavailable: !raw }, 502);
+    if (!aiAnswered(raw)) {
+      return json({ error: READER_UNAVAILABLE, ai_provider_unavailable: true }, 503);
     }
 
     let parsed: Record<string, unknown>;
@@ -521,4 +539,4 @@ serveObserved("resume-extract", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "resume-extract", "resume_extract_error", err);
   }
-});
+}));

@@ -1,5 +1,6 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar O (Observability): expose a /health probe for the gateway status page.
 import { handleHealth } from "../_shared/health.ts";
@@ -25,7 +26,7 @@ void _whWarmClient;
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serveObserved("embed-entry", async (req) => {
+serveObserved("embed-entry", tracedReply("embed-entry", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -40,7 +41,7 @@ serveObserved("embed-entry", async (req) => {
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "embed-entry" });
+  const _logCtx = _trace;  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
@@ -151,7 +152,7 @@ serveObserved("embed-entry", async (req) => {
           // same placement as voice-model-call, the reference adopter).
           const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
           const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+          if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
         }
       } else {
         // ★No hive_id on the manual path is NOT a browser member call — every browser caller
@@ -220,6 +221,20 @@ serveObserved("embed-entry", async (req) => {
         worker_name: entry.worker_name || null,
         embedding,
       };
+      // ★WHICH WORDS THE AI WROTE (LM-V walk, LM422, 2026-10-07). An entry the person saved after an AI path drafted
+      // it (voice fill, photo defect capture, companion logbook.create) carries ai_assisted_fields: the fields the AI
+      // filled that the person kept. The browser sends it inside `entry`; the DB-webhook / outbox shape carries it as a
+      // column of the logbook `record`. Either way it lands on this row, narrowed to the fields THIS row holds, so the
+      // RAG corpus can tell a model's draft from a technician's own words. source stays 'manual' - the person approved
+      // the row - which keeps CHECK fault_knowledge_ai_provenance_pairing ((source LIKE 'ai\_%') = (ai_model IS NOT
+      // NULL)) satisfied; 'ai_*' stays reserved for rows a model wrote alone (visual-defect-capture's analyze insert).
+      // ABSENT, not [], when the caller did not say: the write is an upsert on logbook_id, and an older caller (or a
+      // queued entry from before this field) must not erase a mark the row already carries.
+      if (Array.isArray(entry.ai_assisted_fields)) {
+        const FAULT_FIELDS = ["machine", "category", "problem", "root_cause", "action", "knowledge"];
+        row.ai_assisted_fields = [...new Set((entry.ai_assisted_fields as unknown[])
+          .filter((f): f is string => typeof f === "string" && FAULT_FIELDS.includes(f)))];
+      }
     }
 
     // ── SKILL (from Skill Matrix save) ──────────────────────────────────────
@@ -301,6 +316,21 @@ serveObserved("embed-entry", async (req) => {
       // overdue_count, last_completed) rather than a per-completion record — 1,591 completions must
       // converge onto one row per asset, not 1,591 rows. Unique index added in 20260731000003.
       conflictKey = "hive_id,asset_id";
+      // ★THE FIX THAT REACHED ONE OF TWO DOORS (2026-10-12, UFAI edge walk W4662). pm_knowledge.asset_id is an
+      // asset_nodes.id FK, and the DB-webhook path above already maps the pm_ASSETS id it receives onto the node.
+      // pm-scheduler's own embedPMEntry calls THIS path directly with entry.asset_id = the pm_assets id, which the
+      // FK refused - "violates foreign key constraint pm_knowledge_asset_id_fkey", a 500 on every PM marked done, so
+      // the PM side of the RAG index stopped growing. The same canonical read resolves it here; an id that is
+      // already a node passes through unchanged.
+      if (entry.asset_id) {
+        const { data: _isNode } = await db.from("v_asset_truth").select("asset_id")
+          .eq("asset_id", entry.asset_id).maybeSingle();
+        if (!_isNode) {
+          const { data: _node } = await db.from("v_asset_truth").select("asset_id")
+            .eq("pm_asset_id", entry.asset_id).maybeSingle();
+          entry.asset_id = _node?.asset_id || null;
+        }
+      }
       row = {
         hive_id:        hive_id || null,
         asset_id:       entry.asset_id || null,
@@ -332,9 +362,31 @@ serveObserved("embed-entry", async (req) => {
     // three writers agree on one string for one space.
     row.embedding_model = _emb.provider === "bge-local" ? "bge-small-en-v1.5-local" : _emb.provider;
 
-    const { error } = conflictKey
-      ? await db.from(table).upsert(row, { onConflict: conflictKey })
-      : await db.from(table).insert(row);
+    // ★A NULL KEY NEVER CONFLICTS (2026-10-12, W4662). A PM asset with no linked asset node resolves to asset_id null,
+    // and the (hive_id, asset_id) unique index treats every null as distinct - so each completion ADDED a summary row
+    // for the same asset: 528 null-asset rows for 18 assets (about 29x), all competing in every PM retrieval. Such a
+    // summary is keyed on the asset's name instead: the existing row is updated, never duplicated.
+    let error = null as { message: string } | null;
+    if (table === "pm_knowledge" && !row.asset_id) {
+      // canonical-allow: a write-path dedupe lookup on the knowledge table itself (find this asset's existing summary
+      // by name so it is updated, never duplicated); no KPI is read or rendered, so no canonical view applies.
+      let q = db.from("pm_knowledge").select("id").eq("asset_name", row.asset_name).is("asset_id", null);
+      q = row.hive_id ? q.eq("hive_id", row.hive_id) : q.is("hive_id", null);   // a solo summary has no hive
+      const { data: same } = await q.order("updated_at", { ascending: false }).limit(1);
+      if (same && same.length) {
+        const { error: updErr } = await db.from("pm_knowledge").update(row).eq("id", same[0].id);
+        error = updErr;
+      } else {
+        const { error: insErr } = await db.from("pm_knowledge").insert(row);
+        error = insErr;
+      }
+    } else if (conflictKey) {
+      const { error: upsErr } = await db.from(table).upsert(row, { onConflict: conflictKey });
+      error = upsErr;
+    } else {
+      const { error: insErr } = await db.from(table).insert(row);
+      error = insErr;
+    }
 
     if (error) {
       console.error(`DB insert error (${table}):`, error.message);
@@ -353,4 +405,4 @@ serveObserved("embed-entry", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "embed-entry", "embed_entry_error", err);
   }
-});
+}));

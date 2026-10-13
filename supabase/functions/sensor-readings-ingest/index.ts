@@ -49,7 +49,7 @@ import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I: machine-ingest gate — only trusted (service-role) callers may write.
 import { requireServiceRole } from "../_shared/tenant-context.ts";

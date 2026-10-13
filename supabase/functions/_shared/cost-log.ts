@@ -19,8 +19,17 @@
 // fail the parent request (cost log is observability, not the
 // critical path). Cost per token is computed downstream by the
 // ai-cost.html dashboard via a lookup table per provider.
+//
+// ★INSIDE A REQUEST THIS NO LONGER WRITES A ROW OF ITS OWN (LM-O, 2026-10-08). Every served model call is now
+// recorded once by the shared collector (_shared/model-calls.ts: the chain reports it, serveObserved writes it with
+// fn, hive, user, the provider and model that actually served, tokens, latency and the reply's trace id). A call
+// here inside a serveObserved request ANNOTATES the served call it follows - schema_compliance, prompt_hash, a
+// fallback/failed status the function decided - or, when nothing served, records that attempt as one failed row.
+// So a function that still calls logAICost no longer double-counts, and its hand-typed `model` ("chain:auto") never
+// overwrites the model that really answered. Outside a request scope (a script, a test) it inserts as before.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { absorbCostEntry } from "./model-calls.ts";
 
 export interface AICostEntry {
   fn:                 string;
@@ -43,6 +52,8 @@ export async function logAICost(
   db: SupabaseClient,
   entry: AICostEntry,
 ): Promise<void> {
+  // inside a request: the collector holds this call's record; annotate it rather than write a second row
+  if (absorbCostEntry(entry)) return;
   try {
     const row = {
       fn:                entry.fn,

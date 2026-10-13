@@ -28,8 +28,9 @@
 
 import { serveObserved } from "../_shared/observability.ts";
 
+import { modelCallsRefused } from "../_shared/model-calls.ts";  // a walk's no-model switch crosses the hop
 // contract-allow: router; forwards to edge fns
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar O (Observability): expose a /health probe for the gateway status page.
 import { handleHealth } from "../_shared/health.ts";
@@ -286,7 +287,7 @@ serveObserved("platform-gateway", async (req) => {
         error_class: "rate_limited",
       });
     }
-    return routeRateLimitedResponse(corsHeaders, route, rl.cap, rl.retry_after_seconds);
+    return routeRateLimitedResponse(corsHeaders, route, rl.cap, rl.retry_after_seconds, rl.scope);
   }
 
   // Forward to the downstream fn.
@@ -309,6 +310,8 @@ serveObserved("platform-gateway", async (req) => {
         "X-Forwarded-By": "platform-gateway",
         "X-Original-Worker": workerName || "",
         "x-wh-trace": ctx.trace_id,
+        // a walk's no-model switch crosses the hop (2026-10-12): local runtime only, see model-calls.ts
+        ...(modelCallsRefused() ? { "x-wh-walk-no-model": "1" } : {}),
       },
       body: JSON.stringify({
         ...(body.payload || {}),

@@ -26,9 +26,12 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for
+import { mentionedAssetCodes, normCode } from "../_shared/asset-codes.ts";
 
 // contract-allow: natural-language asset query; passthrough to AI
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 // Persona Contract: narrated-specialist mode — answer JSON gains a
 // `narration` field with 1-2 sentence prose in the persona's voice.
@@ -85,6 +88,9 @@ Your job is to answer the question using ONLY the provided context. Rules:
    plant worker, not the database. (T82, 2026-08-25.)
 8. Use Filipino industrial vocabulary (PEC 2017, PSME, ISO 14224) when appropriate.
 9. No em dashes in the response. Use colons, commas, parentheses, or restructure.
+10. If other_asset_mentioned is present, the question names an asset code that is NOT this asset and is not
+    registered in this hive. Say plainly that this hive has no record of that code and that this view covers
+    asset.tag. Never describe this asset's history, PMs or readings as if they belonged to the code that was asked about.
 
 Output JSON: { "answer": string, "cited": [ { "kind": "logbook"|"pm"|"similar"|"stat"|"fmea"|"rcm"|"weibull"|"pf"|"risk"|"risk-factor", "index": number } ], "narration": string }
 
@@ -96,7 +102,9 @@ narration is a 1-2 sentence prose summary of the answer in your persona's voice 
 // _shared/rate-limit.ts version (no daily cap, no solo-mode, racy double-write).
 // Delegated to the canonical — same call site, richer protection.
 // ---------------------------------------------------------------------------
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse, limiterUnavailableResponse } from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 
 // ---------------------------------------------------------------------------
 // Retrieval lanes
@@ -438,6 +446,15 @@ function resolveCitations(context: AnyRow, cited: unknown): AnyRow[] {
   return out;
 }
 
+// ★THE ASSET BRAIN ANSWERED FOR AN ASSET THAT DOES NOT EXIST (LM-G walk, LM112, 2026-10-07). With BF-001 open in the
+// 360 view, the person asked "What maintenance has been done on ZQX 9471 recently?" and was told "The most recent
+// maintenance on ZQX 9471 was a routine PM performed on 2026-08-04 ..." - BF-001's own history, relabelled with the
+// code they typed. The function is scoped to the open asset (the gateway forwards its id), so the model only ever
+// sees one asset's records and was never told the question was about a different one.
+// Two layers, cheapest first: a code that is ANOTHER REGISTERED asset of this hive is answered in code, with no model
+// call (it cannot be answered from this asset's context anyway); a code that is registered nowhere is flagged in the
+// context as other_asset_mentioned, which rule 10 tells the model how to handle. The detector is shared:
+// _shared/asset-codes.ts (the Work Assistant uses the same one).
 function composeContext(
   graph: { node: AnyRow | null; overview: AnyRow | null; parent: AnyRow | null },
   timeline: { logbook: AnyRow[]; pm: AnyRow[] },
@@ -576,7 +593,9 @@ function composeContext(
 // Handler
 // ---------------------------------------------------------------------------
 
-serveObserved("asset-brain-query", async (req) => {
+serveObserved("asset-brain-query", tracedReply("asset-brain-query", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {
@@ -587,12 +606,12 @@ serveObserved("asset-brain-query", async (req) => {
   const healthResp = await handleHealth(req, "asset-brain-query", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "asset-brain-query" });
+  const _logCtx = trace;
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
@@ -627,17 +646,31 @@ serveObserved("asset-brain-query", async (req) => {
     // db.functions.invoke; the gateway's service-role fallback is the bypass.
     const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (_bearer && _serviceKey && _bearer === _serviceKey) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
     if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
       const { data: { user: _caller } } = await db.auth.getUser(_bearer);
       if (!_caller) {
         return jsonResponse({ error: "Authentication required" }, 401, corsHeaders);
       }
-      const { data: _mem } = await db.from("v_worker_truth")
+      // ★A MEMBERSHIP READ THAT FAILED IS NOT A MEMBERSHIP THAT IS ABSENT (2026-10-06, found by walking
+      // LXP199 with PostgREST genuinely stopped). This gate destructured `data` and threw `error` away, so a
+      // read that NEVER RAN produced `!_mem` and the function announced 403 "Caller is not an active member of
+      // this hive" - a statement about the person's standing in the hive, derived from no evidence. Measured on
+      // analytics-report.html: Bryan Garcia, an active member of Baguio Textile Mills whose full report had
+      // generated two minutes earlier, was told "You are not an active member of this hive... Switch or rejoin a
+      // hive, then retry." The advice is useless (nothing is wrong with his membership) and alarming (it says
+      // his access was revoked) and the one true cause - the service was down - was never mentioned.
+      // The refused read is a FOURTH state, distinct from yes/no: it gets a 503 that says so.
+      const { data: _mem, error: _memErr } = await db.from("v_worker_truth")
         .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
         .eq("hive_status", "active").maybeSingle();
+      if (_memErr) {
+        return jsonResponse({ error: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment." }, 503, corsHeaders);
+      }
       if (!_mem) {
         return jsonResponse({ error: "Caller is not an active member of this hive" }, 403, corsHeaders);
       }
+      noteModelCaller({ auth_uid: _caller.id, hive_id });
     }
 
     // Rate-limit gate (after the auth gate so a foreign caller can't drain this
@@ -652,15 +685,29 @@ serveObserved("asset-brain-query", async (req) => {
       const _rq = await checkRouteRateLimit(db, hive_id || "", "asset-brain-query");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "asset-brain-query", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "asset-brain-query", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
-    if (!rl.allowed) {
-      return jsonResponse(
-        { error: "AI call limit reached for this hive. Try again in an hour." },
-        429,
-        corsHeaders,
-      );
+    // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+    // again here halved the hive's rate on the asset-brain route (2026-10-08). The per-surface quota above is kept on
+    // both doors: it is keyed on this function's name, a bucket the gateway never touches.
+    const viaGateway = await isTrustedGatewayForward(req);
+    // ★`rl` WAS BLOCK-SCOPED AND READ OUTSIDE ITS BLOCK (2026-10-12, UFAI edge walk W485). Moving the limiter inside
+    // `if (!viaGateway)` (above) left two `remaining: rl.remaining` reads below it, so EVERY request - forwarded or
+    // direct - threw "rl is not defined" and the person saw "The AI service could not answer just now": the Asset
+    // Brain answered no question at all. The count is hoisted; a forwarded call carries none (the gateway's own
+    // `remaining` is the one asset-hub shows, see `rr.remaining ?? gw.remaining` there).
+    let rlRemaining: number | null = null;
+    if (!viaGateway) {
+      const rl = await checkAIRateLimit(db, hive_id, RATE_LIMIT_PER_HOUR);
+      if (!rl.allowed) {
+        if (rl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
+        return jsonResponse(
+          { error: "AI call limit reached for this hive. Try again in an hour." },
+          429,
+          corsHeaders,
+        );
+      }
+      rlRemaining = rl.remaining;
     }
 
     // Three retrieval lanes in parallel. allSettled so one failure does not block.
@@ -671,6 +718,29 @@ serveObserved("asset-brain-query", async (req) => {
         404,
         corsHeaders,
       );
+    }
+
+    const openTag = String(graphRes.node.tag || "");
+    let otherAsset: Record<string, unknown> | null = null;
+    const otherCodes = normCode(question).includes(normCode(openTag)) ? [] : mentionedAssetCodes(question, openTag);
+    if (otherCodes.length) {
+      // canonical-allow: matching tags the person MENTIONED against every tag registered in this hive; v_asset_truth is
+      // approved-only, so a pending asset the person can see would read as "not registered" (the same trade-off recorded
+      // for ai-orchestrator, 2026-10-13). Hive-scoped; returns tags only, never KPI values.
+      const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag")
+        .eq("hive_id", hive_id).not("tag", "is", null);
+      if (!regErr) {
+        const reg = new Map(((regs ?? []) as Array<{ tag: string }>).map((r) => [normCode(r.tag), r.tag]));
+        const registered = otherCodes.map((c) => reg.get(normCode(c))).filter(Boolean) as string[];
+        if (registered.length) {
+          return jsonResponse({
+            answer: `This view covers ${openTag}. ${registered[0]} is a different asset in this hive: open it in Asset Hub to ask about it.`,
+            cited: [], narration: "", remaining: rlRemaining,
+            asset: { tag: graphRes.node.tag, name: graphRes.node.name }, scoped: "other_registered_asset",
+          }, 200, corsHeaders);
+        }
+        otherAsset = { asked_about: otherCodes, this_view_covers: openTag, registered_in_this_hive: false };
+      }
     }
 
     const [tlRes, simRes, relRes, riskRes] = await Promise.allSettled([
@@ -686,6 +756,7 @@ serveObserved("asset-brain-query", async (req) => {
     const risk        = riskRes.status === "fulfilled" ? riskRes.value : null;
 
     const context = composeContext(graphRes, timeline, similar, reliability, risk, question);
+    if (otherAsset) (context as Record<string, unknown>).other_asset_mentioned = otherAsset;
     // PII redaction before the prompt leaves the platform: worker_name in
     // the timeline.pm array gets `<redacted>` so the model provider never
     // sees worker identity. Closes PRODUCTION_FIXES #44 for this fn.
@@ -735,14 +806,14 @@ serveObserved("asset-brain-query", async (req) => {
       // Persona narration (1-2 sentences in Hezekiah/Zaniah voice). Capped to
       // keep responses sane if the model overruns.
       narration: String(parsed.narration || "").trim().slice(0, 280),
-      remaining: rl.remaining,
+      remaining: rlRemaining,
       asset:     { tag: graphRes.node.tag, name: graphRes.node.name },
     }, 200, corsHeaders);
   } catch (err) {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "asset-brain-query", "asset_brain_query_error", err);
   }
-});
+}));
 
 function jsonResponse(body: unknown, status: number, corsHeaders: Record<string, string>) {
   return new Response(JSON.stringify(body), {

@@ -14,11 +14,11 @@
 // changes it on next sign-in (client nudge). verify_jwt stays ON (a real supervisor session is required).
 import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): tight per-actor limit on this privileged action.
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, LIMITER_UNAVAILABLE_MESSAGE } from "../_shared/rate-limit.ts";
 
 function tempPassword(): string {
   // 14 chars, mixed classes, no ambiguous 0/O/1/l — readable when dictated in a noisy plant.
@@ -71,9 +71,18 @@ serveObserved("supervisor-reset-password", async (req) => {
 
   // A5: password resets are rare for a legit supervisor — a tight per-actor bucket
   // (5/hour, 20/day) contains a compromised supervisor account mass-resetting members.
-  const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-  const _rl = await checkSoloRateLimit(admin, soloRateLimitKey(actorUid, _ip), 5, 20, _ip);
-  if (!_rl.allowed) return json(429, { error: "rate_limited", message: "Too many password resets. Try again later." });
+  // ★IT COUNTED EVERYTHING BUT RESETS (2026-10-12, UFAI edge walk W4238). soloRateLimitKey(uid) is the person's SHARED
+  // bucket - the one ~30 functions bump for every AI answer, voice note and scan - so this 5-an-hour ceiling was held
+  // against all of that, and the per-IP ceiling (5x) against every caller behind the same carrier address. Measured: a
+  // supervisor with ZERO resets that day was refused "Too many password resets" because the coach and the assistant
+  // had answered her 15 times that hour - a locked-out worker kept waiting on a sentence that was not true. The bucket
+  // A5 describes counts resets, so it is this function's own: a namespaced key, no shared IP ceiling (the actor is the
+  // JWT-verified uid, so there is no rotated identity for that ceiling to catch).
+  const _rl = await checkSoloRateLimit(admin, `pwreset:${actorUid}`, 5, 20, null);
+  if (!_rl.allowed) {
+    if (_rl.scope === "unavailable") return json(503, { error: "limiter_unavailable", message: LIMITER_UNAVAILABLE_MESSAGE });
+    return json(429, { error: "rate_limited", message: "Too many password resets. Try again later." });
+  }
 
   // 2. target must be an ACTIVE WORKER of the SAME hive (never another supervisor; never cross-hive)
   const { data: tgt } = await admin.from("v_worker_truth")

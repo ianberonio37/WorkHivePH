@@ -49,7 +49,7 @@ import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: enriches asset_nodes register flow; no new artifact table
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // Arc R (A10): body.image_url is caller-controlled — SSRF-guard the fetch.
@@ -265,7 +265,7 @@ serveObserved("equipment-label-ocr", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(cors, _rl.retry_after_seconds);
+      if (!_rl.allowed) return soloRateLimitedResponse(cors, _rl.retry_after_seconds, _rl.scope);
     }
   }
 

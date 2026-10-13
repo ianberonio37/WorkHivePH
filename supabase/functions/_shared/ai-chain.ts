@@ -4,7 +4,45 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 6
+// AI_ASSET_VERSION: 12
+// v12 (2026-10-09): no model or order change. Exports aiAnswered(): the chain's "{}" (every provider failed, or a
+// local walk asked for no model) is not an answer, so free-text callers stop printing "{}" as a reply or a summary.
+// v11 (2026-10-08, LM-O follow-up): no model or order change. Every SERVED call is reported to the request's model-call
+// collector (reportModelCall - one ai_cost_log row per call, written by serveObserved), and now a walk that EXHAUSTS
+// every slot is reported too (reportModelCallFailed: one failed row naming each slot asked and how it answered, and the
+// time the caller waited). Each served row also carries the slots asked before it (providers_tried).
+// v10 (2026-10-08, same day): Cerebras is OUT of the platform - not parked, removed from every chain copy, caller and
+// health check (validate_ai_chain_models_snapshot fails if a Cerebras entry comes back). Its lost slots: Google's
+// gemini-3.1-flash-lite (a separate per-model free quota from the 2.5 pair; answered the distiller's JSON request 200
+// in 3.3 s on this key) beside v9's mistral-small-latest. And callAIMultimodal now fails over like callAI: parked slots
+// skipped, failures classified and parked per model, successes recorded, last-resort entries kept last.
+// v9 (2026-10-08, grounding eval re-run): nearly every answer came from mistral codestral-latest, the LAST resort.
+// Four causes, each measured. (1) Cerebras answered 402 payment_required to every call since 2026-09-10 (480 in the
+// runtime log, not one answer) - both entries removed, gpt-oss-120b's slot re-filled by mistral-small-latest.
+// (2) Groq gpt-oss answered 400 json_validate_failed with failed_generation "" - its default reasoning spent the whole
+// max_tokens budget (320 on the memory distiller) and left no JSON; reasoning_effort "low" -> 200, 37 reasoning tokens.
+// (3) every non-429 error parked the WHOLE provider, so one model's bad JSON parked all of Groq. Failures are now
+// classified (classifyProviderFailure): permanent ones park for hours and are skipped for the rest of the call, and a
+// model's own failure parks only that model. (4) reorderChain's penalty sort ran across the whole chain and lifted a
+// never-tried last resort (penalty 0) above every general model that had failed once (penalty 3), and the herd-spread
+// then shuffled it among them - so under load codestral led. Last-resort entries now stay behind every general entry,
+// and the spread never crosses a task profile's preferred set.
+// v8 (2026-10-07, same walk, LM151): under the walk's load Groq and Gemini rate-limited and a person's maintenance
+// question fell through to mistral codestral-latest - a CODE model - which denied a machine listed two lines up in its
+// own grounding. Code-specialist entries (codestral, laguna) are now LAST RESORTS for every task except code/SQL: the
+// general order tries every conversational model first, and the code_or_sql_generation profile still puts codestral
+// first. Nothing is removed - when everything else is down a code model's answer is still better than none.
+// AI_ASSET_VERSION history continues below.
+// v7 (2026-10-07, the LLM layer's live Grounding walk, §LM.2): three repairs, each measured by tools/ping_ai_chain.py or
+// a live walk. (1) openrouter qwen3.8-27b:free is gone (404) -> dots-3-note-preview:free, the only live :free model that
+// reports an image input and answers through the API. (2) nemotron-3.5-lightning:free answered with its own reasoning
+// trace as the content ("Here's a thinking process: 1. Analyz...") and took 96 s on a one-word reply - replaced by
+// laguna-s-2.1:free, and the router's long-synthesis rows now prefer nemotron-3-ultra (1M context, clean answers).
+// (3) gemini-2.5-flash THINKS by default and its hidden reasoning spends max_tokens: at a 120-token budget it returned
+// "A pump" (2 visible tokens, finish_reason length), and on the hive board a companion answer reached the person as
+// "ZQX 9471 is still not one". Its entry now asks for no thinking, and ANY entry whose answer ran out of budget almost
+// at once is skipped to the next provider instead of served half-written. Each served line also logs the provider's
+// own token count - callAI writes nothing to ai_cost_log, so until it does that line is the only record of the spend.
 // v6 (2026-09-28): FOUR more entries had gone dead since v5 (groq qwen3.6-27b + compound-mini,
 // cerebras gemma-4-31b, openrouter nex-n2.5-mini) - and, one screen down, ALL TWELVE TASK_PROFILES
 // still named the v4 model IDs, so the tiered router had been silently reordering nothing since v5.
@@ -31,6 +69,8 @@ interface ProviderEntry {
   contextCap?: number;          // TOTAL context window (in + out). Used for the pre-skip below. Omit = effectively unlimited.
   extraHeaders?: Record<string, string>;
   vision?: boolean;             // true if this model accepts image_url content blocks
+  extraBody?: Record<string, unknown>;   // provider-specific request fields (e.g. reasoning_effort for a thinking model)
+  lastResort?: boolean;         // a specialist (code) model: tried after every general model unless the task asks for it
 }
 
 // Rough token estimate (~4 chars/token, the standard heuristic for English +
@@ -65,26 +105,27 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   // Arabic 4K model, and TTS/ASR/prompt-guard endpoints that are not chat at all. So Groq has no
   // second vision model to fall back to, and inventing one here is what produced this 404 in the
   // first place. The vision fallback is now carried by the providers that actually report an image
-  // modality: gemini-2.5-flash, gemma-4-31b-it:free, gemma-4-26b-a4b-it:free and qwen3.8-27b:free.
+  // modality: gemini-2.5-flash, gemma-4-31b-it:free, gemma-4-26b-a4b-it:free and dots-3-note-preview:free.
   // GPT-OSS 20B: strict JSON schema adherence (structured_outputs), 131K context, cheapest per token.
-  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-20b",                        envKey: "GROQ_API_KEY" },
+  // ★v9 (2026-10-08): reasoning_effort "low" on BOTH gpt-oss entries. gpt-oss reasons before it answers and Groq counts
+  // that reasoning inside max_tokens, so at the memory distiller's 320-token budget the default effort spent all of it on
+  // thinking and Groq answered 400 json_validate_failed with failed_generation "" - 71 times in 30 h of runtime log, on
+  // analytics-orchestrator and ai-gateway alike. Reproduced with one request; the SAME request at "low" answered 200 with
+  // 37 reasoning tokens and valid JSON. The prompt was never the problem: it already says "Respond JSON only".
+  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-20b",                        envKey: "GROQ_API_KEY", extraBody: { reasoning_effort: "low" } },
   // GPT-OSS 120B: largest on the Groq free tier, also structured_outputs — last quality resort.
-  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-120b",                       envKey: "GROQ_API_KEY" },
+  { provider: "groq", baseUrl: "https://api.groq.com/openai/v1", model: "openai/gpt-oss-120b",                       envKey: "GROQ_API_KEY", extraBody: { reasoning_effort: "low" } },
   // v6 (2026-09-28): `groq/compound-mini` was here and Groq no longer serves it either. Of the
   // eleven ids Groq returns today the only general chat models are qwen3.8-27b and the two gpt-oss
   // entries — all three already above — so there is nothing smaller to fall back to. Substituting
   // `allam-2-7b` (Arabic, 4K context) or `gpt-oss-safeguard-20b` (a safety classifier) would keep
   // the entry count up while sending WorkHive's prompts to a model built for another job.
 
-  // ── Tier 2: Cerebras — 1M tokens/day free, 8K total context cap ─────────────
-  // NOTE 2026-05-18: the first two entries 404'd on accounts without access.
-  // ...and by 2026-09-10 all three names were 404 - Cerebras serves exactly three models and the
-  // chain named none of them. These are that list. Mirror with Python tools/ai_chain.py.
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "gpt-oss-120b",  envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
-  { provider: "cerebras", baseUrl: "https://api.cerebras.ai/v1", model: "qwen-3.8-27b",  envKey: "CEREBRAS_API_KEY", maxTokensCap: 4096, contextCap: 8192 },
-  // v6 (2026-09-28): `gemma-4-31b` removed — asked today, Cerebras serves exactly TWO ids, the two
-  // above. The comment directly above already said "Cerebras serves exactly three models and the
-  // chain named none of them"; it is now two, and the third line had gone stale the same way again.
+  // ── (Tier 2 was Cerebras: REMOVED from the platform, v9/v10, 2026-10-08) ─────────────────────────────
+  // Every chat call with the platform's key answered 402 payment_required from 2026-09-10 on - 480 in the runtime log,
+  // not one answer - so the tier was two wasted round-trips per call. The provider is gone from every chain copy and
+  // caller, and tools/validate_ai_chain_models_snapshot.py FAILS if a Cerebras entry returns. Its slots were re-filled
+  // by gemini-3.1-flash-lite (Google tier) and mistral-small-latest (Mistral tier).
 
   // NOTE: SambaNova was evaluated (FreeLLMAPI lists it) but REJECTED — its free
   // tier is $5 of credits that expire in 30 days, not a permanently-free tier.
@@ -93,25 +134,45 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
   // ── Tier 3: Google Gemini — OpenAI-compat endpoint, 250K TPM, vision ────────
   // Low RPD on the free tier so it sits mid-chain; high quality + multimodal.
   // Use an AI Studio key (aistudio.google.com), NOT a GCP Console key (limit:0).
-  { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash",      envKey: "GEMINI_API_KEY", vision: true },
+  { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash",      envKey: "GEMINI_API_KEY", vision: true, extraBody: { reasoning_effort: "none" } },
+  // v10 (2026-10-08): replaces lost Cerebras capacity. Google's free quotas are PER MODEL, so this is a pool the two
+  // 2.5 entries do not drain (both were 429 that day while this answered). It thinks by default - "low" kept the
+  // memory distiller's 320-token JSON answer whole (136 visible tokens, finish stop, 3.3 s). gemini-3.5-flash was the
+  // larger candidate and answered 503 "high demand" twice, so it is not here. vision left off until an image call is
+  // measured on it.
+  { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-3.1-flash-lite", envKey: "GEMINI_API_KEY", extraBody: { reasoning_effort: "low" } },
   { provider: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash-lite", envKey: "GEMINI_API_KEY", vision: true },
 
   // ── Tier 4: Mistral — 500K TPM but only 2 RPM, OpenAI-compatible ────────────
   // Codestral is strong for code / SQL generation (see TASK_PROFILES).
   { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "mistral-medium-latest", envKey: "MISTRAL_API_KEY" },
-  { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "codestral-latest",     envKey: "MISTRAL_API_KEY" },
+  // v9 (2026-10-08): fills a slot Cerebras held. Mistral's free tier lists mistral-small-latest (= mistral-
+  // small-2603, which magistral-small-latest also resolves to: the general model with reasoning) with completion_chat
+  // and a 262K context. MEASURED STATE (2026-10-08, three times that day incl. a paced `ping_ai_chain.py --only mistral`):
+  // 429 "Rate limit exceeded" (code 1300), as was mistral-medium-latest, while codestral-latest answered 200 on the same
+  // key - so Mistral's free limits are at least partly per model, and this entry has not yet been seen answering. It
+  // stays because it is listed and free and its 429 costs ~0.4 s before the chain moves on (and parks the model).
+  { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "mistral-small-latest",  envKey: "MISTRAL_API_KEY" },
+  { provider: "mistral", baseUrl: "https://api.mistral.ai/v1", model: "codestral-latest",     envKey: "MISTRAL_API_KEY", lastResort: true },
 
   // ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ────────────────
   // Gemma 3/4 family supports vision via OpenAI-compatible image_url blocks.
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3-super-120b-a12b:free",    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-4-31b-it:free",                envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
-  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3.5-lightning:free",                  envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
+  // 2026-10-07: was nvidia/nemotron-3.5-lightning:free, which answers with its reasoning trace as the content and
+  // took 96 s on a one-word reply. poolside/laguna-s-2.1:free answered "OK." in 3.8 s (code-leaning, text only).
+  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "poolside/laguna-s-2.1:free",                          envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, lastResort: true },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-4-26b-a4b-it:free",            envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3-ultra-550b-a55b:free",    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
   // v6 (2026-09-28): was `nex-agi/nex-n2.5-mini:free`, which OpenRouter has stopped serving. This
   // slot is the chain's last vision entry, so the replacement is picked from the live :free list by
   // its REPORTED input_modalities (text,image,video), not by family name: qwen3.8-27b:free, 262K.
-  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "qwen/qwen3.8-27b:free",                    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
+  // v7 (2026-10-07): qwen3.8-27b:free is gone too (check_models_are_live: 404). Of the live :free models that
+  // report an image input, thinkingmachines/inkling(-small) answer 403 "only available on agentic harnesses",
+  // nemotron-3.5-content-safety is a classifier, and nemotron-3-nano-omni-...-reasoning returned no content at 96
+  // tokens. dots-3-note-preview answered "OK" in 3.3 s (text,image; 512K). A PREVIEW can vanish - the liveness
+  // check will say so the day it does.
+  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "dots-studio/dots-3-note-preview:free",     envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
 ];
 
 // ── Phase 4 (AGENTIC_RAG_ROADMAP.md): Tiered Model Router ──────────────────
@@ -155,13 +216,14 @@ export const TASK_PROFILES: Record<string, string[]> = {
   chunk_grader:            ["gpt-oss-20b", "gemini-2.5-flash-lite"],
   hallucination_checker:   ["gpt-oss-20b", "gemini-2.5-flash-lite"],
   temporal_subagent:       ["gpt-oss-20b", "gemini-2.5-flash-lite"],
-  // Mid-tier reasoning. "3.8-27b" (not "qwen3.8-27b") so it also matches Cerebras' hyphenated
-  // `qwen-3.8-27b` — the same model, spelled differently by two providers.
+  // Mid-tier reasoning. "3.8-27b" matches Groq's qwen/qwen3.8-27b.
   multi_step_orchestration: ["gpt-oss-120b", "3.8-27b"],
   // Heavy synthesis / long output → the largest context the free tiers offer: gpt-oss-120b is 131K,
-  // nemotron-3.5-lightning is 1M.
-  synthesis_long_output:   ["gpt-oss-120b", "nemotron-3.5-lightning"],
-  temporal_fold:           ["gpt-oss-120b", "nemotron-3.5-lightning"],
+  // nemotron-3-ultra is 1M. (2026-10-07: was nemotron-3.5-lightning, also 1M - but it returns its reasoning AS the
+  // answer, "Here's a thinking process: 1. Analyz...", and took 96 s on a one-word reply. Measured by
+  // tools/ping_ai_chain.py; ultra answered "OK" in 1.3-1.8 s.)
+  synthesis_long_output:   ["gpt-oss-120b", "nemotron-3-ultra"],
+  temporal_fold:           ["gpt-oss-120b", "nemotron-3-ultra"],
   narrative_report:        ["gpt-oss-120b", "gemini-2.5-flash"],
   // Specialised — Codestral is Mistral's code/SQL model (see the Tier 4 note above).
   code_or_sql_generation:  ["codestral-latest", "gpt-oss-120b"],
@@ -179,6 +241,10 @@ import {
   getStickyModel,
   setStickyModel,
 } from "./provider-health.ts";
+// LM-O (2026-10-08): every SERVED call is handed to the request's model-call collector (_shared/model-calls.ts);
+// serveObserved writes its one ai_cost_log row with fn, hive, user, provider, model, tokens, latency and trace id.
+// A walk that exhausts every slot is handed over too (reportModelCallFailed): one failed row, never none.
+import { reportModelCall, reportModelCallFailed, modelCallsRefused } from "./model-calls.ts";
 
 
 export function reorderChain(taskProfile?: string, spread = false): ProviderEntry[] {
@@ -203,6 +269,12 @@ export function reorderChain(taskProfile?: string, spread = false): ProviderEntr
     });
     ordered = [...matched, ...rest];
   }
+  // ── Step 1b: specialists last (v8) - a code model is a last resort for every task that did not ask for it ──
+  {
+    const pref = taskProfile ? (TASK_PROFILES[taskProfile] || []) : [];
+    const asked = (e: ProviderEntry) => pref.some((p) => e.model.toLowerCase().includes(p.toLowerCase()));
+    ordered = [...ordered.filter((e) => !e.lastResort || asked(e)), ...ordered.filter((e) => e.lastResort && !asked(e))];
+  }
 
   // ── Step 2: live demotion by slot penalty (FreeLLMAPI dynamic-priority) ───
   // Stable-sort by current slot penalty so a recently-429'd provider sinks in
@@ -223,7 +295,15 @@ export function reorderChain(taskProfile?: string, spread = false): ProviderEntr
   for (const e of ordered) {
     entryPen.set(e, Math.max(getSlotPenalty(e.provider), getSlotPenalty(`${e.provider}:${e.model}`)));
   }
-  ordered.sort((a, b) => entryPen.get(a)! - entryPen.get(b)!);
+  // ★v9 (2026-10-08): THIS SORT UNDID STEP 1b. Run across the whole chain, it lifted a last-resort entry that had never
+  // been tried (penalty 0) above every general model that had failed once (penalty 3) - and under a burst every general
+  // model fails once - so mistral codestral-latest answered nearly every question of a grounding eval. It now sorts
+  // inside two bands: general entries (and any specialist the task profile asked for) first, unasked specialists after,
+  // whatever the penalties say.
+  const profilePref = taskProfile ? (TASK_PROFILES[taskProfile] || []) : [];
+  const askedByProfile = (e: ProviderEntry) => profilePref.some((p) => e.model.toLowerCase().includes(p.toLowerCase()));
+  const bandOf = (e: ProviderEntry) => (e.lastResort && !askedByProfile(e) ? 1 : 0);
+  ordered.sort((a, b) => (bandOf(a) - bandOf(b)) || (entryPen.get(a)! - entryPen.get(b)!));
 
   // ── Step 3: herd-spread (P1, 2026-06-14) ─────────────────────────────────────
   // Shuffle WITHIN equal-penalty groups so N concurrent calls don't all stampede the exact
@@ -234,12 +314,15 @@ export function reorderChain(taskProfile?: string, spread = false): ProviderEntr
   // OFF by default (deterministic order preserved for the Node port test + non-burst callers);
   // callAI opts in with spread=true. A flaky/parked entry has a higher penalty so it's in a
   // later group and never shuffles up ahead of a healthy one.
+  // v9: a group is a run of equal penalty AND equal band AND equal profile-preference. Before, an all-healthy chain was
+  // ONE group, so the shuffle could put codestral first and scatter a task profile's preferred models into the rest.
+  const groupOf = (e: ProviderEntry) => `${entryPen.get(e)}|${bandOf(e)}|${askedByProfile(e) ? 1 : 0}`;
   if (spread) {
     let i = 0;
     while (i < ordered.length) {
       let j = i + 1;
-      const p = entryPen.get(ordered[i])!;
-      while (j < ordered.length && entryPen.get(ordered[j])! === p) j++;
+      const g = groupOf(ordered[i]);
+      while (j < ordered.length && groupOf(ordered[j]) === g) j++;
       for (let k = j - 1; k > i; k--) {            // Fisher-Yates within the equal-penalty group [i, j)
         const r = i + Math.floor(Math.random() * (k - i + 1));
         [ordered[k], ordered[r]] = [ordered[r], ordered[k]];
@@ -259,6 +342,35 @@ function parseRetryAfter(h: string | null): number | undefined {
   const when = Date.parse(h);
   if (!isNaN(when)) return Math.max(0, when - Date.now());
   return undefined;
+}
+
+// ★PERMANENT vs TRANSIENT (v9, 2026-10-08). Every non-2xx other than 429/413/503 used to be recorded the same way - one
+// provider-wide failure, asked again on the retry pass and on the next call. That treated a key the provider will never
+// serve (402 payment_required: Cerebras, 480 times in a month), a model that no longer exists (404) and one model's bad
+// JSON (Groq 400 json_validate_failed) as the same event - and the third parked ALL of Groq for one model's mistake.
+//   permanent - the answer will not change on retry: 401 (key rejected: the whole provider), 402 (payment required),
+//               403 (refused for this key), 404 (model gone or not free), a 400 that names the MODEL as invalid.
+//               Parked PERMANENT_PARK_MS and never asked again by the same call.
+//   request   - any other 4xx: this request's shape is refused by this model (a context limit, a parameter it does
+//               not take). Skipped for the rest of the call; a different request may succeed, so no long park.
+//   transient - the model's OUTPUT failed (Groq json_validate_failed / json_generate_failed) or the provider broke (5xx):
+//               retried on the next pass exactly as before. A model's own failure parks only that model.
+export const PERMANENT_PARK_MS = 6 * 60 * 60 * 1000;
+export function classifyProviderFailure(status: number, body: string):
+  { kind: "permanent" | "request" | "transient"; scope: "model" | "provider"; reason: string } {
+  const b = (body || "").toLowerCase();
+  if (status >= 500) return { kind: "transient", scope: "provider", reason: "provider error" };
+  if (status === 401) return { kind: "permanent", scope: "provider", reason: "key rejected" };
+  if (status === 402) return { kind: "permanent", scope: "model", reason: "payment required - not free on this key" };
+  if (status === 403) return { kind: "permanent", scope: "model", reason: "refused for this key" };
+  if (status === 404) return { kind: "permanent", scope: "model", reason: "model not found or not free" };
+  if (/json_validate_failed|json_generate_failed|failed to (validate|generate) json/.test(b)) {
+    return { kind: "transient", scope: "model", reason: "the model's output failed JSON validation" };
+  }
+  if (status === 400 && /model_not_found|model_decommissioned|decommissioned|does not exist|no such model|unknown model|invalid model|model not found|not a valid model/.test(b)) {
+    return { kind: "permanent", scope: "model", reason: "invalid model" };
+  }
+  return { kind: "request", scope: "model", reason: "request refused by this model" };
 }
 
 /**
@@ -325,6 +437,20 @@ export interface FaultInject {
   mode?: "429" | "413" | "down";
 }
 
+/**
+ * ★"{}" IS THE CHAIN SAYING NO MODEL ANSWERED - IN TEXT MODE IT IS NOT AN ANSWER (2026-10-09, found walking
+ * shift-brain under the walk's no-model switch, which returns exactly what an exhausted chain returns).
+ * callAI answers "{}" when every provider failed (and when a local walk asks for no model). JSON callers read that
+ * as an empty object and take their fallback; the four FREE-TEXT callers used it verbatim: the shift plan's
+ * briefing read "{}" above its signature, the voice journal replied "{}", a failure signature's detail became "{}"
+ * marked source "ai" - and the conversation summariser kept "{}" as the summary and DELETED the worker's turns it
+ * summarised. True only for a real reply: not empty, not the chain's "{}".
+ */
+export function aiAnswered(raw: string | null | undefined): boolean {
+  const t = String(raw ?? "").trim();
+  return t !== "" && t !== "{}";
+}
+
 export async function callAI(
   prompt: string,
   options: {
@@ -343,6 +469,17 @@ export async function callAI(
   } = {}
 ): Promise<string> {
   const { systemPrompt, temperature = 0.2, maxTokens = 1024, jsonMode = true, taskProfile, sessionKey, faultInject, onServed } = options;
+  // ★A WALK SPENDS NO MODEL CALL (model-calls.ts ModelCallScope.no_model): asked for on the LOCAL runtime only, it
+  // answers "{}" before any provider - the local LLM included - is asked, parks nothing and reports nothing, so the
+  // caller's own degraded path runs exactly as it would when every provider is down.
+  if (_AI_CHAIN_LOCAL && modelCallsRefused()) {
+    console.warn("[ai-chain] no model call: the request asked for none (x-wh-walk-no-model, local runtime)");
+    return "{}";
+  }
+  const _callT0 = performance.now();   // LM-O: the per-call record's latency (the whole chain walk the caller waited on)
+  // LM-O: every slot this call actually asks, in order, with how it answered ("groq/llama-3.3-70b-versatile=429") -
+  // the record's providers_tried, on a served row and on an exhausted one alike
+  const tried: string[] = [];
 
   const messages = systemPrompt
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
@@ -360,6 +497,10 @@ export async function callAI(
     return chainArr;
   };
 
+  // v9: slots this call has already seen fail for good (permanent) or refuse this request (request) - the retry pass
+  // must not ask them again. Request-local; the cross-call memory is provider-health's park.
+  const deadThisCall = new Set<string>();
+
   // One pass down a chain: returns the answer on the first success, or null if every entry
   // was skipped/failed (so the caller can run the P3 retry pass before degrading to "{}").
   const attemptChain = async (chainArr: ProviderEntry[], passNum: number): Promise<string | null> => {
@@ -367,6 +508,7 @@ export async function callAI(
       const apiKey = Deno.env.get(entry.envKey);
       if (!apiKey) continue;
       const modelSlot = `${entry.provider}:${entry.model}`;
+      if (deadThisCall.has(entry.provider) || deadThisCall.has(modelSlot)) continue;
       // P1 roadmap 2026-05-27 turn 7 + P4 2026-06-14 — skip a parked PROVIDER or this parked MODEL.
       if (isSlotBlocked(entry.provider) || isSlotBlocked(modelSlot)) continue;
 
@@ -376,6 +518,7 @@ export async function callAI(
       if (faultInject && _AI_CHAIN_LOCAL &&
           (faultInject.failAll === true || (faultInject.fail || []).includes(entry.provider))) {
         console.warn(`[ai-chain] FAULT-INJECT ${entry.provider}/${entry.model} (${faultInject.mode || "429"}) — simulated skip`);
+        tried.push(`${entry.provider}/${entry.model}=fault-inject`);
         recordSlotFailure(entry.provider);
         continue;
       }
@@ -387,7 +530,7 @@ export async function callAI(
       // Token-aware pre-skip (FreeLLMAPI canUseTokens idea, 2026-05-30): if this
       // model's total context window provably can't fit prompt + output, skip it
       // here instead of wasting a round-trip to discover the 413. Only applies to
-      // entries that declare a contextCap (small-context models like Cerebras);
+      // entries that declare a contextCap (a small-context model; none does today);
       // no-op for everything else. 256t margin covers chat-template overhead.
       if (entry.contextCap) {
         const estPromptTokens = estimateTokens((systemPrompt ?? "") + prompt);
@@ -400,7 +543,9 @@ export async function callAI(
       try {
         const res = await fetch(`${entry.baseUrl}/chat/completions`, {
           method: "POST",
-          signal: AbortSignal.timeout(60000),
+          // 25 s per attempt (was 60 s): a free-tier text answer arrives in seconds, and one stalled provider used to
+          // hold a person's question for a full minute before the chain moved on (LM-R, LM109, 2026-10-07)
+          signal: AbortSignal.timeout(25000),
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${apiKey}`,
@@ -412,6 +557,7 @@ export async function callAI(
             temperature,
             max_tokens: effectiveMaxTokens,
             ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+            ...(entry.extraBody ?? {}),
           }),
         });
 
@@ -421,20 +567,41 @@ export async function callAI(
         if (res.status === 429 || res.status === 413 || res.status === 503) {
           const raMs = parseRetryAfter(res.headers.get("retry-after"));
           console.warn(`[ai-chain] ${entry.provider}/${entry.model} skipped (HTTP ${res.status}${raMs ? `, retry-after ${Math.round(raMs / 1000)}s` : ""})`);
+          tried.push(`${entry.provider}/${entry.model}=${res.status}`);
           recordSlotFailure(modelSlot, raMs);
           if (res.status === 503) recordSlotFailure(entry.provider, raMs);
           continue;
         }
 
         if (!res.ok) {
-          const errSnippet = (await res.text()).slice(0, 120);
-          console.warn(`[ai-chain] ${entry.provider}/${entry.model} error ${res.status}: ${errSnippet} — trying next`);
-          recordSlotFailure(entry.provider);   // auth/5xx/other = provider-wide
+          const errBody = await res.text();
+          const f = classifyProviderFailure(res.status, errBody);
+          const slot = f.scope === "provider" ? entry.provider : modelSlot;
+          tried.push(`${entry.provider}/${entry.model}=${res.status}`);
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} error ${res.status} (${f.kind}: ${f.reason}): ${errBody.slice(0, 120)} — trying next`);
+          if (f.kind === "permanent") {
+            recordSlotFailure(slot, PERMANENT_PARK_MS);   // parked for hours, not the ladder's 1-minute first rung
+            deadThisCall.add(slot);
+          } else {
+            recordSlotFailure(slot);                      // 5xx = provider-wide (unchanged); a model's own failure = that model
+            if (f.kind === "request") deadThisCall.add(modelSlot);
+          }
           continue;
         }
 
         const data = await res.json();
         const content: string | undefined = data?.choices?.[0]?.message?.content;
+        // ★A HALF-WRITTEN ANSWER IS NOT AN ANSWER (v7, 2026-10-07). A thinking model spends max_tokens on reasoning
+        // the caller never sees: gemini-2.5-flash returned "A pump" at a 120-token budget, and a companion answer
+        // reached a person as "ZQX 9471 is still not one". finish_reason "length" with almost nothing visible means the
+        // budget went to thinking - skip to the next provider. A long answer that merely reached its cap (most of the
+        // budget visible) is still served: that is a full answer, cut at the length the caller asked for.
+        if (data?.choices?.[0]?.finish_reason === "length" && (content || "").trim().length < effectiveMaxTokens * 0.8) {
+          console.warn(`[ai-chain] ${entry.provider}/${entry.model} ran out of budget after ${(content || "").trim().length} visible chars (finish_reason length) — trying next`);
+          tried.push(`${entry.provider}/${entry.model}=length`);
+          recordSlotFailure(modelSlot);
+          continue;
+        }
         if (content) {
           // Strip <think>...</think> reasoning blocks (Qwen3-32B et al.) so
           // chain-of-thought doesn't leak. V4 caught Qwen3 leaking
@@ -442,9 +609,12 @@ export async function callAI(
           // refusing a prompt-injection probe.
           const stripped = stripReasoningBlocks(content);
           if (stripped) {
-            console.log(`[ai-chain] served by ${entry.provider} / ${entry.model}`);
+            // the durable record of this call is reportModelCall's ai_cost_log row below; this line is the stdout echo
+            console.log(`[ai-chain] served by ${entry.provider} / ${entry.model} (tokens ${data?.usage?.total_tokens ?? "unreported"})`);
             recordSlotSuccess(entry.provider);
             recordSlotSuccess(modelSlot);
+            tried.push(`${entry.provider}/${entry.model}=${res.status}`);
+            reportModelCall({ providerName: entry.provider, modelName: entry.model, usage: data?.usage, input: messages, output: stripped, started_at: _callT0, tried });
             // Q6 chain-depth telemetry: report the winning model's CANONICAL depth (its
             // index in PROVIDER_CHAIN, 0=primary), not its position in the reordered pass —
             // so "served deep" reliably means "primary providers exhausted / quality decaying".
@@ -463,11 +633,14 @@ export async function callAI(
           // Reasoning model emitted only a think block with no usable answer —
           // fall through to the next provider rather than return empty.
           console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned only reasoning, no answer — trying next`);
+          tried.push(`${entry.provider}/${entry.model}=reasoning-only`);
         } else {
           console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
+          tried.push(`${entry.provider}/${entry.model}=empty`);
         }
       } catch (err) {
         console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
+        tried.push(`${entry.provider}/${entry.model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`);
         recordSlotFailure(entry.provider);   // network/abort = provider-wide
         recordSlotFailure(modelSlot);
       }
@@ -501,6 +674,7 @@ export async function callAI(
       });
       if (!res.ok) {
         console.warn(`[ai-chain] WH_LLM_URL ${res.status} (sovereign) falling back to cloud chain`);
+        tried.push(`wh-llm-local/${model}=${res.status}`);
         return null;
       }
       const data = await res.json();
@@ -508,15 +682,19 @@ export async function callAI(
       const stripped = content ? stripReasoningBlocks(content) : "";
       if (stripped) {
         console.log(`[ai-chain] served by WH_LLM_URL (sovereign local) / ${model}`);
+        tried.push(`wh-llm-local/${model}=${res.status}`);
+        reportModelCall({ providerName: "wh-llm-local", modelName: model, usage: data?.usage, input: messages, output: stripped, started_at: _callT0, tried });
         if (onServed) {
           try { onServed({ providerName: "wh-llm-local", modelName: model, depth: 0, pass: 0 }); }
           catch { /* empty-catch-allow: telemetry must never break the answer path */ }
         }
         return stripped;
       }
+      tried.push(`wh-llm-local/${model}=empty`);
       return null;
     } catch (err) {
       console.warn(`[ai-chain] WH_LLM_URL threw: ${String(err).slice(0, 80)} falling back to cloud chain`);
+      tried.push(`wh-llm-local/${model}=threw`);
       return null;
     }
   };
@@ -538,6 +716,10 @@ export async function callAI(
     if (second !== null) return second;
   }
 
+  // ★NOTHING SERVED, AND THAT IS A RECORD TOO (LM-O, 2026-10-08). The person gets the caller's degraded path; the
+  // operator gets one failed row with every slot asked and how it answered (none asked = no slot was available).
+  console.warn(`[ai-chain] exhausted: no provider served (${tried.length} asked)`);
+  reportModelCallFailed({ providerName: "chain", modelName: "exhausted", tried, started_at: _callT0 });
   return "{}";
 }
 
@@ -579,8 +761,14 @@ export async function callAIMultimodal(
     jsonMode    = true,
     detail      = "auto",
   } = options;
+  const _callT0 = performance.now();   // LM-O: the per-call record's latency
+  const tried: string[] = [];          // LM-O: the record's providers_tried
 
-  if (!imageDataUrl) return "{}";
+  if (!imageDataUrl) return "{}";      // no image, no call - nothing to record
+  if (_AI_CHAIN_LOCAL && modelCallsRefused()) {   // a walk spends no model call (see callAI)
+    console.warn("[ai-chain] no model call (vision): the request asked for none (x-wh-walk-no-model, local runtime)");
+    return "{}";
+  }
 
   // OpenAI-compatible vision content: text block + image_url block.
   const userContent = [
@@ -592,10 +780,25 @@ export async function callAIMultimodal(
     ? [{ role: "system", content: systemPrompt }, { role: "user", content: userContent }]
     : [{ role: "user", content: userContent }];
 
-  for (const entry of PROVIDER_CHAIN) {
-    if (!entry.vision) continue;
+  // ★v10 (2026-10-08): THE IMAGE PATH NOW FAILS OVER LIKE THE TEXT PATH. It used to ask every vision entry on every
+  // photo with no memory at all - a model answering 402/404 was asked again on the next photo and the next, a 429 parked
+  // nothing, and a success re-opened nothing. Now: a parked provider or model is skipped; each failure is classified by
+  // classifyProviderFailure (permanent = parked PERMANENT_PARK_MS and skipped for the rest of the call; a model's own
+  // failure parks only that model; 5xx/network = the provider, as before); 429/413 park the model and 503 the provider,
+  // honouring Retry-After; a half-written answer is skipped; and a last-resort (code) entry stays behind every general
+  // one. No vision entry is a code model today, so that last rule is a guard, not a reorder. Same provider-health state
+  // as callAI: a model the text path parked is parked here too - it is the same model and the same quota.
+  const visionChain = [
+    ...PROVIDER_CHAIN.filter((e) => e.vision && !e.lastResort),
+    ...PROVIDER_CHAIN.filter((e) => e.vision && e.lastResort),
+  ];
+  const deadThisCall = new Set<string>();
+  for (const entry of visionChain) {
     const apiKey = Deno.env.get(entry.envKey);
     if (!apiKey) continue;
+    const modelSlot = `${entry.provider}:${entry.model}`;
+    if (deadThisCall.has(entry.provider) || deadThisCall.has(modelSlot)) continue;
+    if (isSlotBlocked(entry.provider) || isSlotBlocked(modelSlot)) continue;
 
     const effectiveMaxTokens = entry.maxTokensCap
       ? Math.min(maxTokens, entry.maxTokensCap)
@@ -616,37 +819,70 @@ export async function callAIMultimodal(
           temperature,
           max_tokens: effectiveMaxTokens,
           ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+          ...(entry.extraBody ?? {}),
         }),
       });
 
       if (res.status === 429 || res.status === 413 || res.status === 503) {
-        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} skipped (HTTP ${res.status})`);
+        const raMs = parseRetryAfter(res.headers.get("retry-after"));
+        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} skipped (HTTP ${res.status}${raMs ? `, retry-after ${Math.round(raMs / 1000)}s` : ""})`);
+        tried.push(`${entry.provider}/${entry.model}=${res.status}`);
+        recordSlotFailure(modelSlot, raMs);
+        if (res.status === 503) recordSlotFailure(entry.provider, raMs);
         continue;
       }
 
       if (!res.ok) {
-        const errSnippet = (await res.text()).slice(0, 120);
-        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} error ${res.status}: ${errSnippet} — trying next`);
+        const errBody = await res.text();
+        const f = classifyProviderFailure(res.status, errBody);
+        const slot = f.scope === "provider" ? entry.provider : modelSlot;
+        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} error ${res.status} (${f.kind}: ${f.reason}): ${errBody.slice(0, 120)} — trying next`);
+        tried.push(`${entry.provider}/${entry.model}=${res.status}`);
+        if (f.kind === "permanent") {
+          recordSlotFailure(slot, PERMANENT_PARK_MS);
+          deadThisCall.add(slot);
+        } else {
+          recordSlotFailure(slot);
+          if (f.kind === "request") deadThisCall.add(modelSlot);
+        }
         continue;
       }
 
       const data = await res.json();
       const content: string | undefined = data?.choices?.[0]?.message?.content;
+      if (data?.choices?.[0]?.finish_reason === "length" && (content || "").trim().length < effectiveMaxTokens * 0.8) {
+        console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} ran out of budget after ${(content || "").trim().length} visible chars (finish_reason length) — trying next`);
+        tried.push(`${entry.provider}/${entry.model}=length`);
+        recordSlotFailure(modelSlot);
+        continue;
+      }
       if (content) {
         const stripped = stripReasoningBlocks(content);
         if (stripped) {
-          console.log(`[ai-chain:vision] served by ${entry.provider} / ${entry.model}`);
+          console.log(`[ai-chain:vision] served by ${entry.provider} / ${entry.model} (tokens ${data?.usage?.total_tokens ?? "unreported"})`);
+          recordSlotSuccess(entry.provider);
+          recordSlotSuccess(modelSlot);
+          tried.push(`${entry.provider}/${entry.model}=${res.status}`);
+          reportModelCall({ providerName: entry.provider, modelName: entry.model, usage: data?.usage, input: messages, output: stripped, started_at: _callT0, tried });
           return stripped;
         }
         // Reasoning-only (tagged or untagged scaffold leak), no usable answer — try next.
         console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} returned only reasoning — trying next`);
+        tried.push(`${entry.provider}/${entry.model}=reasoning-only`);
         continue;
       }
       console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} returned empty content — trying next`);
+      tried.push(`${entry.provider}/${entry.model}=empty`);
     } catch (err) {
       console.warn(`[ai-chain:vision] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
+      tried.push(`${entry.provider}/${entry.model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`);
+      recordSlotFailure(entry.provider);   // network/abort = provider-wide, as in callAI
+      recordSlotFailure(modelSlot);
     }
   }
 
+  // nothing served: one failed record, as callAI's (LM-O, 2026-10-08)
+  console.warn(`[ai-chain:vision] exhausted: no provider served (${tried.length} asked)`);
+  reportModelCallFailed({ providerName: "chain", modelName: "exhausted", tried, started_at: _callT0 });
   return "{}";
 }

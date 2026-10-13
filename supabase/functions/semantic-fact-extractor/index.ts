@@ -46,7 +46,9 @@
  */
 
 import { serveObserved, trackHandled } from "../_shared/observability.ts";
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
@@ -54,7 +56,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role logbook reads.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
-import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt; envelope fail() for 429)
+import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse, LIMITER_UNAVAILABLE_MESSAGE } from "../_shared/rate-limit.ts"; // Arc L: per-hive AI cap (member-spam hardening; service-role exempt; envelope fail() for 429)
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { handleHealth } from "../_shared/health.ts";
 import {
@@ -80,15 +82,15 @@ RULES:
 3. entry_id MUST be copied verbatim from the id= of the line the fact came from. Never invent an id.
 4. subject_type / object_type: one of asset, failure_mode, part, sop, worker, lesson, system, control, hazard, process.
 5. predicate: one of causes, detects, requires, mitigates, related_to, prevents, monitors, uses, applies_to, documents, warns_against.
-6. subject_ref / object_ref: short noun phrases as they appear (e.g. "Pump P-204", "shaft seal leak", "mechanical seal kit").
+6. subject_ref / object_ref: short noun phrases copied from THAT entry as they appear (e.g. "<asset as written in the entry>", "shaft seal leak", "mechanical seal kit"). An asset, part, or person that the entry does not name is never a ref.
 7. claim_text: one short plain-English sentence stating the fact.
 8. confidence: 0.9 if explicit in the entry, 0.7 if reasonably implied, 0.5 if speculative.
 9. Extract 1 to 5 triples per entry. Skip entries with no durable fact (return fewer triples). Do not pad.
 10. No em dashes. Use hyphens, colons, or commas.
 
-Good examples:
-- asset "Pump P-204" -> causes -> failure_mode "shaft seal leak"  (claim: "Pump P-204 has repeatedly developed shaft seal leaks.")
-- failure_mode "bearing overheating" -> requires -> part "SKF 6204 bearing"
+Good examples (STRUCTURE ONLY: each <...> slot is filled from the entry itself; never store a tag, part number, or name that appears only in these instructions):
+- asset "<asset>" -> causes -> failure_mode "shaft seal leak"  (claim: "<asset> has repeatedly developed shaft seal leaks.")
+- failure_mode "bearing overheating" -> requires -> part "<bearing part as written>"
 - lesson "torque flange bolts in a star pattern" -> mitigates -> failure_mode "gasket blowout"`;
 
 const _URL = Deno.env.get("SUPABASE_URL") || "";
@@ -121,7 +123,9 @@ async function alreadyExtracted(db: SupabaseClient, hiveId: string): Promise<Set
 
 // ── Server entry ──────────────────────────────────────────────────────────────
 
-serveObserved("semantic-fact-extractor", async (req) => {
+serveObserved("semantic-fact-extractor", tracedReply("semantic-fact-extractor", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -129,7 +133,7 @@ serveObserved("semantic-fact-extractor", async (req) => {
   const healthResp = await handleHealth(req, FN_NAME, async () => ({
     deps: [
       { name: "supabase",  ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain",  ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain",  ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
       { name: "embedding", ok: Boolean(Deno.env.get("VOYAGE_API_KEY") || Deno.env.get("JINA_API_KEY") || Deno.env.get("GEMINI_API_KEY")) },
     ],
   }));
@@ -141,7 +145,7 @@ serveObserved("semantic-fact-extractor", async (req) => {
     });
   }
 
-  const ctx = beginRequest(req, { route: FN_NAME });
+  const ctx = trace;
   log.info(ctx, "request_start", { method: req.method });
 
   let body: { hive_id?: string; since?: string; limit?: number; max_groups?: number } = {};
@@ -163,6 +167,8 @@ serveObserved("semantic-fact-extractor", async (req) => {
   // Checker stage / cron) use service-role and skip.
   {
     const { authUid, isServiceRole } = await resolveIdentity(db, req);
+    // a service-role caller (the RAG Checker stage, cron) is trusted with the hive it names
+    if (isServiceRole) noteModelCaller({ hive_id: hiveId });
     if (!isServiceRole) {
       const t = await resolveTenancy(db, authUid, hiveId);
       if (!t.ok) return fail(ctx, t.code, t.message, { status: t.status });
@@ -178,10 +184,13 @@ serveObserved("semantic-fact-extractor", async (req) => {
         const _rq = await checkRouteRateLimit(db, hiveId || "", "semantic-fact-extractor");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "semantic-fact-extractor", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "semantic-fact-extractor", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
       const _rl = await checkAIRateLimit(db, hiveId);
-      if (!_rl.allowed) return fail(ctx, "rate_limited", "AI call limit reached for this hive. Try again in an hour.", { status: 429 });
+      if (!_rl.allowed) {
+        if (_rl.scope === "unavailable") return fail(ctx, "limiter_unavailable", LIMITER_UNAVAILABLE_MESSAGE, { status: 503 });
+        return fail(ctx, "rate_limited", "AI call limit reached for this hive. Try again in an hour.", { status: 429 });
+      }
     }
   }
   const errors: string[] = [];
@@ -312,4 +321,4 @@ serveObserved("semantic-fact-extractor", async (req) => {
     groups: groups.length,
     errors,
   });
-});
+}));

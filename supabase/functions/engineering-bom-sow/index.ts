@@ -1,7 +1,7 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: deterministic BOM/SOW generation; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
@@ -10,7 +10,7 @@ import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
@@ -4363,7 +4363,7 @@ async function pressureVesselBomSowAgent(
   const headDiskMm     = Math.round(Number(ID) * 1.20);
 
   // ASCII directive (Groq strips Unicode: en-dash, em-dash, multiplication x, le/ge, sub/superscripts)
-  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, sub/superscripts (m3 not m cubed-glyph), less-than-or-equal, greater-than-or-equal, Greek letters, or middle-dot. Use "x" for multiplication, "to" for ranges (e.g. "0 to 17.5 bar"), "Phi" or "dia" for diameter prefix, "deg C" for temperature, "m3" for cubic meters, "not less than" for ge, "not more than" for le, "Nm" or "N.m" for newton-meters, "MPa" for megapascals.`;
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, sub/superscripts (m3 not m cubed-glyph), less-than-or-equal, greater-than-or-equal, Greek letters, or middle-dot. Use "x" for multiplication, "to" for ranges (e.g. "0 to <max> bar", the max taken from the design data above), "Phi" or "dia" for diameter prefix, "deg C" for temperature, "m3" for cubic meters, "not less than" for ge, "not more than" for le, "Nm" or "N.m" for newton-meters, "MPa" for megapascals.`;
 
   // Items list — 12 items, with deterministic computed quantities and dimensions.
   // Manhole and Insulation now branch on volume/temp instead of being conditional in spec text.
@@ -4619,7 +4619,7 @@ async function fluidPowerBomSowAgent(
   // Cylinder spec: ISO 6020/6022 mounting standards
   const cylMountStd = "ISO 6020-2 (medium duty) foot or trunnion mount";
 
-  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts (cm3 not cm cubed-glyph), Greek letters (eta, delta, pi), middle-dot, or degree symbol. Use "x" for multiplication, "to" for ranges (e.g. "0 to 250 bar"), "not less than" for ge, "not more than" for le, "deg C" for temperature, "Phi" or "dia" for diameter prefix, "cm3/rev" for displacement, "Nm" or "N.m" for newton-meters.`;
+  const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts (cm3 not cm cubed-glyph), Greek letters (eta, delta, pi), middle-dot, or degree symbol. Use "x" for multiplication, "to" for ranges (e.g. "0 to <max> bar", the max taken from the design data above), "not less than" for ge, "not more than" for le, "deg C" for temperature, "Phi" or "dia" for diameter prefix, "cm3/rev" for displacement, "Nm" or "N.m" for newton-meters.`;
 
   const itemsBlock = `Per-item EXACT structure with description="short item name only" and specification="full standard + dimensions + grade + numeric ratings":
 
@@ -4782,7 +4782,9 @@ Each "content" field MUST start with "The Contractor shall..." and use ASCII tex
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
-serveObserved("engineering-bom-sow", async (req) => {
+serveObserved("engineering-bom-sow", tracedReply("engineering-bom-sow", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "engineering-bom-sow", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -4792,7 +4794,7 @@ serveObserved("engineering-bom-sow", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "engineering-bom-sow");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
@@ -4832,7 +4834,7 @@ serveObserved("engineering-bom-sow", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
     }
 
     let result: { bom_items: unknown[]; sow_sections: unknown[] };
@@ -4967,7 +4969,7 @@ serveObserved("engineering-bom-sow", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "engineering-bom-sow", "engineering_bom_sow_error", err);
   }
-});
+}));
 
 // Diagnostic: POST { "action": "list_models" } to see available models
 async function listModels(): Promise<string[]> {

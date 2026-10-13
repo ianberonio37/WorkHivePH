@@ -28,19 +28,24 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: voice journal write + retrieval
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Arc L (free-tier B lens, 2026-06-23): this is a PUBLIC fn (verify_jwt=false) with NO
 // membership gate that calls a generative LLM — an anon caller could burn unbounded
 // provider tokens. Cap on the caller's OWN identity (solo scope: no hive here).
-import { checkSoloRateLimit, soloRateLimitKey } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitKey, limiterUnavailableResponse } from "../_shared/rate-limit.ts";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+// A call ai-gateway forwarded was already counted on this person's bucket there - see the solo gate below.
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
+import { mentionedAssetCodes, normCode } from "../_shared/asset-codes.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -100,7 +105,7 @@ Voice-Journal-specific rules:
 - The memory block may include a "Past journal entries that look related to today's voice note" section. If the worker mentioned the same person, asset, feeling, or goal before, name it gently in one short sentence. Paraphrase only — never invent.
 - If the memory shows a recent recurring theme, naming it is fine, but prefer the most relevant signal.
 - LIVE OPERATIONS SNAPSHOT: the memory block may begin with a "=== LIVE OPERATIONS SNAPSHOT ===" section listing this hive's verified active alerts, overdue PM count, and the full list of registered asset tags. When present, it is your SINGLE SOURCE OF TRUTH for current operational questions. If the worker asks about anything the snapshot prints — open jobs/alerts, overdue PM, which assets exist, MTBF/MTTR/OEE, inventory/stock, PM compliance, team/skills, projects, or asset risk — answer from the snapshot's real numbers and names; do NOT deflect for things the snapshot already contains. If the snapshot is absent or a specific figure (a metric not listed above, or a per-item reading not shown) is not in it, then say plainly you don't have that number on this surface and point them to the matching page.
-- ASSET EXISTENCE: only treat an asset tag as real if it appears in the snapshot's registered-asset list (or the worker is clearly inventing a hypothetical). If they ask about a tag that is not in that list (e.g. a "P-203" when only "P-001" is registered), tell them it is not one of their registered assets and ask if they meant a real one — do NOT describe its condition, history, temperature, or events as if it existed.
+- ASSET EXISTENCE: only treat an asset tag as real if it appears in the snapshot's registered-asset list (or the worker is clearly inventing a hypothetical). If they ask about a tag that is not in that list (e.g. "<tag A>" when only "<tag B>" is registered), tell them it is not one of their registered assets and ask if they meant a real one — do NOT describe its condition, history, temperature, or events as if it existed.
 - THE SNAPSHOT IS YOUR LIVE DATA — quote ONLY what it literally prints, but it now carries MANY of this hive's computed figures, not just counts. Depending on what's available it includes: the active-alert count + top alerts, the overdue-PM count, the registered-asset list, reliability (hive-average and per-machine MTBF/MTTR), OEE, inventory/stock (parts tracked, how many are low or out, which parts), PM compliance %, team/skills (member count, disciplines, skill levels), projects (codes, % complete, blockers), and asset risk (which assets are highest-risk, their level and days-to-failure). When the worker asks about ANY figure that IS printed in the snapshot, quote its real number/name directly — that is the correct grounded answer, NOT a reason to deflect. You still do NOT have anything the snapshot does NOT print: a metric not listed, a per-item reading or history beyond what's shown, temperatures, or a value for an asset with no detail in the snapshot. For those, say plainly it isn't in this snapshot and point to the matching page — and never compute, estimate, or state a number that isn't printed.
 - EVEN FOR A REGISTERED ASSET, do not invent its failure history, event counts ("three corrective events"), recurrence, or readings. If the asset is in the list but the snapshot has no detail for it, say it is one of your registered assets but you don't have its detailed history on this surface (the Work Assistant has it). Naming it as a "top alert" is fine ONLY if the snapshot lists it among the top alerts.
 - OUT-OF-SCOPE DOMAINS (genuinely NOT in the snapshot): marketplace listings/prices, the day-plan schedule, community/forum posts, individual logbook-entry narrative, and any per-item detail not shown above (e.g. a single part's full transaction history, one asset's reading). When the worker asks about THESE, do NOT invent specifics — no listing or price, no scheduled day-plan slot, no certification you can't see, no fabricated detail. Say plainly you don't have that here and point them to the right page (Marketplace / Day Planner / Community / Logbook). IMPORTANT: inventory/stock, the skill matrix (team & disciplines), project status (% complete, blockers), PM compliance, MTBF/MTTR/OEE, and asset risk ARE in the snapshot now when listed above — ANSWER those from the snapshot's real numbers, do NOT deflect them to another page. Only deflect a domain when its figure is genuinely absent from the snapshot.
@@ -370,6 +375,25 @@ function stripUnregisteredAssetClaim(text: string, userBlock: string): string {
     : "That isn't one of your registered assets. Did you mean one of the tags in your hive? I can pull its details if so.";
 }
 
+// ★THE COMPANION DENIED A MACHINE THE SNAPSHOT LISTED (LM-G walk, LM151, 2026-10-07). Asked about TDV 1103, it said
+// "TDV 1103 is not one of your registered assets" - with "Registered assets (8) ... TDV 1103 ..." two lines up in its own
+// grounding. The cause was the false-memory loop: its earlier wrong replies sat in working memory and were copied.
+// The registered list is verified truth, so a sentence that denies registration of a tag ON that list is false by
+// construction and is corrected here, in code. The list is read as the snapshot writes it (comma-separated), so fleet
+// tags with a space ("TDV 1103"), which _ASSET_TAG_RE above does not match, are covered too.
+const _REG_DENIAL_RE = /\b(is ?n['’]?t|is not|not)\b[^.]{0,25}\b(registered|one of (your|the|this)( hive['’]?s)? (registered )?(assets?|tags?|machines?))\b/i;
+function correctFalseRegistrationDenial(text: string, userBlock: string): string {
+  const m = userBlock.match(/ONLY real asset tags[^:]*:\s*([^\n]+)/i);
+  if (!text || !m) return text;
+  const reg = m[1].replace(/\.\s*$/, "").split(/\s*,\s*/).map((s) => s.trim()).filter(Boolean);
+  const norm = (s: string) => s.toLowerCase().replace(/[\s_-]+/g, "");
+  return text.split(/(?<=[.!?])\s+/).map((s) => {
+    if (!_REG_DENIAL_RE.test(s)) return s;
+    const hit = reg.find((t) => norm(s).includes(norm(t)));
+    return hit ? `${hit} is one of this hive's registered assets.` : s;
+  }).join(" ").replace(/\s+/g, " ").trim();
+}
+
 // ── Un-served-metric claim guard (Grounding Doctrine, 2026-06-14 — HELD-OUT diverse run dv-10) ─
 // The ops snapshot is a POINT-IN-TIME aggregate: it has NO per-metric TARGETS, NO time-series TRENDS,
 // and does NOT compute the planned-vs-reactive ratio. The model nonetheless fabricates these by
@@ -418,7 +442,9 @@ function stripUnservedMetricClaims(text: string): string {
 // companion_fabrication_sweep.py grade() uses INDEPENDENT logic. See the usage in
 // the response pipeline below (was the stripUngroundedKpi call).
 
-serveObserved("voice-journal-agent", async (req) => {
+serveObserved("voice-journal-agent", tracedReply("voice-journal-agent", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-journal-agent", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -429,7 +455,7 @@ serveObserved("voice-journal-agent", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
-  logRequestStart(req, "voice-journal-agent");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   if (req.method !== "POST") {
     return json(corsHeaders, 405, { error: "That request method is not allowed. Reload the page and try again." });
@@ -460,13 +486,29 @@ serveObserved("voice-journal-agent", async (req) => {
   // gateway already gates per-hive, and cron volume is schedule-bounded.
   const _vjAuth = req.headers.get("Authorization") || "";
   const _vjIsService = !!_WH_SERVICE_KEY && _vjAuth.includes(_WH_SERVICE_KEY);
-  if (!_vjIsService) {
-    const _vjAuthUid = typeof (body as { auth_uid?: unknown }).auth_uid === "string"
-      ? (body as { auth_uid?: string }).auth_uid!.slice(0, 80) : null;
-    const _vjIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  // ★ONE COMPANION TURN WAS COUNTED TWICE ON ONE BUCKET (2026-10-08). The gateway forwards the person's OWN JWT, so the
+  // exemption above never applied to it: ai-gateway counted the turn on ai_user_rate_limits[<auth uid>] (its per-user cap,
+  // or the same solo key for a hive-less person - "ip:<caller>" for anon) and then this gate counted it AGAIN on that very
+  // row, so a person's companion ran out at about half the stated rate. A forward is proven only by the header ai-gateway
+  // mints (_shared/gateway-trust.ts, HMAC over the exact bearer) - never by the `gateway: true` body field, which any direct
+  // caller can send. A direct call is limited exactly as before.
+  const _vjViaGateway = await isTrustedGatewayForward(req);
+  // the companion never proves a hive (an anonymous turn is allowed): the hive this turn NAMES is stamped on its model
+  // calls only after the record writer confirms the verified user is an active member of it (LM-O, 2026-10-08)
+  noteModelCaller({ claimed_hive_id: typeof body.hive_id === "string" && body.hive_id ? body.hive_id : null });
+  if (!_vjIsService && !_vjViaGateway) {
+    // ★EVERY PERSON'S COMPANION DREW ON ONE BUCKET (LM-G walk, LM120, 2026-10-07). The key was `body.auth_uid`, which
+    // the ai-gateway never sends, so it fell back to the request's IP - and behind the gateway that is the GATEWAY's
+    // container address (ai_user_rate_limits held "ip:172.18.0.2" at 30 calls an hour after the first live walks),
+    // shared by every user on the platform. The person is now read from the JWT the gateway forwards (resolveIdentity,
+    // verified with GoTrue), and a body field can no longer name someone else's bucket. The IP floor stays for anon
+    // callers, and the gateway now forwards the caller's own x-forwarded-for.
     const _vjDb = _whWarmClient || createClient(_WH_SUPABASE_URL, _WH_SERVICE_KEY);
+    const _vjAuthUid = (await resolveIdentity(_vjDb, req).catch(() => null))?.authUid ?? null;
+    const _vjIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
     const _vjRl = await checkSoloRateLimit(_vjDb, soloRateLimitKey(_vjAuthUid, _vjIp));
     if (!_vjRl.allowed) {
+      if (_vjRl.scope === "unavailable") return limiterUnavailableResponse(corsHeaders);
       return json(corsHeaders, 429, { error: "AI call limit reached. Please try again in an hour." });
     }
   }
@@ -504,6 +546,8 @@ serveObserved("voice-journal-agent", async (req) => {
   // memory and pass the snapshot through verbatim. (Snapshot helpers must only emit non-PII computed
   // fields — never a raw worker name / email / notes free-text — which buildOpsSnapshot honours.)
   const SNAP_HEAD = "=== LIVE OPERATIONS SNAPSHOT";
+  // a hive-less person's own records (ai-gateway buildSoloSnapshot, LM166) are verified context too, not chat history
+  const SOLO_HEAD = "=== YOUR OWN RECORDS";
   let memoryBlock: string;
   // Does the block carry actual CONVERSATIONAL memory (prior turns / journal entries), as opposed
   // to just the live ops snapshot or nothing? Gates the unsupported-recall strip below: with no
@@ -516,7 +560,7 @@ serveObserved("voice-journal-agent", async (req) => {
   let snapText = "";   // the live ops-snapshot block ONLY — its KPIs are current values, never "what you told me"
   if (!rawMemory) {
     memoryBlock = "(no prior journal entries yet)";
-  } else if (rawMemory.startsWith(SNAP_HEAD)) {
+  } else if (rawMemory.startsWith(SNAP_HEAD) || rawMemory.startsWith(SOLO_HEAD)) {
     const sep = rawMemory.indexOf("\n\n");
     if (sep === -1) {
       memoryBlock = rawMemory;                                  // snapshot only, no conversational memory
@@ -535,12 +579,16 @@ serveObserved("voice-journal-agent", async (req) => {
     convoMemory = rawMemory;
   }
 
+  // ★THE MODEL ANSWERED THE PREVIOUS QUESTION (LM-G walk, LM147, 2026-10-07). Asked about RJL 2203, the companion
+  // replied about ZQX 9471 - the code this person had asked about in the turn before, sitting in the memory block. The
+  // two questions had the same shape, and "Latest voice entry" did not say which one to answer. The current message is
+  // now named as THE one to reply to, and the memory as earlier turns.
   const userBlock = [
     `Detected language: ${langName} (code: ${lang})`,
-    `Memory block:`,
+    `Memory block (EARLIER turns and context - do not answer an earlier question again):`,
     memoryBlock,
     `---`,
-    `Latest voice entry:`,
+    `CURRENT message - reply to THIS one:`,
     message,
   ].join("\n");
 
@@ -590,7 +638,34 @@ serveObserved("voice-journal-agent", async (req) => {
       answer = await callAI(userBlock, proseOpts);
     }
 
-    const trimmed = String(answer || "").trim();
+    // ★THE REPLY MUST BE ABOUT WHAT WAS ASKED (LM-G walk, LM166, 2026-10-07). With earlier turns in memory the model
+    // answered the PREVIOUS question - asked about ZQX 9471, it replied about the brake pads asked a turn before, even
+    // after the CURRENT-message label (LM147 fix). When the current message names an asset (a code, or one of the
+    // hive's registered tags) and the reply never mentions it, the reply is about something else: ask once more with
+    // ONLY the verified snapshot and no earlier turns, and keep the second answer if it does name the asset.
+    {
+      const regList = (snapText.match(/ONLY real asset tags[^:]*:\s*([^\n]+)/i) || [])[1] || "";
+      const regTags = regList.replace(/\.\s*$/, "").split(/\s*,\s*/).filter(Boolean);
+      const asked = [...mentionedAssetCodes(message),
+        ...regTags.filter((t) => normCode(message).includes(normCode(t)))];
+      const mentions = (t: string) => asked.some((c) => normCode(t).includes(normCode(c)));
+      if (asked.length && hasConvoMemory && !mentions(String(answer || ""))) {
+        const freshBlock = [
+          `Detected language: ${langName} (code: ${lang})`,
+          `Memory block (verified context only):`,
+          snapText || "(no live records)",
+          `---`,
+          `CURRENT message - reply to THIS one:`,
+          message,
+        ].join("\n");
+        try {
+          const again = await callAI(freshBlock, { ...proseOpts, sessionKey: undefined });
+          if (again && mentions(again)) answer = again;
+        } catch (_) { /* empty-catch-allow: the first answer stands if the re-ask fails */ }
+      }
+    }
+    // "{}" is the exhausted chain, not a reply - it was spoken back to the worker as the answer (2026-10-09)
+    const trimmed = aiAnswered(answer) ? String(answer).trim() : "";
     // Deterministic no-em-dash enforcement (OPT-PERSONA-04). The conversational persona rule bans em
     // dashes, but the LLM violates it probabilistically run-to-run; WAT says enforce a must-be-exact
     // output rule in CODE, not by re-asking the model. Em dash (U+2014) only -> ", " (a natural spoken
@@ -624,6 +699,8 @@ serveObserved("voice-journal-agent", async (req) => {
     // Unregistered-asset claim strip (held-out dv-03): drop a sentence that affirms an event for a
     // tag not in the snapshot's registered list (keeps explicit denials).
     clean = stripUnregisteredAssetClaim(clean, userBlock);
+    // ...and the opposite: a denial that a LISTED tag is registered is false by construction (LM151)
+    clean = correctFalseRegistrationDenial(clean, userBlock);
     // Un-served-metric strip (held-out dv-10): the point-in-time snapshot has no targets/trends and
     // does not compute planned-vs-reactive; drop those fabricated claims (G3-class, missed by G1's
     // number-trace via coincidental match).
@@ -682,7 +759,7 @@ serveObserved("voice-journal-agent", async (req) => {
     log.error(null, "voice-journal-agent error:", { detail: msg });
     return json(corsHeaders, 502, { error: "The journal assistant could not finish. Try again in a moment." });
   }
-});
+}));
 
 function json(
   corsHeaders: Record<string, string>,

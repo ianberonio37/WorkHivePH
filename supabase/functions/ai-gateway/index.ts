@@ -27,9 +27,11 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { modelCallsRefused } from "../_shared/model-calls.ts";  // a walk's no-model switch crosses the hop
+import { mentionedAssetCodes, normCode } from "../_shared/asset-codes.ts";
 
 // contract-allow: router; forwards to specialist orchestrators
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import sourceRegistry from "../_shared/companion_source_registry.json" with { type: "json" };
 import {
@@ -46,16 +48,22 @@ import {
   globalBudgetResponse,
 } from "../_shared/rate-limit.ts";
 import { redactPIIWithMap, hydratePII, redactKnownNames, redactMemoryText } from "../_shared/redactPII.ts";
+// The adaptive (rate-limit / budget fallback) answer cache, keyed on the VERIFIED tenant - see _shared/cache.ts.
+import { answerCacheTenant, answerCacheLookup, answerCacheStore } from "../_shared/cache.ts";
 // CL10 D13 action-faithfulness rail (centralized at the ONE front door, 2026-07-08).
 // The advisory brain is READ-ONLY: from a chat turn it never writes a logbook entry, PM,
 // follow-up, or record. ai-orchestrator already strips false "I did X" claims at its own
 // egress, but the OTHER conversational specialists (analytics/project/shift/temporal-rag/
 // asset-brain) returned their `answer` straight through — an unguarded fabrication surface.
 // Applying the rail here at the gateway egress covers every advisory route uniformly. It is
-// GATED to ADVISORY_ANSWER_AGENTS: the action-executor agents (voice-action/logbook-voice/
-// report-voice/voice-journal) genuinely perform the write, so their "Logged: …" is TRUE and
-// must NOT be stripped. Idempotent on ai-orchestrator's already-cleaned answer.
+// GATED to ADVISORY_ANSWER_AGENTS. voice-action is NOT an executor (corrected 2026-10-08): the
+// router only classifies and the page writes nothing until the person confirms, so its narration
+// is a PROPOSAL - railed at the router's own egress by the stricter proposal rail
+// (honestProposalNarration), not here, because this rail's clarifier would tell the person to add
+// the record themselves while the page is about to do it. Idempotent on ai-orchestrator's answer.
 import { stripFalseActionClaims, ACTION_HONEST_CLARIFIER } from "../_shared/action_provenance.ts";
+// Proves a specialist forward came through here (and was rate-limited above) - see the forward fetch.
+import { gatewayForwardHeaders } from "../_shared/gateway-trust.ts";
 import {
   loadMemory,
   saveTurn,
@@ -63,8 +71,9 @@ import {
   formatMemoryContext,
   type MemoryHandle,
 } from "../_shared/memory.ts";
-import { callAI } from "../_shared/ai-chain.ts";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { searchOwnFaultKnowledge } from "../_shared/own-knowledge.ts";
 import {
   loadJournalRecall,
   persistJournalEntry,
@@ -113,7 +122,6 @@ import { handleHealth } from "../_shared/health.ts";
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify the caller belongs to the hive they claim.
 import { resolveTenancy } from "../_shared/tenant-context.ts";
-import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 
 // Agents that get semantic-recall enrichment in addition to short-term
 // agent_memory. Adding an agent here makes the gateway:
@@ -460,32 +468,74 @@ function isKnowledgeQuestion(msg: string): boolean {
   const m = (msg || "").toLowerCase();
   return _KNOWLEDGE_CUES.some((k) => m.includes(k));
 }
+// The caps every knowledge block shares - the hive block and a solo owner's own block alike.
+const KNOWLEDGE_MATCH_COUNT = 4;
+const KNOWLEDGE_SIM_FLOOR = 0.25;      // floor out vector noise
+const KNOWLEDGE_ITEM_CHARS = 220;
+async function embedKnowledgeQuery(message: string): Promise<number[] | null> {
+  try {
+    // Pin the SAME model the knowledge corpus is embedded with — locally the self-hosted bge
+    // server (BGE_EMBED_URL). Query + corpus MUST share one vector space or cosine is noise
+    // (embedding-chain doctrine: re-embed a corpus AND flip its pin together). Failover still
+    // applies on outage, but a non-bge answer is logged loudly and simply won't match → "".
+    const embedding = await generateEmbedding(message, "bge-local");
+    return Array.isArray(embedding) && embedding.length ? embedding : null;
+  } catch (_) {
+    return null;   // embedding chain unavailable → degrade silently (no RAG context this turn)
+  }
+}
+function knowledgeItems(rows: Array<{ source?: string; summary?: string; similarity?: number }>): string {
+  return rows
+    .filter((r) => r.summary && Number(r.similarity ?? 0) >= KNOWLEDGE_SIM_FLOOR)
+    .slice(0, KNOWLEDGE_MATCH_COUNT)
+    .map((r) => `• [${r.source || "kb"}] ${String(r.summary).slice(0, KNOWLEDGE_ITEM_CHARS)}`).join("\n");
+}
 async function buildKnowledgeContext(client: SupabaseClient, hiveId: string, message: string): Promise<string> {
   try {
-    let embedding: number[];
-    try {
-      // Pin the SAME model the knowledge corpus is embedded with — locally the self-hosted bge
-      // server (BGE_EMBED_URL). Query + corpus MUST share one vector space or cosine is noise
-      // (embedding-chain doctrine: re-embed a corpus AND flip its pin together). Failover still
-      // applies on outage, but a non-bge answer is logged loudly and simply won't match → "".
-      embedding = await generateEmbedding(message, "bge-local");
-    } catch (_) {
-      return "";   // embedding chain unavailable → degrade silently (no RAG context this turn)
-    }
-    if (!Array.isArray(embedding) || !embedding.length) return "";
+    const embedding = await embedKnowledgeQuery(message);
+    if (!embedding) return "";
     const { data, error } = await client.rpc("search_all_knowledge", {
-      query_embedding: embedding, match_hive_id: hiveId, match_count: 4,
+      query_embedding: embedding, match_hive_id: hiveId, match_count: KNOWLEDGE_MATCH_COUNT,
     });
     if (error) return "";
-    const rows = ((data ?? []) as Array<{ source?: string; summary?: string; similarity?: number }>)
-      .filter((r) => r.summary && Number(r.similarity ?? 0) >= 0.25)   // floor out vector noise
-      .slice(0, 4);
-    if (!rows.length) return "";
-    const items = rows.map((r) => `• [${r.source || "kb"}] ${String(r.summary).slice(0, 220)}`).join("\n");
+    const items = knowledgeItems((data ?? []) as Array<{ source?: string; summary?: string; similarity?: number }>);
+    if (!items) return "";
     return [
       "=== KNOWLEDGE BASE (retrieved from THIS hive's own SOPs / fault history / PM notes — ground your how-to answer in these and cite them; do NOT invent a procedure that isn't here) ===",
       items,
       "(If these don't cover the question, say what the records show and suggest who/where to check — never fabricate a step.)",
+    ].join("\n");
+  } catch (_) {
+    return "";
+  }
+}
+
+// ★A SOLO OWNER'S ANSWERS NEVER USED THEIR OWN KNOWLEDGE (2026-10-08). buildKnowledgeContext above is called only
+// from buildOpsSnapshot, which runs only for a hive, so a signed-in person with no hive asking "how do I fix the slow
+// crank?" got no knowledge block at all - while their own logbook's fault history sits embedded in fault_knowledge
+// (hive_id NULL, auth_uid theirs; readable since 20261007000014). This is the same block, in the same vector space,
+// with the same caps, scoped to that person: searchOwnFaultKnowledge asks search_fault_knowledge for match_hive_id
+// NULL + match_owner = ownerUid on the service-role client, and keeps only rows it re-reads as theirs.
+// ownerUid is the gateway's VERIFIED authUid (auth.getUser on the caller's own JWT), never a body or context field.
+// Only fault_knowledge carries an owner, so it is the only corpus a hive-less person has.
+async function buildOwnKnowledgeContext(client: SupabaseClient, ownerUid: string, message: string): Promise<string> {
+  try {
+    if (!ownerUid) return "";
+    const embedding = await embedKnowledgeQuery(message);
+    if (!embedding) return "";
+    const own = await searchOwnFaultKnowledge(client, embedding, ownerUid, KNOWLEDGE_MATCH_COUNT);
+    if (!own || !own.length) return "";
+    // the SAME summary shape search_all_knowledge's fault branch renders for a hive
+    const items = knowledgeItems(own.map((r) => ({
+      source: "fault",
+      summary: `Machine: ${r.machine ?? ""} | Problem: ${r.problem ?? ""} | Root cause: ${r.root_cause ?? ""} | Fix: ${r.action ?? ""}`,
+      similarity: r.similarity,
+    })));
+    if (!items) return "";
+    return [
+      "=== YOUR OWN PAST REPAIRS (a one-person operator with no hive; retrieved from your own logbook's fault history, nobody else's — ground your how-to answer in these and cite them; do NOT invent a procedure that isn't here) ===",
+      items,
+      "(If these don't cover the question, say what your own records show — never fabricate a step.)",
     ].join("\n");
   } catch (_) {
     return "";
@@ -513,6 +563,97 @@ function _msgMatchesKeywords(msg: string, keywords: string[] | undefined): boole
     const words = kl.split(/[^a-z0-9]+/).filter((w) => w.length >= 5 && !_MATCH_STOP.has(w));
     return words.length > 0 && words.every((w) => m.includes(w));      // all content words, any order
   });
+}
+
+// ★THE COMPANION COULD NOT SAY WHAT WAS DONE TO A MACHINE IT LISTED (LM-G walk, LM109, 2026-10-07). Asked "What
+// maintenance has been done on FLT 9004 recently?" on Dela Cruz Delivery Fleet, it answered "I don't have the
+// specific maintenance history for FLT 9004 on this surface ... It is one of your registered assets, though" - while
+// the hive holds 611 logbook entries for FLT 9004. Two routes could have reached them and neither did: the knowledge
+// RAG fires only on how-to cues ("how do I", "history of", ...), and the v_logbook_truth on-demand source fires on
+// failure words ("what failed", "recent repair") and then returns the HIVE's newest 8 rows, whatever machine they are
+// about. So the most ordinary maintenance question there is - what happened to THIS machine - was unanswerable.
+// This block is keyed by the tag the person NAMED, not by phrasing: if the message contains one of this hive's
+// registered tags (spaces/hyphens ignored), that machine's own newest entries are read from v_logbook_truth, hive-
+// scoped. A read that succeeds with no rows says so in words; a read that FAILS says nothing, because "no entries"
+// derived from a read that never ran is a claim with no evidence ([[feedback_the_refused_read_is_the_fourth_state]]).
+async function buildAssetHistory(client: SupabaseClient, hiveId: string, msg: string, tags: string[]): Promise<string> {
+  try {
+    const norm = (s: string) => (s || "").toLowerCase().replace(/[\s_-]+/g, "");
+    const m = norm(msg);
+    if (!m) return "";
+    const named = tags.filter((t) => t && norm(t).length >= 3 && m.includes(norm(t))).slice(0, 2);
+    if (!named.length) return "";
+    type Row = { created_at?: string; category?: string; problem?: string; action?: string; status?: string;
+      maintenance_type?: string; root_cause?: string; downtime_hours?: number | null };
+    const blocks = await Promise.all(named.map(async (tag) => {
+      // two plain .eq() reads rather than one .or(): a tag with a space or comma would need quoting inside or()
+      const sel = "created_at,category,problem,action,status,maintenance_type,root_cause,downtime_hours";
+      const [byMachine, byTag] = await Promise.all([
+        client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).eq("machine", tag)
+          .order("created_at", { ascending: false }).limit(5),
+        client.from("v_logbook_truth").select(sel).eq("hive_id", hiveId).eq("asset_tag", tag)
+          .order("created_at", { ascending: false }).limit(5),
+      ]);
+      if (byMachine.error && byTag.error) return "";   // the read never ran: say nothing rather than "none"
+      const seen = new Set<string>();
+      const rows = ([...(byMachine.data ?? []), ...(byTag.data ?? [])] as Row[])
+        .filter((r) => { const k = `${r.created_at}|${r.problem}`; if (seen.has(k)) return false; seen.add(k); return true; })
+        .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
+        .slice(0, 5);
+      if (!rows.length) return `Logbook history for ${tag}: no entries are recorded for this asset in this hive.`;
+      const clip = (s?: string, n = 80) => { const t = String(s || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+      // many real entries carry only a type and a date (a closed PM, an inspection); that IS history, so the type
+      // leads and every other field appears only when it holds something - never a "(none recorded)" placeholder
+      // ★THE AGE IS STATED, NOT LEFT TO THE MODEL (LM109 live, 2026-10-07): given five dated PM entries from Aug 12-16,
+      // the model told the person they happened "in the last week" - seven weeks after the newest one. A date alone
+      // makes the model do date arithmetic it does not reliably do; the day count is computed here, in code.
+      const age = (iso?: string) => { const t = Date.parse(String(iso || "")); if (!Number.isFinite(t)) return "";
+        const d = Math.floor((Date.now() - t) / 86400000); return d <= 0 ? " (today)" : d === 1 ? " (1 day ago)" : ` (${d} days ago)`; };
+      const items = rows.map((r) => `${String(r.created_at || "").slice(0, 10)}${age(r.created_at)} — ${clip(r.maintenance_type, 30) || clip(r.category, 30) || "entry"}` +
+        `${r.problem ? `: ${clip(r.problem)}` : ""}${r.root_cause ? ` (cause: ${clip(r.root_cause, 50)})` : ""}` +
+        `${r.action ? ` → ${clip(r.action)}` : ""}${r.downtime_hours ? `, ${r.downtime_hours}h down` : ""}${r.status ? ` [${r.status}]` : ""}`);
+      return `Logbook history for ${tag} (from v_logbook_truth, newest first, ${rows.length} shown): ${items.join("; ")}.`;
+    }));
+    return blocks.filter(Boolean).join("\n");
+  } catch (_) { return ""; }   // best-effort, like every other snapshot block
+}
+
+// ★A ONE-PERSON OPERATOR'S COMPANION COULD NOT SEE THEIR OWN RECORDS (LM-G walk, LM166, 2026-10-07). Jun Salvador,
+// who owns his van and has no hive, asked about his brake-pad work and was told "I don't have that detail on this
+// screen" - while his own logbook holds "Front brake pads replaced before the long haul". The live snapshot is built
+// only for a hive, so a hive-less person's companion was grounded in nothing of theirs. This is that person's own
+// newest logbook entries, keyed on the VERIFIED auth id (never a name), each with its age computed here. A read that
+// fails says nothing; a read that succeeds with no rows says so.
+async function buildSoloSnapshot(client: SupabaseClient, authUid: string, message = ""): Promise<string> {
+  try {
+    const { data, error } = await client.from("v_logbook_truth")
+      .select("created_at,maintenance_type,category,machine,problem,action,status")
+      .is("hive_id", null).eq("auth_uid", authUid)
+      .order("created_at", { ascending: false }).limit(8);
+    if (error) return "";
+    type Row = { created_at?: string; maintenance_type?: string; category?: string; machine?: string; problem?: string; action?: string; status?: string };
+    const rows = (data ?? []) as Row[];
+    const head = "=== YOUR OWN RECORDS (a one-person operator with no hive; verified from your own logbook, right now) ===";
+    // ★A CODE THE PERSON TYPED BECAME "YOUR OWN UNIT" (LM166, 2026-10-07): asked about ZQX 9471, the model answered
+    // "ZQX 9471 is your own unit" and recited this person's van history. A hive-less person has no registered-tag list,
+    // so the machines their records cover are listed here, and a code in the message that matches none of them is
+    // stated as such - in code, not left to the model.
+    const machines = [...new Set(rows.map((r) => String(r.machine || "").trim()).filter(Boolean))];
+    const asked = mentionedAssetCodes(message).filter((c) => !machines.some((m) => normCode(m) === normCode(c)));
+    const scope = machines.length
+      ? `Machines in your logbook: ${machines.join(", ")} - these are the ONLY machines you have records for.`
+      : "";
+    const notYours = asked.length
+      ? `Your message names ${asked.join(", ")}, which is not a machine in your logbook - you have no records for it.`
+      : "";
+    if (!rows.length) return [head, "Your logbook has no entries yet.", notYours].filter(Boolean).join("\n");
+    const clip = (v?: string, n = 80) => { const t = String(v || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+    const age = (iso?: string) => { const t = Date.parse(String(iso || "")); if (!Number.isFinite(t)) return "";
+      const d = Math.floor((Date.now() - t) / 86400000); return d <= 0 ? " (today)" : d === 1 ? " (1 day ago)" : ` (${d} days ago)`; };
+    const items = rows.map((r) => `${String(r.created_at || "").slice(0, 10)}${age(r.created_at)} — ${clip(r.maintenance_type, 30) || clip(r.category, 30) || "entry"}` +
+      `${r.machine ? ` on ${clip(r.machine, 30)}` : ""}${r.problem ? `: ${clip(r.problem)}` : ""}${r.action ? ` → ${clip(r.action)}` : ""}${r.status ? ` [${r.status}]` : ""}`);
+    return [head, scope, notYours, `Your logbook (newest first, ${rows.length} shown): ${items.join("; ")}.`].filter(Boolean).join("\n");
+  } catch (_) { return ""; }
 }
 
 // Build the LIVE OPERATIONS SNAPSHOT block (2026-06-13 fabrication fix). Reads the same
@@ -586,11 +727,15 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
     // Pillar K (cross-modal RAG): a how-to/knowledge question pulls the hive's own SOPs/fault
     // history into the grounding so the companion answers from real records, not invented steps.
     const knowledge = isKnowledgeQuestion(msg) ? await buildKnowledgeContext(client, hiveId, message) : "";
+    // Asset-scoped history: a question that NAMES one of this hive's registered tags gets that machine's own
+    // newest logbook entries. See buildAssetHistory for the walk that found the gap.
+    const assetHistory = await buildAssetHistory(client, hiveId, msg, tags);
     const lines = [
       "=== LIVE OPERATIONS SNAPSHOT (verified from this hive's records, right now) ===",
       `Active alerts (the open jobs needing attention): ${activeAlerts}${top.length ? ` — top: ${top.join("; ")}` : ""}.`,
       overdue != null ? `Overdue PM tasks: ${overdue}.` : "",
       tags.length ? `Registered assets (${tags.length}) — these are the ONLY real asset tags in this hive: ${tags.join(", ")}.` : "",
+      assetHistory,
       proactive,
       knowledge,
       ...engineBlocks,
@@ -728,9 +873,14 @@ const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "ass
 // that CANNOT correspond to a real system write from a chat turn. The gateway applies the
 // action-faithfulness rail (stripFalseActionClaims) to these before persist + return, so a
 // fabricated "Log entry added / Updated maintenance record" can never reach a worker or the
-// episodic memory bank. DELIBERATELY EXCLUDES the action-executor agents (voice-action /
-// logbook-voice / report-voice / voice-journal): those genuinely persist, so their completed-
-// action confirmations are TRUE and stripping them would be a regression. `assistant`/`coach`
+// episodic memory bank. EXCLUDES voice-journal (an EXECUTOR: the journal note it acknowledges is
+// genuinely saved, persist-first, by this gateway; its numbers are railed by numeric_provenance),
+// logbook-voice / report-voice (STRUCTURED parses: voice-logbook-entry and voice-report-intent return
+// a JSON draft - a logbook entry / a report intent - with NO narration, and save nothing; the page
+// decides what to save. They were mislabelled executors until 2026-10-08. This rail would edit the
+// JSON the page reads, so they stay out of it - their responses pass through unchanged) and
+// voice-action, whose narration is a PROPOSAL railed at voice-action-router's own egress by the
+// stricter proposal rail (2026-10-08: it is not an executor - it persists nothing). `assistant`/`coach`
 // route to ai-orchestrator which already strips at its own egress — re-applying here is a safe
 // idempotent no-op (any residual it missed is still caught; the honest clarifier is advice-framed
 // and survives the second pass). Adding a NEW advisory conversational route REQUIRES adding it
@@ -777,7 +927,8 @@ serveObserved("ai-gateway", async (req) => {
     const deps = [
       { name: "supabase",     ok: Boolean(SERVICE_KEY_HEALTH && SUPABASE_URL_HEALTH) },
       { name: "groq",         ok: Boolean(Deno.env.get("GROQ_API_KEY")) },
-      { name: "cerebras",     ok: Boolean(Deno.env.get("CEREBRAS_API_KEY")) },
+      // the chain's other providers (Cerebras left the platform 2026-10-08: 402 payment_required on every call)
+      { name: "ai-chain-fallbacks", ok: Boolean(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ];
     return { deps };
   });
@@ -804,17 +955,17 @@ serveObserved("ai-gateway", async (req) => {
   log.info(ctx, "request_start", { agent, message_len: message?.length ?? 0 });
 
   if (!agent || typeof agent !== "string") {
-    return jsonResponse(corsHeaders, 400, { error: "Missing agent" });
+    return jsonResponse(corsHeaders, 400, { error: "Missing agent" }, ctx.trace_id);
   }
   if (!message || typeof message !== "string") {
-    return jsonResponse(corsHeaders, 400, { error: "Missing message" });
+    return jsonResponse(corsHeaders, 400, { error: "Missing message" }, ctx.trace_id);
   }
 
   const route = AGENT_ROUTES[agent];
   if (!route) {
     return jsonResponse(corsHeaders, 400, {
       error: `Unknown agent '${agent}'. Available: ${Object.keys(AGENT_ROUTES).join(", ")}`,
-    });
+    }, ctx.trace_id);
   }
 
   // Identity binding -- pull the auth user from the JWT in the request.
@@ -843,7 +994,7 @@ serveObserved("ai-gateway", async (req) => {
 
   const { data: { user } } = await authedClient.auth.getUser();
   if (!user && !ANON_OK_AGENTS.has(agent)) {
-    return jsonResponse(corsHeaders, 401, { error: "Sign-in required" });
+    return jsonResponse(corsHeaders, 401, { error: "Sign-in required" }, ctx.trace_id);
   }
 
   // Resolve worker_name + persona preference. For authed users we look
@@ -900,11 +1051,15 @@ serveObserved("ai-gateway", async (req) => {
     if (!tenancy.ok) {
       log.warn(ctx, "tenancy_denied", { code: tenancy.code });
       return jsonResponse(corsHeaders, tenancy.status, {
-        error: tenancy.message, code: tenancy.code, trace_id: ctx.trace_id,
-      });
+        error: tenancy.message, code: tenancy.code,
+      }, ctx.trace_id);
     }
     verifiedHiveId = tenancy.hive_id;   // membership-proven — safe to bucket on
   }
+  // ★THE ADAPTIVE CACHE SERVED ONE HIVE'S ANSWER TO ANOTHER (2026-10-07). It was keyed on agent + message only, so a
+  // rate-limited person in hive B who asked the same words got hive A's grounded answer. Its tenant is now the PROVEN
+  // hive plus the verified auth uid (never the client's hive_id); an anonymous caller has none and is never cached.
+  const answerTenant = answerCacheTenant(verifiedHiveId, authUid);
 
   // Persona Contract: every conversational specialist that adopts the
   // contract reads ctx.persona; if the client didn't supply one, default
@@ -923,7 +1078,12 @@ serveObserved("ai-gateway", async (req) => {
   // skipEmbed: recall re-embeds moments later on the success path, which then completes the
   // row via updateJournalReply; a quota-blocked row simply keeps reply=null (backfillable).
   let journalRowId: string | null = null;
-  if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid) {
+  // The LOCAL debug echo is a read of the context the agent would receive - it saves nothing (LM-P walk, 2026-10-07:
+  // 91 echo replays left 178 pending journal rows, because this persist-first write ran before the echo returned).
+  // Gated exactly like the echo itself: DEBUG_ECHO_ENABLED is false in production.
+  const _debugEchoTurn = DEBUG_ECHO_ENABLED && !!authUid && !!context && typeof context === "object"
+    && (context as Record<string, unknown>).debug_echo_memory_block === true;
+  if (SEMANTIC_RECALL_AGENTS.has(agent) && authUid && !_debugEchoTurn) {
     try {
       const langField = context && typeof context === "object"
         ? (context as Record<string, unknown>).lang : null;
@@ -951,8 +1111,9 @@ serveObserved("ai-gateway", async (req) => {
   // ADAPTIVE DEGRADATION (P1 roadmap 2026-05-26 — RL.3): when the cap fires
   // we try to return a *cached* answer for an identical question instead of
   // a 429. Companion UX dies on 429 today; serving a stale-but-real answer
-  // keeps the conversation alive. Cache lookup is keyed by (agent, message)
-  // — same shape used in Router/Grader/Checker caching.
+  // keeps the conversation alive. Cache lookup is keyed by (VERIFIED tenant,
+  // agent, message) - answerTenant above; an answer is never served across hives
+  // or people (2026-10-07). Router caches stay tenant-free: they hold no records.
   // Fallback defaults aligned with supabase/functions/.env (hive 500 / user 500).
   // The local `supabase start` edge runtime is launched WITHOUT --env-file, so
   // Deno.env never sees functions/.env — the gateway therefore fell back to the
@@ -979,7 +1140,12 @@ serveObserved("ai-gateway", async (req) => {
     scope?: "hour" | "day"; retry_after_seconds?: number;
   };
   const rlScope: "hive" | "solo" = verifiedHiveId ? "hive" : "solo";
-  if (verifiedHiveId) {
+  // The LOCAL debug echo calls no model, so it must not spend the person's AI quota (LM-P walk, LM296, 2026-10-07: the
+  // P instrument's own echo calls drained a person's bucket and the echo itself was refused 429). Gated exactly like
+  // the echo below - DEBUG_ECHO_ENABLED is false in production, so production limits are unchanged.
+  if (_debugEchoTurn) {   // defined above, before the persist-first journal write
+    rl = { allowed: true, remaining: -1 };
+  } else if (verifiedHiveId) {
     rl = await checkUserRateLimit(
       adminClient,
       verifiedHiveId,
@@ -997,29 +1163,27 @@ serveObserved("ai-gateway", async (req) => {
       user_cap:       rl.user_cap,
       scope:          rlScope === "solo" ? "solo" : (rl.hive_remaining === 0 ? "hive" : "user"),
     });
-    // Adaptive degrade: try LLM cache for this exact (agent, message) before
-    // returning 429. Only worth it for short messages — long ones rarely
-    // repeat verbatim. Hits the same `ai_cache` table the RAG stages use.
+    // Adaptive degrade: try THIS TENANT's cached answer to this exact (agent,
+    // message) before returning 429. Only worth it for short messages — long ones
+    // rarely repeat verbatim. Hits the same `ai_cache` table the RAG stages use.
     if (message.length <= 200) {
       try {
-        const { cacheLookup } = await import("../_shared/cache.ts");
-        const cacheKey = `gateway:${agent}:${message}`;
-        const hit = await cacheLookup<{ answer: string }>(adminClient, "ai-gateway-adaptive", cacheKey);
-        if (hit.hit && hit.data?.answer) {
+        const cachedAnswer = await answerCacheLookup(adminClient, answerTenant, agent, message);
+        if (cachedAnswer) {
           log.info(ctx, "adaptive_cache_served", { agent });
           recordModelHop(ctx, "ai-cache");
-          return ok(ctx, { answer: hit.data.answer, agent, usage: { latency_ms: Date.now() - t0, served_from: "adaptive_cache" } });
+          return ok(ctx, { answer: cachedAnswer, agent, usage: { latency_ms: Date.now() - t0, served_from: "adaptive_cache" } });
         }
-      } catch { /* fall through to 429 */ }
+      } catch { /* empty-catch-allow: adaptive-cache miss falls through to the 429 */ }
     }
     // Distinguish scope so the frontend can show a clearer message.
-    if (rlScope === "solo") return soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds);
+    if (rlScope === "solo") return await withTrace(soloRateLimitedResponse(corsHeaders, rl.retry_after_seconds, rl.scope), ctx.trace_id);
     // pass the SCOPE (so a daily ceiling stops claiming it resets in an hour) and the computed
     // window, so the refusal can say when rather than "wait a moment"
     if (rl.hive_remaining === 0) {
-      return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+      return await withTrace(rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds), ctx.trace_id);
     }
-    return userRateLimitedResponse(corsHeaders, rl.user_cap ?? RL_USER_OVERRIDE, rl.retry_after_seconds);
+    return await withTrace(userRateLimitedResponse(corsHeaders, rl.user_cap ?? RL_USER_OVERRIDE, rl.retry_after_seconds, rl.scope), ctx.trace_id);
   }
 
   // Q6 (2026-07-05): GLOBAL org-shared LLM-pool guard. Runs AFTER the per-tenant
@@ -1028,21 +1192,23 @@ serveObserved("ai-gateway", async (req) => {
   // budget shared across ALL hives/users. Gateway traffic is interactive → "voice"
   // (never shed at the per-minute burst wall; only the daily circuit-breaker stops
   // it). Fails open internally, so a counter glitch never blocks the gateway.
-  const gb = await checkGlobalAIBudget(adminClient, "voice");
+  // the local debug echo calls no model, so it does not spend the org-shared pool either (LM-P, 2026-10-07)
+  const gb = _debugEchoTurn ? { allowed: true } as Awaited<ReturnType<typeof checkGlobalAIBudget>>
+    : await checkGlobalAIBudget(adminClient, "voice");
   if (!gb.allowed) {
     log.warn(ctx, "global_budget_hit", { scope: gb.scope, day_remaining: gb.day_remaining });
-    // Try the adaptive cache before returning the platform-busy signal.
+    // Try THIS TENANT's adaptive cache before returning the platform-busy signal.
     if (message.length <= 200) {
       try {
-        const { cacheLookup } = await import("../_shared/cache.ts");
-        const hit = await cacheLookup<{ answer: string }>(adminClient, "ai-gateway-adaptive", `gateway:${agent}:${message}`);
-        if (hit.hit && hit.data?.answer) {
+        const cachedAnswer = await answerCacheLookup(adminClient, answerTenant, agent, message);
+        if (cachedAnswer) {
+          log.info(ctx, "adaptive_cache_served", { agent, gate: "global_budget" });
           recordModelHop(ctx, "ai-cache");
-          return ok(ctx, { answer: hit.data.answer, agent, usage: { latency_ms: Date.now() - t0, served_from: "adaptive_cache" } });
+          return ok(ctx, { answer: cachedAnswer, agent, usage: { latency_ms: Date.now() - t0, served_from: "adaptive_cache" } });
         }
       } catch { /* empty-catch-allow: adaptive-cache miss falls through to the platform-busy signal */ }
     }
-    return globalBudgetResponse(corsHeaders, gb.scope ?? "global-minute");
+    return await withTrace(globalBudgetResponse(corsHeaders, gb.scope ?? "global-minute"), ctx.trace_id);
   }
 
   // Q6 chain-depth telemetry sink — passed as callAI's onServed hook. Records the winning
@@ -1065,7 +1231,7 @@ serveObserved("ai-gateway", async (req) => {
       const rq = await checkRouteRateLimit(adminClient, verifiedHiveId, agent);
       if (rq.per_route && !rq.allowed) {
         log.warn(ctx, "route_quota_hit", { agent, cap: rq.cap });
-        return routeRateLimitedResponse(corsHeaders, agent, rq.cap, rq.retry_after_seconds);
+        return await withTrace(routeRateLimitedResponse(corsHeaders, agent, rq.cap, rq.retry_after_seconds, rq.scope), ctx.trace_id);
       }
     } catch { /* never let per-route bookkeeping break the request */ }
   }
@@ -1091,7 +1257,12 @@ serveObserved("ai-gateway", async (req) => {
       );
       const noisyRatio = words.length ? noisyWords.length / words.length : 0;
       if (vowelRatio < 0.30 && noisyRatio >= 0.5) {
-        return jsonResponse(corsHeaders, 200, {
+        // ★THE ONE ANSWER WITH NO TRACE (LM-E, 2026-10-08). This reply is shown and rated like any other - the
+        // companion attaches 👍/👎 to it - yet it left FLAT through jsonResponse: no envelope, no trace_id, no
+        // x-wh-trace, no wh_traces row. A "wrong" on it could only be matched by its words. It answers through ok()
+        // like every other answer now; every client already unwraps .data.answer with a flat fallback.
+        log.info(ctx, "low_quality_transcript", { agent });
+        return ok(ctx, {
           answer: "Sorry, I couldn't make out what you said. Could you try again? Pakiulit po — hindi ko narinig nang malinaw.",
           agent,
           usage: { latency_ms: Date.now() - t0, refused_as: "low_quality_transcript" },
@@ -1116,7 +1287,7 @@ serveObserved("ai-gateway", async (req) => {
   const memorySections: Record<string, boolean> = {
     working: false, semantic: false, episodic: false,
     verified_state: false, procedural: false, followups: false,
-    domain_knowledge: false, ops_snapshot: false,
+    domain_knowledge: false, ops_snapshot: false, own_knowledge: false,
   };
   if (authUid) {
     const handle: MemoryHandle = {
@@ -1173,6 +1344,7 @@ serveObserved("ai-gateway", async (req) => {
       const durable = await recallEpisodic(adminClient, hive_id, worker_name, {
         limit: EPISODIC_RECALL_LIMIT,
         query: message,
+        authUid,   // durable memory is the account's, not the display name's (2026-10-13)
       });
       const durableBlock = formatEpisodicContext(durable);
       if (durableBlock) {
@@ -1286,6 +1458,24 @@ serveObserved("ai-gateway", async (req) => {
       }
     } catch (err) {
       console.warn("[ai-gateway] ops snapshot failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  } else if (authUid && !hive_id && OPS_SNAPSHOT_AGENTS.has(agent)) {
+    // a signed-in person with no hive: their OWN records (LM166), and - on a how-to question, the same trigger the
+    // hive snapshot uses - their OWN past repairs from fault_knowledge, owner = the verified authUid (2026-10-08)
+    try {
+      const soloMsg = typeof message === "string" ? message : "";
+      const [soloRecords, ownKnowledge] = await Promise.all([
+        buildSoloSnapshot(adminClient, authUid, soloMsg),
+        isKnowledgeQuestion(soloMsg) ? buildOwnKnowledgeContext(adminClient, authUid, soloMsg) : Promise.resolve(""),
+      ]);
+      const soloBlock = [soloRecords, ownKnowledge].filter(Boolean).join("\n");
+      if (soloBlock) {
+        memory_block = memory_block ? `${soloBlock}\n\n${memory_block}` : soloBlock;
+        memorySections.ops_snapshot = true;
+      }
+      if (ownKnowledge) memorySections.own_knowledge = true;
+    } catch (err) {
+      console.warn("[ai-gateway] solo snapshot failed (non-fatal):", err instanceof Error ? err.message : err);
     }
   }
 
@@ -1506,14 +1696,34 @@ serveObserved("ai-gateway", async (req) => {
 
   let agentRespText = "";
   let agentStatus = 0;
+  // The forward carries the caller's own bearer, so a specialist cannot tell this gateway from the person by it.
+  // The x-wh-gateway-forward header (an HMAC over exactly this bearer, keyed on the service-role key) is what
+  // proves the call came through here and was already rate-limited above - the `gateway: true` body field is
+  // only a shape hint and must never be trusted for that (any caller can send it; 2026-10-08).
+  const forwardAuth = authHeader || `Bearer ${SERVICE_KEY}`;
+  const forwardTrust = await gatewayForwardHeaders(forwardAuth);
   try {
     const resp = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type":  "application/json",
-        "Authorization": authHeader || `Bearer ${SERVICE_KEY}`,
+        "Authorization": forwardAuth,
+        ...forwardTrust,
+        // ONE id for the whole turn: the specialist's beginRequest() adopts it (it accepts 8-32 hex, which newTraceId
+        // mints), so its log lines and any wh_traces row it records join this gateway's row and the rating that
+        // names it (wh_traces' key is trace_id + route + created_at, so the two hops never collide; LM-E, 2026-10-08).
+        "x-wh-trace":    ctx.trace_id,
+        // the CALLER's address, so a downstream per-identity/IP limiter buckets the person and not this gateway
+        // (every companion question on the platform once shared "ip:<gateway container>", LM120, 2026-10-07)
+        ...(req.headers.get("x-forwarded-for") ? { "x-forwarded-for": req.headers.get("x-forwarded-for") as string } : {}),
+        // ★A WALK'S NO-MODEL SWITCH CROSSES THE HOP (2026-10-12, UFAI edge walk W485). The gateway itself honoured it,
+        // but this forward dropped it, so the specialist made a REAL model call on every walked companion / Asset Brain
+        // turn (measured: "served by google / gemini-2.5-flash-lite (tokens 2240)" beside the gateway's "no model
+        // call"). modelCallsRefused() is true only on the local runtime, so production is unchanged.
+        ...(modelCallsRefused() ? { "x-wh-walk-no-model": "1" } : {}),
       },
-      signal: AbortSignal.timeout(60_000),
+      // 70 s: above the chain's worst realistic cascade, below the browser's 75 s window for a function call (LM109)
+      signal: AbortSignal.timeout(70_000),
       body: JSON.stringify({
         message:    redactedMessage,
         // Transcript-based specialists (voice-logbook-entry, voice-report-intent)
@@ -1540,13 +1750,13 @@ serveObserved("ai-gateway", async (req) => {
     return jsonResponse(corsHeaders, 502, {
       error: "That assistant could not finish. Try again in a moment.",
       agent,
-    });
+    }, ctx.trace_id);
   }
 
   if (agentStatus < 200 || agentStatus >= 300) {
     return jsonResponse(corsHeaders, agentStatus, {
       error: `Agent returned ${agentStatus}: ${agentRespText.slice(0, 300)}`,
-    });
+    }, ctx.trace_id);
   }
 
   // The specialist agent returns a JSON envelope. Extract the user-facing
@@ -1556,13 +1766,21 @@ serveObserved("ai-gateway", async (req) => {
   let parsedEnvelope: Record<string, unknown> | null = null;
   let specialistMemories: StoreInput[] = [];
   let specialistFollowups: RawFollowup[] = [];
+  let specialistNarration: string | null = null;
   try {
     const parsed = JSON.parse(agentRespText) as Record<string, unknown>;
     parsedEnvelope = parsed;
     // `narration` is the conversational surface for narrated-specialist tools
     // (voice-action-router has no `answer`/`summary`/`message`). Adding it LAST
     // in the chain is safe for every other agent — answer/summary/message win.
-    answer = String(parsed.answer ?? parsed.summary ?? parsed.message ?? parsed.narration ?? agentRespText);
+    // ★THE PROJECT AGENT'S ANSWER WAS ITS ONE-LINE NARRATION (eval bench, 2026-10-07, scored 45): project-orchestrator's
+    // narrative returns { hero_finding, executive_summary, lessons_synthesis, narration } and its lessons_draft returns
+    // { lessons_text, narration } - none named answer/summary/message, so this chain fell through to the 1-2 sentence
+    // spoken line and the 2-4 sentence summary (progress %, blocker quote, next item) was dropped. The fuller text is
+    // the answer; the narration is still forwarded, as `narration`. Only project-orchestrator returns these two fields.
+    answer = String(parsed.answer ?? parsed.summary ?? parsed.executive_summary ?? parsed.lessons_text
+      ?? parsed.message ?? parsed.narration ?? agentRespText);
+    if (typeof parsed.narration === "string" && parsed.narration.trim()) specialistNarration = parsed.narration.trim();
     // Specialists (or agentic-rag-loop's Checker, when one is in the path) may
     // return `memories: [{memory_type, content, importance?}]`. The shared
     // persistEpisodic clamps/validates/caps — we just pass them through.
@@ -1583,7 +1801,9 @@ serveObserved("ai-gateway", async (req) => {
   // write from a chat turn, so such a claim is a fabrication BY CONSTRUCTION. Applied on the
   // still-redacted answer (PII placeholders don't intersect the rail's record/verb patterns) and
   // BEFORE persistEpisodic, so a fabricated claim never enters the memory bank either. The
-  // action-executor agents are excluded (their confirmations are true). Idempotent on the
+  // executor (voice-journal: its confirmations are true), the structured parses (logbook-voice /
+  // report-voice: a JSON draft, no prose) and the proposal route (voice-action: railed at its own
+  // egress) are excluded - see ADVISORY_ANSWER_AGENTS. Idempotent on the
   // ai-orchestrator path, which already strips at its own egress.
   if (ADVISORY_ANSWER_AGENTS.has(agent) && answer) {
     const actionGate = stripFalseActionClaims(answer);
@@ -1665,7 +1885,11 @@ serveObserved("ai-gateway", async (req) => {
     const handle: MemoryHandle = {
       hive_id, worker_name, auth_uid: authUid, agent_id: agent,
     };
-    await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
+    // ★A TURN NOBODY ANSWERED IS NOT A MEMORY (2026-10-12, UFAI edge walk W485). When the chain gives no answer (every
+    // model exhausted -> "{}", or an empty reply) the person's question was still saved beside an EMPTY assistant
+    // turn, and the next turn's context then showed the question as asked-and-answered-with-nothing. Only an answered
+    // turn is remembered; the person sees the page's own "didn't send back an answer" sentence either way.
+    if (aiAnswered(hydratedAnswer)) await saveTurn(adminClient, handle, message, hydratedAnswer, metaExtra);
 
     // Summary-collapse (K10 / L01 long-term). Once the live turn buffer crosses
     // SUMMARISE_AT, compress the oldest SUMMARISE_BATCH turns into ONE summary row
@@ -1684,19 +1908,23 @@ serveObserved("ai-gateway", async (req) => {
         // raw email/mobile in the transcript otherwise reaches the summariser model AND gets baked
         // into the durable summary row. Hydration discarded (server-side context, re-redacted on forward).
         const safeTranscript = redactMemoryText(transcript, hiveWorkerNames).redacted;
-        return await callAI(
+        // ★an exhausted chain answers "{}", and summariseIfNeeded keeps any non-empty text as the summary and DELETES
+        // the turns it summarised - so a model outage replaced a worker's conversation with "{}" (2026-10-09).
+        // Anything that is not a real reply comes back empty, which leaves the turns where they are.
+        const _summary = await callAI(
           // 2026-06-14 false-memory-loop fix: the transcript is labelled "User:" / "Assistant:".
           // The OLD prompt ("preserve specifics: numbers...") promoted the ASSISTANT's own
           // volunteered figures into durable "facts" with no speaker attribution — so a
           // fabricated "PM compliance 68%" became a recalled user fact. Only record what the
           // WORKER actually stated, attributed to them; never promote an Assistant figure to fact.
-          `Compress this earlier conversation excerpt into 2-3 sentences of durable context. ONLY record facts, values, and decisions stated by the WORKER (lines marked "User:"), and attribute them to the worker (e.g. "the worker said the flange torque was 85 Nm"). Do NOT record any number, KPI, percentage, reading, or claim that only the Assistant volunteered — those are suggestions, not verified facts, and must never become memory. Capture the worker's stated values, their decisions, and open questions only. Plain prose, no preamble.\n\n${safeTranscript}`,
+          `Compress this earlier conversation excerpt into 2-3 sentences of durable context. ONLY record facts, values, and decisions stated by the WORKER (lines marked "User:"), and attribute them to the worker (e.g. "the worker said the <reading> was <value> <unit>"). Do NOT record any number, KPI, percentage, reading, or claim that only the Assistant volunteered — those are suggestions, not verified facts, and must never become memory. Capture the worker's stated values, their decisions, and open questions only. Plain prose, no preamble.\n\n${safeTranscript}`,
           {
             systemPrompt: "You compress chat history into a tight, factual summary. You ONLY preserve what the WORKER stated (the numbers, asset tags, and commitments THEY gave) plus decisions and open items, and you attribute facts to the worker. You NEVER promote an Assistant-suggested figure, KPI, or reading into a stated fact.",
             maxTokens: 220, temperature: 0.3, jsonMode: false, sessionKey: session_key,
             onServed: onServedDepth,
           },
         );
+        return aiAnswered(_summary) ? _summary : "";
       });
       if (collapsed) log.info(ctx, "memory_summarised", { collapsed: collapsed.collapsed });
     } catch (err) {
@@ -1709,7 +1937,7 @@ serveObserved("ai-gateway", async (req) => {
     // call on this path), so an empty/absent `memories` field is a no-op.
     if (EPISODIC_MEMORY_AGENTS.has(agent) && specialistMemories.length) {
       try {
-        const res = await persistEpisodic(adminClient, hive_id, worker_name, specialistMemories);
+        const res = await persistEpisodic(adminClient, hive_id, worker_name, specialistMemories, authUid);
         log.info(ctx, "episodic_persist", { written: res.written, evicted: res.evicted });
       } catch (err) {
         console.warn("[ai-gateway] episodic persist failed (non-fatal):", err instanceof Error ? err.message : err);
@@ -1769,40 +1997,24 @@ serveObserved("ai-gateway", async (req) => {
     latency_ms: Date.now() - t0,
   });
 
-  // Per-turn cost log (P25). The gateway is the single front door, so it logs cost
-  // CENTRALLY for forwarded specialists — asset-brain-query / ai-orchestrator /
-  // shift-planner-orchestrator all IMPORT logAICost but never CALL it (dangling
-  // import), so every gateway-forwarded turn was cost-blind (W2 db-effect finding
-  // 2026-06-12). voice-journal-agent self-logs its own row, so skip it here to
-  // avoid double-counting. Tokens estimated (the gateway never sees provider usage);
-  // best-effort — logAICost swallows its own errors and never blocks the response.
-  if (agent !== "voice-journal") {
-    await logAICost(adminClient, {
-      fn:            route.fn,
-      hive_id,
-      worker_name,
-      model:         `gateway:${route.fn}`,
-      prompt_tokens: estimateTokens(message),
-      output_tokens: estimateTokens(hydratedAnswer),
-      latency_ms:    Date.now() - t0,
-      status:        "success",
-    });
-  }
+  // ★NO PER-TURN COST ROW HERE ANY MORE (LM-O, 2026-10-08). This wrote one `gateway:<fn>` row per forwarded turn
+  // (P25) because the specialists recorded nothing. Every model call is now recorded ONCE where it is made: the
+  // specialist's serveObserved scope writes one ai_cost_log row per served call, with the provider and model that
+  // really answered, the provider's token count and THIS turn's trace id (the forward's x-wh-trace, which the
+  // specialist adopts). Keeping this row would count every forwarded call twice, under a model name ("gateway:...")
+  // that never answered anything. The gateway's own model calls (fault probe, summary distill, persona polish) are
+  // recorded by its own scope the same way.
 
   // Populate adaptive cache for short (re-likely) messages so future 429s
   // can degrade instead of fail. 1h TTL — companion content changes fast
   // enough that we don't want stale answers more than an hour old.
   // canonical-allow: ai_cache is an infrastructure table (see _shared/cache.ts).
+  // Filed under answerTenant (the proven hive + verified auth uid), the SAME key the two fallback reads use - the old
+  // write hashed the raw message while the reads hashed the whitespace-normalised one, so a spaced message never hit.
   if (message.length <= 200 && hydratedAnswer && hydratedAnswer.length >= 8) {
     try {
-      const { cacheStore } = await import("../_shared/cache.ts");
-      const adaptiveKey = await (async () => {
-        const data = new TextEncoder().encode(`ai-gateway-adaptive:gateway:${agent}:${message}`);
-        const buf  = await crypto.subtle.digest("SHA-256", data);
-        return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
-      })();
-      await cacheStore(adminClient, adaptiveKey, "ai-gateway-adaptive", { answer: hydratedAnswer }, { ttlSeconds: 3600 });
-    } catch { /* non-fatal */ }
+      await answerCacheStore(adminClient, answerTenant, agent, message, hydratedAnswer, 3600);
+    } catch { /* empty-catch-allow: the adaptive cache is best-effort; the answer is already in hand */ }
   }
 
   // Envelope-conformant success response (P1 roadmap 2026-05-26).
@@ -1820,6 +2032,11 @@ serveObserved("ai-gateway", async (req) => {
     // (voice-journal-agent returns { answer, lang, persona }) so a client/harness can assert WHICH
     // persona answered (hezekiah|zaniah) without prose-grepping "Naks"/"Hala". Additive; ignored by callers that don't read it.
     ...(typeof parsedEnvelope?.persona === "string" ? { persona: parsedEnvelope.persona } : {}),
+    // The specialist's short spoken line, kept as what it is when the answer is the fuller text (the project narrative
+    // returns both; see the answer chain above). Hydrated like the answer. Additive.
+    ...(specialistNarration && !routeResult
+      ? (() => { const n = hydratePII(specialistNarration, hydrationMap); return n !== hydratedAnswer ? { narration: n } : {}; })()
+      : {}),
     usage:     { latency_ms: Date.now() - t0 },
   });
 });
@@ -1828,20 +2045,50 @@ function jsonResponse(
   corsHeaders: Record<string, string>,
   status: number,
   body: unknown,
+  traceId?: string,
 ): Response {
   // The error-contract validator requires the literal `JSON.stringify({ error: ... })`
   // shape somewhere in source. We honour the canonical shape here on the
   // failure branch so the orchestrator's contract check matches even when
   // success paths use richer envelopes.
+  // ★A REFUSAL CARRIED NO TRACE (LM-E, 2026-10-08). Every answer leaves through ok(), whose envelope carries trace_id
+  // and an x-wh-trace header; the refusals built here carried neither, and this branch also dropped every key but
+  // `error` - so the tenancy refusal's own `code` (which voice-handler reads to tell membership_unverified from a
+  // kept note) and `trace_id` never left the server. A refusal made after beginRequest() passes the request's trace
+  // id and gets both; a string `code` the caller named survives. Nothing else is added: the body stays an error.
+  const traceHeaders: Record<string, string> = traceId ? { "x-wh-trace": traceId } : {};
   if (status >= 400 && body && typeof body === "object" && "error" in (body as Record<string, unknown>)) {
-    const errorBody = body as { error: string };
-    return new Response(JSON.stringify({ error: String(errorBody.error) }), {
+    const errorBody = body as { error: string; code?: unknown };
+    const extra = {
+      ...(typeof errorBody.code === "string" ? { code: errorBody.code } : {}),
+      ...(traceId ? { trace_id: traceId } : {}),
+    };
+    return new Response(JSON.stringify({ error: String(errorBody.error), ...extra }), {
       status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json", ...traceHeaders },
     });
   }
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json", ...traceHeaders },
   });
+}
+
+// A refusal built by a shared helper (_shared/rate-limit.ts: the per-user, per-hive, solo, per-route and org-budget
+// 429s) is a Response this file does not author, so the request's trace id is added here: in the body beside the
+// helper's own keys, and as the x-wh-trace header ok() sets. Status and every header (Retry-After) are kept; a body
+// that is not a JSON object is returned untouched rather than guessed at (LM-E, 2026-10-08).
+async function withTrace(resp: Response, traceId: string): Promise<Response> {
+  try {
+    const body = await resp.clone().json();
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      // every header the helper set (Retry-After, CORS) is kept; the body is re-serialised JSON, so it says so
+      return new Response(JSON.stringify({ ...(body as Record<string, unknown>), trace_id: traceId }), {
+        status: resp.status,
+        headers: { ...Object.fromEntries([...resp.headers].filter(([k]) => !/^content-(length|type)$/i.test(k))),
+                   "x-wh-trace": traceId, "Content-Type": "application/json" },
+      });
+    }
+  } catch { /* empty-catch-allow: a non-JSON refusal keeps its own body */ }
+  return resp;
 }

@@ -1,8 +1,8 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -12,6 +12,8 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // voice-journal scope instead of trusting the client body auth_uid.
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-limit.ts";
+// LM-O (2026-10-08): this function calls an embedding provider itself, so it reports the call itself
+import { reportModelCall, reportModelCallFailed } from "../_shared/model-calls.ts";
 
 // contract-allow: RAG retrieval fn, not a brain output producer
 
@@ -44,7 +46,7 @@ import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-lim
  *   sends the signed-in user's access token. See FULLSTACK_SAAS_GATEWAY_ROADMAP.md §6e.
  */
 
-serveObserved("voice-semantic-rag", async (req) => {
+serveObserved("voice-semantic-rag", tracedReply("voice-semantic-rag", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-semantic-rag", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -52,7 +54,7 @@ serveObserved("voice-semantic-rag", async (req) => {
   if (_health) return _health;
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
-  logRequestStart(req, "voice-semantic-rag");  // I6 observability
+  log.info(_trace, "request_start", { method: req.method });  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
   if (req.method !== "POST") {
     return new Response("That action is not allowed here. Reload the page and try again.", { status: 405 });
   }
@@ -106,7 +108,7 @@ serveObserved("voice-semantic-rag", async (req) => {
     // LLM10 unbounded-consumption: per-user rate-limit (personal voice search; embed + RPC are not free).
     // Identity-keyed (no hive context); the verified auth_uid is the bucket.
     const _rl = await checkUserRateLimit(db, "", auth_uid);
-    if (!_rl.allowed) return userRateLimitedResponse(corsHeaders, _rl.user_cap, _rl.retry_after_seconds);
+    if (!_rl.allowed) return userRateLimitedResponse(corsHeaders, _rl.user_cap, _rl.retry_after_seconds, _rl.scope);
 
     // Phase 1.5: Try semantic search via pgvector if embeddings are available
     let results: any[] = [];
@@ -188,7 +190,7 @@ serveObserved("voice-semantic-rag", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-semantic-rag", "voice_semantic_rag_error", err);
   }
-});
+}));
 
 // Helper: Get embedding for query text (Phase 1.5)
 // When Jina API is configured, this calls out to generate embeddings.
@@ -200,6 +202,8 @@ async function _getEmbedding(text: string): Promise<number[] | null> {
     return null;
   }
 
+  const _t0 = performance.now();   // LM-O: the record's latency
+  const _model = "jina-embeddings-v2-base-en";
   try {
     const resp = await fetch("https://api.jina.ai/v1/embeddings", {
       method: "POST",
@@ -216,16 +220,22 @@ async function _getEmbedding(text: string): Promise<number[] | null> {
 
     if (resp.status !== 200) {
       log.warn(null, "Jina API failed:", { detail: resp.status });
+      reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: _model,
+        tried: [`jina/${_model}=${resp.status}`], started_at: _t0 });
       return null;
     }
 
     const data = await resp.json();
+    reportModelCall({ kind: "embedding", providerName: "jina", modelName: _model, usage: data?.usage ?? null,
+      input: text, started_at: _t0, tried: [`jina/${_model}=200`] });
     const embeddings = data.data || [];
     if (embeddings.length > 0) {
       return embeddings[0].embedding || null;
     }
   } catch (err) {
     log.warn(null, "Embedding fetch failed:", { detail: err });
+    reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: _model,
+      tried: [`jina/${_model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`], started_at: _t0 });
   }
 
   return null;

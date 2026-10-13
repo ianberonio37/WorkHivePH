@@ -1,17 +1,25 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
+import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for
+import { mentionedAssetCodes, normCode } from "../_shared/asset-codes.ts";
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: router; forwards to sub-agents
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY,
+} from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
+import { GATEWAY_FORWARD_HEADER } from "../_shared/gateway-trust.ts";
 // CL10 faithfulness rails (2026-07-08): numeric token-accuracy + action-fabrication strip.
 import { extractNumberCores } from "../_shared/numeric_provenance.ts";
 import { stripFalseActionClaims, ACTION_HONEST_CLARIFIER } from "../_shared/action_provenance.ts";
@@ -30,10 +38,36 @@ void _whWarmClient;
 // worker_name redaction in this fn happens inline via "<redacted>"
 // substitution at summary build time (per-line scan beats whole-object
 // walk for the streamed-summary shape).
-import { redactPII as _redactPII } from "../_shared/redactPII.ts";  // eslint-disable-line
+import { redactPII as _redactPII, redactPIIWithMap, redactKnownNames } from "../_shared/redactPII.ts";  // eslint-disable-line
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
+}
+
+// ★ONE MODEL CALL PER QUESTION (UFAI §LM.11, decided 2026-10-08). A Work Assistant answer used to cost a router call,
+// one call per specialist (2-4 of seven) and a synthesis call - about 5 calls and 11.7K tokens - and every specialist
+// call only RESTATED data this function had already read: counts, sums, dates, a sort. Models are worst at exactly
+// that (the platform's own grounding notes record invented MTBFs and swapped rankings). The specialists now compute
+// the JSON their prompts described - same fields, so synthesis reads what it always read - and the router picks
+// them from the question's own words. The synthesis (or the coach synthesis) is the one model call left: the part
+// that needs language. The *_SYSTEM constants stay below each agent as the contract its output keeps.
+const _dayDiff = (a: string, b: string) => Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
+const _round1 = (n: number) => Math.round(n * 10) / 10;
+
+function routeQuestion(question: string): string[] {
+  const q = (question || "").toLowerCase();
+  const rules: [string, RegExp][] = [
+    ["failure_analysis",     /fail|breakdown|break down|repeat|risk|worst|problem|downtime|root cause|trouble|issue/],
+    ["predictive",           /predict|next failure|when will|forecast|likely to fail|mtbf|remaining life/],
+    ["pm_status",            /\bpms?\b|preventive|overdue|\bdue\b|schedul|compliance|inspection/],
+    ["inventory_risk",       /\bparts?\b|stock|inventory|spare|reorder|bearing|filter|belt|\bseal|order more/],
+    ["knowledge_extraction", /lesson|\btips?\b|\bsops?\b|knowledge|how (do|to|should)|procedure|learn|best practice/],
+    ["workforce_match",      /\bwho\b|assign|technician|worker|crew|skill|available|staff|\bteam\b|people/],
+    ["shift_handover",       /\bshift|handover|hand over|today|last 24|tonight|this morning|open jobs?|pending/],
+  ];
+  const picked = rules.filter(([, re]) => re.test(q)).map(([name]) => name);
+  // nothing named: the hive's health in two reads, the same pair the old router fell back towards
+  return (picked.length ? picked : ["failure_analysis", "pm_status"]).slice(0, 4);
 }
 
 // ── AGENT 1: Failure Analysis ─────────────────────────────────────────────────
@@ -58,12 +92,31 @@ async function failureAnalysisAgent(db: SupabaseClient, hiveId: string | null, w
   const { data } = await query;
   if (!data?.length) return { agent: "failure_analysis", result: null };
 
-  const summary = data.map(e =>
-    `${e.machine}|${e.category}|${e.root_cause || "unknown"}|${e.downtime_hours || 0}h|${e.created_at?.slice(0, 10)}`
-  ).join("\n");
-
-  const raw = await callGroq(`Logbook records (machine|category|root_cause|downtime|date):\n${summary}`, FAILURE_SYSTEM);
-  return { agent: "failure_analysis", result: JSON.parse(raw) };
+  // computed, not asked (§LM.11): the FAILURE_SYSTEM fields from the rows themselves
+  type FRow = { machine?: string | null; root_cause?: string | null; downtime_hours?: number | null; created_at?: string | null };
+  const rows = data as FRow[];
+  const byMachine = new Map<string, { n: number; h: number; dates: string[] }>();
+  const byPattern = new Map<string, number>();
+  for (const e of rows) {
+    const m = (e.machine || "").trim();
+    if (!m) continue;
+    const cur = byMachine.get(m) || { n: 0, h: 0, dates: [] };
+    cur.n++; cur.h += Number(e.downtime_hours) || 0;
+    if (e.created_at) cur.dates.push(e.created_at.slice(0, 10));
+    byMachine.set(m, cur);
+    const rc = (e.root_cause || "").trim();
+    if (rc && !/^unknown$/i.test(rc)) byPattern.set(m + "\u0000" + rc, (byPattern.get(m + "\u0000" + rc) || 0) + 1);
+  }
+  const risks = [...byMachine.entries()].sort((a, b) => b[1].n - a[1].n || b[1].h - a[1].h).slice(0, 3)
+    .map(([machine, v]) => ({ machine, failure_count: v.n, total_downtime_h: _round1(v.h),
+      reason: `${v.n} corrective failure${v.n === 1 ? "" : "s"} and ${_round1(v.h)} h of downtime in the latest ${rows.length} corrective records` }));
+  const patterns = [...byPattern.entries()].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([k, n]) => { const [machine, root_cause] = k.split("\u0000"); return { machine, root_cause, occurrences: n }; });
+  const mtbf_alerts = [...byMachine.entries()].filter(([, v]) => v.dates.length >= 2).map(([machine, v]) => {
+    const ds = [...v.dates].sort();
+    return { machine, avg_days_between_failures: _round1(_dayDiff(ds[0], ds[ds.length - 1]) / (ds.length - 1)) };
+  }).filter((x) => x.avg_days_between_failures < 14).sort((a, b) => a.avg_days_between_failures - b.avg_days_between_failures).slice(0, 5);
+  return { agent: "failure_analysis", result: { risks, patterns, mtbf_alerts } };
 }
 
 // ── AGENT 2: PM Status ────────────────────────────────────────────────────────
@@ -144,8 +197,16 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
 - Never had a PM (${neverDone.length}): ${neverDone.map(a => a.name).join(", ") || "none"}
 - PM health score: ${health}/100`;
 
-  const raw = await callGroq(`${facts}\n\nPer-asset (name|category|last_pm|status):\n${perAsset}`, PM_SYSTEM);
-  return { agent: "pm_status", result: JSON.parse(raw) };
+  void facts; void perAsset;   // the PM_SYSTEM fields below ARE these facts - nothing left for a model to add
+  const overdue = overdueAssets.map((a) => ({
+    asset_name: a.name,
+    days_since_last_pm: a.lastPm ? Math.floor((now - new Date(a.lastPm).getTime()) / 86400000) : null,
+    risk_level: Math.abs(a.worstDays) > 30 ? "HIGH" : "MEDIUM",
+  }));
+  return { agent: "pm_status", result: {
+    overdue, never_done: neverDone.map((a) => a.name), health_score: health,
+    summary: `${overdueAssets.length} of ${assets.length} asset${assets.length === 1 ? "" : "s"} overdue for PM (frequency-aware); PM health ${health}/100.`,
+  } };
 }
 
 // ── AGENT 3: Inventory Risk ───────────────────────────────────────────────────
@@ -171,12 +232,15 @@ async function inventoryRiskAgent(db: SupabaseClient, hiveId: string | null, wor
   const { data } = await query;
   if (!data?.length) return { agent: "inventory_risk", result: null };
 
-  const summary = data.map(i =>
-    `${i.part_name}|qty:${i.qty_on_hand}|reorder_at:${i.reorder_point ?? "not set"}`
-  ).join("\n");
-
-  const raw = await callGroq(`Parts inventory (name|qty|reorder_point):\n${summary}`, INVENTORY_SYSTEM);
-  return { agent: "inventory_risk", result: JSON.parse(raw) };
+  type Inv = { part_name?: string | null; qty_on_hand?: number | null; reorder_point?: number | null };
+  const inv = data as Inv[];
+  const out_of_stock = inv.filter((i) => Number(i.qty_on_hand) === 0).map((i) => i.part_name || "?");
+  const low_stock = inv.filter((i) => i.reorder_point != null && Number(i.qty_on_hand) > 0 && Number(i.qty_on_hand) <= Number(i.reorder_point))
+    .map((i) => ({ part_name: i.part_name || "?", qty_on_hand: Number(i.qty_on_hand), reorder_point: Number(i.reorder_point) }));
+  return { agent: "inventory_risk", result: {
+    out_of_stock, low_stock: low_stock.slice(0, 20),
+    risk_summary: `${out_of_stock.length} part${out_of_stock.length === 1 ? "" : "s"} out of stock, ${low_stock.length} at or below the reorder point.`,
+  } };
 }
 
 // ── AGENT 4: Knowledge Extraction ────────────────────────────────────────────
@@ -200,13 +264,22 @@ async function knowledgeExtractionAgent(db: SupabaseClient, hiveId: string | nul
   const { data } = await query;
   if (!data?.length) return { agent: "knowledge_extraction", result: null };
 
-  const summary = data
-    .filter(e => e.knowledge?.trim())
-    .map(e => `${e.machine}|${e.category}|${e.knowledge}`)
-    .join("\n");
-
-  const raw = await callGroq(`Knowledge notes (machine|category|lesson):\n${summary}`, KNOWLEDGE_SYSTEM);
-  return { agent: "knowledge_extraction", result: JSON.parse(raw) };
+  // grouped by machine, the technicians' own words kept verbatim; the one synthesis call does the wording. Which machines
+  // have NO lessons needs the whole asset list, which this read does not hold, so missing_knowledge stays empty rather
+  // than guessed.
+  const byTopic = new Map<string, { n: number; tips: string[] }>();
+  for (const e of data as { machine?: string | null; category?: string | null; knowledge?: string | null }[]) {
+    const tip = (e.knowledge || "").trim();
+    if (!tip) continue;
+    const topic = (e.machine || e.category || "general").trim();
+    const cur = byTopic.get(topic) || { n: 0, tips: [] };
+    cur.n++;
+    if (cur.tips.length < 3) cur.tips.push(tip.slice(0, 240));
+    byTopic.set(topic, cur);
+  }
+  const clusters = [...byTopic.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 6)
+    .map(([topic, v]) => ({ topic, tips: v.tips, sop_candidate: v.n >= 2 }));
+  return { agent: "knowledge_extraction", result: { clusters, missing_knowledge: [], top_insight: clusters[0]?.tips[0] || "" } };
 }
 
 // ── AGENT 5: Workforce Match ──────────────────────────────────────────────────
@@ -251,15 +324,30 @@ async function workforceMatchAgent(db: SupabaseClient, hiveId: string | null, wo
     return { ...s, capacity_signal: c.capacity_signal || "unknown", open_jobs: c.open_jobs || 0 };
   });
 
-  const summary = enriched
-    .map((b: any) => `${b.worker_name}|${b.discipline}|L${b.current_level}|cap:${b.capacity_signal}|open:${b.open_jobs}`)
-    .join("\n");
-
-  const raw = await callGroq(
-    `Question: ${question}\n\nTechnician skills (worker|discipline|level):\n${summary}`,
-    WORKFORCE_SYSTEM
-  );
-  return { agent: "workforce_match", result: JSON.parse(raw) };
+  // the WORKFORCE_SYSTEM rule, applied: disciplines the question names, free/available before overloaded, then level
+  const q = (question || "").toLowerCase();
+  const DISCIPLINES = ["mechanical", "electrical", "instrumentation", "hvac", "civil", "plumbing", "automation", "welding", "lubrication", "safety"];
+  const asked = DISCIPLINES.filter((d) => q.includes(d));
+  const capRank: Record<string, number> = { free: 0, idle: 0, available: 1, unknown: 2, overloaded: 3 };
+  const pool = enriched.filter((b: any) => !asked.length || asked.some((d) => String(b.discipline || "").toLowerCase().includes(d)));
+  // one row per (worker, discipline) in the skills view, so the top three were once the same free person three times;
+  // the best PEOPLE are listed, each once, with their strongest matching discipline
+  const _seenWorker = new Set<string>();
+  const best_match = [...pool]
+    .sort((a: any, b: any) => (capRank[a.capacity_signal] ?? 2) - (capRank[b.capacity_signal] ?? 2) || (Number(b.current_level) || 0) - (Number(a.current_level) || 0))
+    .filter((b: any) => { const k = String(b.worker_name || ""); if (!k || _seenWorker.has(k)) return false; _seenWorker.add(k); return true; })
+    .slice(0, 3)
+    .map((b: any) => ({ worker_name: b.worker_name, discipline: b.discipline, current_level: b.current_level, capacity_signal: b.capacity_signal,
+      reason: `level ${b.current_level} ${b.discipline}, ${b.capacity_signal}${b.open_jobs ? `, ${b.open_jobs} open job${b.open_jobs === 1 ? "" : "s"}` : ""}` }));
+  const skill_gaps = asked.filter((d) => !enriched.some((b: any) => String(b.discipline || "").toLowerCase().includes(d)));
+  return { agent: "workforce_match", result: {
+    best_match, skill_gaps,
+    // no NAME in this sentence: redaction replaces names by their KEY (worker_name -> <worker_1>), so a name written
+    // into free text would reach the provider; the synthesis names the person from best_match[0].worker_name
+    recommendation: best_match[0]
+      ? `Assign the first best match (${best_match[0].discipline}, level ${best_match[0].current_level}, ${best_match[0].capacity_signal}).`
+      : "No technician on the roster matches the discipline asked about.",
+  } };
 }
 
 // ── AGENT 6: Shift Handover ───────────────────────────────────────────────────
@@ -290,12 +378,20 @@ async function shiftHandoverAgent(db: SupabaseClient, hiveId: string | null, wor
   // Closes PRODUCTION_FIXES #44 for this fn. The model still sees the
   // structural shape ("by <redacted>") so attribution-style prompts
   // function; the real names hydrate at the UI layer if needed.
-  const summary = data.map(e =>
-    `${e.machine}|${e.category}|${e.status}|${e.problem || ""}|${e.action || ""}|by <redacted>`
-  ).join("\n");
-
-  const raw = await callGroq(`Last 24h records (machine|category|status|problem|action|worker):\n${summary}`, HANDOVER_SYSTEM);
-  return { agent: "shift_handover", result: JSON.parse(raw) };
+  type HRow = { machine?: string | null; category?: string | null; problem?: string | null; action?: string | null; status?: string | null };
+  const recs = data as HRow[];
+  const URGENT = /leak|fire|smoke|trip|injur|shock|overheat|burn|explos|safety/i;
+  const open_jobs = recs.filter((e) => !/^closed$/i.test(String(e.status || ""))).slice(0, 15).map((e) => ({
+    machine: e.machine || "?", problem: (e.problem || "").slice(0, 160),
+    priority: URGENT.test(`${e.problem || ""} ${e.category || ""}`) ? "HIGH" : /breakdown|corrective/i.test(String(e.category || "")) ? "MEDIUM" : "LOW",
+  }));
+  const completed = recs.filter((e) => /^closed$/i.test(String(e.status || ""))).slice(0, 15)
+    .map((e) => ({ machine: e.machine || "?", action: (e.action || "").slice(0, 160) }));
+  const critical_alerts = open_jobs.filter((j) => j.priority === "HIGH").map((j) => `${j.machine}: ${j.problem}`);
+  return { agent: "shift_handover", result: {
+    open_jobs, completed, critical_alerts,
+    handover_note: `In the last 24 h: ${open_jobs.length} open job${open_jobs.length === 1 ? "" : "s"}, ${completed.length} completed, ${critical_alerts.length} to look at first.`,
+  } };
 }
 
 // ── AGENT 7: Predictive ───────────────────────────────────────────────────────
@@ -321,14 +417,27 @@ async function predictiveAgent(db: SupabaseClient, hiveId: string | null, worker
   const { data } = await query;
   if (!data?.length) return { agent: "predictive", result: null };
 
-  const summary = data.map(e => `${e.machine}|${e.created_at?.slice(0, 10)}`).join("\n");
   const today = new Date().toISOString().slice(0, 10);
-
-  const raw = await callGroq(
-    `Today: ${today}\nFailure history (machine|date):\n${summary}`,
-    PREDICTIVE_SYSTEM
-  );
-  return { agent: "predictive", result: JSON.parse(raw) };
+  const byM = new Map<string, string[]>();
+  for (const e of data as { machine?: string | null; created_at?: string | null }[]) {
+    const m = (e.machine || "").trim();
+    if (!m || !e.created_at) continue;
+    const arr = byM.get(m) || [];
+    arr.push(e.created_at.slice(0, 10));
+    byM.set(m, arr);
+  }
+  const RANK: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+  const predictions = [...byM.entries()].filter(([, ds]) => ds.length >= 2).map(([machine, ds]) => {
+    const sorted = [...ds].sort();
+    const mtbf = _dayDiff(sorted[0], sorted[sorted.length - 1]) / (sorted.length - 1);
+    const last = sorted[sorted.length - 1];
+    const next = new Date(new Date(last).getTime() + mtbf * 86400000).toISOString().slice(0, 10);
+    const until = _dayDiff(today, next);
+    return { machine, mtbf_days: _round1(mtbf), last_failure: last, predicted_next: next, risk: until < 0 ? "HIGH" : until <= 7 ? "MEDIUM" : "LOW" };
+  // 25, not 10: a question names ONE machine ("when will the boiler fail next?"), and the synthesis can only answer about
+  // a machine it was handed - one short row per machine is cheaper than an answer that cannot find the asset asked about
+  }).sort((a, b) => RANK[a.risk] - RANK[b.risk] || a.predicted_next.localeCompare(b.predicted_next)).slice(0, 25);
+  return { agent: "predictive", result: { predictions } };
 }
 
 // ── ORCHESTRATOR: decides which agents to run, synthesizes answer ─────────────
@@ -353,6 +462,9 @@ Include only the agents relevant to the question. Use at least 1 and at most 4 a
 // model was actually handed. The definitions are listed because these terms have platform meanings
 // that differ from the model's priors, and a term used on its own terms is a wrong answer wearing
 // the right word. Kept short deliberately: this prompt is paid for on every single call.
+// the header ai-gateway puts on a hive-less person's own records (buildSoloSnapshot, LM166/LM170)
+const SOLO_RECORDS_HEAD = "=== YOUR OWN RECORDS";
+
 const SYNTH_SYSTEM = `You are a senior maintenance manager AI. Given agent results, write a clear, practical answer to the user's question.
 Be specific: name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
 Rules: every asset code you name MUST appear VERBATIM in the agent data above - copy it exactly, and NEVER invent, guess or generalize one.
@@ -459,7 +571,7 @@ function stripFalseKpiProvenance(answer: string, grounding: string): string {
   return answer;
 }
 
-async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat", memoryBlock = "") {
+async function orchestrate(question: string, hiveId: string | null, workerName: string | null, db: SupabaseClient, mode = "chat", memoryBlock = "", searchHeaders: Record<string, string> | null = null) {
 
   // Family R: an out-of-scope ACTION request gets an honest capability disclaimer + the real
   // alternative — never a "not enough data" deflection and never a faked action. (chat mode only;
@@ -473,13 +585,9 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   if (mode === "coach") {
     agentsToRun = [...COACH_AGENTS];
   } else {
-    // Step 1: Route: decide which agents to call
-    const routeRaw = await callGroq(`Question: "${question}"`, ROUTE_SYSTEM);
-    try {
-      agentsToRun = JSON.parse(routeRaw).agents || ["failure_analysis"];
-    } catch {
-      agentsToRun = ["failure_analysis"];
-    }
+    // Step 1: Route - from the question's own words (§LM.11: the routing call is gone; ROUTE_SYSTEM's 1-4 rule kept)
+    agentsToRun = routeQuestion(question);
+    void ROUTE_SYSTEM;
   }
 
   // Step 2: Run selected agents in parallel
@@ -501,6 +609,19 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     .filter(r => r.status === "fulfilled" && r.value?.result)
     .map(r => (r as PromiseFulfilledResult<Record<string, unknown>>).value);
 
+  // ★A ONE-PERSON OPERATOR'S OWN RECORDS ARE THE AGENT DATA (LM-G walk, LM170, 2026-10-07). Jun Salvador owns his van
+  // and has no hive. Every specialist above reads by hive_id, so all of them returned nothing and the branch below
+  // deflected ("none of my sources returned anything") - for his own brake-pad work, which his logbook holds, and for
+  // ZQX 9471, a code that is not his. The gateway had already forwarded his own newest records, read on his VERIFIED
+  // id ("=== YOUR OWN RECORDS"), but only as conversation memory. For a hive-less person that block is the record
+  // the answer must rest on, so it is handed to synthesis as agent data, where the verbatim-code rule applies to it.
+  if (!hiveId && memoryBlock && memoryBlock.includes(SOLO_RECORDS_HEAD)) {
+    const at = memoryBlock.indexOf(SOLO_RECORDS_HEAD);
+    const end = memoryBlock.indexOf("\n\n", at);
+    const solo = memoryBlock.slice(at, end === -1 ? undefined : end).trim();
+    if (solo) successfulResults.push({ agent: "your_own_records", result: solo });
+  }
+
   if (!successfulResults.length) {
     // CL5 fix (2026-07-08): a "what did I just tell you?" / reference-recall question makes the router
     // pick a specialist that returns no HIVE data — but the answer lives in the CONVERSATION memory the
@@ -510,7 +631,18 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     // FALL THROUGH to the memory-grounded synthesis below (resultsText is empty, memoryPrefix carries the
     // prior turns) so the assistant answers conversationally from the working buffer.
     const hasMemory = !!(memoryBlock && memoryBlock.trim());
-    if (!(hasMemory && RECALL_RE.test(question || ""))) {
+    // ★AND WHEN THE GATEWAY ALREADY SENT THE ANSWER'S RECORDS, USE THEM (LM-G walk, LM113, 2026-10-07). The same
+    // question about M-001 got a grounded answer on one walk ("Vibration trending check (20 days ago) ...", from the
+    // gateway's asset-history block) and this deflection on the next: the specialist router is a model call, and when
+    // it picked specialists that returned nothing, this branch deflected although the forwarded memory carried that
+    // asset's own logbook history. A history block for an asset the question names is grounding, not chatter.
+    // read the machines the gateway actually sent history for, and ask whether the question names one - NOT the code
+    // detector, whose two-letter floor (so "M12" bolts are not assets) misses one-letter tags like M-001 (LM130)
+    const historyTags = hasMemory
+      ? [...memoryBlock.matchAll(/Logbook history for (.+?) \(from v_logbook_truth/g)].map((m) => m[1])
+      : [];
+    const memoryHasAskedAssetHistory = historyTags.some((t) => normCode(question).includes(normCode(t)));
+    if (!(hasMemory && (RECALL_RE.test(question || "") || memoryHasAskedAssetHistory))) {
       // ★THE DEFLECTION MUST NOT DIAGNOSE A CAUSE IT NEVER CHECKED (live-caught 2026-08-19). This is
       // the THIRD time this one fallback has misattributed its own boundary: Family R found it
       // blaming DATA for a CAPABILITY limit ("order 5 parts"), CL5 found it blaming DATA for a
@@ -524,6 +656,30 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
       // onboarding advice survives only as a CONDITIONAL, which is true for a new hive and harmless
       // for a full one, and the reply now routes the person to the surfaces that do hold the answer
       // instead of leaving them to add data that was never missing.
+      // ★A CODE THAT IS NOT AN ASSET OF THIS HIVE IS ANSWERED AS SUCH (LM-G walk, LM113, 2026-10-07). Asked "What
+      // maintenance has been done on ZQX 9471 recently?" - a code registered nowhere - the assistant answered with the
+      // retrieval excuse below ("I couldn't pull that from your hive just now"), which invites a retry for a machine
+      // that does not exist. Whether the code is one of this hive's assets is a single query, so it is answered here,
+      // in code, before the excuse. Only when EVERY named code is unregistered: a question that names a real asset
+      // keeps the honest retrieval wording.
+      const askedCodes = hiveId ? mentionedAssetCodes(question) : [];
+      if (askedCodes.length) {
+        // canonical-allow: every status counts as registered - v_asset_truth keeps only approved assets, and an asset added
+        // and still awaiting approval must never be answered as "no asset ... registered in this hive" (2026-10-13)
+        const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag")
+          .eq("hive_id", hiveId).not("tag", "is", null);
+        if (!regErr) {
+          const reg = new Set(((regs ?? []) as Array<{ tag: string }>).map((r) => normCode(r.tag)));
+          const unknown = askedCodes.filter((c) => !reg.has(normCode(c)));
+          if (unknown.length === askedCodes.length) {
+            return {
+              answer: `There is no asset ${unknown.join(", ")} registered in this hive, so there is no maintenance `
+                + "record for it. The Asset Hub list shows every tag this hive has.",
+              agents_used: agentsToRun,
+            };
+          }
+        }
+      }
       return {
         answer: "I couldn't pull that from your hive just now — none of my sources returned "
           + "anything for that question, which usually means it sits outside what I can reach rather "
@@ -543,9 +699,16 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
       `${Deno.env.get("SUPABASE_URL")}/functions/v1/semantic-search`,
       { signal: AbortSignal.timeout(60000),
         method: "POST",
+        // ★A SOLO OWNER'S SEARCH THROUGH HERE WAS ALWAYS EMPTY (2026-10-08). This sent the SERVICE-ROLE key for every
+        // caller. With a hive that is fine - membership was proven above and semantic-search searches the hive. With
+        // no hive, semantic-search's own scope is the VERIFIED caller (resolveIdentity on the bearer), and a
+        // service-role bearer is nobody, so a person with no hive never got their own past repairs into an answer.
+        // A solo turn now forwards the person's own Authorization (searchHeaders, built by the handler after it
+        // verified the token), plus ai-gateway's forward proof when there is one, so semantic-search does not count
+        // the person's solo bucket a second time. The owner is never named in the body.
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          ...(searchHeaders ?? { "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` }),
         },
         body: JSON.stringify({ query: question, hive_id: hiveId, match_count: 3 }),
       }
@@ -556,8 +719,32 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     }
   } catch { /* non-blocking: synthesis continues even if search fails */ }
 
-  // Step 4: Synthesize: one final AI call to write the answer
-  const resultsText = successfulResults.map(r =>
+  // Step 4: Synthesize - the ONE model call (§LM.11). The agent data reaches the provider with every person's name,
+  // e-mail and phone replaced by a placeholder (<worker_1> ...) and the answer is re-filled before anyone reads it: "assign
+  // <worker_1>" reaches the screen as the person's real name while the provider never sees one. (The specialists used to
+  // send the roster's names to a model of their own; the one call left now sends none.) The grounding checks below read
+  // the ORIGINAL data, against the re-filled answer.
+  const _pii = redactPIIWithMap(successfulResults.map((r) => ({ agent: r.agent, result: r.result })));
+  const _hydration: Record<string, string> = { ..._pii.hydration };
+  const _fill = (t: string) => Object.entries(_hydration).reduce((acc, [ph, orig]) => acc.split(ph).join(orig), t);
+  const _keyRedacted = (_pii.redacted as { agent: unknown; result: unknown }[]).map(r =>
+    `[${r.agent}]: ${JSON.stringify(r.result)}`
+  ).join("\n\n");
+  // ...and names written in PROSE - a technician's lesson, a handover's problem text ("asked Bryan Garcia to check") -
+  // which no key marks: the hive's own roster names are replaced too (redactKnownNames, the gateway's CL11 move for
+  // conversation memory). A roster read that fails leaves prose as written; keyed names stay redacted either way.
+  let _roster: string[] = [];
+  if (hiveId) {
+    try {
+      const { data: _mem } = await db.from("v_worker_truth").select("worker_name").eq("hive_id", hiveId).limit(500);
+      _roster = [...new Set((_mem || []).map((m: { worker_name?: string | null }) => String(m.worker_name || "").trim())
+        .filter((n) => n.includes(" ")))];
+    } catch { /* see above */ }
+  }
+  const _named = redactKnownNames(_keyRedacted, _roster);
+  Object.assign(_hydration, _named.hydration);
+  const resultsText = _named.redacted;
+  const _resultsTextOriginal = successfulResults.map(r =>
     `[${r.agent}]: ${JSON.stringify(r.result)}`
   ).join("\n\n");
 
@@ -575,8 +762,21 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   // Coach mode: use dedicated synthesis prompt, return action plan
   if (mode === "coach") {
     const coachRaw = await callGroq(synthPrompt, COACH_SYNTH_SYSTEM);
+    // ★AN UNANSWERED COACH SAID THE HIVE HAD "NOT ENOUGH DATA" (2026-10-12, UFAI edge walk W4227). With every model
+    // exhausted callAI returns "{}", JSON.parse("{}").actions is undefined, and `|| []` made it an EMPTY plan - which
+    // hive.html words as "Not enough data yet to generate recommendations. Keep logging maintenance entries.": an AI
+    // outage blamed on the supervisor's records. No answer, or no list in it, is now `actions: null`, which the page
+    // already words honestly ("The coach didn't send back any actions this time"). A model that answers with an empty
+    // list still means "nothing to recommend".
+    if (!aiAnswered(coachRaw)) return { mode: "coach", actions: null, agents_used: agentsToRun };
     let actions: Record<string, unknown>[] = [];
-    try { actions = JSON.parse(coachRaw).actions || []; } catch { /* use empty */ }
+    try {
+      const parsedCoach = JSON.parse(coachRaw);
+      if (!Array.isArray(parsedCoach?.actions)) return { mode: "coach", actions: null, agents_used: agentsToRun };
+      actions = parsedCoach.actions;
+    } catch { return { mode: "coach", actions: null, agents_used: agentsToRun }; }
+    // re-fill the placeholders the provider saw (see Step 4) before the plan reaches the supervisor
+    try { actions = JSON.parse(_fill(JSON.stringify(actions))); } catch { /* keep as parsed */ }
     // WAT deterministic guard (FB4 grounding eval, 2026-07-01): the free-tier model keeps a
     // strong prior to invent a plausible asset ID (e.g. "PSV-001") to fill an action slot even
     // when the prompt forbids it. The probabilistic model PROPOSES; deterministic code VERIFIES
@@ -605,7 +805,10 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
 
   const synthRaw = await callGroq(synthPrompt, SYNTH_SYSTEM);
 
-  let answer: string = "I analyzed your data but had trouble formatting the response. Please try again.";
+  // An UNANSWERED chain ("{}") is no answer, not "I analyzed your data but had trouble formatting" - nothing was
+  // analysed (2026-10-12, W4227). An empty answer reaches assistant.html's own honest no-answer path, and the gateway
+  // does not remember it; a model that DID answer in a broken shape still gets the formatting sentence.
+  let answer: string = aiAnswered(synthRaw) ? "I analyzed your data but had trouble formatting the response. Please try again." : "";
   try {
     const parsed = JSON.parse(synthRaw).answer;
     if (typeof parsed === "string") {
@@ -616,11 +819,12 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
       answer = formatStructuredAnswer(parsed);
     }
   } catch { /* use fallback */ }
+  answer = _fill(answer);   // the names the provider never saw, back in place (Step 4)
 
   // CL10 faithfulness rails (2026-07-08): (1) neutralize/hedge an ungrounded KPI %, then (2) strip any
   // fabricated COMPLETED-write claim ("Log entry added", "Updated maintenance record"). The assistant is
   // read-only advisory; a false "I did X" is trust-breaking in a maintenance context. Live-caught 2026-07-08.
-  const _grounding = `${resultsText}\n${semanticContext}\n${memoryBlock || ""}`;
+  const _grounding = `${_resultsTextOriginal}\n${semanticContext}\n${memoryBlock || ""}`;
   answer = stripFalseKpiProvenance(answer, _grounding);
   // CL10b: the same grounding set, asked the non-numeric question CL10 cannot reach.
   answer = hedgeUngroundedSuperlative(answer, _grounding);
@@ -689,7 +893,9 @@ async function resolveDisplayName(db: SupabaseClient, jwt: string): Promise<stri
   }
 }
 
-serveObserved("ai-orchestrator", async (req) => {
+serveObserved("ai-orchestrator", tracedReply("ai-orchestrator", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "ai-orchestrator", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -699,7 +905,7 @@ serveObserved("ai-orchestrator", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "ai-orchestrator");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
   // function with a broken body and with GET: both reached `await req.json()` inside the main try and came back 500,
@@ -757,6 +963,10 @@ serveObserved("ai-orchestrator", async (req) => {
     //     scoping (the gateway redacts worker_name to "<redacted>")
     const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    let _soloRlUid: string | null = null;   // a verified person with no hive: limited on their own bucket below
+    // the hive the limiters count on: a service-role caller's (trusted), or one the membership check below proved
+    let _verifiedHiveId: string | null = (_bearer && _serviceKey && _bearer === _serviceKey) ? (hive_id || null) : null;
+    if (_bearer && _serviceKey && _bearer === _serviceKey) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
     if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
       const { data: { user: _caller } } = await db.auth.getUser(_bearer);
       if (!_caller) {
@@ -766,15 +976,32 @@ serveObserved("ai-orchestrator", async (req) => {
         );
       }
       if (hive_id) {
-        const { data: _mem } = await db.from("v_worker_truth")
+        // ★A MEMBERSHIP READ THAT FAILED IS NOT A MEMBERSHIP THAT IS ABSENT (2026-10-06, found by walking
+        // LXP199 with PostgREST genuinely stopped). This gate destructured `data` and threw `error` away, so a
+        // read that NEVER RAN produced `!_mem` and the function announced 403 "Caller is not an active member of
+        // this hive" - a statement about the person's standing in the hive, derived from no evidence. Measured on
+        // analytics-report.html: Bryan Garcia, an active member of Baguio Textile Mills whose full report had
+        // generated two minutes earlier, was told "You are not an active member of this hive... Switch or rejoin a
+        // hive, then retry." The advice is useless (nothing is wrong with his membership) and alarming (it says
+        // his access was revoked) and the one true cause - the service was down - was never mentioned.
+        // The refused read is a FOURTH state, distinct from yes/no: it gets a 503 that says so.
+        const { data: _mem, error: _memErr } = await db.from("v_worker_truth")
           .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
           .eq("hive_status", "active").maybeSingle();
+        if (_memErr) {
+          return new Response(
+            JSON.stringify({ error: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment." }),
+            { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         if (!_mem) {
           return new Response(
             JSON.stringify({ error: "Caller is not an active member of this hive" }),
             { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+        noteModelCaller({ auth_uid: _caller.id, hive_id });
+        _verifiedHiveId = hive_id;
       } else {
         // Solo caller (no hive): resolve the real display_name for worker_name
         // scoping; the gateway sends "<redacted>".
@@ -786,6 +1013,8 @@ serveObserved("ai-orchestrator", async (req) => {
           );
         }
         worker_name = _name;
+        noteModelCaller({ auth_uid: _caller.id, hive_id: null, worker_name: _name });
+        _soloRlUid = _caller.id;
       }
     }
 
@@ -800,16 +1029,45 @@ serveObserved("ai-orchestrator", async (req) => {
       // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
       // fail a real request.
       try {
-        const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "ai-orchestrator");
+        const _rq = await checkRouteRateLimit(db, _verifiedHiveId || "", "ai-orchestrator");
         // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
         // a no-op until an admin sets a cap - while always counting for attribution.
-        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "ai-orchestrator", _rq.cap, _rq.retry_after_seconds);
+        if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "ai-orchestrator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
       } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-      const _rl = await checkAIRateLimit(db, hive_id || "");
-      if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
+      // ★THE GATEWAY DOES NOT ARRIVE AS service_role (2026-10-08). The comment above assumed it did; ai-gateway forwards
+      // the person's OWN JWT, so every assistant / coach turn reached this line and counted the hive's ai_rate_limits row
+      // a second time - the gateway's checkUserRateLimit had already counted it. A forward is proven only by the header
+      // ai-gateway mints (_shared/gateway-trust.ts), never by a body field. The per-surface quota above stays on both
+      // doors: it is keyed on this function's name, a bucket the gateway never touches.
+      const _viaGateway = await isTrustedGatewayForward(req);
+      if (!_viaGateway) {
+        // ★A SOLO CALLER WAS NEVER COUNTED (2026-10-08). checkAIRateLimit(db, "") admits without tracking, so a person
+        // with no hive calling this 7-agent fan-out directly had no limit at all. They draw on their own bucket (the
+        // verified uid) with the budget a single-person hive gets.
+        // (a caller with neither is the trusted service role - counted upstream, never by an empty hive key)
+        if (_verifiedHiveId) {
+          const _rl = await checkAIRateLimit(db, _verifiedHiveId);
+          if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
+        } else if (_soloRlUid) {
+          const _srl = await checkSoloRateLimit(db, soloRateLimitKey(_soloRlUid, null), DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY, null, true);
+          if (!_srl.allowed) return soloRateLimitedResponse(corsHeaders, _srl.retry_after_seconds, _srl.scope);
+        }
+      }
     }
 
-    const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat", memoryBlock);
+    // The knowledge search for a SOLO person runs as that person (see orchestrate's semantic-search call). Reached only
+    // after the gate above verified the bearer (getUser + a worker profile); a service-role caller has no person and
+    // keeps the service-role search. ai-gateway's forward proof is relayed only when it verifies for this bearer.
+    let _soloSearchHeaders: Record<string, string> | null = null;
+    if (!hive_id && !(_bearer && _serviceKey && _bearer === _serviceKey)) {
+      _soloSearchHeaders = { "Authorization": req.headers.get("Authorization") || "" };
+      const _soloViaGateway = await isTrustedGatewayForward(req);
+      if (_soloViaGateway) {
+        _soloSearchHeaders[GATEWAY_FORWARD_HEADER] = req.headers.get(GATEWAY_FORWARD_HEADER) || "";
+      }
+    }
+
+    const result = await orchestrate(question, hive_id || null, worker_name || null, db, mode || "chat", memoryBlock, _soloSearchHeaders);
 
     return new Response(
       JSON.stringify(result),
@@ -821,4 +1079,4 @@ serveObserved("ai-orchestrator", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "ai-orchestrator", "ai_orchestrator_error", err);
   }
-});
+}));

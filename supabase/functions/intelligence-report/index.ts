@@ -17,12 +17,14 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
+import { consentedHiveIds, hiveFilter, MIN_CONSENTING_HIVES } from "../_shared/federated-consent.ts";  // cross-hive = consenting hives only
 
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
 // contract-allow: PH intelligence report write
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -64,11 +66,25 @@ function currentPeriod(type: "monthly" | "quarterly"): string {
 async function gatherData(db: SupabaseClient) {
   const now   = new Date();
   const since = new Date(now.getTime() - 90 * 86400000).toISOString(); // time-window-allow: 90d = standard intelligence-rollup window across canonical truth views
+  // ★CROSS-HIVE MEANS CONSENTING HIVES (2026-10-08): this report counted every hive's work orders, quoted every
+  // hive's root causes and low-stock parts and charted every hive's breakdowns - while every hive's
+  // federated_benchmark_opted_in was false and a synthetic eval hive fed the totals. Every read below is limited
+  // to the hives whose supervisor opted in, and below MIN_CONSENTING_HIVES nothing cross-hive is published.
+  const consented = await consentedHiveIds(db);
+  const inHives = hiveFilter(consented);
+  if (consented.length < MIN_CONSENTING_HIVES) {
+    return {
+      summary: { active_hives: 0, consenting_hives: consented.length, work_orders: 0, unique_machines: 0, period_days: 90,
+                 insufficient_consent: true, minimum_consenting_hives: MIN_CONSENTING_HIVES },
+      mtbf_rankings: [], failure_modes: [], chronic_low_stock: [], seasonal: [],
+    };
+  }
 
   // Total hives with recent activity. Canonical: logbook_truth (drop-in for all 3 reads).
   // unbounded-query-allow: server-side intelligence rollup — full recent-activity scan for hive ranking
   const { data: activeHives } = await db.from("v_logbook_truth")
     .select("hive_id")
+    .in("hive_id", inHives)
     .gte("created_at", since)
     .not("hive_id", "is", null);
   const uniqueHives = new Set((activeHives || []).map((r: Record<string, string>) => r.hive_id));
@@ -76,12 +92,14 @@ async function gatherData(db: SupabaseClient) {
   // Total work orders
   const { count: woCount } = await db.from("v_logbook_truth")
     .select("id", { count: "exact", head: true })
+    .in("hive_id", inHives)
     .gte("created_at", since);
 
   // Total unique machines
   // unbounded-query-allow: unique-machines count for intelligence rollup; full recent set required
   const { data: machineRows } = await db.from("v_logbook_truth")
     .select("machine")
+    .in("hive_id", inHives)
     .gte("created_at", since)
     .not("machine", "is", null);
   const uniqueMachines = new Set((machineRows || []).map((r: Record<string, string>) => r.machine));
@@ -96,6 +114,7 @@ async function gatherData(db: SupabaseClient) {
   // Top failure modes (anonymized — just root_cause, no machine IDs)
   const { data: faults } = await db.from("fault_knowledge")
     .select("root_cause, category")
+    .in("hive_id", inHives)
     .not("root_cause", "is", null)
     .gte("created_at", since)
     .limit(1000);
@@ -115,6 +134,7 @@ async function gatherData(db: SupabaseClient) {
   // unbounded-query-allow: cross-hive low-stock scan for intelligence rollup
   const { data: lowStock } = await db.from("v_inventory_items_truth")
     .select("part_name, hive_id")
+    .in("hive_id", inHives)
     .eq("is_low_stock", true)
     .not("hive_id", "is", null);
 
@@ -133,6 +153,7 @@ async function gatherData(db: SupabaseClient) {
   // unbounded-query-allow: 12-month seasonal faults read for intelligence rollup
   const { data: monthlyFaults } = await db.from("v_logbook_truth")
     .select("created_at")
+    .in("hive_id", inHives)
     .eq("maintenance_type", "Breakdown / Corrective")
     .gte("created_at", new Date(now.getTime() - 365 * 86400000).toISOString());
 
@@ -148,6 +169,7 @@ async function gatherData(db: SupabaseClient) {
   return {
     summary: {
       active_hives:    uniqueHives.size,
+      consenting_hives: consented.length,
       work_orders:     woCount || 0,
       unique_machines: uniqueMachines.size,
       period_days:     90,
@@ -206,8 +228,17 @@ Write the report narrative sections. For seasonal_insight, ground every month/nu
     // required fields as "AI unavailable" so the catch produces a real narrative.
     if (!raw || raw.trim() === "" || raw.trim() === "{}") throw new Error("ai_unavailable");
     const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.executive_summary) throw new Error("ai_empty_narrative");
-    return parsed;
+    // ★ONLY TEXT IS STORED AS NARRATIVE (LM-S walk, LM208, 2026-10-07): the page shows each section as text, and a
+    // model that returned an object for a section rendered "[object Object]" to every reader of the report. A section
+    // that is not text is dropped here; a summary that is not text means the deterministic fallback below.
+    const KEYS = ["executive_summary", "mtbf_insight", "failure_insight", "seasonal_insight", "recommendation"];
+    const narrative: Record<string, string> = {};
+    for (const k of KEYS) {
+      const v = parsed && (parsed as Record<string, unknown>)[k];
+      if (typeof v === "string" && v.trim()) narrative[k] = v.trim();
+    }
+    if (!narrative.executive_summary) throw new Error("ai_empty_narrative");
+    return narrative;
   } catch {
     // Deterministic fallback when every AI provider is down. Every claim must still be
     // TRUE for THIS dataset — don't hardcode a seasonal/failure assertion the data may
@@ -234,7 +265,8 @@ Write the report narrative sections. For seasonal_insight, ground every month/nu
 // Entry point
 // ---------------------------------------------------------------------------
 
-serveObserved("intelligence-report", async (req) => {
+serveObserved("intelligence-report", tracedReply("intelligence-report", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "intelligence-report", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -242,7 +274,7 @@ serveObserved("intelligence-report", async (req) => {
   if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  logRequestStart(req, "intelligence-report");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     const db   = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -257,15 +289,26 @@ serveObserved("intelligence-report", async (req) => {
           { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
       }
       const _rl = await checkUserRateLimit(db, "", _id.authUid, 50, 6);
-      if (!_rl.allowed) return userRateLimitedResponse(cors, _rl.user_cap, _rl.retry_after_seconds);
+      if (!_rl.allowed) return userRateLimitedResponse(cors, _rl.user_cap, _rl.retry_after_seconds, _rl.scope);
     }
 
     const body = await req.json().catch(() => ({}));
-    const type = (body.period_type || "monthly") as "monthly" | "quarterly";
-    const period = body.period || currentPeriod(type);
+    // ★THE PERIOD WAS WHATEVER THE CALLER SAID (2026-10-12, UFAI edge walk W4589). Any signed-in caller could name the
+    // period, and the report is upserted ON that key into a network-wide table: a row with period "status" sits in it
+    // today, and a past month's report could be overwritten by naming its period. A period is this month or quarter
+    // unless the caller names a well-formed one of the same kind.
+    const type: "monthly" | "quarterly" = body.period_type === "quarterly" ? "quarterly" : "monthly";
+    const _wantPeriod = typeof body.period === "string" ? body.period.trim() : "";
+    const _wellFormed = type === "monthly" ? /^\d{4}-(0[1-9]|1[0-2])$/ : /^\d{4}-Q[1-4]$/;
+    const period = _wellFormed.test(_wantPeriod) ? _wantPeriod : currentPeriod(type);
 
     const data      = await gatherData(db);
-    const narrative = await generateNarrative(data);
+    // Below the consent floor there is nothing cross-hive to narrate, so no model is asked to write about an empty
+    // dataset (it would be paid to invent a pattern): the report says plainly why it is empty.
+    const _sum = data.summary as Record<string, unknown>;
+    const narrative = _sum.insufficient_consent
+      ? { executive_summary: `Not enough hives share their benchmarks yet: ${_sum.consenting_hives} of the ${_sum.minimum_consenting_hives} needed have opted in. Nothing across hives is published until they do. A hive supervisor can turn sharing on from the hive menu.` }
+      : await generateNarrative(data);
 
     const report = {
       period,
@@ -278,8 +321,16 @@ serveObserved("intelligence-report", async (req) => {
       generated_at:    new Date().toISOString(),
     };
 
-    await db.from("ph_intelligence_reports")
+    // ★"ok: true" FOR A REPORT THAT WAS NEVER SAVED (2026-10-12): this write's result was discarded, so a refused upsert
+    // still answered ok and the page reloaded onto the OLD report as if it were the new one. A report that did not land
+    // says so, and the person's button comes back to press again.
+    const { error: saveErr } = await db.from("ph_intelligence_reports")
       .upsert(report, { onConflict: "period" });
+    if (saveErr) {
+      console.error("intelligence-report: the report could not be saved -", saveErr.message);
+      return new Response(JSON.stringify({ error: "The report was built but could not be saved. Nothing changed; try again in a moment." }),
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    }
 
     await db.from("automation_log").insert({
       job_name: "intelligence-report",
@@ -295,4 +346,4 @@ serveObserved("intelligence-report", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "intelligence-report", "intelligence_report_error", err);
   }
-});
+}));

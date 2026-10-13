@@ -30,7 +30,7 @@
 // silently breaking).
 
 import Ajv, { ValidateFunction } from "https://esm.sh/ajv@8.12.0";
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 
 // One Ajv instance per warm container (compiling schemas is the
 // expensive step; reuse the compiled validators across requests).

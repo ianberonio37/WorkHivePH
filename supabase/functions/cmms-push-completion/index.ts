@@ -12,7 +12,7 @@ import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
@@ -22,6 +22,10 @@ import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // Arc R (A10): tenant-controlled endpoint_url must be SSRF-guarded before fetch.
 import { safeFetch } from "../_shared/ssrf-guard.ts";
+
+// a local stack's functions reach postgres through kong; prod is *.supabase.co, where this is always false
+// (the same test as observability.ts _OBS_LOCAL and cmms-sync _CMMS_LOCAL)
+const _PUSH_LOCAL = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
 // F3: push the CMMS's OWN status code (SAP I0045 / Maximo COMP), not the literal "Closed".
 import { toCmmsStatus } from "../_shared/mappings.ts";
 
@@ -87,7 +91,7 @@ serveObserved("cmms-push-completion", async (req) => {
         // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds);
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds, _rl.scope);
       }
     }
 
@@ -105,10 +109,10 @@ serveObserved("cmms-push-completion", async (req) => {
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    const config     = configs[0];
-    const systemType = config.system_type as string;
-    const endpoint   = config.endpoint_url as string;
-    const authToken  = config.auth_token as string | null;
+    let config     = configs[0];
+    let systemType = config.system_type as string;
+    let endpoint   = config.endpoint_url as string;
+    let authToken  = config.auth_token as string | null;
 
     if (!endpoint) {
       // edge-status-allow: soft no-op — config exists but endpoint not set.
@@ -122,31 +126,70 @@ serveObserved("cmms-push-completion", async (req) => {
     // synced one for this machine" (which corrupted the customer's CMMS). Fall back to
     // machine+newest only for legacy rows imported before the link existed.
     let extId: string | undefined;
+    let orderSystem: string | undefined;   // the CMMS the order came from (external_sync.system_type)
     if (logbook_id) {
       // canonical-allow: this IS the sync engine resolving its own link row (workhive_id -> external_id)
       // for the outbound push. v_external_sync_truth is a display view; the engine needs the raw link.
       const { data: linked } = await db.from("external_sync")
-        .select("external_id")
+        .select("external_id, system_type")
         .eq("hive_id", hive_id)
         .eq("entity_type", "work_order")
         .eq("workhive_id", logbook_id)
         .limit(1);
       extId = linked?.[0]?.external_id as string | undefined;
+      orderSystem = linked?.[0]?.system_type as string | undefined;
+    }
+    // ★IT CLOSED SOMEONE ELSE'S WORK ORDER (2026-10-12, UFAI edge walk W4409). An entry that names itself and has no
+    // link was MADE in WorkHive - the page pushed only those (new entries saved Closed) - so it has no CMMS order to
+    // close; the fallback below then completed "the newest synced order for this machine" in the customer's CMMS, an
+    // order someone else may still be working. The machine+newest guess is for legacy callers that send no
+    // logbook_id at all, as F1005 says; an entry that named itself and has no link is answered "nothing to push".
+    if (!extId && logbook_id) {
+      // edge-status-allow: soft no-op - the entry was not imported from the CMMS, so there is no order to close.
+      return new Response(JSON.stringify({ ok: false, reason: "This entry was not imported from your CMMS, so there is no CMMS work order to close." }),
+        { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
     }
     if (!extId) {
       const { data: syncRows } = await db.from("v_external_sync_truth")
-        .select("external_id, status")
+        .select("external_id, status, system_type")
         .eq("hive_id", hive_id)
         .eq("entity_type", "work_order")
         .contains("sync_payload", { machine })
         .order("last_synced_at", { ascending: false })
         .limit(1);
       extId = syncRows?.[0]?.external_id as string | undefined;
+      orderSystem = syncRows?.[0]?.system_type as string | undefined;
     }
     if (!extId) {
       // edge-status-allow: soft no-op — nothing to push back for this machine.
       return new Response(JSON.stringify({ ok: false, reason: "No external_sync record found for machine " + machine }),
         { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // ★THE ORDER'S OWN CMMS, NOT WHICHEVER CONNECTOR CAME FIRST (2026-10-12, UFAI edge walk W4409). The connector above
+    // was "an enabled one for this hive" (.limit(1), no order), chosen before the order was found - so a hive with an
+    // SAP and a Maximo connector could send a Maximo order's completion, with its Maximo id, to SAP. The order records
+    // the system it came from; its completion goes to that system's connector, and to none when the hive has no
+    // enabled connector for it any more.
+    if (orderSystem && orderSystem !== systemType) {
+      const { data: own } = await db.from("integration_configs")
+        .select("id, system_type, endpoint_url, auth_token")
+        .eq("hive_id", hive_id).eq("enabled", true).eq("system_type", orderSystem)
+        .order("updated_at", { ascending: false }).limit(1);
+      if (!own?.length) {
+        // edge-status-allow: soft no-op - the order's own CMMS has no enabled connector in this hive.
+        return new Response(JSON.stringify({ ok: false, reason: `This work order came from ${orderSystem}, and this hive has no ${orderSystem} connector turned on, so the completion was not sent.` }),
+          { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+      config = own[0];
+      systemType = config.system_type as string;
+      endpoint = config.endpoint_url as string;
+      authToken = config.auth_token as string | null;
+      if (!endpoint) {
+        // edge-status-allow: soft no-op - that connector has no endpoint set.
+        return new Response(JSON.stringify({ ok: false, reason: "No endpoint_url configured" }),
+          { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+      }
     }
 
     // Build push payload. F3: send BOTH WorkHive's canonical "Closed" (back-compat) AND the
@@ -176,12 +219,14 @@ serveObserved("cmms-push-completion", async (req) => {
 
     // Arc R (A10): pushUrl derives from tenant-controlled endpoint_url — SSRF-guard it
     // so it can't target internal/metadata hosts (which would also leak the Bearer authToken).
+    // the seeder's mock CMMS on the LOCAL runtime only - the same rule and test as cmms-sync (validate_ssrf_egress layer 3)
+    const _mock = _PUSH_LOCAL && pushUrl.startsWith("http://host.docker.internal:5000/mock/");
     const pushRes = await safeFetch(pushUrl, {
       method: "POST",
       headers,
       body:   JSON.stringify({ ...pushPayload, external_id: extId }),
       signal: AbortSignal.timeout(15000),
-    });
+    }, _mock ? { allowHttp: true, allowHosts: ["host.docker.internal"] } : {});
 
     const pushOk = pushRes.ok;
 

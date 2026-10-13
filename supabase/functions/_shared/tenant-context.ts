@@ -32,7 +32,10 @@
 // SUPABASE_SERVICE_ROLE_KEY) are trusted and skip tenancy enforcement — they
 // are not a browser client and cannot be a spoofing vector.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+// LM-O (2026-10-08): the identity this module VERIFIES is who a request's model calls are recorded for - noted into
+// the request's model-call scope as it is proven (a no-op outside one), never read back from a body field.
+import { noteModelCaller } from "./model-calls.ts";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -87,6 +90,7 @@ export function isServiceRoleBearer(bearer: string): boolean {
 export async function resolveIdentity(db: SupabaseClient, req: Request): Promise<Identity> {
   const bearer = extractBearer(req);
   if (isServiceRoleBearer(bearer)) {
+    noteModelCaller({ auth_uid: null });
     return { authUid: null, isServiceRole: true, bearer };
   }
   let authUid: string | null = null;
@@ -98,6 +102,7 @@ export async function resolveIdentity(db: SupabaseClient, req: Request): Promise
       authUid = null;
     }
   }
+  if (authUid) noteModelCaller({ auth_uid: authUid });
   return { authUid, isServiceRole: false, bearer };
 }
 
@@ -124,12 +129,29 @@ export async function resolveTenancy(
   if (hid) {
     // canonical-allow: v_worker_truth is the canonical hive-scoped identity view;
     // a row exists only for an active membership, so presence == verified member.
-    const { data: mem } = await db.from("v_worker_truth")
+    // ★A MEMBERSHIP READ THAT FAILED IS NOT A MEMBERSHIP THAT IS ABSENT (2026-10-06, found by walking
+    // LXP199 with PostgREST genuinely stopped). This gate destructured `data` and threw `error` away, so a
+    // read that NEVER RAN produced `!_mem` and the function announced 403 "Caller is not an active member of
+    // this hive" - a statement about the person's standing in the hive, derived from no evidence. Measured on
+    // analytics-report.html: Bryan Garcia, an active member of Baguio Textile Mills whose full report had
+    // generated two minutes earlier, was told "You are not an active member of this hive... Switch or rejoin a
+    // hive, then retry." The advice is useless (nothing is wrong with his membership) and alarming (it says
+    // his access was revoked) and the one true cause - the service was down - was never mentioned.
+    // The refused read is a FOURTH state, distinct from yes/no: it gets a 503 that says so.
+    const { data: mem, error: memErr } = await db.from("v_worker_truth")
       .select("worker_name, role, hive_status")
       .eq("auth_uid", authUid)
       .eq("hive_id", hid)
       .eq("hive_status", "active")
       .maybeSingle();
+    if (memErr) {
+      return {
+        ok:      false,
+        status:  503,
+        code:    "membership_unverified",
+        message: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment.",
+      };
+    }
     if (!mem) {
       return {
         ok:      false,
@@ -138,6 +160,7 @@ export async function resolveTenancy(
         message: "Caller is not an active member of this hive.",
       };
     }
+    noteModelCaller({ auth_uid: authUid, hive_id: hid, worker_name: mem.worker_name || null });
     return {
       ok:          true,
       hive_id:     hid,
@@ -157,6 +180,7 @@ export async function resolveTenancy(
   if (!prof?.display_name) {
     return { ok: false, status: 403, code: "no_profile", message: "No worker profile for caller." };
   }
+  noteModelCaller({ auth_uid: authUid, hive_id: null, worker_name: prof.display_name });
   return {
     ok:          true,
     hive_id:     null,
@@ -177,6 +201,7 @@ export async function resolveContext(
   const identity = await resolveIdentity(db, req);
   if (identity.isServiceRole) {
     const hid = (opts.hiveId ?? "").trim() || null;
+    noteModelCaller({ auth_uid: null, hive_id: hid });
     return {
       identity,
       tenancy: { ok: true, hive_id: hid, role: "service", worker_name: "service", is_solo: hid === null },

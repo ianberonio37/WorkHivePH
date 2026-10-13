@@ -42,7 +42,7 @@ import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: deterministic P-F interval calc; not a brain output
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -165,7 +165,7 @@ serveObserved("pf-calculator", async (req) => {
       // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
     }
 
     // Resolve asset via canonical view
@@ -176,15 +176,11 @@ serveObserved("pf-calculator", async (req) => {
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    const legacyId = (asset as AnyRow).legacy_asset_id;
-    if (!legacyId) {
-      return new Response(
-        JSON.stringify({
-          error: "Asset not found in this hive.",
-        }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
+    // ★A THIRD OF THE ASSETS WERE TOLD THEY DO NOT EXIST (2026-10-12, UFAI edge walk W491). A leftover Phase-5a gate
+    // refused any asset without a legacy_asset_id with "Asset not found in this hive." - but nothing below reads the
+    // legacy id any more (the logbook filter and the pf_intervals row both use the asset_node uuid, whose FK is
+    // asset_nodes(id)), and every asset registered natively in Asset Hub has none: 39 of 118 approved assets,
+    // measured. weibull-fitter dropped the same bridge already ("the legacy_asset_id text bridge is gone").
 
     // Phase 5b: filter by canonical asset_node_id (uuid) directly.
     const sinceIso = new Date(Date.now() - since_days * 86_400_000).toISOString();

@@ -14,8 +14,9 @@ import { serveObserved, failTracked } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { consentedHiveIds, hiveFilter, MIN_CONSENTING_HIVES } from "../_shared/federated-consent.ts";  // cross-hive = consenting hives only
 import { log } from "../_shared/logger.ts";
 // Pillar I (Gateway Spine): verify hive membership on the single-hive path.
 import { resolveIdentity, resolveTenancy, requireServiceRole } from "../_shared/tenant-context.ts";
@@ -181,14 +182,17 @@ async function computeForHive(db: SupabaseClient, hiveId: string, now: Date) {
 }
 
 async function computeNetwork(db: SupabaseClient, now: Date) {
-  // Pull all recent hive_benchmarks
+  // ★ONLY HIVES THAT CONSENTED (2026-10-08): network_benchmarks is the national data product, and
+  // hives.federated_benchmark_opted_in is the per-hive consent to contribute to it - which nothing read, so every
+  // hive's MTBF was published. Each hive still gets its OWN hive_benchmarks row (its own data, shown to itself);
+  // only the network aggregate is limited to consenting hives (_shared/federated-consent.ts, fails closed).
+  const consented = await consentedHiveIds(db);
   // unbounded-query-allow: network percentile compute — full recent-benchmark scan required
-  const { data: allHive } = await db.from("hive_benchmarks")
+  const { data: allHive } = consented.length < MIN_CONSENTING_HIVES ? { data: [] } : await db.from("hive_benchmarks")
     .select("hive_id, equipment_category, mtbf_days, failure_count")
+    .in("hive_id", hiveFilter(consented))
     .gte("computed_at", new Date(now.getTime() - 8 * 86400000).toISOString()) // last 8 days
     .not("mtbf_days", "is", null);
-
-  if (!allHive?.length) return;
 
   // Group by category
   const byCat: Record<string, number[]> = {};
@@ -218,6 +222,15 @@ async function computeNetwork(db: SupabaseClient, now: Date) {
     });
   }
 
+  // A category this run could not republish under consent (fewer than 3 consenting hives, or none) is WITHDRAWN:
+  // upsert-only kept last run's figures published forever, including those computed before consent was read.
+  {
+    const { error: wErr } = await db.from("network_benchmarks").delete().lt("computed_at", now.toISOString());
+    if (wErr) {
+      log.error(null, "network_benchmarks withdrawal failed", { err: wErr.message });
+      throw new Error(`network_benchmarks withdrawal failed: ${wErr.message}`);
+    }
+  }
   if (networkRows.length) {
     // on_conflict targets the plain composite UNIQUE (equipment_category, industry).
     // The previous expression-index target ("...,COALESCE(industry,'')") made
@@ -269,7 +282,7 @@ serveObserved("benchmark-compute", async (req) => {
         // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
         const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
-        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds);
+        if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds, _rl.scope);
       }
     }
 

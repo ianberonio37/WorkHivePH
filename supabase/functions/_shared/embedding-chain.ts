@@ -9,22 +9,50 @@
 //
 // If a provider returns 401/403/429/503, the next is tried.
 // If a provider's key is not set, that provider is skipped.
+//
+// ★AN EMBEDDING IS A MODEL CALL TOO (LM-O follow-up, 2026-10-08). Every embedding that a provider answers, every walk
+// that no provider answered, and every rerank is reported to the request's model-call collector
+// (_shared/model-calls.ts) with kind embedding / rerank, the provider and model, its tokens (the provider's usage
+// figure when it gives one) and latency - serveObserved writes one ai_cost_log row per call, as for an answer. A
+// cache hit (generateEmbeddingCached) calls no provider and records nothing.
 
 const TARGET_DIM = 384;
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { reportModelCall, reportModelCallFailed } from "./model-calls.ts";
+
+/** a provider's answer: the vector, and the input tokens it says it billed (null when it does not say) */
+type EmbedOut = { vec: number[]; tokens: number | null };
 
 type EmbeddingProvider = {
   name: string;
+  /** the model the provider runs - the record's `model` */
+  model: string;
   envKey: string;
-  call: (text: string, apiKey: string) => Promise<number[]>;
+  call: (text: string, apiKey: string) => Promise<EmbedOut>;
 };
+
+/** input tokens from an embeddings API's usage block (prompt_tokens, else total_tokens) */
+function _usageTokens(data: unknown): number | null {
+  const u = (data as { usage?: { prompt_tokens?: unknown; total_tokens?: unknown } } | null)?.usage;
+  const n = Number(u?.prompt_tokens ?? u?.total_tokens);
+  return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
+}
+
+/** how one slot answered, for the record's providers_tried: the HTTP status in its error, else timeout / threw */
+function _outcome(msg: string): string {
+  const m = /\b([1-5]\d\d)\b/.exec(msg);
+  if (m) return m[1];
+  if (/timeout|abort/i.test(msg)) return "timeout";
+  if (/bad shape/i.test(msg)) return "bad-shape";
+  return "threw";
+}
 
 // ── Voyage AI ────────────────────────────────────────────────────────────
 // voyage-3.5-lite supports {256, 512, 1024, 2048} as native dims — 384 is not
 // in that set. Request 512 (smallest >= 384) then truncate to 384. The model
 // is Matryoshka-trained, so the first 384 dims preserve quality.
-async function voyageEmbed(text: string, apiKey: string): Promise<number[]> {
+async function voyageEmbed(text: string, apiKey: string): Promise<EmbedOut> {
   const res = await fetch("https://api.voyageai.com/v1/embeddings", {
     method: "POST",
     signal: AbortSignal.timeout(15000),
@@ -48,11 +76,11 @@ async function voyageEmbed(text: string, apiKey: string): Promise<number[]> {
   if (!Array.isArray(vec) || vec.length < TARGET_DIM) {
     throw new Error(`voyage returned bad shape: ${typeof vec === "object" ? (vec as unknown[])?.length : typeof vec}`);
   }
-  return vec.slice(0, TARGET_DIM);
+  return { vec: vec.slice(0, TARGET_DIM), tokens: _usageTokens(data) };
 }
 
 // ── Jina AI ──────────────────────────────────────────────────────────────
-async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
+async function jinaEmbed(text: string, apiKey: string): Promise<EmbedOut> {
   const res = await fetch("https://api.jina.ai/v1/embeddings", {
     method: "POST",
     signal: AbortSignal.timeout(15000),
@@ -76,7 +104,7 @@ async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
   if (!Array.isArray(vec) || vec.length !== TARGET_DIM) {
     throw new Error(`jina returned bad shape: ${typeof vec === "object" ? (vec as unknown[])?.length : typeof vec}`);
   }
-  return vec;
+  return { vec, tokens: _usageTokens(data) };
 }
 
 // ── Google Gemini ──────────────────────────────────────────────────────────
@@ -85,7 +113,7 @@ async function jinaEmbed(text: string, apiKey: string): Promise<number[]> {
 // vector(384) schema. IMPORTANT: Gemini does NOT unit-normalize outputs below
 // 3072 dims (Voyage and Jina return normalized vectors), so we L2-normalize
 // here to keep all three providers in a comparable space for cosine search.
-async function geminiEmbed(text: string, apiKey: string): Promise<number[]> {
+async function geminiEmbed(text: string, apiKey: string): Promise<EmbedOut> {
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/embeddings", {
     method: "POST",
     signal: AbortSignal.timeout(15000),
@@ -109,7 +137,7 @@ async function geminiEmbed(text: string, apiKey: string): Promise<number[]> {
     throw new Error(`gemini returned bad shape: ${typeof vec === "object" ? (vec as unknown[])?.length : typeof vec}`);
   }
   const norm = Math.sqrt(vec.reduce((s: number, x: number) => s + x * x, 0)) || 1;
-  return vec.map((x: number) => x / norm);
+  return { vec: vec.map((x: number) => x / norm), tokens: _usageTokens(data) };
 }
 
 // ── Cloudflare Workers AI · bge-small-en-v1.5 (384-dim NATIVE) ──────────────
@@ -118,7 +146,7 @@ async function geminiEmbed(text: string, apiKey: string): Promise<number[]> {
 // self-host sentence-transformers `BAAI/bge-small-en-v1.5` used by the ingest
 // tool, so local-ingest and edge-query land in ONE space. Activates when both
 // CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are set; skipped otherwise.
-async function cloudflareEmbed(text: string, apiToken: string): Promise<number[]> {
+async function cloudflareEmbed(text: string, apiToken: string): Promise<EmbedOut> {
   const acct = Deno.env.get("CLOUDFLARE_ACCOUNT_ID");
   if (!acct) throw new Error("CLOUDFLARE_ACCOUNT_ID not set");
   const res = await fetch(
@@ -139,7 +167,7 @@ async function cloudflareEmbed(text: string, apiToken: string): Promise<number[]
     throw new Error(`cloudflare returned bad shape: ${Array.isArray(vec) ? vec.length : typeof vec}`);
   }
   const norm = Math.sqrt(vec.reduce((s: number, x: number) => s + x * x, 0)) || 1;
-  return vec.map((x: number) => x / norm);
+  return { vec: vec.map((x: number) => x / norm), tokens: null };   // Workers AI reports no token count
 }
 
 // ── Self-host bge-small-en-v1.5 via the local embed_server (NO rate limit) ──
@@ -148,7 +176,7 @@ async function cloudflareEmbed(text: string, apiToken: string): Promise<number[]
 // docker network (BGE_EMBED_URL, e.g. http://host.docker.internal:8901/embed). SAME
 // model as the fastembed ingest path -> one vector space. The provider's "apiKey" IS
 // the URL (envKey BGE_EMBED_URL), so it activates only when that env is set.
-async function bgeLocalEmbed(_text: string, url: string): Promise<number[]> {
+async function bgeLocalEmbed(_text: string, url: string): Promise<EmbedOut> {
   const res = await fetch(url, {
     method: "POST",
     signal: AbortSignal.timeout(15000),
@@ -163,16 +191,16 @@ async function bgeLocalEmbed(_text: string, url: string): Promise<number[]> {
   if (!Array.isArray(vec) || vec.length !== TARGET_DIM) {
     throw new Error(`bge-local returned bad shape: ${Array.isArray(vec) ? vec.length : typeof vec}`);
   }
-  return vec;
+  return { vec, tokens: null };   // the self-hosted server reports no token count
 }
 
 // The full roster. A provider with no key is skipped, so listing all is safe.
 const ALL_PROVIDERS: EmbeddingProvider[] = [
-  { name: "bge-local",  envKey: "BGE_EMBED_URL",        call: bgeLocalEmbed },
-  { name: "voyage",     envKey: "VOYAGE_API_KEY",       call: voyageEmbed },
-  { name: "gemini",     envKey: "GEMINI_API_KEY",       call: geminiEmbed },
-  { name: "cloudflare", envKey: "CLOUDFLARE_API_TOKEN", call: cloudflareEmbed },
-  { name: "jina",       envKey: "JINA_API_KEY",         call: jinaEmbed },
+  { name: "bge-local",  model: "bge-small-en-v1.5",          envKey: "BGE_EMBED_URL",        call: bgeLocalEmbed },
+  { name: "voyage",     model: "voyage-3.5-lite",            envKey: "VOYAGE_API_KEY",       call: voyageEmbed },
+  { name: "gemini",     model: "gemini-embedding-001",       envKey: "GEMINI_API_KEY",       call: geminiEmbed },
+  { name: "cloudflare", model: "@cf/baai/bge-small-en-v1.5", envKey: "CLOUDFLARE_API_TOKEN", call: cloudflareEmbed },
+  { name: "jina",       model: "jina-embeddings-v3",         envKey: "JINA_API_KEY",         call: jinaEmbed },
   // NOTE: Mistral is intentionally absent — mistral-embed is 1024-dim, not 384,
   // so it cannot join a vector(384) chain without corrupting the space.
 ];
@@ -271,6 +299,8 @@ export async function generateEmbeddingTagged(
     : orderedProviders(wanted);
 
   const errors: string[] = [];
+  const tried: string[] = [];          // LM-O: the record's providers_tried
+  const t0 = performance.now();        // LM-O: the record's latency (the whole walk the caller waited on)
   for (const provider of candidates) {
     // bge-local's "key" is its URL (env or local default), not a secret in Deno.env.
     const apiKey = provider.name === "bge-local" ? BGE_EMBED_URL : Deno.env.get(provider.envKey);
@@ -278,7 +308,13 @@ export async function generateEmbeddingTagged(
       continue; // not configured
     }
     try {
-      const vec = await provider.call(text, apiKey);
+      const out = await provider.call(text, apiKey);
+      const vec = out.vec;
+      tried.push(`${provider.name}/${provider.model}=200`);
+      reportModelCall({
+        kind: "embedding", providerName: provider.name, modelName: provider.model,
+        usage: out.tokens === null ? null : { prompt_tokens: out.tokens }, input: text, started_at: t0, tried,
+      });
       if (provider.name === wanted) {
         console.log(`[embedding] ok via ${provider.name} (${vec.length} dims, pinned)`);
       } else {
@@ -295,14 +331,17 @@ export async function generateEmbeddingTagged(
       const msg = err instanceof Error ? err.message : String(err);
       console.warn(`[embedding] ${provider.name} failed: ${msg} — trying next`);
       errors.push(`${provider.name}: ${msg}`);
+      tried.push(`${provider.name}/${provider.model}=${_outcome(msg)}`);
     }
   }
 
   if (errors.length === 0) {
+    // no provider configured: nothing was asked, so there is no call to record
     throw new Error(
       "No embedding provider configured. Set BGE_EMBED_URL, VOYAGE_API_KEY, GEMINI_API_KEY, CLOUDFLARE_API_TOKEN or JINA_API_KEY.",
     );
   }
+  reportModelCallFailed({ kind: "embedding", providerName: "chain", modelName: "exhausted", tried, started_at: t0 });
   throw new Error(`All embedding providers failed: ${errors.join(" | ")}`);
 }
 
@@ -416,6 +455,7 @@ export async function rerank(
     return identity();
   }
 
+  const t0 = performance.now();   // LM-O: a rerank is a model call; its record's latency
   try {
     const res = await fetch(VOYAGE_RERANK_URL, {
       method: "POST",
@@ -434,11 +474,22 @@ export async function rerank(
     if (!res.ok) {
       const err = (await res.text()).slice(0, 200);
       console.warn(`[rerank] voyage ${res.status}: ${err} — identity fallback`);
+      reportModelCallFailed({ kind: "rerank", providerName: "voyage", modelName: VOYAGE_RERANK_MODEL,
+        tried: [`voyage/${VOYAGE_RERANK_MODEL}=${res.status}`], started_at: t0 });
       return identity();
     }
     const data = await res.json();
     const ranked = data?.data;
-    if (!Array.isArray(ranked)) return identity();
+    if (!Array.isArray(ranked)) {
+      reportModelCallFailed({ kind: "rerank", providerName: "voyage", modelName: VOYAGE_RERANK_MODEL,
+        tried: [`voyage/${VOYAGE_RERANK_MODEL}=bad-shape`], started_at: t0 });
+      return identity();
+    }
+    const rerankTokens = _usageTokens(data);
+    reportModelCall({ kind: "rerank", providerName: "voyage", modelName: VOYAGE_RERANK_MODEL,
+      usage: rerankTokens === null ? null : { prompt_tokens: rerankTokens },
+      input: [query, ...candidates.map((c) => c.text)], started_at: t0,
+      tried: [`voyage/${VOYAGE_RERANK_MODEL}=${res.status}`] });
     return ranked.map((r: { index: number; relevance_score: number }) => {
       const src = candidates[r.index];
       return {
@@ -450,6 +501,8 @@ export async function rerank(
     });
   } catch (err) {
     console.warn(`[rerank] threw: ${err instanceof Error ? err.message : String(err)} — identity fallback`);
+    reportModelCallFailed({ kind: "rerank", providerName: "voyage", modelName: VOYAGE_RERANK_MODEL,
+      tried: [`voyage/${VOYAGE_RERANK_MODEL}=${_outcome(String(err))}`], started_at: t0 });
     return identity();
   }
 }

@@ -22,8 +22,9 @@
 //   reads to auth.uid() = auth_uid. The service-role client used by
 //   the gateway is the only writer; agent code never sees the table.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { generateEmbedding } from "./embedding-chain.ts";
+import { ageLabel } from "./memory_age.ts";
 
 export const JOURNAL_RECALL_K = 5;            // top-K to retrieve per turn
 export const JOURNAL_SIM_FLOOR = 0.30;        // drop matches below this cosine sim
@@ -92,11 +93,14 @@ export async function loadJournalRecall(
  * Render the recall rows into a plain-text block the LLM can read.
  * Newest first. Truncate per-entry to keep the block budget tight.
  */
-export function formatJournalRecall(rows: JournalRecallRow[]): string {
+export function formatJournalRecall(rows: JournalRecallRow[], now: Date = new Date()): string {
   if (!rows || !rows.length) return "";
   const lines: string[] = ["Past journal entries that look related to today's voice note (most similar first):"];
   rows.forEach((r, i) => {
-    const when = new Date(r.created_at).toISOString().slice(0, 10);
+    // the age beside the date (2026-10-13): the model is told no current date, so a date alone did not stop it
+    // reading last week's entries as today's (_shared/memory_age.ts)
+    const age = ageLabel(r.created_at, now);
+    const when = (age ? `${age}, ` : "") + new Date(r.created_at).toISOString().slice(0, 10);
     const langTag = r.lang ? ` [${r.lang}]` : "";
     const sim = (r.similarity * 100).toFixed(0);
     const t = (r.transcript || "").replace(/\s+/g, " ").trim().slice(0, JOURNAL_RECALL_CHARS);

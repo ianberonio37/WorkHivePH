@@ -13,13 +13,14 @@
  */
 
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
+import { log } from "../_shared/logger.ts";
 
 // contract-allow: voice -> logbook entry write
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -27,7 +28,12 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse, DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY,
+} from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -73,10 +79,10 @@ Classification rules:
 
 Examples:
 "Cooling tower CT-01, fan blade position 3 cracked, visible shaft vibration, I've tagged it out, waiting for spare blade"
-→ machine:"CT-01", problem:"Fan blade position 3 cracked with visible shaft vibration", root_cause:"Fatigue fracture on blade", action:"Equipment tagged out pending spare blade replacement", maintenance_type:"Breakdown / Corrective", status:"Open", downtime_hours:0, loto_detected:true, loto_note:"Tagged out pending spare blade", parts_mentioned:["fan blade"], is_breakdown:true, urgency:"high", supervisor_alert:"CT-01 fan blade cracked and tagged out. Spare blade needed before restart."
+→ machine:"CT-01", problem:"Fan blade position 3 cracked with visible shaft vibration", root_cause:null, action:"Equipment tagged out pending spare blade replacement", maintenance_type:"Breakdown / Corrective", status:"Open", downtime_hours:0, loto_detected:true, loto_note:"Tagged out pending spare blade", parts_mentioned:["fan blade"], is_breakdown:true, urgency:"high", supervisor_alert:"CT-01 fan blade cracked and tagged out. Spare blade needed before restart."
 
 "Done the monthly greasing on pump P-003 bearing, used NLGI 2 grease, all readings normal"
-→ machine:"P-003", problem:"Monthly bearing greasing scheduled", root_cause:null, action:"Bearing greased per OEM spec using NLGI 2 grease, readings normal", maintenance_type:"Preventive Maintenance", status:"Closed", downtime_hours:0, loto_detected:false, loto_note:null, parts_mentioned:["NLGI 2 grease"], is_breakdown:false, urgency:"normal", supervisor_alert:null`;
+→ machine:"P-003", problem:"Monthly bearing greasing scheduled", root_cause:null, action:"Bearing greased using NLGI 2 grease, readings normal", maintenance_type:"Preventive Maintenance", status:"Closed", downtime_hours:0, loto_detected:false, loto_note:null, parts_mentioned:["NLGI 2 grease"], is_breakdown:false, urgency:"normal", supervisor_alert:null`;
 
 
 // Gateway-adoption fallback: when called via ai-gateway, body.worker_name
@@ -100,7 +106,8 @@ async function deriveWorkerFromJWT(
   }
 }
 
-serveObserved("voice-logbook-entry", async (req) => {
+serveObserved("voice-logbook-entry", tracedReply("voice-logbook-entry", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "voice-logbook-entry", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -108,7 +115,7 @@ serveObserved("voice-logbook-entry", async (req) => {
   if (_health) return _health;
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  logRequestStart(req, "voice-logbook-entry");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     // ★A CALLER'S MISTAKE IS NOT A SERVER ERROR (live-walk wave, 2026-09-06). tools/prove_edge_contract.mjs asked this
@@ -144,6 +151,7 @@ serveObserved("voice-logbook-entry", async (req) => {
     // Pillar I: the direct (logbook.html) path scopes the entry write by the
     // client hive_id on a service-role client — verify membership. The
     // ai-gateway forward is service-role and skips. Verify when hive claimed.
+    let _verifiedHiveId: string | null = null;   // the hive the limiters count on: proven below, or a service caller's
     if (hive_id) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
@@ -154,6 +162,9 @@ serveObserved("voice-logbook-entry", async (req) => {
             { status: t.status, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
+        _verifiedHiveId = t.hive_id || hive_id;
+      } else {
+        _verifiedHiveId = hive_id;
       }
     }
     // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
@@ -163,13 +174,35 @@ serveObserved("voice-logbook-entry", async (req) => {
     // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
     // fail a real request.
     try {
-      const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "voice-logbook-entry");
+      const _rq = await checkRouteRateLimit(db, _verifiedHiveId || "", "voice-logbook-entry");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "voice-logbook-entry", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(cors, "voice-logbook-entry", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id || "");
-    if (!rl.allowed) return rateLimitedResponse(cors, rl.scope ?? "hour", rl.retry_after_seconds);
+    // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+    // again here halved the hive's rate on the logbook-voice route (2026-10-08). The per-surface quota above is kept on
+    // both doors: it is keyed on this function's name, a bucket the gateway never touches.
+    const viaGateway = await isTrustedGatewayForward(req);
+    if (!viaGateway && _verifiedHiveId) {
+      const rl = await checkAIRateLimit(db, _verifiedHiveId);
+      if (!rl.allowed) return rateLimitedResponse(cors, rl.scope ?? "hour", rl.retry_after_seconds);
+    } else if (!viaGateway) {
+      // ★A CALLER WITH NO HIVE WAS NEVER COUNTED (2026-10-08). checkAIRateLimit(db, "") admits without tracking,
+      // and with verify_jwt = false and no hive claimed nobody was even identified - anyone, with no token at all,
+      // reached the model unmetered. A person is limited on their own bucket (the verified uid) with the budget a
+      // single-person hive gets, an anonymous caller on the IP floor, and a caller with neither is refused.
+      const { authUid: _soloUid, isServiceRole: _soloSvc } = await resolveIdentity(db, req);
+      if (!_soloSvc) {
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _srl = await checkSoloRateLimit(db, soloRateLimitKey(_soloUid, _ip), DEFAULT_RATE_LIMIT_PER_HOUR,
+          DEFAULT_RATE_LIMIT_PER_DAY, _ip || null, true);
+        if (!_srl.allowed) {
+          return _srl.scope === "unidentified"
+            ? soloUnidentifiedResponse(cors)
+            : soloRateLimitedResponse(cors, _srl.retry_after_seconds, _srl.scope);
+        }
+      }
+    }
 
     const raw = await callAI(safe, {
       systemPrompt: LOGBOOK_SYSTEM,
@@ -178,6 +211,16 @@ serveObserved("voice-logbook-entry", async (req) => {
       jsonMode:     true,
     });
 
+    // ★NO MODEL ANSWERED AND THE FORM WAS FILLED ANYWAY (2026-10-12, UFAI edge walk W4421). The chain's "{}" parsed as
+    // an empty object, so the reply was ok:true with the person's raw words as the problem, "Breakdown / Corrective"
+    // and "Open" - defaults no model chose - and the page filled them in marked as AI-filled. It is a refusal with
+    // the cause; the page says its fields are unchanged.
+    if (!aiAnswered(raw)) {
+      return new Response(
+        JSON.stringify({ error: "The voice assistant is not answering just now, so nothing was filled in.", code: "FILL_UNAVAILABLE" }),
+        { status: 503, headers: { ...cors, "Content-Type": "application/json" } },
+      );
+    }
     let parsed: Record<string, unknown>;
     try {
       parsed = JSON.parse(raw);
@@ -214,4 +257,4 @@ serveObserved("voice-logbook-entry", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-logbook-entry", "voice_logbook_entry_error", err);
   }
-});
+}));

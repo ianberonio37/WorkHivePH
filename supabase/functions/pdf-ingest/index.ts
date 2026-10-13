@@ -64,10 +64,10 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
 import { handleHealth } from "../_shared/health.ts";
-import { logRequestStart } from "../_shared/logger.ts";
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -272,7 +272,7 @@ async function processJob(
   };
 }
 
-serveObserved("pdf-ingest", async (req) => {
+serveObserved("pdf-ingest", tracedReply("pdf-ingest", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "pdf-ingest", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -282,7 +282,7 @@ serveObserved("pdf-ingest", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "pdf-ingest");  // I6 observability
+  log.info(_trace, "request_start", { method: req.method });  // I6 observability, under the id this reply returns (tracedReply hands it in; R8: never a second id)
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -361,4 +361,4 @@ serveObserved("pdf-ingest", async (req) => {
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
-});
+}));

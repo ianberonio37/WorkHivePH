@@ -16,7 +16,7 @@
 // (no query, embed unavailable, RPC error, nothing above threshold) returns [] / ""
 // so the gateway proceeds with no DOMAIN KNOWLEDGE block (graceful degrade — O12).
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { generateEmbeddingCached } from "./embedding-chain.ts";
 
 export const PK_MATCH_LIMIT     = 3;

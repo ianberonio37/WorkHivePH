@@ -1,4 +1,5 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id per request, returned on every reply
 // capability: ai_specialist_engineering
 
 // contract-allow: deterministic engineering calcs; not a brain output
@@ -15,7 +16,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 // P1 roadmap 2026-05-26: adoption of shared /health helper.
 import { handleHealth } from "../_shared/health.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
@@ -6054,7 +6055,8 @@ function calcRefrigPipeSizing(inputs: Record<string, unknown>): Record<string, u
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-serveObserved("engineering-calc-agent", async (req) => {
+serveObserved("engineering-calc-agent", tracedReply("engineering-calc-agent", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -6063,7 +6065,7 @@ serveObserved("engineering-calc-agent", async (req) => {
   // /health probe.
   const healthResp = await handleHealth(req, "engineering-calc-agent", async () => ({
     deps: [
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
       { name: "python-api", ok: true },  // checked at deploy, not per-request
     ],
   }));
@@ -6099,7 +6101,7 @@ serveObserved("engineering-calc-agent", async (req) => {
     if (!_id.isServiceRole) {
       const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
       const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
-      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds);
+      if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
     }
 
     // ─── Python API proxy (Phase 0+) ─────────────────────────────────────────
@@ -6130,7 +6132,7 @@ serveObserved("engineering-calc-agent", async (req) => {
         }
       } catch (_pyErr) {
         // Network error, timeout, or cold-start: fall through silently
-        log.warn(null, "Python API unavailable, falling back to TypeScript:", { detail: String(_pyErr) });
+        log.warn(trace, "Python API unavailable, falling back to TypeScript:", { detail: String(_pyErr) });
       }
     }
     // ─────────────────────────────────────────────────────────────────────────
@@ -6253,4 +6255,4 @@ serveObserved("engineering-calc-agent", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "engineering-calc-agent", "engineering_calc_agent_error", err);
   }
-});
+}));

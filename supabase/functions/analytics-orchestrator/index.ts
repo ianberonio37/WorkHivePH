@@ -1,6 +1,8 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";
+import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for  // LM-E: one trace id per request, returned on every reply
 // capability: ai_analytics_synthesis
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { redactPII } from "../_shared/redactPII.ts";
@@ -11,7 +13,12 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: adoption of shared /health helper.
 import { handleHealth } from "../_shared/health.ts";
-import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY,
+} from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 import { validateContract } from "../_shared/validate-contract.ts";
 // Persona Contract: narrated-specialist mode — the weekly action plan JSON
 // gains a `narration` field (1-2 sentences in the worker's persona voice).
@@ -510,6 +517,50 @@ function enforceReadablePlan(plan: Record<string, unknown>): Record<string, unkn
   return out;
 }
 
+// ★A BRIEF FROM THE RECORDS WHEN NO MODEL ANSWERS (2026-10-09). The prescriptive phase computes, without any model,
+// which parts to reorder (and how urgently), which assets rank highest and which PM intervals to change, and the
+// canonical risk snapshot names what is predicted to fail. When the synthesis chain is exhausted those facts were
+// dropped and the page got nothing. This turns them into the same analytics_action_plan_v1 shape - summary,
+// this_week, watch_list, narration - and says in its own first sentence that no AI wrote it. _engine marks it
+// `deterministic` so a reader of the payload can tell it from a model's plan. Returns null when the records hold
+// nothing to act on: an empty brief is not a brief.
+type PlanRow = Record<string, unknown>;
+function deterministicActionPlan(results: Record<string, unknown>, canonicalRisk: PlanRow[] | null): Record<string, unknown> | null {
+  const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const arr = (v: unknown) => (Array.isArray(v) ? (v as PlanRow[]) : []);
+  const sub = (k: string) => ((results && typeof results[k] === "object" && results[k]) ? results[k] as PlanRow : {} as PlanRow);
+  const items: string[] = [];
+  for (const p of arr(sub("parts_reorder").reorder)
+         .filter((p) => ["CRITICAL", "HIGH"].includes(str(p.urgency).toUpperCase())).slice(0, 3)) {
+    const name = str(p.part_name);
+    if (!name) continue;
+    items.push(`${str(p.action) || "Reorder."} ${name}: ${p.qty_on_hand ?? "?"} on hand, reorder at ${p.reorder_point ?? "?"}.`);
+  }
+  for (const a of arr(sub("priority_ranking").ranking).slice(0, 3)) {
+    const name = str(a.asset_name) || str(a.asset) || str(a.name);
+    if (name) items.push(`Check ${name}.` + (str(a.reason) ? ` ${str(a.reason)}` : ""));
+  }
+  for (const r of arr(sub("pm_interval_optimization").recommendations).slice(0, 2)) {
+    const name = str(r.asset_name) || str(r.asset);
+    const act = str(r.action) || str(r.recommendation);
+    if (name && act) items.push(`${act} (${name}).`);
+  }
+  const watch = (canonicalRisk || []).filter((c) => str(c.asset_name)).slice(0, 3).map((c) => {
+    const n = typeof c.days_until_failure === "number" ? Math.round(c.days_until_failure as number) : null;
+    // a prediction already past is "due now", not "0 days" - the clamp read like a countdown that had not started
+    const d = n === null ? "" : n <= 0 ? ", predicted failure is due now" : `, ${n} day${n === 1 ? "" : "s"} to predicted failure`;
+    return `${str(c.asset_name)}: ${str(c.risk_level) || "elevated"} risk${d}.`;
+  });
+  if (!items.length && !watch.length) return null;
+  return {
+    summary: "No AI model answered, so this brief is built from your hive's records. Nothing in it was written by AI.",
+    this_week: items.slice(0, 6),
+    watch_list: watch,
+    narration: "This brief comes from your records, not from AI.",
+    _engine: { deterministic: true, providerName: "none", modelName: "records" },
+  };
+}
+
 async function callGroqSynthesis(
   fullContext: Record<string, unknown>,
   hiveMembers: string[],
@@ -569,13 +620,13 @@ target instead of contradicting it.
     the status quo.
 
 Write a connected plan that DRAWS FROM ALL 4 PHASES, not just prescriptive recommendations.
-Examples of phase-linked reasoning — the <asset> / <part> tokens below are PLACEHOLDERS that show
-STRUCTURE ONLY. Replace each with THIS hive's actual asset code from canonical_risk[] / the phase
-data; NEVER emit "<asset>" literally and NEVER copy an example's wording as a real code (note the
-length — match it):
+Examples of phase-linked reasoning — every <...> token below is a PLACEHOLDER that shows
+STRUCTURE ONLY. Replace each with THIS hive's actual value from canonical_risk[] / the phase
+data / the member list; NEVER emit a "<...>" token literally and NEVER copy an example's wording
+as a real code, count, or figure (note the length — match it):
   • "<asset> fails most often (descriptive). Bearing wear is the cause (diagnostic). Tighten its bearing inspection to monthly (prescriptive)."
-  • "<asset> is forecast to fail by Tuesday (predictive). Only 1 spare <part> is in stock. Order 2 more this week."
-  • "Mechanical MTTR runs 3.2h above the team average (diagnostic). Ask the L4 tech to mentor L1-L2 on bearing replacement."
+  • "<asset> is forecast to fail by <day> (predictive). Only <n> spare <part> is in stock. Order <n> more this week."
+  • "Mechanical MTTR runs <n>h above the team average (diagnostic). Ask a <senior level> tech to mentor <junior levels> on bearing replacement."
 
 CANONICAL RISK RULE (Phase 2.2): When the input has a non-empty canonical_risk
 array, that array IS the platform's source of truth for "which assets are at
@@ -586,7 +637,7 @@ priority_ranking when canonical_risk disagrees. Cite canonical_risk first;
 descriptive / diagnostic / prescriptive top-Ns are corroborating context.
 
 ${memberList}
-Only reference machines, parts, and workers that ACTUALLY APPEAR IN THE DATA (canonical_risk[], the phase top-Ns, and the member list above). NEVER invent an asset, part, or worker, and NEVER copy a name or code that appears only in THESE INSTRUCTIONS (the example tokens like "P-103", "GEN-003", "<asset>" are illustrative — a value must appear in the payload to be cited). Cite the REAL codes, KPI numbers, and dates from the payload. If a phase returned no data, say that plainly (e.g. "No failures logged this period.") instead of naming any asset.
+Only reference machines, parts, and workers that ACTUALLY APPEAR IN THE DATA (canonical_risk[], the phase top-Ns, and the member list above). NEVER invent an asset, part, or worker, and NEVER copy a name, code, or figure that appears only in THESE INSTRUCTIONS (the "<asset>" / "<part>" / "<n>" tokens are illustrative — a value must appear in the payload to be cited). Cite the REAL codes, KPI numbers, and dates from the payload. If a phase returned no data, say that plainly (e.g. "No failures logged this period.") instead of naming any asset.
 
 Use bullet points. Maximum 250 words.
 // contract: analytics_action_plan_v1 (canonical_agent_contracts; consumers: analytics.html, shift-brain.html, hive.html)
@@ -668,7 +719,7 @@ Format as JSON:
 
   try {
     // Capture WHICH provider actually answered. callAI returns only the content, and the chain
-    // (groq -> cerebras -> sambanova -> gemini-flash-lite -> openrouter) silently walks past any
+    // (groq -> gemini -> mistral -> openrouter, code models last) silently walks past any
     // provider that is down, so without this hook a degraded answer is indistinguishable from a
     // primary one on the surface - the page could not say which engine it used because nothing told
     // it. depth 0 = primary; anything higher means the providers above it were exhausted.
@@ -830,7 +881,8 @@ async function callPythonAnalytics(phase: string, inputs: Record<string, unknown
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serveObserved("analytics-orchestrator", async (req) => {
+serveObserved("analytics-orchestrator", tracedReply("analytics-orchestrator", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -840,12 +892,12 @@ serveObserved("analytics-orchestrator", async (req) => {
   const healthResp = await handleHealth(req, "analytics-orchestrator", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "analytics-orchestrator" });
+  const _logCtx = trace;   // the id tracedReply minted (beginRequest) - logged here, returned on every reply
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
@@ -900,6 +952,10 @@ serveObserved("analytics-orchestrator", async (req) => {
     const _bearer = _authHeader.toLowerCase().startsWith("bearer ") ? _authHeader.slice(7).trim() : "";
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const _isServiceRole = Boolean(_bearer) && Boolean(_serviceKey) && _bearer === _serviceKey;
+    let _soloRlUid: string | null = null;   // a verified person with no hive: limited on their own bucket below
+    // the hive the limiters count on: a service-role caller's (trusted), or one the membership check below proved
+    let _verifiedHiveId: string | null = _isServiceRole ? (hive_id || null) : null;
+    if (_isServiceRole) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
     if (!_isServiceRole) {
       const _uid = await resolveUserId(db, _bearer);
       if (!_uid) {
@@ -911,14 +967,31 @@ serveObserved("analytics-orchestrator", async (req) => {
       if (hive_id) {
         // Canonical membership read via v_worker_truth (same source as
         // export-hive-data's checkSupervisor) — active member of this hive.
-        const { data: _mem } = await db.from("v_worker_truth")
+        // ★A MEMBERSHIP READ THAT FAILED IS NOT A MEMBERSHIP THAT IS ABSENT (2026-10-06, found by walking
+        // LXP199 with PostgREST genuinely stopped). This gate destructured `data` and threw `error` away, so a
+        // read that NEVER RAN produced `!_mem` and the function announced 403 "Caller is not an active member of
+        // this hive" - a statement about the person's standing in the hive, derived from no evidence. Measured on
+        // analytics-report.html: Bryan Garcia, an active member of Baguio Textile Mills whose full report had
+        // generated two minutes earlier, was told "You are not an active member of this hive... Switch or rejoin a
+        // hive, then retry." The advice is useless (nothing is wrong with his membership) and alarming (it says
+        // his access was revoked) and the one true cause - the service was down - was never mentioned.
+        // The refused read is a FOURTH state, distinct from yes/no: it gets a 503 that says so.
+        const { data: _mem, error: _memErr } = await db.from("v_worker_truth")
           .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _uid).eq("hive_status", "active").maybeSingle();
+        if (_memErr) {
+          return new Response(
+            JSON.stringify({ error: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment." }),
+            { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         if (!_mem) {
           return new Response(
             JSON.stringify({ error: "Caller is not an active member of this hive" }),
             { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+        noteModelCaller({ auth_uid: _uid, hive_id });
+        _verifiedHiveId = hive_id;
       } else {
         // canonical-allow: solo mode (no hive_id) cannot use the hive-scoped
         // v_worker_truth — a hiveless user has no row there. worker_profiles is
@@ -933,6 +1006,8 @@ serveObserved("analytics-orchestrator", async (req) => {
           );
         }
         worker_name = _prof.display_name; // override client value — own data only
+        noteModelCaller({ auth_uid: _uid, hive_id: null, worker_name: _prof.display_name });
+        _soloRlUid = _uid;
       }
     }
 
@@ -945,13 +1020,27 @@ serveObserved("analytics-orchestrator", async (req) => {
     // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
     // fail a real request.
     try {
-      const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "analytics-orchestrator");
+      const _rq = await checkRouteRateLimit(db, _verifiedHiveId || "", "analytics-orchestrator");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "analytics-orchestrator", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "analytics-orchestrator", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id || "");
-    if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+    // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+    // again here halved the hive's rate on the analytics route (2026-10-08). The per-surface quota above is kept on both
+    // doors: it is keyed on this function's name, a bucket the gateway never touches.
+    const viaGateway = await isTrustedGatewayForward(req);
+    if (!viaGateway) {
+      // ★A SOLO CALLER WAS NEVER COUNTED (2026-10-08): checkAIRateLimit(db, "") admits without tracking. A person with
+      // no hive draws on their own bucket (the verified uid) with the budget a single-person hive gets.
+      // (a caller with neither is the trusted service role - never counted by an empty hive key)
+      if (_verifiedHiveId) {
+        const rl = await checkAIRateLimit(db, _verifiedHiveId);
+        if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+      } else if (_soloRlUid) {
+        const srl = await checkSoloRateLimit(db, soloRateLimitKey(_soloRlUid, null), DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY, null, true);
+        if (!srl.allowed) return soloRateLimitedResponse(corsHeaders, srl.retry_after_seconds, srl.scope);
+      }
+    }
 
     const periodDays = Number(period_days) || 90;
 
@@ -1186,6 +1275,16 @@ serveObserved("analytics-orchestrator", async (req) => {
       const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
       const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db, persona, horizon);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
+      // ★NO MODEL ANSWERED = NO PLAN, not an empty one (2026-10-09). The synthesis returns "{}" when the chain is
+      // exhausted; shipped as `action_plan: {}` it is truthy, and alert-hub / shift-brain replaced the brief already
+      // on screen with an empty "Action Brief". An object with nothing in it is absent.
+      if (groqSynthesis && typeof groqSynthesis === "object" && !Object.keys(groqSynthesis as Record<string, unknown>).length) {
+        groqSynthesis = null;
+      }
+      // ...but the records are still here. The night shift's brief (alert-hub, 00:00-06:00 PHT, no stored brief yet) and
+      // any brief while the chain is down would otherwise be nothing at all, though this phase has just computed what
+      // to reorder, what ranks highest and what is predicted to fail. A plan built from those, saying so in its own words.
+      if (!groqSynthesis) groqSynthesis = deterministicActionPlan(results as Record<string, unknown>, canonicalRisk);
     }
 
     // Tier C: validate Python-sourced contracts on the requested phase.
@@ -1269,4 +1368,4 @@ serveObserved("analytics-orchestrator", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "analytics-orchestrator", "analytics_orchestrator_error", err);
   }
-});
+}));

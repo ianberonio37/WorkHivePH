@@ -19,7 +19,7 @@
 // Cost: one row write per error + (if DSN set) one fire-and-forget HTTP POST. wh_traces
 // has a hive-scoped RLS read policy + service-role write, so this is safe from any fn.
 
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import type { RequestContext } from "./envelope.ts";
 
 export interface ErrorContext {

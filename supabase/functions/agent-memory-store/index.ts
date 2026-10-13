@@ -29,7 +29,8 @@
  */
 
 import { serveObserved } from "../_shared/observability.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-O: one trace id per request
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role memory ops.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
@@ -62,7 +63,7 @@ void _warm;
 
 // ── Server entry ─────────────────────────────────────────────────────────────
 
-serveObserved("agent-memory-store", async (req) => {
+serveObserved("agent-memory-store", tracedReply("agent-memory-store", async (req, _trace) => {  // LM-O: one trace id per request; its model-call rows carry the id this reply returns
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
@@ -80,7 +81,7 @@ serveObserved("agent-memory-store", async (req) => {
     });
   }
 
-  let body: { op?: string; hive_id?: string | null; worker_name?: string | null; query?: string; memory_types?: MemoryType[]; limit?: number; memories?: StoreInput[] } = {};
+  let body: { op?: string; hive_id?: string | null; worker_name?: string | null; auth_uid?: string | null; query?: string; memory_types?: MemoryType[]; limit?: number; memories?: StoreInput[] } = {};
   try { body = await req.json(); } catch {
     return new Response(JSON.stringify({ error: "That request could not be read. Reload the page and try again." }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -106,24 +107,42 @@ serveObserved("agent-memory-store", async (req) => {
   // remembers should be told it could not look, not shown an exception.
   try {
   const db         = _warm || createClient(_URL, _KEY);
-  const hiveId     = body.hive_id || null;
-  const workerName = body.worker_name || null;
+  let hiveId     = body.hive_id || null;
+  let workerName = body.worker_name || null;
+  // the account the memory belongs to: the caller's own, or the one a trusted internal caller names (2026-10-13)
+  let authUid: string | null = null;
 
   // Pillar I: agent_memory is scoped by the client hive_id on a service-role
   // client — verify membership so a direct caller can't read/write another
   // hive's memory. Internal callers (ai-gateway, agentic-rag-loop) use
-  // service-role and skip. Verify only when a hive is claimed.
-  if (hiveId) {
-    const _id = await resolveIdentity(db, req);
-    if (!_id.isServiceRole) {
-      const t = await resolveTenancy(db, _id.authUid, hiveId);
-      if (!t.ok) {
-        return new Response(
-          JSON.stringify({ error: t.message, code: t.code }),
-          { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
+  // service-role and skip.
+  // ★EVERY CALLER IS IDENTIFIED, AND A PERSON TOUCHES ONLY THEIR OWN MEMORY (2026-10-13, proven live). The check
+  // above ran ONLY when a hive was claimed, and this function is verify_jwt = false - so a caller holding nothing but
+  // the public anon key sent {op:"recall", worker_name:"<anyone>"} with no hive and got that person's durable memories
+  // back from EVERY hive (HTTP 200, a marker row returned), and {op:"store"} wrote memories under any name (HTTP 200,
+  // one row). Now: a service-role caller stays trusted; anyone else must be signed in, is checked against the hive
+  // they claim (or resolved as solo), and the name is the one the SERVER resolves for them - a body naming someone
+  // else is refused, never quietly swapped, so a caller learns it cannot read a colleague's memory.
+  const _id = await resolveIdentity(db, req);
+  if (!_id.isServiceRole) {
+    const t = await resolveTenancy(db, _id.authUid, hiveId);
+    if (!t.ok) {
+      return new Response(
+        JSON.stringify({ error: t.message, code: t.code }),
+        { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
+    if (workerName && workerName !== t.worker_name) {
+      return new Response(
+        JSON.stringify({ error: "You can only use your own assistant memory.", code: "not_your_memory" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    hiveId     = t.hive_id;
+    workerName = t.worker_name;
+    authUid    = _id.authUid;
+  } else {
+    authUid = typeof body.auth_uid === "string" && body.auth_uid ? body.auth_uid : null;
   }
 
   if (body.op === "recall") {
@@ -131,14 +150,14 @@ serveObserved("agent-memory-store", async (req) => {
       ? body.memory_types.filter((t): t is MemoryType => (MEMORY_TYPES as readonly string[]).includes(t))
       : (MEMORY_TYPES as unknown as MemoryType[]);
     const limit = Math.min(MAX_RECALL_LIMIT, Math.max(1, Number(body.limit ?? 5)));
-    const memories = await recallEpisodic(db, hiveId, workerName, { memoryTypes, limit, query: body.query });
+    const memories = await recallEpisodic(db, hiveId, workerName, { memoryTypes, limit, query: body.query, authUid });
     return new Response(JSON.stringify({ ok: true, memories }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   // store
-  const result = await persistEpisodic(db, hiveId, workerName, body.memories || []);
+  const result = await persistEpisodic(db, hiveId, workerName, body.memories || [], authUid);
   return new Response(JSON.stringify({ ok: result.errors.length === 0, ...result }), {
     status: result.errors.length ? 500 : 200,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -152,4 +171,4 @@ serveObserved("agent-memory-store", async (req) => {
       code: "memory_unavailable",
     }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
-});
+}));

@@ -1,9 +1,10 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 // capability: voice_to_action_router
 
 // contract-allow: intent classification only
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { callAI } from "../_shared/ai-chain.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { loadMemory, saveTurn, formatMemoryContext } from "../_shared/memory.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 // P2 Pillar C (Compute & Resilience): cache the deterministic intent classifier.
@@ -16,7 +17,12 @@ import { log } from "../_shared/logger.ts";
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
+import {
+  checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLimitedResponse,
+  checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, soloUnidentifiedResponse, DEFAULT_RATE_LIMIT_PER_HOUR, DEFAULT_RATE_LIMIT_PER_DAY,
+} from "../_shared/rate-limit.ts";
+// The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
+import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -84,7 +90,9 @@ Examples:
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serveObserved("voice-report-intent", async (req) => {
+serveObserved("voice-report-intent", tracedReply("voice-report-intent", async (req, trace) => {
+  // one trace id per request (tracedReply): every JSON reply returns it, and every model call's ai_cost_log row
+  // carries the same id (LM-O, 2026-10-08)
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -94,12 +102,12 @@ serveObserved("voice-report-intent", async (req) => {
   const healthResp = await handleHealth(req, "voice-report-intent", async () => ({
     deps: [
       { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
-      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("CEREBRAS_API_KEY")) },
+      { name: "ai-chain", ok: Boolean(Deno.env.get("GROQ_API_KEY") || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("MISTRAL_API_KEY") || Deno.env.get("OPENROUTER_API_KEY")) },
     ],
   }));
   if (healthResp) return healthResp;
 
-  const _logCtx = beginRequest(req, { route: "voice-report-intent" });
+  const _logCtx = trace;
   log.info(_logCtx, "request_start", { method: req.method });
 
   try {
@@ -135,6 +143,7 @@ serveObserved("voice-report-intent", async (req) => {
     // Pillar I: the direct (report-sender.html) path scopes by the client
     // hive_id on a service-role client — verify membership. The ai-gateway
     // forward is service-role and skips. Verify when a hive is claimed.
+    let _verifiedHiveId: string | null = null;   // the hive the limiters count on: proven below, or a service caller's
     if (hive_id) {
       const { authUid, isServiceRole } = await resolveIdentity(db, req);
       if (!isServiceRole) {
@@ -145,6 +154,9 @@ serveObserved("voice-report-intent", async (req) => {
             { status: t.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
+        _verifiedHiveId = t.hive_id || hive_id;
+      } else {
+        _verifiedHiveId = hive_id;
       }
     }
     // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
@@ -154,13 +166,35 @@ serveObserved("voice-report-intent", async (req) => {
     // none do, so this is a no-op behaviour change. Wrapped: quota bookkeeping must never
     // fail a real request.
     try {
-      const _rq = await checkRouteRateLimit(db, hive_id || "" || "", "voice-report-intent");
+      const _rq = await checkRouteRateLimit(db, _verifiedHiveId || "", "voice-report-intent");
       // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
       // a no-op until an admin sets a cap - while always counting for attribution.
-      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "voice-report-intent", _rq.cap, _rq.retry_after_seconds);
+      if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "voice-report-intent", _rq.cap, _rq.retry_after_seconds, _rq.scope);
     } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
-    const rl = await checkAIRateLimit(db, hive_id || "");
-    if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+    // ai-gateway already counted a forwarded call on THIS hive's ai_rate_limits row (checkUserRateLimit); counting it
+    // again here halved the hive's rate on the report-voice route (2026-10-08). The per-surface quota above is kept on
+    // both doors: it is keyed on this function's name, a bucket the gateway never touches.
+    const viaGateway = await isTrustedGatewayForward(req);
+    if (!viaGateway && _verifiedHiveId) {
+      const rl = await checkAIRateLimit(db, _verifiedHiveId);
+      if (!rl.allowed) return rateLimitedResponse(corsHeaders, rl.scope ?? "hour", rl.retry_after_seconds);
+    } else if (!viaGateway) {
+      // ★A CALLER WITH NO HIVE WAS NEVER COUNTED (2026-10-08). checkAIRateLimit(db, "") admits without tracking,
+      // and with verify_jwt = false and no hive claimed nobody was even identified - anyone, with no token at all,
+      // reached the model unmetered. A person is limited on their own bucket (the verified uid) with the budget a
+      // single-person hive gets, an anonymous caller on the IP floor, and a caller with neither is refused.
+      const { authUid: _soloUid, isServiceRole: _soloSvc } = await resolveIdentity(db, req);
+      if (!_soloSvc) {
+        const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const _srl = await checkSoloRateLimit(db, soloRateLimitKey(_soloUid, _ip), DEFAULT_RATE_LIMIT_PER_HOUR,
+          DEFAULT_RATE_LIMIT_PER_DAY, _ip || null, true);
+        if (!_srl.allowed) {
+          return _srl.scope === "unidentified"
+            ? soloUnidentifiedResponse(corsHeaders)
+            : soloRateLimitedResponse(corsHeaders, _srl.retry_after_seconds, _srl.scope);
+        }
+      }
+    }
 
     // P2 Pillar C: cache the intent classifier. The report-intent JSON is
     // determined by the transcript ALONE (INTENT_SYSTEM is a const; no persona,
@@ -187,6 +221,15 @@ serveObserved("voice-report-intent", async (req) => {
       6 * 60 * 60,
     );
     const raw = cr.data;
+    // ★NO MODEL ANSWERED AND THIS SAID "NOTHING TO PICK" (2026-10-12, UFAI edge walk W4745). The chain's "{}" parsed
+    // as an empty intent, so the reply was 200 with no reports and the person's words as a note: the page picked
+    // nothing and showed the words on the card as if they had been understood. It is a refusal, with the cause.
+    if (!aiAnswered(raw)) {
+      return new Response(
+        JSON.stringify({ error: "The voice assistant is not answering just now.", code: "INTENT_UNAVAILABLE" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
     if (cr.hit) console.log("[voice-report-intent] intent cache hit");
 
     const VALID_TYPES = new Set(["pm_overdue","failure_digest","shift_handover","predictive"]);
@@ -237,4 +280,4 @@ serveObserved("voice-report-intent", async (req) => {
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "voice-report-intent", "voice_report_intent_error", err);
   }
-});
+}));

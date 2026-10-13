@@ -1,10 +1,11 @@
 import { serveObserved, failTracked } from "../_shared/observability.ts";
+import { tracedReply } from "../_shared/trace-reply.ts";
+import { withModelCaller } from "../_shared/model-calls.ts";  // LM-O: each hive's model calls are recorded for that hive  // LM-E: one trace id per request, returned on every reply
 import { handleHealth } from "../_shared/health.ts";
 
-import { logRequestStart } from "../_shared/logger.ts";
 
 // contract-allow: cron-triggered writes
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -426,7 +427,8 @@ async function runProjectRisk(db: SupabaseClient, hiveId: string, voiceContext?:
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-serveObserved("scheduled-agents", async (req) => {
+serveObserved("scheduled-agents", tracedReply("scheduled-agents", async (req, trace) => {
+  // the trace id beginRequest minted is the one every JSON reply of this function returns (tracedReply, LM-E)
   // Arc T/T1: standard liveness /health (fn up + DB creds reachable).
   const _health = await handleHealth(req, "scheduled-agents", async () => ({
     deps: [{ name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) }],
@@ -436,7 +438,7 @@ serveObserved("scheduled-agents", async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  logRequestStart(req, "scheduled-agents");  // I6 observability
+  log.info(trace, "request_start", { method: req.method });  // I6 observability
 
   try {
     // hive_id is optional — when provided, runs for that hive only (on-demand from Report Sender).
@@ -521,7 +523,7 @@ serveObserved("scheduled-agents", async (req) => {
           const _rq = await checkRouteRateLimit(db, hive_id || "", "scheduled-agents");
           // Denies ONLY when an explicit hive_route_quotas row exists (rq.per_route), so this stays
           // a no-op until an admin sets a cap - while always counting for attribution.
-          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "scheduled-agents", _rq.cap, _rq.retry_after_seconds);
+          if (_rq.per_route && !_rq.allowed) return routeRateLimitedResponse(corsHeaders, "scheduled-agents", _rq.cap, _rq.retry_after_seconds, _rq.scope);
         } catch { /* empty-catch-allow: per-surface quota bookkeeping must never fail a real request */ }
         const _rl = await checkAIRateLimit(db, hive_id);
         if (!_rl.allowed) return rateLimitedResponse(corsHeaders, _rl.scope ?? "hour", _rl.retry_after_seconds);
@@ -580,7 +582,7 @@ serveObserved("scheduled-agents", async (req) => {
     const results = await Promise.allSettled(
       hives.map(async (hive) => {
         try {
-          const summary = await runner(db, hive.id, voice_context);
+          const summary = await withModelCaller({ hive_id: hive.id }, () => runner(db, hive.id, voice_context));
           await logRun(db, report_type, hive.id, "success", summary);
           return { hive: hive.name, status: "success", summary };
         } catch (err) {
@@ -601,8 +603,8 @@ serveObserved("scheduled-agents", async (req) => {
     );
 
   } catch (err) {
-    log.error(null, "scheduled-agents error:", { detail: err });
+    log.error(trace, "scheduled-agents error:", { detail: err });
     // T2b: aggregate this HANDLED failure to wh_traces + non-leaky 500.
     return await failTracked(req, "scheduled-agents", "scheduled_agents_error", err);
   }
-});
+}));
