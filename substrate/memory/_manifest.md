@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1005-files
-source_sha: 1a6997ddc972f7fa
+source: memory-curated:1006-files
+source_sha: 2a25da8f0507c55f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1005 durable topic files)
+## memory · curated auto-memory (1006 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=617 · project=298 · reference=90
+**By type:** feedback=618 · project=298 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -161,6 +161,7 @@ Entries (name · type · sha):
 - `feedback_a_skipped_gate_is_unrun_during_the_wave_that_breaks_it` · feedback · 0259465edc46e5b8
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 199b2079411adb11
+- `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · 54d7b1f8bff39fca
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_strangers_read_dies_on_a_column_it_never_asked_for` · feedback · 5b16bfb850947922
 - `feedback_a_stuck_skeleton_is_invisible_to_every_gate` · feedback · 8cd98c83294ba95e
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_structure_is_a_means_re_architect_when_justified` · feedback · bbb04b0d98963182
 - `feedback_subprocess_timeout` · feedback · bf6c9a4a50de1dc6
 - `feedback_subprocess_unbuffered` · feedback · e984b66edf54e81e
-- `feedback_substrate_page_maps_beat_fresh_greps` · feedback · b956c79b4b292d4a
-- … +505 more (all included in the fingerprint)
+- … +506 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

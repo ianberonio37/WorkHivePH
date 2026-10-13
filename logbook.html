@@ -1626,10 +1626,11 @@ let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallbac
   } catch (_) { /* empty-catch-allow: the stamp is best-effort chrome */ }
 })();
 let HIVE_ID     = whHiveId();
+window.WH_SEATS_HIVE_ITSELF = true;   // init re-seats a missing hive before any read (whEnsureHiveContext) - no reload needed
 // Declared here beside the other canonical identity reads: the team-scope notice below names
 // the hive, and using HIVE_NAME without declaring it is a ReferenceError the moment that
 // branch runs (caught by validate_dom_refs, which HEAD passed and this file did not).
-const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';   // let: whEnsureHiveContext may seat the hive at init
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 
 // ── AUDIT LOG ──
@@ -7688,6 +7689,19 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { whSignInWall(); return; }
+
+  // ★NO STORED HIVE IS A QUESTION FOR THE SERVER, NOT AN ANSWER (Ian, 2026-10-14: his 6 hive assets missing
+  // from Select Asset). The logbook before 2026-10-13 deleted the stored hive whenever this device's name
+  // drifted from the membership row, and nothing but the home ever refilled it, so a supervisor opening the
+  // logbook directly ran in solo mode and the picker read "No assets registered yet." See whEnsureHiveContext.
+  if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
+    const _seated = await whEnsureHiveContext(db);
+    if (_seated) {
+      HIVE_ID   = _seated;
+      HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+      HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    }
+  }
 
   const isMember = await validateHiveMembership();
   // Both branches clear the boot interstitial: the gate below renders its own explanation, and past

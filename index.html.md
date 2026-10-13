@@ -19,7 +19,7 @@ The logo itself
 
 The Hive is Open · Philippines
 
-Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant.
+Free industrial tools for every Filipino worker. Log jobs, schedule PMs and track spare parts and skills. Run engineering calculations, or ask the AI work assistant.
 
 [Join the Hive](?signup=1)
 [See How It Works](#platform)
@@ -172,17 +172,13 @@ Philippine industrial work is held back by four compounding gaps. WorkHive is th
 
 ### From Chaos to Coordination
 
-The gap: Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.
+The gap: Departments run in isolation and failures strike without warning.
 
 Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
 
 35-50%
 
 Less Unplanned Downtime
-
-4-8x
-
-Cost Saved vs. Reactive Repair
 
 02
 
@@ -192,10 +188,6 @@ The gap: Organizations can't deploy their best people because they don't know wh
 
 Right person, right job, every time. Competence replaces availability.
 
-15-25%
-
-Maintenance Labor Efficiency Gain
-
 Data
 
 Not Guesswork, for Every Assignment
@@ -204,13 +196,9 @@ Not Guesswork, for Every Assignment
 
 ### From Amnesia to Memory
 
-The gap: When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.
+The gap: When a technician retires, 12 years of expertise disappears.
 
 When an expert retires, the knowledge stays. Every repair makes the hive smarter.
-
-60-80%
-
-Less Knowledge Loss at Transitions
 
 ∞
 
@@ -223,10 +211,6 @@ Compounding Organizational Memory
 The gap: The right specialist takes weeks to find, if you find them at all.
 
 The right specialist found in hours, not weeks. Luck replaced by design.
-
-35%
-
-Faster Time-to-Source Specialists
 
 4 Pillars
 
@@ -244,7 +228,7 @@ Skills guessed at. Wrong person assigned. Job takes 2x longer.
 
 AI matches the best available worker by skill and availability. Done right, first time.
 
-Expert retires. ₱800K to ₱2.4M in knowledge walks out the door. Start from scratch.
+Expert retires. Their knowledge walks out the door. Start from scratch.
 
 Every insight captured before they leave. Organizational memory compounds, forever.
 
@@ -254,23 +238,7 @@ Less Unplanned Downtime
 
 What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.
 
-60-80%
-
-Knowledge Preserved
-
-Reduction in knowledge loss costs at workforce transitions
-
-15-25%
-
-Labor Efficiency
-
-Improvement in maintenance labor efficiency through AI-matched assignments
-
-35%
-
-Faster Sourcing
-
-Average reduction in time-to-source for specialized maintenance services
+Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/), which reports it as a widely cited industry range, not a published standard · updated 24 Aug 2026
 
 ## Every worker
 
@@ -441,4 +409,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: c62a8eb239ca35a4 -->
+<!-- md-twin source-sha: 19357111bfa4159d -->

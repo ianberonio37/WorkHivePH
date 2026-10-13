@@ -2566,6 +2566,51 @@ as soon as the client exists and reused by the rate limiter. Live, signed in as 
 id (the deterministic `miner_only` path, no model): both `request_start` lines carry `user_id: null` where the old code
 logged Leandro's id.
 
+### §LM.17 After the release: Ian's missing assets, and the front door he decided (2026-10-14)
+
+**The release landed** (`3d53143a..c458e051`, runbook `b112a351`): 49 migrations, 62 functions, the site at shell
+v516; smoke 13/13 pages, `ai-gateway` healthy, an anonymous `agent-memory-store` recall answers 401. LA7, the journey
+that held cv-funnel, was stale rather than the bar broken: the landing reveals its sticky "Join the Hive" once the
+hero's own button has left through the top, and LA7 scrolled a fixed 800px. It now scrolls by the page's rule, and its
+isolated run is folded into the sweep by `tools/fold_journey_rerun.py`, which writes the fold into the results file.
+
+**Ian: "I still can't find my registered assets, it is still missing, when I access the logbook. I thought we
+already sort it."** The 2026-10-04 fix (`logbook-asset-picker-identity`) was for a person's PERSONAL assets keyed by
+name, and it could not reach him: read on production (counts only), his account is an active supervisor of one hive
+with 6 approved hive assets, all bound to his account, none personal. The cause was one layer up. Until the 2026-10-13
+release, the logbook checked membership by `worker_name` = the name the device had stored, and any drift from
+"Ian Phone" read as "no longer a member": the page deleted `wh_active_hive_id`. With no stored hive every page runs
+solo, where a hive's assets cannot appear, and the picker says "No assets registered yet." Only `index.html` ever
+refilled the key. The release's account-keyed check stopped the deleting; it could not undo it.
+- `utils.js whEnsureHiveContext(db)` re-seats a missing hive from the account (by `auth_uid`, kicked excluded, the
+  home's rule for several hives) and writes nothing on an unreadable answer. `logbook.html` and `asset-hub.html` call it
+  in their start-up; the other 27 pages that read `whHiveId()` get `whHiveRecovery`, which seats after load and
+  reloads once per tab (a solo account is asked once per tab, not on every page).
+- Proved live both ways by `logbook-hive-restore` (`tools/prove_logbook_hive_restore.mjs`), with Ian's shape
+  (Leandro: one hive, 14 approved hive assets bound to him, none personal), stored hive deleted and name drifted:
+  the logbook lists 30 assets, Asset Hub lists AC-002, PM Scheduler ends in his hive after one reload; with the helper
+  removed all three stay solo and empty. Held statically by `hive-restore-adoption` (29 readers covered, no opt-out
+  without a restore). On today's production build, opening Home first re-seats the hive (verified the same way).
+
+**The front door, decided by Ian** (AskUserQuestion, all four recommendations). Measured before building: since the
+lens learned to see scroll-revealed content, the FAQ's `<details>` count, so O2 (18 help affordances) and A3
+(15 disclosures) already passed on a phone; a new "How it works" panel would have duplicated the FAQ and the hero's
+"See How It Works", so none was built. What was built:
+- **Only the sourced figure stays.** 35-50% less unplanned downtime (the downtime guide's range) now carries a source
+  chip naming the guide and its date (E3 0 -> 100 at 320/390/1280). Removed as unsourced: 60-80% knowledge
+  preserved, 15-25% labour efficiency, 35% faster sourcing; and two more the same rule covers, 4-8x cost of a
+  breakdown (the guide, citing the US DOE O&M guide, says 12-18% and that the honest figure is smaller than the ratios
+  often quoted) and P800K-P2.4M per transition (WorkHive's own estimate, stated as fact).
+- **The hero and footer lines in plain words**; the header's Sign Up is outlined, so "Join the Hive" is the one filled
+  first step at every width (G3 at 1280: 3 -> 2).
+- **Q2:** the impact card's new link sat inside a `.stagger-wrap` child at opacity 0; focus inside a staggered grid
+  now shows the grid. **K2 (the lens):** with the "35%" tiles gone, the stage badges 01-04 read as four small KPIs;
+  a zero-padded ordinal is a label. Teeth both ways in `rubric-teeth`, which also had a dead case: its "over-grade"
+  B3 sentence was 11 words, under the 12-word floor B3 grades from, so it could never bite (now 14).
+- **Still failing on the landing:** B3 (9 sentences above grade 8, the worst the 44-word "What is WorkHive?" answer),
+  C1 and A1 (type scale), all measured before tonight's changes. B3 is front-door copy, so it goes to Ian as a
+  proposal with each rewrite shown.
+
 ## §LW · The LIVE-WALK wave and its MCP instruments (Ian, 2026-09-06)
 
 Ian: *"live deepwalk each trajectory or group of categories, but do not repeat what you already done"*, then

@@ -41,7 +41,8 @@
     "wh_voice_brevity",
     "wh_voice_journal_persona",
     "wh_voice_lang_pref",
-    "wh_voice_session_id"
+    "wh_voice_session_id",
+    "wh_hive_recovered"
   ],
   "aliases": {
     "wh_hive_id": "wh_active_hive_id",

@@ -70,8 +70,16 @@ const PAGES = {
   // genuinely over-grade 14-word sentence beside it must still fail.
   b3meta: HEAD + '<main><h1>Synthetic report</h1><p class="wh-source-chip">Recomputed each time you generate this report'
     + ' · Based on your project items, project progression and accumulated expenditure</p></main></body></html>',
+  // 14 words, as the note above says: B3 grades Flesch-Kincaid only from 12 words up (TH.B3.minGradedWords), and the
+  // 11-word version of this sentence sat under that floor, so the case could never bite (found 2026-10-14).
   b3grade: HEAD + '<main><h1>Synthetic report</h1><p>Consolidated expenditure categorization necessitates comprehensive'
-    + ' interdepartmental reconciliation procedures before authorization occurs.</p></main></body></html>',
+    + ' interdepartmental reconciliation procedures before managerial authorization formally occurs annually.</p></main></body></html>',
+  // ★2026-10-14: K2 read the landing's stage badges "01".."04" as four small KPIs. Ordinal labels must not count;
+  // a real KPI at 16px beside a label must still fail K2's glanceable check.
+  k2ordinal: HEAD + '<main><h1>Synthetic stages</h1><div class="card"><span class="step-dot" style="font-size:16px">01</span>'
+    + '<h2>Find the gap</h2></div><div class="card"><span class="step-dot" style="font-size:16px">02</span><h2>Close it</h2></div></main></body></html>',
+  k2small: HEAD + '<main><h1>Synthetic tiles</h1><div class="card"><p style="font-size:16px">12</p><p>Open work orders</p></div>'
+    + '<div class="card"><span class="step-dot" style="font-size:16px">01</span><h2>Step one</h2></div></main></body></html>',
   brjoin: HEAD + '<main><h1>Synthetic line break</h1><p>Each report covers one project and lists its tasks, costs and sign-offs'
     + ' for the whole team.<br><a href="#pm" style="display:inline-flex;min-height:44px;align-items:center">Open the project'
     + ' manager to choose one project now</a></p></main></body></html>',
@@ -82,7 +90,7 @@ async function grade(page, html) {
   await page.evaluate((src) => (0, eval)('(' + src + ')')(), RUBRIC);
   const res = await page.evaluate(() => window.__RUBRIC.survey({ pageId: 'synthetic', root: 'main' }));
   const dim = (id) => (res.dims || []).find((d) => d.dim === id) || {};
-  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1') };
+  return { V1: dim('V1'), R6: dim('R6'), B3: dim('B3'), B4: dim('B4'), J1: dim('J1'), K2: dim('K2') };
 }
 
 const b = await chromium.launch();
@@ -123,6 +131,12 @@ if (/grade>8=0\b/.test(b3g.B3.note || ''))
 const brj = await grade(page, PAGES.brjoin);
 if (!/>20w=0\b/.test(brj.B3.note || ''))
   fails.push(`B3 must read a <br> as a line break (no 25-word merge of a sentence and the link below it) - got note="${(brj.B3.note || '').slice(0, 140)}"`);
+const k2o = await grade(page, PAGES.k2ordinal);
+if (!(k2o.K2.kind === 'MEASURED' && k2o.K2.pass === k2o.K2.total))
+  fails.push(`K2 must not read zero-padded stage badges as KPIs - got ${k2o.K2.pass}/${k2o.K2.total} "${(k2o.K2.note || '').slice(0, 100)}"`);
+const k2s = await grade(page, PAGES.k2small);
+if (!(k2s.K2.kind === 'MEASURED' && k2s.K2.pass < k2s.K2.total && /0\/1 glanceable/.test(k2s.K2.note || '')))
+  fails.push(`K2 must still fail a real 16px KPI (and count only it, not the badge) - got ${k2s.K2.pass}/${k2s.K2.total} "${(k2s.K2.note || '').slice(0, 100)}"`);
 if (modal.V1.pass !== 1) fails.push(`V1 must PASS with a control under an OPEN modal (covered by design) - got pass=${modal.V1.pass} note="${(modal.V1.note || '').slice(0, 120)}"`);
 await b.close();
 if (fails.length) {

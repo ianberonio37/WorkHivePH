@@ -4435,12 +4435,85 @@ if (typeof window !== 'undefined') {
 // registered alias, so a page written before convergence still resolves. Adopt ONE accessor
 // platform-wide instead of hand-repeating the fallback chain (the design-system lever).
 function whHiveId() {
+  var id = null;
   try {
-    return localStorage.getItem('wh_active_hive_id') // canonical
-        || localStorage.getItem('wh_hive_id')        // live alias (still written on hive-switch)
-        || null;
+    id = localStorage.getItem('wh_active_hive_id') // canonical
+      || localStorage.getItem('wh_hive_id')        // live alias (still written on hive-switch)
+      || null;
   } catch (_) { return null; /* storage blocked (private mode / disabled) */ }
+  // a page that asked for the hive and found none: whHiveRecovery (below) asks the server for it once the page loads
+  if (!id && typeof window !== 'undefined') window._whHiveMissingAtRead = true;
+  return id;
 }
+// whEnsureHiveContext — the stored hive is a CACHE of a server fact, and only the home refilled it.
+//
+// ★A MEMBER'S ASSETS VANISHED FROM THE LOGBOOK (Ian, 2026-10-14: "I still can't find my registered assets,
+// it is still missing, when I access the logbook"). His account, read on production: an active supervisor of
+// one hive with 6 approved assets, all bound to his account - and the picker said "No assets registered yet."
+// Until the 2026-10-13 release the logbook checked membership BY NAME (worker_name = the name this device had
+// stored), so any drift between that and "Ian Phone" read as "no longer a member" and the page DELETED the
+// stored hive. With no stored hive, every page runs in solo mode, where a hive's assets cannot appear - and
+// nothing says so: the wrong answer is the default ([[feedback_the_wrong_answer_was_the_default]]). The check
+// is by account now, but a hive already wiped stays wiped, and only index.html (resolveActiveHiveContext) ever
+// refilled it - a page opened directly (a bookmark, a link, the nav hub from a page that never refilled it)
+// stayed solo. So every page that scopes by hive asks the server once when the device has no hive stored.
+//
+// Same rules as the home's resolver: seated by IDENTITY (auth_uid), never by name; kicked memberships excluded;
+// several hives -> the first by name, as the home does. An unreadable answer is not "no hive": on any error
+// nothing is written and the page keeps whatever it had. Returns the hive id it seated, or null.
+async function whEnsureHiveContext(db) {
+  var cur = whHiveId();
+  if (cur) return cur;
+  if (!db || !db.auth || typeof db.from !== 'function') return null;
+  try {
+    var sess = (await db.auth.getSession()).data.session;
+    var uid = sess && sess.user ? sess.user.id : null;
+    if (!uid) return null;
+    var mem = await db.from('v_worker_truth').select('hive_id, role')
+      .eq('auth_uid', uid).neq('hive_status', 'kicked')
+      .limit(500);   // one person's memberships are bounded-by-nature; insurance cap
+    if (mem.error || !mem.data || !mem.data.length) return null;
+    var ids = mem.data.map(function (m) { return m.hive_id; });
+    var hv = await db.from('v_hives_truth').select('id, name').in('id', ids)
+      .order('name', { ascending: true }).order('id', { ascending: true })
+      .limit(500);   // bounded by the memberships above
+    if (hv.error || !hv.data || !hv.data.length) return null;
+    var roleOf = function (id) { var m = mem.data.find(function (x) { return x.hive_id === id; }); return m ? m.role : 'worker'; };
+    var first = hv.data[0];
+    localStorage.setItem('wh_active_hive_id', first.id);
+    localStorage.setItem('wh_hive_id', first.id);
+    localStorage.setItem('wh_hive_name', first.name || '');
+    localStorage.setItem('wh_hive_role', roleOf(first.id));
+    try {
+      localStorage.setItem('wh_hives', JSON.stringify(hv.data.map(function (h) { return { id: h.id, name: h.name, role: roleOf(h.id), code: '' }; })));
+    } catch (_) { /* empty-catch-allow: quota on iOS Safari; the active hive above is what the page needs */ }
+    return first.id;
+  } catch (_) {
+    return null;   // offline or storage blocked: change nothing, the page runs as it would have
+  }
+}
+// whHiveRecovery - the same restore for the pages that do not call whEnsureHiveContext in their own start-up.
+// 27 pages scope by the stored hive, each with its own start-up order; a page that read no hive has already
+// rendered solo by the time a restore could answer. So once the page has loaded: if it asked for the hive and
+// found none, and the server seats this account in one, the page reloads ONCE and its own start-up reads it.
+// A page that seats the hive itself (logbook, asset-hub) sets window.WH_SEATS_HIVE_ITSELF and is skipped; the
+// home and hive.html own seating. The reload is guarded per tab (sessionStorage), so it can never loop.
+(function whHiveRecovery() {
+  if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+  window.addEventListener('load', function () {
+    try {
+      if (!window._whHiveMissingAtRead || window.WH_SEATS_HIVE_ITSELF) return;
+      if (/(^|\/)(index|hive)\.html$|\/$/.test(location.pathname)) return;
+      if (whHiveId() || !window._whSupabaseClient) return;
+      if (sessionStorage.getItem('wh_hive_recovered')) return;
+      whEnsureHiveContext(window._whSupabaseClient).then(function (seated) {
+        // asked once per tab either way: a solo account (no hive) is not re-asked on every page it opens
+        try { sessionStorage.setItem('wh_hive_recovered', seated ? '1' : 'none'); } catch (_) { return; /* no guard, no reload */ }
+        if (seated) location.reload();
+      });
+    } catch (_) { /* empty-catch-allow: recovery is best-effort; the page already runs as it would have */ }
+  });
+})();
 // whReconcileHiveName — T140 (2026-08-26): a rename must reach the OTHER devices.
 //
 // MEASURED, and it corrected this trajectory's own record. T140's basis read that hive rename "does

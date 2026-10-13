@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: d268c39d0ab195fc
+source_sha: 60f103a5f0b922fb
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1356) — the 'what's already gated' brain
+## gate · registered validators (1358) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (996)
+### Platform (998)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -820,6 +820,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hive-name-reconciles` ⚡ [fail] — Critic-deepwalk T19 lock: a cached hive name cannot survive against server truth (on the GLASS, not just the cache), and the risk feed carries no test-artifact 
 - `hive-quota` ⚡ [fail] — Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)
 - `hive-rename-reaches` [fail] — T140: a rename must reach the OTHER devices. ★THE TRAJECTORY'S RECORDED PREMISE WAS WRONG IN BOTH HALVES, and this gate is the correction. Its basis read that h
+- `hive-restore-adoption` ⚡ [fail] — Every page that scopes by the stored hive re-seats a missing one from the account: in its own start-up (whEnsureHiveContext) or through utils.js whHiveRecovery 
 - `hive-seating-is-by-identity` [fail] — I-pillar: which hive a session is seated in is decided by AUTH, not by a name (2026-08-26). resolveActiveHiveContext() in index.html chooses the tenant a signed
 - `hive-state-consistency` ⚡ [fail] — Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)
 - `hive-value-card` ⚡ [regression] — T188 (UI layer): the hive board surfaces the value summary - #value-summary-card renders pms/faults/knowledge wired to v_hive_value_summary via loadValueSummary
@@ -919,6 +920,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `logbook` ⚡ [fail] — Logbook Validator
 - `logbook-asset-linkage` [fail] — Logbook->asset linkage (LIVE: 0 logbook entries whose `machine` EXACTLY matches a registered asset tag may be asset_node_id NULL — locks the asset-history fragm
 - `logbook-asset-picker-identity` ⚡ [fail] — Logbook asset picker finds MY assets by auth_uid, not by display name (a renamed or re-signed-in person must not lose their own registered assets; vacuity-guard
+- `logbook-hive-restore` [fail] — Logbook re-seats a wiped stored hive from the account when opened directly (Ian 2026-10-14: a supervisor's 6 hive assets were missing from Select Asset because 
 - `logbook-quota` ⚡ [fail] — Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)
 - `long-fetch-bounded` ⚡ [fail] — T146: a hang must END, not spin forever. A fetch to an AI or transcription edge function is the one a plant floor will hang - a dead spot, a cold function, a sl
 - `longest-truncates` [fail] — CF: the longest realistic value truncates (2026-08-26). Real plants name things badly - a part called 'Bearing, spherical roller, 22320 E1 XL C3, SKF, for kiln 

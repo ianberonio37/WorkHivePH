@@ -1141,7 +1141,12 @@
       $$('.card, .simple-card', R).filter(vis).every(c => parseFloat(getComputedStyle(c).padding) > 0 || getComputedStyle(c).padding !== '0px'),
     ].filter(Boolean).length, 2, 'grouped into common regions with padding'));
 
-    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14);
+    // ★A ZERO-PADDED ORDINAL IS A LABEL, NOT A MEASUREMENT (2026-10-14, the landing's front door). With its unsourced
+    // "35%" tiles removed, the only number-only text left on index was the four stage badges "01".."04", and K2 read
+    // them as four KPIs too small to glance at (0/4) on every signed-out screen, while C4 asked them for tabular
+    // numerals. Nobody reads "03" as a quantity: the zero is the tell of a sequence label. Teeth both ways in
+    // prove_rubric_teeth.mjs (k2ordinal must pass, k2small must still fail a real 16px KPI).
+    const nums = textEls.filter(e => /^[\d,.]+\s*(%|h|d|hrs)?$/.test(ownText(e)) && !/^0\d$/.test(ownText(e)) && parseFloat(getComputedStyle(e).fontSize) >= 14);
     const tab = nums.filter(e => /tabular-nums/.test(getComputedStyle(e).fontVariantNumeric));
     // A ratio dim with denominator 0 must report N/A, never MEASURED-with-null-pct —
     // the roll-up counted those as 0% (the ⚠-trio pollution, 2026-07-15).

@@ -1079,6 +1079,7 @@
     let WORKER_NAME = whWorker()
       || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID   = whHiveId() || '';
+    window.WH_SEATS_HIVE_ITSELF = true;   // init() re-seats a missing hive before any read (whEnsureHiveContext)
 
     // VEHICLE SEED (2026-09-02) — SOLO lane: a hive-less signed-in owner (a car owner) sees
     // THEIR OWN assets (hive_id NULL, auth_uid theirs) on the SAME page. Only the scope key
@@ -4905,6 +4906,13 @@
       // SOLO owner (vehicle seed), not a gate case. _authUid is guaranteed non-null here
       // (the sign-in wall above returned otherwise), so solo scoping is always keyed.
       // Membership validation only applies when there IS a hive to be a member of.
+      // ★...AND "NO STORED HIVE" IS ASKED OF THE SERVER FIRST (2026-10-14, Ian's 6 hive assets missing from the
+      // logbook): a device whose stored hive was deleted - by the old name-keyed membership checks - ran this page
+      // solo, where a member's hive register cannot appear. whEnsureHiveContext (utils.js) re-seats it by account.
+      if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
+        const _seated = await whEnsureHiveContext(db);
+        if (_seated) { HIVE_ID = _seated; HIVE_ROLE = localStorage.getItem('wh_hive_role') || ''; }
+      }
       if (HIVE_ID) {
         const memberState = await validateHiveMembership();
         if (memberState === 'no-session') {

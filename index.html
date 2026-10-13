@@ -834,6 +834,11 @@
     .stagger-wrap.fired > *:nth-child(5) { transition-delay: 340ms }
     .stagger-wrap.fired > *:nth-child(6) { transition-delay: 425ms }
     .stagger-wrap.fired > * { opacity: 1; transform: translateY(0); }
+    /* ★THE SAME DECLARED GUARANTEE FOR THE STAGGERED GRIDS (Q2, 2026-10-14). .reveal shows itself the moment focus
+       enters it (see the ★KEYBOARD FOCUS note at html.wh-reveal-armed .reveal:focus-within); a .stagger-wrap child
+       did not, and the impact card now carries a link (its figure's source). Tabbing to it before the grid's
+       observer fired landed on an invisible link. Focus inside the grid shows the grid. */
+    .stagger-wrap:focus-within > * { opacity: 1; transform: translateY(0); }
 
     /* ── Hero CTA pulse ring ── */
     /* THE RING PULSED; THE GLOW UNDERNEATH IT NEVER MOVED (2026-09-17). Two shadows were stacked here and
@@ -1264,7 +1269,10 @@
           </div>
         </div>
       </div>
-      <a href="?signup=1" data-wh-cta="nav" class="btn-primary text-sm py-2.5 px-6" data-i="signup">Sign Up</a>
+      <!-- ★ONE FILLED FIRST STEP AT EVERY WIDTH (2026-10-14). On a phone the hero's "Join the Hive" was already the only
+           filled button above the fold; at 1280 this header button made it three with the closing "Create Your Free
+           Account" (critic G3: 3 primary calls to action against a ceiling of 2). It stays in the header, outlined. -->
+      <a href="?signup=1" data-wh-cta="nav" class="btn-secondary text-sm py-2.5 px-6" data-i="signup">Sign Up</a>
     </div>
 
     <!-- Mobile Sign In (always visible on mobile) -->
@@ -1640,7 +1648,7 @@
 
         <!-- Clear-as-day positioning sentence: tools above the fold for humans + AEO -->
         <p class="text-lg sm:text-xl text-white/80 leading-[1.55] max-w-xl mb-8 font-medium">
-          Free industrial tools for every Filipino worker: digital logbook, PM scheduler, spare-parts inventory, skill matrix, engineering calculators, and an AI work assistant.
+          Free industrial tools for every Filipino worker. Log jobs, schedule PMs and track spare parts and skills. Run engineering calculations, or ask the AI work assistant.
         </p>
 
         <div class="flex flex-wrap items-center gap-4 mb-5">
@@ -2081,24 +2089,24 @@
              the large-text threshold). #f87171 is --wh-red, whose own token comment says it is a FILL
              and that the AA text pair is --wh-red-text; that token measures 8.36:1 here. All four cards
              changed together, because they are one component repeated. -->
-        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> Departments run in isolation and failures strike without warning.</p>
         <p class="text-white/80 text-base leading-relaxed mb-6">
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <!-- SAME FIGURE, SECOND MEANING (2026-09-17). This tile said the range was a reduction in
                  downtime COSTS while the hero said it was a reduction in downtime - two different
-                 quantities behind one number, on one page. Hours is what the guide measures, and the tile
-                 beside this one already carries the cost claim (4-8x, the same ratio the paragraph above
-                 states), so the duplication goes with the contradiction. Figure corrected to the guide's
-                 35-50 with the hero. -->
+                 quantities behind one number, on one page. Hours is what the guide measures; figure
+                 corrected to the guide's 35-50 with the hero.
+                 ★ONLY THE SOURCED FIGURE STAYS (Ian, 2026-10-14). The cost tile beside it ("4-8x Cost Saved
+                 vs. Reactive Repair") and the paragraph's "4 to 8 times a planned repair" are gone: the guide
+                 this figure comes from cites the US DOE O&M guide at 12-18% cheaper for preventive work and
+                 says the honest figure is smaller than the ratios often quoted. The other three cards lost
+                 their unsourced tiles (15-25% labour, 60-80% knowledge, 35% sourcing) and the P800K-P2.4M
+                 sentence for the same reason; each keeps its words and its other tile, full width. -->
             <p class="text-orange-wh font-bold text-xl stat-figure">35-50%</p>
             <p class="text-white/80 text-xs mt-0.5">Less Unplanned Downtime</p>
-          </div>
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl stat-figure">4-8x</p>
-            <p class="text-white/80 text-xs mt-0.5">Cost Saved vs. Reactive Repair</p>
           </div>
         </div>
       </div>
@@ -2116,11 +2124,7 @@
         <p class="text-white/80 text-base leading-relaxed mb-6">
           Right person, right job, every time. Competence replaces availability.
         </p>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl stat-figure">15-25%</p>
-            <p class="text-white/80 text-xs mt-0.5">Maintenance Labor Efficiency Gain</p>
-          </div>
+        <div class="grid grid-cols-1 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl stat-figure">Data</p>
             <p class="text-white/80 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
@@ -2137,15 +2141,11 @@
             <h3 class="text-xl font-bold text-white" data-i="amnesiamemory">From Amnesia to Memory</h3>
           </div>
         </div>
-        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
+        <p class="text-sm leading-relaxed mb-3" style="color: rgba(255,255,255,0.92);"><span class="font-semibold" style="color: var(--wh-red-text);">The gap:</span> When a technician retires, 12 years of expertise disappears.</p>
         <p class="text-white/80 text-base leading-relaxed mb-6">
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
-            <p class="text-blue-wh font-bold text-xl stat-figure">60-80%</p>
-            <p class="text-white/80 text-xs mt-0.5">Less Knowledge Loss at Transitions</p>
-          </div>
+        <div class="grid grid-cols-1 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
             <p class="text-blue-wh font-bold text-xl stat-figure">∞</p>
             <p class="text-white/80 text-xs mt-0.5">Compounding Organizational Memory</p>
@@ -2166,11 +2166,7 @@
         <p class="text-white/80 text-base leading-relaxed mb-6">
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
-            <p class="text-orange-wh font-bold text-xl stat-figure">35%</p>
-            <p class="text-white/80 text-xs mt-0.5">Faster Time-to-Source Specialists</p>
-          </div>
+        <div class="grid grid-cols-1 gap-3">
           <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
             <p class="text-orange-wh font-bold text-xl stat-figure">4 Pillars</p>
             <p class="text-white/80 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
@@ -2225,7 +2221,7 @@
           <div class="w-px h-5 bg-white/10 ml-1"></div>
           <div class="flex items-center gap-4 before-after-row">
             <!-- --wh-red, not Tailwind red-500 (design lens audit, 2026-09-17, W45925): rgb(239,68,68) was one of twelve colour values on this page tracing to no token, and it sits one shade off the platform danger fill #f87171 - a near-miss reads as sloppy where a deliberate difference would not. --><div class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--wh-red, #f87171);"></div>
-            <p class="text-white/80 text-sm line-through">Expert retires. ₱800K to ₱2.4M in knowledge walks out the door. Start from scratch.</p>
+            <p class="text-white/80 text-sm line-through">Expert retires. Their knowledge walks out the door. Start from scratch.</p>
           </div>
           <div class="flex items-center gap-4 before-after-row">
             <div class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
@@ -2235,7 +2231,7 @@
       </div>
 
       <!-- Stat grid -->
-      <div class="grid grid-cols-2 gap-5 reveal stagger-wrap">
+      <div class="grid grid-cols-1 max-w-md w-full mx-auto gap-5 reveal stagger-wrap">
         <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
           <!-- THIRD PRINTING OF THE SAME CLAIM, THIRD WORDING (2026-09-17). "Less Downtime" over
                "reduction in unplanned downtime costs" - the heading dropped the qualifier that makes the
@@ -2244,21 +2240,13 @@
           <p class="text-5xl font-black stat-orange mb-2">35-50%</p>
           <p class="text-sm font-semibold text-white mb-1">Less Unplanned Downtime</p>
           <p class="text-xs text-white/80 leading-relaxed">What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.</p>
-        </div>
-        <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
-          <p class="text-5xl font-black stat-blue mb-2">60-80%</p>
-          <p class="text-sm font-semibold text-white mb-1">Knowledge Preserved</p>
-          <p class="text-xs text-white/80 leading-relaxed">Reduction in knowledge loss costs at workforce transitions</p>
-        </div>
-        <div class="rounded-3xl p-7 border border-white/[0.08] card-glow" style="background: linear-gradient(145deg, rgba(41,182,217,0.12) 0%, rgba(31,46,69,0.8) 100%);">
-          <p class="text-5xl font-black stat-blue mb-2">15-25%</p>
-          <p class="text-sm font-semibold text-white mb-1">Labor Efficiency</p>
-          <p class="text-xs text-white/80 leading-relaxed">Improvement in maintenance labor efficiency through AI-matched assignments</p>
-        </div>
-        <div class="rounded-3xl p-7 border border-white/[0.08] card-orange" style="background: linear-gradient(145deg, rgba(247,162,27,0.12) 0%, rgba(31,46,69,0.8) 100%);">
-          <p class="text-5xl font-black stat-orange mb-2">35%</p>
-          <p class="text-sm font-semibold text-white mb-1">Faster Sourcing</p>
-          <p class="text-xs text-white/80 leading-relaxed">Average reduction in time-to-source for specialized maintenance services</p>
+          <!-- ★THE ONE FIGURE LEFT SAYS WHERE IT COMES FROM (Ian, 2026-10-14: keep only the sourced figure). Three cards
+               stood beside this one - 60-80% knowledge preserved, 15-25% labour efficiency, 35% faster sourcing - and none
+               had a source anywhere on the platform, so they are gone. This one is the downtime guide's own range, which
+               that guide calls widely reported rather than standard, and the chip says so: the critic's E3 asks every
+               figure for its source and its age, and a stranger reading a number on a front door asks the same. Static
+               markup in renderSourceChip's shape (utils.js), so it is there at first paint. -->
+          <p class="wh-source-chip" data-wh-fresh="1" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:12px 0 0;padding:4px 0 0;line-height:1.35;">Source: <a href="/learn/reduce-unplanned-downtime-guide/" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">our downtime guide</a>, which reports it as a widely cited industry range, not a published standard &middot; updated 24 Aug 2026</p>
         </div>
       </div>
 
@@ -2623,8 +2611,8 @@
       <div class="lg:col-span-2">
         <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-10 w-auto mb-4" />
         <p class="text-sm text-white/80 leading-relaxed max-w-xs">
-          The industrial intelligence hive for the Philippines. Closing the Execution, Skills,
-          Intelligence, and Marketplace gaps that hold Filipino workers back.
+          The industrial intelligence hive for the Philippines. We close four gaps that hold Filipino workers
+          back: getting work done, skills, knowledge and finding help.
         </p>
         <p class="text-xs text-white/80 mt-4 font-medium">workhiveph.com · 2026</p>
       </div>
@@ -3230,7 +3218,7 @@
   #oh-persona-toggle, .oh-signout, #oh-hive-btn, #pwa-install-btn { min-height: 44px; }
   #oh-lang button { min-height: 44px; min-width: 44px; }
   .nav-link { min-width: 44px; justify-content: center; }
-  a.btn-primary, .btn-primary { min-height: 44px; box-sizing: border-box; }
+  a.btn-primary, .btn-primary, a.btn-secondary, .btn-secondary { min-height: 44px; box-sizing: border-box; }
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
