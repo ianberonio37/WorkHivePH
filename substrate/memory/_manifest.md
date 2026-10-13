@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1007-files
-source_sha: 94e4a6590f8d0008
+source: memory-curated:1008-files
+source_sha: e03d8b448a95274e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1007 durable topic files)
+## memory · curated auto-memory (1008 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=619 · project=298 · reference=90
+**By type:** feedback=619 · project=299 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -516,6 +516,6 @@ Entries (name · type · sha):
 - `feedback_string_is_not_an_announcement_until_it_reaches_a_user` · feedback · d3945b6de1b5c9fe
 - `feedback_structure_is_a_means_re_architect_when_justified` · feedback · bbb04b0d98963182
 - `feedback_subprocess_timeout` · feedback · bf6c9a4a50de1dc6
-- … +507 more (all included in the fingerprint)
+- … +508 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -163,7 +163,8 @@ def build_receipt(rid: str, instrument: str, condition: str, cast: str,
     # ...and the two waves seeded 2026-10-06 carry the same contract: LXC (the persona x layer floor) is LXP's
     # sentence on a thin cell, and LM (the LLM layer) is a persona asking a page's AI - both close only as a named
     # person at both viewports.
-    if rid.startswith(("LXP", "LXC")) or (rid.startswith("LM") and rid[2:].isdigit()):
+    # ...and BRH (the bug-hunt wave, 2026-10-14): a defect reproduced as a named person at both viewports.
+    if rid.startswith(("LXP", "LXC", "BRH")) or (rid.startswith("LM") and rid[2:].isdigit()):
         w4 = w4 or {}
         if not w4.get("layer"):
             raise ValueError("an LXP receipt needs --layer <the architectural layer the walk provoked>")

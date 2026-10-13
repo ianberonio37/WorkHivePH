@@ -402,6 +402,9 @@ def _w4_receipts() -> dict:
              # third time: a namespace the glob cannot see is a wave nothing can close
              + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "LXC*.json")))
              + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "LM*.json")))
+             # ...and the bug waves: BRP (2026-10-04) and BRH (2026-10-14) write BRP<id>.json / BRH<id>.json
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "BRP*.json")))
+             + sorted(glob.glob(str(ROOT / ".tmp" / "mcp_walks" / "BRH*.json")))
              + sorted(glob.glob(str(ROOT / ".tmp" / "full_journeys_w4navhub_*.json"))))
     for path in globs:
         try:

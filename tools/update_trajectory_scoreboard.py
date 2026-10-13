@@ -98,6 +98,14 @@ try:
                        for cls, (layer, _persona, mech, _repro, _fix) in _BRP_CLASS.items()})
 except Exception:
     pass
+# BRH = the BUG-HUNT wave (2026-10-14): seven defect classes met in a real person's hands, measured across every
+# production page. Named from the seeder's class table for the same reason as BRP.
+try:
+    from seed_expansion_wave4 import BRH_CLASS as _BRH_CLASS
+    WAVE_NAMES.update({f"BRH-{cls}": f"Bug-hunt ({layer}): {mech} - reproduced, fixed, gated"
+                       for cls, (layer, _persona, mech, _repro, _fix) in _BRH_CLASS.items()})
+except Exception:
+    pass
 try:
     from seed_layer_ux_wave import WAVES as _LX_WAVES   # any wave whose key is not a layer code
     WAVE_NAMES.update({spec["wave"]: WAVE_NAMES.get(spec["wave"],

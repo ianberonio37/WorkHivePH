@@ -766,7 +766,11 @@ def _lx_state(scoped: list[dict]) -> tuple[dict, set, list]:
     # persona x layer cells no row covers", so a new LXC row on a Gap-B cell would make the LXP REPLAY stop
     # generating that cell's rows and renumber every later LXP id. Excluding them keeps the replay identical
     # before and after they land; their own plans measure what they need directly.
-    scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")]
+    # ★AND THE BUG-HUNT WAVE (BRH, 2026-10-14), FOR THE SAME REASON - met the hard way: seeding its 237 rows made
+    # the LXP replay expect a different wave for LXP159.. (a returner now "reached" pages only BRH had put them on),
+    # and the registry gate failed on rows nobody had touched. A replay's INPUTS must not depend on the present.
+    scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")
+              and (t.get("brh") or {}).get("kind") != "bug-hunt"]
     for t in scoped:
         # ★"REACHES" IS ANY APP PAGE ON THE JOURNEY, NOT ITS LAST ONE. _path() appends the platform's
         # own continuation until a journey spans four pages, so pages[-1] is where the route ENDS, not
@@ -1056,6 +1060,113 @@ def bug_repro_rows(existing: list[dict], replay: bool = False) -> list[dict]:
 # ★ITS OWN ID SPACE, NOT A GAP C INSIDE layer_ux_rows (decided while building it). layer_ux_rows emits LAYER-MAJOR
 # and the validator rebuilds LXP ids POSITIONALLY from its replay - rows added to layer F's block would shift every
 # D/A/CA/... id after it, which is the ★×16 trap this repo has hit twice. So: LXC1.., waves LXC-<layer>, appended
+# BRH · THE BUG-HUNT WAVE (Ian, 2026-10-14): "expand and extend the numbers of our trajectories roadmap to hunt and
+# sort out bugs, painpoints, gaps, defects ... anything that affects my platform ... the same flow that we use MCP walk,
+# with open and closed. I will let you decide the numbers of trajectories first." The number is MEASURED by
+# tools/bug_hunt_inventory.py: seven defect classes met in a real person's hands on 2026-10-13/14 (Ian's missing
+# logbook assets and what the MCP journey of his phone found behind them), generalised to every production page
+# against the real source and the committed evidence artifacts - never typed. Its own id space (BRH1..), class-major,
+# with a replay ANCHORED to the registry so a class can shrink as sites are fixed without renumbering a row.
+BRH_PREFIX = "BRH"
+BRH_CLASS = {
+    "D": ("H", "returner",
+          "version skew silenced by a typeof guard: the page calls utils.js functions it does not insist on",
+          "serve yesterday's utils.js to the page's <script src> (the hour a cached script outlived a deploy) and "
+          "every guarded call silently does nothing - no restore, no error, a wrong default rendered as fact",
+          "the page detects a shared function it depends on is missing, fetches utils.js past the HTTP cache and "
+          "reloads once per tab (the logbook pattern), or stops guarding what it requires"),
+    "E": ("F", "solo-owner",
+          "an empty state that does not say which list it is",
+          "with no hive stored on the device and no personal rows, the page reads 'No X yet.' while the hive holds "
+          "X - the person cannot tell the personal list from the hive's, nor how to get to the hive's",
+          "the empty state names its scope (personal vs hive) and offers the other list - 'Show my hive's X' re-seats "
+          "the hive from the account (whEnsureHiveContext)"),
+    "F": ("AU", "supervisor",
+          "a stored role trusted without re-validation",
+          "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the "
+          "supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no "
+          "honest sentence",
+          "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way "
+          "logbook/asset-hub/pm-scheduler already do, and write the corrected role back"),
+    "G": ("D", "returner",
+          "a stored hive name that is never reconciled",
+          "rename the hive from another device; this page keeps showing the old name in its chrome and board title "
+          "for as long as the device keeps wh_hive_name",
+          "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name"),
+    "H": ("F", "returner",
+          "the hive is restored by a reload instead of in the page's own start-up",
+          "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js "
+          "whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
+          "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set "
+          "window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters"),
+    "J": ("F", "any",
+          "a live-as-a-user journey that is not live",
+          "run `node tools/live_page_journeys.mjs --journey <id>`: a lens the journey promises fails on the real page",
+          "fix the page (or, if the journey's premise went stale on purpose, the journey - by the page's own rule), "
+          "then re-run it alone and fold it into the sweep with tools/fold_journey_rerun.py; live-page-journeys ratchets"),
+    "K": ("F", "any",
+          "design slop the detector ratchet still holds",
+          "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+          "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, "
+          "then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero"),
+}
+
+
+def bug_hunt_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per MEASURED defect site, from tools/bug_hunt_inventory.collect(). replay=True returns what was SEEDED,
+    in id order, from the registry's own brh metadata - the record, so a fixed site vanishing from the inventory
+    never renumbers a banked row (the BRP/LXC rule)."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("brh") or {}).get("kind") == "bug-hunt"),
+                        key=lambda x: int(str(x["id"])[len(BRH_PREFIX):] or 0))
+        bug_hunt_rows.arithmetic = {}
+        return [{"wave": t["wave"], "brh": t["brh"]} for t in seeded]
+    carried = Counter()
+    for t in existing:
+        b = t.get("brh") or {}
+        if b.get("kind") == "bug-hunt":
+            carried[(b.get("cls"), b.get("page"), b.get("key"))] += 1
+    from bug_hunt_inventory import collect
+    rows: list[dict] = []
+    for s in collect():
+        cls, page, line, key = s["cls"], s["page"], s["line"], s["key"]
+        if carried[(cls, page, key)] > 0:
+            carried[(cls, page, key)] -= 1          # this measured site is already carried by an existing row
+            continue
+        layer, persona, mech, repro, fix = BRH_CLASS[cls]
+        persona = s.get("persona") or persona
+        pages = _path(_start(page), page, [], cast=_cast_of(persona))
+        who = "a person" if persona == "any" else persona
+        where = f"{_short(page)}:{line}" if line else _short(page)
+        rows.append({
+            "wave": f"BRH-{cls}",
+            "title": f"{mech} - {where} · {key[:60]} - {who}",
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(LAYER_LENS[layer][1]),
+            "persona": persona,
+            "device": "any",
+            "entry": "direct" if page == "index.html" else "hub-nav",
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} and meets a defect of a class a real person met on 2026-10-13/14: "
+                      f"{s['detail']}. MECHANISM: {mech}. REPRO: {repro}. FIX: {fix}. The row closes only when the "
+                      f"reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at "
+                      f"{' and '.join(LX_VIEWPORTS)}"),
+            "journey": {"archetype": f"BRH-{cls}:{persona}", "stage": "operate",
+                        "vertical": HIVES[(line or len(key)) % len(HIVES)], "pair": "", "language": "en",
+                        "moment": "present", "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "brh": {"kind": "bug-hunt", "cls": cls, "page": page, "line": line, "key": key, "detail": s["detail"],
+                    "layer": layer, "persona": persona, "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                    "mechanism": mech, "repro": repro, "fix": fix,
+                    "closes": ("the reproduction is demonstrated FAILING on demand, the fix lands, and a registered "
+                               "gate reddens when the fix is reverted - not merely 'the page looks right now'")},
+        })
+    rows.sort(key=lambda r: (r["brh"]["cls"], r["brh"]["page"], r["brh"]["line"], r["brh"]["key"]))
+    bug_hunt_rows.arithmetic = {c: sum(1 for r in rows if r["brh"]["cls"] == c) for c in BRH_CLASS}
+    return rows
+
+
 # after BRP, with a replay ANCHORED to the registry the way bug_repro_rows' is.
 LXC_PREFIX = "LXC"
 LXC_FLOOR = 12
@@ -1323,6 +1434,8 @@ def main() -> int:
                     help="LM (2026-10-06): the 14th layer - one row per (sub-layer, persona, AI surface)")
     ap.add_argument("--add-bug-repro", action="store_true",
                     help="append one BRP row per MEASURED defect site (tools/bug_repro_inventory.py), both viewports")
+    ap.add_argument("--add-bug-hunt", action="store_true",
+                    help="BRH (2026-10-14): append one row per MEASURED defect site (tools/bug_hunt_inventory.py), both viewports")
     args = ap.parse_args()
     doc = json.loads(REGISTRY.read_text(encoding="utf-8"))
     existing = doc["trajectories"]
@@ -1370,6 +1483,30 @@ def main() -> int:
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP and LXP follow
         seed_missing()
         print(chr(10) + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_bug_hunt:
+        rows = bug_hunt_rows(existing)
+        if not rows:
+            print("  bug-hunt: every measured defect site is already seeded - nothing to add")
+            return 0
+        a = bug_hunt_rows.arithmetic
+        created = _append_own_space(existing, rows, BRH_PREFIX)
+        print("  THE NUMBER, measured against the real source and the committed evidence (never typed):")
+        for cls, (layer, _p, mech, _r, _f) in BRH_CLASS.items():
+            print(f"    class {cls} · {mech[:62]:<62} (layer {layer}): {a.get(cls, 0)}")
+        print(f"    = {len(created)} new BRH rows ({created[0]['id']}..{created[-1]['id']})"
+              f", each reproduced and fixed at {' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = existing + created
+        doc["count"] = len(doc["trajectories"])
+        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC and LM follow
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} bug-hunt row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
     if args.add_bug_repro:
         rows = bug_repro_rows(existing)

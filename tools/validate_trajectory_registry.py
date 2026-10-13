@@ -155,6 +155,20 @@ try:
 except Exception as _e:
     _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
 
+# ★THE BUG-HUNT WAVE, BRH1.. (2026-10-14) — Ian: "expand and extend the numbers of our trajectories roadmap to hunt
+# and sort out bugs, painpoints, gaps, defects ... I will let you decide the numbers of trajectories first." Its own
+# id space, replayed from the registry's brh metadata (the BRP/LXC rule), registered here - AFTER LM, because this
+# gate checks the named waves in registry order and BRH was seeded last - in the SAME change that seeds it: the bind
+# audit, so not one of its rows is invisible to this gate, the ledger or the guard.
+try:
+    from seed_expansion_wave4 import bug_hunt_rows as _brh_rows
+    _brh = _brh_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    for _i, _r in enumerate(_brh, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"BRH{_i}")
+    BRH_PROGRAM_TOTAL = len(_brh)
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
 # ★EXPANSION WAVE 2, EX1.. (2026-09-07) — eight waves seeded as one change (persona x device x entry
 # cells, Tagalog-first, the per-page floor, hostile personas, AI trust, recovery, shift boundaries,
 # accessibility personas), every row declaring the UFAI dimension it improves. The ★×16 rule a fifth
@@ -252,8 +266,9 @@ if "_brp" in dir():
         if _r["wave"] not in _seen_brp:
             _seen_brp.append(_r["wave"])
     NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_brp
-# ...then the layer floor (LXC-*) and the LLM layer (LM-*), seeded after BRP in that order (2026-10-06).
-for _set_name in ("_lxc", "_lm"):
+# ...then the layer floor (LXC-*) and the LLM layer (LM-*), seeded after BRP in that order (2026-10-06), and the
+# bug-hunt wave (BRH-*), seeded after LM (2026-10-14) - a wave this order does not name has no block to match.
+for _set_name in ("_lxc", "_lm", "_brh"):
     if _set_name in dir():
         _seen_new = []
         for _r in globals()[_set_name]:
