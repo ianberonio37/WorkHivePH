@@ -89,6 +89,21 @@ POLICY_FEATURES = {
 # owed to OUR code, not to every branch of a bundled map renderer.
 VENDORED = re.compile(r"maplibre-gl|\.min\.js$|plotly", re.I)
 
+# ── 3. CAPABILITY - what the code DOES with a URL it made or was handed (2026-10-14) ──────────────
+# ★THE SIXTH INCIDENT ARRIVED THROUGH A DOOR NEITHER CHECK ABOVE HAD. Two classes failed in production on every engine,
+# and both only on a person's ACTION, so no page-load walk could see them: (a) a listing photo or a resume photo turned
+# into an object URL and set as an <img> src - the shipped img-src granted `'self' data: https:` and never `blob:`, so
+# the preview broke and the resume's compression Image never loaded; (b) the logbook's spoken answer, an <audio> from the
+# tts-cache storage bucket (or a blob: from a local voice) - the policy declared NO media-src, so media inherited
+# `default-src 'self'` and every voice was refused. Measured in real Chromium and WebKit under the shipped header: an
+# `img-src blob` and a `media-src` violation each. A blob: rendered into an image needs img-src blob:; a played audio
+# needs a media-src that names where it comes from.
+BLOB_IMAGE = re.compile(
+    r"createObjectURL\([^)]*\)[\s\S]{0,400}?\b(?:img|im|image|\w*[Ii]mg|preview\w*|thumb\w*)\.src\s*=|"
+    r"new Image\(\)[\s\S]{0,160}?createObjectURL\(")
+AUDIO_CALL = re.compile(r"new Audio\(([^)]*)\)")
+DEV_ONLY_MEDIA = re.compile(r"EDGE_TTS|getEdgeTtsBase|edgeBase", re.I)
+
 
 def parse_permissions_policy(headers: str) -> dict:
     m = re.search(r"Permissions-Policy:\s*([^\n]+)", headers)
@@ -137,7 +152,7 @@ def permitted(csp: dict, directive: str, host: str) -> bool:
 def audit(files, headers: str):
     csp = parse_csp(headers)
     if not csp:
-        return [("FAIL", "no Content-Security-Policy in _headers - nothing to audit against")], 0, 0
+        return [("FAIL", "no Content-Security-Policy in the shipped policy - nothing to audit against")], 0, 0
 
     problems, subresources, documented = [], 0, 0
 
@@ -175,11 +190,41 @@ def audit(files, headers: str):
                 srcs = csp.get(directive.lower())
                 if srcs is None:
                     problems.append(f"{name}: its own comment states the prod CSP needs "
-                                    f"`{directive} {value}`, and _headers declares no {directive} "
+                                    f"`{directive} {value}`, and the shipped policy declares no {directive} "
                                     f"at all (so it inherits default-src and blocks it)")
                 elif not any(value.rstrip("/") in s or s in value for s in srcs):
                     problems.append(f"{name}: its own comment states the prod CSP needs "
-                                    f"`{directive} {value}`, which _headers does not grant")
+                                    f"`{directive} {value}`, which the shipped policy does not grant")
+
+    # ── the capability half (2026-10-14): what the code does with a URL it made or was handed ──────
+    def _grants(directive: str, token: str) -> bool:
+        srcs = csp.get(directive)
+        if srcs is None:
+            srcs = csp.get("default-src", set())     # an absent directive inherits default-src
+        return any(s == token or (token not in ("blob:", "data:") and s.rstrip("/").endswith(token)) for s in srcs)
+    storage = next((host_of(s) for s in csp.get("connect-src", set()) if s.endswith(".supabase.co")), "")
+    for path in files:
+        name = Path(path).name
+        if VENDORED.search(name):
+            continue
+        src = io.open(path, encoding="utf-8", errors="replace").read()
+        m = BLOB_IMAGE.search(src)
+        if m and not _grants("img-src", "blob:"):
+            line = src[: m.start()].count("\n") + 1
+            problems.append(f"{name}:{line}: renders an object URL (blob:) as an image, and img-src does not grant "
+                            f"blob: - the preview breaks and an Image() waiting on it never loads, in every engine")
+        for am in AUDIO_CALL.finditer(src):
+            arg = am.group(1)
+            if DEV_ONLY_MEDIA.search(src[max(0, am.start() - 1500): am.end()]):   # the enclosing function's opening lines
+                continue                              # a local-dev voice server, never reached in production
+            blobby = re.search(r"blob|createObjectURL|Blob\(", arg, re.I)
+            need = "blob:" if blobby else storage
+            if need and not _grants("media-src", need):
+                line = src[: am.start()].count("\n") + 1
+                problems.append(f"{name}:{line}: plays `new Audio({arg.strip()[:40]})` from "
+                                f"{'an object URL' if blobby else 'the storage host ' + need}, which media-src does not "
+                                f"grant{' (no media-src at all: media inherits default-src)' if 'media-src' not in csp else ''}"
+                                f" - the person hears nothing")
 
     # ── the Permissions-Policy half ─────────────────────────────────────────────────────────────
     policy = parse_permissions_policy(headers)
@@ -264,18 +309,76 @@ def _self_test() -> int:
                            ("undeclared feature is not flagged", undeclared_ok)):
             print(f"    {'ok ' if hit else 'BAD'}  permissions-policy: {label}")
             ok = ok and hit
+
+        # ── capability (2026-10-14): a blob: image and a played audio, each against its directive ──────
+        base = ("  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; "
+                "connect-src 'self' https://abc.supabase.co")
+        fixed = base.replace("img-src 'self' data: https:", "img-src 'self' data: blob: https:") + \
+            "; media-src 'self' blob: https://abc.supabase.co"
+        preview = mk("const u = URL.createObjectURL(file); if (previewImg) previewImg.src = u;")
+        compress = mk("const img = new Image(); const url = URL.createObjectURL(file); img.src = url;")
+        download = mk("const url = URL.createObjectURL(blob); a.href = url; a.download = 'x.csv';")
+        tts = mk("const data = await r.json(); _audio = new Audio(data.url); _audio.play();")
+        piper = mk("const blobUrl = URL.createObjectURL(new Blob([buf])); _audio = new Audio(blobUrl);")
+        devtts = mk("const base = getEdgeTtsBase(); const u = base + data.url; _audio = new Audio(u);")
+        cap = [("a blob: image preview FAILs without img-src blob:", any("blob:) as an image" in p for p in audit(preview, base)[0])),
+               ("a compression Image() on a blob: FAILs too", any("blob:) as an image" in p for p in audit(compress, base)[0])),
+               ("img-src blob: passes it", not audit(preview, fixed)[0]),
+               ("a blob: download is not an image", not audit(download, base)[0]),
+               ("storage audio FAILs with no media-src", any("storage host abc.supabase.co" in p for p in audit(tts, base)[0])),
+               ("blob: audio FAILs with no media-src", any("an object URL" in p for p in audit(piper, base)[0])),
+               ("media-src 'self' blob: <storage> passes both", not audit(tts, fixed)[0] and not audit(piper, fixed)[0]),
+               ("a local-dev voice server is not owed a grant", not audit(devtts, base)[0])]
+        for label, hit in cap:
+            print(f"    {'ok ' if hit else 'BAD'}  capability: {label}")
+            ok = ok and hit
+        drift = parity(base, fixed)
+        drift_ok = bool(drift) and not parity(fixed, fixed)
+        print(f"    {'ok ' if drift_ok else 'BAD'}  parity: _headers != vercel.json FAILs ({len(drift)} directive(s))")
+        ok = ok and drift_ok
     print(f"  self-test: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
+
+
+def vercel_policy_text(root: Path = ROOT) -> str:
+    """vercel.json's CSP and Permissions-Policy in the `Name: value` form audit() reads - the policy that SHIPS.
+
+    ★THIS GATE AUDITED THE FILE PRODUCTION NEVER READS (found 2026-10-14). It read `_headers`, the Cloudflare-format
+    file the 2026-09-06 measurement proved INERT (workhiveph.com is Vercel; `_headers` now documents intent and
+    vercel.json is what is served). So the realtime `wss:` fix landed in vercel.json alone, `_headers` drifted, and
+    this gate kept checking a policy no browser received. It now audits vercel.json and fails when the two differ."""
+    import json
+    cfg = json.loads((root / "vercel.json").read_text(encoding="utf-8"))
+    out = []
+    for blk in cfg.get("headers", []):
+        for kv in blk.get("headers", []):
+            if kv.get("key", "").lower() in ("content-security-policy", "permissions-policy") and \
+                    not any(o.startswith(kv["key"]) for o in out):
+                out.append(f"{kv['key']}: {kv['value']}")
+    return "\n".join(out)
+
+
+def parity(intent: str, shipped: str) -> list:
+    """Where `_headers` (the documented intent) and vercel.json (what ships) disagree, directive by directive."""
+    out = []
+    a, b = parse_csp(intent), parse_csp(shipped)
+    for d in sorted(set(a) | set(b)):
+        if a.get(d) != b.get(d):
+            out.append(f"CSP {d}: _headers {' '.join(sorted(a.get(d) or [])) or '(absent)'} != vercel.json "
+                       f"{' '.join(sorted(b.get(d) or [])) or '(absent)'}")
+    if parse_permissions_policy(intent) != parse_permissions_policy(shipped):
+        out.append("Permissions-Policy: _headers and vercel.json differ")
+    return out
 
 
 def main() -> int:
     if "--self-test" in sys.argv[1:]:
         return _self_test()
 
-    headers_path = ROOT / "_headers"
-    if not headers_path.exists():
-        print("SKIP csp-covers-what-ships - no _headers at the repo root")
+    if not (ROOT / "vercel.json").exists():
+        print("SKIP csp-covers-what-ships - no vercel.json at the repo root")
         return 0
+    shipped = vercel_policy_text()
 
     files = [f for f in sorted(glob.glob(str(ROOT / "*.html")) + glob.glob(str(ROOT / "*.js")))
              if not SKIP.search(Path(f).name)]
@@ -283,8 +386,11 @@ def main() -> int:
         print("FAIL csp-covers-what-ships - no shipped files found; the gate cannot measure nothing")
         return 1
 
-    problems, subresources, documented = audit(
-        files, io.open(headers_path, encoding="utf-8", errors="replace").read())
+    problems, subresources, documented = audit(files, shipped)
+    headers_path = ROOT / "_headers"
+    if headers_path.exists():
+        problems += [f"drift - {d}" for d in parity(
+            io.open(headers_path, encoding="utf-8", errors="replace").read(), shipped)]
 
     print(f"  external subresources declared in shipped code: {subresources} "
           f"| CSP requirements stated in source comments: {documented} "
@@ -295,13 +401,14 @@ def main() -> int:
               f"CSP blocks:")
         for p in problems[:12]:
             print("    - " + p)
-        print("    _headers is PROD-ONLY: none of this fails locally, and the only symptom is a")
+        print("    The policy is PROD-ONLY: none of this fails locally, and the only symptom is a")
         print("    console message in someone else's browser. Grant exactly what ships, or stop")
         print("    shipping it.")
         return 1
 
-    print(f"PASS csp-covers-what-ships - every external script/stylesheet and every CSP requirement "
-          f"written into the source is granted by _headers.")
+    print(f"PASS csp-covers-what-ships - every external script/stylesheet, every CSP requirement written into the "
+          f"source, every blob: image and every played audio is granted by the policy vercel.json SHIPS, and _headers "
+          f"(the documented intent) matches it directive for directive.")
     return 0
 
 
