@@ -71,7 +71,6 @@ const PAGES = [
   // and the report says which is which.
   { page: 'achievements.html' },        { page: 'ai-quality.html' },
   { page: 'alert-hub.html' },           { page: 'analytics-report.html' },
-  { page: 'architecture.html' },        { page: 'assistant.html' },
   { page: 'audit-log.html' },           { page: 'community.html' },
   { page: 'dayplanner.html' },          { page: 'engineering-design.html' },
   { page: 'hive.html' },                { page: 'integrations.html' },

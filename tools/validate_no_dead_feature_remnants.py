@@ -65,7 +65,7 @@ def scan() -> dict[str, list[str]]:
     found = {}
     for f in sorted(glob.glob(str(ROOT / "*.html"))):
         p = Path(f)
-        if any(t in p.name for t in ("-test", "backup", "index-")) or p.name == "symbol-gallery.html":
+        if any(t in p.name for t in ("-test", "backup", "index-")):
             continue
         orph = orphans_in(p)
         if orph:

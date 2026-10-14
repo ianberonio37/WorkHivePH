@@ -149,8 +149,17 @@ def _atomic_write(path: Path, text: str) -> None:
         raise
 
 
+# ★A PAGE DELETED AFTER THIS WAVE WAS SEEDED KEEPS ITS PLACE IN THE PLAN (2026-10-14). Ian had three founder pages
+# removed from the project ("I am not using these pages ... remove this project completely"). Their LX-H rows were
+# seeded on 2026-09-06 and are now descoped in the registry - but plan() skipped any roster page missing from the page
+# roster, so rebuilding the roster without them dropped 12 rows from the PLAN and moved every later LX id: the registry
+# gate failed on LX236.. rows nobody had touched. A replay's inputs must not depend on the present (the BRH/SL rule),
+# so a page deleted after seeding is still enumerated here; its rows stay in the registry as descoped history.
+REMOVED_AFTER_SEEDING = {"architecture.html", "symbol-gallery.html", "validator-catalog.html"}
+
+
 def _known_pages() -> set:
-    return {p["path"] for p in json.loads(ROSTER.read_text(encoding="utf-8"))["pages"]}
+    return {p["path"] for p in json.loads(ROSTER.read_text(encoding="utf-8"))["pages"]} | REMOVED_AFTER_SEEDING
 
 
 def plan() -> list[dict]:

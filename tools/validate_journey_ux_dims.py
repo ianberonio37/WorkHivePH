@@ -35,7 +35,7 @@ BASELINE = ROOT / "journey_ux_dims_baseline.json"
 # The 32 user-facing "family" pages (the rubric's measured denominator). Internal dev consoles + distinct
 # artifacts are excluded, same basis as the family sweep + the S1 EXCLUDE list.
 EXCLUDE = {
-    "architecture.html", "design-system.html", "symbol-gallery.html", "validator-catalog.html",
+    "design-system.html",
     "llm-observability.html", "agentic-rag-observability.html", "ai-quality.html", "status.html",
     "offline-fallback.html", "promo-poster.html", "resume.html", "platform-health.html",
     "engineering-design-test.html",   # test/dev page, not a production surface

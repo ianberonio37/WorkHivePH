@@ -24,7 +24,6 @@ const PAGES = [
   // asks the question that matters for them: when the shared scripts never arrive, does the page SAY so?
   'design-system.html', 'index.html', 'learn/index.html', 'llm-observability.html', 'marketplace.html',
   'offline-fallback.html', 'project-report.html', 'shift-brain.html', 'status.html',
-  'symbol-gallery.html', 'validator-catalog.html',
 ];
 // PAGE_QUERY comes from the harness (keyed by the page's OWN parameter name)
 const DATA_RE = /\/rest\/v1\/|\/functions\/v1\/|\/realtime\/v1\/|\/storage\/v1\//;

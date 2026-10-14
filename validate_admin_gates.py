@@ -40,9 +40,6 @@ ADMIN_SURFACES = [
     "platform-actions.html",
     "llm-observability.html",
     "agentic-rag-observability.html",
-    "architecture.html",
-    "validator-catalog.html",
-    "symbol-gallery.html",
 ]
 
 LOOPBACK_LIST = re.compile(r"\[\s*['\"]127\.0\.0\.1['\"]\s*,\s*['\"]localhost['\"][^\]]*\]")

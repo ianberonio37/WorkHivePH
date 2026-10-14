@@ -1113,7 +1113,58 @@ BRH_CLASS = {
           "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
           "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, "
           "then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero"),
+    # ...and three more, from what Ian pointed out on 2026-10-14 (§BRH.2), measured the same way
+    "L": ("AU", "worker",
+          "a control offered to a person the page behind it refuses",
+          "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform "
+          "admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it "
+          "lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
+          "show the control only to the people the destination admits, decided from the verified account (the role "
+          "re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through "
+          "one shared rule the chrome applies, so a new link to a gated page cannot skip it"),
+    "M": ("AU", "returner",
+          "copy that says two contradictory things about who the person is",
+          "leave a display name on the device (wh_last_worker) and open the page three ways - session expired with its "
+          "refresh refused, signed out, signed in: no sentence may call the person by name as if they were working "
+          "while another says they are not signed in, and nothing may tell a signed-in person to sign in",
+          "every identity sentence reads the verified session (restoreIdentityFromSession); the remembered name only "
+          "says WHO to sign in as ('Your session ended. Sign in to continue as Jun.'), and a signed-out page shows one "
+          "state, not two"),
+    "N": ("H", "oversight",
+          "a file every deployment stores that the site never serves",
+          "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, "
+          "stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment "
+          "stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
+          ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left "
+          "out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers "
+          "404"),
 }
+
+
+def _gate_checked_cast(page: str, candidates: list[str]) -> str:
+    """The first candidate whose own route to `page` the journey-paths gate accepts - sublayer_inventory.casts' rule,
+    for one page: the seeder and the gate cannot disagree about who may walk a row. The gate's link graph and hub
+    readers are built once per seeding run."""
+    import check_journey_paths as cjp
+    memo = _gate_checked_cast.__dict__
+    if "links" not in memo:
+        memo["links"] = cjp.link_graph()
+        memo["offered"], memo["parented"] = cjp.hub_offered_and_parented()
+    paths = {f"{page}|{p}": _path(_start(page), page, [], cast=_cast_of(p)) for p in candidates}
+    bad = {a for a, *_r in cjp.role_blocked_hops(paths, {k: _cast_of(k.split("|")[1]) for k in paths}, memo["links"])}
+    bad |= {a for a, *_r in cjp.broken_hops(paths, memo["offered"], memo["parented"], memo["links"])}
+    return next((p for p in candidates if f"{page}|{p}" not in bad), candidates[0])
+
+
+# ★A ONE-ROW-PER-PAGE CLASS IS CARRIED BY ITS PAGE, NOT ITS KEY (2026-10-14, §BRH.2). D's key is the guard COUNT
+# ('17 guards'), so a page whose count moved looked like a new site and the first re-measure offered nine duplicate
+# D rows. D, F, G and H are one row per page by construction; L (per control), M (per page, constant key), N (per
+# kind) and E/J/K (per string, journey, pair) keep their keys.
+BRH_PER_PAGE = {"D", "F", "G", "H"}
+
+
+def _brh_carry(cls, page, key):
+    return (cls, page) if cls in BRH_PER_PAGE else (cls, page, key)
 
 
 def bug_hunt_rows(existing: list[dict], replay: bool = False) -> list[dict]:
@@ -1129,17 +1180,22 @@ def bug_hunt_rows(existing: list[dict], replay: bool = False) -> list[dict]:
     for t in existing:
         b = t.get("brh") or {}
         if b.get("kind") == "bug-hunt":
-            carried[(b.get("cls"), b.get("page"), b.get("key"))] += 1
+            carried[_brh_carry(b.get("cls"), b.get("page"), b.get("key"))] += 1
     from bug_hunt_inventory import collect
     rows: list[dict] = []
     for s in collect():
         cls, page, line, key = s["cls"], s["page"], s["line"], s["key"]
-        if carried[(cls, page, key)] > 0:
-            carried[(cls, page, key)] -= 1          # this measured site is already carried by an existing row
+        if carried[_brh_carry(cls, page, key)] > 0:
+            carried[_brh_carry(cls, page, key)] -= 1    # this measured site is already carried by an existing row
             continue
         layer, persona, mech, repro, fix = BRH_CLASS[cls]
         persona = s.get("persona") or persona
-        pages = _path(_start(page), page, [], cast=_cast_of(persona))
+        if s.get("personas"):            # L, M: the first candidate whose route to the page the gate accepts
+            persona = _gate_checked_cast(page, list(s["personas"]))
+        # a founder surface the hub offers nobody is reached DIRECTLY by platform staff (SL's rule for `oversight`):
+        # a hub route to it is a hop no page offers, and journey-paths refuses it
+        direct = persona == "oversight" and page != "index.html"
+        pages = [page] if direct else _path(_start(page), page, [], cast=_cast_of(persona))
         who = "a person" if persona == "any" else persona
         where = f"{_short(page)}:{line}" if line else _short(page)
         rows.append({
@@ -1150,7 +1206,7 @@ def bug_hunt_rows(existing: list[dict], replay: bool = False) -> list[dict]:
             "ufai": list(LAYER_LENS[layer][1]),
             "persona": persona,
             "device": "any",
-            "entry": "direct" if page == "index.html" else "hub-nav",
+            "entry": "direct" if (page == "index.html" or direct) else "hub-nav",
             "framing": "person",
             "story": (f"{who} reaches {_short(page)} and meets a defect of a class a real person met on 2026-10-13/14: "
                       f"{s['detail']}. MECHANISM: {mech}. REPRO: {repro}. FIX: {fix}. The row closes only when the "
@@ -1798,12 +1854,18 @@ def main() -> int:
             print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
             print("  (nothing written)")
             return 0
-        doc["trajectories"] = existing + created
+        # ★THE WAVE STAYS ONE BLOCK (2026-10-14, §BRH.2). The registry validator expects every named wave's ids in
+        # seeding order, and SL, ENH and OPC were seeded after BRH237 - so later BRH rows go directly after the last
+        # BRH row, never at the end, or BRH238.. would sit after OPC and fail the order check.
+        last = max((i for i, t in enumerate(existing) if str(t.get("id", "")).startswith(BRH_PREFIX)
+                    and str(t["id"])[len(BRH_PREFIX):].isdigit()), default=len(existing) - 1)
+        doc["trajectories"] = existing[:last + 1] + created + existing[last + 1:]
         doc["count"] = len(doc["trajectories"])
         _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC and LM follow
         seed_missing()
-        print("\n" + f"  wrote {len(created)} bug-hunt row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        print("\n" + f"  wrote {len(created)} bug-hunt row(s) into {REGISTRY.name} after {existing[last]['id']} "
+              f"(registry now {doc['count']})")
         return 0
     if args.add_bug_repro:
         rows = bug_repro_rows(existing)

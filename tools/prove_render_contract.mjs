@@ -34,8 +34,8 @@ const ROSTER = [
   'voice-journal.html', 'integrations.html', 'plant-connections.html', 'audit-log.html', 'ai-quality.html',
   'agentic-rag-observability.html', 'llm-observability.html', 'platform-actions.html', 'founder-console.html',
   'engineering-design.html', 'pm-scheduler.html', 'project-manager.html', 'project-report.html',
-  'ph-intelligence.html', 'design-system.html', 'symbol-gallery.html', 'validator-catalog.html',
-  'architecture.html', 'status.html', 'index.html', 'learn/index.html',
+  'ph-intelligence.html', 'design-system.html',
+  'status.html', 'index.html', 'learn/index.html',
 ];
 
 const AUDIT = function audit(VIS_JS) {

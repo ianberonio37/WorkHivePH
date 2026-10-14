@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 42,
-    "total_links": 330,
+    "pages_scanned": 39,
+    "total_links": 321,
     "total_broken": 0,
     "baseline": 0
   },
@@ -34,11 +34,6 @@
     {
       "page": "analytics.html",
       "link_count": 11,
-      "broken": []
-    },
-    {
-      "page": "architecture.html",
-      "link_count": 2,
       "broken": []
     },
     {
@@ -78,7 +73,7 @@
     },
     {
       "page": "founder-console.html",
-      "link_count": 16,
+      "link_count": 13,
       "broken": []
     },
     {
@@ -199,16 +194,6 @@
     {
       "page": "status.html",
       "link_count": 1,
-      "broken": []
-    },
-    {
-      "page": "symbol-gallery.html",
-      "link_count": 2,
-      "broken": []
-    },
-    {
-      "page": "validator-catalog.html",
-      "link_count": 2,
       "broken": []
     },
     {

@@ -14,7 +14,6 @@ import { chromium } from 'playwright';
 import { SEEDER, signIn, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const CASES = [
-  { file: 'validator-catalog.html', input: '#q', text: 'T15', wait: 6000 },
   // a supervisor lands in TEAM view: typing debounces a server search, so the repaint comes after the round-trip
   { file: 'logbook.html', input: '#search-input', text: 'pump', after: '#btn-search-team', wait: 9000, settle: 6000, signin: true },   // team view repaints only on Search Team (a debounce re-runs it afterwards)
   { file: 'marketplace.html', input: '#search-input', text: 'motor', wait: 9000, signin: true },

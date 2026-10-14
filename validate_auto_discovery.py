@@ -48,19 +48,16 @@ NON_TOOL_PAGES = {
     # symbol-gallery.html (founder-console.html:1231 and :1232), so a signed-in founder can be sitting on
     # either one. That is why both are in the AV2 session-hygiene picture rather than treated as dead
     # files, and why they are non-production for TRAJECTORY scope but not "unreachable".
-    "architecture.html",             # retired, archival; reachable only from the Founder Tools panel
     "marketplace-admin.html",        # platform admin only, not a worker tool
     "platform-actions.html",         # platform admin ops console (governance queues), not a worker tool
     "marketplace-seller.html",       # seller dashboard, gated separately
     "marketplace-seller-profile.html",  # seller profile editor
     "public-feed.html",              # public community feed (no auth required)
-    "symbol-gallery.html",           # retired, archival; reachable only from the Founder Tools panel (see above)
     "platform-health.html",          # retired Phase 7, deprecated banner only
     "voice-journal.html",            # voice-journal companion (untracked WIP — not yet a full tool page)
     "founder-console.html",          # Founder Console: admin-only platform-wide dashboard, not a worker tool
     "agentic-rag-observability.html",  # Phase 8 placeholder — observability for the agentic-RAG loop, admin-only
     "llm-observability.html",        # P1 roadmap 2026-05-27 — LLM observability dashboard (admin/devops only).
-    "validator-catalog.html",        # P1 roadmap 2026-05-27 — validator catalog browser (admin/devops only).
     "status.html",                   # Pillar O (Observability/SLO) local status page — admin/devops, not a worker tool (mirrors llm-observability)
     "offline-fallback.html",         # PWA offline fallback shown by the service worker when the network is down — not a worker tool
     "promo-poster.html",             # marketing poster/OG-image generator (admin/marketing), not a worker maintenance tool

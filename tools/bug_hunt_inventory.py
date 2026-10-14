@@ -29,6 +29,26 @@ CLASSES (each measurable, each with its own repro recipe):
   K  design slop the ratchet still holds    design_detector_baseline.json: a (file :: antipattern) pair with a count
                                             above zero - the committed, print-exempt population, not a raw detector run
 
+THREE MORE, from what Ian pointed out on 2026-10-14 (the same wave, the same rule - measured, never typed):
+  L  a control offered to a person the      Ian: "founder/admin pages button should also be visible to only
+     page behind it refuses                 founder/admin. not that kind of they are visible to all users then it says
+                                            only admin has access to this, because that would be a slop." Every link,
+                                            nav entry or search result on a production page or in the shared chrome
+                                            that leads to a page whose own start-up refuses some people (isPlatformAdmin;
+                                            a "Supervisors only" wall) - shown to people it will refuse unless the
+                                            control itself is role-gated
+  M  copy that says two contradictory       Ian: "a certain user like 'working as (name of a user).. not signed in..'
+     things about who the person is         what is that slop? you are working, but not signed in?" Every production
+                                            page and shared component that reads the device-remembered display name -
+                                            the only way a page can call someone by name while the session says nobody
+                                            is signed in (or tell a signed-in person to sign in)
+  N  a file every deployment stores that    Ian: "I am not using these pages ... remove this project completely, this
+     the site never serves                  is just add to the Vercel storage allowed" (Deployment Storage 75% of
+                                            10 GB). What the LAST PUSHED commit's deployment uploaded (its tree minus
+                                            its own .vercelignore, via tools/deploy_payload.py) that no page, script,
+                                            stylesheet, manifest or the service worker asks for - one row per kind of
+                                            artifact, so each kind is probed on the live origin for its 404
+
 Only PRODUCTION pages seed rows (LX_NON_PRODUCTION, per Ian 2026-09-30). Deterministic: source regexes and committed
 JSON only, so the registry validator can replay it on every run.
 
@@ -65,6 +85,54 @@ NAME_READ = re.compile(r"localStorage\.getItem\(\s*'wh_hive_name'\s*\)")
 HIVE_READ = re.compile(r"\bwhHiveId\(\)")
 OWN_RESTORE = re.compile(r"\bwhEnsureHiveContext\(")
 
+# L - the destination's OWN refusal decides who it shuts out: the platform-admin check, or a supervisors-only wall
+ADMIN_GATE = re.compile(r"isPlatformAdmin\(\s*db|verifyPlatformAdmin\(")
+SUPERVISOR_GATE = re.compile(r"""data-wh-gate[\"'\s,=]+[\"']?supervisor-only|>\s*Supervisors only\s*<""")
+# the shared chrome a person meets on every page: a control in one of these is offered everywhere it loads
+CHROME = ("nav-hub.js", "wayfinding.js", "search-overlay.js", "voice-handler.js", "utils.js", "wh-help.js",
+          "learn-link.js", "onboarding.js", "companion-launcher.js", "wh-feedback-fab.js", "worker-drawer.js",
+          "session-timeout.js", "wh-persona.js", "impact-preview.js", "maturity-gate.js", "wh-patterns.js")
+# who a destination refuses, in the cast order the seeder tries (the first whose route the journey-paths gate accepts)
+REFUSED_BY = {"supervisor": ["worker", "worker (engineer mode)"], "admin": ["worker", "buyer", "supervisor"]}
+# M - the device-remembered display name, read directly or through the page's cached global
+NAME_REMEMBERED = re.compile(r"""localStorage\.getItem\(\s*['"]wh_last_worker['"]\s*\)|\bwhWorker\(\)|\bWORKER_NAME\b""")
+NAME_PAINT = re.compile(r"""\.(?:textContent|innerText|innerHTML|value|placeholder)\s*\+?=[^;\n]*\b(?:WORKER_NAME|whWorker\(\)|workerName|_meName|myName|_myName|_name)\b|\$\{[^}]*\b(?:WORKER_NAME|whWorker\(\)|workerName|_meName)\b[^}]*\}""")
+# N - one row per KIND of artifact a person would name; an unmapped place becomes its own kind, so a new place shows up
+N_KINDS = (
+    ("the three founder pages Ian does not use (architecture, validator-catalog, symbol-gallery)", ("(root) *.html",)),
+    ("the live-walk evidence banks", ("banks/",)),
+    ("registries, baselines and reports at the root", ("(root) *.json",)),
+    ("test-run logs", ("test-runs/",)),
+    ("screenshots", ("(root) *.png", "(root) *.jpeg", "(root) *.jpg", "hive-baseline/", "test-images/")),
+    ("the development toolbox: scripts no page loads", ("tools/", "(root) *.py", "(root) *.js", "(root) *.mjs",
+                                                        "(root) *.sh", "(root) *.ps1", "(root) *.bat", "scripts/",
+                                                        "sentinels/", "__pycache__/")),
+    ("design sources and unused brand images", ("promo_posters/", "brand_assets/")),
+    ("documents and notes", ("(root) *.md", "workflows/", "seo_assets/", "persona_corpus/", ".impeccable/")),
+    ("database, function and server source", ("supabase/", "(root) *.sql", "python-api/", "docker/", "infra/")),
+    ("logs and captured output", ("(root) *.log", "(root) *.jsonl", "(root) *.txt", "(root) *.yml")),
+    ("the knowledge substrate and contracts", ("substrate/", "canonical/", "page_bank_anatomy/", "evals/")),
+    ("test suites", ("tests/", "(root) *.ts")),
+)
+N_CONFIG = "configuration, environment templates and run-state files"   # every remaining dotfile / config kind
+
+
+def _blank_comments(src: str) -> str:
+    """Comments out, line numbers kept: a link named in a comment is not a control."""
+    keep = lambda m: re.sub(r"[^\n]", " ", m.group(0))   # noqa: E731
+    src = re.sub(r"<!--.*?-->", keep, src, flags=re.S)
+    src = re.sub(r"/\*.*?\*/", keep, src, flags=re.S)
+    return re.sub(r"(?m)(?<![:\"'`\\/])//[^\n]*$", keep, src)
+
+
+def _kind_of_place(place: str) -> str:
+    for label, places in N_KINDS:
+        if place in places:
+            return label
+    if place.startswith("(root) *.") or place in (".github/", ".vscode/"):
+        return N_CONFIG
+    return place
+
 
 def _force_utf8_stdout() -> None:
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -97,10 +165,62 @@ def collect(sources: dict | None = None) -> list[dict]:
                  else (ROOT / "utils.js").read_text(encoding="utf-8", errors="replace"))
     defined = {a or b for a, b in DEFINED.findall(utils_src)}
     sites: list[dict] = []
+    # L's destinations: EVERY root page whose own start-up refuses some people (founder pages included - a refusal
+    # there is still a door the product offered), measured from the page itself
+    every = (sorted(sources) if sources is not None
+             else sorted(os.path.basename(p) for p in glob.glob(str(ROOT / "*.html"))))
+    gated: dict[str, str] = {}
+    for p in every:
+        if not p.endswith(".html"):
+            continue
+        t = read(p) if sources is not None else (ROOT / p).read_text(encoding="utf-8", errors="replace")
+        if ADMIN_GATE.search(t):
+            gated[p] = "admin"
+        elif SUPERVISOR_GATE.search(t):
+            gated[p] = "supervisor"
+    dest_rx = (re.compile(r"""["'`/](%s)(?:[?#][^"'`]*)?["'`]""" % "|".join(re.escape(d) for d in sorted(gated)))
+               if gated else None)
+
+    def offered(src: str, own: str | None) -> list[tuple[int, str]]:
+        """(line, destination) for every control in `src` that leads to a gated page - skipping a page's links to
+        itself, and links inside a gated page to a page its own audience is admitted to."""
+        if not dest_rx:
+            return []
+        code = _blank_comments(src)
+        out = []
+        for m in dest_rx.finditer(code):
+            d = m.group(1)
+            if d == own:
+                continue
+            if own in gated and (gated[own] == "admin" or gated[own] == gated[d]):
+                continue
+            out.append((_line_of(code, m.start()), d))
+        return out
+
     for page in pages:
         if not page.endswith(".html"):
             continue
         src = read(page)
+        # L - a control offered to a person the page behind it refuses (one row per control)
+        for line, d in offered(src, page):
+            sites.append({"cls": "L", "page": page, "line": line, "key": f"-> {d}", "personas": REFUSED_BY[gated[d]],
+                          "detail": f"a control on {page}:{line} leads to {d}, whose own start-up refuses "
+                                    f"{'everyone but a platform admin' if gated[d] == 'admin' else 'everyone but the hive supervisor'}"})
+        # M - the remembered display name, read on this page (one row per page: every identity sentence is checked)
+        code = _blank_comments(src)
+        nm_read = NAME_REMEMBERED.search(code)
+        if nm_read:
+            paints = [_line_of(code, m.start()) for m in NAME_PAINT.finditer(code)]
+            # the walker must be admitted to the page to read it: an admin on a founder page, a supervisor behind a
+            # supervisors-only wall, otherwise the first persona whose route the gate accepts
+            sites.append({"cls": "M", "page": page, "line": _line_of(code, nm_read.start()), "key": "remembered name",
+                          "personas": ({"admin": ["oversight"], "supervisor": ["supervisor"]}.get(gated.get(page))
+                                       or ["worker", "supervisor", "oversight"]),
+                          "detail": f"reads the device-remembered display name (first at :{_line_of(code, nm_read.start())})"
+                                    + (f" and paints it at {len(paints)} place(s) in code ({', '.join(map(str, paints[:5]))}"
+                                       f"{' ...' if len(paints) > 5 else ''})" if paints else "")
+                                    + " - with the session expired, signed out or signed in, no sentence on the page "
+                                      "may say the opposite of the session"})
         # D - version skew silenced by typeof guards (one row per page: the heal is per page)
         guards = [(m.group(1), _line_of(src, m.start())) for m in GUARD.finditer(src) if m.group(1) in defined]
         if guards:
@@ -158,6 +278,56 @@ def collect(sources: dict | None = None) -> list[dict]:
             page = f if f.endswith(".html") and (ROOT / f).exists() else "index.html"   # shared chrome is met on the home
             sites.append({"cls": "K", "page": page, "line": 0, "key": pair,
                           "detail": f"{n} primary '{anti}' finding(s) in {f} still held by the design-detector ratchet"})
+    # L and M in the shared chrome: met on every page that loads it, so the row is met on the home (K's precedent)
+    chrome = {c: (sources.get(c, "") if sources is not None
+                  else ((ROOT / c).read_text(encoding="utf-8", errors="replace") if (ROOT / c).exists() else ""))
+              for c in CHROME if sources is None or c in sources}
+    for c, src in chrome.items():
+        if not src:
+            continue
+        for line, d in offered(src, None):
+            sites.append({"cls": "L", "page": "index.html", "line": 0, "key": f"{c} -> {d}",
+                          "personas": REFUSED_BY[gated[d]],
+                          "detail": f"the shared {c} offers {d} ({c}:{line}) on every page it loads, and {d}'s own "
+                                    f"start-up refuses {'everyone but a platform admin' if gated[d] == 'admin' else 'everyone but the hive supervisor'}"})
+        if "WHNavTools" in src and "roles" not in _blank_comments(src) and c != "nav-hub.js":
+            line = _line_of(src, src.index("WHNavTools"))
+            sites.append({"cls": "L", "page": "index.html", "line": 0, "key": f"{c} -> every hub tool",
+                          "personas": REFUSED_BY["supervisor"],
+                          "detail": f"{c}:{line} searches the hub's whole tool list (window.WHNavTools) with no role "
+                                    "check, so a worker's search offers the supervisor-only and admin pages the hub "
+                                    "itself keeps out of their mode"})
+        code = _blank_comments(src)
+        nm_read = NAME_REMEMBERED.search(code)
+        if nm_read:
+            sites.append({"cls": "M", "page": "index.html", "line": 0, "key": f"{c} remembered name",
+                          "personas": ["worker", "supervisor", "oversight"],
+                          "detail": f"the shared {c} reads the device-remembered display name ({c}:"
+                                    f"{_line_of(code, nm_read.start())}) on every page it loads"})
+    # N - what the last pushed deployment stored that the site never serves, by kind (the git matcher, one place)
+    if sources is None:
+        try:
+            from deploy_payload import dead_weight_at
+            import subprocess
+            ref = "origin/master"
+            if subprocess.run(["git", "rev-parse", "--verify", "-q", ref], cwd=ROOT, capture_output=True).returncode:
+                ref = "HEAD"
+            sha = subprocess.run(["git", "rev-parse", "--short", ref], cwd=ROOT, capture_output=True,
+                                 text=True).stdout.strip()
+            kinds: dict[str, list[dict]] = {}
+            for g in dead_weight_at(ref):
+                kinds.setdefault(_kind_of_place(g["place"]), []).append(g)
+            for kind, gs in kinds.items():
+                files, size = sum(g["files"] for g in gs), sum(g["bytes"] for g in gs)
+                biggest = max(gs, key=lambda g: g["bytes"])["largest"]
+                sites.append({"cls": "N", "page": "index.html", "line": 0, "key": kind, "persona": "oversight",
+                              "detail": f"{files} file(s), {size / 1e6:.2f} MB that the deployment built from {ref} "
+                                        f"({sha}) stored and production serves on request, while no page, script, "
+                                        f"stylesheet, manifest or the service worker asks for them - "
+                                        f"{', '.join(g['place'] for g in gs[:8])}{' ...' if len(gs) > 8 else ''}; "
+                                        f"probe: https://workhiveph.com/{biggest}"})
+        except Exception as e:   # no git, or no deploy tool: N seeds nothing rather than a guess
+            print(f"  bug-hunt N: not measured ({e})", file=sys.stderr)
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
 
@@ -174,10 +344,18 @@ def self_test() -> int:
         "name_ok.html": "<script>const HIVE_NAME = localStorage.getItem('wh_hive_name'); whReconcileHiveName(db);</script>",
         "reload.html": "<script>let HIVE_ID = whHiveId();</script>",
         "own.html": "<script>let HIVE_ID = whHiveId(); await whEnsureHiveContext(db);</script>",
+        "audit.html": "<h2>Supervisors only</h2>",
+        "admin.html": "<script>if (!(await isPlatformAdmin(db))) {}</script><a href='audit.html'>x</a>",
+        "links.html": "<a href='audit.html'>Audit</a><!-- <a href='admin.html'> --><script>go('admin.html')</script>",
+        "named.html": "<script>let WORKER_NAME = localStorage.getItem('wh_last_worker'); el.textContent = WORKER_NAME;</script>",
+        "search-overlay.js": "const hits = window.WHNavTools.filter(m);",
     }
     got = Counter((s["cls"], s["page"]) for s in collect(pages))
     want = {("D", "skew.html"): 1, ("E", "dual.html"): 2, ("F", "role.html"): 1, ("G", "name.html"): 1,
-            ("H", "reload.html"): 1, ("H", "dual.html"): 1, ("H", "skew.html"): 0}
+            ("H", "reload.html"): 1, ("H", "dual.html"): 1, ("H", "skew.html"): 0,
+            # L: the live link and the scripted one count, the commented one does not, and a link inside an admin page
+            # (whose audience is admitted everywhere) is no offer; the role-blind search is one more, met on the home
+            ("L", "links.html"): 2, ("L", "admin.html"): 0, ("L", "index.html"): 1, ("M", "named.html"): 1}
     ok = all(got.get(k, 0) == v for k, v in want.items()) and ("D", "dual.html") not in got and ("F", "role_ok.html") not in got \
         and ("G", "name_ok.html") not in got and ("H", "own.html") not in got
     print(("PASS" if ok else "FAIL") + f" bug-hunt inventory self-test - {dict(got)}")
@@ -206,10 +384,13 @@ def main() -> int:
                      ("G", "stored hive name never reconciled          (layer D, per page)"),
                      ("H", "hive restored by reload, not in start-up   (layer F, per page)"),
                      ("J", "a live journey that is not live            (layer F, per journey)"),
-                     ("K", "design slop the ratchet still holds        (layer F, per file :: antipattern)")):
+                     ("K", "design slop the ratchet still holds        (layer F, per file :: antipattern)"),
+                     ("L", "a control offered to a person it refuses   (layer AU, per control)"),
+                     ("M", "copy contradicting who the person is       (layer AU, per page / component)"),
+                     ("N", "a file every deployment stores, never served (layer H, per kind)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
-    for c in "DEFGHJK":
+    for c in "DEFGHJKLMN":
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue

@@ -29,8 +29,8 @@ EXCLUDE = ("node_modules", "remotion_scenes", "video_marketing_app", ".backup", 
 # EN-only by design (internal admin / dev / utility surfaces) — not user-facing product, exempt from
 # the user-facing i18n requirement (listed as exempt, not counted as a gap).
 INTERNAL_EXEMPT = {
-    "founder-console.html", "architecture.html", "design-system.html", "symbol-gallery.html",
-    "validator-catalog.html", "llm-observability.html", "agentic-rag-observability.html",
+    "founder-console.html", "design-system.html",
+    "llm-observability.html", "agentic-rag-observability.html",
     "offline-fallback.html", "promo-poster.html", "status.html",
     # platform-actions.html = an internal governance ACTION-QUEUE console (noindex, not in the user nav,
     # approve/verify/resolve + a Founder Ops dashboard link) — EN-only like founder-console, not a

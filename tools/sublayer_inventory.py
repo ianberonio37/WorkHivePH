@@ -55,7 +55,7 @@ CLASSES = ("production", "founder", "public")
 # Ian's admin / founder / developer surfaces - the 12 measured on 2026-10-14 (the operator console's scatter)
 FOUNDER_PAGES = (
     "founder-console.html", "marketplace-admin.html", "platform-actions.html", "llm-observability.html",
-    "agentic-rag-observability.html", "architecture.html", "validator-catalog.html", "symbol-gallery.html",
+    "agentic-rag-observability.html",
     "ai-quality.html", "audit-log.html", "status.html", "design-system.html",
 )
 

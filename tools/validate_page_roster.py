@@ -46,34 +46,25 @@ def _served_paths() -> list[str]:
     root-only swap precisely because no instrument's definition of "the pages" contained it.
     Deriving the set from the deploy means a NEW page shape shows up as "on disk but not rostered"
     instead of disappearing."""
-    import fnmatch
+    # ★ASK GIT'S MATCHER, NEVER A PRIVATE ONE (2026-10-14). This function used to parse .vercelignore itself
+    # (fnmatch per line, no negation). The file became an ALLOWLIST that day ("/*" then "!/..." re-includes, to stop
+    # every deployment storing 612.7 MB of dev artifacts), and a private matcher reads "/*" as matching nothing and
+    # "!/*.html" as a literal - so it would have called every tracked page served, promo_posters/ and _fixtures/
+    # included. tools/deploy_payload.shipped() is git's own gitignore matcher, checked file-for-file against the
+    # node "ignore" library Vercel uses (450 = 450, zero differences).
     import subprocess
-    pats = []
-    vi = ROOT / ".vercelignore"
-    if vi.exists():
-        pats = [ln.strip() for ln in vi.read_text(encoding="utf-8", errors="replace").splitlines()
-                if ln.strip() and not ln.strip().startswith("#")]
-
-    def ignored(rel: str) -> bool:
-        for pat in pats:
-            if pat.endswith("/"):
-                if rel == pat[:-1] or rel.startswith(pat):
-                    return True
-            elif fnmatch.fnmatch(rel, pat) or fnmatch.fnmatch(rel.rsplit("/", 1)[-1], pat):
-                return True
-        return False
-
+    rels: list[str] = []
     try:
-        out = subprocess.run(["git", "ls-files", "*.html"], cwd=str(ROOT),
-                             capture_output=True, text=True, timeout=30)
-        rels = [ln.strip() for ln in out.stdout.splitlines() if ln.strip()] if out.returncode == 0 else []
+        sys.path.insert(0, str(ROOT / "tools"))
+        from deploy_payload import shipped
+        rels = [r for r in shipped() if r.endswith(".html")]
     except Exception:
         rels = []
     if not rels:                       # no git: fall back to disk, minus dot-dirs and vendored trees
         rels = [p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*.html")
                 if not any(part.startswith(".") or part in ("node_modules", "vendor")
                            for part in p.relative_to(ROOT).parts)]
-    return sorted({r for r in rels if not ignored(r) and "backup" not in r and "-test" not in r})
+    return sorted({r for r in rels if "backup" not in r and "-test" not in r})
 
 
 def _kind_of(rel: str) -> str:

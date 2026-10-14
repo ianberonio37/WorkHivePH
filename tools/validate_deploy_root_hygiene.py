@@ -82,17 +82,23 @@ def main() -> int:
     # Any git-tracked HTML that is served but is NOT a product page must be excluded by name. The
     # root-only sweep above cannot see these: two dev tools' Jinja templates were publicly serving
     # raw `{{ supabase_url }}` from subdirectories the gate never looked at.
+    # ★ASK WHAT SHIPS, NOT WHAT IS WRITTEN (2026-10-14). This used to check that each tree's NAME appeared as a
+    # line of .vercelignore. The file became an allowlist that day ("/*", then "!/..." re-includes), where a tree is
+    # excluded by "/*" whether or not its name is written - and where a careless "!/_fixtures/" re-include would
+    # serve it again with the name still written below. So the question is asked of git's own matcher
+    # (deploy_payload.shipped, verified against the node "ignore" library Vercel uses): does any file under a
+    # dev-only tree ship?
     DEV_TREES = ("test-data-seeder/", "video_marketing_app/", "_fixtures/", "remotion_scenes/")
     try:
-        all_html = subprocess.run(["git", "ls-files", "*.html"], cwd=str(ROOT),
-                                  capture_output=True, text=True, timeout=30).stdout.splitlines()
+        sys.path.insert(0, str(ROOT / "tools"))
+        from deploy_payload import shipped
+        _ship = shipped()
     except Exception:
-        all_html = []
-    exposed = sorted({t for t in DEV_TREES
-                      for h in all_html if h.strip().startswith(t) and t not in vi_rules})
+        _ship = set()
+    exposed = sorted({t for t in DEV_TREES for f in _ship if f.startswith(t)})
     if exposed:
-        problems.append("dev-only tree(s) are git-tracked, contain served .html and are NOT in "
-                        f".vercelignore: {exposed}")
+        problems.append("dev-only tree(s) ship in the deployment (.vercelignore does not keep them out): "
+                        f"{exposed}")
 
     n_root = len(list(ROOT.glob("*.html")))
     print(f"deploy-root-hygiene: {n_root} root pages · {len(strays)} strays · fixtures rule "
@@ -127,12 +133,13 @@ def self_test() -> int:
                   "the live finding, not a broken test. Staging alone will not clear it, by design.)")
     except Exception:
         pass
-    _vi = (ROOT / ".vercelignore")
-    if _vi.exists():
-        _rules = {ln.strip() for ln in _vi.read_text(encoding="utf-8", errors="replace").splitlines()
-                  if ln.strip() and not ln.strip().startswith("#")}
-        if "_fixtures/" not in _rules:
-            fails.append(".vercelignore must exclude _fixtures/ - it is the measured prod exposure")
+    try:
+        sys.path.insert(0, str(ROOT / "tools"))
+        from deploy_payload import shipped
+        if any(f.startswith("_fixtures/") for f in shipped()):
+            fails.append("_fixtures/ must not ship - it is the measured prod exposure")
+    except Exception as e:
+        fails.append(f"could not ask the deploy's matcher what ships: {e}")
     if fails:
         print("SELF-TEST FAIL:", "; ".join(fails)); return 1
     print("PASS validate_deploy_root_hygiene self-test (stray patterns match the 7 moved names, spare the real pages)")

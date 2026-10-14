@@ -36,10 +36,7 @@ CENTRAL = "offline-banner.js"
 BACKEND = re.compile(r"getDb\(|db\.from\(|db\.functions\.invoke\(|functions\.invoke\(|\.rpc\(")
 # internal / non-user-facing surfaces where a device-offline banner adds no value (documented exemptions)
 EXEMPT = {
-    "architecture.html": "internal archived architecture doc",
     "design-system.html": "internal design-system gallery",
-    "symbol-gallery.html": "internal symbol gallery",
-    "validator-catalog.html": "internal validator catalog",
     "agentic-rag-observability.html": "internal observability console (admin-only)",
     "llm-observability.html": "internal observability console (admin-only)",
     "marketplace-seller-profile.html": "public read-only profile (no user write actions)",

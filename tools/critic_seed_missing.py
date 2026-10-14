@@ -83,13 +83,23 @@ def prune_descoped(critic: dict, traj: dict) -> tuple[list[str], list[str]]:
     ABSENT, and nothing removed one: descoping BRP9/BRP36/BRP37 (and earlier LXP1000/LXP1026) left their pending critic
     rows behind and the gate went red - the preservation rule held on one side of a paired write only. A row is removed
     only when it holds NOTHING (pending, no graded dims, no findings); a descoped row that carries evidence is reported
-    and kept, because deleting a critique is a decision, not housekeeping. Returns (removed ids, kept-with-evidence ids)."""
+    and kept, because deleting a critique is a decision, not housekeeping. Returns (removed ids, kept-with-evidence ids).
+
+    ★...AND WHEN THE PAGE ITSELF IS GONE, THE DECISION HAS BEEN MADE (2026-10-14). Ian had architecture.html,
+    validator-catalog.html and symbol-gallery.html removed from the project ("do not just retire this, also remove this
+    project completely"). 82 critiques of their trajectories carried evidence, so this function kept them, and R3 went
+    red on every one: a critique of a page that no longer exists has nothing left to improve and no page to re-walk.
+    A row whose trajectory was descoped because its subject was DELETED FROM THE PROJECT (the descope reason says so, at
+    the head of its basis) is removed with its evidence; the findings stay in git history, and the trajectory keeps its
+    own basis as the record. Every other descoped row keeps the rule above."""
     descoped = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"}
+    subject_gone = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"
+                    and "DELETED FROM THE PROJECT" in (t.get("basis") or "")[:200]}
     keep, removed, held = [], [], []
     for r in critic.get("rows") or []:
         if r.get("id") in descoped:
             empty = r.get("status") == "pending" and not (r.get("dims_graded") or []) and not (r.get("findings") or [])
-            if empty:
+            if empty or r.get("id") in subject_gone:
                 removed.append(r["id"]); continue
             held.append(r["id"])
         keep.append(r)
@@ -102,8 +112,9 @@ def seed_missing(dry_run: bool = False) -> int:
     traj = json.loads(io.open(TRAJ, encoding="utf-8").read())
     removed, held = prune_descoped(critic, traj)
     if removed or held:
-        print(f"critic_seed_missing: {'would remove' if dry_run else 'removing'} {len(removed)} empty row(s) whose "
-              f"trajectory is descoped: {', '.join(removed[:12])}{' ...' if len(removed) > 12 else ''}")
+        print(f"critic_seed_missing: {'would remove' if dry_run else 'removing'} {len(removed)} row(s) whose "
+              f"trajectory is descoped (empty, or its page was deleted from the project): "
+              f"{', '.join(removed[:12])}{' ...' if len(removed) > 12 else ''}")
         if held:
             print(f"  KEPT {len(held)} descoped row(s) that hold evidence (a decision, not housekeeping): {', '.join(held[:12])}")
     missing = build_missing(critic, traj)

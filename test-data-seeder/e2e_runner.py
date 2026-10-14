@@ -83,7 +83,6 @@ _TIER5 = [
     ("project-report",                "e2e_project_report"),
     ("marketplace-seller",            "e2e_marketplace_seller"),
     ("marketplace-seller-profile",    "e2e_marketplace_seller_profile"),
-    ("symbol-gallery",                "e2e_symbol_gallery"),
     ("founder-console",               "e2e_founder_console"),
 ]
 
@@ -181,7 +180,7 @@ class Layer2TestRunner:
     ]
     TIER_5_PAGES = [
         "dayplanner", "engineering-design", "project-report",
-        "marketplace-seller", "marketplace-seller-profile", "symbol-gallery", "founder-console"
+        "marketplace-seller", "marketplace-seller-profile", "founder-console"
     ]
 
     ALL_TIERS = {

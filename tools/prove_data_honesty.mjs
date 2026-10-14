@@ -31,7 +31,7 @@ const ROSTER = [
   'marketplace.html', 'marketplace-seller.html', 'marketplace-admin.html', 'skillmatrix.html',
   'ai-quality.html', 'agentic-rag-observability.html', 'llm-observability.html', 'platform-actions.html',
   'founder-console.html', 'plant-connections.html', 'ph-intelligence.html', 'audit-log.html',
-  'symbol-gallery.html', 'validator-catalog.html', 'offline-fallback.html', 'status.html', 'shift-brain.html',
+  'offline-fallback.html', 'status.html', 'shift-brain.html',
 ];
 
 const AUDIT = function audit(VIS_JS) {

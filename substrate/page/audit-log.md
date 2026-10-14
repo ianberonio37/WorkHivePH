@@ -2,7 +2,7 @@
 name: page-audit-log
 type: page
 source: file:audit-log.html
-source_sha: 93ef1b33e4035138
+source_sha: 34dfd7c2de0a29f3
 last_verified: 2026-07-13
 supersedes: null
 ---

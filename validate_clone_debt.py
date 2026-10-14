@@ -45,7 +45,7 @@ JSCPD = ROOT / "node_modules" / "jscpd" / "bin" / "jscpd"
 # the page shells); backups/tests/vendored dirs excluded.
 PATTERN = "*.html"
 IGNORE = ("**/node_modules/**,**/.tmp/**,**/test-results/**,**/*backup*,**/*-test*,"
-          "**/index-*.html,**/symbol-gallery.html,**/.playwright-mcp/**,**/predictive.html")
+          "**/index-*.html,**/.playwright-mcp/**,**/predictive.html")
 MIN_TOKENS = "40"
 
 

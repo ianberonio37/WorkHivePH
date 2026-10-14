@@ -16,9 +16,9 @@ const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? 
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
 const PAGES = [   // the 20 P-J rows without a scripted journey (P385..P424, 2026-09-05)
   'agentic-rag-observability.html', 'design-system.html', 'llm-observability.html', 'offline-fallback.html', 'platform-actions.html',
-  'symbol-gallery.html', 'learn/index.html', 'project-report.html', 'report-sender.html', 'shift-brain.html',
+  'learn/index.html', 'project-report.html', 'report-sender.html', 'shift-brain.html',
   'ai-quality.html', 'founder-console.html', 'marketplace-admin.html', 'plant-connections.html', 'promo-poster.html',
-  'validator-catalog.html', 'audit-log.html', 'ph-intelligence.html', 'public-feed.html',
+  'audit-log.html', 'ph-intelligence.html', 'public-feed.html',
 ];
 const SKIP_HREF = /^(#|javascript:|mailto:|tel:|https?:\/\/(?!127\.0\.0\.1))|index\.html\?(signin|signup)=|logout|sign-out|\.pdf$|\.json$/i;
 

@@ -49,8 +49,8 @@ const PAGES = ['index.html', 'logbook.html', 'inventory.html', 'pm-scheduler.htm
                'project-report.html?project_id=170cf794-a67d-4791-afdc-cffc95042cac',
                'public-feed.html', 'resume.html', 'shift-brain.html',
                // reference surfaces (2026-09-05, P311/P315/P319/P326 landscape & tablet): a static page overflows too
-               'design-system.html', 'offline-fallback.html', 'symbol-gallery.html', 'architecture.html',
-               'validator-catalog.html', 'llm-observability.html', 'platform-actions.html', 'learn/index.html',
+               'design-system.html', 'offline-fallback.html',
+               'llm-observability.html', 'platform-actions.html', 'learn/index.html',
                'integrations.html', 'marketplace-seller.html'];   // P335/P339 landscape & tablet (2026-09-05)
 
 const probe = (w) => {

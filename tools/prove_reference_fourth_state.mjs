@@ -12,11 +12,8 @@ import { chromium } from 'playwright';
 
 import { SEEDER, VIS_JS, SETTLE_MS } from './prover_harness.mjs';   // shared preamble (2026-09-05): checkVisibility, the settle envelope
 const PAGES = [
-  { file: 'validator-catalog.html', block: /platform_health\.json|VALIDATOR_REGISTRY\.json/, status: '#meta, [role="status"]', content: '#tbl tbody' },
   { file: 'design-system.html',     block: /design_component_registry\.json|component_purity_baseline\.json|storage_key_registry\.json|ufai-rubric-spec\.json|family_rubric_scoreboard\.json/, status: '[role="status"], .wh-source-chip, #ds-prov, #ds-axes', content: '#ds-root' },
-  { file: 'symbol-gallery.html',    block: /drawing-symbols\.js/, status: '#sym-count, [role="status"]', content: '#gallery' },
   { file: 'llm-observability.html', block: /rest\/v1\/ai_cost_log|rest\/v1\/ai_cache/, status: '#meta, [role="status"]', content: '#by-task tbody, .grid' },
-  { file: 'architecture.html',      block: /platform_catalog\.json|substrate_manifest\.json|\.json$/, status: '[role="status"], .wh-source-chip', content: 'main' },
   { file: 'offline-fallback.html',  block: /x^/, status: '#net-hint, [role="status"]', content: 'main, body' },
   { file: 'agentic-rag-observability.html', block: /rest\/v1\/agentic_rag_traces/, status: '#freshness, [role="status"], .honest-empty', content: 'main, body' },   // P450 degradation is legible (2026-09-05)
 ];

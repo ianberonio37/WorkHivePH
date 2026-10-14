@@ -85,8 +85,6 @@ DISPOSITIONED_PAGES = {
     "index-native-test.html": "test page", "index-hive-test.html": "test page",
     "index-v3-test.html": "test page", "index.backup.html": "backup snapshot",
     "index.backup2.html": "backup snapshot", "logbook.backup.html": "backup snapshot",
-    "architecture.html": "internal dev-doc (not a worker route)",
-    "validator-catalog.html": "internal dev-doc", "symbol-gallery.html": "internal dev-doc",
     "platform-health.html": "retired dev dashboard (Arc D DEPRECATED_PAGES)",
 }
 

@@ -1,25 +1,118 @@
-# Dev-only artifacts that must never be served in production (2026-09-06).
-# netlify.toml has always declared the intent - "publish=. would serve them; force 404 them" - but the site
-# is deployed on VERCEL, which reads neither netlify.toml nor _headers. Measured on the live origin:
-# https://workhiveph.com/_fixtures/engineering-design-test.html answered 200 with the full page. robots.txt
-# does not cover them either: it disallows /index-v3-test.html at the ROOT, while the file is served from
-# /_fixtures/. Leaving them out of the deployment removes the exposure rather than masking it.
+# WHAT EVERY VERCEL DEPLOYMENT UPLOADS - an ALLOWLIST since 2026-10-14. Gate: tools/deploy_payload.py --check.
 #
-# ★THIS FILE WAS NEVER COMMITTED, SO IT HAS NEVER RUN (found 2026-09-10). `git status` reported it
-# as `?? .vercelignore` - untracked. Vercel deploys the git tree, so an untracked ignore file is
-# not part of any deployment and cannot exclude anything. Re-measured on the live origin the day
-# this was found, four days after the note above was written:
-#     /_fixtures/engineering-design-test.html          -> 200, 1,729,742 B   STILL SERVED
-# The exposure was never removed; only the intent was written down. A rule that ships nowhere is
-# indistinguishable from no rule, which is why `deploy_root_hygiene` now FAILS while this file is
-# untracked - the gate asserts the lock is loaded, not merely that it exists.
+# ★WHY AN ALLOWLIST (2026-10-14). Vercel emailed Ian twice (2026-09-29, 2026-10-13): the free team had used 75% of
+# Deployment Storage (10 GB). Every deployment stores a full copy of what it uploads, and this file used to be a
+# DENYLIST - it named the few trees someone remembered were dev-only and everything else shipped. Measured that day,
+# each deployment uploaded 612.7 MB in 5,944 files: the live-walk evidence banks (250 MB), the critic and trajectory
+# registries (128 MB), test-run logs (55 MB), 1,900 tool scripts, 787 migration and function files, 146 screenshots,
+# 365 Markdown docs. The site a person loads is 19.5 MB of it. Production served all of it on request -
+# /trajectory_registry.json, /banks/*.json, /tools/*.py, /supabase/config.toml and the roadmap .md answered 200 - so
+# it was an exposure as well as the quota. A denylist only stops what someone remembered to name; the next
+# registry joined the next deployment by default.
 #
-# The same measurement found two dev tools' Jinja templates publicly served, which the root-only
-# sweep in that gate could never have seen:
-#     /test-data-seeder/templates/index.html           -> 200,   269,083 B   raw {{ supabase_url }}
-#     /video_marketing_app/templates/index.html        -> 200,   133,849 B
-# The seeder is the LOCAL-ONLY WorkHive Tester; its template renders a Supabase URL and test-login
-# placeholders. Served unrendered, it publishes the shape of that tooling to anyone who asks.
+# So: ignore everything at the root, then re-include what the site serves. tools/deploy_payload.py walks every page,
+# script, stylesheet, the service worker's precache list and the manifest, and fails if a file the site asks for is
+# left out (a 404 in production), if a development artifact ships, or if the payload passes its budget. When a page
+# starts fetching a new file, that gate names it and it is added below.
+#
+# Syntax is .gitignore's (the last matching rule wins; a file inside an excluded folder cannot be re-included, so a
+# folder is re-included before its contents are filtered). Comments must sit on their own lines.
+
+/*
+
+# --- pages, scripts and styles at the root ---------------------------------------------------------------------------
+!/*.html
+!/*.html.md
+!/*.js
+!/*.css
+
+# --- what the platform itself requests: the PWA, crawlers, the CDN config, the IndexNow key ---------------------------
+!/manifest.json
+!/robots.txt
+!/sitemap.xml
+!/llms.txt
+!/favicon.ico
+!/favicon.svg
+!/vercel.json
+# IndexNow verifies the site by fetching this key (tools/indexnow_submit.py names it as keyLocation)
+!/ea75de4e1f4161c869d7a30bcbad9660.txt
+
+# --- images the pages show ----------------------------------------------------------------------------------------------
+!/wh_analytics_clean.png
+!/wh_home_clean.png
+!/wh_pm_clean.png
+
+# --- data the pages fetch at runtime (the founder dashboards, the report sender, the learn links) ----------------------
+!/api_adoption_baseline.json
+!/api_component_registry.json
+!/au_adoption_baseline.json
+!/au_component_registry.json
+!/av_adoption_baseline.json
+!/av_component_registry.json
+!/companion_ab_results.json
+!/companion_dim_baselines.json
+!/companion_eval_scorecard.json
+!/companion_optimization_proposals.json
+!/component_adoption_baseline.json
+!/component_purity_baseline.json
+!/db_adoption_baseline.json
+!/db_component_registry.json
+!/design_component_registry.json
+!/family_rubric_baseline.json
+!/family_rubric_scoreboard.json
+!/family_rubric_scoreboard.page.json
+!/field_impact_preview.json
+!/learn_links.json
+!/report-sender-manifest.json
+!/storage_key_registry.json
+!/ufai-rubric-spec.json
+
+# --- page folders -------------------------------------------------------------------------------------------------------
+!/learn/
+!/about/
+!/feedback/
+!/privacy-policy/
+!/terms-of-service/
+!/i18n/
+!/vendor/
+
+# --- brand images: only the ones a page shows (the rest are design sources) ---------------------------------------------
+!/brand_assets/
+/brand_assets/*
+!/brand_assets/hezekiah-256.jpg
+!/brand_assets/zaniah-256.jpg
+!/brand_assets/og-social.png
+!/brand_assets/workhive-logo-tight.png
+!/brand_assets/workhive-logo-transparent.png
+
+# --- tools/ is the dev toolbox AND the 60 public calculators (tools/<slug>/index.html + its .md mirror) ------------------
+!/tools/
+/tools/*
+!/tools/*/
+/tools/fixtures/
+/tools/lib/
+/tools/psql_probes/
+/tools/vendor/
+/tools/*/*
+!/tools/*/index.html
+!/tools/*/index.html.md
+
+# --- root scripts no page loads: test batteries and survey runners -------------------------------------------------------
+/analytics_correctness.js
+/companion_battery.js
+/companion_surface_battery.js
+/journey_battery.js
+/live-state-runner.js
+/survey_ufai_rubric.js
+/ufai_battery.js
+
+# --- never pages, wherever they sit (2026-09-06; kept by name for deploy-root-hygiene) ------------------------------------
+# netlify.toml has always declared the intent - "publish=. would serve them; force 404 them" - but the site is deployed
+# on VERCEL, which reads neither netlify.toml nor _headers. /_fixtures/engineering-design-test.html answered 200 with
+# the full page until this file was committed (2026-09-10: it had sat untracked for four days, and an untracked ignore
+# file excludes nothing). Two dev tools' Jinja templates were served from subfolders too, one rendering a raw
+# {{ supabase_url }}. All of these are inside "/*" above; they stay named so a future edit of the allowlist that
+# re-includes their folder cannot quietly serve them again.
 _fixtures/
 *.backup.html
 *.backup2.html

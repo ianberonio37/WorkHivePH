@@ -35,7 +35,7 @@ CLICK_RE = re.compile(r"<(?:div|span|li)\b[^>]*\bonclick=", re.I)
 INLINE_OK_RE = re.compile(r"<(?:div|span|li)\b[^>]*\bonclick=[^>]*>", re.I)
 UTILS_SRC_RE = re.compile(r"src=[\"'][^\"']*utils\.js", re.I)
 SKIP_RE = re.compile(r"(?:-test|test|\.backup\d*)\.html$", re.I)
-RETIRED = {"architecture.html", "symbol-gallery.html"}
+RETIRED = set()   # architecture.html + symbol-gallery.html were DELETED from the project 2026-10-14 (Ian)
 
 
 def has_uncovered_clickable(text):

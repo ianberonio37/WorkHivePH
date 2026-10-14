@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = [
-    "validator-catalog.html", "symbol-gallery.html", "design-system.html", "architecture.html",
+    "design-system.html",
     "learn/index.html", "offline-fallback.html", "llm-observability.html", "founder-console.html",
     # P-C "cap is not a total" on the DB pages (2026-09-05, P122..P158): the same disclosure rule
     "agentic-rag-observability.html", "ai-quality.html", "marketplace-admin.html", "platform-actions.html", "analytics.html",

@@ -64,7 +64,6 @@ DOC_TEXT_OK = {
     "platform-health.html":   "guide row text describes catalog approval / RLS architecture",
     "platform-health-test.html": "test copy of platform-health",
     "ARCHITECTURE.html":      "RETIRED 2026-05-13 — archival doc",
-    "architecture.html":      "RETIRED 2026-05-13 — archival doc",
     "WORKHIVE_PLATFORM_BOOK.md": "platform book / docs",
     # Grounded-sweep test batteries: 'service_role' appears ONLY inside a secret-
     # DETECTION regex (the Safety / Internal-Control pillar scans an AI answer for a

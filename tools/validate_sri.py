@@ -260,14 +260,15 @@ def pages_to_scan():
     The served surface is derivable: Vercel deploys the git-tracked tree minus `.vercelignore`, so
     that is the definition used here. `git ls-files` also means an untracked scratch copy can never
     re-inflate the number. Fallback (no git) errs toward the served set by dropping dot-dirs."""
-    import subprocess
-    patterns = _vercelignore_patterns()
+    # ★ASK GIT'S MATCHER (2026-10-14): .vercelignore is an ALLOWLIST ("/*" then "!/..."), which the private
+    # fnmatch matcher below cannot read - it would call every tracked page served. deploy_payload.shipped() is the
+    # deploy's own definition, verified against the node "ignore" library Vercel uses.
+    patterns: list[str] = []
     rels: list[str] = []
     try:
-        out = subprocess.run(["git", "ls-files", "*.html"], cwd=str(ROOT),
-                             capture_output=True, text=True, timeout=30)
-        if out.returncode == 0:
-            rels = [ln.strip() for ln in out.stdout.splitlines() if ln.strip()]
+        sys.path.insert(0, str(ROOT / "tools"))
+        from deploy_payload import shipped
+        rels = [r for r in shipped() if r.endswith(".html")]
     except Exception:
         rels = []
     if not rels:                                    # no git: keep going, but say so in the report

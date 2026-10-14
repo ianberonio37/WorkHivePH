@@ -13,7 +13,7 @@ import io, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGES = ["validator-catalog.html", "symbol-gallery.html", "design-system.html", "llm-observability.html", "founder-console.html", "architecture.html", "offline-fallback.html",
+PAGES = ["design-system.html", "llm-observability.html", "founder-console.html", "offline-fallback.html",
          "platform-actions.html", "agentic-rag-observability.html", "plant-connections.html"]   # P434/P435/P439 (2026-09-05)
 CALL_RE = re.compile(r"console\.(?:error|warn)\(\s*(['\"`])(.{0,80}?)\1", re.S)
 

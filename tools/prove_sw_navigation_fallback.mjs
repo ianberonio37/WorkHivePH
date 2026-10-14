@@ -11,7 +11,7 @@ import { HIVE, WORKER } from './prover_harness.mjs';   // identity constants sha
 const SEEDER = process.env.WH_SEEDER_URL || 'http://127.0.0.1:5000';
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 // + the ten 'offline path' rows (2026-09-05): a page the worker precaches serves its own content, any other lands on the fallback
-const TARGETS = ONLY ? [ONLY] : ['learn/index.html', 'architecture.html', 'index.html', 'ai-quality.html', 'alert-hub.html', 'assistant.html', 'dayplanner.html', 'engineering-design.html', 'platform-actions.html', 'agentic-rag-observability.html', 'analytics-report.html', 'asset-hub.html'];
+const TARGETS = ONLY ? [ONLY] : ['learn/index.html', 'index.html', 'ai-quality.html', 'alert-hub.html', 'assistant.html', 'dayplanner.html', 'engineering-design.html', 'platform-actions.html', 'agentic-rag-observability.html', 'analytics-report.html', 'asset-hub.html'];
 // The fallback page's OWN sentences - not the word 'offline', which the landing page's copy also contains (a false
 // PASS on seven pages, 2026-09-05: the worker served the LANDING shell for a non-precached page and the regex said 'fallback').
 const FALLBACK_WORDS = /isn.t available offline yet|Your connection dropped/i;

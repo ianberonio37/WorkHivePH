@@ -40,8 +40,8 @@ CONSOLE = "founder-console.html"
 GRAFANA = ROOT / "infra" / "mcp" / "grafana" / "provisioning" / "dashboards"
 # the 12 scattered surfaces, in the order measured on 2026-10-14 (the first surface to show a panel keeps it)
 SURFACES = ("founder-console.html", "marketplace-admin.html", "platform-actions.html", "audit-log.html",
-            "ai-quality.html", "llm-observability.html", "agentic-rag-observability.html", "validator-catalog.html",
-            "architecture.html", "symbol-gallery.html", "design-system.html", "status.html")
+            "ai-quality.html", "llm-observability.html", "agentic-rag-observability.html",
+            "design-system.html", "status.html")
 FEEDS = (("glitchtip", "Open errors (GlitchTip issues)"), ("board", "Gate board (platform_health.json)"))
 NOT_PANEL = re.compile(r"^(Could not|No .* yet|Reports need|Join a hive|Supervisors only|Platform Admins Only|"
                        r"Supervisor access only|Vehicle created|Add a Vehicle|\d+\. )", re.I)
@@ -112,7 +112,6 @@ def collect(sources: dict | None = None, dashboards: list | None = None) -> list
         s = c["surface"]
         c["kind"] = ("grafana" if s.startswith("grafana:") else "feed" if s in dict(FEEDS) else
                      "developer" if s in ("llm-observability.html", "agentic-rag-observability.html",
-                                          "validator-catalog.html", "architecture.html", "symbol-gallery.html",
                                           "design-system.html", "status.html") else "operations")
     collect.arithmetic = {"raw": len(cells), "exact": len(cells) - len(kept), "near": len(kept) - len(out)}
     return out

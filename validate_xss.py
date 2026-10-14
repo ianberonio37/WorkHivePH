@@ -97,11 +97,10 @@ LIVE_PAGES = [
     # escHtml inline within their inline scripts and only render from trusted
     # admin-readable data sources.
     "llm-observability.html",
-    "validator-catalog.html",
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)
-SELF_DEFINES_ESC = {"engineering-design.html", "llm-observability.html", "validator-catalog.html"}
+SELF_DEFINES_ESC = {"engineering-design.html", "llm-observability.html"}
 
 # Known-safe interpolation patterns: numbers, enums, internal counters
 SAFE_PATTERNS = [

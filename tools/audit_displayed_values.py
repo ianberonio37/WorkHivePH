@@ -69,8 +69,8 @@ PAGES = [
     "voice-journal.html", "founder-console.html", "index.html",
     # P-C "tile == DB canonical" on the reference surfaces (2026-09-05): a count or a percentage a reference
     # page paints is a displayed value too - the audit is the per-page instrument for those rows.
-    "validator-catalog.html", "symbol-gallery.html", "design-system.html", "llm-observability.html",
-    "offline-fallback.html", "architecture.html", "learn/index.html",
+    "design-system.html", "llm-observability.html",
+    "offline-fallback.html", "learn/index.html",
 ]
 
 # id pattern that signals "this element will display a computed value"

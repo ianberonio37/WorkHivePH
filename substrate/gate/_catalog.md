@@ -2,7 +2,7 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cf6cdcde578db9da
+source_sha: 8e1a7c56b55950e3
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -670,6 +670,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `deepwalk-flywheel` [warn] — PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge f
 - `definer-membership-gate` ⚡ [fail] — SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)
 - `degraded-state-central` ⚡ [fail] — per-page SaaS-LAYER · Layer AV (Availability & Recovery) — METHOD-LAW central-component adoption gate. The device-offline / degraded warning is ONE shared idemp
+- `deploy-payload` ⚡ [fail] — Deploy Payload (BRH-N, Ian 2026-10-14: Vercel's free Deployment Storage (10 GB) was 75% used because every deployment stored 612.7 MB - the evidence banks, regi
 - `deploy-root-hygiene` ⚡ [fail] — Deploy Root Hygiene (T1.4: publish='.' serves every root file — no *-test/*.backup dev copies in the root (index.backup.html was publicly reachable), _fixtures/
 - `design-detector-ratchet` ⚡ [fail] — anti-slop ratchet: the Impeccable detector's primary-finding counts per (file, antipattern) never rise above design_detector_baseline.json; fixes lower the floo
 - `design-tokens` ⚡ [fail] — Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)
@@ -1276,7 +1277,6 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `sw-offline` ⚡ [fail] — Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)
 - `sw-shell-membership` ⚡ [fail] — CA (Caching/CDN) deep-walk cell — every page in the service-worker OFFLINE SHELL (sw.js SHELL_FILES) must (a) exist on disk (a stale entry 404s the SW precache 
 - `swallowed-placeholder-tags` ⚡ [fail] — No placeholder written as a bare tag in served markup (critic batch, 2026-10-13). marketplace-seller's hint said buyers reach you at m.me/<your-handle>: the par
-- `symbol-gallery-complete` [regression] — T490 (symbol gallery complete & accurate): every symbol getSymbolList() returns maps to one of the gallery rendered disciplines (electrical/mechanical/pid/lps) 
 - `tabindex-positive` ⚡ [fail] — Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)
 - `table-accessible-name` ⚡ [fail] — <table> Accessible Name (every table has caption/aria-label/role=presentation; forward-only ratchet)
 - `table-collision-audit` ⚡ [fail] — Cross-Migration Table-Collision Auditor (catches CREATE TABLE IF NOT EXISTS with incompatible column sets across migrations)

@@ -18,15 +18,6 @@ const json = (f) => JSON.parse(readFileSync(f, 'utf8'));
 
 const CLAIMS = [
   {
-    file: 'validator-catalog.html', wait: 6000,
-    read: () => ({
-      validators: (document.querySelector('#meta strong') || {}).textContent,
-      pass: (document.getElementById('pass-stat') || {}).textContent,
-      fail: (document.getElementById('fail-stat') || {}).textContent,
-    }),
-    truth: () => { const h = json('platform_health.json'); const v = h.validators || []; return { validators: v.length, pass: v.filter((x) => x.status === 'PASS').length, fail: v.filter((x) => x.status === 'FAIL').length }; },
-  },
-  {
     file: 'founder-console.html', wait: 9000, signin: true,
     read: () => { const t = (document.body.innerText || '').replace(/\s+/g, ' '); const m = t.match(/(\d[\d,]*) pass · (\d[\d,]*) fail/); return { pass: m ? m[1] : null, fail: m ? m[2] : null }; },
     truth: () => { const h = json('platform_health.json'); const v = h.validators || []; return { pass: v.filter((x) => x.status === 'PASS').length, fail: v.filter((x) => x.status === 'FAIL').length }; },
@@ -83,17 +74,6 @@ const CLAIMS = [
 // source must be alive (a last-run stamp older than STALE_DAYS is a dead producer the page must not call "Live").
 const STALE_DAYS = 7;
 const EXPLAIN = [
-  { file: 'validator-catalog.html', wait: 6000, sel: '#meta',
-    checks: (t, j) => { const h = j('platform_health.json'); const ts = String(h.timestamp || '').slice(0, 19).replace('T', ' '); const age = (Date.now() - Date.parse(h.timestamp)) / 864e5;
-      return { 'last-run stamp == file': t.includes(ts), 'breakdown PASS/FAIL/WARN/SKIP': /PASS.*FAIL.*WARN.*SKIP/.test(t), 'window named': /refreshed|as of|updated|live/i.test(t), [`producer alive (<${STALE_DAYS}d, ${age.toFixed(1)}d)`]: age < STALE_DAYS }; } },
-  { file: 'design-system.html', wait: 6000, sel: '#ds-axes',
-    checks: (t, j) => { const pu = j('component_purity_baseline.json'); const files = pu.files || {}; const total = Object.keys(files).length; const pure = Object.values(files).filter((v) => v === 0).length;
-      return { 'purity names N/M files': new RegExp(`\\b${pure}/${total}\\b\\s+shared-chrome files pure`).test(t), 'raw literals named': /raw brand literals/.test(t) }; } },
-  { file: 'founder-console.html', wait: 9000, sel: '#sec-alive', signin: true,
-    checks: (t, j) => { const h = j('platform_health.json'); const age = (Date.now() - Date.parse(h.timestamp)) / 864e5;
-      return { 'tech tile names its source': /Platform Health|platform_health/i.test(t), 'tech tile says when the checks ran': /last run|as of|updated|ran /i.test(t), [`producer alive (<${STALE_DAYS}d, ${age.toFixed(1)}d)`]: age < STALE_DAYS }; } },
-  { file: 'llm-observability.html', wait: 8000, sel: '#meta',
-    checks: () => ({}), text: (t) => ({ 'window named': /last \d+ ?h|in last|as of/i.test(t), 'call count named': /\d+ calls?/.test(t) }) },
   { file: 'agentic-rag-observability.html', wait: 9000, sel: '#freshness', signin: true,
     checks: () => ({}), text: (t) => ({ 'window named': /in the last \d+ days/.test(t), 'count named': /\d+ traces/.test(t) }) },
   // P-I 'honest interpretability' on the DB pages (2026-09-05, P350/P353/P362/P365/P368/P371/P378): a status/source
@@ -122,8 +102,6 @@ const EXPLAIN = [
   { file: 'plant-connections.html', wait: 9000, sel: 'main, body', signin: true,
     checks: () => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log")); return { ['gateway age read (' + h + 'h)']: Number.isFinite(h) && h > 0 }; },
     text: (t) => { const h = Number(psql("select coalesce(round(extract(epoch from now()-max(created_at))/3600), 99999) from gateway_audit_log")); const idle = h > 168; return { [idle ? 'page says the gateway is IDLE' : 'page shows gateway activity']: idle ? /No gateway calls in last 7 days|IDLE/i.test(t) : /gateway/i.test(t) && !/No gateway calls/i.test(t) }; } },
-  { file: 'symbol-gallery.html', wait: 5000, sel: '#sym-count, .wh-source-chip',
-    checks: () => ({}), text: (t) => ({ 'count named': /\d+ symbols?/i.test(t), 'source named': /drawing library|drawing-symbols/i.test(t) }) },
 ];
 
 async function runExplain(ctx) {

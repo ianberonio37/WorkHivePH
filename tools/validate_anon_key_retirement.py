@@ -51,7 +51,6 @@ SESSION_RESTORE_RE = re.compile(r"restoreIdentityFromSession|auth\.getSession|au
 SESSION_EXEMPT = {
     "engineering-design-test.html", "index-hive-test.html", "index-native-test.html",
     "index-v3-test.html", "index.backup.html", "index.backup2.html", "logbook.backup.html",
-    "symbol-gallery.html",
 }
 
 

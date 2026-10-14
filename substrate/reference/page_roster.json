@@ -1,6 +1,6 @@
 {
   "_doc": "T1.4 unified page roster \u2014 the ONE scope artifact every page-consuming instrument is checked against (validate_page_roster.py). Regenerate with --build after adding/removing a page.",
-  "count": 169,
+  "count": 158,
   "pages": [
     {
       "path": "about/index.html",
@@ -28,10 +28,6 @@
     },
     {
       "path": "analytics.html",
-      "kind": "root"
-    },
-    {
-      "path": "architecture.html",
       "kind": "root"
     },
     {
@@ -367,38 +363,6 @@
       "kind": "root"
     },
     {
-      "path": "promo_posters/_beetest.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/_contact.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/poster-v1.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/poster-v2.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/poster-v3.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/poster-v4.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/poster-v5.html",
-      "kind": "promo"
-    },
-    {
-      "path": "promo_posters/social-card.html",
-      "kind": "promo"
-    },
-    {
       "path": "public-feed.html",
       "kind": "root"
     },
@@ -420,10 +384,6 @@
     },
     {
       "path": "status.html",
-      "kind": "root"
-    },
-    {
-      "path": "symbol-gallery.html",
       "kind": "root"
     },
     {
@@ -669,10 +629,6 @@
     {
       "path": "tools/wire-sizing-calculator/index.html",
       "kind": "tools"
-    },
-    {
-      "path": "validator-catalog.html",
-      "kind": "root"
     },
     {
       "path": "voice-journal.html",
