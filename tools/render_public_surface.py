@@ -101,11 +101,12 @@ def parse_landing_tools(html: str) -> list[tuple[str, str, str]]:
 # people it admits. The gate is MEASURED from the page's own start-up (the bug-hunt inventory's regexes), never typed.
 def _page_gate(route: str) -> str | None:
     try:
-        from bug_hunt_inventory import ADMIN_GATE, SUPERVISOR_GATE
+        from bug_hunt_inventory import page_gate
         text = (ROOT / route.strip("/")).read_text(encoding="utf-8", errors="replace")
     except Exception:
         return None
-    return "platform-admin" if ADMIN_GATE.search(text) else ("supervisor" if SUPERVISOR_GATE.search(text) else None)
+    g = page_gate(text)
+    return "platform-admin" if g == "admin" else g
 
 
 def _li(route: str) -> str:

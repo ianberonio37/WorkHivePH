@@ -1714,6 +1714,16 @@ happens to know maintenance, not a manual.`;
         const _wn = document.getElementById('chat-worker-name');
         if (_wn) _wn.textContent = _acctName;
       }
+      // ★NO SESSION, NO NAME (BRH-M, 2026-10-14). With the session dead or gone the status chip says "Not signed in",
+      // and the page still greeted "Hi Bryan Garcia!" and showed his name in the header - the contradiction Ian named
+      // ("working as ... not signed in"). The device remembers a name; only an account says who is here.
+      const _greetName = _authedUser ? workerName : '';
+      if (!_authedUser) {
+        const _wn = document.getElementById('chat-worker-name');
+        if (_wn) _wn.textContent = '';
+        const _pe = document.getElementById('chat-persona-name');
+        if (_pe) _pe.textContent = _pe.textContent.replace(/^·\s*/, '');
+      }
 
       /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
          { count: null, error } instead of throwing, so any failed read — not just the cold-load
@@ -1758,8 +1768,8 @@ happens to know maintenance, not a manual.`;
       // wherever the person put it.
       const _gBox = document.getElementById('chat-messages');
       const _askedFirst = !!(_gBox && _gBox.querySelector('.bubble-user'));
-      const _greetEl = addAssistantBubble(_t(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
-                            `Kumusta ${workerName}! Ako ang iyong WorkHive Work Assistant. ${recordsNote}\n\nAno ang kailangan mo?`));
+      const _greetEl = addAssistantBubble(_t(`Hi${_greetName ? ' ' + _greetName : ''}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
+                            `Kumusta${_greetName ? ' ' + _greetName : ''}! Ako ang iyong WorkHive Work Assistant. ${recordsNote}\n\nAno ang kailangan mo?`));
       if (_askedFirst) {
         try { _gBox.insertBefore(_greetEl, _gBox.firstElementChild); } catch (_) { /* empty-catch-allow: order is cosmetic if the move fails */ }
         _paintQuotaNote();

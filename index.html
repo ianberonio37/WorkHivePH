@@ -1960,7 +1960,7 @@
       <li data-wh-requires="supervisor"><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
       <li><a href="/marketplace.html">Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.</a></li>
       <li><a href="/marketplace-seller.html">Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
-      <li><a href="/ai-quality.html">AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
+      <li data-wh-requires="supervisor-or-admin"><a href="/ai-quality.html">AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
     <!--/CATALOG:tool_catalog_mirror-->
   </ul>
 </section>
@@ -4153,11 +4153,10 @@
   // forEach pushed that brace to offset 849, so the gate reported the function as ABSENT while it
   // was clearing all three identity keys correctly. The comment above says the same thing about
   // this window; this is that constraint being honoured rather than re-learned.
-  async function signOut() {
-    if (typeof whClearIdentity === 'function') whClearIdentity();
-    else ['wh_last_worker','wh_worker_name','workerName',
-          'wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hives']
-      .forEach(k => localStorage.removeItem(k));
+  // ★THE HEADER NAMED SOMEONE WHO WAS NOT SIGNED IN (BRH-M, 2026-10-14). updateNavbarName turns the Sign In button into
+  // the person's name chip. With the session dead or gone, that chip said "Bryan" beside "Your session ended" - the
+  // contradiction Ian named ("working as ... not signed in"). Signed out, the door is what it is: Sign In.
+  function _showSignedOutChrome() {
     document.getElementById('user-menu')?.classList.add('hidden');
     document.getElementById('user-menu-mobile')?.classList.add('hidden');
     document.querySelectorAll('.signin-btn').forEach(el => {
@@ -4166,6 +4165,14 @@
         : 'Sign In';
       el.setAttribute('data-i', 'signin');
     });
+  }
+
+  async function signOut() {
+    if (typeof whClearIdentity === 'function') whClearIdentity();
+    else ['wh_last_worker','wh_worker_name','workerName',
+          'wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hives']
+      .forEach(k => localStorage.removeItem(k));
+    _showSignedOutChrome();
     _getDb().auth.signOut(); // best effort, fire-and-forget after clearing local state
   }
 
@@ -4515,8 +4522,13 @@
       // them what happened, and the marketing view below is still legitimately readable signed-out.
       (async () => {
         try {
-          if (typeof db === 'undefined') return;
-          const { data: _s } = await db.auth.getSession();
+          // ★THE CHECK RAN BEFORE THE CLIENT EXISTED (BRH-M, 2026-10-14). window.db is created lazily by the dashboard;
+          // with a hive on the device the dashboard reaches it first, but signed out with only a name left, _showOpsHome
+          // awaits the hive lookup, this check found no client and returned - so the home greeted "Bryan" with no
+          // session and never said it had ended. The page's own client getter is the same shared singleton.
+          const _db = (typeof _getDb === 'function') ? _getDb() : (typeof db !== 'undefined' ? db : null);
+          if (!_db) return;
+          const { data: _s } = await _db.auth.getSession();
           if (_s?.session) return;
           const host = document.getElementById('ops-home');
           if (!host || document.getElementById('oh-session-dead')) return;
@@ -4532,6 +4544,12 @@
             + '<a href="index.html?signin=1" style="color:#fcd34d;text-decoration:underline;">Sign in</a> '
             + 'to see your real figures.';
           host.insertBefore(note, host.firstChild);
+          // ...and the page stops calling the person by name as if they were working (BRH-M, 2026-10-14): the greeting
+          // loses the name and the header chip goes back to Sign In. The flag covers the order where the dashboard
+          // paints AFTER this check (it reads it before greeting).
+          _showSignedOutChrome();
+          window._ohNoSession = true;
+          if (typeof window._ohSessionEnded === 'function') window._ohSessionEnded();
         } catch (_) { /* empty-catch-allow: if we cannot ask, do not claim the session is dead */ }
       })();
     } else if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
@@ -4950,8 +4968,16 @@
     const h = ph.getHours();
     const time = h < 12 ? _t('morning','umaga') : h < 17 ? _t('afternoon','hapon') : _t('evening','gabi');
     const first = name.split(' ')[0];
-    return `${_t('Good','Magandang')} ${time}, ${escHtml(first)} 👋`;
+    // no name with no session (BRH-M): a greeting by name says the person is here and working
+    return first ? `${_t('Good','Magandang')} ${time}, ${escHtml(first)} 👋` : `${_t('Good','Magandang')} ${time} 👋`;
   }
+  // the session check lives in another script; this is how it ends the named greeting (BRH-M, 2026-10-14) - the flag
+  // also covers the order where the dashboard paints after the check
+  window._ohSessionEnded = function () {
+    window._ohNoSession = true;
+    const g = document.getElementById('oh-greeting');
+    if (g) g.textContent = _greeting('');
+  };
 
   function _dateStr() {
     // Cluster-1 clock discipline (2026-09-02): a SHIFT belongs to the PLANT's clock, not the
@@ -5011,7 +5037,7 @@
       : Promise.resolve();
 
     // Greeting + date
-    document.getElementById('oh-greeting').textContent = _greeting(workerName);
+    document.getElementById('oh-greeting').textContent = _greeting(window._ohNoSession ? '' : workerName);
     // ★THE GREETING NAMED WHOEVER THE DEVICE REMEMBERED (SL AU3, 2026-10-14): walked with another member's name in the
     // cache, the home said "Good afternoon, Wilfredo" to Bryan. The account is asked once, beside the reads below, and
     // the greeting follows its answer when the two differ (the cache is corrected by the same call).

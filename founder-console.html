@@ -1305,6 +1305,14 @@
          thing that replaced it. Stop before any of it: the overlay is the page's own declaration that it
          is retired, so it is the honest thing to test. Deleting the overlay to un-retire (the documented
          reversal) restores the load as well, because this guard reads the overlay rather than a flag. */
+      // ★A LAPSED SESSION IS NOT A MISSING GRANT (SL AU1 / BRH-M, 2026-10-14) - the rule marketplace-admin already
+      // keeps. Walked as a platform admin whose session had expired and could not refresh: isPlatformAdmin found no
+      // session, answered false, and this page showed its no-access gate - the wrong reason and the wrong remedy for
+      // someone who IS an admin. A missing session is a sign-in problem; the wall says so and brings the person back.
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (!session && !IS_LOCAL_FOUNDER) { whSignInWall(); return; }
+      } catch (_) { /* empty-catch-allow: the admin check below still fails closed */ }
       const _retiredOv = document.getElementById('wh-retired-overlay');
       if (_retiredOv) {
         /* Keep the page VIEW while dropping the page's WORK. Someone arriving here is the signal that

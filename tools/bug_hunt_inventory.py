@@ -93,7 +93,20 @@ CHROME = ("nav-hub.js", "wayfinding.js", "search-overlay.js", "voice-handler.js"
           "learn-link.js", "onboarding.js", "companion-launcher.js", "wh-feedback-fab.js", "worker-drawer.js",
           "session-timeout.js", "wh-persona.js", "impact-preview.js", "maturity-gate.js", "wh-patterns.js")
 # who a destination refuses, in the cast order the seeder tries (the first whose route the journey-paths gate accepts)
-REFUSED_BY = {"supervisor": ["worker", "worker (engineer mode)"], "admin": ["worker", "buyer", "supervisor"]}
+REFUSED_BY = {"supervisor": ["worker", "worker (engineer mode)"], "admin": ["worker", "buyer", "supervisor"],
+              "supervisor-or-admin": ["worker", "worker (engineer mode)"]}
+REFUSES = {"admin": "everyone but a platform admin", "supervisor": "everyone but the hive supervisor",
+           "supervisor-or-admin": "everyone but the hive supervisor or a platform admin"}
+
+
+def page_gate(text: str) -> str | None:
+    """The page's OWN refusal, measured - the one reading the inventory, validate_gated_offers and the catalog renderer
+    share. A page that walls everyone but its supervisor AND admits a platform admin (ai-quality, 2026-10-14) is
+    'supervisor-or-admin'; isPlatformAdmin alone is 'admin'; a supervisors-only wall alone is 'supervisor'."""
+    admin, sup = bool(ADMIN_GATE.search(text)), bool(SUPERVISOR_GATE.search(text))
+    if admin and sup:
+        return "supervisor-or-admin"
+    return "admin" if admin else ("supervisor" if sup else None)
 # M - the device-remembered display name, read directly or through the page's cached global
 NAME_REMEMBERED = re.compile(r"""localStorage\.getItem\(\s*['"]wh_last_worker['"]\s*\)|\bwhWorker\(\)|\bWORKER_NAME\b""")
 NAME_PAINT = re.compile(r"""\.(?:textContent|innerText|innerHTML|value|placeholder)\s*\+?=[^;\n]*\b(?:WORKER_NAME|whWorker\(\)|workerName|_meName|myName|_myName|_name)\b|\$\{[^}]*\b(?:WORKER_NAME|whWorker\(\)|workerName|_meName)\b[^}]*\}""")
@@ -176,10 +189,9 @@ def collect(sources: dict | None = None) -> list[dict]:
         if not p.endswith(".html"):
             continue
         t = read(p) if sources is not None else (ROOT / p).read_text(encoding="utf-8", errors="replace")
-        if ADMIN_GATE.search(t):
-            gated[p] = "admin"
-        elif SUPERVISOR_GATE.search(t):
-            gated[p] = "supervisor"
+        g = page_gate(t)
+        if g:
+            gated[p] = g
     dest_rx = (re.compile(r"""["'`/](%s)(?:[?#][^"'`]*)?["'`]""" % "|".join(re.escape(d) for d in sorted(gated)))
                if gated else None)
 
@@ -207,7 +219,7 @@ def collect(sources: dict | None = None) -> list[dict]:
         for line, d in offered(src, page):
             sites.append({"cls": "L", "page": page, "line": line, "key": f"-> {d}", "personas": REFUSED_BY[gated[d]],
                           "detail": f"a control on {page}:{line} leads to {d}, whose own start-up refuses "
-                                    f"{'everyone but a platform admin' if gated[d] == 'admin' else 'everyone but the hive supervisor'}"})
+                                    f"{REFUSES[gated[d]]}"})
         # M - the remembered display name, read on this page (one row per page: every identity sentence is checked)
         code = _blank_comments(src)
         nm_read = NAME_REMEMBERED.search(code)
@@ -216,7 +228,7 @@ def collect(sources: dict | None = None) -> list[dict]:
             # the walker must be admitted to the page to read it: an admin on a founder page, a supervisor behind a
             # supervisors-only wall, otherwise the first persona whose route the gate accepts
             sites.append({"cls": "M", "page": page, "line": _line_of(code, nm_read.start()), "key": "remembered name",
-                          "personas": ({"admin": ["oversight"], "supervisor": ["supervisor"]}.get(gated.get(page))
+                          "personas": ({"admin": ["oversight"], "supervisor": ["supervisor"], "supervisor-or-admin": ["supervisor"]}.get(gated.get(page))
                                        or ["worker", "supervisor", "oversight"]),
                           "detail": f"reads the device-remembered display name (first at :{_line_of(code, nm_read.start())})"
                                     + (f" and paints it at {len(paints)} place(s) in code ({', '.join(map(str, paints[:5]))}"
@@ -291,7 +303,7 @@ def collect(sources: dict | None = None) -> list[dict]:
             sites.append({"cls": "L", "page": "index.html", "line": 0, "key": f"{c} -> {d}",
                           "personas": REFUSED_BY[gated[d]],
                           "detail": f"the shared {c} offers {d} ({c}:{line}) on every page it loads, and {d}'s own "
-                                    f"start-up refuses {'everyone but a platform admin' if gated[d] == 'admin' else 'everyone but the hive supervisor'}"})
+                                    f"start-up refuses {REFUSES[gated[d]]}"})
         if "WHNavTools" in src and "roles" not in _blank_comments(src) and c != "nav-hub.js":
             line = _line_of(src, src.index("WHNavTools"))
             sites.append({"cls": "L", "page": "index.html", "line": 0, "key": f"{c} -> every hub tool",

@@ -6498,6 +6498,7 @@ async function isPlatformAdmin(db) {
 // ─────────────────────────────────────────────
 var WH_PAGE_GATES = {
   'audit-log.html': 'supervisor', 'integrations.html': 'supervisor', 'plant-connections.html': 'supervisor',
+  'ai-quality.html': 'supervisor-or-admin',
   'founder-console.html': 'platform-admin', 'marketplace-admin.html': 'platform-admin',
   'platform-actions.html': 'platform-admin', 'llm-observability.html': 'platform-admin',
   'agentic-rag-observability.html': 'platform-admin'
@@ -6514,6 +6515,9 @@ function whViewerAdmits(gate) {
     // role-check-allow: an OFFER decision from the reconciled role cache (whReconcileHiveRole), not an access decision
     if (gate === 'supervisor') return localStorage.getItem('wh_hive_role') === 'supervisor';
     if (gate === 'platform-admin') return sessionStorage.getItem('wh_platform_admin') === '1';
+    // a page that admits its hive's supervisor AND a platform admin (ai-quality)
+    if (gate === 'supervisor-or-admin') return localStorage.getItem('wh_hive_role') === 'supervisor'   // role-check-allow: offer decision
+      || sessionStorage.getItem('wh_platform_admin') === '1';
   } catch (_) {}
   return false;
 }

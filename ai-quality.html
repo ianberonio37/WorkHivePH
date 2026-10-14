@@ -191,6 +191,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
       HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
+      // ★WHO MAY READ THE HIVE'S AI SPEND (SL AU4, 2026-10-14). The cost log, the reply feedback and the agentic traces
+      // behind this page were readable through the API by EVERY member - a worker could read what a teammate asked the AI
+      // and its answer. Their reads now follow the page (migration 20261014000004): the hive's supervisor or a platform
+      // admin. A worker opening this page would have read an empty spend as "no spend", so the page says who it is for,
+      // the way plant-connections does - deciding on the server's role (whReconcileHiveRole), never the cached one.
+      if (typeof whReconcileHiveRole === 'function') await whReconcileHiveRole(db, HIVE_ID).catch(() => null);
+      // the offer rule's own predicate (utils.js), read after the server corrected the cached role above
+      const _aqSup = (typeof whViewerAdmits === 'function') && whViewerAdmits('supervisor');
+      const _aqAdmin = _aqSup ? false : ((typeof isPlatformAdmin === 'function') ? await isPlatformAdmin(db) : false);
+      if (!_aqSup && !_aqAdmin) {
+        document.getElementById('content').innerHTML = `
+          <div class="card" data-wh-gate="supervisor-only" role="status">
+            <h3>Supervisors only</h3>
+            <p class="meta" style="margin:0;">${escHtml(_t('The hive\'s AI spend, quality and feedback are for its supervisor. Ask your hive supervisor to share what you need.',
+              'Para sa supervisor ng hive ang AI spend, kalidad at feedback nito. Hilingin sa supervisor ng hive mo ang kailangan mo.'))}</p>
+          </div>`;
+        return;
+      }
       if (typeof logPageView === 'function') logPageView(db);
 
       // Maturity gate: AI Quality + ROI requires Stair 2+. Below that,

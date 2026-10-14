@@ -31,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from bug_hunt_inventory import ADMIN_GATE, CHROME, SUPERVISOR_GATE, _blank_comments, production_pages  # noqa: E402
+from bug_hunt_inventory import CHROME, _blank_comments, page_gate, production_pages  # noqa: E402
 
 MAP_RX = re.compile(r"var WH_PAGE_GATES = \{(.*?)\};", re.S)
 PAIR_RX = re.compile(r"'([a-z0-9-]+\.html)':\s*'([a-z-]+)'")
@@ -45,11 +45,9 @@ CHROME_GOVERNS = {"nav-hub.js": re.compile(r"function isVisibleInMode\([^)]*\)\s
 def measured_gates(read, pages) -> dict:
     out = {}
     for p in pages:
-        t = read(p)
-        if ADMIN_GATE.search(t):
-            out[p] = "platform-admin"
-        elif SUPERVISOR_GATE.search(t):
-            out[p] = "supervisor"
+        g = page_gate(read(p))           # the one measurement the inventory and the catalog renderer share
+        if g:
+            out[p] = "platform-admin" if g == "admin" else g
     return out
 
 

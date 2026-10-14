@@ -1600,6 +1600,12 @@
     const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname)
       && (() => { try { return localStorage.getItem('wh_local_founder') === '1'; } catch (e) { return false; } })();
     (async () => {
+      // ★A LAPSED SESSION IS NOT A MISSING GRANT (SL AU1, 2026-10-14) - founder-console's rule: with no session the admin
+      // check answers false and this page showed its no-access gate to an admin whose session had simply expired.
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        if (!session && !IS_LOCAL_FOUNDER && typeof whSignInWall === 'function') { whSignInWall(); return; }
+      } catch (_) { /* empty-catch-allow: the admin check below still fails closed */ }
       const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
       const ok = realAdmin || IS_LOCAL_FOUNDER;
       if (!ok) {
