@@ -772396,8 +772396,8 @@
     },
     {
       "id": "SL905",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · alert hub",
       "pages": [
@@ -772454,6 +772454,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on alert-hub.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (5606 chars) and 1280 (5775 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left. Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL905.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -772584,8 +772591,8 @@
     },
     {
       "id": "SL908",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · asset hub",
       "pages": [
@@ -772642,6 +772649,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on asset-hub.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (3826 chars) and 1280 (3826 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; logged on purpose: offline-queue drain: rcm_fmea_modes (caught, logged once). Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL908.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -772708,8 +772722,8 @@
     },
     {
       "id": "SL910",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - fleet-supervisor · community",
       "pages": [
@@ -772766,12 +772780,19 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on community.html as fleet-supervisor (Leandro Marquez): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (2379 chars) and 1280 (2382 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; logged on purpose: offline-queue drain: community_posts (caught, logged once). Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL910.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL911",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - fleet-supervisor · dayplanner",
       "pages": [
@@ -772828,12 +772849,19 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on dayplanner.html as fleet-supervisor (Leandro Marquez): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (986 chars) and 1280 (3990 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; logged on purpose: offline-queue drain: schedule_items (caught, logged once). Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL911.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL912",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · hive",
       "pages": [
@@ -772890,12 +772918,19 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on hive.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (2363 chars) and 1280 (2363 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; the board renders MORE under failure (2,363 vs 2,078 chars): its not-live notice. Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL912.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL913",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · index",
       "pages": [
@@ -772952,6 +772987,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on index.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (870 chars) and 1280 (905 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left. Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL913.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -773018,8 +773060,8 @@
     },
     {
       "id": "SL915",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · inventory",
       "pages": [
@@ -773076,12 +773118,19 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on inventory.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (2105 chars) and 1280 (2105 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; logged on purpose: offline-queue drain: inventory_items (caught, logged once). Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL915.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL916",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · logbook",
       "pages": [
@@ -773138,6 +773187,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on logbook.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (4272 chars) and 1280 (4272 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; 30 assets listed in every reading. Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL916.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -773266,8 +773322,8 @@
     },
     {
       "id": "SL919",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - buyer · marketplace",
       "pages": [
@@ -773324,6 +773380,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as buyer through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on marketplace.html as buyer (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (2404 chars) and 1280 (2444 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left. Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL919.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -773452,8 +773515,8 @@
     },
     {
       "id": "SL922",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A3 · The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked - worker · pm scheduler",
       "pages": [
@@ -773510,6 +773573,13 @@
         "engine": "chromium",
         "ask": "The platform must finish this page's start-up when an optional subsystem (realtime, analytics, voice, storage, a device API) throws or is blocked",
         "closes": "the A3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): A3 on pm-scheduler.html as worker (Bryan Garcia): the chrome-devtools MCP's initScript, before any page script, made the WebSocket constructor and indexedDB.open throw SecurityError, removed speechSynthesis, denied geolocation, refused Notification/share/clipboard and failed the page_views/analytics_events writes; the start-up completed at 390 (2688 chars) and 1280 (2688 chars) with 0 uncaught client_errors inserts (intercepted in-page, nothing written), 0 uncaught errors or rejections, no busy indicator left; logged on purpose: offline-queue drain: pm_completions (caught, logged once). Witness: gate page-survives-optional-failures PASS 40/40 (real WebKit + Chromium, every optional subsystem failing, the shipped CSP; teeth: the pre-fix logbook at 90ed9a8e writes 'unhandled-rejection: WebSocket not available: The operation is insecure.', the production trail); realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL922.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -802375,8 +802445,8 @@
     },
     {
       "id": "SL1417",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · alert hub",
       "pages": [
@@ -802434,6 +802504,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on alert-hub.html as worker (Bryan Garcia), as served: the start-up completed at 390 (5573 chars) and 1280 (5905 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): alert-hub.html as-served 5573 chars, clean; optional-fail 5606 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1417.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -802566,8 +802643,8 @@
     },
     {
       "id": "SL1420",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · asset hub",
       "pages": [
@@ -802625,6 +802702,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on asset-hub.html as worker (Bryan Garcia), as served: the start-up completed at 390 (3805 chars) and 1280 (3805 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): asset-hub.html as-served 3840 chars, clean; optional-fail 3861 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1420.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -802692,8 +802776,8 @@
     },
     {
       "id": "SL1422",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - fleet-supervisor · community",
       "pages": [
@@ -802751,12 +802835,19 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on community.html as fleet-supervisor (Leandro Marquez), as served: the start-up completed at 390 (2352 chars) and 1280 (2526 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): community.html as-served 2352 chars, clean; optional-fail 2446 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1422.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL1423",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - fleet-supervisor · dayplanner",
       "pages": [
@@ -802814,6 +802905,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on dayplanner.html as fleet-supervisor (Leandro Marquez), as served: the start-up completed at 390 (980 chars) and 1280 (3984 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): dayplanner.html as-served 963 chars, clean; optional-fail 1004 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1423.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -802881,8 +802979,8 @@
     },
     {
       "id": "SL1425",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · hive",
       "pages": [
@@ -802940,12 +803038,19 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from hive itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on hive.html as worker (Bryan Garcia), as served: the start-up completed at 390 (2078 chars) and 1280 (2081 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator; the board renders MORE under failure (2,363 vs 2,078 chars): its not-live notice. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): hive.html as-served 2116 chars, clean; optional-fail 2365 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1425.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL1426",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · index",
       "pages": [
@@ -803003,6 +803108,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from index itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on index.html as worker (Bryan Garcia), as served: the start-up completed at 390 (837 chars) and 1280 (872 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): index.html as-served 837 chars, clean; optional-fail 870 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1426.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -803070,8 +803182,8 @@
     },
     {
       "id": "SL1428",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · inventory",
       "pages": [
@@ -803129,12 +803241,19 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on inventory.html as worker (Bryan Garcia), as served: the start-up completed at 390 (2087 chars) and 1280 (2087 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): inventory.html as-served 2021 chars, clean; optional-fail 2004 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1428.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
       "id": "SL1429",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · logbook",
       "pages": [
@@ -803192,6 +803311,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on logbook.html as worker (Bryan Garcia), as served: the start-up completed at 390 (4254 chars) and 1280 (4254 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator; 30 assets listed in every reading. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): logbook.html as-served 4136 chars, clean; optional-fail 4154 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1429.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -803322,8 +803448,8 @@
     },
     {
       "id": "SL1432",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - buyer · marketplace",
       "pages": [
@@ -803381,6 +803507,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as buyer through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on marketplace.html as buyer (Bryan Garcia), as served: the start-up completed at 390 (2397 chars) and 1280 (2437 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): marketplace.html as-served 2396 chars, clean; optional-fail 2438 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1432.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -803511,8 +803644,8 @@
     },
     {
       "id": "SL1435",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV1 · The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors - worker · pm scheduler",
       "pages": [
@@ -803570,6 +803703,13 @@
         "engine": "webkit",
         "ask": "The platform must complete this page's start-up on every engine people use, WebKit on an iPhone included, with nothing written to client_errors",
         "closes": "the AV1 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker in WebKit and Chromium, on a receipt naming the layer, the sub-layer, the persona and the engine, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): AV1 on pm-scheduler.html as worker (Bryan Garcia), as served: the start-up completed at 390 (2670 chars) and 1280 (2670 chars) in Chromium with 0 client_errors inserts, 0 uncaught errors, no busy indicator. Witness: WebKit half: tools/prove_page_survives_optional_failures.mjs (.tmp/sl_walk1_results.json, 2026-10-14T00:20:07.422Z): pm-scheduler.html as-served 2705 chars, clean; optional-fail 2688 chars, clean. gate page-survives-optional-failures PASS 40/40; realtime-blocked-socket PASS. Receipt .tmp/mcp_walks/SL1435.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures",
+          "realtime-blocked-socket"
+        ]
       }
     },
     {
@@ -855894,8 +856034,8 @@
     },
     {
       "id": "SL2332",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · alert hub",
       "pages": [
@@ -855952,6 +856092,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on alert hub, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on alert-hub.html as-served 5833 chars in Chromium and 5573 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -856082,8 +856230,8 @@
     },
     {
       "id": "SL2335",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · asset hub",
       "pages": [
@@ -856140,6 +856288,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on asset hub, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on asset-hub.html as-served 3840 chars in Chromium and 3840 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -856206,8 +856362,8 @@
     },
     {
       "id": "SL2337",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - fleet-supervisor · community",
       "pages": [
@@ -856264,12 +856420,20 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on community, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as fleet-supervisor through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on community.html as-served 2352 chars in Chromium and 2352 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL2338",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - fleet-supervisor · dayplanner",
       "pages": [
@@ -856326,6 +856490,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on dayplanner, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as fleet-supervisor through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on dayplanner.html as-served 1015 chars in Chromium and 963 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -856392,8 +856564,8 @@
     },
     {
       "id": "SL2340",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · hive",
       "pages": [
@@ -856450,12 +856622,20 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on hive, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on hive.html as-served 2116 chars in Chromium and 2116 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL2341",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · index",
       "pages": [
@@ -856512,6 +856692,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on index, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on index.html as-served 837 chars in Chromium and 837 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -856578,8 +856766,8 @@
     },
     {
       "id": "SL2343",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · inventory",
       "pages": [
@@ -856636,12 +856824,20 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on inventory, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on inventory.html as-served 2122 chars in Chromium and 2021 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL2344",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · logbook",
       "pages": [
@@ -856698,6 +856894,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on logbook, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on logbook.html as-served 4289 chars in Chromium and 4136 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -856826,8 +857030,8 @@
     },
     {
       "id": "SL2347",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - buyer · marketplace",
       "pages": [
@@ -856884,6 +857088,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on marketplace, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as buyer through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on marketplace.html as-served 2432 chars in Chromium and 2396 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -857012,8 +857224,8 @@
     },
     {
       "id": "SL2350",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-H",
       "title": "H1 · The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else - worker · pm scheduler",
       "pages": [
@@ -857070,6 +857282,14 @@
         "engine": "chromium",
         "ask": "The platform must serve this page with the CSP and Permissions-Policy that let it do what it does on every engine (a socket, a camera, a microphone) and nothing else",
         "closes": "a registered prover settles H1 on pm scheduler, its receipt names the sub-layer, and the gate reddens when the fix is reverted"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via tools/prove_page_survives_optional_failures.mjs (gate page-survives-optional-failures; real Chromium AND WebKit, signed in as worker through the product's own sign-in form, every document served the SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local stack): H1 on pm-scheduler.html as-served 2705 chars in Chromium and 2705 chars in Webkit, 0 CSP violations, 0 uncaught client_errors inserts, 0 pageerrors, no busy indicator left. What the page DOES on an action (a blob: image, a played audio) is held by csp-covers-what-ships, extended 2026-10-14 (c1192af4) after this walk found img-src without blob: and no media-src. Gates: csp-covers-what-ships PASS, deploy-headers-local PASS. Receipt .tmp/sl_walk1_results.json (generated 2026-10-14T00:20:07.422Z).",
+      "artifacts": {
+        "gates": [
+          "csp-covers-what-ships",
+          "deploy-headers-local",
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -975124,5 +975344,5 @@
       }
     }
   ],
-  "next": "SL walk 1 (harm first): H1 + A3 + AV1 on the ten pages production's client_errors named - logbook, pm-scheduler, hive, asset-hub, inventory, alert-hub, dayplanner, community, marketplace, index - in real WebKit AND Chromium as each page's cast; build prove_page_survives_optional_failures.mjs (A3/AV1: must FAIL on the pre-fix logbook at 90ed9a8e, pass today) and prove_webkit_startup_clean.mjs (AV1/L1). Then L1 on every production page, AU1-AU4, S1-S4, the contract batch provers, ENH-S (the solar planner) - order in §SL."
+  "next": "SL walk 2: L1 on every production page - client errors captured with context AND read: a gate reads production_error_groups.json on every board and fails while a group names a page with no closed fix; walk each page's error path as its cast (a thrown handler, a refused read) and verify the insert carries page + engine. Then AU1-AU4, S1-S4, the contract batch provers (F2/F3/F5, CA2, H2, S3/S5, CI1/CI3/CI4 over every page), ENH-S the solar planner - order in §SL."
 }

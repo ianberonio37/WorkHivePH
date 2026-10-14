@@ -176,6 +176,11 @@ def build_receipt(rid: str, instrument: str, condition: str, cast: str,
         w4 = w4 or {}
         if rid.startswith("SL") and not w4.get("sublayer"):
             raise ValueError("an SL receipt needs --sublayer <the sub-layer walked, e.g. H1, A3, AV1>")
+        # no MCP drives WebKit: the MCP walk is the Chromium half and a Playwright WebKit run is the engine's half, so a
+        # receipt that claims the engine must NAME that run - a claim with no run behind it is a declared mechanism
+        if w4.get("engine") == "webkit" and "webkit" not in str(w4.get("witness") or "").lower():
+            raise ValueError("a WebKit receipt needs --witness naming the WebKit run that walked the page "
+                             "(e.g. tools/prove_page_survives_optional_failures.mjs and its results file)")
     if rid.startswith(("LXP", "LXC", "BRH")) or (rid.startswith("LM") and rid[2:].isdigit()) or _wave_1014:
         w4 = w4 or {}
         if not w4.get("layer"):

@@ -38,7 +38,10 @@ def main() -> int:
         return 1
     reg["next"] = nxt
     tmp = REGISTRY.with_suffix(".json.tmp")   # atomic: open(w) truncates before the write
-    tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    # indent=2 and "\n": the format the seeders and HEAD use. indent=1 here rewrote the whole 56 MB registry on every
+    # NEXT update, so one pointer change after a 4,399-row seed read as a 1.7M-line diff (2026-10-14)
+    with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(reg, ensure_ascii=False, indent=2) + "\n")
     os.replace(tmp, REGISTRY)
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "update_trajectory_scoreboard.py")],
                        capture_output=True, text=True)
