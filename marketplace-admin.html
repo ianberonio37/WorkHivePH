@@ -422,8 +422,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
   let _isPlatformAdmin = false;
 
+  /* ★BY THE ACCOUNT, NOT THE NAME THE DEVICE REMEMBERS (SL AU3, 2026-10-14). This asked the allowlist for
+     worker_name = WORKER_NAME. The table's read policy returns only the caller's own row, so no one could be
+     elevated by a name - but a real admin whose display name had changed (or whose device remembered another
+     person's) matched nothing and was shown "Platform Admins Only": walked as Leandro with another member's name
+     cached. utils.js isPlatformAdmin(db) asks with the names the SERVER holds for this account. */
   async function verifyPlatformAdmin() {
-    if (!WORKER_NAME) return false;
+    if (typeof isPlatformAdmin === 'function') return isPlatformAdmin(db);
+    if (!WORKER_NAME) return false;   // an older cached utils.js without the shared gate: the previous check
     try {
       const { data } = await db
         .from('marketplace_platform_admins')

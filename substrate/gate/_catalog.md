@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 5163273e30e24f16
+source_sha: cf6cdcde578db9da
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1364) — the 'what's already gated' brain
+## gate · registered validators (1365) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -1434,7 +1434,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (27)
+### Security (28)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
@@ -1449,6 +1449,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memory-identity` [fail] — AI memory WHOSE (live): anonymous recall/store of a person's durable memory is refused (401), a member cannot read or write under someone else's name (403), a m
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it
 - `orchestrator-query-binding` ⚡ [fail] — Every read of an RLS-disabled truth view binds the hive AND handles a caller who has none (an unbound read is every tenant's rows)
+- `ownership-by-account` ⚡ [fail] — SL AU3 (2026-10-14): 'mine' is decided by the ACCOUNT, never by the display name the device remembers - no `_mineFilter` builds the wide union (auth_uid OR name
 - `payment-rails` ⚡ [fail] — PAYMENT RAILS - three GCash accounts meet in this product and only ONE of them may ever be on a given screen. WorkHive has no business registration and therefor
 - `privacy-consent` [fail] — Privacy & consent (leave with your data, consent before collection, sharing says who reads it)
 - `prod-headers` [fail] — Prod headers (every promise in _headers is actually served by the deployed origin)

@@ -6219,6 +6219,23 @@ function debounce(fn, wait) {
  * (Block comment + `location.assign(...)` so the L2 admin_gate_not_commented
  * sentinel doesn't false-positive on the example line.)
  */
+// ★A CORRECTED NAME MUST REACH WHAT WAS ALREADY PAINTED (SL AU3, 2026-10-14). restoreIdentityFromSession fixes the CACHE,
+// but every page paints its own name chip from that cache first - walked with another member's name remembered, the
+// chips on pm-scheduler, hive and community, skillmatrix's header and assistant's greeting kept saying the wrong
+// person after the cache was right. So a correction repaints the person's own-name displays (#nav-worker and anything
+// marked data-wh-worker-name) and announces `wh-identity-changed` { was, now } for a page that keeps its own copy.
+function _whAnnounceName(was, now) {
+  try {
+    if (typeof document !== 'undefined') {
+      var chip = document.getElementById('nav-worker');
+      if (chip) chip.textContent = now;
+      document.querySelectorAll('[data-wh-worker-name]').forEach(function (n) { n.textContent = now; });
+    }
+    if (typeof window !== 'undefined' && typeof CustomEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('wh-identity-changed', { detail: { was: was || null, now: now } }));
+    }
+  } catch (_) { /* empty-catch-allow: a repaint must never break the identity restore it reports */ }
+}
 async function restoreIdentityFromSession(db) {
   const cached = localStorage.getItem('wh_last_worker')
                || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
@@ -6277,7 +6294,7 @@ async function restoreIdentityFromSession(db) {
       .order('worker_name', { ascending: true }).limit(1);
     const profile = (_rows && _rows[0]) || null;
     if (profile?.worker_name) {
-      if (cached !== profile.worker_name) localStorage.setItem('wh_last_worker', profile.worker_name);
+      if (cached !== profile.worker_name) { localStorage.setItem('wh_last_worker', profile.worker_name); _whAnnounceName(cached, profile.worker_name); }
       return profile.worker_name;
     }
     /* ★A PERSON WITH NO HIVE HAD NO IDENTITY, SO THE PRODUCT TOLD A SIGNED-IN PERSON TO SIGN IN.
@@ -6323,7 +6340,7 @@ async function restoreIdentityFromSession(db) {
     const _meta = session.user.user_metadata || {};
     const _name = _soloName || _meta.worker_name || _meta.full_name || _meta.name || '';
     if (_name) {
-      if (cached !== _name) localStorage.setItem('wh_last_worker', _name);
+      if (cached !== _name) { localStorage.setItem('wh_last_worker', _name); _whAnnounceName(cached, _name); }
       return _name;
     }
     return cached;  // authed, no membership, no profile, no metadata — keep the cache as a best-effort label

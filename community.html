@@ -984,10 +984,56 @@ function _mineFilter() {
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
   if (!uid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + uid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
   (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
+
+// ★OWNERSHIP BY ACCOUNT, NOT BY THE NAME THE DEVICE REMEMBERS (SL AU3, 2026-10-14). Walked with another member's name
+// remembered, this page took the person's own posts and reactions for someone else's ("Edit my post" and "you reacted"
+// gone, the first-post nudge reset): every check asked author_name / worker_name, and two members can share a name.
+// A row bound to an account is mine only when it is MY account; a row bound to none is mine by name.
+function _isMineRow(row, nameKey) {
+  if (!row) return false;
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (row.auth_uid) return !!uid && row.auth_uid === uid;
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  return !!nm && row[nameKey || 'worker_name'] === nm;
+}
+// the same rule as an or() filter, for the tables whose name column is author_name
+function _mineAuthorFilter() {
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  var quoted = 'author_name.eq.' + JSON.stringify(nm);
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (!uid) return nm ? quoted : null;
+  return 'auth_uid.eq.' + uid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
+}
+// Posts reach this page through v_community_posts_truth, which carries no auth_uid on purpose (20260831000001: an
+// anonymous reader must not correlate authors). So the ids of MY posts are asked of the base table, as the signed-in
+// member, and a view row is mine when its id is among them. Until that answer arrives, the name decides, as before.
+let _myPostIdsKnown = false;
+let _myPostsReady = Promise.resolve();
+async function _loadMyPostIds() {
+  if (!_authUid || !HIVE_ID) return;
+  try {
+    // canonical-allow: ownership BY ACCOUNT - the truth view omits auth_uid on purpose (anon), so ids are asked of the base table
+    const { data, error } = await db.from('community_posts').select('id')
+      .eq('hive_id', HIVE_ID).or(_mineAuthorFilter()).limit(1000);   // cap-ok: one person's own post ids in one hive
+    if (error || !data) return;
+    data.forEach((r) => myPostIds.add(r.id));
+    _myPostIdsKnown = true;
+  } catch (_) { /* empty-catch-allow: ownership stays decided by the name, exactly as before */ }
+}
+function _isMinePost(p) {
+  if (!p) return false;
+  if (p.auth_uid !== undefined) return _isMineRow(p, 'author_name');   // a base-table or realtime row carries its account
+  if (_myPostIdsKnown) return myPostIds.has(p.id);
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  return !!nm && p.author_name === nm;
+}
   // D Phase 2: cross-hive global feed state
   let _globalPosts        = [];
   let _globalLastCreatedAt = null;
@@ -999,7 +1045,8 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
   let activeFilter        = 'all';
   let activeTab      = 'feed';
   let activeThreadId = null;
-  let _threadPostAuthor = null;  // author of the open thread's post — gates the "mark best answer" control
+  let _threadPostAuthor = null;
+  let _threadPostIsMine = false;  // author of the open thread's post — gates the "mark best answer" control
   let presenceChannel, feedChannel, globalFeedChannel;
   let replyingToPostId = null;
   let _editingPostId   = null; // when set, the composer is in edit mode
@@ -1038,6 +1085,12 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
 
     // C4: restore identity from auth session on new device, then get auth_uid
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+    // ★PRESENCE AND THE NAME FALLBACKS FOLLOW THE ACCOUNT (SL AU3, 2026-10-14): a device remembering another member's
+    // name joined this hive's presence channel AS that member. The account is asked once; presence waits for it.
+    let _nameReady = Promise.resolve();
+    if (WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
+      _nameReady = restoreIdentityFromSession(db).then((n) => { if (n) WORKER_NAME = n; }).catch(() => {});
+    }
     try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
     // ?signin=1 opens the sign-in modal on index (index.html:3586). Without it the visitor lands on
     // the marketing page with no prompt and no reason, which reads as "that page does not exist"
@@ -1045,9 +1098,11 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (!WORKER_NAME) { whSignInWall(); return; }
     // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
     if (!_authUid) { whSignInWall(); return; }
+    _myPostsReady = _nameReady.then(() => _loadMyPostIds());   // after the name is the account's; loadPosts awaits it
 
     renderProfileCard();
     _initObservers();
+    await _nameReady;
     startPresence();
     startFeedChannel();
     startGlobalFeedChannel();
@@ -1139,8 +1194,9 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
 
   async function loadProfileStats() {
     const [postsRes, xpRes] = await Promise.all([
-      db.from('v_community_posts_truth').select('id', { count: 'exact', head: true })
-        .eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME).is('deleted_at', null),
+      // canonical-allow: my own post count BY ACCOUNT - the truth view omits auth_uid on purpose (20260831000001)
+      db.from('community_posts').select('id', { count: 'exact', head: true })
+        .eq('hive_id', HIVE_ID).or(_mineAuthorFilter() || ('author_name.eq.' + JSON.stringify(String(WORKER_NAME || '')))).is('deleted_at', null),
       db.from('community_xp').select('xp_total')
         .eq('hive_id', HIVE_ID)
         // BRP-A: identity OR name. Safe with .maybeSingle(): community_xp has ZERO duplicate
@@ -1403,7 +1459,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     el.innerHTML = data.map((row, i) => {
       const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
       const rankIcon  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-      const isMine    = row.worker_name === WORKER_NAME;
+      const isMine    = _isMineRow(row, 'worker_name');
       return `<div class="lb-row">
         <div class="lb-rank ${rankClass}">${rankIcon}</div>
         <div style="flex-shrink:0;padding-bottom:${(lbTiers[row.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(row.worker_name, lbTiers[row.worker_name] || 0, 28)}</div>
@@ -1485,8 +1541,8 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
       feed.forEach(p => { const c = (p.category || 'general'); catCount[c] = (catCount[c] || 0) + 1; });
       const catLine = Object.entries(catCount).sort((a, b) => b[1] - a[1])
         .map(([c, n]) => `${n} ${c}`).join(', ');
-      const myPosts   = feed.filter(p => p.author_name === WORKER_NAME).length;
-      const unanswered = feed.filter(p => !(replyCountMap[p.id] > 0) && p.author_name !== WORKER_NAME).length;
+      const myPosts   = feed.filter(p => _isMinePost(p)).length;
+      const unanswered = feed.filter(p => !(replyCountMap[p.id] > 0) && !_isMinePost(p)).length;
       // trade-mate DISCIPLINES only (dedupe), never names
       const discSet = new Set();
       _aiTradePeers.forEach(s => { const m = s.match(/\(([^)]*)\)/); if (m) m[1].split(',').forEach(d => discSet.add(d.trim())); });
@@ -1535,7 +1591,10 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     // word - an unexplained deletion to the person it matters most to (they re-post or assume a
     // bug). Workers still never see OTHERS' flagged posts; the author keeps seeing their OWN,
     // which renders with the under-review notice below.
-    if (HIVE_ROLE !== 'supervisor') q = q.or(`flagged.eq.false,author_name.eq."${WORKER_NAME.replace(/"/g, '')}"`);
+    // a member sees the unflagged posts and THEIR OWN flagged ones - own by account once known (SL AU3), never a namesake's
+    const _ownFlagged = _myPostIdsKnown ? (myPostIds.size ? ',id.in.(' + [...myPostIds].join(',') + ')' : '')
+      : (',author_name.eq.' + JSON.stringify(String(WORKER_NAME || '')));
+    if (HIVE_ROLE !== 'supervisor') q = q.or('flagged.eq.false' + _ownFlagged);
     if (activeFilter !== 'all') q = q.eq('category', activeFilter);
     if (safQ) q = q.or(`content.ilike.%${safQ}%,author_name.ilike.%${safQ}%`);
     if (_lastPostCreatedAt) q = q.lt('created_at', _lastPostCreatedAt);
@@ -1565,6 +1624,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     document.getElementById('feed-skeleton').style.display = 'flex';
     document.getElementById('feed-list').style.display     = 'none';
     _resetFeed();
+    await _myPostsReady;   // which posts are mine, by account, before the flagged-post filter is built
 
     /* AND BOUND BOTH READS, or the skeleton above is the eternal one. A supabase-js query never goes
        through fetchWithTimeout, so a stalled feed read had no ceiling and this skeleton would shimmer
@@ -1642,7 +1702,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (allPosts.length) _lastPostCreatedAt = allPosts[allPosts.length - 1].created_at;
     _hasMorePosts = allPosts.length === 20;
 
-    [...pinnedPosts, ...allPosts].forEach(p => { if (p.author_name === WORKER_NAME) myPostIds.add(p.id); });
+    [...pinnedPosts, ...allPosts].forEach(p => { if (_isMinePost(p)) myPostIds.add(p.id); });
 
     const allIds = [...pinnedPosts, ...allPosts].map(p => p.id);
     if (allIds.length) await Promise.all([loadReplyCounts(allIds), loadReactions(allIds)]);
@@ -1780,7 +1840,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     }
     if (data && data.length > 0) {
       _lastPostCreatedAt = data[data.length - 1].created_at;
-      data.forEach(p => { if (p.author_name === WORKER_NAME) myPostIds.add(p.id); });
+      data.forEach(p => { if (_isMinePost(p)) myPostIds.add(p.id); });
       const ids = data.map(p => p.id);
       await Promise.all([loadReplyCounts(ids), loadReactions(ids)]);
       allPosts = [...allPosts, ...data];
@@ -1796,7 +1856,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
   // ── Post card HTML ────────────────────────────────────────────────────────────
   function renderPostCard(p) {
     const initials  = p.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const isMine    = p.author_name === WORKER_NAME;
+    const isMine    = _isMinePost(p);
     const timeAgo   = formatTimeAgo(p.created_at);
     const catLabel  = p.category === 'announcement' ? 'Announcement' : p.category.charAt(0).toUpperCase() + p.category.slice(1);
     const catClass  = 'cat-' + (p.category === 'announcement' ? 'announcement' : p.category);
@@ -1900,7 +1960,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (!postIds.length) return;
     // canonical-allow: community_reactions is forum thread detail (per-post emoji reactions) — single-surface community data, not a cross-surface KPI/aggregate (the XP aggregate lives in community_xp via DB triggers), so no v_*_truth wrapper applies.
     const { data } = await db.from('community_reactions')
-      .select('post_id, emoji, worker_name')
+      .select('post_id, emoji, worker_name, auth_uid')
       .in('hive_id', hiveIds)
       .in('post_id', postIds).limit(500);   // cap-ok: reaction counts disclose '+' when this read is full
     window._rxCapped = (data || []).length >= 500;   // cap is not a total (2026-09-05)
@@ -1916,7 +1976,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     data.forEach(r => {
       if (!reactionMap[r.post_id]?.[r.emoji]) return;
       reactionMap[r.post_id][r.emoji].count++;
-      if (r.worker_name === WORKER_NAME) reactionMap[r.post_id][r.emoji].mine = true;
+      if (_isMineRow(r, 'worker_name')) reactionMap[r.post_id][r.emoji].mine = true;
     });
 
     // Patch already-rendered spans (cards that were expanded before this call)
@@ -2308,9 +2368,10 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
         && !whRequireOnline('Deleting this post', (m) => showToast(m, 'error'))) return;
     const post = [...pinnedPosts, ...allPosts].find(p => p.id === postId);
     if (!post) return;
-    if (HIVE_ROLE !== 'supervisor' && post.author_name !== WORKER_NAME) {
+    if (HIVE_ROLE !== 'supervisor' && !_isMinePost(post)) {
       showToast('Cannot delete another worker\'s post', 'error'); return;
     }
+    const _wasMine = _isMinePost(post);   // read before the set forgets it, so an undo can restore it
     // Soft-delete: stamp deleted_at, leave the row for 10s undo or supervisor recovery.
     const deletedAt = new Date().toISOString();
     const { error } = await db.from('community_posts')
@@ -2327,7 +2388,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (activeThreadId === postId) closeThread();
 
     // Snapshot the row for restore — include the original pinned flag so it lands back in place
-    const snapshot = { ...post, deleted_at: deletedAt };
+    const snapshot = { ...post, deleted_at: deletedAt, _wasMine };
     showUndoToast('Post deleted', () => restorePost(postId, snapshot));
   }
 
@@ -2339,7 +2400,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
 
     // Re-add to local state
-    if (snapshot && snapshot.author_name === WORKER_NAME) myPostIds.add(postId);
+    if (snapshot && snapshot._wasMine) myPostIds.add(postId);
     if (snapshot) {
       const restored = { ...snapshot, deleted_at: null };
       if (restored.pinned) pinnedPosts.unshift(restored);
@@ -2382,7 +2443,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
   function openEditor(postId) {
     const post = _findPost(postId);
     if (!post) { showToast('Post not found', 'error'); return; }
-    if (post.author_name !== WORKER_NAME) {
+    if (!_isMinePost(post)) {
       showToast('You can only edit your own posts', 'error'); return;
     }
     _editingPostId = postId;
@@ -2523,14 +2584,14 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     if (_editingPostId) {
       const editId = _editingPostId;
       const post = _findPost(editId);
-      if (!post || post.author_name !== WORKER_NAME) {
+      if (!post || !_isMinePost(post)) {
         btn.disabled = false; btn.textContent = 'Save changes';
         showToast('Cannot edit this post', 'error'); return;
       }
       const editedAt = new Date().toISOString();
       let editQ = db.from('community_posts')
         .update({ content, category, public: isPublic, mentions, edited_at: editedAt })
-        .eq('id', editId).eq('hive_id', HIVE_ID).eq('author_name', WORKER_NAME);
+        .eq('id', editId).eq('hive_id', HIVE_ID).or(_mineAuthorFilter() || ('author_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))));
       // Optimistic-concurrency guard: only overwrite the row still at the snapshot we loaded.
       // Catches a lost-update (this author's other session) OR a moderation action (a supervisor
       // hid the post via public=false) that landed since the editor opened.
@@ -2695,7 +2756,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
         const _q = db.from('v_marketplace_sellers_truth')
           .select('worker_name, tier, total_sales, rating_avg, rating_count').eq('hive_id', hiveId);
         return _sid
-          ? _q.or('auth_uid.eq.' + _sid + ',worker_name.eq.' + JSON.stringify(String(name))).maybeSingle()
+          ? _q.or('auth_uid.eq.' + _sid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(name)) + ')').maybeSingle()   // SL AU3: never a namesake's row
           : _q.eq('worker_name', name).maybeSingle();
       })(),
     ]);
@@ -2811,6 +2872,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
 
     document.getElementById('thread-title').textContent = 'Thread';
     _threadPostAuthor = post.author_name;  // who asked — gates who can mark the best answer
+    _threadPostIsMine = _isMinePost(post); // ...decided by the account, not the name (SL AU3)
     document.getElementById('thread-post').innerHTML = renderPostCard(post);
     document.getElementById('thread-replies').innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">Loading replies…</p>';
     document.getElementById('reply-content').value = '';
@@ -2904,7 +2966,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     const sorted = [...data].sort((a, b) =>
       (b.is_accepted === true) - (a.is_accepted === true) || new Date(a.created_at) - new Date(b.created_at));
     // Only the person who asked (post author) or a supervisor may mark the best answer.
-    const canMark = (WORKER_NAME === _threadPostAuthor) || (HIVE_ROLE === 'supervisor');
+    const canMark = _threadPostIsMine || (HIVE_ROLE === 'supervisor');
 
     el.innerHTML = sorted.map(r => {
       const accepted = r.is_accepted === true;
@@ -3115,11 +3177,11 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
         if (_findPost(payload.new.id)) return; // dedup
-        if (payload.new.author_name === WORKER_NAME) myPostIds.add(payload.new.id);
+        if (_isMinePost(payload.new)) myPostIds.add(payload.new.id);
         if (payload.new.pinned) pinnedPosts.unshift(payload.new);
         else                    allPosts.unshift(payload.new);
-        _prependPostCard(payload.new, { arrived: payload.new.author_name !== WORKER_NAME });
-        if (payload.new.author_name !== WORKER_NAME) {
+        _prependPostCard(payload.new, { arrived: !_isMinePost(payload.new) });
+        if (!_isMinePost(payload.new)) {
           // Mention takes priority over the generic "posted in the hive" toast
           const mentioned = Array.isArray(payload.new.mentions) &&
                             payload.new.mentions.includes(WORKER_NAME);
@@ -3151,7 +3213,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
 
         // Restore transition: was off-screen, now visible — add it back
         if (!onScreen) {
-          if (payload.new.author_name === WORKER_NAME) myPostIds.add(payload.new.id);
+          if (_isMinePost(payload.new)) myPostIds.add(payload.new.id);
           if (payload.new.pinned) pinnedPosts.unshift(payload.new);
           else                    allPosts.unshift(payload.new);
           _prependPostCard(payload.new);
@@ -3181,7 +3243,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
       }, (payload) => {
         const postId = payload.new.post_id;
         // Only notify when someone else replies to YOUR post
-        if (!myPostIds.has(postId) || payload.new.author_name === WORKER_NAME) return;
+        if (!myPostIds.has(postId) || _isMineRow(payload.new, 'author_name')) return;
         showToast(_t(`💬 ${payload.new.author_name} replied to your post`,
           `💬 Sumagot si ${payload.new.author_name} sa post mo`));
         // Update reply count badge if card is rendered
@@ -3196,7 +3258,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
         const r = payload.new;
         const slot = reactionMap[r.post_id]?.[r.emoji];
         if (!slot) return; // post not on screen
-        const isMine = r.worker_name === WORKER_NAME;
+        const isMine = _isMineRow(r, 'worker_name');
         // Skip if optimistic UI already counted this client's own reaction
         if (isMine && slot.mine) return;
         slot.count++;
@@ -3216,7 +3278,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
         const o = payload.old || {};
         const slot = reactionMap[o.post_id]?.[o.emoji];
         if (!slot) return; // post not on screen, ignore (covers cross-hive noise)
-        const wasMine = o.worker_name === WORKER_NAME;
+        const wasMine = _isMineRow(o, 'worker_name');
         // Skip if optimistic UI already decremented this client's own un-react
         if (wasMine && !slot.mine) return;
         slot.count = Math.max(0, slot.count - 1);
@@ -3400,9 +3462,9 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     // types after '@'.
     // canonical-allow: the @mention roster needs every co-member's hive name; v_worker_truth is profile-scoped by RLS and returns only the caller, so the membership table is the readable source (as on hive.html).
     const { data } = await db.from('hive_members')
-      .select('worker_name, role')
+      .select('worker_name, role, auth_uid')
       .eq('hive_id', HIVE_ID).neq('status', 'kicked').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
-    _hiveMembers = (data || []).filter(m => m.worker_name && m.worker_name !== WORKER_NAME);
+    _hiveMembers = (data || []).filter(m => m.worker_name && !_isMineRow(m, 'worker_name'));
   }
 
   // Escape user input for safe insertion into a regex

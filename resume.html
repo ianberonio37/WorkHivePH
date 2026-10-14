@@ -2483,7 +2483,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ── Init ─────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
       logPageView(db);
-      if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
+      // ★THE CV'S NAME IS THE ACCOUNT'S (SL AU3, 2026-10-14): a new resume is prefilled with WORKER_NAME and every save
+      // labels its row with it - from a cache another member's name can sit in. Asked of the account before the first render.
+      WORKER_NAME = (typeof restoreIdentityFromSession === 'function' ? await restoreIdentityFromSession(db) : '') || WORKER_NAME;
       try { const { data: { session } } = await db.auth.getSession(); _authUid = session && session.user ? session.user.id : null; } catch (_) { /* empty-catch-allow: best-effort session read */ }
       /* T2/CN find (2026-08-24): this first line was a BARE index.html redirect — an anon hit it
          BEFORE the whSignInWall gate below and got dumped on marketing copy with no modal and no

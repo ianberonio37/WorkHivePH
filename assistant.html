@@ -978,7 +978,7 @@
           // because the variable is not literally WORKER_NAME; reading it shows it IS the signed-in person.
           (_uid
             ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
-                .or('auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(name || '')))
+                .or('auth_uid.eq.' + _uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(name || '')) + ')')
             : db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name)),
           // canonical-allow: the same lightweight counts startChat uses for hasRecords (not truth reads);
           // scopeOwn applies the hive_id/auth_uid scoping, and a signed-out reader gets a known 0.
@@ -1395,17 +1395,26 @@
       // round-trip that settles the client's auth before the reads. Best-effort: a genuinely
       // signed-out user still degrades to the empty-records path exactly as before.
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; reads degrade to empty */ }
+      // ★THE ASSISTANT'S GROUNDING WAS READ BY NAME (SL AU3, 2026-10-14). It tells the person "I can see your job
+      // records", and read them as worker_name = the name this device remembers - so a rename made elsewhere, or a
+      // namesake in the hive, handed it someone else's logbook, schedule, badges and voice journal as this person's.
+      // By the account; the name reaches only rows no account holds.
+      let _gUid = null;
+      try { _gUid = (await db.auth.getSession()).data.session?.user?.id || null; } catch (_) { /* empty-catch-allow: by name, as before */ }
+      const _ownScope = (q) => _gUid
+        ? q.or('auth_uid.eq.' + _gUid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(name || '')) + ')')
+        : q.eq('worker_name', name);
       const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
-        db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).order('id').limit(10),
-        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).order('id').limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
-        db.from('v_skill_badges_truth').select('discipline,level').eq('worker_name', name).order('level', { ascending: false }).order('id').limit(6),
+        _ownScope(db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used')).order('date', { ascending: false }).order('id').limit(10),
+        _ownScope(db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes')).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).order('id').limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
+        _ownScope(db.from('v_skill_badges_truth').select('discipline,level')).order('level', { ascending: false }).order('id').limit(6),
         hiveIdCtx
           ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).order('id').limit(20)
           : Promise.resolve({ data: [] }),
         hiveIdCtx
           ? db.from('v_pm_compliance_truth').select('asset_name,category', { count: 'exact' }).eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)
           : Promise.resolve({ data: [] }),
-        db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
+        _ownScope(db.from('voice_journal_entries').select('created_at,transcript,reply,lang')).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
       ]);
       const logbook  = lRes.data || [];
       const schedule = sRes.data || [];
@@ -1677,9 +1686,13 @@ happens to know maintenance, not a manual.`;
       // 125i + 14 PM tasks was told "you don't have any records yet"). Count assets + PM scope too,
       // solo lane included (hive_id NULL + own auth_uid).
       let lc = null, ac = null, pc = null;
+      let _greetNameP = Promise.resolve(null);   // the account's own name, asked beside the counts below (SL AU3)
       try {
         const _uid = _authedUser && _authedUser.id;
         const scopeOwn = (q) => whScopeOwn(q, _uid);
+        // the greeting names the ACCOUNT (SL AU3): asked beside the counts, so it costs no extra round trip
+        _greetNameP = (_uid && typeof restoreIdentityFromSession === 'function')
+          ? restoreIdentityFromSession(db).catch(() => null) : Promise.resolve(null);
         [lc, ac, pc] = await Promise.all([
           // BRP-A (2026-10-04): same count, same consequence - the comment above records a rider with a Click
             // 125i and 14 PM tasks being told "you don't have any records yet". A display name that has
@@ -1687,7 +1700,7 @@ happens to know maintenance, not a manual.`;
             // the line above, so ask by identity OR name (union: an unbound row is findable only by name).
             (_uid
               ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
-                  .or('auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(workerName || '')))
+                  .or('auth_uid.eq.' + _uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(workerName || '')) + ')')
               : db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName)),
           _uid ? scopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: lightweight solo hasRecords count (not a truth read); scoped by hive_id/auth_uid via scopeOwn
           _uid ? scopeOwn(db.from('pm_assets').select('id', { count: 'exact', head: true })) : Promise.resolve({ count: 0 }), // canonical-allow: solo lane needs auth_uid scope; v_pm_compliance_truth is hive_id-only; scoped hive_id/auth_uid via scopeOwn
@@ -1695,6 +1708,12 @@ happens to know maintenance, not a manual.`;
       } catch (_) { lc = null; /* empty-catch-allow: rejection = unknown, the lcUnknown branch owns the sentence */ }
       _greetTimers.forEach(clearTimeout);
       if (_greetTyping) _greetTyping.remove();
+      const _acctName = await _greetNameP;
+      if (_acctName && _acctName !== workerName) {
+        workerName = _acctName;
+        const _wn = document.getElementById('chat-worker-name');
+        if (_wn) _wn.textContent = _acctName;
+      }
 
       /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
          { count: null, error } instead of throwing, so any failed read — not just the cold-load

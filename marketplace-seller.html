@@ -796,7 +796,7 @@
          _authUid on this page is populated by a NON-awaited .then(), so it can still be null when this
          runs - the name half is what keeps the profile loading in that window. */
       const _mine = _authUid
-        ? 'auth_uid.eq.' + _authUid + ',worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))
+        ? 'auth_uid.eq.' + _authUid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(WORKER_NAME || '')) + ')'   // SL AU3: the name reaches only unbound rows
         : null;
       /* ★A RESOLVED PROMISE IS NOT A SUCCESSFUL READ (2026-10-06, found walking LXP218 with PostgREST
          stopped). This destructured only `data` and then set _readFailed.seller = false unconditionally -

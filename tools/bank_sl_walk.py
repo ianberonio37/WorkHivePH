@@ -48,11 +48,15 @@ GATES = {
     "AV1": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
+    "AU3": ["ownership-by-account", "bug-repro-ratchet"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
     "AU2": ("the device role written into the page's own storage before the page loaded - the honest role and a false "
             "one, the same signed-in person with the server's hive_members.role set on the LOCAL database"),
+    "AU3": ("the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - "
+            "the person's own, then another real member's (another hive-less owner's for the solo cast); every text line "
+            "and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows"),
 }
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
@@ -281,7 +285,7 @@ def _bank_write_refusal(dry: bool) -> int:
 
 
 def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None, unproven: str,
-              check: bool = True) -> int:
+              check: bool = True, instrument: str = "chrome-devtools-mcp") -> int:
     reg = _load_registry()
     t = next((x for x in reg["trajectories"] if x["id"] == rid), None)
     # a BRH row (the bug-hunt wave) carries the same receipt contract - a named person at both viewports - and is
@@ -310,7 +314,7 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         engine = "webkit"
         witness = (f"WebKit half: {PROVER} ({webkit}, {res.get('generated')}): {s.get('page')} "
                    + "; ".join(f"{r['condition']} {r.get('chars')} chars, clean" for r in wk) + f". {witness}")
-    cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", "chrome-devtools-mcp",
+    cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", instrument,
            "--layer", s["layer"], "--as-persona", t.get("persona") or "",
            "--viewports", "phone-390,desktop-1280", "--engine", engine, "--steps", steps,
            "--witness", witness[:1900], "--note", note[:1500]]
@@ -326,7 +330,10 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         return 1
     today = time.strftime("%Y-%m-%d")
     how = CONDITION.get(key, CONDITION_DEFAULT)
-    basis = (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, "
+    view = ("a TRUE 390 and 1280 through CDP" if instrument.startswith("chrome-devtools")
+            else "390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context "
+                 "route, so no model was called")
+    basis = (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {instrument} ({view}, "
              f"signed in as {t.get('persona')} through the product's own sign-in form; {how}): {note} "
              f"Witness: {witness[:1200]} Receipt .tmp/mcp_walks/{rid}.json.")
     reg = _load_registry()

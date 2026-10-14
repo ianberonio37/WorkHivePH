@@ -1050,7 +1050,7 @@
       // hive_members.status -> v_worker_truth.hive_status (rename to avoid
       // column collision with worker_profiles).
       .from('v_worker_truth')
-      .select('worker_name')
+      .select('worker_name, auth_uid')
       .eq('hive_id', HIVE_ID)
       .neq('hive_status', 'kicked')
       .limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the leaderboard-roster read)   // cap-ok: bounded - a hive roster (<= dozens of members) x 12 fixed domains sits under 500; past 41 members the standings need a rollup
@@ -1088,7 +1088,13 @@
     // ★A LEADERBOARD OF ONE AND A VIEWER OUTSIDE THE TOP FIVE (critique lens, 2026-09-15): a medal for the only member
     // is a joke the page does not know it is telling, and a worker ranked 7th could not find themselves at all.
     const top = ranked.slice(0, 5);
-    const me = ranked.find(w => w.worker_name === WORKER_NAME);
+    // ★WHICH ROW IS ME is asked of my membership by ACCOUNT (SL AU3, 2026-10-14): the device's remembered name
+    // made a namesake 'you' and hid this person's own standing after a rename.
+    let _stUid = null;
+    try { _stUid = (await db.auth.getSession()).data.session?.user?.id || null; } catch (_) { /* empty-catch-allow: fall back to the name */ }
+    const _myRow = (members || []).find(m => m.auth_uid && m.auth_uid === _stUid);
+    const _meName = _myRow ? _myRow.worker_name : WORKER_NAME;
+    const me = ranked.find(w => w.worker_name === _meName);
     if (me && me.rank > 5) top.push(me);
     const solo = ranked.length === 1;
 
@@ -1106,7 +1112,7 @@
       <div class="standing-row">
         <div class="standing-rank ${rankClass(w.rank)}">${rankIcon(w.rank)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
-        <div class="standing-name"><span class="nm">${escHtml(w.worker_name)}</span>${w.worker_name === WORKER_NAME ? '<span class="you-tag" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
+        <div class="standing-name"><span class="nm">${escHtml(w.worker_name)}</span>${w.worker_name === _meName ? '<span class="you-tag" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
         <div class="standing-score" title="Total achievement levels across all domains">${w.total} ${w.total === 1 ? _t('level', 'antas') : _t('levels', 'level')}</div>
       </div>`).join('');
 
@@ -1255,7 +1261,7 @@
     let _achUid = null;
     try { _achUid = (await db.auth.getSession()).data.session?.user?.id || null; } catch (_) { /* empty-catch-allow: fall back to the name */ }
     const _achMine = _achUid
-      ? 'auth_uid.eq.' + _achUid + ',worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))
+      ? 'auth_uid.eq.' + _achUid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(WORKER_NAME || '')) + ')'   // SL AU3: the name reaches only unbound rows
       : null;
     const [achRes, logRes, weekRes] = await Promise.all([
       (_achMine

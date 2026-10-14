@@ -799800,8 +799800,8 @@
     },
     {
       "id": "SL1370",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · achievements",
       "pages": [
@@ -799858,12 +799858,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on achievements.html: FAILED by reading: the standings' 'you' tag and 'me' row were the remembered name (a masked-equal swap the first oracle could not see); 'me' is now found by the account's own membership row - fixed and re-walked identical. Witness: achievements.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 30 vs 30 controls, 2737 vs 2737 chars; 1280: 30 vs 30, 2737 vs 2737; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1370.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1371",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · alert hub",
       "pages": [
@@ -799920,12 +799927,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on alert-hub.html: PASSED: nothing on the page follows the remembered name. Witness: alert-hub.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 150 vs 150 controls, 5573 vs 5573 chars; 1280: 150 vs 150, 5526 vs 5526; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1371.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1372",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · analytics report",
       "pages": [
@@ -799982,12 +799996,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on analytics-report.html: PASSED. Witness: analytics-report.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 23 vs 23 controls, 531 vs 531 chars; 1280: 23 vs 23, 531 vs 531; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1372.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1373",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · analytics",
       "pages": [
@@ -800046,12 +800067,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on analytics.html: PASSED. Witness: analytics.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 56 vs 56 controls, 5333 vs 5333 chars; 1280: 56 vs 56, 5333 vs 5333; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1373.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1374",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · asset hub",
       "pages": [
@@ -800108,12 +800136,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on asset-hub.html: PASSED: assets scoped by the account. Witness: asset-hub.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 48 vs 48 controls, 3842 vs 3842 chars; 1280: 48 vs 48, 3842 vs 3842; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1374.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1375",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · assistant",
       "pages": [
@@ -800170,12 +800205,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on assistant.html: FAILED: it greeted 'Hi Wilfredo!' and read the grounding it calls 'your job records' - logbook, schedule, skill badges, voice journal - by worker_name = the remembered name, and two record counts used the wide union. Grounding now scoped by the account (name only where auth_uid IS NULL), the greeting asks the account beside the counts - fixed and re-walked identical. Witness: assistant.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 16 vs 16 controls, 727 vs 727 chars; 1280: 16 vs 16, 765 vs 765; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1375.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1376",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · community",
       "pages": [
@@ -800232,12 +800274,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on community.html: FAILED: with Christine's name remembered, Leandro lost 'Edit my post' and 'you reacted' on his own posts and reactions and the XP nudge reset; presence joined as the remembered name. Ownership now by the account (own post ids asked of the base table - the view omits auth_uid for anon), presence waits for the account's name - fixed and re-walked identical. Witness: community.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 58 vs 58 controls, 2384 vs 2384 chars; 1280: 59 vs 59, 2557 vs 2557; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1376.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1377",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · dayplanner",
       "pages": [
@@ -800294,12 +800343,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on dayplanner.html: PASSED at rest; its mine filter was the wide union and is narrowed - fixed and re-walked identical. Witness: dayplanner.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 41 vs 41 controls, 1018 vs 1018 chars; 1280: 48 vs 48, 3990 vs 3990; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1377.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1378",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · hive",
       "pages": [
@@ -800356,12 +800412,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on hive.html: FAILED: 'open jobs assigned to you' counted another member's (4 vs 3), presence announced the remembered name as '(you)' to the hive, the header chip said it. Union narrowed, presence and chip follow the account - fixed and re-walked identical. Witness: hive.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 25 vs 25 controls, 2139 vs 2139 chars; 1280: 25 vs 25, 2177 vs 2177; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1378.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1379",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · index",
       "pages": [
@@ -800418,12 +800481,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on index.html: FAILED: 'Good afternoon, Wilfredo' and the account chip said the remembered name; both follow the account now - fixed and re-walked identical. Witness: index.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 31 vs 31 controls, 852 vs 852 chars; 1280: 35 vs 35, 939 vs 939; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1379.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1380",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - solo-owner · integrations",
       "pages": [
@@ -800480,12 +800550,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on integrations.html: PASSED: nothing follows the remembered name; personal rows are readable only by their owner. Witness: integrations.html as Jun Salvador (junvanowner, a solo owner with no hive), the device remembering Miguel Santos - another hive-less owner with 6 logbook rows and 2 assets of his own. 390: 13 vs 13 controls, 517 vs 517 chars; 1280: 13 vs 13, 517 vs 517; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1380.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1381",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · inventory",
       "pages": [
@@ -800542,12 +800619,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on inventory.html: PASSED at rest; its mine filter was the wide union and is narrowed - fixed and re-walked identical. Witness: inventory.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 27 vs 27 controls, 2144 vs 2144 chars; 1280: 27 vs 27, 2144 vs 2144; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1381.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1382",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · logbook",
       "pages": [
@@ -800604,12 +800688,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on logbook.html: FAILED: the logbook listed Wilfredo's 2,140 bound entries as Bryan's (4,417 vs 2,277 entries, 4 vs 3 open); asset edit/remove permissions, the team-view tag and the realtime self-echo also asked the name. Union narrowed, the rest by the account - fixed and re-walked identical. Witness: logbook.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 48 vs 48 controls, 4389 vs 4389 chars; 1280: 48 vs 48, 4351 vs 4351; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1382.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1383",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - buyer · marketplace seller",
       "pages": [
@@ -800666,12 +800757,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on marketplace-seller.html: PASSED at rest; its own-rows query was an inline wide union and is narrowed - fixed and re-walked identical. Witness: marketplace-seller.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 29 vs 29 controls, 2140 vs 2140 chars; 1280: 29 vs 29, 2140 vs 2140; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1383.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1384",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - buyer · marketplace",
       "pages": [
@@ -800728,12 +800826,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on marketplace.html: PASSED: its admin link re-checks after the identity is restored from the session. Witness: marketplace.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 63 vs 63 controls, 2435 vs 2435 chars; 1280: 63 vs 63, 2475 vs 2475; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1384.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1385",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · ph intelligence",
       "pages": [
@@ -800790,12 +800895,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on ph-intelligence.html: PASSED. Witness: ph-intelligence.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 15 vs 15 controls, 1129 vs 1129 chars; 1280: 15 vs 15, 1167 vs 1167; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1385.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1386",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - machine-client · plant connections",
       "pages": [
@@ -800852,12 +800964,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on plant-connections.html: PASSED. Witness: plant-connections.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 16 vs 16 controls, 972 vs 972 chars; 1280: 16 vs 16, 934 vs 934; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1386.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1387",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · pm scheduler",
       "pages": [
@@ -800914,12 +801033,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on pm-scheduler.html: FAILED: five of Wilfredo's assets read 'yours', the Mine tab listed them, Delete was offered on them; the chip said the remembered name. A page-local _isMine(row) asks the account at all four sites; the chip follows it - fixed and re-walked identical. Witness: pm-scheduler.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 32 vs 32 controls, 2762 vs 2762 chars; 1280: 32 vs 32, 2762 vs 2762; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1387.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1388",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · project manager",
       "pages": [
@@ -800976,12 +801102,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on project-manager.html: PASSED. Witness: project-manager.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 28 vs 28 controls, 1626 vs 1626 chars; 1280: 28 vs 28, 1626 vs 1626; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1388.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1389",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · project report",
       "pages": [
@@ -801038,12 +801171,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on project-report.html: PASSED. Witness: project-report.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 22 vs 22 controls, 548 vs 548 chars; 1280: 22 vs 22, 548 vs 548; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1389.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1390",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · report sender",
       "pages": [
@@ -801100,12 +801240,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on report-sender.html: PASSED. Witness: report-sender.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 31 vs 31 controls, 2012 vs 2012 chars; 1280: 31 vs 31, 2012 vs 2012; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1390.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1391",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · resume",
       "pages": [
@@ -801162,12 +801309,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on resume.html: FAILED: a control carried the remembered name, and a new CV is prefilled - and every save labelled - with it. The account's name is asked before the first render - fixed and re-walked identical. Witness: resume.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 30 vs 30 controls, 1933 vs 1933 chars; 1280: 30 vs 30, 1971 vs 1971; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1391.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1392",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · shift brain",
       "pages": [
@@ -801224,12 +801378,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on shift-brain.html: PASSED: its membership read is by auth_uid. Witness: shift-brain.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 44 vs 44 controls, 4349 vs 4349 chars; 1280: 44 vs 44, 4349 vs 4349; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1392.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1393",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - worker · skillmatrix",
       "pages": [
@@ -801286,12 +801447,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on skillmatrix.html: FAILED: 'Primary: MV Switchgear · Wilfredo'; the mine filter was the wide union. Narrowed, the header follows the account - fixed and re-walked identical. Witness: skillmatrix.html as Bryan Garcia (worker, Baguio Textile Mills), the device remembering Wilfredo Malabanan - another worker of the same hive. 390: 37 vs 37 controls, 1691 vs 1691 chars; 1280: 37 vs 37, 1691 vs 1691; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1393.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1394",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - oversight · agentic rag observability",
       "pages": [
@@ -801342,12 +801510,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on agentic-rag-observability.html: PASSED: nothing it renders follows the name (the cache stays stale here - no nav-hub - until a page that loads it corrects it). Witness: agentic-rag-observability.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 5 vs 5 controls, 1570 vs 1570 chars; 1280: 5 vs 5, 1570 vs 1570; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1394.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1395",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - supervisor · ai quality",
       "pages": [
@@ -801404,12 +801579,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on ai-quality.html: PASSED. Witness: ai-quality.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 17 vs 17 controls, 1059 vs 1059 chars; 1280: 17 vs 17, 1097 vs 1097; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1395.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1396",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - oversight · architecture",
       "pages": [
@@ -801460,12 +801642,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from architecture itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on architecture.html: PASSED: nothing it renders follows the name. Witness: architecture.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 1 vs 1 controls, 3710 vs 3710 chars; 1280: 1 vs 1, 3710 vs 3710; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1396.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1397",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - fleet-supervisor · audit log",
       "pages": [
@@ -801522,12 +801711,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on audit-log.html: PASSED. Witness: audit-log.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 25 vs 25 controls, 2929 vs 2929 chars; 1280: 25 vs 25, 2967 vs 2967; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1397.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1398",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - oversight · founder console",
       "pages": [
@@ -801578,12 +801774,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on founder-console.html: PASSED: nothing it renders follows the name. Witness: founder-console.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 3 vs 3 controls, 344 vs 344 chars; 1280: 3 vs 3, 344 vs 344; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1398.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1399",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - oversight · marketplace admin",
       "pages": [
@@ -801634,12 +801837,19 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on marketplace-admin.html: FAILED: with Christine's name remembered, Leandro - a real platform admin - got 'Platform Admins Only' (the check asked the allowlist for the remembered name; its read policy returns only the caller's own row, so no one could be ELEVATED by a name). It defers to utils.js isPlatformAdmin(db), which asks with the server's names for the account - fixed and re-walked identical. Witness: marketplace-admin.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 20 vs 20 controls, 714 vs 714 chars; 1280: 20 vs 20, 714 vs 714; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1399.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL1400",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU3 · The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows - oversight · platform actions",
       "pages": [
@@ -801690,6 +801900,13 @@
         "engine": "chromium",
         "ask": "The platform must treat the signed-in account as this page's identity, so a renamed or shared name never moves anyone's rows",
         "closes": "the AU3 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - the person's own, then another real member's (another hive-less owner's for the solo cast); every text line and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows): AU3 on platform-actions.html: PASSED: nothing it renders follows the name. Witness: platform-actions.html as Leandro Marquez (supervisor, Baguio Textile Mills; a platform admin), the device remembering Christine Dizon - another supervisor of the same hive. 390: 39 vs 39 controls, 4453 vs 4453 chars; 1280: 39 vs 39, 4453 vs 4453; nothing only one read shows. Postgres witness: across the whole walk (from 04:04:08Z) the only rows written under a remembered false name are 143 analytics_events page views, each under the walker's own auth_uid - every founder rollup counts DISTINCT COALESCE(auth_uid, worker_name), so none is miscounted; no other table. Gate: ownership-by-account (tools/validate_ownership_by_account.py) passes 88 pages and shared scripts; teeth: 46 sites in the 10 pre-fix pages (wide unions, inline unions, ownership compared by name). Receipt .tmp/mcp_walks/SL1400.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
@@ -977191,5 +977408,5 @@
       }
     }
   ],
-  "next": "SL walk 3 part 2: AU3 (31 rows, a display name renamed on another device), AU1 (29, an expired session) and AU4 (15, admin gates: refusal as Bryan, not a platform admin, and the view as oversight) through the chrome-devtools MCP at 390 and 1280 - frames only for pages that call no model on load; alert-hub, analytics and shift-brain by direct navigation under the no-model stub. Then the contract batch provers: F2 (prove_phone_fit 320/390/1280 incl --anon), F3 axe + keyboard, F5 design ratchet, CA2/H2 headers, H1's remaining 148 + S3 via page-survives --all, S4 xss, S5 secrets, CI1-CI4; then ENH-S, the solar planner."
+  "next": "SL walk 3 part 3: AU1 (29 rows, an expired session: refreshed or ended honestly, never acting on it, never losing the person's work) and AU4 (15, admin and founder controls behind a server gate: refusal as Bryan, not a platform admin, and the view as oversight) in the Playwright MCP at 390 and 1280 (context route adds x-wh-walk-no-model; the walk script is .tmp/slw/au_walk.js). Then the contract batch provers: F2 (prove_phone_fit 320/390/1280 incl --anon), F3 axe + keyboard, F5 design ratchet, CA2/H2 headers, H1's remaining 148 + S3 via page-survives --all, S4 xss, S5 secrets, CI1-CI4; then ENH-S, the solar planner."
 }

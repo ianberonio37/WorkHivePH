@@ -1696,9 +1696,22 @@ function _mineFilter() {
   var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   if (!_authUid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + _authUid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))); }
+
+// The same rule for ONE row on screen (SL AU3, 2026-10-14): a row bound to an account is mine only when it is MY
+// account; one bound to none is mine by name. Asset edit / remove permissions, the team view's teammate tag and the
+// realtime self-echo all asked the name, which a rename or a namesake turns into someone else's.
+function _isMine(row) {
+  if (!row) return false;
+  if (row.auth_uid) return !!_authUid && row.auth_uid === _authUid;
+  var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
+  return !!nm && row.worker_name === nm;
+}
 
 // C4: redirect deferred to async init — checks auth session first
 
@@ -1939,7 +1952,7 @@ function subscribeLogbookRealtime() {
       { event: 'INSERT', schema: 'public', table: 'logbook', filter: 'hive_id=eq.' + HIVE_ID },
       (payload) => {
         // Skip my own inserts — they already render optimistically on save.
-        if (payload?.new?.worker_name && payload.new.worker_name === WORKER_NAME) return;
+        if (payload?.new && _isMine(payload.new)) return;
         _logbookLiveCount++;
         renderLiveBadge();
       })
@@ -2017,7 +2030,7 @@ async function searchTeam(append = false) {
   // team card's work-order badge was undefined. Both are now selected; validate_logbook.py checks every r.<col> the
   // mapping reads is in this list, and that updated_at survives into the cached row (see the mine loader).
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2551,7 +2564,7 @@ async function loadEntries(append = false) {
   // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
   if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .or(_MINE())
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -3035,7 +3048,7 @@ async function initAssets() {
 
   // Phase 5c: select aliases asset_nodes column names back to the legacy
   // shape so downstream render code keeps reading a.asset_id and a.type.
-  const COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, approved_by, approved_at, created_at';
+  const COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, auth_uid, status, submitted_by, approved_by, approved_at, created_at';
 
   let sbAssets = [];
   if (HIVE_ID) {
@@ -3317,7 +3330,7 @@ async function deleteAsset(id) {
   // In hive mode: supervisor can delete any; worker can only delete their own pending assets
   if (HIVE_ID) {
     if (HIVE_ROLE !== 'supervisor') {
-      if (asset.worker_name !== WORKER_NAME) { showToast('Supervisors only.'); return; }
+      if (!_isMine(asset)) { showToast('Supervisors only.'); return; }
       if (asset.status === 'approved') { showToast('Cannot remove an approved asset. Ask your supervisor.'); return; }
     }
   }
@@ -3361,7 +3374,7 @@ async function deleteAsset(id) {
 function openEditAsset(id) {
   const asset = loadAssets().find(a => a.id === id);
   if (!asset) return;
-  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && asset.worker_name !== WORKER_NAME) {
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && !_isMine(asset)) {
     showToast('You can only edit your own assets.');
     return;
   }
@@ -3607,7 +3620,7 @@ function renderAssetList() {
         </div>
         <div class="flex gap-2 flex-wrap">
           <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
-          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || a.worker_name === WORKER_NAME) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _isMine(a)) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
           <button onclick="deleteAsset('${a.id}')" class="btn-danger text-xs py-1 px-2.5" data-i="remove">Remove</button>
         </div>
       </div>
@@ -4950,7 +4963,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && e.worker_name !== WORKER_NAME) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -4963,7 +4976,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
             ${(e._offline || e._pending_edit) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
           <span class="text-xs text-white/80">${formatDate(e.date)}</span>
-          ${_viewMode === 'team' && e.worker_name !== WORKER_NAME ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
+          ${_viewMode === 'team' && !_isMine(e) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
         </div>
         <span class="ic ic-next" aria-hidden="true"></span>
       </div>

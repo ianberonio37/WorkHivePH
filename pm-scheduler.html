@@ -961,10 +961,23 @@ function _mineFilter() {
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
   if (!uid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + uid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
   (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
+// The same rule for ONE row already on screen: an asset bound to an account is mine only when it is MY account; one
+// bound to none is mine by name. Walked (SL AU3): with another member's name remembered, five of their assets read
+// "yours", the "Mine" tab listed them and Delete was offered on them - and this person's own were not.
+function _isMine(row) {
+  if (!row) return false;
+  var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
+  if (row.auth_uid) return !!uid && row.auth_uid === uid;
+  var nm = (typeof WORKER_NAME === 'undefined' || WORKER_NAME == null) ? '' : String(WORKER_NAME);
+  return !!nm && row.worker_name === nm;
+}
 
 // ─────────────────────────────────────
 // IDENTITY + HIVE
@@ -1428,6 +1441,10 @@ async function init() {
   // never instantiated). A completion logged during a brownout queues to IndexedDB
   // and drains on reconnect; the dedup UNIQUE index makes a reconnect re-insert benign.
   _ensurePmQueue();
+  // the chip and every name fallback follow the ACCOUNT (SL AU3): take a correction already made (nav-hub's reconcile),
+  // and keep the page's copy in step with a later one (utils.js _whAnnounceName repaints the chip itself)
+  WORKER_NAME = whWorker() || WORKER_NAME;
+  window.addEventListener('wh-identity-changed', (e) => { if (e && e.detail && e.detail.now) WORKER_NAME = e.detail.now; });
   document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   if (HIVE_ID && HIVE_NAME) {
@@ -1969,7 +1986,7 @@ function renderDashboard() {
   const mineChip = document.getElementById('chip-mine');
   if (mineChip) mineChip.hidden = !HIVE_ID;
   let filtered = enriched;
-  if (activeFilter === 'mine')     filtered = filtered.filter(a => a.worker_name === WORKER_NAME);
+  if (activeFilter === 'mine')     filtered = filtered.filter(a => _isMine(a));   // by the account (SL AU3), not the name
   else if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
   if (catFilter)              filtered = filtered.filter(a => a.category === catFilter);
 
@@ -2075,7 +2092,7 @@ function renderDashboard() {
         <div class="flex flex-wrap items-center gap-1.5 mb-3">
           ${catPill(asset.category)}
           ${critBadge(asset.criticality)}
-          ${HIVE_ID && asset.worker_name ? (asset.worker_name === WORKER_NAME
+          ${HIVE_ID && asset.worker_name ? (_isMine(asset)
             ? '<span class="text-xs font-semibold" style="color:var(--wh-orange);">yours</span>'
             : `<span class="text-xs text-white/60">${escHtml(asset.worker_name)}</span>`) : ''}
           ${overdueItems > 0 ? `<!-- AA RED (2026-09-16): text-red-400 is #f87171, which is --wh-red - the token whose own comment says
@@ -2171,7 +2188,7 @@ function renderDetail(asset) {
 
   // Supervisor-only edit/delete in hive mode: solo workers can manage their own
   const canEdit   = !HIVE_ID || HIVE_ROLE === 'supervisor';
-  const canDelete = !HIVE_ID || HIVE_ROLE === 'supervisor' || asset.worker_name === WORKER_NAME;
+  const canDelete = !HIVE_ID || HIVE_ROLE === 'supervisor' || _isMine(asset);
   const editBtn = document.getElementById('btn-edit-asset');
   const delBtn  = document.getElementById('btn-delete-asset');
   canEdit   ? editBtn.classList.remove('hidden') : editBtn.classList.add('hidden');
@@ -3306,7 +3323,7 @@ async function saveNewTask() {
 // ─────────────────────────────────────
 async function confirmDeleteAsset() {
   if (!currentAsset) return;
-  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && currentAsset.worker_name !== WORKER_NAME) {
+  if (HIVE_ID && HIVE_ROLE !== 'supervisor' && !_isMine(currentAsset)) {
     showToast('Only supervisors can delete other members\' assets.'); return;
   }
   // T139 (2026-08-25): enumerate the blast radius — 'all its PM data' names the CLASS, but a

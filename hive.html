@@ -2016,12 +2016,20 @@ function _mineFilter() {
   var nm = (WORKER_NAME == null ? '' : String(WORKER_NAME));
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   if (!_authUid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + _authUid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))); }
 
 // ── IDENTITY ──
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
+// ★THE BOARD ANNOUNCED WHOEVER THE DEVICE REMEMBERED (SL AU3, 2026-10-14). Presence is keyed by the display name, so a
+// device holding another member's name (a rename made elsewhere, a shared phone) joined the hive's live channel AS that
+// member - teammates saw them online - and marked them "(you)". initHive asks the account once, beside its session read;
+// initBoard awaits the answer before it tracks presence.
+let _whIdentityReady = Promise.resolve();
 // C4: redirect deferred to async init — checks auth session first
 
 // ── MULTI-HIVE STATE ──
@@ -2396,6 +2404,14 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
 
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  else if (typeof restoreIdentityFromSession === 'function') {
+    _whIdentityReady = restoreIdentityFromSession(db).then((n) => {
+      if (!n) return;
+      WORKER_NAME = n;
+      const _nw = document.getElementById('nav-worker');   // the header chip was painted from the cache
+      if (_nw) _nw.textContent = n;
+    }).catch(() => {});
+  }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session, not just stale localStorage.
@@ -3529,6 +3545,7 @@ async function initBoard() {
   // Silent backfill: stamp hive_id on pre-migration rows for all hive members
   runHiveIdBackfill();
 
+  await _whIdentityReady;   // presence carries the account's name, never the one the device remembered
   startPresence();
   startFeedRealtime();
   startInventoryRealtime();
@@ -5016,7 +5033,7 @@ function _whIsSelf(m) {
   if (!m) return false;
   if (typeof m.is_me === 'boolean') return m.is_me;
   if (m.auth_uid && _authUid) return m.auth_uid === _authUid;
-  return m.worker_name === WORKER_NAME;
+  return m.worker_name === WORKER_NAME;   // name-compare-allow: the account was asked first; the name decides only a row with no auth_uid
 }
 
 async function kickMember(memberId, workerName) {
@@ -5292,7 +5309,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
   // "that person" = their identity OR their name. Union, not swap: rows whose auth_uid was never bound
   // (service-role and seeded inserts) are findable only by name, and this card is mostly history.
   const _them = _uid
-    ? 'auth_uid.eq.' + _uid + ',worker_name.eq.' + JSON.stringify(String(workerName))
+    ? 'auth_uid.eq.' + _uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(workerName)) + ')'   // SL AU3: never a namesake's row
     : null;
   let drawer = document.getElementById('wh-worker-profile-drawer');
   if (!drawer) {
@@ -5538,7 +5555,7 @@ function startFeedRealtime() {
       refreshPMHealth();
 
       // Live toast for other team members
-      if (payload.new.worker_name !== WORKER_NAME) {
+      if (!_whIsSelf(payload.new)) {   // by the account (SL AU3): a namesake's entry is still someone else's
         const who   = payload.new.worker_name || 'Someone';
         const asset = entry.asset_name;
         const task  = entry.item_text.split(' ').slice(0, 6).join(' ');

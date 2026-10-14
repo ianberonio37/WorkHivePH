@@ -657,7 +657,10 @@ function _mineFilter() {
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   var uid = (typeof _authUid !== 'undefined') ? _authUid : null;
   if (!uid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + uid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + uid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(String(
   (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) || ''))); }
@@ -770,6 +773,14 @@ function _ensureSmQueue() {
 
 async function init() {
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  WORKER_NAME = whWorker() || WORKER_NAME;   // a correction made before this line (nav-hub's reconcile) is already in the cache
+  // the header names the ACCOUNT (SL AU3): a correction made after it was painted repaints it (utils.js _whAnnounceName)
+  window.addEventListener('wh-identity-changed', (e) => {
+    if (!e || !e.detail || !e.detail.now) return;
+    WORKER_NAME = e.detail.now;
+    const _hs = document.getElementById('header-sub');
+    if (_hs && typeof _profile !== 'undefined' && _profile) _hs.textContent = `Primary: ${_profile.primary_skill || 'not set'} · ${WORKER_NAME}`;
+  });
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
   /* T2/CN find (2026-08-24): bare index.html dumped an anon on marketing copy BEFORE the
      whSignInWall gate below could run (the engineering-design class, resume.html's twin). */

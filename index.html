@@ -5015,6 +5015,18 @@
 
     // Greeting + date
     document.getElementById('oh-greeting').textContent = _greeting(workerName);
+    // ★THE GREETING NAMED WHOEVER THE DEVICE REMEMBERED (SL AU3, 2026-10-14): walked with another member's name in the
+    // cache, the home said "Good afternoon, Wilfredo" to Bryan. The account is asked once, beside the reads below, and
+    // the greeting follows its answer when the two differ (the cache is corrected by the same call).
+    if (typeof restoreIdentityFromSession === 'function') {
+      restoreIdentityFromSession(db).then((n) => {
+        if (!n || n === workerName) return;
+        window._ohLastName = n;
+        const g = document.getElementById('oh-greeting');
+        if (g) g.textContent = _greeting(n);
+        if (typeof updateNavbarName === 'function') updateNavbarName(n);   // the account chip and menu said the cached name too
+      }).catch(() => {});
+    }
     document.getElementById('oh-date').textContent = _dateStr();
 
     // G1 (FF1): canonical skeleton in the open-jobs list while the dashboard queries run

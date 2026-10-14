@@ -693,7 +693,10 @@ function _mineFilter() {
   // throws "Invalid regular expression" on page load.
   var quoted = 'worker_name.eq.' + JSON.stringify(nm);
   if (!_authUid) return nm ? quoted : null;
-  return 'auth_uid.eq.' + _authUid + (nm ? ',' + quoted : '');
+  // ★A NAME REACHES ONLY ROWS NO ACCOUNT HOLDS (SL AU3, 2026-10-14). Walked with a remembered name that was another
+  // member's: "uid OR name" put that member's 2,140 bound rows in this person's logbook (4,417 vs 2,277). The name
+  // half now applies only where auth_uid IS NULL - the legacy and service-role rows it exists to reach.
+  return 'auth_uid.eq.' + _authUid + (nm ? ',and(auth_uid.is.null,' + quoted + ')' : '');
 }
 var _MINE = function () { return _mineFilter() || ('worker_name.eq."' + String(WORKER_NAME || '') + '"'); };
 
