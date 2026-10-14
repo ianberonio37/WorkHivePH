@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 4a5c8ef576a6b5d4
+source_sha: b2e3a5a1b0907022
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1360) — the 'what's already gated' brain
+## gate · registered validators (1361) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (999)
+### Platform (1000)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1029,6 +1029,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `page-health` [fail] — Page health: every DB page paints its main container with no page error (signed in, 23 pages)
 - `page-log-tags` ⚡ [fail] — Reference pages tag every console.error/warn with their own name ([validator-catalog], [symbol-gallery], [design-system], [llm-observability], [founder-console]
 - `page-roster` ⚡ [fail] — Page Roster Parity (T1.4: ONE roster (substrate/reference/page_roster.json), every consumer's scope checked inside it — sw.js SHELL_FILES (a precached 404 fails
+- `page-survives-optional-failures` [fail] — SL A3/AV1/H1 (2026-10-14): every page production's client_errors named (production_error_groups.json) starts up in real WebKit AND Chromium under the SHIPPED ve
 - `paginated-order-totality` ⚡ [fail] — PAGINATED ORDER TOTALITY — every query that pages or truncates must sort by a TOTAL order, i.e. end its ORDER BY with a column unique per row. Found live 2026-0
 - `param-route-registry` ⚡ [regression] — Param-Route Registry current (T43: the param->page routing registry on disk matches a fresh derivation; a changed param route must regenerate it)
 - `pareto-content` ⚡ [blocker] — Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)
