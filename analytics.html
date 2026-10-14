@@ -3601,6 +3601,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // C4: restore identity from auth session on new device
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { whSignInWall(); return; }
+    // ★A DEAD SESSION WAS REPORTED AS AN ENGINE OUTAGE (SL AU1, 2026-10-14). Walked with the session expired and its
+    // refresh refused, this page kept the cached name, read unauthenticated, and said "Recomputed just now ... Analytics
+    // unavailable. Tap Refresh once the engine is ready" - the wrong cause, a fix that cannot work, and a recompute that
+    // never happened. The same gate as the other member pages: no session, the sign-in wall (which says it ended).
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { whSignInWall(); return; }
+    } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the reads below say what failed */ }
     // Set default role based on HIVE_ROLE - the server's, once the reconcile started at parse time has answered
     await _roleReady;
     _role = _defaultView();

@@ -676,7 +676,15 @@
 
     if (avatarEl) avatarEl.textContent = initials(WORKER_VIEW);
     if (nameEl)   nameEl.textContent   = WORKER_VIEW;
-    if (sinceEl)  sinceEl.textContent  = _seller?.created_at ? memberSinceText(_seller.created_at) : 'New seller';
+    // ★A WITHHELD DATE IS NOT A NEW SELLER (SL AU1, 2026-10-14). v_marketplace_sellers_public hides created_at from a
+    // visitor without an account (CASE WHEN auth.uid() IS NOT NULL ...), and this fell back to "New seller" - so every
+    // signed-out reader, a lapsed session and Googlebot included, was told a seller of two months was new. An unknown
+    // date now says nothing.
+    if (sinceEl) {
+      const _since = _seller?.created_at ? memberSinceText(_seller.created_at) : '';
+      sinceEl.textContent = _since;
+      sinceEl.hidden = !_since;
+    }
 
     const tier = _seller?.tier || 'bronze';
     if (badgesEl) {

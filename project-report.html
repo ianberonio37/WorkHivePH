@@ -464,8 +464,11 @@ function getPhase(it) {
 (async () => {
   // Consult the SESSION before bouncing. This gate is already inside an async IIFE, so it can simply
   // await the restore rather than race it — the cheapest form of this fix in the roster.
-  if (!WORKER_NAME) { await _identityRestored.catch(() => {}); }
-  if (!WORKER_NAME) { whSignInWall(); return; }
+  // ★AND CONSULT IT WHATEVER THE CACHE SAYS (SL AU1, 2026-10-14): awaiting only when the cache was empty let a session
+  // that had expired and could not refresh keep a cached name and render the report shell with nothing read.
+  // restoreIdentityFromSession answers '' only when there is genuinely no session (an unreachable server keeps the name).
+  const _sessionName = await _identityRestored.catch(() => WORKER_NAME);
+  if (!_sessionName || !WORKER_NAME) { whSignInWall(); return; }
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project_id');
   if (!projectId) {

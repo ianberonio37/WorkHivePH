@@ -912,6 +912,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       WORKER_NAME = await restoreIdentityFromSession(db);
     }
     if (!WORKER_NAME) { whSignInWall(); return; }
+    // ★A CACHED NAME IS NOT A SESSION (SL AU1, 2026-10-14): with the session expired and its refresh refused, this page
+    // kept the cached name and offered the vehicle wizard as usual - a solo owner could fill it in and lose it at Save.
+    // No session, the sign-in wall, which brings the person back here.
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { whSignInWall(); return; }
+    } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's

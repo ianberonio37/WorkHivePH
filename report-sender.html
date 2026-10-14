@@ -1012,11 +1012,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     // The auth gate deferred from the top of this script (see the note there): bounce ONLY once the
     // session has actually been consulted. A name means we stay; '' means there is genuinely no session.
-    if (!WORKER_NAME) {
-      _identityRestored
-        .then(_n => { if (!_n) whSignInWall(); })
-        .catch(() => { whSignInWall(); });
-    }
+    // ★A CACHED NAME IS NOT A SESSION (SL AU1, 2026-10-14). This bounced only when the cache was EMPTY, so a person whose
+    // session had expired and could not refresh kept a cached name and got the page "Live · contacts refreshed on load ·
+    // Based on your AI reports" with nothing read. restoreIdentityFromSession answers '' only when there is genuinely no
+    // session (an unreachable server keeps the cached name), so '' bounces whatever the cache said.
+    _identityRestored
+      .then(_n => { if (!_n) whSignInWall(); })
+      .catch(() => { whSignInWall(); });
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
 

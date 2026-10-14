@@ -3190,11 +3190,16 @@
          deleted #panel-guest, but this path still fires for a real state. It was mislabelled,
          not orphaned, so the copy is what changes: name the device-local identity, and let the
          button (Secure account) mean what it already does. -->
-    <span style="color:rgba(255,255,255,0.80);">Working as <strong id="upgrade-banner-name" style="color:white;"></strong> on this device, not signed in</span>
+    <!-- ★"WORKING AS X, NOT SIGNED IN" SAID TWO OPPOSITE THINGS (Ian, 2026-10-14: "you are working, but not signed
+         in? what a really slop"). Since guest mode was removed, the only way to reach this state is a session that
+         ENDED (or another person's name left on a shared device), so the sentence names that, and the button signs
+         in. It used to offer "Secure account", which opened SIGN-UP with the remembered name locked in - a second
+         account for a member, or the previous person's name for a newcomer. -->
+    <span style="color:rgba(255,255,255,0.80);">Your session ended. Sign in to continue as <strong id="upgrade-banner-name" style="color:white;"></strong>.</span>
     <!-- Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
          housekeeping nudge no longer outshines the page's real primary action (the
          verdict/next-job). Also bumped to the 44px gloved-field tap target. -->
-    <button onclick="upgradeToAccount()" style="background:rgba(247,162,27,0.12); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Secure account →</button>
+    <button onclick="openSignIn(null, true)" style="background:rgba(247,162,27,0.12); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.45); border-radius:999px; padding:8px 16px; min-height:44px; font-size:0.75rem; font-weight:700; cursor:pointer;" data-i="secureaccount">Sign in →</button>
     <button onclick="dismissUpgradeBanner()" style="background:transparent; border:none; color:rgba(255,255,255,0.80); cursor:pointer; font-size:1rem; line-height:1; padding:0 2px;" aria-label="Close">&times;</button>
   </div>
 </div>
@@ -4308,6 +4313,8 @@
   // ── C2: Guest upgrade banner ──────────────────────────────────────────────
   function _showUpgradeBanner(name) {
     if (sessionStorage.getItem('upgrade_banner_dismissed')) return;
+    const _modal = document.getElementById('signin-modal');
+    if (_modal && !_modal.classList.contains('hidden')) return;   // the sign-in form already says it
     const banner = document.getElementById('upgrade-banner');
     const nameEl = document.getElementById('upgrade-banner-name');
     if (banner && nameEl) { nameEl.textContent = name; banner.style.display = ''; }
@@ -4319,20 +4326,6 @@
     sessionStorage.setItem('upgrade_banner_dismissed', '1');
   }
 
-  function upgradeToAccount() {
-    dismissUpgradeBanner();
-    const existingName = whWorker() || '';
-    // Pre-fill display_name with existing identity so records stay linked
-    const dispEl = document.getElementById('su-displayname');
-    if (dispEl && existingName) {
-      dispEl.value = existingName;
-      dispEl.readOnly = true;
-      dispEl.style.opacity = '0.6';
-      dispEl.title = 'Locked: matches your existing records';
-    }
-    document.getElementById('signin-modal').classList.remove('hidden');
-    switchAuthTab('signup');
-  }
 
   // ── Keyboard + backdrop ────────────────────────────────────────────────────
   document.getElementById('signin-modal').addEventListener('click', function(e) {

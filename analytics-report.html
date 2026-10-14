@@ -762,9 +762,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       restoreIdentityFromSession(db).then(function (_n) {
         if (_n) { WORKER_NAME = _n; }
         // Auth I1 (D2 internal-control): an authed-only report must not sit on an empty
-        // shell when logged out — hard-bounce to sign-in like its sibling analytics.html
-        // (fires only when there is no identity in storage AND none in the session).
-        else if (!WORKER_NAME) { whSignInWall(); }
+        // shell when logged out — hard-bounce to sign-in like its sibling analytics.html.
+        // ★WHATEVER THE CACHE SAID (SL AU1, 2026-10-14): this bounced only when the cached name was ALSO empty, so a
+        // session that had expired and could not refresh kept the page on its shell whenever a name was cached - and
+        // walled or not depending on whether another page had already cleared it. '' means no session.
+        else { whSignInWall(); }
       });
     }
     var HIVE_ID   = whHiveId();

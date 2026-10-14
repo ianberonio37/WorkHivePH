@@ -698,6 +698,13 @@
   // Gate FIRST, then load the report only if not blocked — sequencing the two async
   // flows eliminates the DOM-replace race that crashed renderReport / loadYourPlantCompare.
   (async function initPhIntelligence() {
+    // ★NO GATE AT ALL (SL AU1, 2026-10-14): walked with the session expired and its refresh refused, this page went
+    // straight to its maturity check and report - a hive past Stair 3 would have read its intelligence unauthenticated
+    // and shown whatever came back as the report. No session, the sign-in wall, like every other member page.
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { if (typeof whSignInWall === 'function') whSignInWall(); return; }
+    } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the report's own reads say what failed */ }
     const blocked = await maturityGateCheck();
     if (!blocked) loadReport();
   })();

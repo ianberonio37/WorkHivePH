@@ -3979,12 +3979,15 @@ function whHiveMembershipLost(db, hiveId, workerName) {
       return db.auth.getSession().then(function (s) {
         var uid = s && s.data && s.data.session && s.data.session.user && s.data.session.user.id;
         if (uid) return ask('auth_uid', uid);
-        if (!workerName) return false;                        // no identity and no name: cannot ask
-        return ask('worker_name', workerName);
+        // ★NO SESSION IS NOT A REMOVAL (SL AU1, 2026-10-14). Without an account this asked by NAME, unauthenticated;
+        // RLS answered zero rows with no error, and the page told a current member "You are no longer a member of
+        // <hive>... Your session is fine" - two false sentences at once, walked on report-sender with the session
+        // expired and its refresh refused. Without a session the probe cannot tell, so it says "not lost" and the
+        // page's own sign-in gate owns the session (shift-brain's rule, 2026-08-20).
+        return false;
       }, function () { return false; });                      // could not read the session
     }
-    if (!workerName) return Promise.resolve(false);
-    return ask('worker_name', workerName);
+    return Promise.resolve(false);                            // no auth client: an unauthenticated read proves nothing
   } catch (e) { return Promise.resolve(false); }
 }
 if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;

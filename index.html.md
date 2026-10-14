@@ -392,11 +392,16 @@ T60 (2026-08-26): this read "Signed in as <name>" and the ONLY condition that sh
  deleted #panel-guest, but this path still fires for a real state. It was mislabelled,
  not orphaned, so the copy is what changes: name the device-local identity, and let the
  button (Secure account) mean what it already does. 
-Working as **** on this device, not signed in
+ ★"WORKING AS X, NOT SIGNED IN" SAID TWO OPPOSITE THINGS (Ian, 2026-10-14: "you are working, but not signed
+ in? what a really slop"). Since guest mode was removed, the only way to reach this state is a session that
+ ENDED (or another person's name left on a shared device), so the sentence names that, and the button signs
+ in. It used to offer "Secure account", which opened SIGN-UP with the remembered name locked in - a second
+ account for a member, or the previous person's name for a newcomer. 
+Your session ended. Sign in to continue as ****.
  Arc P · Wave 1 (P3): DEMOTED from solid-orange to outlined-amber so this
  housekeeping nudge no longer outshines the page's real primary action (the
  verdict/next-job). Also bumped to the 44px gloved-field tap target. 
-Secure account →
+Sign in →
 ×
 
 ★TOUCH FLOOR. Both tabs measured 149.5x40 and 148.5x40 inside #signin-modal - under this
@@ -406,4 +411,4 @@ Secure account →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: 30248c40a81239a5 -->
+<!-- md-twin source-sha: 60dd539c03e5debd -->

@@ -451,6 +451,13 @@
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
   if (!WORKER_NAME) { whSignInWall(); return; }
+  // ★A CACHED NAME IS NOT A SESSION (SL AU1, 2026-10-14): with the session expired and its refresh refused this page
+  // kept the cached name and rendered as signed in - an empty list where the person's data should be, said as fact.
+  // No session, the sign-in wall (which says it ended and brings the person back here).
+  try {
+    const { data: { session: _au1s } } = await db.auth.getSession();
+    if (!_au1s) { whSignInWall(); return; }
+  } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
 
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
