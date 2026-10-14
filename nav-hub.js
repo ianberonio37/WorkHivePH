@@ -494,6 +494,11 @@
 
   function isVisibleInMode(tool, mode) {
     if (tool.hidden) return false;            // Phase B: kept reachable via parent buttons only
+    // ★A DISPLAY MODE IS A VIEW, NOT A ROLE (BRH-L, 2026-10-14). A worker who chose All or Supervisor was offered
+    // Connections, and integrations.html answered "Supervisor access only" - the door the hub opened, shut. The page
+    // behind a tool decides who it admits (utils.js whOffers, one map for the hub, the search and every page link),
+    // whatever view the person picked.
+    if (typeof whOffers === 'function' && !whOffers(tool.href)) return false;
     if (mode === 'all') return true;
     if (!tool.roles || !tool.roles.length) return true;  // universal tool
     return tool.roles.indexOf(mode) !== -1;

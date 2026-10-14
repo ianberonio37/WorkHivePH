@@ -280,14 +280,14 @@
            ("Integrations → API Keys") that names two screens by their on-screen titles, and the rate
            limit is a number. Translating the path would send a Filipino reader looking for a menu item
            that does not exist under that name. -->
-      <p style="font-size: 0.75rem; color:var(--muted); margin-top:8px;"><span data-i="p_ph_apikeys">Generate API keys in</span> <a href="integrations.html" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
+      <p style="font-size: 0.75rem; color:var(--muted); margin-top:8px;"><span data-i="p_ph_apikeys">Generate API keys in</span> <a href="integrations.html" data-wh-requires="supervisor" data-wh-refused-text="Integrations → API Keys, which only your hive supervisor can open" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
     </div>
 
     <!-- CTA for non-members -->
     <div class="cta-card" id="cta-card">
       <h2 data-i="p_connectyourplantscmmsdata_2f08">Connect your plant's CMMS data</h2>
       <p data-i="p_uploadyoursapormaximoexporta_c90a">Upload your SAP or Maximo export and see how your equipment compares to this benchmark in real time. Free to start.</p>
-      <a data-i="p_importyourcmmsdata_be34" href="integrations.html" class="btn-gold">Import Your CMMS Data</a>
+      <a data-i="p_importyourcmmsdata_be34" href="integrations.html" data-wh-requires="supervisor" data-wh-refused-text="Your hive supervisor can import it in Integrations." class="btn-gold">Import Your CMMS Data</a>
     </div>
 
   </div><!-- /report-content -->

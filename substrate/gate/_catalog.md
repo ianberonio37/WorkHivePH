@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 8e1a7c56b55950e3
+source_sha: cb6007b45f61f58a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1365) — the 'what's already gated' brain
+## gate · registered validators (1366) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -1434,13 +1434,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (28)
+### Security (29)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
 - `destructive-sweep` [fail] — Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)
 - `federated-consent` ⚡ [fail] — Cross-hive figures come only from hives that consented: _shared/federated-consent.ts reads hives.federated_benchmark_opted_in and fails closed; benchmark-comput
 - `fn-contracts` [fail] — Function contracts (a foreign-hive request refused with a sentence, a provider failure that degrades legibly, a documented shape somebody calls)
+- `gated-offers` ⚡ [fail] — BRH-L (Ian 2026-10-14: "founder/admin pages button should also be visible to only founder/admin"): a page that refuses some people is offered only to the people
 - `hostile-personas` [fail] — Hostile personas (ex-employee, scraper, self-rater, bulk abuser, spoofer, false disputer, insider - each refused on their own token)
 - `hosting-reality` [fail] — Hosting reality (what the DEPLOYED origin hands a person: headers, links, arrivals, cacheable assets)
 - `leaving-honesty` [fail] — Leaving honesty (the export runs for a supervisor, is refused a worker, and nobody's work loses its author)

@@ -719593,8 +719593,8 @@
     },
     {
       "id": "BRH238",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - asset hub:918 · -> integrations.html - worker",
       "pages": [
@@ -719652,12 +719652,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on asset-hub.html - FAILED by construction before the fix: the telemetry empty state's 'Map it in Integrations' link had no condition at all (HEAD), so any member viewing an unmapped asset was sent to integrations.html, which answers a worker 'Supervisor access only'. Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the link declares data-wh-requires=\"supervisor\" with the sentence 'Your hive supervisor can map it in Integrations.'. Witness: asset-hub.html read as Bryan Garcia (worker) and as Leandro Marquez. After, the empty state induced at 390 and 1280: Bryan reads 'This one is not mapped to a sensor yet. Your hive supervisor can map it in Integrations.' with no link; Leandro reads 'Map it in Integrations ->'. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH238.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH239",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - asset hub:2136 · -> audit-log.html - worker",
       "pages": [
@@ -719715,12 +719723,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on asset-hub.html - Read, not reproduced: the asset detail's audit link was already shown only inside if (HIVE_ROLE === 'supervisor'), the role asset-hub re-reads from hive_members at start-up. No change but the stated reason (gated-offer-ok) the gate now requires beside it.. Witness: asset-hub.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: an asset's detail opened at 390 and 1280 - for Bryan #detail-audit-link is hidden, for Leandro it is visible. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH239.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH240",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - community:613 · -> audit-log.html - worker",
       "pages": [
@@ -719778,12 +719794,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on community.html - Read, not reproduced: the moderation-history link lives in #panel-mod, reached only from #tab-mod, which the page shows only to the hive supervisor. No change but the stated reason (gated-offer-ok).. Witness: community.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked at 390 and 1280: Bryan is not offered the Mod Queue tab; Leandro opens it and the link is visible. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH240.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH241",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - hive:761 · -> audit-log.html - worker",
       "pages": [
@@ -719841,12 +719865,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not reproduced: Audit Log is a hive-menu item with class 'hidden' until the supervisor block reveals it. No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked at 390 and 1280 with the hive menu open: for Bryan Audit Log is hidden; for Leandro it is visible. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH241.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH242",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - hive:765 · -> plant-connections.html - worker",
       "pages": [
@@ -719904,12 +719936,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not reproduced: Plant Connections is a hive-menu item with class 'hidden' until the supervisor block reveals it. No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked at 390 and 1280 with the hive menu open: for Bryan Plant Connections is hidden; for Leandro visible. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH242.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH243",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · nav-hub.js -> audit-log.html - worker",
       "pages": [
@@ -719967,12 +720007,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - FAILED on demand before the fix (Audit Log is hidden in the hub's grid, so the search was its door): as Bryan at 390 and 1280 the search offered 'Audit Log' for 'audit'. Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; nav-hub.js isVisibleInMode asks whOffers before any display mode, and the search filters the hub's list through it.. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: Bryan's hub (All 22 tiles, Supervisor 22, Field 17) and his search for 'audit' (8 logbook matches) offer no Audit Log; Leandro's search for 'audit' offers it. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH243.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH244",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · nav-hub.js -> integrations.html - worker",
       "pages": [
@@ -720030,12 +720078,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - FAILED on demand before the fix: as Bryan at 390 and 1280 the hub offered 'Connections' (integrations.html) in its All and Supervisor display modes - a display mode is a person's choice of view, not their role - and integrations.html answered 'Supervisor access only'. Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; nav-hub.js isVisibleInMode asks whOffers before any display mode.. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: Bryan's hub in All, Supervisor and Field offers no Connections; Leandro's offers it in All and Supervisor (23 tiles). Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH244.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH245",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · search-overlay.js -> every hub tool - worker",
       "pages": [
@@ -720093,12 +720149,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - FAILED on demand before the fix: as Bryan at 390 and 1280 the search overlay offered 'Audit Log' for 'audit' and 'Connections' for 'connections', 'integrations' and 'plant' - it searched the hub's whole tool list, hidden tools included, with no role check. Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; search-overlay.js filters the hub's list through whOffers.. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: Bryan's 'audit' returns his 8 logbook matches and no Audit Log, 'connections' returns nothing; Leandro's returns Audit Log and Connections. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH245.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH246",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · wayfinding.js -> audit-log.html - worker",
       "pages": [
@@ -720156,12 +720220,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not an offer: wayfinding.js names audit-log.html as a KEY of its parent map - where Back goes FROM that page - so it only ever renders for a person already inside it. No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: no wayfinding control leads Bryan to a refusing page at 390 or 1280 on any page walked. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH246.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH247",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · wayfinding.js -> integrations.html - worker",
       "pages": [
@@ -720219,12 +720291,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not an offer: integrations.html is the parent wayfinding gives plant-connections.html - a Back pill seen only by someone already admitted to plant-connections, who is admitted to integrations too. No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: no wayfinding control leads Bryan to a refusing page at 390 or 1280 on any page walked. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH247.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH248",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · wayfinding.js -> marketplace-admin.html - worker",
       "pages": [
@@ -720282,12 +720362,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not an offer: marketplace-admin.html is a KEY of wayfinding's parent map (Back from it goes to marketplace.html). No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: no wayfinding control leads Bryan to a refusing page at 390 or 1280 on any page walked. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH248.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH249",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index · wayfinding.js -> plant-connections.html - worker",
       "pages": [
@@ -720345,12 +720433,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - Read, not an offer: plant-connections.html is a KEY of wayfinding's parent map (Back from it goes to integrations.html). No change but the stated reason (gated-offer-ok).. Witness: hive.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: no wayfinding control leads Bryan to a refusing page at 390 or 1280 on any page walked. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH249.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH250",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:1123 · -> audit-log.html - worker",
       "pages": [
@@ -720408,12 +720504,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - Read, not a control: ROOT_PATHS is the path list of the local /workhive/ link rewriter (it returns at once outside /workhive/; zero production effect). No change but the stated reason (gated-offer-ok).. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: index.html offers Bryan no control to a refusing page at 390 or 1280. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH250.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH251",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:1124 · -> integrations.html - worker",
       "pages": [
@@ -720471,12 +720575,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - Read, not a control: ROOT_PATHS is the path list of the local /workhive/ link rewriter. No change but the stated reason (gated-offer-ok).. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: index.html offers Bryan no control to a refusing page at 390 or 1280. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH251.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH252",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:1127 · -> plant-connections.html - worker",
       "pages": [
@@ -720534,12 +720646,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - Read, not a control: ROOT_PATHS is the path list of the local /workhive/ link rewriter. No change but the stated reason (gated-offer-ok).. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked: index.html offers Bryan no control to a refusing page at 390 or 1280. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH252.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH253",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:1955 · -> audit-log.html - worker",
       "pages": [
@@ -720597,12 +720717,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - FAILED by construction before the fix: the generated screen-reader catalog linked every reader to audit-log.html (a list item with no condition, HEAD). Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; tools/render_public_surface.py measures each page's own gate and renders a gated entry as <li data-wh-requires>, so it is withheld from a reader the page refuses.. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: the Audit Log entry computes display:none for Bryan and for a signed-out visitor, list-item for Leandro. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH253.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH254",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:1959 · -> integrations.html - worker",
       "pages": [
@@ -720660,12 +720788,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - FAILED by construction before the fix: the generated screen-reader catalog linked every reader to integrations.html as 'CMMS Integration' (HEAD). Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the generator renders the entry as <li data-wh-requires=\"supervisor\">.. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: the CMMS Integration entry computes display:none for Bryan and for a signed-out visitor, list-item for Leandro. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH254.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH255",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:2997 · -> audit-log.html - worker",
       "pages": [
@@ -720723,12 +720859,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - FAILED by construction before the fix: the landing page's stage popup rendered the Audit Log card as a link for anyone (isLink = t.link !== null, HEAD). Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the card is a link only when whOffers(t.link), otherwise a description.. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: as Bryan and signed out, stage 3's Audit Log card is a DIV with no link; for Leandro it is an <a href=\"audit-log.html\">. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH255.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH256",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - index:3011 · -> integrations.html - worker",
       "pages": [
@@ -720786,12 +720930,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - FAILED by construction before the fix: the stage popup rendered 'CMMS Integration' as a link to integrations.html for anyone (HEAD). Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the card is a link only when whOffers(t.link).. Witness: index.html read as Bryan Garcia (worker) and as Leandro Marquez. After at 390 and 1280: as Bryan and signed out, stage 4's CMMS Integration card is a DIV; for Leandro it is an <a href=\"integrations.html\">. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH256.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH257",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - marketplace:861 · -> platform-actions.html - worker",
       "pages": [
@@ -720849,12 +721001,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on marketplace.html - Read, not reproduced: #btn-admin-link starts display:none and updateAdminLink() reveals it only on a positive marketplace_platform_admins match (fail-closed). No change but the stated reason (gated-offer-ok).. Witness: marketplace.html read as Bryan Garcia (worker) and as Leandro Marquez. Walked at 390 and 1280: hidden for Bryan; visible for Leandro, a platform admin on the local database. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH257.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH258",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - ph intelligence:283 · -> integrations.html - worker (engineer mode)",
       "pages": [
@@ -720912,12 +721072,20 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker (engineer mode) through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on ph-intelligence.html - FAILED by construction before the fix: the API section's 'Integrations -> API Keys' link had no condition (HEAD) - an engineer-mode member reading the report was sent to a page that refuses them. Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the link declares data-wh-requires=\"supervisor\" with 'Integrations -> API Keys, which only your hive supervisor can open'.. Witness: ph-intelligence.html read as Bryan Garcia (worker) and as Leandro Marquez. After, readiness induced at Stair 3 (no local hive is above Stair 1) at 390 and 1280: Bryan reads the refused sentence and no link; Leandro gets the link. Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH258.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
       "id": "BRH259",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-L",
       "title": "a control offered to a person the page behind it refuses - ph intelligence:290 · -> integrations.html - worker (engineer mode)",
       "pages": [
@@ -720975,6 +721143,14 @@
         "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
         "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker (engineer mode) through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on ph-intelligence.html - FAILED by construction before the fix: the CMMS card's 'Import Your CMMS Data' button had no condition (HEAD). Fix: utils.js WH_PAGE_GATES + whOffers + whApplyOfferGates - one rule decides every offer of a page that refuses some people, from the page's own gate and the viewer's reconciled role or this tab's isPlatformAdmin answer; the button declares data-wh-requires=\"supervisor\" with 'Your hive supervisor can import it in Integrations.'. Witness: ph-intelligence.html read as Bryan Garcia (worker) and as Leandro Marquez. After, readiness induced at Stair 3 at 390 and 1280: Bryan's card carries the refused sentence and no button; Leandro's carries no refused sentence (the card itself shows only in its own data state). Gate that reddens on revert: gated-offers (tools/validate_gated_offers.py) - WH_PAGE_GATES equals the gates measured from the pages, and every offer of a refusing page on 32 production pages and 16 shared scripts goes through whOffers / data-wh-requires or states why; reverting nav-hub.js, search-overlay.js, asset-hub, ph-intelligence, index or the map turns it red (teeth run 2026-10-14). role-reconciled keeps the role cache the rule reads honest; admin-gates holds the admin pages' own server checks. Receipt .tmp/mcp_walks/BRH259.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
       }
     },
     {
@@ -723231,8 +723407,8 @@
     },
     {
       "id": "BRH296",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · configuration, environment templates and run-state files - oversight",
       "pages": [
@@ -723292,12 +723468,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/netlify.toml -> 206 (served; a one-byte range request). The kind: configuration, environment templates and run-state files - 22 file(s), 0.07 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.example, .github/, (root) *.(no extension), (root) *.gitignore, (root) *.voice-companion, (root) *.vercelignore, (root) *.toml, (root) *.gateway-accept-pass ...; probe: https://workhiveph.com/.env.example. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH297",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · database, function and server source - oversight",
       "pages": [
@@ -723357,12 +723540,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/supabase/functions/engineering-bom-sow/index.ts -> 206 (served; a one-byte range request). The kind: database, function and server source - 901 file(s), 7.30 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - supabase/, python-api/, infra/, (root) *.sql, docker/; probe: https://workhiveph.com/supabase/functions/engineering-bom-sow/index.ts. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH298",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · design sources and unused brand images - oversight",
       "pages": [
@@ -723422,12 +723612,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/promo_posters/_out/workhive-promo-2-hive-connects.png -> 206 (served; a one-byte range request). The kind: design sources and unused brand images - 25 file(s), 23.58 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - promo_posters/, brand_assets/; probe: https://workhiveph.com/promo_posters/_out/workhive-promo-2-hive-connects.png. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH299",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · documents and notes - oversight",
       "pages": [
@@ -723487,12 +723684,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/UFAI_TRAJECTORY_ROADMAP.md -> 206 (served; a one-byte range request). The kind: documents and notes - 424 file(s), 9.14 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.md, .impeccable/, seo_assets/, workflows/, persona_corpus/; probe: https://workhiveph.com/UFAI_TRAJECTORY_ROADMAP.md. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH300",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · logs and captured output - oversight",
       "pages": [
@@ -723552,12 +723756,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/playwright_full_l2.log -> 206 (served; a one-byte range request). The kind: logs and captured output - 40 file(s), 3.60 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.log, (root) *.jsonl, (root) *.yml, (root) *.txt; probe: https://workhiveph.com/playwright_full_l2.log. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH301",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · registries, baselines and reports at the root - oversight",
       "pages": [
@@ -723617,12 +723828,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/critic_registry.json -> 206 (served; a one-byte range request). The kind: registries, baselines and reports at the root - 434 file(s), 144.43 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.json; probe: https://workhiveph.com/critic_registry.json. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH302",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · screenshots - oversight",
       "pages": [
@@ -723682,12 +723900,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/arcP-01-index-landing-SIGNEDOUT-desktop-full.png -> 206 (served; a one-byte range request). The kind: screenshots - 172 file(s), 49.40 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.png, (root) *.jpeg, hive-baseline/, test-images/; probe: https://workhiveph.com/arcP-01-index-landing-SIGNEDOUT-desktop-full.png. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH303",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · test suites - oversight",
       "pages": [
@@ -723747,12 +723972,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/tests/journey-voice-journal.spec.ts -> 206 (served; a one-byte range request). The kind: test suites - 219 file(s), 1.87 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - tests/, (root) *.ts; probe: https://workhiveph.com/tests/journey-voice-journal.spec.ts. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH304",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · test-run logs - oversight",
       "pages": [
@@ -723812,12 +724044,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/test-runs/rerun_20260525_015919.log -> 206 (served; a one-byte range request). The kind: test-run logs - 41 file(s), 54.43 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - test-runs/; probe: https://workhiveph.com/test-runs/rerun_20260525_015919.log. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH305",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · the development toolbox: scripts no page loads - oversight",
       "pages": [
@@ -723877,12 +724116,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/tools/w4_write_recipes.json -> 206 (served; a one-byte range request). The kind: the development toolbox: scripts no page loads - 2226 file(s), 27.23 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - tools/, (root) *.py, (root) *.js, __pycache__/, sentinels/, (root) *.bat, (root) *.ps1, (root) *.sh ...; probe: https://workhiveph.com/tools/w4_write_recipes.json. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH306",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · the knowledge substrate and contracts - oversight",
       "pages": [
@@ -723942,12 +724188,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/substrate/reference/coverage_matrix.json -> 206 (served; a one-byte range request). The kind: the knowledge substrate and contracts - 927 file(s), 3.33 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - substrate/, canonical/, page_bank_anatomy/, evals/; probe: https://workhiveph.com/substrate/reference/coverage_matrix.json. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH307",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · the live-walk evidence banks - oversight",
       "pages": [
@@ -724007,12 +724260,19 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/banks/index_live_mcp_bank.json -> 206 (served; a one-byte range request). The kind: the live-walk evidence banks - 23 file(s), 248.64 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - banks/; probe: https://workhiveph.com/banks/index_live_mcp_bank.json. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "BRH308",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 50,
       "wave": "BRH-N",
       "title": "a file every deployment stores that the site never serves - index · the three founder pages Ian does not use (architecture, vali - oversight",
       "pages": [
@@ -724072,7 +724332,14 @@
         "repro": "compare what the deployment uploads (the git tree minus .vercelignore) with what the site's pages, scripts, stylesheets, precache list and manifest request: the kind ships files no one asks for, every deployment stores another copy against the 10 GB allowance, and production serves them on request (curl -I -> 200)",
         "fix": ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers 404",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "artifacts": {
+        "gates": [
+          "deploy-payload",
+          "deploy-root-hygiene"
+        ]
+      },
+      "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/architecture.html -> 206 (served; a one-byte range request). The kind: the three founder pages Ian does not use (architecture, validator-catalog, symbol-gallery) - 3 file(s), 0.07 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.html; probe: https://workhiveph.com/architecture.html. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
       "id": "SL1",
@@ -981967,5 +982234,5 @@
       }
     }
   ],
-  "next": "§BRH.2 walk (Ian's three, 71 rows): N (13 - close on deploy-payload, then each live probe answers 404 after Ian's push) -> L (22 - one shared rule offers a gated page only to the people it admits, walked as the refused persona) -> SL AU1 bank + its prover, which is M's lock -> M (36 - the three-state walk: expired, signed out with a name on the device, signed in) -> SL AU4 (15)"
+  "next": "§BRH.2 walk (Ian's three): L 22/22 banked -> N (13 at locking: each live probe answers 404 after Ian's push, then bank) -> SL AU1 bank (29 rows walked) + its prover, which is M's lock -> M (36 - the three-state walk: expired, signed out with a name on the device, signed in) -> SL AU4 (15)"
 }

@@ -40,6 +40,7 @@
     'predictive.html': 'analytics.html', 'ph-intelligence.html': 'analytics.html',
     'project-report.html': 'project-manager.html', 'achievements.html': 'skillmatrix.html',
     'marketplace-seller.html': 'marketplace.html', 'marketplace-seller-profile.html': 'marketplace.html',
+    // gated-offer-ok: where Back goes FROM these pages (a parent map); a viewer already inside one was admitted
     'marketplace-admin.html': 'marketplace.html', 'plant-connections.html': 'integrations.html',
     'audit-log.html': 'hive.html', 'voice-journal.html': 'logbook.html',
   };

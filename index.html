@@ -1117,6 +1117,7 @@
     // resolution is not active. Zero production impact.
     (function(){
       if (!location.pathname.startsWith('/workhive/')) return;
+      // gated-offer-ok: a path list for the local /workhive/ link rewriter, not a control anyone sees
       var ROOT_PATHS = ['/learn/', '/logbook.html', '/inventory.html',
         '/pm-scheduler.html', '/skillmatrix.html', '/dayplanner.html',
         '/hive.html', '/assistant.html', '/analytics.html', '/shift-brain.html',
@@ -1952,11 +1953,11 @@
       <li><a href="/asset-hub.html">Reliability Workbench: Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.</a></li>
       <li><a href="/asset-hub.html">Live Telemetry: MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.</a></li>
       <li><a href="/inventory.html">Parts Staging: Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.</a></li>
-      <li><a href="/audit-log.html">Audit Log: Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
+      <li data-wh-requires="supervisor"><a href="/audit-log.html">Audit Log: Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
       <li><a href="/engineering-design.html">Engineering Design Calculator: 55 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
       <li><a href="/project-manager.html">Project Manager: Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.</a></li>
       <li><a href="/project-report.html">Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
-      <li><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
+      <li data-wh-requires="supervisor"><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
       <li><a href="/marketplace.html">Marketplace: Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.</a></li>
       <li><a href="/marketplace-seller.html">Seller Dashboard: Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.</a></li>
       <li><a href="/ai-quality.html">AI Quality + ROI: WorkHive AI Quality + ROI dashboard. Honest visibility into AI cost, quality, and predicted savings, gated to Stair 2+ so the numbers only appear when the hive has earned the right to trust them.</a></li>
@@ -2994,6 +2995,7 @@
         { name: 'Reliability Workbench',   desc: 'Per-asset FMEA (AIAG-VDA S/O/D) + RCM (SAE JA1011 decision tree) + Weibull MLE fit + P-F interval. AI auto-populates from logbook clusters; engineer approves before RPN counts.',                                  link: 'asset-hub.html',           icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
         { name: 'Live Telemetry',          desc: 'MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.',                       link: 'asset-hub.html',           icon: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
         { name: 'Parts Staging',           desc: 'Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.',                                                  link: 'inventory.html',           icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1' },
+        // gated-offer-ok: the stage grid renders this card's link only through whOffers (isLink)
         { name: 'Audit Log',               desc: 'Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.',                                          link: 'audit-log.html',           icon: 'M9 12h6m-6 4h6m-6-8h6M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
       ]
     },
@@ -3008,6 +3010,7 @@
         { name: 'Engineering Design Calculator', desc: '55 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.',                  link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
         { name: 'Project Manager',             desc: 'Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.',                          link: 'project-manager.html',    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
         { name: 'Project Report',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        // gated-offer-ok: the stage grid renders this card's link only through whOffers (isLink)
         { name: 'CMMS Integration',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
         { name: 'Marketplace',                 desc: 'Buyer-facing parts, training, jobs. PH-anchored: DTI-registered sellers, Messenger contact, verified badges, JSON-LD inquiry templates. Free, contact-only directory with no platform fees.',                              link: 'marketplace.html',        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
         { name: 'Seller Dashboard',          desc: 'Become a supplier on the platform. Seller dashboard, listings, inquiries, watchlist, analytics, multi-tier verification badges, public seller profile.',                                                         link: 'marketplace-seller.html', icon: 'M3 9l1-4h16l1 4M3 9h18M3 9v11a1 1 0 001 1h4v-7h4v7h8a1 1 0 001-1V9' },
@@ -3032,7 +3035,8 @@
     const grid = document.getElementById('popup-tools');
     const rgb = s.rgb || '247,162,27';
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = s.tools.map(t => {
-      const isLink = t.link !== null;
+      // BRH-L: a card whose page refuses this viewer is a description, not a door (utils.js whOffers)
+      const isLink = t.link !== null && (typeof whOffers !== 'function' || whOffers(t.link));
       const tag = isLink ? `a href="${t.link}"` : 'div';
       const closeTag = isLink ? 'a' : 'div';
       return `<${tag} class="rounded-2xl p-4 border border-white/[0.07] ${isLink ? 'block hover:border-white/20 transition-colors' : ''}" style="background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);">

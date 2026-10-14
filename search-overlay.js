@@ -365,7 +365,10 @@
         (t.href || '').toLowerCase().includes(q) ||
         (t.match || []).some((m) => String(m).toLowerCase().includes(q)) ||
         (t.section || '').toLowerCase().includes(q));
-      const _hits = (Array.isArray(window.WHNavTools) ? window.WHNavTools : []).filter(_matches);
+      // ★ONLY WHAT THE PERSON MAY OPEN (BRH-L, 2026-10-14): a worker searching "audit" was offered Audit Log and
+      // "connections" Connections, both of which refuse a worker. The page behind a result decides (utils.js whOffers).
+      const _hits = (Array.isArray(window.WHNavTools) ? window.WHNavTools : []).filter(_matches)
+        .filter((t) => typeof whOffers !== 'function' || whOffers(t.href));
       const tools = _hits.filter((t) => !t.hidden).concat(_hits.filter((t) => t.hidden)).slice(0, 5);
       if (tools.length) {
         html += `<p class="ws-section">Pages · ${tools.length}</p>`;

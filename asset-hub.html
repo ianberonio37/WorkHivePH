@@ -915,7 +915,7 @@
              bridge connected - that question is already answered by the time it appears. -->
         <div id="telemetry-empty" style="display:none; font-size:0.8rem; color:var(--muted); padding:0.6rem 0;">
           No readings in the last 30 days. Other assets in this hive are reporting, so the bridge is up. This one is not mapped to a sensor yet.
-          <a data-i="p_mapitinintegrations_d013" href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Map it in Integrations &rarr;</a>
+          <a data-i="p_mapitinintegrations_d013" href="integrations.html" data-wh-requires="supervisor" data-wh-refused-text="Your hive supervisor can map it in Integrations." style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Map it in Integrations &rarr;</a>
         </div>
         <div id="telemetry-meta" style="font-size:0.75rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
@@ -2132,6 +2132,7 @@
         // matching the audit page's own role gate.
         const auditLink = document.getElementById('detail-audit-link');
         if (auditLink) {
+          // gated-offer-ok: shown only to the hive supervisor (HIVE_ROLE, re-read from hive_members at start-up)
           if (HIVE_ROLE === 'supervisor' && tagCode) {
             auditLink.href = 'audit-log.html?q=' + encodeURIComponent(tagCode);
             auditLink.style.display = 'inline-flex';

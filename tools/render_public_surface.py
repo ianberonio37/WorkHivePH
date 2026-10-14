@@ -95,6 +95,24 @@ def parse_landing_tools(html: str) -> list[tuple[str, str, str]]:
     return out
 
 
+# ★A DOOR ONLY FOR THE PEOPLE THE PAGE ADMITS (BRH-L, 2026-10-14). The mirror gave every viewer a link to
+# audit-log.html and integrations.html, which refuse anyone but the hive supervisor. A gated page's entry carries
+# data-wh-requires, which utils.js whApplyOfferGates honours: withheld from a viewer the page refuses, kept for the
+# people it admits. The gate is MEASURED from the page's own start-up (the bug-hunt inventory's regexes), never typed.
+def _page_gate(route: str) -> str | None:
+    try:
+        from bug_hunt_inventory import ADMIN_GATE, SUPERVISOR_GATE
+        text = (ROOT / route.strip("/")).read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return None
+    return "platform-admin" if ADMIN_GATE.search(text) else ("supervisor" if SUPERVISOR_GATE.search(text) else None)
+
+
+def _li(route: str) -> str:
+    g = _page_gate(route)
+    return f'<li data-wh-requires="{g}">' if g else "<li>"
+
+
 def build_tool_catalog_mirror(cat: dict, html: str) -> str:
     """The crawlable static mirror of the JS tool catalog — a real <a href> + the
     rich description per tool, derived from stageData (so it can't drift from the
@@ -112,7 +130,7 @@ def build_tool_catalog_mirror(cat: dict, html: str) -> str:
         # standing no-em-dash rule ([[feedback-no-em-dashes]] / validate_em_dash).
         sep = ": " if desc else ""
         href = "/" + _esc_html(link.strip("/"))
-        lines.append(f'<li><a href="{href}">{_esc_html(name)}{sep}{_esc_html(desc)}</a></li>')
+        lines.append(f'{_li(link)}<a href="{href}">{_esc_html(name)}{sep}{_esc_html(desc)}</a></li>')
     # Back-fill active catalog tool pages that stageData never links (e.g. ai-quality).
     for f in cat.get("features", []):
         route = (f.get("route") or "").strip()
@@ -124,7 +142,7 @@ def build_tool_catalog_mirror(cat: dict, html: str) -> str:
         desc = (f.get("capability") or "").strip() or _page_meta_desc(route)
         desc = _esc_html(desc)
         sep = ": " if desc else ""   # colon, not em dash (no-em-dash rule)
-        lines.append(f'<li><a href="/{_esc_html(route.strip("/"))}">{nm}{sep}{desc}</a></li>')
+        lines.append(f'{_li(route)}<a href="/{_esc_html(route.strip("/"))}">{nm}{sep}{desc}</a></li>')
         seen_links.add(route.strip("/").lower())
     return "\n      " + "\n      ".join(lines) + "\n    "
 

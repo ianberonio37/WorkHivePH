@@ -118,8 +118,10 @@ N_CONFIG = "configuration, environment templates and run-state files"   # every 
 
 
 def _blank_comments(src: str) -> str:
-    """Comments out, line numbers kept: a link named in a comment is not a control."""
+    """Comments out, line numbers kept: a link named in a comment is not a control - and neither is the rule's own map
+    (utils.js WH_PAGE_GATES names every refusing page in order to WITHHOLD it)."""
     keep = lambda m: re.sub(r"[^\n]", " ", m.group(0))   # noqa: E731
+    src = re.sub(r"var WH_PAGE_GATES = \{.*?\};", keep, src, flags=re.S)
     src = re.sub(r"<!--.*?-->", keep, src, flags=re.S)
     src = re.sub(r"/\*.*?\*/", keep, src, flags=re.S)
     return re.sub(r"(?m)(?<![:\"'`\\/])//[^\n]*$", keep, src)

@@ -4671,6 +4671,8 @@ async function whReconcileHiveRole(db, hiveId) {
           list.map(function (h) { return (h && h.id === id) ? Object.assign({}, h, { role: live || h.role }) : h; })));
       }
     } catch (_) { /* empty-catch-allow: storage may be blocked; the caller still gets the live role */ }
+    // a control to a supervisors-only page follows the corrected role (BRH-L): withheld on demotion, back on promotion
+    if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return { was: cached, now: live };
   } catch (_) { return null; /* a role check must never break a page */ }
 }
@@ -6474,8 +6476,82 @@ async function isPlatformAdmin(db) {
     if (!names.length) return false;
     const { data: admin } = await db.from('marketplace_platform_admins')
       .select('worker_name').in('worker_name', names).limit(1);
-    return !!(admin && admin.length);
+    const yes = !!(admin && admin.length);
+    // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
+    // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself.
+    try { sessionStorage.setItem('wh_platform_admin', yes ? '1' : '0'); } catch (_) {}
+    if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
+    return yes;
   } catch (_) { return false; }
+}
+
+// ─────────────────────────────────────────────
+// ★A PAGE THAT REFUSES SOME PEOPLE IS OFFERED ONLY TO THE PEOPLE IT ADMITS (BRH-L, 2026-10-14). Ian: "founder/admin
+// pages button should also be visible to only founder/admin. not that kind of they are visible to all users then it
+// says only admin has access to this, because that would be a slop." Walked as a worker (Bryan Garcia) at 390 and
+// 1280: the hub offered Connections in its All and Supervisor display modes, and the search offered Audit Log and
+// Connections - each tap landed on "Supervisor access only". A display mode is a person's CHOICE of view, never their
+// role, so it cannot decide this. ONE rule decides it everywhere: the page's own refusal, written once here (the
+// gated-offers gate holds this map to the pages' measured gates), and the viewer's role - the cached hive role every
+// role-dependent page reconciles against hive_members (whReconcileHiveRole), or this tab's isPlatformAdmin answer.
+// The offer is display only: each gated page still decides access from the server.
+// ─────────────────────────────────────────────
+var WH_PAGE_GATES = {
+  'audit-log.html': 'supervisor', 'integrations.html': 'supervisor', 'plant-connections.html': 'supervisor',
+  'founder-console.html': 'platform-admin', 'marketplace-admin.html': 'platform-admin',
+  'platform-actions.html': 'platform-admin', 'llm-observability.html': 'platform-admin',
+  'agentic-rag-observability.html': 'platform-admin'
+};
+
+function whPageGate(href) {
+  var file = String(href || '').split(/[?#]/)[0].replace(/^\.?\//, '').split('/').pop();
+  return WH_PAGE_GATES[file] || null;
+}
+
+function whViewerAdmits(gate) {
+  if (!gate) return true;
+  try {
+    // role-check-allow: an OFFER decision from the reconciled role cache (whReconcileHiveRole), not an access decision
+    if (gate === 'supervisor') return localStorage.getItem('wh_hive_role') === 'supervisor';
+    if (gate === 'platform-admin') return sessionStorage.getItem('wh_platform_admin') === '1';
+  } catch (_) {}
+  return false;
+}
+
+function whOffers(href) { return whViewerAdmits(whPageGate(href)); }
+
+// Page controls declare the gate they lead to: <a data-wh-requires="supervisor" data-wh-refused-text="...">. A viewer the
+// gate refuses gets the refused sentence in its place (or nothing), never the door; the decision is re-applied when the
+// role or the admin answer changes, so a control withheld on a stale cache comes back once the server says yes.
+function whApplyOfferGates(root) {
+  var scope = root || document;
+  if (!scope || !scope.querySelectorAll) return;
+  scope.querySelectorAll('[data-wh-requires]').forEach(function (el) {
+    var ok = whViewerAdmits(el.getAttribute('data-wh-requires'));
+    var alt = el.nextElementSibling && el.nextElementSibling.hasAttribute('data-wh-refused-for') ? el.nextElementSibling : null;
+    // inline display, not the hidden attribute: a control styled display:inline-flex inline would win over [hidden]
+    if (ok) {
+      if (el.hasAttribute('data-wh-withheld')) {
+        el.style.display = el.getAttribute('data-wh-withheld');
+        el.removeAttribute('data-wh-withheld');
+      }
+      if (alt) alt.remove();
+      return;
+    }
+    if (!el.hasAttribute('data-wh-withheld')) { el.setAttribute('data-wh-withheld', el.style.display || ''); el.style.display = 'none'; }
+    var text = el.getAttribute('data-wh-refused-text');
+    if (text && !alt) {
+      var span = document.createElement('span');
+      span.setAttribute('data-wh-refused-for', el.getAttribute('data-wh-requires'));
+      span.textContent = text;
+      el.insertAdjacentElement('afterend', span);
+    }
+  });
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { whApplyOfferGates(document); });
+  else whApplyOfferGates(document);
 }
 
 // ─────────────────────────────────────────────

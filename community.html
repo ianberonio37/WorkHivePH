@@ -609,6 +609,7 @@
           <!-- T28 (2026-08-26): audit reachability - this lane WRITES audit rows (report_post,
                moderation verbs) but offered no door to read them back; a decision surface links
                its history (audit-log honors ?action= deep links). -->
+          <!-- gated-offer-ok: inside #panel-mod, opened only from #tab-mod, which is shown only to the hive supervisor -->
           <div style="display:flex; justify-content:flex-end;">
             <a data-i="p_moderationhistory_3f9e" href="audit-log.html?action=report_post" class="text-xs" style="color:var(--wh-blue-text); text-decoration:none; min-height:44px; display:inline-flex; align-items:center; padding:0 8px;">Moderation history &rarr;</a>
           </div>

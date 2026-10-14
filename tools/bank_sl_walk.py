@@ -49,6 +49,7 @@ GATES = {
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
+    "AU4": ["gated-offers", "role-reconciled", "admin-gates"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
@@ -58,9 +59,14 @@ CONDITION = {
             "the person's own, then another real member's (another hive-less owner's for the solo cast); every text line "
             "and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows"),
 }
+CONDITION["AU4"] = ("the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile "
+                    "Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor "
+                    "and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent "
+                    "door induced where no local data shows it (asset-hub's telemetry empty state revealed, "
+                    "ph-intelligence's readiness answered Stair 3 for the walk)")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
-BRH_CLASS_SUBLAYER = {"F": "AU2"}
+BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4"}   # L: BRH.2, a control offered to a person the page behind it refuses
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",
