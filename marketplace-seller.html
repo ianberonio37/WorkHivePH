@@ -637,7 +637,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHiveId whListError whQueryTimeout whRememberView whStatUnknown whStatValue">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHiveId whListError whQueryTimeout whRememberView whStartupHive whStatUnknown whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -722,7 +722,13 @@
     if (typeof db !== 'undefined') {
       db.auth.getSession().then(({ data }) => { _authUid = data?.session?.user?.id || null; }).catch(() => {});
     }
-  const HIVE_ID     = whHiveId();
+  let   HIVE_ID     = whHiveId();
+  // BRH-H (2026-10-15): this page reads the hive at the moment of an action (a seller's audit entry, a listing hold) -
+  // so a wiped one is seated from the account here, at parse time, instead of by the after-load recovery's reload.
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; }).catch(() => {});
+  }
 
   // ── AUDIT LOG ──
   // Fire-and-forget. Logs seller-side state changes (listing edit/delete,

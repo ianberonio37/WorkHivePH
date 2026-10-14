@@ -276,7 +276,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whQueryTimeout whReadError">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whQueryTimeout whReadError whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -300,6 +300,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     'https://hzyvnjtisfgbksicrouu.supabase.co',
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
   );
+  // BRH-H (2026-10-15): a signed-in member whose stored hive was wiped was spoken to as hive-less below until the
+  // after-load recovery reloaded the page; whStartupHive seats it from the account (a visitor has no session, so it
+  // asks nothing), and the signed-in copy waits for it.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(_DB).catch(() => null);
+  }
 
   logPageView(_DB);
 
@@ -310,6 +318,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const { data } = await _DB.auth.getSession();
       if (!data || !data.session) return;
+      await _hiveSeated;   // BRH-H: the hive as the account holds it, before the copy says whether they are in one
       // the shared accessor (utils.js, loaded above): the same two keys in the same order, and safe when storage is blocked
       const inHive = !!(typeof whHiveId === 'function' ? whHiveId()
         : (localStorage.getItem('wh_active_hive_id') || localStorage.getItem('wh_hive_id')));

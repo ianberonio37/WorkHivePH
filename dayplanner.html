@@ -3074,7 +3074,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whStartupHive whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3106,6 +3106,9 @@ document.addEventListener('keydown', e => {
     'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
   );
   logPageView(db);
+  // BRH-H: the init below seats a wiped hive itself, so the after-load recovery (render, then reload) stands down -
+  // said here, synchronously, before the init's first await can let 'load' fire.
+  if (typeof whStartupHive === 'function') window.WH_SEATS_HIVE_ITSELF = true;
   (async () => {
     // utils.js is loaded by now — re-read the canonical accessor the early block couldn't.
     if (!WORKER_NAME && typeof whWorker === 'function') WORKER_NAME = whWorker() || '';
@@ -3114,6 +3117,12 @@ document.addEventListener('keydown', e => {
     // is still empty at query time leaves the PM rail unscoped - which is the exact defect being fixed, so
     // taking the value only at parse time would have shipped a fix that does nothing on a cold load.
     if (!HIVE_ID && typeof whHiveId === 'function') HIVE_ID = whHiveId() || '';
+    // ★AND A HIVE THE DEVICE LOST IS ASKED OF THE ACCOUNT, HERE (BRH-H/G, 2026-10-15): the PM rail used to read solo until
+    // the after-load recovery reloaded the page; the stored name is checked against the server on the way (the chip).
+    if (typeof whStartupHive === 'function') {
+      const _h = await whStartupHive(db).catch(() => null);
+      if (_h && _h.id) HIVE_ID = _h.id;
+    }
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     try {
       if (typeof whHiveMembershipLost === 'function') {

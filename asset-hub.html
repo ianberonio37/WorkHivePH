@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whTraceIdOf">
+<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whStartupHive whTraceIdOf">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -4929,7 +4929,12 @@
       // ★...AND "NO STORED HIVE" IS ASKED OF THE SERVER FIRST (2026-10-14, Ian's 6 hive assets missing from the
       // logbook): a device whose stored hive was deleted - by the old name-keyed membership checks - ran this page
       // solo, where a member's hive register cannot appear. whEnsureHiveContext (utils.js) re-seats it by account.
-      if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
+      // BRH-G (2026-10-15): whStartupHive also checks the stored name against the server - this page shows it only in
+      // the register export, read at that moment, but the one start-up settles both halves on every page that reads it
+      if (typeof whStartupHive === 'function') {
+        const _h = await whStartupHive(db);
+        if (_h && _h.id) { HIVE_ID = _h.id; HIVE_ROLE = _h.role || HIVE_ROLE; }
+      } else if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
         const _seated = await whEnsureHiveContext(db);
         if (_seated) { HIVE_ID = _seated; HIVE_ROLE = localStorage.getItem('wh_hive_role') || ''; }
       }

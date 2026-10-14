@@ -932,7 +932,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -967,6 +967,17 @@ const db = getDb(
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );
 window.db = db; // expose for journey-canonical-signal-parity.spec.ts test contract
+// ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive met a member with the
+// hive gate until the after-load recovery reloaded the page; a renamed hive kept its old name on the tag. whStartupHive
+// seats it from the account and checks the stored name; the init below awaits it before the membership check.
+let _hiveSeated = Promise.resolve(null);
+if (typeof whStartupHive === 'function') {
+  window.WH_SEATS_HIVE_ITSELF = true;
+  _hiveSeated = whStartupHive(db).then((h) => {
+    if (h && h.id) { HIVE_ID = h.id; HIVE_NAME = h.name || HIVE_NAME; HIVE_ROLE = h.role || HIVE_ROLE; }
+    return h;
+  }).catch(() => null);
+}
 
 
 logPageView(db);
@@ -1072,6 +1083,7 @@ async function validateHiveMembership() {
   if (!WORKER_NAME) { whSignInWall(); return; }
   if (!_authUid)    { whSignInWall(); return; }
 
+  await _hiveSeated;   // BRH-H: the hive as the account holds it, before the membership check and the first read
   const isMember = await validateHiveMembership();
   if (!isMember) { $('hive-gate').style.display = 'flex'; return; }
 

@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whQueryTimeout whSignInWall whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whQueryTimeout whSignInWall whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -406,6 +406,13 @@
     const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+    // BRH-H (2026-10-15): this console reads the hive only to stamp an operator's audit entry (hive_id is NOT NULL), at
+    // the moment of an action - so a wiped one is seated from the account here, at parse time, instead of by the
+    // after-load recovery's reload.
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      whStartupHive(db).catch(() => {});
+    }
     const e = (typeof escHtml === 'function') ? escHtml : (s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
 
     // Minimal toast (founder-console keeps its own; this page is standalone).

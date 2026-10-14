@@ -97,7 +97,8 @@ ROLE_REVALIDATES = re.compile(r"from\(\s*'hive_members'\s*\)[^;]{0,300}select\([
                               r"get_hive_board_dashboard|validateHiveMembership|validateMembership", re.S)
 NAME_READ = re.compile(r"localStorage\.getItem\(\s*'wh_hive_name'\s*\)")
 HIVE_READ = re.compile(r"\bwhHiveId\(\)")
-OWN_RESTORE = re.compile(r"\bwhEnsureHiveContext\(")
+OWN_RESTORE = re.compile(r"\bwhEnsureHiveContext\(|\bwhStartupHive\(")
+STARTUP_HIVE = re.compile(r"\bwhStartupHive\(")   # seats a wiped hive AND reconciles the name in the page's start-up
 
 # L - the destination's OWN refusal decides who it shuts out: the platform-admin check, or a supervisors-only wall
 ADMIN_GATE = re.compile(r"isPlatformAdmin\(\s*db|verifyPlatformAdmin\(")
@@ -275,7 +276,10 @@ def collect(sources: dict | None = None) -> list[dict]:
                           "detail": "reads wh_hive_role from localStorage and never re-validates it against hive_members"})
         # G - stored hive name never reconciled (one row per page)
         nm = NAME_READ.search(src)
-        if nm and "whReconcileHiveName" not in src:
+        # whStartupHive (utils.js, BRH-G/H 2026-10-15) reconciles the name in the page's start-up - the fix. Looked for in
+        # the RAW source, like whReconcileHiveName beside it: the comment-blanker is naive about "/*" inside strings
+        # (accept="image/*" opens a "comment" that swallows real code - it hid resume.html's call)
+        if nm and "whReconcileHiveName" not in src and not STARTUP_HIVE.search(src):
             sites.append({"cls": "G", "page": page, "line": _line_of(src, nm.start()), "key": "wh_hive_name",
                           "detail": "shows wh_hive_name from localStorage and never calls whReconcileHiveName"})
         # H - hive restored by reload instead of in the page's own start-up (one row per page)
@@ -379,6 +383,9 @@ def self_test() -> int:
         "name_ok.html": "<script>const HIVE_NAME = localStorage.getItem('wh_hive_name'); whReconcileHiveName(db);</script>",
         "reload.html": "<script>let HIVE_ID = whHiveId();</script>",
         "own.html": "<script>let HIVE_ID = whHiveId(); await whEnsureHiveContext(db);</script>",
+        # G + H: one start-up call settles both
+        "startup.html": "<script>let HIVE_ID = whHiveId(); let HIVE_NAME = localStorage.getItem('wh_hive_name'); "
+                        "const h = await whStartupHive(db);</script>",
         "audit.html": "<h2>Supervisors only</h2>",
         "admin.html": "<script>if (!(await isPlatformAdmin(db))) {}</script><a href='audit.html'>x</a>",
         "links.html": "<a href='audit.html'>Audit</a><!-- <a href='admin.html'> --><script>go('admin.html')</script>",
@@ -392,7 +399,7 @@ def self_test() -> int:
             # (whose audience is admitted everywhere) is no offer; the role-blind search is one more, met on the home
             ("L", "links.html"): 2, ("L", "admin.html"): 0, ("L", "index.html"): 1, ("M", "named.html"): 1}
     ok = all(got.get(k, 0) == v for k, v in want.items()) and ("D", "dual.html") not in got and ("F", "role_ok.html") not in got \
-        and ("G", "name_ok.html") not in got and ("H", "own.html") not in got
+        and ("G", "name_ok.html") not in got and ("H", "own.html") not in got         and ("G", "startup.html") not in got and ("H", "startup.html") not in got
     print(("PASS" if ok else "FAIL") + f" bug-hunt inventory self-test - {dict(got)}")
     return 0 if ok else 1
 

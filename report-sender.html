@@ -21,7 +21,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline">
+<script data-wh-skew-heal="whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -958,7 +958,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // cache cleared and the session alive, this page bounced a signed-in supervisor to the landing page,
     // and the very next load worked — the restore had completed by then. Ordering, not capability.
 
-    const HIVE_ID = whHiveId();
+    let HIVE_ID = whHiveId();   // let: a wiped hive is seated from the account in start-up (BRH-H, below the client)
 
     // Gate aurora on mobile — WebKit animation limit
     if (window.innerWidth < 768) {
@@ -1000,6 +1000,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ── Supabase client ───────────────────────────────────────────────────────────
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+    // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive left the report history
+    // and the contacts unread (they are hive-scoped) until the after-load recovery reloaded the page. whStartupHive
+    // seats it from the account and checks the stored name; the membership probe and both loads wait for it.
+    let _hiveSeated = Promise.resolve(null);
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+    }
     /* ★THE FOURTH STATE (2026-08-31). This card already models three - CHECKING (not settled), UNKNOWN
        (read failed: "Unknown right now, not zero"), and a saved-copy fallback - which makes it the most
        careful version of this pattern on the platform. The one it cannot see is a read that SETTLED with
@@ -1009,6 +1017,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let _rsHiveLost = false;
     (async () => {
       try {
+        await _hiveSeated;
         if (typeof whHiveMembershipLost !== 'function') return;
         if (await whHiveMembershipLost(db, HIVE_ID, WORKER_NAME)) {
           _rsHiveLost = true;
@@ -2688,6 +2697,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // restoreIdentityFromSession resolves, and a read fired before that answers for NOBODY -
     // plausible-looking, silently wrong. Warm cache resolves in one tick; nothing slows down.
     Promise.resolve(_identityRestored).catch(() => '')
+      .then(() => _hiveSeated)            // BRH-H: and the hive the contacts are scoped to, as the account holds it
       .then(() => loadContacts())
       .catch((e) => { console.error('report contacts load threw:', e); _rsReadFailed = true; })
       .finally(() => { _rsContactsSettled = true; _rsSummaryAfterContacts(); });
@@ -2696,7 +2706,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     renderReportSenderSummary();
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
-    loadHistory();
+    _hiveSeated.then(() => loadHistory());   // BRH-H: the history is the hive's - read once the hive is the account's
   </script>
 
   <script src="nav-hub.js"></script>

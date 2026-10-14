@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReconcileHiveRole">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReconcileHiveRole whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -420,6 +420,14 @@
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ';
   const db = getDb(SUPABASE_URL, SUPABASE_KEY);
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive showed a member the
+  // no-hive gate and waited for the after-load recovery to reload; a renamed hive kept its old name on the pill.
+  // Started here, before the first await, so the after-load recovery stands down; the role reconcile and the gate wait.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).catch(() => null);
+  }
 
   /* ★C-AI (walked 2026-09-11, Ricardo Morales, WORKER in Lucena Pharmaceutical Mfg.): THE GATE WAS NOT
      A GATE UNTIL THE NETWORK ANSWERED. The role check ~30 lines below is correct and reads two values
@@ -451,7 +459,7 @@
      server whose device still said 'supervisor': this page gave them the filters, the search and "Export
      filtered entries to CSV" instead of the not-a-supervisor gate - the pre-gate above acts only on a cached NO.
      The membership row is asked now, beside the session settle below, and the gate decides on the server's role. */
-  const _roleReady = (typeof whReconcileHiveRole === 'function') ? whReconcileHiveRole(db).catch(() => null) : Promise.resolve(null);
+  const _roleReady = (typeof whReconcileHiveRole === 'function') ? _hiveSeated.then(() => whReconcileHiveRole(db)).catch(() => null) : Promise.resolve(null);
   try {
     const _preHive = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
     const _preMain = document.getElementById('main-content');
@@ -478,6 +486,9 @@
     if (!_au1s) { whSignInWall(); return; }
   } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
 
+  // the hive and its name as the account holds them (BRH-H/G): a hive seated here also brings the membership's role
+  const _seat = await _hiveSeated;
+  if (_seat && _seat.id && _seat.role) _IS_SUPERVISOR = _isSupRole(_seat.role);
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
   /** The hive's name for an artifact that leaves the platform: the stored name, else the one the page is

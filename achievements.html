@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton">
+<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -561,7 +561,16 @@
     }
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
-  const HIVE_ID    = whHiveId() || '';
+  let HIVE_ID    = whHiveId() || '';
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive used to wait for the
+  // after-load recovery: the standings rendered solo, then the page reloaded. whStartupHive seats it from the account
+  // and checks the stored name against the server (repainting the hive chip); init awaits it before its first
+  // hive-scoped read, so the after-load recovery is told to stand down.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+  }
 
   // A COLD CACHE IS NOT PROOF OF BEING SIGNED OUT. Only bounce once the SESSION has actually been
   // consulted — otherwise clearing site data (or a routine eviction) throws a signed-in person to the
@@ -1252,6 +1261,7 @@
        ran too late. Awaiting the restore costs nothing warm (it resolves from cache in one tick)
        and makes the cold path read as the person, not as nobody. Measured: composite 0 -> 274. */
     await _identityRestored;
+    await _hiveSeated;   // BRH-H: the hive this page scopes by, seated from the account if the device had lost it
     const _acChip = document.getElementById('achievements-source-chip');
     if (_acChip && typeof renderSourceChip === 'function') {
       _acChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({

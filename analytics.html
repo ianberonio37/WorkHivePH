@@ -556,7 +556,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        navigation and had no named way back to the page title and its controls. -->
   <header class="page-header">
     <div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><h1 translate="no" style="margin:0;">Analytics Engine</h1><div id="hive-chip" class="hidden" style="display:none;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:0.8rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);"><span class="ic ic-community" aria-hidden="true"></span><span id="hive-chip-name" style="font-weight:600;"></span></div></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><h1 translate="no" style="margin:0;">Analytics Engine</h1><div id="hive-chip" data-wh-hive-chip class="hidden" style="display:none;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:0.8rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);"><span class="ic ic-community" aria-hidden="true"></span><span id="hive-chip-name" data-wh-hive-name style="font-weight:600;"></span></div></div>
       <!-- "Stage 3 Cyborg Worker" was an internal product-stage name on the subtitle line, with a
            second "Stage 3" badge 40px below it (design lens critique, 2026-09-15). It means nothing to a
            maintenance supervisor and it occupied the line that should say what this page reads. -->
@@ -806,7 +806,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -902,18 +902,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // wh_active_hive_id wasn't set. When exactly ONE hive membership exists (unambiguous), default
   // to it — multi-hive with no active selection stays null (genuinely ambiguous). Prevents a
   // supervisor seeing their own worker-scoped KPIs instead of the hive's.
-  const HIVE_ID   = whHiveId() || (() => {
+  let   HIVE_ID   = whHiveId() || (() => {
     try { const h = JSON.parse(localStorage.getItem('wh_hives') || '[]'); return (Array.isArray(h) && h.length === 1 && h[0] && h[0].id) ? h[0].id : null; }
     catch (_e) { return null; }
   })();
   let   HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). With no hive stored at all (not even the
+  // one-membership list above) this page computed worker-scope KPIs and waited for the after-load recovery to reload it;
+  // a renamed hive kept its old name on the chip. whStartupHive seats it from the account and checks the stored name
+  // (repainting the chip); the role reconcile and the start-up both wait for it.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => {
+      if (h && h.id) { HIVE_ID = h.id; HIVE_ROLE = h.role || HIVE_ROLE; }
+      return h;
+    }).catch(() => null);
+  }
   // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). The Predictive phase offers supervisors
   // "Recompute risk", decided from this key alone, and the view toggle opens on it - so a supervisor demoted on another
   // device kept a recompute that RLS then refused. Asked now (with this page's own hive, which may come from the
   // single-hive fallback above); the start-up awaits it before the first role-gated render.
   const _roleReady = (typeof whReconcileHiveRole === 'function')
-    ? whReconcileHiveRole(db, HIVE_ID).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
-    : Promise.resolve();
+    ? _hiveSeated.then(() => whReconcileHiveRole(db, HIVE_ID)).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+    : _hiveSeated;
 
   let _period  = 90;
   let _phase   = 'descriptive';
@@ -3629,6 +3641,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!session) { whSignInWall(); return; }
     } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the reads below say what failed */ }
     // Set default role based on HIVE_ROLE - the server's, once the reconcile started at parse time has answered
+    // (it waits on the hive seat, so HIVE_ID below is the account's even if the device had lost it - BRH-H)
+    await _hiveSeated;
     await _roleReady;
     _role = _defaultView();
     setRole(_role);

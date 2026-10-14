@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFreshnessFooter whListSkeleton whRequireOnline whStatValue">
+<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFreshnessFooter whListSkeleton whRequireOnline whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -390,6 +390,22 @@
       || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID   = whHiveId() || '';
     let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H, 2026-10-15). A member whose stored hive was wiped got
+    // the hive gate instead of the shift board until the after-load recovery reloaded the page. whStartupHive seats it
+    // from the account; the membership check waits for it, and a board the early reveal below left hidden (it saw no
+    // hive) is revealed once the hive is back.
+    const _hiveAtParse = HIVE_ID;
+    let _hiveSeated = Promise.resolve(null);
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      _hiveSeated = whStartupHive(db).then((h) => {
+        if (h && h.id) {
+          HIVE_ID = h.id; HIVE_ROLE = h.role || HIVE_ROLE;
+          if (!_hiveAtParse) { const _pw = document.getElementById('page-wrap'); if (_pw) _pw.style.display = 'block'; }
+        }
+        return h;
+      }).catch(() => null);
+    }
 
     // Synchronous pre-paint board reveal for members: lay out #page-wrap AND
     // render its source chip at first paint, so neither the display:none->block
@@ -495,6 +511,7 @@
     }
 
     async function validateHiveMembership() {
+      await _hiveSeated;   // BRH-H: the hive as the account holds it, before "no hive" can be the answer
       if (!HIVE_ID || !WORKER_NAME) return 'no-hive';
       // Canonical: v_worker_truth wraps hive_members + worker_profiles. Maps
       // hive_members.status -> v_worker_truth.hive_status to avoid the

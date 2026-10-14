@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 47a4ee5c3631a9e2
+source_sha: d4a66dbbff2b6f2e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1370) — the 'what's already gated' brain
+## gate · registered validators (1371) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1004)
+### Platform (1005)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -824,6 +824,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hive-rename-reaches` [fail] — T140: a rename must reach the OTHER devices. ★THE TRAJECTORY'S RECORDED PREMISE WAS WRONG IN BOTH HALVES, and this gate is the correction. Its basis read that h
 - `hive-restore-adoption` ⚡ [fail] — Every page that scopes by the stored hive re-seats a missing one from the account: in its own start-up (whEnsureHiveContext) or through utils.js whHiveRecovery 
 - `hive-seating-is-by-identity` [fail] — I-pillar: which hive a session is seated in is decided by AUTH, not by a name (2026-08-26). resolveActiveHiveContext() in index.html chooses the tenant a signed
+- `hive-startup` [fail] — BRH-H + BRH-G (Ian's missing hive assets, 2026-10-14): the stored hive and its name are caches of server facts, settled in each page's OWN start-up (utils.js wh
 - `hive-state-consistency` ⚡ [fail] — Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)
 - `hive-value-card` ⚡ [regression] — T188 (UI layer): the hive board surfaces the value summary - #value-summary-card renders pms/faults/knowledge wired to v_hive_value_summary via loadValueSummary
 - `hive-value-summary` [regression] — T188 (data layer): the whole-platform value summary v_hive_value_summary is a security_invoker view computing the three honest renewal counts from existing tabl

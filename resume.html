@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whListError whListSkeleton whReconcileHiveRole">
+<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -494,15 +494,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
 
     let WORKER_NAME = whWorker() || '';
-    const HIVE_ID   = whHiveId();
-    const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+    let   HIVE_ID   = whHiveId();
+    let   HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
     let   HIVE_ROLE = localStorage.getItem('wh_hive_role') || 'worker';
+    // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive left the resume solo (no
+    // plant on the context pill, a resume saved with no hive) until the after-load recovery reloaded the page; a
+    // renamed hive went onto the pill - and the resume's plant line - under its old name. whStartupHive seats it from the
+    // account and checks the stored name; the role reconcile, and so the pill, wait for it.
+    let _hiveSeated = Promise.resolve(null);
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      _hiveSeated = whStartupHive(db).then((h) => {
+        if (h && h.id) { HIVE_ID = h.id; HIVE_NAME = h.name || HIVE_NAME; HIVE_ROLE = h.role || HIVE_ROLE; }
+        return h;
+      }).catch(() => null);
+    }
     // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2 / BRH-F, 2026-10-14). The context pill tells the person
     // their role in the hive ("Plant · supervisor") and read it from this key alone, so a demotion made elsewhere
     // left the page asserting a role the server no longer gives. Asked at parse time, awaited before the pill paints.
     const _roleReady = (typeof whReconcileHiveRole === 'function')
-      ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
-      : Promise.resolve();
+      ? _hiveSeated.then(() => whReconcileHiveRole(db)).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+      : _hiveSeated;
     let _authUid = null;
     // "Promote, don't duplicate" extraction toggle — off by default, persisted.
     let _promoteDedupe = localStorage.getItem('wh_resume_promote_dedupe') === '1';

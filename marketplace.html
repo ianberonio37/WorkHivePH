@@ -1262,7 +1262,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whI18nApply whQueryTimeout whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whI18nApply whQueryTimeout whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1375,7 +1375,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       adminLink.style.display = data ? 'inline-flex' : 'none';
     } catch (_) { adminLink.style.display = 'none'; }  /* empty-catch-allow: fail-closed on error */
   }
-  const HIVE_ID     = whHiveId();
+  let   HIVE_ID     = whHiveId();
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H, 2026-10-15). A member whose stored hive was wiped browsed
+  // as hive-less - no hive rail, buyer actions unaudited - until the after-load recovery reloaded the page. whStartupHive
+  // seats it from the account; the start-up awaits it before anything that reads the hive renders.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+  }
 
   /* ============================================================
      AUDIT LOG (fire-and-forget)
@@ -5705,6 +5713,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     // their writes (post/inquire/dispute) would 401 once Phase E flips
     // policies. Redirect them to re-signin. See PRODUCTION_FIXES.md #37.
     if (WORKER_NAME && !_authUid) { whSignInWall(); return; }
+    await _hiveSeated;   // BRH-H: the hive as the account holds it, before the rail and the post button read it
 
     // AWAITED, and before anything renders a card. creditsBack() returns null until the knobs land, so
     // firing this off unawaited would paint the first listings with no chip and only the later ones with

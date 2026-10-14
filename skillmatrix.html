@@ -616,7 +616,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -687,7 +687,15 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
 // ─── Identity ─────────────────────────────────────────────────────────────────
 let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
 // C4: redirect deferred to async init — checks auth session first
-const HIVE_ID = whHiveId();
+let HIVE_ID = whHiveId();
+// ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive saved skill targets with no
+// hive until the after-load recovery reloaded the page; a renamed hive kept its old name on the chip. whStartupHive
+// seats it from the account and checks the stored name (repainting the chip); init awaits it before its first read.
+let _hiveSeated = Promise.resolve(null);
+if (typeof whStartupHive === 'function') {
+  window.WH_SEATS_HIVE_ITSELF = true;
+  _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let _profile   = null;   // { primary_skill, targets }
@@ -806,6 +814,7 @@ async function init() {
   if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { whSignInWall(); return; }
+  await _hiveSeated;   // BRH-H: the hive as the account holds it, before the first hive-scoped read or write
   // Y1b adoption (2026-07-23): wire the SHARED offline write queue for the skill_profiles
   // SELF-capture (a worker's own primary-discipline + target levels — worker_name-keyed upsert,
   // idempotent, NOT approval-coupled; the grade_skill_exam RPC is the separate server-gated

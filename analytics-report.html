@@ -17,7 +17,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtDate">
+<script data-wh-skew-heal="whAiTrustRow whFmtDate whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -789,10 +789,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       });
     }
     var HIVE_ID   = whHiveId();
+    // ★A HIVE THE DEVICE LOST IS ASKED OF THE ACCOUNT BEFORE THE GATE (BRH-H, 2026-10-15). A member whose stored hive was
+    // wiped was shown "no hive" here and waited for the after-load recovery to reload the page. whStartupHive seats it
+    // from the account; the gate below opens only if the account really has none.
+    var _hiveSeated = Promise.resolve(null);
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      _hiveSeated = whStartupHive(db).then(function (h) { if (h && h.id) HIVE_ID = h.id; return h; }).catch(function () { return null; });
+    }
 
     // T175: no hive means no data to report on, so say the precondition instead of showing a
     // generator that can only return nothing. Same shape as shift-brain / asset-hub.
-    if (!HIVE_ID) {
+    if (!HIVE_ID) _hiveSeated.then(function () {
+      if (HIVE_ID) return;
       var _gate = document.getElementById('hive-gate');
       var _arp  = document.getElementById('ar-page');
       if (_gate) _gate.style.display = 'flex';
@@ -802,7 +811,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // a hive-less reader to "Click Generate Report" directly beneath a gate saying Go to Hive.
       var _pw2 = document.getElementById('ar-print-wrapper');
       if (_pw2) _pw2.style.display = 'none';
-    }
+    });
 
     var _period = 90;
     // The report opens written for a supervisor whoever reads it; the Worker / Supervisor toggle below is open to

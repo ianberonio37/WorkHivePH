@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole">
+<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -221,13 +221,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                     || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID = '';
     let HIVE_ROLE = '';
+    // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H, 2026-10-15). A supervisor whose stored hive was wiped
+    // was sent to hive.html to "join" (and the role went with the hive) until the after-load recovery reloaded the page.
+    // whStartupHive seats it from the account - bringing the membership's role; the role reconcile and init wait for it.
+    let _hiveSeated = Promise.resolve(null);
+    if (typeof whStartupHive === 'function') {
+      window.WH_SEATS_HIVE_ITSELF = true;
+      _hiveSeated = whStartupHive(db).catch(() => null);
+    }
 
     (async function init() {
       // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
       // server whose device still said 'supervisor': this page rendered the integration, sensor-topic and gateway
       // audit console instead of renderDenied(). The membership row is asked first, beside the session settle
       // below, and the gate decides on the server's role (whReconcileHiveRole, utils.js).
-      const _roleReady = (typeof whReconcileHiveRole === 'function') ? whReconcileHiveRole(db).catch(() => null) : Promise.resolve(null);
+      const _roleReady = (typeof whReconcileHiveRole === 'function') ? _hiveSeated.then(() => whReconcileHiveRole(db)).catch(() => null) : Promise.resolve(null);
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       if (!WORKER_NAME) { whSignInWall(); return; }
@@ -238,6 +246,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data: { session: _au1s } } = await db.auth.getSession();
         if (!_au1s) { whSignInWall(); return; }
       } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
+      await _hiveSeated;   // BRH-H: the hive (and its role) as the account holds them, before the no-hive redirect
       HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';

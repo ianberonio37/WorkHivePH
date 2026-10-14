@@ -274,9 +274,9 @@
         <!-- T125/T51 (2026-08-25): the hive stamp — same pattern as logbook/pm-scheduler.
              Screenshots of this page must carry WHOSE hive they show; a multi-hive contractor
              must see which hive is on the glass. Hidden until wh_hive_name resolves. -->
-        <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
+        <div id="hive-chip" data-wh-hive-chip class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
           <span class="ic ic-community" aria-hidden="true"></span>
-          <span id="hive-chip-name" class="font-semibold truncate max-w-[110px]"></span>
+          <span id="hive-chip-name" data-wh-hive-name class="font-semibold truncate max-w-[110px]"></span>
         </div>
       </div>
       <!-- T1 link-gate find: #evolution named a section index.html no longer has — the anchor
@@ -650,7 +650,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRequireOnline whStatUnknown whStatValue">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRequireOnline whStartupHive whStatUnknown whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -740,6 +740,17 @@ let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallbac
 let HIVE_ID   = whHiveId();
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+// ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive left the stock list solo
+// until the after-load recovery reloaded the page; a renamed hive kept its old name on the chip. whStartupHive seats it
+// from the account and checks the stored name (repainting the chip); the init below awaits it before its first read.
+let _hiveSeated = Promise.resolve(null);
+if (typeof whStartupHive === 'function') {
+  window.WH_SEATS_HIVE_ITSELF = true;
+  _hiveSeated = whStartupHive(db).then((h) => {
+    if (h && h.id) { HIVE_ID = h.id; HIVE_ROLE = h.role || HIVE_ROLE; HIVE_NAME = h.name || HIVE_NAME; }
+    return h;
+  }).catch(() => null);
+}
 
 // localStorage keys: migration source only, removed after first run
 const INV_KEY    = 'wh_inventory_'  + WORKER_NAME;
@@ -2882,6 +2893,7 @@ async function validateHiveMembership() {
   // Caught by the cross-surface KPI parity sentinel (#stat-low = 0 while
   // v_inventory_items_truth.is_low_stock = 3).
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  await _hiveSeated;   // BRH-H: the hive as the account holds it, before the membership check and the first read
   await validateHiveMembership();
   // Arc S D-lens (D-001/D-006): instantiate the SHARED offline-write queue so a
   // brownout write queues to IndexedDB and drains on reconnect (offline-queue.js

@@ -305,7 +305,7 @@
 </div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whSignInWall">
+<script data-wh-skew-heal="whListError whListSkeleton whSignInWall whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -342,6 +342,14 @@
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
   let HIVE_ID     = whHiveId();
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H, 2026-10-15). A member whose stored hive was wiped was
+  // told to "join or create a hive" by the gate below until the after-load recovery reloaded the page. whStartupHive
+  // seats it from the account; the gate (the start-up's first await) waits for it.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+  }
 
   // Phase 0.3 of STRATEGIC_ROADMAP — PH Intelligence gates at Stair 3.
   // Peer benchmarks need N>=5 hives in segment AND 30+ days of your own data.
@@ -350,6 +358,7 @@
   // async gate-replace races the async report render and the render fns crash on the
   // now-removed report DOM (report-period-badge / your-plant-card / etc.).
   async function maturityGateCheck() {
+    await _hiveSeated;   // BRH-H: the hive as the account holds it, before the gate decides there is none
     if (!HIVE_ID) {
       // REFUSAL, not absence (the refused-read fourth-state): a viewer with no hive has no hive
       // to report ON — that is a permission boundary, not an empty report. Say "join or create a

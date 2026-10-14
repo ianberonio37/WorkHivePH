@@ -937,7 +937,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRequireOnline">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRequireOnline whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1005,6 +1005,17 @@ let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallbac
 let HIVE_ID     = whHiveId();
 let HIVE_ROLE   = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
+// ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive showed the PM board solo until
+// the after-load recovery reloaded the page; a renamed hive kept its old name on the chip. whStartupHive seats it from
+// the account and checks the stored name; init awaits it before the membership check and the first read.
+let _hiveSeated = Promise.resolve(null);
+if (typeof whStartupHive === 'function') {
+  window.WH_SEATS_HIVE_ITSELF = true;
+  _hiveSeated = whStartupHive(db).then((h) => {
+    if (h && h.id) { HIVE_ID = h.id; HIVE_ROLE = h.role || HIVE_ROLE; HIVE_NAME = h.name || HIVE_NAME; }
+    return h;
+  }).catch(() => null);
+}
 
 // ── AUDIT LOG ──
 // Fire-and-forget so a log failure never blocks the PM action.
@@ -1455,6 +1466,7 @@ async function init() {
   if (!WORKER_NAME) { whSignInWall(); return; }
   // Phase B (auth migration): require authenticated session — see PRODUCTION_FIXES.md #37.
   if (!_authUid) { whSignInWall(); return; }
+  await _hiveSeated;   // BRH-H: the hive as the account holds it, before the membership check and the first read
   await validateHiveMembership();
   // Arc S D-lens (D-001/D-006): wire the SHARED offline-write queue (was loaded but
   // never instantiated). A completion logged during a brownout queues to IndexedDB

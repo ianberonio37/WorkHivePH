@@ -672,7 +672,7 @@
 
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError">
+<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3029,6 +3029,15 @@ happens to know maintenance, not a manual.`;
         'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ' // anon/publishable key: safe to expose in frontend
       );
       logPageView(db);
+      // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive told a member the
+      // assistant had no hive to ground in, until the after-load recovery reloaded the page; a renamed hive was named
+      // on the scope chip under its old name. whStartupHive seats it from the account and checks the stored name; the
+      // chip waits for it, and the chat's own hive reads come later, at the moment of use.
+      let _hiveSeated = Promise.resolve(null);
+      if (typeof whStartupHive === 'function') {
+        window.WH_SEATS_HIVE_ITSELF = true;
+        _hiveSeated = whStartupHive(db).catch(() => null);
+      }
 
       // Auth C4: refresh identity from Supabase Auth session before reading
       // localStorage. Fire-and-forget so the bootstrap doesn't block on a
@@ -3041,8 +3050,8 @@ happens to know maintenance, not a manual.`;
       // W3-DF: now that `db` exists, ask whether this reader actually HAS a session and upgrade the
       // scope chip if so. Until this resolves the chip carries the cautious sentence, which is the
       // right way round: it may under-promise for a moment, and it can never over-promise.
-      db.auth.getSession()
-        .then(r => {
+      Promise.all([db.auth.getSession(), _hiveSeated])
+        .then(([r]) => {
           // ★A SESSION IS NOT A HIVE (round 4, 2026-09-15). The chip promised "grounded in this hive's
           // live data" as soon as a session resolved, while ai-gateway guards the ops snapshot on
           // `authUid && hive_id` - so a signed-in reader with no hive was promised four named sources and

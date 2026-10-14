@@ -714575,8 +714575,8 @@
     },
     {
       "id": "BRH156",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - achievements:384 · wh_hive_name - returner",
       "pages": [
@@ -714634,12 +714634,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on achievements.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: achievements.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (2691/2691 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH156.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH157",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - alert hub:519 · wh_hive_name - returner",
       "pages": [
@@ -714697,12 +714704,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on alert-hub.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: alert-hub.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (5763/5763 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH157.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - analytics:588 · wh_hive_name - returner",
       "pages": [
@@ -714760,12 +714774,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on analytics.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: analytics.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (5986/5986 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH158.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH159",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - asset hub:5050 · wh_hive_name - returner",
       "pages": [
@@ -714823,12 +714844,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on asset-hub.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: asset-hub.html at 390 and 1280. NOT A VISIBLE DEFECT, recorded as such: asset-hub.html shows the hive name only in its register export's Scope line, read at that moment - after utils.js has already reconciled the stored name - so with 'Old Plant Name' stored the stale name was shown nowhere, before the change or after it. The page now settles the name in its start-up anyway (whStartupHive), so it no longer depends on the reconcile's timing; walked as Bryan Garcia: the stale name nowhere, the stored name 'Baguio Textile Mills'. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH159.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH160",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - assistant:1054 · wh_hive_name - returner",
       "pages": [
@@ -714886,12 +714914,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on assistant.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: assistant.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (727/730 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH160.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH161",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - audit log:273 · wh_hive_name - returner",
       "pages": [
@@ -714949,12 +714984,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on audit-log.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: audit-log.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Leandro Marquez: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (2916/2919 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH161.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH162",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - community:923 · wh_hive_name - returner",
       "pages": [
@@ -715012,12 +715054,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on community.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: community.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (2374/2547 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH162.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH163",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - dayplanner:462 · wh_hive_name - returner",
       "pages": [
@@ -715075,12 +715124,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on dayplanner.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: dayplanner.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (1002/3931 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH163.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH164",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - integrations:2475 · wh_hive_name - returner",
       "pages": [
@@ -715138,12 +715194,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on integrations.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: integrations.html at 390 and 1280. NOT A VISIBLE DEFECT, recorded as such: integrations.html shows the hive name only in its CSV export's Hive line, read at that moment - after utils.js has already reconciled the stored name - so with 'Old Plant Name' stored the stale name was shown nowhere, before the change or after it. The page now settles the name in its start-up anyway (whStartupHive), so it no longer depends on the reconcile's timing; walked as Leandro Marquez: the stale name nowhere, the stored name 'Baguio Textile Mills'. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH164.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH165",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - inventory:720 · wh_hive_name - returner",
       "pages": [
@@ -715201,12 +715264,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on inventory.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: inventory.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (2109/2109 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH165.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH166",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - logbook:518 · wh_hive_name - returner",
       "pages": [
@@ -715264,12 +715334,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on logbook.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: logbook.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (4354/4354 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH166.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH167",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - pm scheduler:975 · wh_hive_name - returner",
       "pages": [
@@ -715327,12 +715404,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on pm-scheduler.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: pm-scheduler.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (2727/2727 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH167.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH168",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - project manager:942 · wh_hive_name - returner",
       "pages": [
@@ -715390,12 +715474,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on project-manager.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: project-manager.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (1591/1591 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH168.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH169",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - project report:401 · wh_hive_name - returner",
       "pages": [
@@ -715453,12 +715544,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on project-report.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: project-report.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (3645/3645 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH169.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH170",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - report sender:997 · wh_hive_name - returner",
       "pages": [
@@ -715516,12 +715614,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on report-sender.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: report-sender.html at 390 and 1280. NOT A VISIBLE DEFECT, recorded as such: report-sender.html shows the hive name only in the lost-context notice, read at that moment - after utils.js has already reconciled the stored name - so with 'Old Plant Name' stored the stale name was shown nowhere, before the change or after it. The page now settles the name in its start-up anyway (whStartupHive), so it no longer depends on the reconcile's timing; walked as Bryan Garcia: the stale name nowhere, the stored name 'Baguio Textile Mills'. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH170.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH171",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - resume:479 · wh_hive_name - returner",
       "pages": [
@@ -715579,12 +715684,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on resume.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: resume.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (1933/1936 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH171.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH172",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-G",
       "title": "a stored hive name that is never reconciled - skillmatrix:378 · wh_hive_name - returner",
       "pages": [
@@ -715642,12 +715754,19 @@
         "repro": "rename the hive from another device; this page keeps showing the old name in its chrome and board title for as long as the device keeps wh_hive_name",
         "fix": "call whReconcileHiveName(db) once on load (it exists in utils.js) and repaint what shows the name",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, in a fresh tab whose init script set the stored hive name to 'Old Plant Name' before any page script - the readout is whether that name is shown, whether the hive's real name is shown, and the stored name once the page settles; a supervisors-only page is read by the hive's supervisor, the person it shows the name to): BRH-G on skillmatrix.html - the stored hive name is checked against the server in the page's start-up (whStartupHive) and every place that shows it is repainted. Witness: skillmatrix.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with 'Old Plant Name' stored the page kept it on screen - nothing it painted asked the server what the hive is called. AFTER THE FIX, through the MCP browser as Bryan Garcia: the stale name shown nowhere, the hive's real name 'Baguio Textile Mills' on screen (1656/1656 characters), the stored name corrected. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH172.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - achievements:545 · whHiveRecovery - returner",
       "pages": [
@@ -715706,12 +715825,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on achievements.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: achievements.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2691/2691 characters against a device that never lost it (2691/2691). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH173.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH174",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - ai quality:185 · whHiveRecovery - returner",
       "pages": [
@@ -715770,12 +715896,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on ai-quality.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: ai-quality.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=None) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 404/404 characters against a device that never lost it (404/404); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH174.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH175",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - alert hub:518 · whHiveRecovery - returner",
       "pages": [
@@ -715834,12 +715967,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on alert-hub.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: alert-hub.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 5759/5759 characters against a device that never lost it (5759/5759). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH175.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH176",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - analytics report:770 · whHiveRecovery - returner",
       "pages": [
@@ -715898,12 +716038,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on analytics-report.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: analytics-report.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 496/496 characters against a device that never lost it (496/496). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH176.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH177",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - analytics:886 · whHiveRecovery - returner",
       "pages": [
@@ -715962,12 +716109,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on analytics.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: analytics.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 5986/5986 characters against a device that never lost it (5986/5986). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH177.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - assistant:726 · whHiveRecovery - returner",
       "pages": [
@@ -716026,12 +716180,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on assistant.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: assistant.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 727/730 characters against a device that never lost it (727/730). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH178.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH179",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - audit log:431 · whHiveRecovery - returner",
       "pages": [
@@ -716090,12 +716251,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on audit-log.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: audit-log.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 348/348 characters against a device that never lost it (348/348); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH179.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH180",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - community:909 · whHiveRecovery - returner",
       "pages": [
@@ -716154,12 +716322,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on community.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: community.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=None) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2374/2547 characters against a device that never lost it (2374/2547). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH180.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - dayplanner:675 · whHiveRecovery - returner",
       "pages": [
@@ -716218,12 +716393,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on dayplanner.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: dayplanner.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 997/3926 characters against a device that never lost it (997/3926). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH181.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - integrations:908 · whHiveRecovery - returner",
       "pages": [
@@ -716282,12 +716464,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on integrations.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: integrations.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 482/482 characters against a device that never lost it (482/482); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH182.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH183",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - inventory:718 · whHiveRecovery - returner",
       "pages": [
@@ -716346,12 +716535,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on inventory.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: inventory.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2109/2109 characters against a device that never lost it (2109/2109). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH183.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - marketplace admin:421 · whHiveRecovery - returner",
       "pages": [
@@ -716410,12 +716606,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on marketplace-admin.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: marketplace-admin.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 177/177 characters against a device that never lost it (177/177); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH184.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH185",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - marketplace seller:706 · whHiveRecovery - returner",
       "pages": [
@@ -716474,12 +716677,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on marketplace-seller.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: marketplace-seller.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2140/2140 characters against a device that never lost it (2140/2140). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH185.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - marketplace:1358 · whHiveRecovery - returner",
       "pages": [
@@ -716538,12 +716748,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on marketplace.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: marketplace.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2400/2440 characters against a device that never lost it (2400/2440). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH186.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH187",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - ph intelligence:325 · whHiveRecovery - returner",
       "pages": [
@@ -716602,12 +716819,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on ph-intelligence.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: ph-intelligence.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 1129/1132 characters against a device that never lost it (1129/1170). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH187.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - plant connections:210 · whHiveRecovery - returner",
       "pages": [
@@ -716666,12 +716890,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on plant-connections.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: plant-connections.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=None) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 544/544 characters against a device that never lost it (544/544); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH188.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - platform actions:410 · whHiveRecovery - returner",
       "pages": [
@@ -716730,12 +716961,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on platform-actions.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: platform-actions.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 1 document loads and the after-load recovery reloaded it (wh_hive_recovered=None) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 175/175 characters against a device that never lost it (175/175); read again as Leandro Marquez, whom the page admits: not refused, and the page as on his own device. Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH189.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - pm scheduler:973 · whHiveRecovery - returner",
       "pages": [
@@ -716794,12 +717032,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on pm-scheduler.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: pm-scheduler.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2727/2727 characters against a device that never lost it (2727/2727). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH190.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - project manager:941 · whHiveRecovery - returner",
       "pages": [
@@ -716858,12 +717103,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on project-manager.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: project-manager.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 1591/1591 characters against a device that never lost it (1591/1591). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH191.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH192",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - project report:400 · whHiveRecovery - returner",
       "pages": [
@@ -716922,12 +717174,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on project-report.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: project-report.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 3645/3645 characters against a device that never lost it (3645/3645). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH192.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH193",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - public feed:295 · whHiveRecovery - returner",
       "pages": [
@@ -716986,12 +717245,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on public-feed.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: public-feed.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2463/2463 characters against a device that never lost it (2463/2463). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH193.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH194",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - report sender:942 · whHiveRecovery - returner",
       "pages": [
@@ -717050,12 +717316,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on report-sender.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: report-sender.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 2013/2013 characters against a device that never lost it (2013/2013). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH194.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH195",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - resume:478 · whHiveRecovery - returner",
       "pages": [
@@ -717114,12 +717387,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on resume.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: resume.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 1933/1936 characters against a device that never lost it (1933/1936). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH195.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH196",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - shift brain:372 · whHiveRecovery - returner",
       "pages": [
@@ -717178,12 +717458,19 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on shift-brain.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: shift-brain.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 3428/3428 characters against a device that never lost it (3428/3428). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH196.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
       "id": "BRH197",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-H",
       "title": "the hive is restored by a reload instead of in the page's own start-up - skillmatrix:668 · whHiveRecovery - returner",
       "pages": [
@@ -717242,6 +717529,13 @@
         "repro": "delete the stored hive, open the page directly: it renders in personal mode first, then utils.js whHiveRecovery seats the hive and reloads - a flash of the wrong view and a double load on every such visit",
         "fix": "call whEnsureHiveContext(db) in the page's start-up before its first hive-scoped read and set window.WH_SEATS_HIVE_ITSELF (the logbook/asset-hub pattern); hive-restore-adoption counts the adopters",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as returner through the product's own sign-in form; per viewport through the MCP browser, each reading in a fresh tab whose init script set the device before any page script: BASE (the device as it normally is - the comparison point) and WIPED (the stored hive, its name, role and list removed) - the readout is the document loads, whether the after-load recovery reloaded (wh_hive_recovered), the hive at the end, and the page's text against the baseline; a refusing page is read again as the person it admits): BRH-H on skillmatrix.html - a wiped hive is seated in the page's own start-up (utils.js whStartupHive): no solo render, no recovery reload. Witness: skillmatrix.html at 390 and 1280. REPRODUCED FIRST (prove_hive_startup.mjs --before): with the stored hive wiped the page took 2 document loads and the after-load recovery reloaded it (wh_hive_recovered=1) - it rendered solo first. AFTER THE FIX, through the MCP browser as Bryan Garcia (the row's returner cast): one document load, no recovery reload, the hive back, 1656/1656 characters against a device that never lost it (1656/1656). Gates: hive-startup (the same readings in a browser, with a clean baseline and an admitted reading on refusing pages; teeth: the pre-fix pages) and hive-restore-adoption (statically: every page that reads the stored hive seats it in its own start-up, every page that reads the stored name asks the server for it). Receipt .tmp/mcp_walks/BRH197.json.",
+      "artifacts": {
+        "gates": [
+          "hive-restore-adoption",
+          "hive-startup"
+        ]
       }
     },
     {
@@ -982940,5 +983234,5 @@
       }
     }
   ],
-  "next": "BRH D 31/31 banked (skew heal; the board flips locking) -> N 13 at locking (after Ian's push each probe answers 404 on workhiveph.com, then bank) -> BRH H + G (25 + 17: the start-up restore whHiveRecovery/whEnsureHiveContext and whReconcileHiveName + the slots that show the hive name, batched by page) -> E (116: hive 13, logbook 12, project-manager 10 first) -> J (3) -> K (37)"
+  "next": "BRH H 25/25 + G 17/17 banked (whStartupHive; the board flips locking) -> N 13 at locking (after Ian's push each probe answers 404 on workhiveph.com, then bank) -> BRH E (116 scope-silent empty states, batched by page: hive 13, logbook 12, project-manager 10 first) -> J (3) -> K (37)"
 }

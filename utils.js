@@ -4619,6 +4619,45 @@ async function whReconcileHiveName(db) {
 }
 if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveName;
 
+// whStartupHive — BRH-H + BRH-G (2026-10-15): the stored hive and its name settled in the page's OWN start-up.
+//
+// whHiveRecovery puts a wiped hive back only AFTER load: by then the page has rendered solo - the wrong answer as the
+// default - and anything done in that window was done in solo mode, until one reload puts it right (25 pages, class H).
+// And a page that paints localStorage wh_hive_name without asking the server keeps a renamed hive under its old name
+// (17 pages, class G). A page awaits this BEFORE its first hive-scoped read and takes HIVE_ID / HIVE_NAME / HIVE_ROLE
+// from what it returns:
+//   - no stored hive: seat it from the account (whEnsureHiveContext - by auth_uid, kicked excluded, writes nothing on
+//     an unreadable answer); the page then reads as the member it is, with no solo render and no recovery reload;
+//   - a stored hive: ask the server what it is called (whReconcileHiveName) and correct a stale name;
+//   - either way repaint what shows the name: the shared chip (#wh-hive-chip-name, painted from storage before this
+//     script could run), #board-hive-name and any [data-wh-hive-name].
+// A page that calls it seats its own hive, so it also sets window.WH_SEATS_HIVE_ITSELF in its markup (the after-load
+// recovery then leaves it alone; hive-restore-adoption holds the pair). Best-effort: on any failure it returns what
+// the device already held, which is what the page would have shown anyway.
+async function whStartupHive(db) {
+  if (typeof window !== 'undefined') window.WH_SEATS_HIVE_ITSELF = true;
+  var out = { id: null, name: '', role: '' };
+  try {
+    out.id = whHiveId() || await whEnsureHiveContext(db) || null;
+    if (out.id) await whReconcileHiveName(db);
+    out.name = localStorage.getItem('wh_hive_name') || '';
+    out.role = localStorage.getItem('wh_hive_role') || '';
+  } catch (_) { /* empty-catch-allow: storage blocked or offline - the page keeps what it read */ }
+  try {
+    if (out.name) {
+      var chip = document.getElementById('wh-hive-chip-name');
+      if (chip) { chip.textContent = out.name; var wrap = document.getElementById('wh-hive-chip'); if (wrap) wrap.style.display = 'inline-flex'; }
+      var board = document.getElementById('board-hive-name');
+      if (board) board.textContent = out.name;
+      document.querySelectorAll('[data-wh-hive-name]').forEach(function (n) { n.textContent = out.name; });
+      // a page's own hive chip, hidden while the device had no hive, is revealed once one is seated
+      document.querySelectorAll('[data-wh-hive-chip]').forEach(function (c) { c.classList.remove('hidden'); c.style.display = 'inline-flex'; });
+    }
+  } catch (_) { /* empty-catch-allow: a repaint must never break a page */ }
+  return out;
+}
+if (typeof window !== 'undefined') window.whStartupHive = whStartupHive;
+
 // ── whReconcileHiveRole — the stored ROLE is a cache of a server fact too (SL AU2 / BRH-F, 2026-10-14) ──
 // whReconcileHiveName keeps the stored hive NAME honest; nothing did the same for `wh_hive_role`, the key eight pages
 // gate supervisor controls on without asking the server (bug_hunt_inventory class F: alert-hub, analytics,

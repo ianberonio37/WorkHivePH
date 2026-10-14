@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whViewerAdmits">
+<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whStartupHive whViewerAdmits">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -196,6 +196,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let WORKER_NAME = whWorker()
                     || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
     let HIVE_ID = '';
+    // BRH-H: init seats a wiped hive itself (below), so the after-load recovery stands down - said before init's first await
+    if (typeof whStartupHive === 'function') window.WH_SEATS_HIVE_ITSELF = true;
 
     (async function init() {
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
@@ -208,7 +210,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data: { session: _au1s } } = await db.auth.getSession();
         if (!_au1s) { whSignInWall(); return; }
       } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
-      HIVE_ID = whHiveId() || '';
+      // ★A HIVE THE DEVICE LOST IS ASKED OF THE ACCOUNT FIRST (BRH-H, 2026-10-15): a member whose stored hive was wiped was
+      // sent to hive.html to "join", and only the after-load recovery could have brought them back
+      if (typeof whStartupHive === 'function') {
+        const _h = await whStartupHive(db).catch(() => null);
+        HIVE_ID = (_h && _h.id) || whHiveId() || '';
+      } else {
+        HIVE_ID = whHiveId() || '';
+      }
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       // ★WHO MAY READ THE HIVE'S AI SPEND (SL AU4, 2026-10-14). The cost log, the reply feedback and the agentic traces
       // behind this page were readable through the API by EVERY member - a worker could read what a teammate asked the AI

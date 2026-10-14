@@ -895,7 +895,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whReconcileHiveRole whRequireOnline whSafeSearchTerm whStatValue">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whReconcileHiveRole whRequireOnline whSafeSearchTerm whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -926,7 +926,19 @@
   logPageView(db);
   // ── Identity (string auth — HIGH security note: spoofable until Supabase Auth migration) ──
   let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
-  const HIVE_ID     = whHiveId() || '';
+  let   HIVE_ID     = whHiveId() || '';
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). With the stored hive wiped this page sent
+  // a MEMBER to hive.html to "join" - at parse time, before anything could ask the account - and a renamed hive kept
+  // its old name on the board's title. whStartupHive seats it from the account and checks the stored name; the
+  // membership probe, the role reconcile, the no-hive redirect and the start-up all wait for it.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => {
+      if (h && h.id) { HIVE_ID = h.id; HIVE_NAME = h.name || HIVE_NAME; HIVE_ROLE = h.role || HIVE_ROLE; }
+      return h;
+    }).catch(() => null);
+  }
   /* ★"No activity yet." TO SOMEONE WHO CANNOT SEE THE HIVE (2026-08-31). This page already fixed the
      sibling case - :1193 records that `error || empty` once collapsed a FAILED read into that same
      sentence, "not a smaller claim than the truth, a different and discouraging one". The REFUSED read
@@ -936,6 +948,7 @@
   let _hiveLost = false;
   (async () => {
     try {
+      await _hiveSeated;
       if (typeof whHiveMembershipLost !== 'function') return;
       if (await whHiveMembershipLost(db, HIVE_ID, WORKER_NAME)) {
         _hiveLost = true;
@@ -952,21 +965,22 @@
       }
     } catch (_) { /* empty-catch-allow: the page must still render without the probe */ }
   })();
-  const HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
+  let   HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
   let   HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
   // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
   // server whose device still said 'supervisor': this page offered the Mod Queue, "Share publicly with all
   // WorkHive teams", and Pin / Delete / Make public on other people's posts, each then refused by RLS. The
   // membership row is asked now, while the page parses; DOMContentLoaded awaits it before the first gated render.
   const _roleReady = (typeof whReconcileHiveRole === 'function')
-    ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || 'worker'; }).catch(() => {})
-    : Promise.resolve();
+    ? _hiveSeated.then(() => whReconcileHiveRole(db)).then((r) => { if (r) HIVE_ROLE = r.now || 'worker'; }).catch(() => {})
+    : _hiveSeated;
 
   // C4: redirects deferred to DOMContentLoaded — checks auth session first
   // T4 (2026-08-25): carry ?return so hive.html's validated Continue banner (the JA2 half that
   // already exists there) can bring the person BACK to the conversation after join/create —
   // the membership crossing was dropping the task the same way the auth walls used to.
-  if (!HIVE_ID)     { window.location.href = 'hive.html?return=community.html'; }
+  // only once the ACCOUNT has been asked: a member whose device lost the hive is seated above, not sent to "join" one
+  if (!HIVE_ID)     { _hiveSeated.then(() => { if (!HIVE_ID) window.location.href = 'hive.html?return=community.html'; }); }
 
   // nav-hub activity badge — per-hive "last seen" stamp read by nav-hub.js on every
   // other page to show an unread count on the Community tile + a dot on the FAB.
@@ -1091,6 +1105,8 @@ function _isMinePost(p) {
   // ── Init ──────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('nav-worker').textContent = WORKER_NAME;
+    await _hiveSeated;  // BRH-H/G: the hive and its name as the account holds them, before either is painted or read
+    if (!HIVE_ID) return;   // the redirect above is on its way to hive.html
     document.getElementById('hive-name-label').textContent = HIVE_NAME ? HIVE_NAME + ' · Discussion Board' : 'Your hive\'s discussion board';
 
     await _roleReady;   // started at parse time (above); every role-gated render below reads the server's role

@@ -157,7 +157,7 @@ if (!fixed.tags || !fixed.tags.includes(TAG)) problems.push(`${TAG} is not in th
 if (fixed.stored !== HIVE) problems.push(`the restored hive was not written back to the device (wh_active_hive_id=${fixed.stored}), so the next page starts solo again`);
 notes.push(`with the restore, Asset Hub opened directly after the same wipe: hive ${fixed.hub.stored === HIVE ? 're-seated' : 'NOT re-seated'}, ${TAG} listed: ${fixed.hub.listed}`);
 if (fixed.hub.stored !== HIVE || !fixed.hub.listed) problems.push(`Asset Hub opened directly after the wipe did not list ${TAG} (stored hive ${fixed.hub.stored}) - the register is solo and empty`);
-notes.push(`with the recovery, PM Scheduler opened directly after the same wipe: HIVE_ID ${fixed.pm.hive === HIVE ? '= his hive (re-seated, one reload)' : fixed.pm.hive}`);
+notes.push(`PM Scheduler opened directly after the same wipe (it seats in its own start-up since BRH-H, 2026-10-15): HIVE_ID ${fixed.pm.hive === HIVE ? '= his hive' : fixed.pm.hive}`);
 if (fixed.pm.hive !== HIVE) problems.push(`PM Scheduler (no start-up restore of its own) stayed solo after the wipe (HIVE_ID=${fixed.pm.hive}) - utils.js whHiveRecovery did not re-seat it`);
 if (fixed.personal !== 0) problems.push(`VACUOUS: ${WHO.real} has ${fixed.personal} personal asset(s); a solo page could list those, so the empty-list half proves nothing (pick a subject with none)`);
 
@@ -196,6 +196,6 @@ if (problems.length) {
   console.log(`\nFAIL logbook-hive-restore - ${problems.length} finding(s)`);
 } else {
   console.log('\nPASS logbook-hive-restore - opened directly with its stored hive deleted and its name drifted, the logbook and Asset Hub re-seat the hive from the account at start-up '
-    + '(and list the hive\'s assets), PM Scheduler after one reload; with the restore removed every walk is solo and empty');
+    + '(and list the hive\'s assets), and so does PM Scheduler; with the restore removed every walk is solo and empty');
 }
 process.exit(problems.length ? 1 : 0);

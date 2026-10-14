@@ -395,7 +395,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton">
+<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -423,6 +423,17 @@ const db = getDb(
   'https://hzyvnjtisfgbksicrouu.supabase.co',
   'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'
 );
+// ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A renamed hive went onto the report's
+// COVER under its old name - a document that leaves the platform - and a wiped one waited for the after-load
+// recovery to reload. whStartupHive seats it from the account and checks the stored name before the report renders.
+let _hiveSeated = Promise.resolve(null);
+if (typeof whStartupHive === 'function') {
+  window.WH_SEATS_HIVE_ITSELF = true;
+  _hiveSeated = whStartupHive(db).then((h) => {
+    if (h && h.id) { HIVE_ID = h.id; HIVE_NAME = h.name || HIVE_NAME; }
+    return h;
+  }).catch(() => null);
+}
 
 // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
 // empty or stale. Must run AFTER `db` is declared — `typeof db` on a not-yet-
@@ -488,6 +499,7 @@ function getPhase(it) {
   // restoreIdentityFromSession answers '' only when there is genuinely no session (an unreachable server keeps the name).
   const _sessionName = await _identityRestored.catch(() => WORKER_NAME);
   if (!_sessionName || !WORKER_NAME) { whSignInWall(); return; }
+  await _hiveSeated;   // BRH-H/G: the hive and its name as the account holds them, before the report renders either
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project_id');
   if (!projectId) {

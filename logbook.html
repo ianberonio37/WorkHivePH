@@ -559,9 +559,9 @@
              groups carrying ZERO identity — and a multi-hive contractor could not tell WHICH
              hive's logbook they were reading (pm-scheduler had the chip; this page did not).
              Same pattern: hidden until wh_hive_name resolves. -->
-        <div id="hive-chip" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
+        <div id="hive-chip" data-wh-hive-chip class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
           <span class="ic ic-community" aria-hidden="true"></span>
-          <span id="hive-chip-name" class="font-semibold truncate max-w-[110px]"></span>
+          <span id="hive-chip-name" data-wh-hive-name class="font-semibold truncate max-w-[110px]"></span>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -1584,7 +1584,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRequireOnline whSafeSearchTerm whStatUnknown whStatValue whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRequireOnline whSafeSearchTerm whStartupHive whStatUnknown whStatValue whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -7767,7 +7767,14 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
       return;
     }
   }
-  if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
+  // ★AND THE STORED NAME IS CHECKED HERE TOO (BRH-G, 2026-10-15): the seat below was this page's own, but a hive
+  // renamed on another device kept its old name on the chip, painted from storage before anything asked the server.
+  // whStartupHive does both halves - seats a missing hive, reconciles the name and repaints the chip; the older
+  // seat-only path stays for a utils.js that predates it.
+  if (typeof whStartupHive === 'function') {
+    const _h = await whStartupHive(db);
+    if (_h && _h.id) { HIVE_ID = _h.id; HIVE_NAME = _h.name || HIVE_NAME; HIVE_ROLE = _h.role || HIVE_ROLE; }
+  } else if (!HIVE_ID && typeof whEnsureHiveContext === 'function') {
     const _seated = await whEnsureHiveContext(db);
     if (_seated) {
       HIVE_ID   = _seated;

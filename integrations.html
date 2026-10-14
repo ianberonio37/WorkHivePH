@@ -894,7 +894,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whWriteError">
+<script data-wh-skew-heal="whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -925,6 +925,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let WORKER_NAME = whWorker()
                  || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
   let HIVE_ID     = whHiveId();
+  // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive (and with it the stored
+  // role) gave a SUPERVISOR the "Supervisor access only" wall and the no-hive gate until the after-load recovery
+  // reloaded the page. whStartupHive seats it from the account - bringing the membership's role - and checks the stored
+  // name; the init awaits it before the role gate reads either.
+  let _hiveSeated = Promise.resolve(null);
+  if (typeof whStartupHive === 'function') {
+    window.WH_SEATS_HIVE_ITSELF = true;
+    _hiveSeated = whStartupHive(db).then((h) => { if (h && h.id) HIVE_ID = h.id; return h; }).catch(() => null);
+  }
 
   (async () => {
     if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
@@ -938,6 +947,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data: { session } } = await db.auth.getSession();
       if (!session) { whSignInWall(); return; }
     } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
+    await _hiveSeated;   // BRH-H: the hive (and the role it brings) as the account holds them, before the gates below
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's
@@ -951,7 +961,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _rr = (typeof whReconcileHiveRole === 'function') ? await whReconcileHiveRole(db).catch(() => null) : null;
     if (_rr) HIVE_ROLE = _rr.now || '';
     const _notSupervisor = HIVE_ROLE !== 'supervisor';
-    if (_rr) document.documentElement.classList.toggle('wh-nonsup', _notSupervisor);
+    // the pre-paint class follows the FINAL role: the reconcile's answer, or a role a seated hive just brought (the
+    // head's pre-paint saw the wiped role and hid the console from a supervisor). With neither, it is what it was.
+    document.documentElement.classList.toggle('wh-nonsup', _notSupervisor);
     if (_notSupervisor) {
       // VEHICLE SEED (2026-09-02): the Add-a-Vehicle wizard serves EVERY signed-in user —
       // solo car owners are by definition not hive supervisors — so the gate now removes
