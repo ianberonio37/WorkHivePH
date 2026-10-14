@@ -2,13 +2,13 @@
 name: page-logbook
 type: page
 source: file:logbook.html
-source_sha: 64646e9ef0656061
+source_sha: 0997e5f149b74968
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `logbook.html` — Digital Maintenance Logbook: WorkHive
 
-Size: 482KB · 154 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 483KB · 154 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (9): `asset_nodes.delete`, `asset_nodes.update`, `asset_nodes.upsert`, `hive_audit_log.insert`, `logbook.delete`, `logbook.insert`, `logbook.update`, `pm_completions.insert`, `project_links.insert`
 **RPC calls**: `inventory_deduct`, `notify_wo_assigned`, `sync_asset_identity`

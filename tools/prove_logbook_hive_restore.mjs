@@ -165,7 +165,13 @@ const sk = await skewWalk();
 notes.push(`skew (an old utils.js cached until the page fetches it past the cache): utils requests [${sk.seen.join(', ')}]; `
   + `HIVE_ID ${sk.hive === HIVE ? '= his hive' : sk.hive}, ${TAG} listed: ${!!(sk.tags && sk.tags.includes(TAG))}, guard ${sk.guard}`);
 if (!(sk.hive === HIVE && sk.tags && sk.tags.includes(TAG))) problems.push(`with an old utils.js cached the logbook did not heal itself (HIVE_ID=${sk.hive}) - the page Ian saw: personal mode, "No assets registered yet."`);
-if (sk.guard !== '1') problems.push('the self-heal ran without its once-per-tab guard, so a page that cannot get a fresh copy could reload forever');
+// The once-per-tab guard now belongs to the generated skew-heal block (tools/render_skew_heal.py, BRH-D 2026-10-14), which
+// CLEARS it after a clean reload so a later deploy can heal again - so after a SUCCESSFUL heal it reads empty by design,
+// and reading it here proved nothing. What the guard is for - no reload loop when no fresh copy exists - is proven where
+// the heal cannot succeed (skew-heal-live's stuck walk; a mutant without the guard reloaded 41 times in 12 s). Here the
+// heal must be ONE refetch.
+const _refetches = sk.seen.filter((x) => x.startsWith('fetch:')).length;
+if (_refetches > 1) problems.push(`the self-heal refetched utils.js ${_refetches} times in one walk - a heal is one refetch, then one reload`);
 if (!sk.seen.some((x) => x.startsWith('fetch:'))) problems.push('VACUOUS skew walk: the page never fetched utils.js past the cache, so the walk did not exercise the heal');
 
 const bare = await walk(true);

@@ -2,13 +2,13 @@
 name: page-analytics
 type: page
 source: file:analytics.html
-source_sha: dd80dba932d50efe
+source_sha: 9cafb96841939f46
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `analytics.html` — Analytics Engine | WorkHive
 
-Size: 237KB · 86 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 238KB · 86 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: `get_pm_compliance_smrp`, `get_pm_ontime_delivery`

@@ -2,13 +2,13 @@
 name: page-report-sender
 type: page
 source: file:report-sender.html
-source_sha: 42ac5ba1e4246430
+source_sha: 5ae59bc3839c1f46
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `report-sender.html` — Report Sender | WorkHive
 
-Size: 155KB · 48 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 156KB · 48 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (2): `report_contacts.delete`, `report_contacts.insert`
 **RPC calls**: (none)

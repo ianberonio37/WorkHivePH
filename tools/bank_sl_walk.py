@@ -51,6 +51,7 @@ GATES = {
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
     "AU4": ["gated-offers", "role-reconciled", "admin-gates"],
     "AU1": ["session-states-honest"],
+    "BRH-D": ["skew-heal", "skew-heal-live"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
@@ -60,19 +61,34 @@ CONDITION = {
             "the person's own, then another real member's (another hive-less owner's for the solo cast); every text line "
             "and control compared with the two names masked APART (<ME> / <OTHER>), so a swap of who is who shows"),
 }
-CONDITION["AU4"] = ("the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile "
-                    "Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor "
-                    "and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent "
-                    "door induced where no local data shows it (asset-hub's telemetry empty state revealed, "
-                    "ph-intelligence's readiness answered Stair 3 for the walk)")
+# BRH-L and SL AU4 share the AU4 gates but not the walk: L asks what is OFFERED (the hub, the search, the page's links),
+# SL AU4 asks what the SERVER does when the control is used anyway - so each kind states its own condition (a BRH row
+# looks up "BRH-<cls>" first). Until 2026-10-14 both read the L text, and 12 SL AU4 bases described a hub walk that
+# never happened on them.
+CONDITION["BRH-L"] = ("the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio "
+                      "Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its "
+                      "supervisor and a platform admin): the hub in each display mode, the search overlay, the page "
+                      "controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state "
+                      "revealed, ph-intelligence's readiness answered Stair 3 for the walk)")
+CONDITION["AU4"] = ("each admin or founder control's own server operation attempted through the page's own client as a "
+                    "person the page refuses (Bryan Garcia, a worker of Baguio Textile Mills; Jun Salvador, an owner with "
+                    "no hive, on integrations), then the page read as the person it admits (Leandro Marquez, its "
+                    "supervisor and a platform admin); a postgres witness of every row those operations could touch, "
+                    "taken before and after")
 CONDITION["AU1"] = ("three session states per viewport, each read through the MCP browser: HONEST (the session as it is), DEAD "
                     "(the access token expired and its refresh token replaced with one the server refuses), OUT (no session, "
                     "the display name left on the device) - the readout is the page's text length, the sign-in wall, the "
                     "session sentence, every identity claim (the name in the person's own slot or after an identity verb), "
                     "every Sign-in door offered, and every write")
+CONDITION["BRH-D"] = ("two loads per viewport through the MCP browser: CLEAN (the real utils.js - the page must neither "
+                      "refetch it nor reload) and SKEW (yesterday's utils.js: the current file with the page's own guarded "
+                      "functions unset at its end, served to every <script> load until the page fetches utils.js past the "
+                      "cache, as an HTTP or service-worker copy would be) - the readout is each utils.js request in order, "
+                      "the navigations, and which of the page's functions exist once it settles")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
-BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1"}   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
+BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
+                      "D": "BRH-D"}                         # D - version skew silenced by a typeof guard: no SL sub-layer walks it, so it is its own key
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",
@@ -341,7 +357,7 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         print(f"{rid}: NOT banked")
         return 1
     today = time.strftime("%Y-%m-%d")
-    how = CONDITION.get(key, CONDITION_DEFAULT)
+    how = (CONDITION.get("BRH-" + str(s.get("cls"))) if t.get("brh") else None) or CONDITION.get(key, CONDITION_DEFAULT)
     view = ("a TRUE 390 and 1280 through CDP" if instrument.startswith("chrome-devtools")
             else "390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context "
                  "route, so no model was called")

@@ -7,8 +7,9 @@
 // page (an expired session is refreshed or ended honestly, never acted on), so one prover answers both: AU1 (29 rows) and
 // BRH-M (36 rows: every production page and shared component that reads the device-remembered display name).
 //
-// Per page, at 390 AND 1280, in a fresh browser context each, signed in as the page's cast through the product's own
-// client (prover_harness.signIn):
+// Per page, per account its rows are cast as (a page whose AU1 row names a supervisor and whose M row names a worker is
+// read as both), at 390 AND 1280, in a fresh browser context each, signed in through the product's own client
+// (prover_harness.signIn):
 //   honest     the session as it is: the page renders (chars >= floor) and offers a signed-in person NO "Sign in" door
 //   dead       the access token expired AND its refresh token refused ('expired-by-the-walk'): the page walls (sign-in
 //              redirect or dialog) or says the session ended, writes nothing, and calls nobody by name as if they were
@@ -45,7 +46,6 @@ const au1Rows = reg.trajectories.filter((t) => t.sl && t.sl.sublayer === 'AU1' &
 const ALSO = { 'llm-observability.html': 'oversight', 'agentic-rag-observability.html': 'oversight' };
 const roster = [...new Set([...au1Rows.map((t) => t.sl.page), ...mRows.map((t) => t.brh.page), ...Object.keys(ALSO)])].sort();
 const PAGES = arg('--page') ? arg('--page').split(',') : roster;
-const personaOf = (page) => ALSO[page] || ((au1Rows.find((t) => t.sl.page === page) || mRows.find((t) => t.brh.page === page) || {}).persona) || 'worker';
 const ACCOUNTS = {
   bryan: { name: 'Bryan Garcia', first: 'Bryan', role: 'worker', email: 'bryangarcia@auth.workhiveph.com', password: 'test1234' },
   leandro: { name: 'Leandro Marquez', first: 'Leandro', role: 'supervisor', email: 'leandromarquez@auth.workhiveph.com', password: 'test1234' },
@@ -56,6 +56,18 @@ const accountFor = (persona) => {
   if (persona === 'solo-owner') return ACCOUNTS.jun;
   if (/supervisor|oversight|machine-client|manager|engineer/i.test(persona)) return ACCOUNTS.leandro;
   return ACCOUNTS.bryan;
+};
+// EVERY account a page's rows are cast as, one persona per account (2026-10-14). Reading each page as its FIRST row's
+// persona read ai-quality, community and dayplanner only as the supervisor their AU1 row names - never as the worker
+// their M row names - and integrations only as the hive-less owner, never as its M row's supervisor; the lock held four
+// M rows under a person they were not cast as.
+const acctKey = (persona) => { const a = accountFor(persona); return a ? a.email : 'anon'; };
+const personasOf = (page) => {
+  const cast = [ALSO[page], ...au1Rows.filter((t) => t.sl.page === page).map((t) => t.persona),
+    ...mRows.filter((t) => t.brh.page === page).map((t) => t.persona)].filter(Boolean);
+  const byAcct = new Map();
+  for (const p of (cast.length ? cast : ['worker'])) if (!byAcct.has(acctKey(p))) byAcct.set(acctKey(p), p);
+  return [...byAcct.values()];
 };
 
 const READ = ([name, first]) => {
@@ -158,7 +170,7 @@ async function visit(page, persona, state, [w, h], prefixIndex) {
       if (writes.length) problems.push(`wrote with no live session: ${writes.slice(0, 3).join(', ')}`);
       // a dead session ends honestly: the sign-in wall, a sentence that says so, or - on a page anyone may read - the
       // page simply presenting itself signed out (it offers Sign in)
-      if (state === 'dead' && acct && !d.wall && !d.notice && !d.doors.length && personaOf(page) !== 'anon') problems.push('a dead session is neither walled nor named');
+      if (state === 'dead' && acct && !d.wall && !d.notice && !d.doors.length) problems.push('a dead session is neither walled nor named');
     }
     r = { page, persona, state, vp: w, ok: problems.length === 0, problems, ...d, writes: writes.length };
   } finally { await ctx.close(); }
@@ -167,12 +179,13 @@ async function visit(page, persona, state, [w, h], prefixIndex) {
 
 const results = [];
 for (const page of PAGES) {
-  const persona = personaOf(page);
-  for (const vp of VPS) {
-    for (const state of (accountFor(persona) ? ['honest', 'dead', 'out'] : ['honest', 'out'])) {
-      const r = await visit(page, persona, state, vp, null);
-      results.push(r);
-      console.log(`${r.ok ? 'ok  ' : 'FAIL'} ${page.padEnd(32)} ${String(vp[0]).padEnd(5)} ${state.padEnd(7)} ${persona.padEnd(17)} chars=${r.chars ?? '-'} ${r.wall ? 'walled ' : ''}${r.notice ? '"' + r.notice.slice(0, 50) + '" ' : ''}${r.problems.join(' ; ').slice(0, 160)}`);
+  for (const persona of personasOf(page)) {
+    for (const vp of VPS) {
+      for (const state of (accountFor(persona) ? ['honest', 'dead', 'out'] : ['honest', 'out'])) {
+        const r = await visit(page, persona, state, vp, null);
+        results.push(r);
+        console.log(`${r.ok ? 'ok  ' : 'FAIL'} ${page.padEnd(32)} ${String(vp[0]).padEnd(5)} ${state.padEnd(7)} ${persona.padEnd(17)} chars=${r.chars ?? '-'} ${r.wall ? 'walled ' : ''}${r.notice ? '"' + r.notice.slice(0, 50) + '" ' : ''}${r.problems.join(' ; ').slice(0, 160)}`);
+      }
     }
   }
 }
@@ -188,7 +201,7 @@ if (TEETH) {
 
 await BROWSER.close();
 mkdirSync(dirname(OUT), { recursive: true });
-writeFileSync(OUT, JSON.stringify({ _doc: 'prove_session_states_honest.mjs - SL AU1 + BRH-M readings, one per (page, viewport, state)',
+writeFileSync(OUT, JSON.stringify({ _doc: 'prove_session_states_honest.mjs - SL AU1 + BRH-M readings, one per (page, cast account, viewport, state)',
   generated: new Date().toISOString(), base: BASE, results, teeth }, null, 1));
 const bad = results.filter((r) => !r.ok);
 console.log(`\n${results.length} reading(s), ${bad.length} failing; written to ${OUT}`);

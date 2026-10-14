@@ -2,13 +2,13 @@
 name: page-assistant
 type: page
 source: file:assistant.html
-source_sha: 875b37eb589b9173
+source_sha: 156e3f2c6ca1b472
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `assistant.html` — AI Work Assistant: WorkHive
 
-Size: 230KB · 62 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 232KB · 62 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `ai_reply_feedback.insert`
 **RPC calls**: (none)

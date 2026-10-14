@@ -76,6 +76,20 @@ DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
 
 GUARD = re.compile(r"typeof\s+(wh[A-Za-z0-9_]+)\s*(?:===|==)\s*'function'")
 DEFINED = re.compile(r"^(?:async\s+)?function\s+(wh[A-Za-z0-9_]+)\s*\(|^\s*window\.(wh[A-Za-z0-9_]+)\s*=", re.M)
+# D's heal (2026-10-14): the block tools/render_skew_heal.py writes right after a page's utils.js tag names every
+# utils.js function the page relies on; a page whose block names them all is healed and leaves the inventory
+HEAL_RX = re.compile(r'<script data-wh-skew-heal="([^"]*)"')
+
+
+def skew_needs(src: str, defined: set) -> list[str]:
+    """The utils.js functions a page guards with typeof - exactly what an older cached utils.js would silently drop.
+    The one measurement the inventory, render_skew_heal.py and its gate share."""
+    return sorted({m.group(1) for m in GUARD.finditer(src) if m.group(1) in defined})
+
+
+def skew_healed(src: str) -> set:
+    m = HEAL_RX.search(src)
+    return set(m.group(1).split()) if m else set()
 DUAL_MODE = re.compile(r"is\('hive_id',\s*null\)|hive_id\.is\.null|!HIVE_ID\b")
 EMPTY_STATE = re.compile(r"[>`'\"]\s*(No [a-z][^<`'\"]{3,60}?yet\.?)")
 ROLE_READ = re.compile(r"localStorage\.getItem\(\s*'wh_hive_role'\s*\)")
@@ -235,8 +249,10 @@ def collect(sources: dict | None = None) -> list[dict]:
                                        f"{' ...' if len(paints) > 5 else ''})" if paints else "")
                                     + " - with the session expired, signed out or signed in, no sentence on the page "
                                       "may say the opposite of the session"})
-        # D - version skew silenced by typeof guards (one row per page: the heal is per page)
-        guards = [(m.group(1), _line_of(src, m.start())) for m in GUARD.finditer(src) if m.group(1) in defined]
+        # D - version skew silenced by typeof guards (one row per page: the heal is per page). A function the page's
+        # heal block names is no longer silent - an older utils.js without it is refetched and the page reloaded
+        unhealed = set(skew_needs(src, defined)) - skew_healed(src)
+        guards = [(m.group(1), _line_of(src, m.start())) for m in GUARD.finditer(src) if m.group(1) in unhealed]
         if guards:
             names = sorted({g for g, _ in guards})
             sites.append({"cls": "D", "page": page, "line": guards[0][1], "key": f"{len(guards)} guards",
@@ -351,6 +367,11 @@ def self_test() -> int:
     pages = {
         "utils.js": utils,
         "skew.html": "<script>if (typeof whHiveId === 'function') {} if (typeof whNotDefined === 'function') {}</script>",
+        # D: a heal block naming every guarded function takes the page out; one naming only some leaves it in
+        "healed.html": "<script data-wh-skew-heal=\"whHiveId whEnsureHiveContext\"></script>"
+                       "<script>if (typeof whHiveId === 'function') {} if (typeof whEnsureHiveContext === 'function') {}</script>",
+        "half.html": "<script data-wh-skew-heal=\"whHiveId\"></script>"
+                     "<script>if (typeof whHiveId === 'function') {} if (typeof whEnsureHiveContext === 'function') {}</script>",
         "dual.html": "<script>let HIVE_ID = whHiveId(); if (!HIVE_ID) {} x.innerHTML = `<p>No parts yet.</p><p>No parts yet.</p>`; y = 'No jobs yet'</script>",
         "role.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role');</script>",
         "role_ok.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role'); await validateHiveMembership();</script>",
@@ -365,7 +386,7 @@ def self_test() -> int:
         "search-overlay.js": "const hits = window.WHNavTools.filter(m);",
     }
     got = Counter((s["cls"], s["page"]) for s in collect(pages))
-    want = {("D", "skew.html"): 1, ("E", "dual.html"): 2, ("F", "role.html"): 1, ("G", "name.html"): 1,
+    want = {("D", "skew.html"): 1, ("D", "healed.html"): 0, ("D", "half.html"): 1, ("E", "dual.html"): 2, ("F", "role.html"): 1, ("G", "name.html"): 1,
             ("H", "reload.html"): 1, ("H", "dual.html"): 1, ("H", "skew.html"): 0,
             # L: the live link and the scripted one count, the commented one does not, and a link inside an admin page
             # (whose audience is admitted everywhere) is no offer; the role-blind search is one more, met on the home

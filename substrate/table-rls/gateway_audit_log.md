@@ -2,7 +2,7 @@
 name: table-rls-gateway_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:gateway_audit_log
-source_sha: 005a42012a598854
+source_sha: 2e2364e007795260
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, hive_id, worker_name, auth_uid, route*, request_id, m
 
 Policies:
 - `gateway_audit_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `gateway_audit_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = gat` CHECK=`∅`
+- `gateway_audit_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (is_platform_admin() OR ((hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

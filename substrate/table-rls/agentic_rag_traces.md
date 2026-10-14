@@ -2,7 +2,7 @@
 name: table-rls-agentic_rag_traces
 type: table-rls
 source: db:pg_policies+pg_trigger:agentic_rag_traces
-source_sha: 9a643a25925d8162
+source_sha: 0c0e88d7f963fbec
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, hive_id, worker_name, question*, route*, stages*, ret
 Policies:
 - `agentic_rag_traces_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
 - `agentic_rag_traces_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `agentic_rag_traces_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = age` CHECK=`∅`
+- `agentic_rag_traces_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (is_platform_admin() OR ((hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

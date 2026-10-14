@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cb6007b45f61f58a
+source_sha: 47a4ee5c3631a9e2
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1366) — the 'what's already gated' brain
+## gate · registered validators (1370) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1002)
+### Platform (1004)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1236,6 +1236,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `silo-monitor` ⚡ [fail] — Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)
 - `sitemap-page-existence` ⚡ [fail] — Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)
 - `skeleton_resolves` [fail] — Loading skeletons resolve (no shimmer may outlive its load; a stuck placeholder is invisible to console, axe and every static check — logbook's team-mode orphan
+- `skew-heal` ⚡ [fail] — BRH-D (Ian's missing hive assets, 2026-10-14: the new logbook ran on an hour-old utils.js and its typeof guard turned the missing function into silence): every 
+- `skew-heal-live` [fail] — BRH-D, in a browser: each of those pages at 390 and 1280 leaves a current utils.js alone (no refetch, one navigation - a false heal would reload every visitor) 
 - `skill-library-wiring` ⚡ [fail] — Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injecti
 - `skill-privacy-copy-consistent` ⚡ [fail] — Critic-deepwalk T18 lock: the skill-matrix privacy promise and the exam-pass result copy cannot contradict on one screen. Walked live: header promised 'visible 
 - `skill-rule-mining` [fail] — Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)
@@ -1434,7 +1436,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (29)
+### Security (31)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
@@ -1449,6 +1451,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `member-writes-by-row` ⚡ [fail] — No page changes a hive membership by display name: remove and supervisor hand-over target the row id (two members can share a name; 2026-10-14, hive.html kicked
 - `memory-identity` [fail] — AI memory WHOSE (live): anonymous recall/store of a person's durable memory is refused (401), a member cannot read or write under someone else's name (403), a m
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it
+- `observability-reads` ⚡ [fail] — SL AU4 (2026-10-14): the observability tables are read only by the people their pages admit. Any active member could read gateway_audit_log (teammates' ip_hash,
 - `orchestrator-query-binding` ⚡ [fail] — Every read of an RLS-disabled truth view binds the hive AND handles a caller who has none (an unbound read is every tenant's rows)
 - `ownership-by-account` ⚡ [fail] — SL AU3 (2026-10-14): 'mine' is decided by the ACCOUNT, never by the display name the device remembers - no `_mineFilter` builds the wide union (auth_uid OR name
 - `payment-rails` ⚡ [fail] — PAYMENT RAILS - three GCash accounts meet in this product and only ONE of them may ever be on a given screen. WorkHive has no business registration and therefor
@@ -1459,6 +1462,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `revoke-actually-revoked` ⚡ [fail] — REVOKE ACTUALLY REVOKED - a `REVOKE EXECUTE ... FROM anon, authenticated` is a NO-OP, because every function is created with EXECUTE granted to PUBLIC and every
 - `role-reconciled` ⚡ [fail] — SL AU2 (2026-10-14): every page that gates on the STORED role (wh_hive_role, or WHRoles which reads it) asks the server first - whReconcileHiveRole(db) in utils
 - `session-death-is-not-removal` ⚡ [fail] — SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from "you were removed from this hive" u
+- `session-states-honest` [fail] — SL AU1 + BRH-M (Ian 2026-10-14: "working as (name of a user).. not signed in.. what is that slop?"): every page that reads the remembered display name (29 produ
 - `shared-handover` [fail] — Shared-device handover (nothing one person typed survives to the next on the same browser)
 - `tenant-refusal` ⚡ [fail] — Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)
 - `trigger-writes-need-definer` ⚡ [fail] — DEFINER FOR CLIENT-UNWRITABLE WRITES - a SECURITY INVOKER function that writes a table the end user cannot write raises 42501 INSIDE the trigger and takes the u

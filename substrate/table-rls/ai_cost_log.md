@@ -2,7 +2,7 @@
 name: table-rls-ai_cost_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_cost_log
-source_sha: 02246679ba813895
+source_sha: 183d4a3c5a62782e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, fn*, hive_id, worker_name, model*, provider, prompt_t
 Policies:
 - `ai_cost_log_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
 - `ai_cost_log_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `ai_cost_log_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = ai_` CHECK=`∅`
+- `ai_cost_log_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (is_platform_admin() OR (auth_uid = auth.uid()) OR ((hive_id IS NOT NULL) AND (EXISTS ( SE` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
