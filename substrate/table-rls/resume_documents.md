@@ -2,7 +2,7 @@
 name: table-rls-resume_documents
 type: table-rls
 source: db:pg_policies+pg_trigger:resume_documents
-source_sha: 26a2c7ff1c4a50ec
+source_sha: c79d335fa38970a1
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,9 +15,9 @@ Columns (*=NOT NULL): id*, auth_uid*, worker_name*, hive_id, title*, doc*, templ
 
 Policies:
 - `resume_documents_delete` [DELETE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`∅`
-- `resume_documents_insert` [INSERT · roles=public] USING=`∅` CHECK=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))`
+- `resume_documents_insert` [INSERT · roles=public] USING=`∅` CHECK=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid) AND ((hive_id IS NULL) OR (hive_id IN ( SELECT user_hive_ids() AS `
 - `resume_documents_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`∅`
-- `resume_documents_update` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))`
+- `resume_documents_update` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid) AND ((hive_id IS NULL) OR (hive_id IN ( SELECT user_hive_ids() AS `
 
 Guard triggers: `trg_daily_cap_resume_docs`, `trg_text_caps_resume_docs`
 

@@ -5,31 +5,253 @@
   "webkit_rule": "user_agent ~* '(iPhone|iPad|iPod)' or (~* 'Safari' and !~* '(Chrome|Chromium|Edg|CriOS)')",
   "total": 55,
   "groups": [
-    {"page": "logbook.html", "n": 17, "webkit": 17, "first_seen": "2026-09-11", "last_seen": "2026-10-13", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 16, "last_seen": "2026-10-13"},
-      {"context": "uncaught-error", "message": "The operation is insecure.", "n": 1, "last_seen": "2026-10-13"}]},
-    {"page": "pm-scheduler.html", "n": 8, "webkit": 8, "first_seen": "2026-09-11", "last_seen": "2026-09-12", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 5, "last_seen": "2026-09-12"},
-      {"context": "uncaught-error", "message": "The operation is insecure.", "n": 3, "last_seen": "2026-09-12"}]},
-    {"page": "index.html", "n": 8, "webkit": 2, "first_seen": "2026-07-30", "last_seen": "2026-09-12", "messages": [
-      {"context": "unhandled-rejection", "message": "Cannot read properties of null (reading 'value')", "n": 6, "last_seen": "2026-08-11"},
-      {"context": "unhandled-rejection", "message": "null is not an object (evaluating 'document.getElementById('su-username').value')", "n": 1, "last_seen": "2026-07-30"},
-      {"context": "uncaught-error", "message": "Can't find variable: _tt", "n": 1, "last_seen": "2026-09-12"}]},
-    {"page": "hive.html", "n": 7, "webkit": 7, "first_seen": "2026-09-11", "last_seen": "2026-10-02", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 6, "last_seen": "2026-10-02"},
-      {"context": "uncaught-error", "message": "The operation is insecure.", "n": 1, "last_seen": "2026-09-13"}]},
-    {"page": "asset-hub.html", "n": 6, "webkit": 6, "first_seen": "2026-09-13", "last_seen": "2026-10-13", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 4, "last_seen": "2026-10-13"},
-      {"context": "uncaught-error", "message": "The operation is insecure.", "n": 2, "last_seen": "2026-09-13"}]},
-    {"page": "inventory.html", "n": 3, "webkit": 3, "first_seen": "2026-09-11", "last_seen": "2026-10-13", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 3, "last_seen": "2026-10-13"}]},
-    {"page": "alert-hub.html", "n": 2, "webkit": 2, "first_seen": "2026-09-11", "last_seen": "2026-09-13", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 2, "last_seen": "2026-09-13"}]},
-    {"page": "dayplanner.html", "n": 2, "webkit": 2, "first_seen": "2026-09-11", "last_seen": "2026-10-13", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 2, "last_seen": "2026-10-13"}]},
-    {"page": "community.html", "n": 1, "webkit": 1, "first_seen": "2026-09-11", "last_seen": "2026-09-11", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 1, "last_seen": "2026-09-11"}]},
-    {"page": "marketplace.html", "n": 1, "webkit": 1, "first_seen": "2026-09-11", "last_seen": "2026-09-11", "messages": [
-      {"context": "unhandled-rejection", "message": "WebSocket not available: The operation is insecure.", "n": 1, "last_seen": "2026-09-11"}]}
+    {
+      "page": "logbook.html",
+      "n": 17,
+      "webkit": 17,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-10-13",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 16,
+          "last_seen": "2026-10-13"
+        },
+        {
+          "context": "uncaught-error",
+          "message": "The operation is insecure.",
+          "n": 1,
+          "last_seen": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "page": "pm-scheduler.html",
+      "n": 8,
+      "webkit": 8,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-09-12",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 5,
+          "last_seen": "2026-09-12"
+        },
+        {
+          "context": "uncaught-error",
+          "message": "The operation is insecure.",
+          "n": 3,
+          "last_seen": "2026-09-12"
+        }
+      ]
+    },
+    {
+      "page": "index.html",
+      "n": 8,
+      "webkit": 2,
+      "first_seen": "2026-07-30",
+      "last_seen": "2026-09-12",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "Cannot read properties of null (reading 'value')",
+          "n": 6,
+          "last_seen": "2026-08-11"
+        },
+        {
+          "context": "unhandled-rejection",
+          "message": "null is not an object (evaluating 'document.getElementById('su-username').value')",
+          "n": 1,
+          "last_seen": "2026-07-30"
+        },
+        {
+          "context": "uncaught-error",
+          "message": "Can't find variable: _tt",
+          "n": 1,
+          "last_seen": "2026-09-12"
+        }
+      ]
+    },
+    {
+      "page": "hive.html",
+      "n": 7,
+      "webkit": 7,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-10-02",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 6,
+          "last_seen": "2026-10-02"
+        },
+        {
+          "context": "uncaught-error",
+          "message": "The operation is insecure.",
+          "n": 1,
+          "last_seen": "2026-09-13"
+        }
+      ]
+    },
+    {
+      "page": "asset-hub.html",
+      "n": 6,
+      "webkit": 6,
+      "first_seen": "2026-09-13",
+      "last_seen": "2026-10-13",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 4,
+          "last_seen": "2026-10-13"
+        },
+        {
+          "context": "uncaught-error",
+          "message": "The operation is insecure.",
+          "n": 2,
+          "last_seen": "2026-09-13"
+        }
+      ]
+    },
+    {
+      "page": "inventory.html",
+      "n": 3,
+      "webkit": 3,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-10-13",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 3,
+          "last_seen": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "page": "alert-hub.html",
+      "n": 2,
+      "webkit": 2,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-09-13",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 2,
+          "last_seen": "2026-09-13"
+        }
+      ]
+    },
+    {
+      "page": "dayplanner.html",
+      "n": 2,
+      "webkit": 2,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-10-13",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 2,
+          "last_seen": "2026-10-13"
+        }
+      ]
+    },
+    {
+      "page": "community.html",
+      "n": 1,
+      "webkit": 1,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-09-11",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 1,
+          "last_seen": "2026-09-11"
+        }
+      ]
+    },
+    {
+      "page": "marketplace.html",
+      "n": 1,
+      "webkit": 1,
+      "first_seen": "2026-09-11",
+      "last_seen": "2026-09-11",
+      "messages": [
+        {
+          "context": "unhandled-rejection",
+          "message": "WebSocket not available: The operation is insecure.",
+          "n": 1,
+          "last_seen": "2026-09-11"
+        }
+      ]
+    }
+  ],
+  "resolutions": [
+    {
+      "message": "WebSocket not available: The operation is insecure.",
+      "pages": "*",
+      "status": "fixed",
+      "commit": "a2f9a45f",
+      "fixed_on": "2026-10-14",
+      "gates": [
+        "realtime-blocked-socket",
+        "page-survives-optional-failures"
+      ],
+      "evidence": "vercel.json connect-src names wss: (WebKit threw SecurityError on the socket under the old policy); utils.js wraps every channel's subscribe so a throw is a warning; deployed and smoke-tested as v519. SL walk 1: the ten named pages start up clean in real WebKit and Chromium under the shipped policy and with the socket forced to throw."
+    },
+    {
+      "message": "The operation is insecure.",
+      "pages": "*",
+      "status": "fixed",
+      "commit": "a2f9a45f",
+      "fixed_on": "2026-10-14",
+      "gates": [
+        "realtime-blocked-socket",
+        "page-survives-optional-failures"
+      ],
+      "evidence": "the same SecurityError, raised synchronously where a page subscribed outside an async start-up; the same fix."
+    },
+    {
+      "message": "Cannot read properties of null (reading 'value')",
+      "pages": [
+        "index.html"
+      ],
+      "status": "fixed",
+      "verified_absent_since": "2026-08-11",
+      "gates": [
+        "dom-refs"
+      ],
+      "evidence": "the sign-up reads at index.html:3905 and :4052 take #su-username, which is now static markup (index.html:3328) present before either runs; production has not recorded it since 2026-08-11."
+    },
+    {
+      "message": "null is not an object (evaluating 'document.getElementById('su-username').value')",
+      "pages": [
+        "index.html"
+      ],
+      "status": "fixed",
+      "verified_absent_since": "2026-07-30",
+      "gates": [
+        "dom-refs"
+      ],
+      "evidence": "WebKit's wording of the same null #su-username read; the same evidence."
+    },
+    {
+      "message": "Can't find variable: _tt",
+      "pages": [
+        "index.html"
+      ],
+      "status": "fixed",
+      "fixed_on": "2026-09-14",
+      "gates": [
+        "w4-confusions"
+      ],
+      "evidence": "w4_confusions.json C7: nav-hub.js gained a module-level _tt (2026-09-14), fixed-verified live with 0 console errors across every hub mode; production's last sighting was 2026-09-12."
+    }
   ]
 }

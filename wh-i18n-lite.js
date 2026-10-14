@@ -23,6 +23,19 @@
 // whI18nApply under the SAME NAME so all 60 existing call sites work unchanged, and merges WH_FIL_COMMON
 // when a page happens to have it. A page that later loads utils.js is unaffected: this defines nothing that
 // is already defined.
+// SL L1 (2026-10-14): bring the uncaught-error net (wh-error-capture.js) to a page with no utils.js backbone - every
+// public page loads this file synchronously in <head>, so the net is listening early. Idempotent with the same loader
+// in wh-feedback-fab.js; optional, so a page never depends on it.
+(function whLoadErrorNet() {
+  try {
+    if (window.__whErrorNet || typeof window.whLogError === 'function' || document.querySelector('script[data-wh-error-net]')) return;
+    var s = document.createElement('script');
+    s.src = new URL('wh-error-capture.js', (document.currentScript && document.currentScript.src) || location.href).href;
+    s.setAttribute('data-wh-error-net', '');
+    (document.head || document.documentElement).appendChild(s);
+  } catch (_) { /* empty-catch-allow: the error net is optional; a page must never depend on it */ }
+})();
+
 (function whI18nLite() {
   'use strict';
   try {

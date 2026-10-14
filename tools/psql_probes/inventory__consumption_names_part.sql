@@ -22,7 +22,10 @@ SELECT 'adjust_writes_ledger_not_balance | ' ||
   (prosrc ILIKE '%INSERT INTO public.inventory_transactions%'
    AND prosrc !~* 'UPDATE\s+public\.inventory_items\s+SET')
 FROM pg_proc WHERE proname = 'inventory_adjust';
+-- an actual UPDATE ... inventory_items SET ... qty_on_hand statement, not the three words anywhere in a body: the
+-- ILIKE form matched get_hive_board_dashboard (2026-10-14) - its source READS inventory_items.qty_on_hand and carries
+-- "updated_at" - and reddened this recipe on a function that writes no stock at all
 SELECT 'other_qty_writers | ' || count(*) FROM pg_proc
-WHERE prosrc ILIKE '%UPDATE%inventory_items%qty_on_hand%'
+WHERE prosrc ~* 'UPDATE\s+(public\.)?inventory_items\s+SET[^;]*qty_on_hand'
   AND proname NOT IN ('inventory_deduct', 'inventory_restock',
                       'inventory_sync_balance_from_ledger', 'inventory_adjust');

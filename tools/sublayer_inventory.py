@@ -253,6 +253,12 @@ SUBLAYERS: "OrderedDict[str, OrderedDict[str, tuple[str, str, str]]]" = OrderedD
 CONTRACT = frozenset(("F2", "F3", "F5", "CA2", "H1", "H2", "H4", "S3", "S4", "S5", "L1", "CI1", "CI2", "CI3", "CI4"))
 INSTRUMENT_WALK = "playwright-mcp + postgres-mcp"
 INSTRUMENT_PROVER = "library sweep (a registered batch prover over every page - the W4 contract-layer precedent)"
+# ★A REFUSAL IS PROVEN AS THE PERSON, NEVER BY A BROWSER OR THE OWNER CONNECTION (2026-10-14). S1 and S2 were seeded as
+# browser walks; a browser cannot show that a read was REFUSED, and the postgres MCP connects as the table owner (it
+# bypasses RLS). The honest instrument is the one the W4 S layer closed 900/900 rows with: a foreign-hive member's
+# identity on the authenticated path (tools/prove_w4_layer_s.py's recipe), requiring zero of this hive's rows.
+INVOKE = frozenset(("S1", "S2"))
+INSTRUMENT_INVOKE = "invoke + PostgREST as the caller (never the owner connection)"
 # Engine-sensitive: these are walked in REAL WebKit as well (Playwright's WebKit, installed from the Z: drive). AV1
 # and CI2 on every page; every F sub-layer on a page production's client_errors has named.
 WEBKIT_SUBS = frozenset(("AV1", "CI2"))
@@ -358,7 +364,8 @@ def collect(sources: dict | None = None, classes: dict | None = None) -> list[di
                     webkit = code in WEBKIT_SUBS or (layer == "F" and page in errs)
                     cells.append({"layer": layer, "sublayer": code, "name": name, "page": page, "class": cls,
                                   "roster": roster, "engine": "webkit" if webkit else "chromium",
-                                  "instrument": INSTRUMENT_PROVER if code in CONTRACT else INSTRUMENT_WALK})
+                                  "instrument": INSTRUMENT_PROVER if code in CONTRACT else
+                                  INSTRUMENT_INVOKE if code in INVOKE else INSTRUMENT_WALK})
     return cells
 
 

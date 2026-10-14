@@ -43,14 +43,33 @@ FROM = re.compile(r"\.from\(\s*['\"]([a-z0-9_]+)['\"]", re.I)
 # tables that carry hive_id as PROVENANCE, not a tenant boundary (a member legitimately reads other hives' rows):
 # the platform inbox, the marketplace directory + its cross-hive listings/inquiries, the public feed.
 PLATFORM_TABLES = {"platform_feedback", "service_providers", "v_marketplace_listings_truth",
-                   "v_marketplace_inquiries_truth", "v_community_posts_truth", "network_benchmarks"}
+                   "v_marketplace_inquiries_truth", "v_community_posts_truth", "network_benchmarks",
+                   # ...and their base forms, met when the SL S1 rows (2026-10-14) brought the marketplace pages in, each
+                   # read from the policy rather than assumed: marketplace_listings / marketplace_listings_public are the
+                   # cross-hive directory (mkt_listings_read: status = 'published' OR mine OR admin); marketplace_inquiries
+                   # is PERSON-scoped (mkt_inq_read: buyer_auth_uid = auth.uid() OR listing_is_mine OR admin), not hive-scoped
+                   "marketplace_listings", "marketplace_listings_public", "marketplace_inquiries",
+                   # the seller and listing directories every buyer browses: mkt_sellers_read is auth.uid() IS NOT NULL over
+                   # profile columns only (tier, ratings, badges, the messenger handle buyers contact), and the _public
+                   # views publish what that policy already shows; service_providers_read is TO authenticated USING (true),
+                   # the hailing directory
+                   "marketplace_sellers", "v_marketplace_sellers_truth", "v_marketplace_sellers_public",
+                   "v_marketplace_listings_public", "v_service_provider_truth"}
 
 
 def s_rows() -> list[dict]:
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    # ...and the SL S1 rows (2026-10-14): the sub-layer wave's "read scope: tenant isolation" asks this exact question
+    # of 35 pages, and this gate is what holds it, so its rows are proven by the same recipe in the same run
     return [t for t in reg["trajectories"]
-            if (t.get("w4") or {}).get("kind") == "layer" and (t.get("w4") or {}).get("layer") == "S"
+            if (((t.get("w4") or {}).get("kind") == "layer" and (t.get("w4") or {}).get("layer") == "S")
+                or (t.get("sl") or {}).get("sublayer") == "S1")
             and t.get("status") != "descoped"]
+
+
+def _subject(row: dict) -> str | None:
+    """The page a row is ABOUT: an SL row names it (`sl.page`); a W4 row's is the first root page of its route."""
+    return (row.get("sl") or {}).get("page") or _first_root_page(row)
 
 
 def tables_of(page: str) -> set[str]:
@@ -104,6 +123,10 @@ def check_page(page: str, hive_tabs: set[str]) -> tuple[str, str]:
         return "n/a", f"{page} reads no domain data of its own - nothing to refuse"
     scoped = sorted((tabs & hive_tabs) - PLATFORM_TABLES)
     if not scoped:
+        # ★A RECIPE FOR A PAGE WITH NOTHING TO REFUSE IS A FALSE ASSERTION (2026-10-14): a page that READ a table now
+        # classified as a directory kept the recipe an earlier run wrote, and psql-probe-suite failed on it. The recipe
+        # leaves with the reason it existed.
+        (PROBE_DIR / f"{page.replace('/', '_').replace('.html', '')}__w4s_cross_hive_read_refused.sql").unlink(missing_ok=True)
         return "n/a", (f"{page} reads only public / platform-scoped / per-user data (hive_id is the sender's "
                        "provenance, not a tenant boundary) - it holds no per-hive rows to refuse")
     ok, detail = run_refusal(page, scoped)
@@ -145,14 +168,14 @@ def main() -> int:
     check_only = "--check" in sys.argv
     page_tables = {}
     for row in rows:
-        page = _first_root_page(row)
+        page = _subject(row)
         if page and page not in page_tables:
             page_tables[page] = tables_of(page)
     hive_tabs = hive_id_tables(set().union(*page_tables.values()) if page_tables else set())
     page_cache = {p: check_page(p, hive_tabs) for p in page_tables}
     bad = 0
     for row in rows:
-        page = _first_root_page(row)
+        page = _subject(row)
         if not page:
             continue
         verdict, witness = page_cache.get(page, ("n/a", "no page"))

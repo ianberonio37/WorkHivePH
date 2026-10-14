@@ -25,6 +25,8 @@
   // payloads, tokens, or the query string (it can carry ids). Best-effort and totally silent on
   // failure: a logger that throws, blocks, or loops would be worse than the dark it replaces.
   var _errSent = 0, _errSeen = Object.create(null), _ERR_CAP = 20;   // per page-load flood cap
+  // SL L1 (2026-10-14): where this file was loaded from, so the no-client hand-off below can find wh-error-capture.js
+  var _whUtilsSrc = (document.currentScript && document.currentScript.src) || '';
   window.whLogError = function (context, err) {
     try { console.error('[whLogError]', context, err); } catch (_) { /* empty-catch-allow: console unavailable, logging is best-effort */ }
     try {
@@ -38,7 +40,27 @@
       var stack = '';
       try { stack = String((err && err.stack) || ''); } catch (_) { /* empty-catch-allow */ }
       var db = window._whSupabaseClient;
-      if (!db || typeof db.from !== 'function') return;        // no client yet (pre-auth) -> console only
+      if (!db || typeof db.from !== 'function') {
+        // ★NO CLIENT IS NOT NO REPORT (SL L1, 2026-10-14). A page that loads this file but never builds a client - the
+        // design system, the status page - or any page before its client exists dropped every error here to the
+        // console, and prove_error_capture_everywhere found both pages capturing nothing. The UNCAUGHT kinds now go to
+        // the anonymous net (wh-error-capture.js; migration 20261014000002 admits only those two contexts and no
+        // identity), loaded once on demand; the error that triggered the load waits in a queue the net drains.
+        if (context === 'uncaught-error' || context === 'unhandled-rejection') {
+          if (typeof window.__whErrorNetReport === 'function') {
+            window.__whErrorNetReport(context, err);
+          } else {
+            (window.__whErrorNetPending = window.__whErrorNetPending || []).push([context, err]);
+            if (!document.querySelector('script[data-wh-error-net]')) {
+              var _net = document.createElement('script');
+              _net.src = new URL('wh-error-capture.js', _whUtilsSrc || location.href).href;
+              _net.setAttribute('data-wh-error-net', '');
+              (document.head || document.documentElement).appendChild(_net);
+            }
+          }
+        }
+        return;
+      }
       _errSent++;
       db.from('client_errors').insert({
         hive_id: (typeof window.whHiveId === 'function' ? window.whHiveId() : null) || null,
@@ -4593,6 +4615,42 @@ async function whReconcileHiveName(db) {
   } catch (_) { return null; /* a rename check must never break a page */ }
 }
 if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveName;
+
+// ── whReconcileHiveRole — the stored ROLE is a cache of a server fact too (SL AU2 / BRH-F, 2026-10-14) ──
+// whReconcileHiveName keeps the stored hive NAME honest; nothing did the same for `wh_hive_role`, the key eight pages
+// gate supervisor controls on without asking the server (bug_hunt_inventory class F: alert-hub, analytics,
+// analytics-report, audit-log, integrations, marketplace-admin, plant-connections, resume). A supervisor demoted on
+// another device kept every supervisor control here until some other page happened to rewrite the key - and each
+// write through those controls then met an RLS refusal with no honest sentence. This asks the membership row (by
+// auth_uid, never by name) for the live role, writes it back to `wh_hive_role` and the switcher's `wh_hives`, and
+// returns { was, now } when they differed (now = null when the person is no longer an active member), else null.
+// A page that gates on the role awaits this BEFORE its first gated render and uses `now`.
+async function whReconcileHiveRole(db) {
+  try {
+    var id = whHiveId();
+    if (!id || typeof db !== 'object' || !db || !db.auth) return null;
+    var cached = null;
+    try { cached = localStorage.getItem('wh_hive_role'); } catch (_) { return null; }
+    var s = await db.auth.getSession();
+    var uid = s && s.data && s.data.session && s.data.session.user && s.data.session.user.id;
+    if (!uid) return null;                                    // signed out: the sign-in wall owns this page, not the role
+    // canonical-allow: auth-check probe on the membership row (by auth_uid); this is the access gate, not a display read
+    var res = await db.from('hive_members').select('role, status').eq('hive_id', id).eq('auth_uid', uid).maybeSingle();
+    if (!res || res.error) return null;                       // an unreadable answer is not a demotion; keep the cache
+    var live = (res.data && res.data.status === 'active') ? res.data.role : null;
+    if (live === cached) return null;
+    try {
+      if (live) localStorage.setItem('wh_hive_role', live); else localStorage.removeItem('wh_hive_role');
+      var list = JSON.parse(localStorage.getItem('wh_hives') || '[]');
+      if (Array.isArray(list)) {
+        localStorage.setItem('wh_hives', JSON.stringify(
+          list.map(function (h) { return (h && h.id === id) ? Object.assign({}, h, { role: live || h.role }) : h; })));
+      }
+    } catch (_) { /* empty-catch-allow: storage may be blocked; the caller still gets the live role */ }
+    return { was: cached, now: live };
+  } catch (_) { return null; /* a role check must never break a page */ }
+}
+if (typeof window !== 'undefined') window.whReconcileHiveRole = whReconcileHiveRole;
 
 // ── whEmbedEntry — the RAG index write that retries instead of vanishing (T10 AI4, 2026-09-02) ──
 // Walked live: embed-entry returned 500 on a PM save's logbook echo and the new entry was SILENTLY

@@ -34,7 +34,8 @@ import { SEEDER } from './prover_harness.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const ENGINES = arg('--engine') ? [arg('--engine')] : ['chromium', 'webkit'];
-const CONDITIONS = arg('--condition') ? [arg('--condition')] : ['as-served', 'optional-fail'];
+const ALL = process.argv.includes('--all');   // every page of the SL roster (H1 / S3), as served only unless --condition
+const CONDITIONS = arg('--condition') ? [arg('--condition')] : (ALL ? ['as-served'] : ['as-served', 'optional-fail']);
 const OUT = arg('--json', '.tmp/sl_walk1_results.json');
 const TEETH = !process.argv.includes('--no-teeth');
 const BASE = process.env.WH_PREFIX_BASE || '90ed9a8e';
@@ -44,12 +45,14 @@ const CHARS_FLOOR = 300;
 
 // the pages production's client_errors named (production_error_groups.json), each walked as its SL cast
 const groups = JSON.parse(readFileSync('production_error_groups.json', 'utf8')).groups.map((g) => g.page);
-const PAGES = arg('--page') ? [arg('--page')] : groups;
-const reg = JSON.parse(readFileSync('trajectory_registry.json', 'utf8'));
+const reg0 = JSON.parse(readFileSync('trajectory_registry.json', 'utf8'));
+const rosterPages = [...new Set(reg0.trajectories.filter((t) => t.sl && t.sl.sublayer === 'AV1' && t.status !== 'descoped').map((t) => t.sl.page))];
+const PAGES = arg('--page') ? arg('--page').split(',') : (ALL ? rosterPages : groups);
+const reg = reg0;
 const castOf = (page) => (reg.trajectories.find((t) => t.sl && t.sl.page === page && t.sl.sublayer === 'AV1') || {}).persona || 'worker';
 // the hub's two modes: a supervisor-cast persona walks as Leandro Marquez, a field-cast one as Bryan Garcia (Baguio)
 const SUP = /supervisor|oversight|owner|engineer|manager/i;
-const ACCOUNT = (persona) => (SUP.test(persona)
+const ACCOUNT = (persona) => persona === 'anon' ? { user: 'anon', name: 'an anonymous visitor' } : (SUP.test(persona)
   ? { user: 'leandromarquez', name: 'Leandro Marquez' } : { user: 'bryangarcia', name: 'Bryan Garcia' });
 
 // the shipped policy, with only the production Supabase origins mapped to the local stack. img-src keeps `https:` (how
@@ -171,7 +174,7 @@ for (const engine of ENGINES) {
     for (const page of PAGES) { const a = ACCOUNT(castOf(page)); (byAccount.get(a.user) || byAccount.set(a.user, { a, pages: [] }).get(a.user)).pages.push(page); }
     for (const { a, pages } of byAccount.values()) {
       const { browser, ctx, seen } = await context(engine, condition, null);
-      const ok = await signIn(ctx, a);
+      const ok = a.user === 'anon' ? true : await signIn(ctx, a);   // a public page is read as the visitor it is for
       for (const page of pages) {
         const r = ok ? await visit(ctx, seen, page) : { page, problems: [`sign-in as ${a.user} failed - no reading taken`] };
         results.push({ engine, condition, cast: castOf(page), account: a.user, ...r, ok: !r.problems.length });

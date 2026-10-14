@@ -1450,13 +1450,36 @@ def _hive_for(page: str) -> str:
     return HIVES[sum(map(ord, page)) % len(HIVES)]
 
 
+def _sl_how_closes(code: str, page: str, who: str, webkit: bool, instrument: str) -> tuple[str, str]:
+    """The (how it is walked, when it closes) sentences of an SL row, by its declared instrument - one place, so a row
+    re-declared to a truer instrument is re-texted by the same words a fresh seed would use."""
+    engine_txt = " in real WebKit as well as Chromium (WebKit throws where Chromium stays silent)" if webkit else ""
+    if instrument.startswith("library"):
+        return (f"It is settled in a batch by a registered prover over every page of its roster (the W4 contract-layer "
+                f"precedent: the served bytes, the scan, the ratchet){engine_txt}",
+                f"a registered prover settles {code} on {_short(page)}, its receipt names the sub-layer, and the gate "
+                f"reddens when the fix is reverted")
+    if instrument.startswith("invoke"):
+        return (f"It is proven AS A PERSON, never through a browser or the owner connection: a member of ANOTHER hive, on "
+                f"the authenticated path (role authenticated + their JWT claims, in a rolled-back transaction), asks each "
+                f"table {_short(page)} reads or writes, with the page's own member as the control",
+                f"a foreign-hive member receives zero of this hive's rows (or is refused the write) while the page's own "
+                f"member is served, and a registered gate reddens when the policy is loosened")
+    return (f"It is walked live as {who} through the chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)}{engine_txt}, "
+            f"with the condition induced (an init script that makes a subsystem throw, a refused route, a demoted role, "
+            f"a renamed hive, a 1,000-row list), the postgres MCP the witness where it writes",
+            f"the {code} ask is answered from {_short(page)} itself at phone-390 AND desktop-1280 as {who}"
+            f"{' in WebKit and Chromium' if webkit else ''}, on a receipt naming the layer, the sub-layer, the persona"
+            f"{' and the engine' if webkit else ''}, and a gate holds what the walk found")
+
+
 def sublayer_rows(existing: list[dict], replay: bool = False) -> list[dict]:
     """One row per measured (page, layer, sub-layer) cell, layer-major so each SL-<layer> owns a contiguous id range.
     replay=True returns what was SEEDED, in id order - the record, so a roster tightened later never renumbers."""
     if replay:
         sublayer_rows.arithmetic = {}
         return [{"wave": t["wave"], "sl": t["sl"]} for t in _seeded(existing, "sl", ("kind", "sublayer"), SL_PREFIX)]
-    from sublayer_inventory import CONTRACT, SUBLAYERS, casts, collect, page_classes
+    from sublayer_inventory import SUBLAYERS, casts, collect, page_classes
     from backfill_trajectory_layers import NAMES as _LNAMES
     scoped = [t for t in existing if t.get("status") != "descoped"]
     classes = page_classes()
@@ -1474,18 +1497,7 @@ def sublayer_rows(existing: list[dict], replay: bool = False) -> list[dict]:
         who = "a person" if persona == "any" else ("an anonymous visitor" if persona == "anon" else persona)
         pages, entry = _cell_route(page, cls, persona, roles)
         webkit = c["engine"] == "webkit"
-        prover = code in CONTRACT
-        engine_txt = " in real WebKit as well as Chromium (WebKit throws where Chromium stays silent)" if webkit else ""
-        how = (f"It is settled in a batch by a registered prover over every page of its roster (the W4 contract-layer "
-               f"precedent: the served bytes, the scan, the ratchet){engine_txt}" if prover else
-               f"It is walked live as {who} through the chrome-devtools MCP at {' and '.join(LX_VIEWPORTS)}"
-               f"{engine_txt}, with the condition induced (an init script that makes a subsystem throw, a refused "
-               f"route, a demoted role, a renamed hive, a 1,000-row list), the postgres MCP the witness where it writes")
-        closes = (f"a registered prover settles {code} on {_short(page)}, its receipt names the sub-layer, and the gate "
-                  f"reddens when the fix is reverted" if prover else
-                  f"the {code} ask is answered from {_short(page)} itself at phone-390 AND desktop-1280 as {who}"
-                  f"{' in WebKit and Chromium' if webkit else ''}, on a receipt naming the layer, the sub-layer, the "
-                  f"persona{' and the engine' if webkit else ''}, and a gate holds what the walk found")
+        how, closes = _sl_how_closes(code, page, who, webkit, c["instrument"])
         rows.append({
             "wave": f"{SL_PREFIX}-{layer}",
             "title": f"{code} · {ask} - {who} · {_short(page)}",

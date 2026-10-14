@@ -592,7 +592,9 @@ def _sl_missing(row: dict, receipts: dict) -> str:
     sub-layer for SL, and - the reason the wave exists - the ENGINE on a row that must be walked in WebKit, because
     WebKit threw on the logbook's realtime socket while every Chromium walk passed (2026-10-14)."""
     meta = _meta_1014(row)
-    if not meta or str(meta.get("instrument") or "").startswith("library"):
+    # a prover row ("library ...") and a refusal row ("invoke + PostgREST as the caller") close on their basis and gate;
+    # only a WALK row owes an MCP receipt
+    if not meta or not str(meta.get("instrument") or "").startswith("playwright-mcp"):
         return ""
     res = receipts.get(row["id"])
     if not res:

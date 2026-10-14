@@ -2,7 +2,7 @@
 name: table-rls-marketplace_sellers
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_sellers
-source_sha: 37fceea7a221d105
+source_sha: 386a305bddaae770
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,11 +15,11 @@ Columns (*=NOT NULL): id*, worker_name*, auth_uid, hive_id, tier*, kyb_verified*
 
 Policies:
 - `mkt_sellers_delete` [DELETE · roles=public] USING=`((auth_uid = auth.uid()) OR is_marketplace_admin())` CHECK=`∅`
-- `mkt_sellers_insert` [INSERT · roles=public] USING=`∅` CHECK=`(auth_uid = auth.uid())`
+- `mkt_sellers_insert` [INSERT · roles=public] USING=`∅` CHECK=`((auth_uid = auth.uid()) AND ((hive_id IS NULL) OR (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids))))`
 - `marketplace_sellers_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
 - `mkt_sellers_read` [SELECT · roles=public] USING=`(auth.uid() IS NOT NULL)` CHECK=`∅`
 - `mkt_sellers_read_anon` [SELECT · roles=anon] USING=`seller_has_published_listing(worker_name)` CHECK=`∅`
-- `mkt_sellers_update` [UPDATE · roles=public] USING=`((auth_uid = auth.uid()) OR is_marketplace_admin())` CHECK=`((auth_uid = auth.uid()) OR is_marketplace_admin())`
+- `mkt_sellers_update` [UPDATE · roles=public] USING=`((auth_uid = auth.uid()) OR is_marketplace_admin())` CHECK=`(is_marketplace_admin() OR ((auth_uid = auth.uid()) AND ((hive_id IS NULL) OR (hive_id IN ( SELECT user_hive_ids() AS us`
 
 Guard triggers: `trg_guard_seller_trust`, `trg_text_caps_mkt_sellers`
 

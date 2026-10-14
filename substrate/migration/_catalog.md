@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:664
-source_sha: 230bfffa0b9fb87c
+source: dir:supabase/migrations:666
+source_sha: 43f54bd63ae1847d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (664 migrations)
+## migration · catalog (666 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000012_consumer_cashback` — fns:mint_service_cashback · tables:service_credit_ledger
-- `20260731000013_service_knob_pct` — fns:mint_service_cashback,service_knob,service_knob_pct
 - `20260731000014_commission_reads_d9_knob` — fns:mint_settlement_commission
 - `20260731000015_money_spine_payment_record_and_cashback` — policies:service_payments_intake,service_payments_read · fns:guard_settle_requires_payment,mint_service_cashback,mint_settlement_commission,trg_fn_mint_service_cashback · triggers:trg_guard_settle_requires_payment,trg_mint_service_cashback · tables:service_payments
 - `20260731000016_min_list_balance_becomes_the_accept_floor` — (misc DDL/DML)
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261013000004_episodic_memory_belongs_to_an_account` — (misc DDL/DML)
 - `20261013000005_procedural_match_no_hive_is_solo` — fns:match_procedural_memories
 - `20261014000001_board_members_carry_row_and_self` — fns:get_hive_board_dashboard
+- `20261014000002_client_errors_anonymous_visitors` — policies:client_errors_insert_anon
+- `20261014000003_a_profile_claims_only_a_hive_it_belongs_to` — policies:mkt_sellers_insert,mkt_sellers_update,resume_documents_insert,resume_documents_update
 
 (showing last 200)
 

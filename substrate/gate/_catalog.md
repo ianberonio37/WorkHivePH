@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: b2e3a5a1b0907022
+source_sha: 99a5b30d18c76db6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1361) — the 'what's already gated' brain
+## gate · registered validators (1363) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1000)
+### Platform (1002)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -735,6 +735,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `episodic-memory-wiring` ⚡ [fail] — Episodic Memory Wiring (agent_episodic_memory recall+persist stays wired into ai-gateway; forward-only ratchet)
 - `erasure-path-intact` [fail] — T164: the deletion the privacy policy promises must actually be possible. The policy tells a person to email admin@workhiveph.com with a 'Data Rights Request' a
 - `error-capture` ⚡ [fail] — per-page SaaS-LAYER · Layer L (Error Tracking & Logs) — a catch around a BACKEND op (db.from/db.rpc/db.functions.invoke/fetch) that SURFACES the error to the us
+- `error-capture-everywhere` [fail] — SL L1 (2026-10-14): every page of the L1 roster (production, founder AND the 119 public pages, which load no utils.js) captures an uncaught error and an unhandl
 - `error-taxonomy-ratchet` [fail] — T176: error-taxonomy ratchet — T176's 'new errors are born compliant' gate (2026-08-26). The platform has three taxonomy helpers — whReadError / whWriteError / 
 - `error_remedy_actionable` ⚡ [fail] — MK11 · error-remedy actionability — a catch around a client WRITE (insert/upsert/update/delete/rpc/functions.invoke) that tells the user to "try again" must FIR
 - `event-listener-cleanup` ⚡ [fail] — Event Listener Cleanup (pages with 10+ addEventListener need removes; forward-only ratchet)
@@ -1081,6 +1082,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `private-memory-isolation` [fail] — Private-memory isolation (LIVE: the per-worker AI-companion conversation tables [agent_memory/voice_journal_entries/dialog_state] must have OWNER-only SELECT po
 - `proactive-alerts` ⚡ [fail] — Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)
 - `prod-path-leak` ⚡ [fail] — Prod path leak (no committed /workhive/ resource paths — they 404 in production)
+- `production-errors-read` ⚡ [fail] — SL L1 'and someone must read it' (2026-10-14): every (page, message) group in production_error_groups.json - the committed read-only snapshot of production's cl
 - `profile-no-self-privilege` [regression] — T365 (mass-assignment): a client cannot self-grant a privileged field on its own record - LIVE probe proves a seller self-stamping service_providers.verified is
 - `project-manager` ⚡ [fail] — Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)
 - `project-report-error-honesty` ⚡ [regression] — T73: the project-report page tells the truth about why a project is unseen - 42501 (access, a refused-but-identified caller) is distinguished from absence, the 

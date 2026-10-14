@@ -2,7 +2,7 @@
 name: table-rls-client_errors
 type: table-rls
 source: db:pg_policies+pg_trigger:client_errors
-source_sha: 34c32858a11d3a3b
+source_sha: f2931490ea8b9928
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,6 +15,7 @@ Columns (*=NOT NULL): id*, hive_id, worker_name, auth_uid, context*, message*, s
 
 Policies:
 - `client_errors_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((auth.uid() IS NOT NULL) AND ((hive_id IS NULL) OR (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = client_`
+- `client_errors_insert_anon` [INSERT · roles=anon] USING=`∅` CHECK=`((auth.uid() IS NULL) AND (hive_id IS NULL) AND (worker_name IS NULL) AND (auth_uid IS NULL) AND (context = ANY (ARRAY['`
 - `client_errors_read` [SELECT · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = client_errors.hive_id) AND (hm.auth_uid = auth.uid()) AND (` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
