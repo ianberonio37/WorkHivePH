@@ -5004,7 +5004,14 @@
     const db = _getOhDb();
     const HIVE_ID   = whHiveId() || '';
     const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
-    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    let   HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a person whose device said
+    // 'supervisor' while the server said 'worker': the home led with supervisor actions and supervisor-only "one
+    // thing" candidates. The membership row is asked here, beside the persona hydrate below, and awaited before
+    // the first role-gated render (whReconcileHiveRole, utils.js). The wh_nav_mode display override is untouched.
+    const _roleReady = (typeof whReconcileHiveRole === 'function')
+      ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+      : Promise.resolve();
 
     // Greeting + date
     document.getElementById('oh-greeting').textContent = _greeting(workerName);
@@ -5050,6 +5057,7 @@
     // Two primary actions, role-aware. Field workers get Log a Job;
     // supervisors get Hive Board. Both get "Ask <persona>". Everything else
     // moves to More.
+    await _roleReady;   // started above; from here on every role-gated render reads the server's role
     const _ohActionsEl = document.getElementById('oh-actions');
     if (_ohActionsEl) {
       const _role = (/* storage-key-allow: nav display mode, set by settings UI */ localStorage.getItem('wh_nav_mode') === 'supervisor' || HIVE_ROLE === 'supervisor' /* role-check-allow: display-role = wh_nav_mode override || wh_hive_role, intentionally richer than WHRoles.isSupervisor() */) ? 'supervisor' : 'field';

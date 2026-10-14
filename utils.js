@@ -4625,22 +4625,43 @@ if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveN
 // auth_uid, never by name) for the live role, writes it back to `wh_hive_role` and the switcher's `wh_hives`, and
 // returns { was, now } when they differed (now = null when the person is no longer an active member), else null.
 // A page that gates on the role awaits this BEFORE its first gated render and uses `now`.
-async function whReconcileHiveRole(db) {
+async function whReconcileHiveRole(db, hiveId) {
   try {
-    var id = whHiveId();
-    if (!id || typeof db !== 'object' || !db || !db.auth) return null;
+    if (typeof db !== 'object' || !db || !db.auth) return null;
+    var id = hiveId || whHiveId();                            // a page that resolved its hive another way passes it
     var cached = null;
     try { cached = localStorage.getItem('wh_hive_role'); } catch (_) { return null; }
+    if (!id && !cached) return null;                          // no hive and no role: nothing to correct
     var s = await db.auth.getSession();
     var uid = s && s.data && s.data.session && s.data.session.user && s.data.session.user.id;
     if (!uid) return null;                                    // signed out: the sign-in wall owns this page, not the role
-    // canonical-allow: auth-check probe on the membership row (by auth_uid); this is the access gate, not a display read
-    var res = await db.from('hive_members').select('role, status').eq('hive_id', id).eq('auth_uid', uid).maybeSingle();
-    if (!res || res.error) return null;                       // an unreadable answer is not a demotion; keep the cache
-    var live = (res.data && res.data.status === 'active') ? res.data.role : null;
+    var live = null;
+    if (id) {
+      // canonical-allow: auth-check probe on the membership row (by auth_uid); this is the access gate, not a display read
+      var res = await db.from('hive_members').select('role, status').eq('hive_id', id).eq('auth_uid', uid).maybeSingle();
+      if (!res || res.error) return null;                     // an unreadable answer is not a demotion; keep the cache
+      live = (res.data && res.data.status === 'active') ? res.data.role : null;
+    } else {
+      // ★A ROLE WITH NO HIVE IS A LEFTOVER (SL AU2, solo cast, 2026-10-14) - when the account holds no membership at
+      // all. integrations gave a solo owner whose device still said 'supervisor' the whole CMMS console (API keys, Live
+      // Sync) instead of its wall. A member whose hive is merely not seated on this device keeps the cache: seating it
+      // is whEnsureHiveContext's job, and it writes the role it seats.
+      // canonical-allow: auth-check probe - does this account hold any active membership (by auth_uid)
+      var any = await db.from('hive_members').select('hive_id').eq('auth_uid', uid).eq('status', 'active').limit(1);
+      if (!any || any.error || (any.data && any.data.length)) return null;
+    }
     if (live === cached) return null;
     try {
       if (live) localStorage.setItem('wh_hive_role', live); else localStorage.removeItem('wh_hive_role');
+      // ★THE SAME STALE FACT, ONE KEY OVER (re-walk, 2026-10-14). nav-hub DERIVES a display mode from this role
+      // (wh_nav_mode with src 'derived'/'guess') unless the person CHOSE one, and it derives it before this read
+      // returns - so after a demotion the home still led with the supervisor actions, reading the derived mode raw.
+      // A mode the person chose is a preference and is kept; a derived one is dropped so nav-hub, the role->mode
+      // owner, re-derives it from the corrected role.
+      if (localStorage.getItem('wh_nav_mode_src') !== 'chosen') {   // storage-key-allow: nav-hub's mode provenance ('chosen' | 'derived' | 'guess')
+        localStorage.removeItem('wh_nav_mode');                     // storage-key-allow: nav display mode derived from the role being corrected
+        localStorage.removeItem('wh_nav_mode_src');                 // storage-key-allow: its provenance goes with it
+      }
       var list = JSON.parse(localStorage.getItem('wh_hives') || '[]');
       if (Array.isArray(list)) {
         localStorage.setItem('wh_hives', JSON.stringify(

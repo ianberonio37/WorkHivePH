@@ -933,7 +933,14 @@
     } catch (_) { /* empty-catch-allow: the page must still render without the probe */ }
   })();
   const HIVE_NAME   = localStorage.getItem('wh_hive_name') || '';
-  const HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
+  let   HIVE_ROLE   = localStorage.getItem('wh_hive_role') || 'worker';
+  // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
+  // server whose device still said 'supervisor': this page offered the Mod Queue, "Share publicly with all
+  // WorkHive teams", and Pin / Delete / Make public on other people's posts, each then refused by RLS. The
+  // membership row is asked now, while the page parses; DOMContentLoaded awaits it before the first gated render.
+  const _roleReady = (typeof whReconcileHiveRole === 'function')
+    ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || 'worker'; }).catch(() => {})
+    : Promise.resolve();
 
   // C4: redirects deferred to DOMContentLoaded — checks auth session first
   // T4 (2026-08-25): carry ?return so hive.html's validated Continue banner (the JA2 half that
@@ -1019,6 +1026,7 @@ function _MINE() { return _mineFilter() || ('worker_name.eq.' + JSON.stringify(S
     document.getElementById('nav-worker').textContent = WORKER_NAME;
     document.getElementById('hive-name-label').textContent = HIVE_NAME ? HIVE_NAME + ' · Discussion Board' : 'Your hive\'s discussion board';
 
+    await _roleReady;   // started at parse time (above); every role-gated render below reads the server's role
     if (HIVE_ROLE === 'supervisor') {
       document.getElementById('tab-mod').style.display = 'block';
       document.getElementById('opt-announcement').style.display = '';

@@ -477,7 +477,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let WORKER_NAME = whWorker() || '';
     const HIVE_ID   = whHiveId();
     const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
-    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || 'worker';
+    let   HIVE_ROLE = localStorage.getItem('wh_hive_role') || 'worker';
+    // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2 / BRH-F, 2026-10-14). The context pill tells the person
+    // their role in the hive ("Plant · supervisor") and read it from this key alone, so a demotion made elsewhere
+    // left the page asserting a role the server no longer gives. Asked at parse time, awaited before the pill paints.
+    const _roleReady = (typeof whReconcileHiveRole === 'function')
+      ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+      : Promise.resolve();
     let _authUid = null;
     // "Promote, don't duplicate" extraction toggle — off by default, persisted.
     let _promoteDedupe = localStorage.getItem('wh_resume_promote_dedupe') === '1';
@@ -2485,7 +2491,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!WORKER_NAME) { whSignInWall(); return; }
       if (!_authUid) { whSignInWall(); return; }
 
-      // Context pill
+      // Context pill - the role it names is the server's (reconcile started at parse time)
+      await _roleReady;
       if (HIVE_NAME) { const p = document.getElementById('ctx-pill'); p.style.display = 'inline-flex'; p.textContent = '🏭 ' + HIVE_NAME + (HIVE_ROLE ? ' · ' + HIVE_ROLE : ''); }
 
       // Load: the resume you LAST HAD OPEN (remembered id) → newest cloud doc →

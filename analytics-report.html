@@ -768,7 +768,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       });
     }
     var HIVE_ID   = whHiveId();
-    var HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
     // T175: no hive means no data to report on, so say the precondition instead of showing a
     // generator that can only return nothing. Same shape as shift-brain / asset-hub.
@@ -785,7 +784,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     var _period = 90;
-    var _role   = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'supervisor'; // default supervisor view for the report
+    // The report opens written for a supervisor whoever reads it; the Worker / Supervisor toggle below is open to
+    // everyone. It used to read the stored role into a test whose two branches were both 'supervisor' - a read of a
+    // device-remembered role that decided nothing (SL AU2, 2026-10-14), so it is gone.
+    var _role   = 'supervisor';
     var _data   = null; // last successful fetch (all 4 phases bundled)
     var _loading = false;
     var _hiveName = ''; // populated on first generate

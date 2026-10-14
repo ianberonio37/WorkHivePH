@@ -426,7 +426,13 @@
      unhandled rejection - while validate_role_checks reported PASS. A green gate is not a working page,
      which is why this edit was re-walked live before being believed. */
   const _preRole = localStorage.getItem('wh_hive_role') || '';
-  const _IS_SUPERVISOR = _preRole === 'supervisor';
+  const _isSupRole = (role) => role === 'supervisor';   // still the page's ONE comparison: read on load, and again after the reconcile below
+  let _IS_SUPERVISOR = _isSupRole(_preRole);
+  /* ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
+     server whose device still said 'supervisor': this page gave them the filters, the search and "Export
+     filtered entries to CSV" instead of the not-a-supervisor gate - the pre-gate above acts only on a cached NO.
+     The membership row is asked now, beside the session settle below, and the gate decides on the server's role. */
+  const _roleReady = (typeof whReconcileHiveRole === 'function') ? whReconcileHiveRole(db).catch(() => null) : Promise.resolve(null);
   try {
     const _preHive = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
     const _preMain = document.getElementById('main-content');
@@ -466,11 +472,14 @@
     document.getElementById('gate-no-hive').style.display = 'block';
     return;
   }
+  const _rr = await _roleReady;          // { was, now } only when the server disagreed with this device
+  if (_rr) _IS_SUPERVISOR = _isSupRole(_rr.now);
   if (!_IS_SUPERVISOR) {                 // the single comparison hoisted to the top of this IIFE
     if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-not-supervisor').style.display = 'block';
     return;
   }
+  if (_rr && mainEl) mainEl.style.display = '';   // promoted since this device last looked: the cached-NO pre-gate hid it
 
   // main-content already VISIBLE (shipped without display:none) so it paints once
   // in final layout — no JS reveal here (that was the ~0.7 CLS bomb; Arc L L1).

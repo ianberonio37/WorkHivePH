@@ -2,13 +2,13 @@
 name: page-alert-hub
 type: page
 source: file:alert-hub.html
-source_sha: bd688b94630d8b5a
+source_sha: c0db792a0e3a392f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `alert-hub.html` — Alert Hub | WorkHive
 
-Size: 162KB · 39 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 163KB · 39 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (5): `alert_dismissals.delete`, `alert_dismissals.upsert`, `amc_briefings.update`, `anomaly_signals.update`, `hive_audit_log.insert`
 **RPC calls**: `compute_anomaly_signals`

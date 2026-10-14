@@ -204,12 +204,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let HIVE_ROLE = '';
 
     (async function init() {
+      // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
+      // server whose device still said 'supervisor': this page rendered the integration, sensor-topic and gateway
+      // audit console instead of renderDenied(). The membership row is asked first, beside the session settle
+      // below, and the gate decides on the server's role (whReconcileHiveRole, utils.js).
+      const _roleReady = (typeof whReconcileHiveRole === 'function') ? whReconcileHiveRole(db).catch(() => null) : Promise.resolve(null);
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       if (!WORKER_NAME) { whSignInWall(); return; }
       HIVE_ID = whHiveId() || '';
       if (!HIVE_ID) { window.location.href = 'hive.html'; return; }
       HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+      const _rr = await _roleReady;
+      if (_rr) HIVE_ROLE = _rr.now || '';
       if (typeof logPageView === 'function') logPageView(db);
 
       if (HIVE_ROLE !== 'supervisor') {

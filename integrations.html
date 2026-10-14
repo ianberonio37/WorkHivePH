@@ -917,8 +917,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's
     // reads/writes server-side; this gate ALSO hides the admin UI so a worker never sees
     // the token fields or the wizard (client role is spoofable — RLS is the real backstop).
-    const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
-    if (HIVE_ROLE !== 'supervisor') {
+    let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+    // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
+    // server whose device still said 'supervisor': this page kept the whole CMMS console - SAP PM / Maximo import,
+    // Live Sync, "Manage keys" - and every write through it met an RLS refusal. The gate now decides on the
+    // membership row (whReconcileHiveRole, utils.js), and the pre-paint class in <head> follows the answer.
+    const _rr = (typeof whReconcileHiveRole === 'function') ? await whReconcileHiveRole(db).catch(() => null) : null;
+    if (_rr) HIVE_ROLE = _rr.now || '';
+    const _notSupervisor = HIVE_ROLE !== 'supervisor';
+    if (_rr) document.documentElement.classList.toggle('wh-nonsup', _notSupervisor);
+    if (_notSupervisor) {
       // VEHICLE SEED (2026-09-02): the Add-a-Vehicle wizard serves EVERY signed-in user —
       // solo car owners are by definition not hive supervisors — so the gate now removes
       // only the CMMS console's elements instead of nuking <main>. RLS remains the real

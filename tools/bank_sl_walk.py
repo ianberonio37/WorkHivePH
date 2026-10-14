@@ -47,7 +47,16 @@ GATES = {
     "A3": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "AV1": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
+    "AU2": ["role-reconciled", "role-checks", "storage-keys"],
 }
+# how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
+CONDITION = {
+    "AU2": ("the device role written into the page's own storage before the page loaded - the honest role and a false "
+            "one, the same signed-in person with the server's hive_members.role set on the LOCAL database"),
+}
+CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
+# a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
+BRH_CLASS_SUBLAYER = {"F": "AU2"}
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",
@@ -275,10 +284,16 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
               check: bool = True) -> int:
     reg = _load_registry()
     t = next((x for x in reg["trajectories"] if x["id"] == rid), None)
-    if not t or not t.get("sl"):
-        print(f"{rid}: not an SL row")
+    # a BRH row (the bug-hunt wave) carries the same receipt contract - a named person at both viewports - and is
+    # settled by the same walk as the SL sub-layer that met its defect class (BRH-F <- AU2, 2026-10-14)
+    if not t or not (t.get("sl") or t.get("brh")):
+        print(f"{rid}: not an SL or BRH row")
         return 1
-    s = t["sl"]
+    s = t.get("sl") or t["brh"]
+    key = s.get("sublayer") if t.get("sl") else BRH_CLASS_SUBLAYER.get(s.get("cls"), "")
+    if t.get("brh") and not key:
+        print(f"{rid}: no walk is defined for bug-hunt class {s.get('cls')} - nothing banked")
+        return 1
     if str(s.get("instrument", "")).startswith("library"):
         print(f"{rid}: a contract row closes on its prover (--prover), not on a walk")
         return 1
@@ -296,9 +311,11 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         witness = (f"WebKit half: {PROVER} ({webkit}, {res.get('generated')}): {s.get('page')} "
                    + "; ".join(f"{r['condition']} {r.get('chars')} chars, clean" for r in wk) + f". {witness}")
     cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", "chrome-devtools-mcp",
-           "--layer", s["layer"], "--sublayer", s["sublayer"], "--as-persona", t.get("persona") or "",
+           "--layer", s["layer"], "--as-persona", t.get("persona") or "",
            "--viewports", "phone-390,desktop-1280", "--engine", engine, "--steps", steps,
            "--witness", witness[:1900], "--note", note[:1500]]
+    if t.get("sl"):
+        cmd += ["--sublayer", s["sublayer"]]
     if unproven:
         cmd += ["--unproven", unproven[:400]]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -308,11 +325,12 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         print(f"{rid}: NOT banked")
         return 1
     today = time.strftime("%Y-%m-%d")
+    how = CONDITION.get(key, CONDITION_DEFAULT)
     basis = (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, "
-             f"signed in as {t.get('persona')} through the product's own sign-in form; the condition induced by the MCP's "
-             f"initScript before any page script): {note} Witness: {witness[:1200]} Receipt .tmp/mcp_walks/{rid}.json.")
+             f"signed in as {t.get('persona')} through the product's own sign-in form; {how}): {note} "
+             f"Witness: {witness[:1200]} Receipt .tmp/mcp_walks/{rid}.json.")
     reg = _load_registry()
-    _bank(reg, rid, basis, GATES.get(s["sublayer"], ["page-survives-optional-failures"]))
+    _bank(reg, rid, basis, GATES.get(key, ["page-survives-optional-failures"]))
     _write_registry(reg)
     if not check:                       # a batch checks closure ONCE at its end (--check-closed): the ledger build is
         print(f"{rid}: banked")         # ~90 s, and per row it turned a 20-row bank into a 30-minute run (2026-10-14)

@@ -713802,8 +713802,8 @@
     },
     {
       "id": "BRH148",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - alert hub:520 · wh_hive_role - supervisor",
       "pages": [
@@ -713861,12 +713861,20 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on alert-hub.html - reproduced, fixed, gated. FAILED on demand before the fix: at 1280 the false role got 'Approve brief' and 'Reject' on the AMC brief (150 vs 152 controls, 5575 vs 5823 chars), each refused by RLS on tap. Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render, run beside loadAll's first reads.. Witness: alert-hub.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: 390 152 vs 152 controls, 5613 vs 5613 chars; 1280 150 vs 150, 5575 vs 5575; device role rewritten to 'worker'. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH148.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "BRH149",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - analytics report:771 · wh_hive_role - supervisor",
       "pages": [
@@ -713924,12 +713932,13 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "basis": "[2026-10-14] DESCOPED - refuted live: this site's stored-role read fed `_role = HIVE_ROLE === 'supervisor' ? 'supervisor' : 'supervisor'` - both branches the same - so the device's role decided nothing on analytics-report.html. The AU2 differential (SL1353: Leandro Marquez demoted on the LOCAL database, honest vs false device role, chrome-devtools-mcp at a TRUE 390 and 1280) read 23 vs 23 controls and 493 vs 493 chars at 390, 25 vs 25 and 531 vs 531 at 1280, the Supervisor audience active in both because it is the report's fixed default for every reader. The reproduction cannot be made to fail. The inert read was removed anyway, and the role-reconciled gate keeps a live comparison from returning without a reconcile. Reversible: restore the status if the report's audience is ever derived from the stored role. Prior basis kept below. || pct -> 0. The claim above is WITHDRAWN: see the dated descope note at the head of this basis - the stored role decided nothing on this page, so there was no failure to reproduce."
     },
     {
       "id": "BRH150",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - analytics:890 · wh_hive_role - supervisor",
       "pages": [
@@ -713989,12 +713998,20 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on analytics.html - reproduced, fixed, gated. FAILED on demand before the fix: at 390 the false role opened the Supervisor view (6019 vs 5333 chars, 'Filter PM tasks by asset' gone) and the Predictive phase's 'Recompute risk' was gated on the cached role. Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render, passing the page's own hive; the view default is re-derived after it.. Witness: analytics.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: 390 59 vs 59 controls, 6019 vs 6019 chars, Worker view and page HIVE_ROLE 'worker' in both; 1280 (direct navigation under the no-model stub) 58 vs 58, 5984 vs 5984. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH150.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "BRH151",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - audit log:428 · wh_hive_role - supervisor",
       "pages": [
@@ -714052,12 +714069,20 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on audit-log.html - reproduced, fixed, gated. FAILED on demand before the fix: the honest worker got the not-a-supervisor gate, the false role got the filters, the search and 'Export filtered entries to CSV' (13 vs 23 controls at 390, 15 vs 25 at 1280). Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render; the page's single role comparison kept as a named predicate.. Witness: audit-log.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: 390 13 vs 13 controls, 345 vs 345 chars; 1280 15 vs 15, 383 vs 383; promotion (390) 25 vs 25. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH151.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "BRH152",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - integrations:28 · wh_hive_role - supervisor",
       "pages": [
@@ -714115,12 +714140,20 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on integrations.html - reproduced, fixed, gated. FAILED on demand before the fix: the false role got the CMMS console - SAP PM / Maximo import, Live Sync, API Keys, 'Manage keys' - 15 vs 30 controls (517 vs 2228 chars) at 390 and 1280; a solo owner (Jun Salvador, no hive) with a leftover role got it too, 15 vs 26. Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render; the pre-paint class follows the answer, and a role on a device with no hive is dropped when the account holds no active membership.. Witness: integrations.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: 390 and 1280 15 vs 15 controls, 517 vs 517 chars, 'Supervisor access only' in both; Jun likewise. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH152.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "BRH153",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - marketplace admin:422 · wh_hive_role - supervisor",
       "pages": [
@@ -714178,12 +714211,13 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "basis": "[2026-10-14] DESCOPED - refuted live: marketplace-admin.html:422 reads wh_hive_role into HIVE_ROLE and never compares or shows it - the page's gate is the server's platform-admin check (:1171) - so a demoted supervisor's page is unchanged. The AU2 differential (SL1369: Leandro Marquez demoted on the LOCAL database, honest vs false device role, chrome-devtools-mcp at a TRUE 390 and 1280) read 20 vs 20 controls and 714 vs 714 chars at both widths. The reproduction cannot be made to fail. The role-reconciled gate fails this page the day the read is compared or shown without a reconcile. Reversible: restore the status if the page ever gates on or shows the stored role. Prior basis kept below. || pct -> 0. The claim above is WITHDRAWN: see the dated descope note at the head of this basis - the read gates nothing on this page, so there was no failure to reproduce."
     },
     {
       "id": "BRH154",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - plant connections:212 · wh_hive_role - supervisor",
       "pages": [
@@ -714241,12 +714275,20 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on plant-connections.html - reproduced, fixed, gated. FAILED on demand before the fix: the false role got the plant console instead of renderDenied() - at 390 17 vs 19 controls, 579 vs 988 chars ('Open CMMS Integration', 'Show details'); at 1280 579 vs 950. Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render, beside the session settle.. Witness: plant-connections.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: 390 and 1280 17 vs 17 controls, 579 vs 579 chars; promotion (390) 18 vs 18. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH154.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "BRH155",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-F",
       "title": "a stored role trusted without re-validation - resume:480 · wh_hive_role - supervisor",
       "pages": [
@@ -714304,6 +714346,14 @@
         "repro": "demote the signed-in supervisor on the server (hive_members.role = worker); the page still renders the supervisor controls from localStorage wh_hive_role, and a write through them is refused by RLS with no honest sentence",
         "fix": "re-validate the role against the membership row (by auth_uid) before gating any control on it, the way logbook/asset-hub/pm-scheduler already do, and write the corrected role back",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): BRH-F on resume.html - reproduced, fixed, gated. FAILED on demand: the pre-fix page (HEAD c3a369e0, served under a temporary name for the reproduction and removed after) told the demoted supervisor 'Baguio Textile Mills · supervisor' in its context pill, at 390 and 1280, while the honest read said '· worker'. Fix: utils.js whReconcileHiveRole(db) - the membership row by auth_uid - awaited before the first role-gated render, before the pill paints.. Witness: resume.html as Leandro Marquez, supervisor of Baguio Textile Mills, demoted to 'worker' on the LOCAL database for the reproduction and restored after. After: the pill reads 'Baguio Textile Mills · worker' for both reads at 390 and 1280; 32 vs 32 controls, 1971 vs 1971 chars. Gate that reddens on revert: role-reconciled (tools/validate_role_reconciled.py) flags the pre-fix (HEAD c3a369e0) copy of this page - teeth 9 of 9 pre-fix pages - and passes the fixed tree, 15 of 15 role-dependent pages reconciled; role-checks and storage-keys --check pass. Receipt .tmp/mcp_walks/BRH155.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
@@ -798500,8 +798550,8 @@
     },
     {
       "id": "SL1352",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · alert hub",
       "pages": [
@@ -798558,12 +798608,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on alert-hub.html: FAILED before the fix: the false role got Approve / Reject on the AMC brief and Ack / Resolve on alerts, each refused by RLS on tap; fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render (run beside loadAll's first reads, no added round trip). Re-walked: no control only the false role shows, and the page rewrote the device role to the server's. Witness: alert-hub.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 152 vs 152 controls, 5613 vs 5613 chars; 1280: 150 vs 150, 5575 vs 5575; device role after load 'worker' in both reads. Promotion direction (server 'supervisor', device 'worker'): 154 vs 154. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1352.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1353",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - fleet-supervisor · analytics report",
       "pages": [
@@ -798620,12 +798678,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on analytics-report.html: PASSED on controls; its only read of the stored role fed a test whose two branches were both 'supervisor', so the read is removed - the report's audience toggle is open to everyone. Witness: analytics-report.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 23 vs 23 controls, 493 vs 493 chars; 1280: 25 vs 25, 531 vs 531; Supervisor audience active in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1353.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1354",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - fleet-supervisor · analytics",
       "pages": [
@@ -798684,12 +798750,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on analytics.html: FAILED before the fix: the false role opened the Supervisor view (6019 vs 5333 chars) and the Predictive phase's 'Recompute risk' was gated on the cached role alone (a phase the at-rest read never opens); fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render, passing the page's own hive (it has a single-hive fallback), and the view default is re-derived after it. Witness: analytics.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 59 vs 59 controls, 6019 vs 6019 chars, Worker view in both, page HIVE_ROLE 'worker'; 1280 (direct navigation, no-model stub): 58 vs 58, 5984 vs 5984, Worker view, HIVE_ROLE 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1354.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1355",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · asset hub",
       "pages": [
@@ -798746,12 +798820,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on asset-hub.html: PASSED: no control only the false role shows - the page's own membership read rewrites the device role to the server's on load. Witness: asset-hub.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 50 vs 50 controls, 3842 vs 3842 chars; 1280: 50 vs 50, 3842 vs 3842; device role after load 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1355.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1356",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - fleet-supervisor · community",
       "pages": [
@@ -798808,12 +798890,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on community.html: FAILED before the fix: the false role got the Mod Queue and 'Share publicly with all WorkHive teams', and at 1280 Pin / Delete / Make public / Flag on others' posts; fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render (started at parse time, awaited in DOMContentLoaded). Witness: community.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 42 vs 42 controls, 1916 vs 1916 chars; 1280: 48 vs 48, 2079 vs 2079; role after 'worker'. Promotion (390): 44 vs 44 with the Mod Queue in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1356.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1357",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · hive",
       "pages": [
@@ -798870,12 +798960,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on hive.html: PASSED: the hive board reads the membership itself and rewrites the device role; nothing only the false role shows. Witness: hive.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 27 vs 27 controls, 2184 vs 2184 chars; 1280: 27 vs 27, 2184 vs 2184; role after load 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1357.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1358",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · index",
       "pages": [
@@ -798932,12 +799030,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on index.html: FAILED before the fix: the home led the false role with the supervisor actions ('Hive Board') and a supervisor 'one thing' card - first through the cached role, then (after the first fix) through nav-hub's display mode DERIVED from it (wh_nav_mode src 'derived'), read raw. fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render, and the helper now drops a derived (never a chosen) nav mode when the role changes, so nav-hub re-derives it. Witness: index.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 31 vs 31 controls, 854 vs 854 chars; 1280: 36 vs 36, 924 vs 924; role after 'worker', derived mode dropped. Promotion (390): 31 vs 31 with 'Hive Board' in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1358.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1359",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - solo-owner · integrations",
       "pages": [
@@ -798994,12 +799100,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as solo-owner through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on integrations.html: FAILED before the fix, for this cast and the supervisor one: Jun Salvador (junvanowner, a solo owner with no hive) whose device still said 'supervisor' got the whole CMMS console - API Keys, Live Sync, 'Manage keys' - instead of 'Supervisor access only' (15 vs 26 controls). fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render; a role with no hive is now dropped when the account holds no active membership at all. Witness: integrations.html as Jun Salvador (junvanowner, solo owner, no hive). Jun, 390: 15 vs 15 controls, 517 vs 517 chars, the wall in both reads, leftover role removed; 1280: the same. Leandro (demoted): 390 and 1280 15 vs 15, 517; promotion (390): 30 vs 30, the console in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1359.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1360",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · inventory",
       "pages": [
@@ -799056,12 +799170,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on inventory.html: PASSED: its membership gate rewrites the device role; nothing only the false role shows. Witness: inventory.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 29 vs 29 controls, 2144 vs 2144 chars; 1280: 29 vs 29, 2144 vs 2144; role after 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1360.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1361",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · logbook",
       "pages": [
@@ -799118,12 +799240,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on logbook.html: PASSED: identity-keyed membership read rewrites the device role; nothing only the false role shows. Witness: logbook.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 50 vs 50 controls, 4153 vs 4153 chars; 1280: 48 vs 48, 4115 vs 4115; role after 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1361.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1362",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - machine-client · plant connections",
       "pages": [
@@ -799180,12 +799310,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as machine-client through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on plant-connections.html: FAILED before the fix: the false role got the integration / sensor-topic / gateway console instead of renderDenied(); fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render (beside the session settle). Witness: plant-connections.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 17 vs 17 controls, 579 vs 579 chars; 1280: 17 vs 17, 579 vs 579; role after 'worker'. Promotion (390): 18 vs 18, the console in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1362.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1363",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · pm scheduler",
       "pages": [
@@ -799242,12 +799380,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on pm-scheduler.html: PASSED: its membership gate rewrites the device role; nothing only the false role shows. Witness: pm-scheduler.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 32 vs 32 controls, 2715 vs 2715 chars; 1280: 32 vs 32, 2715 vs 2715; role after 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1363.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1364",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - fleet-supervisor · project manager",
       "pages": [
@@ -799304,12 +799450,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on project-manager.html: PASSED: its membership gate (by auth_uid) rewrote the false role to the server's on load. Witness: project-manager.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 30 vs 30 controls, 1626 vs 1626 chars; 1280: 30 vs 30, 1626 vs 1626; role after 'worker' in both. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1364.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1365",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · resume",
       "pages": [
@@ -799366,12 +799520,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on resume.html: PASSED on controls; the context pill printed the role from the device alone ('Plant · supervisor' for a demoted supervisor), so it now awaits whReconcileHiveRole before it paints. Witness: resume.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 32 vs 32 controls, 1971 vs 1971 chars, pill 'Baguio Textile Mills · worker' in both reads; 1280: the same 32 / 1971 and the same pill. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1365.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1366",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - worker · shift brain",
       "pages": [
@@ -799428,12 +799590,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as worker through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on shift-brain.html: PASSED: validateHiveMembership reads v_worker_truth by auth_uid and rewrites the device role. Witness: shift-brain.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 45 vs 45 controls, 4349 vs 4349 chars; 1280 (direct navigation under the no-model stub): 46 vs 46, 4505 vs 4505; role after 'worker'. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1366.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1367",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - oversight · architecture",
       "pages": [
@@ -799484,12 +799654,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from architecture itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as oversight through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on architecture.html: PASSED: the page's gate is the platform-admin check on the server, not the hive role. Witness: architecture.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 1 vs 1 control, 3710 vs 3710 chars; 1280: the same. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1367.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1368",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - fleet-supervisor · audit log",
       "pages": [
@@ -799546,12 +799724,20 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as fleet-supervisor through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on audit-log.html: FAILED before the fix: the honest worker got the not-a-supervisor gate ('Open Hive Board') but the false role got the filters, the search and 'Export filtered entries to CSV' (13 vs 23 controls at 390, 15 vs 25 at 1280); fixed by awaiting utils.js whReconcileHiveRole(db) before the first role-gated render, keeping the page's single role comparison as a named predicate. Witness: audit-log.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 13 vs 13 controls, 345 vs 345 chars; 1280: 15 vs 15, 383 vs 383; role after 'worker'. Promotion (390): 25 vs 25 with the CSV export in both (the cached-NO pre-gate's hide is undone). Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1368.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
       "id": "SL1369",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AU",
       "title": "AU2 · The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers - oversight · marketplace admin",
       "pages": [
@@ -799602,6 +799788,14 @@
         "engine": "chromium",
         "ask": "The platform must re-check on the server the role this page gates its controls on, not trust the role the device remembers",
         "closes": "the AU2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-14] pct -> 60. WALKED LIVE 2026-10-14 via chrome-devtools-mcp (a TRUE 390 and 1280 through CDP, signed in as oversight through the product's own sign-in form; the device role written into the page's own storage before the page loaded - the honest role and a false one, the same signed-in person with the server's hive_members.role set on the LOCAL database): AU2 on marketplace-admin.html: PASSED: the gate is the server's platform-admin check; the stored role is read and never compared. Witness: marketplace-admin.html as Leandro Marquez, supervisor of Baguio Textile Mills, his hive_members.role set to 'worker' on the LOCAL database for the reading and restored to 'supervisor' after. 390: 20 vs 20 controls, 714 vs 714 chars; 1280: the same. Gates run and passing: role-reconciled (14 of 14 role-gated pages reconcile; teeth: all 8 pre-fix pages flag), role-checks (baseline tightened to 93), storage-keys --check. Receipt .tmp/mcp_walks/SL1369.json.",
+      "artifacts": {
+        "gates": [
+          "role-checks",
+          "role-reconciled",
+          "storage-keys"
+        ]
       }
     },
     {
@@ -976997,5 +977191,5 @@
       }
     }
   ],
-  "next": "SL walk 3: AU1-AU4 as each page's cast through the chrome-devtools MCP at 390 and 1280 - AU2 by a DIFFERENTIAL oracle (the same person with an honest device role vs a remembered-false one: a demoted supervisor, a forged worker; any control only the false role shows is a page trusting the device; settles BRH-F's 8 pages, fix = utils.js whReconcileHiveRole before the first gated render), AU3 by a renamed display name (rows must stay the account's), AU1 by an expired session (the wall with return-to, nothing acted on), AU4 refusal as Bryan (not an admin) + the view as oversight. Condition scripts in .tmp/slw/. Then the contract batch provers (F2/F3/F5, CA2, H2, S3/S4/S5, CI1-CI4 over every page), ENH-S the solar planner - order in §SL."
+  "next": "SL walk 3 part 2: AU3 (31 rows, a display name renamed on another device), AU1 (29, an expired session) and AU4 (15, admin gates: refusal as Bryan, not a platform admin, and the view as oversight) through the chrome-devtools MCP at 390 and 1280 - frames only for pages that call no model on load; alert-hub, analytics and shift-brain by direct navigation under the no-model stub. Then the contract batch provers: F2 (prove_phone_fit 320/390/1280 incl --anon), F3 axe + keyboard, F5 design ratchet, CA2/H2 headers, H1's remaining 148 + S3 via page-survives --all, S4 xss, S5 secrets, CI1-CI4; then ENH-S, the solar planner."
 }

@@ -23,7 +23,7 @@ import { chromium, webkit } from 'playwright';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync, execSync } from 'node:child_process';
 import { dirname } from 'node:path';
-import { SEEDER } from './prover_harness.mjs';
+import { SEEDER, stubModelCalls } from './prover_harness.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const ENGINES = arg('--engine') ? [arg('--engine')] : ['chromium', 'webkit'];
@@ -48,6 +48,7 @@ const psql = (sql) => execSync(`docker exec -i supabase_db_workhive psql -U post
 async function context(engine, opts = {}) {
   const browser = await (engine === 'webkit' ? webkit : chromium).launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await stubModelCalls(ctx);   // local stubs first: a page's load-time model call never reaches a provider
   const seen = [];
   await ctx.route('**/rest/v1/client_errors*', async (route) => {
     const req = route.request();

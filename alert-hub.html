@@ -517,7 +517,7 @@
 
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
-  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+  let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 
   if (!HIVE_ID) {
     var _mc = document.getElementById('main-content');
@@ -525,6 +525,14 @@
     document.getElementById('gate-card').style.display = 'block';
     return;
   }
+
+  // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). Walked with a supervisor demoted on the
+  // server whose device still said 'supervisor': this page showed Approve / Reject on the AMC brief and Ack /
+  // Resolve on every alert, and each tap then met an RLS refusal. The membership row is asked once, in parallel
+  // with loadAll's first reads, and loadAll awaits it before anything gated renders (whReconcileHiveRole, utils.js).
+  const _roleReady = (typeof whReconcileHiveRole === 'function')
+    ? whReconcileHiveRole(db).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+    : Promise.resolve();
 
   // main-content already VISIBLE (no display:none) — paints once in final layout;
   // no JS reveal here (that was the CLS bomb; Arc L L1).
@@ -1428,7 +1436,7 @@
       }
     }
 
-    const [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes] = await Promise.allSettled([
+    const _rowsSettled = Promise.allSettled([
       // Canonical: risk_truth — asset_risk_scores is insert-only (history),
       // v_risk_truth returns the latest score per asset via DISTINCT ON.
       db.from('v_risk_truth')
@@ -1520,6 +1528,8 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(20),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
     ]);
+    // the role reconcile (above) ran beside these reads; every gated render below happens after both
+    const [[riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]] = await Promise.all([_rowsSettled, _roleReady]);
 
     // Errors must be counted, not skipped. `.value.error` is the half the status check misses.
     _ahAlertReadFailed = [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]

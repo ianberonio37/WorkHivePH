@@ -2229526,23 +2229526,6 @@
       "findings": []
     },
     {
-      "id": "BRH149",
-      "wave": "BRH-F",
-      "status": "pending",
-      "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
-        "analytics-report.html"
-      ],
-      "cell": "wide-1920|supervisor|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "BRH150",
       "wave": "BRH-F",
       "status": "pending",
@@ -2229586,23 +2229569,6 @@
         "hive.html",
         "integrations.html",
         "analytics.html"
-      ],
-      "cell": "wide-1920|supervisor|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "BRH153",
-      "wave": "BRH-F",
-      "status": "pending",
-      "pages": [
-        "index.html",
-        "hive.html",
-        "founder-console.html",
-        "marketplace-admin.html"
       ],
       "cell": "wide-1920|supervisor|browser-ui|operate",
       "walk_viewport_px": 1920,

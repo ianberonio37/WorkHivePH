@@ -1,7 +1,6 @@
 {
   "files": {
     "alert-hub.html": 3,
-    "analytics-report.html": 1,
     "analytics.html": 1,
     "asset-hub.html": 13,
     "audit-log.html": 1,
@@ -16,5 +15,5 @@
     "project-manager.html": 1,
     "shift-brain.html": 7
   },
-  "total": 94
+  "total": 93
 }

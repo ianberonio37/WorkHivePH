@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 99a5b30d18c76db6
+source_sha: 5163273e30e24f16
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1363) — the 'what's already gated' brain
+## gate · registered validators (1364) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -1434,7 +1434,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (26)
+### Security (27)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
@@ -1455,6 +1455,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `recovery-path` [fail] — Recovery path (every rostered destructive control reached on its own path; confirm or undo offered, pressable, and the live census restored)
 - `refusal-and-redirect` [fail] — Refusal & redirect (a return-url cannot leave this origin; a refusal says when, whose, and whether retrying costs)
 - `revoke-actually-revoked` ⚡ [fail] — REVOKE ACTUALLY REVOKED - a `REVOKE EXECUTE ... FROM anon, authenticated` is a NO-OP, because every function is created with EXECUTE granted to PUBLIC and every
+- `role-reconciled` ⚡ [fail] — SL AU2 (2026-10-14): every page that gates on the STORED role (wh_hive_role, or WHRoles which reads it) asks the server first - whReconcileHiveRole(db) in utils
 - `session-death-is-not-removal` ⚡ [fail] — SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from "you were removed from this hive" u
 - `shared-handover` [fail] — Shared-device handover (nothing one person typed survives to the next on the same browser)
 - `tenant-refusal` ⚡ [fail] — Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)

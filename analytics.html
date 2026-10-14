@@ -887,7 +887,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try { const h = JSON.parse(localStorage.getItem('wh_hives') || '[]'); return (Array.isArray(h) && h.length === 1 && h[0] && h[0].id) ? h[0].id : null; }
     catch (_e) { return null; }
   })();
-  const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+  let   HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
+  // ★THE STORED ROLE IS A CACHE OF A SERVER FACT (SL AU2, 2026-10-14). The Predictive phase offers supervisors
+  // "Recompute risk", decided from this key alone, and the view toggle opens on it - so a supervisor demoted on another
+  // device kept a recompute that RLS then refused. Asked now (with this page's own hive, which may come from the
+  // single-hive fallback above); the start-up awaits it before the first role-gated render.
+  const _roleReady = (typeof whReconcileHiveRole === 'function')
+    ? whReconcileHiveRole(db, HIVE_ID).then((r) => { if (r) HIVE_ROLE = r.now || ''; }).catch(() => {})
+    : Promise.resolve();
 
   let _period  = 90;
   let _phase   = 'descriptive';
@@ -3294,7 +3301,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // Defaults from HIVE_ROLE — the only actual roles in hive_members per the
   // multitenant model.
 
-  let _role = HIVE_ROLE === 'supervisor' /* role-check-allow: page-local view derivation from HIVE_ROLE (=wh_hive_role), coerced to supervisor|worker */ ? 'supervisor' : 'worker';
+  function _defaultView() { return HIVE_ROLE === 'supervisor' /* role-check-allow: page-local view derivation from HIVE_ROLE (=wh_hive_role), coerced to supervisor|worker */ ? 'supervisor' : 'worker'; }
+  let _role = _defaultView();   // re-derived at start-up once the role is reconciled with the server
 
   function setRole(role) {
     // Clamp to known roles — Manager was retired (was UI-only, not a real role)
@@ -3593,7 +3601,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // C4: restore identity from auth session on new device
     if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
     if (!WORKER_NAME) { whSignInWall(); return; }
-    // Set default role based on HIVE_ROLE
+    // Set default role based on HIVE_ROLE - the server's, once the reconcile started at parse time has answered
+    await _roleReady;
+    _role = _defaultView();
     setRole(_role);
     // G1 (FF1): canonical skeleton replaces the hand-rolled spinner block as the wait
     // state while autoLoad() computes/hydrates (results-panel is fully re-rendered on load).
