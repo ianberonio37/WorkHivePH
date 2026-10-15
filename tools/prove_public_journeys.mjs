@@ -12,6 +12,8 @@
 //   go on      the page's first onward link inside <main> to a WorkHive surface (a call to action first, else the first
 //              in-site link) is CLICKED, as a person would, and the destination answers under 400 with a title and an
 //              <h1> or a sign-in form - never a 404, never a blank page
+//   filter     a page whose job is HERE (feedback's public roadmap: no onward link in <main>) is walked by pressing a
+//              filter chip instead - it must become the pressed one and the list must still say something
 // The app pages' journeys are tools/live_page_journeys.mjs's registry (run with --engine webkit for the second engine);
 // tools/prove_page_journeys.py reads both into the CI2 rows.
 // TEETH (every run, both engines): a planted page with no <h1>, an empty <main> and an onward link to a missing page
@@ -36,8 +38,20 @@ const MIN_WORDS = { article: 150, calculator: 150, directory: 30 };
 // the served path of a file - directory pages are served at /<dir> (vercel.json cleanUrls false, trailingSlash false)
 const served = (f) => `${SEEDER}/workhive/${f}`;
 
+// ★A WALK MUST END (2026-10-15): WebKit's web process died under a calculator page and every await on it hung - the
+// run sat 15 minutes on one page and, writing only at the end, would have lost every reading. Each walk now has a
+// ceiling (recorded as a problem, never a pass) and the results are written after every page.
+const WALK_MS = 90000;
 async function walk(ctx, url, kind) {
+  let page;
+  const t = new Promise((r) => setTimeout(() => r({ steps: {}, problems: [`walk did not finish in ${WALK_MS / 1000}s (the engine stopped answering)`] }), WALK_MS));
+  const r = await Promise.race([walkInner(ctx, url, kind, (p) => { page = p; }), t]);
+  if (page) await Promise.race([page.close().catch(() => {}), new Promise((x) => setTimeout(x, 5000))]);
+  return r;
+}
+async function walkInner(ctx, url, kind, hold) {
   const page = await ctx.newPage();
+  hold(page);
   const steps = {}, problems = [];
   try {
     const resp = await page.goto(url, { waitUntil: 'load', timeout: 45000 }).catch((e) => ({ status: () => 0, err: e }));
@@ -76,7 +90,19 @@ async function walk(ctx, url, kind) {
       steps.answer = { opened: open };
       if (!open) problems.push('answer: the first FAQ question did not open onto its answer');
     }
-    if (!read.onward) problems.push('go on: no onward link to a WorkHive surface in <main>');
+    // a page whose job is HERE - a public list a reader filters (feedback's roadmap) - is walked by pressing a filter chip
+    // instead: the chip must become the pressed one, and the list must still say something
+    const chip = !read.onward && await page.evaluate(() => { const c = [...document.querySelectorAll('main button[aria-pressed="false"], main [role="tab"][aria-selected="false"]')]
+      .find((b) => (typeof b.checkVisibility !== 'function' || b.checkVisibility()) && (b.textContent || '').trim()); if (c) c.setAttribute('data-ci2-chip', '1'); return c ? (c.textContent || '').trim().slice(0, 30) : null; });
+    if (!read.onward && chip) {
+      await page.locator('[data-ci2-chip="1"]').first().click({ timeout: 6000 }).catch(() => {});
+      await page.waitForTimeout(1200);
+      const st = await page.evaluate(() => { const c = document.querySelector('[data-ci2-chip="1"]'); const m = document.querySelector('main');
+        return { pressed: !!c && (c.getAttribute('aria-pressed') === 'true' || c.getAttribute('aria-selected') === 'true'), text: (m.innerText || '').trim().length }; });
+      steps.filter = { chip, pressed: st.pressed };
+      if (!st.pressed) problems.push(`filter: pressing "${chip}" did not make it the pressed filter`);
+      else if (st.text < 40) problems.push(`filter: after "${chip}" the list says nothing`);
+    } else if (!read.onward) problems.push('go on: no onward link to a WorkHive surface in <main>, and no filter to press');
     else {
       const onward = page.locator('[data-ci2-onward="1"]').first();
       await onward.scrollIntoViewIfNeeded().catch(() => {});
@@ -96,7 +122,6 @@ async function walk(ctx, url, kind) {
   } catch (e) {
     problems.push('walk threw: ' + String(e && e.message || e).slice(0, 140));
   }
-  await page.close().catch(() => {});
   return { steps, problems };
 }
 
@@ -105,12 +130,29 @@ const CLEAN = '<!doctype html><html lang="en"><head><title>Guide</title></head><
   + 'Maintenance teams read this guide to plan their week and record what they did on every machine they touched. '.repeat(4)
   + '</p><details><summary>What is it?</summary><p>An answer long enough to be read as one by a person.</p></details><a href="/workhive/about/index.html">Open the about page</a></main></body></html>';
 
-await takeBrowserSlot('public-journeys');
+mkdirSync('.tmp', { recursive: true });
+const OUT = '.tmp/public_journeys_results.json';
+const PREV = LIST && existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : null;
 const results = [], teeth = {};
-for (const engine of ENGINES) {
+// written after every page, merged over a --pages re-read's previous file, so an engine that dies loses one page
+function save() {
+  const merged = PREV ? [...PREV.results.filter((r) => !results.some((x) => x.page === r.page && x.engine === r.engine)), ...results] : results;
+  writeFileSync(OUT, JSON.stringify({ generated: new Date().toISOString(), sublayer: 'CI2', engines: ENGINES,
+    teeth: Object.keys(teeth).length ? { ...((PREV || {}).teeth || {}), ...teeth } : (PREV || {}).teeth, results: merged }, null, 1) + '\n');
+}
+await takeBrowserSlot('public-journeys');
+// ★A DEAD ENGINE IS RELAUNCHED, NOT FATAL (2026-10-15): WebKit's process died on a calculator page and took the whole run
+// with it - the next newPage threw and the prover exited 8 pages short. A walk that reports a crashed target or a
+// closed browser now relaunches the engine; the page it was on keeps its honest problem, and the run goes on.
+const DEAD = /Target crashed|browser has been closed|Target page, context or browser has been closed|context or browser/i;
+async function launch(engine) {
   const browser = await (engine === 'webkit' ? webkit : chromium).launch();
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block', locale: 'en-PH' });
   for (const [k, html] of [['slop', SLOP], ['clean', CLEAN]]) await ctx.route(`${SEEDER}/workhive/__ci2_teeth_${k}.html`, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: html }));
+  return { browser, ctx };
+}
+for (const engine of ENGINES) {
+  let { browser, ctx } = await launch(engine);
   const s = await walk(ctx, `${SEEDER}/workhive/__ci2_teeth_slop.html`, 'article');
   const c = await walk(ctx, `${SEEDER}/workhive/__ci2_teeth_clean.html`, 'directory');
   teeth[engine] = { slop: s.problems, clean: c.problems,
@@ -118,17 +160,19 @@ for (const engine of ENGINES) {
   console.log(`  [${engine}] teeth - a page with no <h1>, an empty <main> and a link to a missing page: ${teeth[engine].bit ? 'CAUGHT' : 'NOT CAUGHT'} (slop ${s.problems.length} problem(s); clean twin ${c.problems.length ? JSON.stringify(c.problems) : '0'})`);
   for (const f of PAGES) {
     const kind = KIND(f);
-    const r = await walk(ctx, served(f), kind);
+    let r = await walk(ctx, served(f), kind).catch((e) => ({ steps: {}, problems: ['walk threw: ' + String(e && e.message || e).slice(0, 140)] }));
+    if (r.problems.some((p) => DEAD.test(p))) {
+      await Promise.race([browser.close().catch(() => {}), new Promise((x) => setTimeout(x, 10000))]);
+      ({ browser, ctx } = await launch(engine));
+      console.log(`  [${engine}] the engine died on ${f} - relaunched`);
+    }
     results.push({ page: f, kind, engine, condition: 'journey', as: 'signed out', steps: r.steps, problems: r.problems, ok: !r.problems.length });
-    console.log(`  ${r.problems.length ? 'open' : 'ok  '} [${engine}] ${f.padEnd(60)} ${r.problems.length ? r.problems.join('; ').slice(0, 160) : `${r.steps.arrive.words} words${r.steps.example ? ', ' + r.steps.example.rows + ' rows' : ''}${r.steps.answer ? ', FAQ opens' : ''} -> ${(r.steps.go_on || {}).to || ''}`}`);
+    save();
+    console.log(`  ${r.problems.length ? 'open' : 'ok  '} [${engine}] ${f.padEnd(60)} ${r.problems.length ? r.problems.join('; ').slice(0, 160) : `${r.steps.arrive.words} words${r.steps.example ? ', ' + r.steps.example.rows + ' rows' : ''}${r.steps.answer ? ', FAQ opens' : ''}${r.steps.filter ? ', filtered by ' + r.steps.filter.chip : ''} -> ${(r.steps.go_on || {}).to || ''}`}`);
   }
   await browser.close();
 }
-mkdirSync('.tmp', { recursive: true });
-const OUT = '.tmp/public_journeys_results.json';
-const prev = LIST && existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : null;
-const merged = prev ? [...prev.results.filter((r) => !(PAGES.includes(r.page) && ENGINES.includes(r.engine))), ...results] : results;
-writeFileSync(OUT, JSON.stringify({ generated: new Date().toISOString(), sublayer: 'CI2', engines: ENGINES, teeth, results: merged }, null, 1) + '\n');
+save();
 const bad = results.filter((r) => !r.ok).length;
 const bit = Object.values(teeth).every((t) => t.bit);
 console.log(`\n${bad || !bit ? 'FAIL' : 'PASS'} public-journeys - ${results.length - bad}/${results.length} page-engine walk(s) arrive, read, answer and go on${bit ? '' : '; teeth did not bite'} -> ${OUT}`);

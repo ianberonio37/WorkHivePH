@@ -24,6 +24,10 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")   # a chip reads '🐞 Bug'; the Windows console is cp1252
+except Exception:
+    pass
 ENGINES = ("chromium", "webkit")
 
 
@@ -58,7 +62,9 @@ def check(page: str, page_class: str, R: dict) -> dict:
                 problems.extend(f"{eng}: {p}" for p in r.get("problems") or [])
             else:
                 g = (r.get("steps") or {}).get("go_on") or {}
-                how = f"arrived, read{', worked example' if 'example' in r['steps'] else ''}{', FAQ answered' if 'answer' in r['steps'] else ''}, went on to {g.get('to')}"
+                f = (r.get("steps") or {}).get("filter") or {}
+                how = (f"arrived, read{', worked example' if 'example' in r['steps'] else ''}{', FAQ answered' if 'answer' in r['steps'] else ''}"
+                       + (f", filtered the list by {f.get('chip')}" if f else f", went on to {g.get('to')}"))
         else:
             js = (R["app"].get(page) or {}).get(eng) or []
             live = [j for j in js if j.get("live") and not j.get("external")]

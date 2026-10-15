@@ -1553,7 +1553,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // and then re-renders the active phase, which lands back here — so this survives a locale swap.
     const _pmPeriod = (data && data.period_days) || _period;
     const _pmLabel = document.getElementById('an-pm-label');
-    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days) · completed, late included`, `PM compliance (${_pmPeriod} araw) · nakumpleto, kasama ang huli`); // T22 S1: name WHICH rate - pm-scheduler shows on-time delivery beside the same source, and the two figures read as one metric without the split word
+    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days)`, `PM compliance (${_pmPeriod} araw)`); // T22 S1: name WHICH rate - pm-scheduler shows on-time delivery beside the same source, and the two figures read as one metric without the split word
     // ★THE SAME CLAIM LIVED IN TWO PLACES AND ONLY THE VISIBLE ONE WAS FIXED. #an-card-pm also
     // carries data-rag-label, hardcoded at ":555 as "PM compliance (30d approx)", and that attribute is
     // what the RAG / AI-grounding layer reads. Measured live with the period at 90: the person saw
@@ -1574,8 +1574,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Same sentence as pm-scheduler's card, deliberately: one definition, two surfaces, so a reader
     // moving between them is not quietly handed two different meanings of the same word.
     if (_pmFoot) _pmFoot.textContent = _t(
-      `SMRP v5.0 · Estimated from the last ${_pmPeriod} days · on time = within each PM's own interval.`,
-      `SMRP v5.0 · Tinatayang mula sa huling ${_pmPeriod} araw · on time = sa loob ng sariling interval ng bawat PM.`);
+      `Completed, late included · SMRP v5.0 · Estimated from the last ${_pmPeriod} days · on time = within each PM's own interval.`,
+      `Nakumpleto, kasama ang huli · SMRP v5.0 · Tinatayang mula sa huling ${_pmPeriod} araw · on time = sa loob ng sariling interval ng bawat PM.`);
+    // ★THE QUALIFIER STAYS ON THE CARD, UNDER THE FIGURE (SL F2, 2026-10-15): "completed, late included" sat in the label,
+    // which at 1280 wrapped to three lines in a 171px tile and pushed this card's figure below its neighbours'. The label
+    // names the metric and its window; the footnote opens with which rate it is.
     const setCard = (name, hero, sub, tag, tone) => {
       const card = document.getElementById('an-card-' + name);
       if (card) {

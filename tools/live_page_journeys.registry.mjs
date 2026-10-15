@@ -541,7 +541,7 @@ export const JOURNEYS = [
   },
   {
     id: 'HM3', phase: 'K1', page: 'index.html', role: 'worker', state: 'home-authed',
-    title: "Today's One Thing gives ONE truthful verdict + role-correct primary actions (worker vs supervisor)",
+    title: "Today's One Thing gives ONE truthful verdict + the worker's primary actions, which a role forged into storage does not change",
     lenses: ['J', 'T', 'C'], ufai: ['U', 'F', 'A', 'I'],
     drive: async (page, h) => {
       await h.goto('index.html');
@@ -552,11 +552,13 @@ export const JOURNEYS = [
       const actions = await h.count('#oh-actions a.oh-action');
       const firstActionWorker = (await h.qText('#oh-actions a.oh-action')) || '';
       const workerActionOk = /log a job|logbook/i.test(firstActionWorker) || (await h.exists("#oh-actions a.oh-action[href='logbook.html']"));
-      // flip to supervisor → first action should become Hive Board
+      // ★A ROLE WRITTEN INTO STORAGE IS NOT A ROLE (2026-10-15). This used to flip wh_hive_role to 'supervisor' and expect
+      // the supervisor launchpad; since the stored-role fix the page decides on the server's role, so a worker who forges
+      // the flag is still offered the worker's actions - which is now what is asserted.
       await h.evalIn(() => { localStorage.setItem('wh_hive_role', 'supervisor'); localStorage.setItem('wh_nav_mode', 'supervisor'); });
       await h.goto('index.html');
       const firstActionSup = (await h.qText('#oh-actions a.oh-action')) || '';
-      const supActionOk = /hive board/i.test(firstActionSup) || (await h.exists("#oh-actions a.oh-action[href='hive.html']"));
+      const supActionOk = /log a job|logbook/i.test(firstActionSup) && !(await h.exists("#oh-actions a.oh-action[href='hive.html']"));
       // restore worker identity for any later worker journeys
       await h.evalIn(() => { localStorage.setItem('wh_hive_role', 'worker'); localStorage.removeItem('wh_nav_mode'); });
       // T: One-Thing is consistent with the live signals (all-clear iff no signal)
@@ -1119,12 +1121,13 @@ function hiveJourneys() {
       title: 'Supervisor removes (kicks) a member → status=kicked + audit', lenses: ['R', 'J', 'T', 'C', 'X'], ufai: ['U', 'F', 'A', 'I'],
       drive: async (page, h) => {
         const probe = `QA-Kick-${Date.now()}`;
-        h.adminQuery(`insert into hive_members (id, hive_id, worker_name, role, status, joined_at) values (gen_random_uuid(),'${h.hive || HIVE}','${probe}','worker','active', now());`);
+        // members are removed by ID (kickMember('<id>', '<name>')) since the name-is-not-an-identity fix: keep the probe's id
+        const probeId = String(h.adminQuery(`insert into hive_members (id, hive_id, worker_name, role, status, joined_at) values (gen_random_uuid(),'${h.hive || HIVE}','${probe}','worker','active', now()) returning id;`) || '').split(/\s+/)[0];
         const reach = await reachHive(page, h);
         await h.click('#btn-toggle-members').catch(() => {});
         await page.waitForTimeout(800);
         // click the probe row's Remove (kickMember('<probe>'))
-        const kicked = await h.evalIn((name) => { const b = [...document.querySelectorAll('button')].find(x => (x.getAttribute('onclick') || '').includes("kickMember('" + name + "')")); if (b) { b.click(); return true; } return false; }, probe);
+        const kicked = await h.evalIn((id) => { const b = [...document.querySelectorAll('button')].find(x => (x.getAttribute('onclick') || '').includes("kickMember('" + id + "'")); if (b) { b.click(); return true; } return false; }, probeId);
         // confirm dialog: wait for it then JS-click OK (the modal animates in; a Playwright click can race)
         await h.waitFor('[data-wh-modal-ok]', 4000);
         await page.waitForTimeout(300);
@@ -1934,10 +1937,12 @@ function aiQualityJourneys() {
     },
     {
       id: 'AQ3', phase: 'K4', page: 'ai-quality.html', role: 'worker', state: 'authed',
-      title: 'Worker honestly gated until Stair 2 (or full dashboard)', lenses: ['R', 'T', 'C'], ufai: ['U', 'A', 'I'],
+      title: "A worker meets an honest card: the hive's AI spend is its supervisor's, and who to ask", lenses: ['R', 'T', 'C'], ufai: ['U', 'A', 'I'],
       drive: async (page, h) => {
         const reach = await reachAIQ(page, h);
-        const emptyGate = (await h.exists('#empty-state')) || (await h.evalIn(() => /unlocks at stair|won.?t fake|honest empty/i.test(document.querySelector('main')?.textContent || '')));
+        // since SL AU4 (2026-10-14) a worker meets the supervisor-only card, not the stair gate (which a supervisor below
+        // Stair 2 still meets); either honest state counts, and a dashboard would be the leak
+        const emptyGate = (await h.exists('[data-wh-gate="supervisor-only"]')) && (await h.evalIn(() => /supervisor/i.test(document.querySelector('[data-wh-gate="supervisor-only"]')?.textContent || '')));
         const verdict = await h.exists('#content .verdict');
         const oneState = emptyGate || verdict; // exactly one truthful state
         const noBounce = reach; // stayed on the page
@@ -2178,12 +2183,17 @@ function projectManagerJourneys() {
           const pill = page.locator("#pane-scope button.status-pill[onclick^='cycleScopeStatus']").first();
           if (!(await pill.isVisible().catch(() => false))) break;
           await pill.click().catch(() => {}); pills++;
+          // ★FOCUS IS KEPT ONLY WHERE THE PRESS GAVE IT (SL CI2 WebKit, 2026-10-15). WebKit, like Safari, does not focus a
+          // <button> on a mouse click, so "focus still on the pill after the refresh" was false before the refresh too and
+          // read the page as losing the person's place. The press's own focus is read first; where it focused the pill
+          // (Chromium), the refresh must keep it there, and the pane is the place in every engine.
+          const focusAtPress = await h.evalIn(() => !!(document.activeElement && document.activeElement.matches && document.activeElement.matches('#pane-scope button.status-pill')));
           await page.waitForTimeout(1500);
-          kept.push(await h.evalIn(() => ({ pane: (document.querySelector('#detail-tabs button.active') || {}).dataset?.pane || null,
-            focusOnPill: !!(document.activeElement && document.activeElement.matches && document.activeElement.matches('#pane-scope button.status-pill')) })));
+          kept.push(await h.evalIn((fp) => ({ pane: (document.querySelector('#detail-tabs button.active') || {}).dataset?.pane || null, focusAtPress: fp,
+            focusOnPill: !!(document.activeElement && document.activeElement.matches && document.activeElement.matches('#pane-scope button.status-pill')) }), focusAtPress));
           const s = h.adminQuery(`select coalesce(max(status),'?') from project_items where project_id='${pid}';`); if (typeof s === 'string' && /done/i.test(s)) break;
         }
-        const placeKept = kept.length > 0 && kept.every((x) => x.pane === 'scope' && x.focusOnPill);
+        const placeKept = kept.length > 0 && kept.every((x) => x.pane === 'scope' && (!x.focusAtPress || x.focusOnPill));
         const st = h.adminQuery(`select coalesce(max(status),'?') from project_items where project_id='${pid}';`);
         const done = (typeof st === 'string') && /done/i.test(st);
         // the title's second half: the project's own progress rolls up. Its one item is done, so the Overview's

@@ -1,5 +1,6 @@
 {
-  "ran": "2026-10-13T10:42:17.504Z",
+  "ran": "2026-10-15T08:16:14.834Z",
+  "engine": "chromium",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
   "preflight": {
@@ -97,7 +98,7 @@
       ],
       "evidence": {
         "btnTxt": "You're on the list!",
-        "email": "k1-probe-1791888147903@plant.test",
+        "email": "k1-probe-1792052190738@plant.test",
         "db_count": 1,
         "db_path": "service-role psql (anon is write-only)",
         "recoverable": true
@@ -366,7 +367,7 @@
         "X"
       ],
       "evidence": {
-        "uname": "j6probe_mv6jyb15",
+        "uname": "j6probe_mv99maot",
         "modalOpen": true,
         "converted": true,
         "dbCount": 1,
@@ -413,7 +414,7 @@
         "X"
       ],
       "evidence": {
-        "uname": "j6learn_mv6jyhg5",
+        "uname": "j6learn_mv99meim",
         "article": true,
         "signupNav": true,
         "signinNav": true,
@@ -516,7 +517,7 @@
         "recovered": true,
         "opsShown": true,
         "mktHidden": true,
-        "navName": "Good evening, Bryan 👋\n\n",
+        "navName": "Good afternoon, Bryan 👋",
         "lwSet": true
       },
       "err": null
@@ -637,8 +638,8 @@
       "evidence": {
         "ops": true,
         "mktHidden": true,
-        "greeting": "Good evening, Bryan 👋",
-        "date": "Tuesday, Oct 13 · Afternoon Shift (PHT)",
+        "greeting": "Good afternoon, Bryan 👋",
+        "date": "Thursday, Oct 15 · Afternoon Shift (PHT)",
         "hiveChip": "🐝 Baguio Textile Mills"
       },
       "err": null
@@ -708,7 +709,7 @@
       "page": "index.html",
       "role": "worker",
       "state": "home-authed",
-      "title": "Today's One Thing gives ONE truthful verdict + role-correct primary actions (worker vs supervisor)",
+      "title": "Today's One Thing gives ONE truthful verdict + the worker's primary actions, which a role forged into storage does not change",
       "lenses": [
         "J",
         "T",
@@ -743,7 +744,7 @@
         "todayCard": 1,
         "actions": 2,
         "firstActionWorker": "Log a Job",
-        "firstActionSup": "Hive Board",
+        "firstActionSup": "Log a Job",
         "workerActionOk": true,
         "supActionOk": true,
         "anySignal": true,
@@ -1132,7 +1133,7 @@
       "evidence": {
         "reach": true,
         "modal": true,
-        "toast": "K2-PART-1791888360266 submitted for supervisor app",
+        "toast": "K2-PART-1792052409077 submitted for supervisor app",
         "persisted": true
       },
       "err": null
@@ -1183,7 +1184,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Used 2 pcs of K2-USE-1791888368197 → off",
+        "toast": "Used 2 pcs of K2-USE-1792052417640 → off",
         "qtyAfter": "18"
       },
       "err": null
@@ -1231,7 +1232,7 @@
       "evidence": {
         "clicked": true,
         "modal": true,
-        "toast": "Restocked 10 pcs of K2-RES-1791888378920",
+        "toast": "Restocked 10 pcs of K2-RES-1792052426226",
         "qtyAfter": "11"
       },
       "err": null
@@ -1639,7 +1640,7 @@
         "X"
       ],
       "evidence": {
-        "probe": "QA-Kick-1791888448766",
+        "probe": "QA-Kick-1792055716310",
         "kickClicked": true,
         "final_status": "kicked"
       },
@@ -1689,7 +1690,7 @@
         "X"
       ],
       "evidence": {
-        "pn": "QA-K3A-1791888459475",
+        "pn": "QA-K3A-1792052506478",
         "approveClicked": true,
         "final_status": "approved"
       },
@@ -2026,7 +2027,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K-PM4-1791888529738",
+        "name": "ARC-K-PM4-1792052568687",
         "persisted": true,
         "cnt": "1"
       },
@@ -2076,7 +2077,7 @@
         "X"
       ],
       "evidence": {
-        "nonce": "ArcK-CM1-1791888544440",
+        "nonce": "ArcK-CM1-1792052582466",
         "persisted": true,
         "cnt": "1"
       },
@@ -2174,7 +2175,7 @@
       ],
       "evidence": {
         "pid": "0f78265c-602b-4c5a-b617-1e8d40e47a84",
-        "nonce": "ArcK-CM3-1791888564919",
+        "nonce": "ArcK-CM3-1792052607059",
         "replied": true,
         "cnt": "1"
       },
@@ -2224,7 +2225,7 @@
         "X"
       ],
       "evidence": {
-        "pid": "9790725d-2dcd-4064-ac81-2afdae4f56d4",
+        "pid": "d9255541-cf55-40c0-8a3e-85dbcf6107ff",
         "found": true,
         "state": "deleted"
       },
@@ -2270,7 +2271,7 @@
         "verdict": "Reliability KPIs need action",
         "oee": 90,
         "mtbf": 1.6,
-        "pm": 44,
+        "pm": 40,
         "action": "VFD-001 fails every 1.6 days. "
       },
       "err": null
@@ -2940,7 +2941,7 @@
         "X"
       ],
       "evidence": {
-        "mc": "QA-ANOM-1791888750532",
+        "mc": "QA-ANOM-1792052787021",
         "panelVisible": false,
         "clicked": false,
         "acked": false,
@@ -2990,7 +2991,7 @@
       ],
       "evidence": {
         "today": "2026-10-15",
-        "briefId": "4563d703-693b-4435-922d-d122b0050c27",
+        "briefId": "965e4979-c69c-4b31-b770-50a64cf6bd42",
         "realBriefMovedAside": true,
         "hasCard": true,
         "clicked": true,
@@ -3042,7 +3043,7 @@
       "evidence": {
         "main": true,
         "entries": 30,
-        "dbCnt": 28624,
+        "dbCnt": 28655,
         "note": "auditlog_action__hive_scoped nerve proven"
       },
       "err": null
@@ -3219,10 +3220,10 @@
       ],
       "evidence": {
         "rows": 8,
-        "count": 19,
-        "dbTotal": 19,
-        "dbCnt": 19,
-        "label": "19 entries",
+        "count": 25,
+        "dbTotal": 25,
+        "dbCnt": 25,
+        "label": "25 entries",
         "capBit": false,
         "empty": false
       },
@@ -3453,7 +3454,7 @@
       "page": "ai-quality.html",
       "role": "worker",
       "state": "authed",
-      "title": "Worker honestly gated until Stair 2 (or full dashboard)",
+      "title": "A worker meets an honest card: the hive's AI spend is its supervisor's, and who to ask",
       "lenses": [
         "R",
         "T",
@@ -3572,8 +3573,8 @@
         "T"
       ],
       "evidence": {
-        "pmKpi": 44,
-        "dbPm": 44,
+        "pmKpi": 40,
+        "dbPm": 40,
         "tOk": true
       },
       "err": null
@@ -3747,7 +3748,7 @@
         "X"
       ],
       "evidence": {
-        "tag": "ARCK-ED2-1791888952981",
+        "tag": "ARCK-ED2-1792053022872",
         "out": true,
         "persisted": true,
         "cnt": "1"
@@ -3882,7 +3883,7 @@
         "C"
       ],
       "evidence": {
-        "name": "ARC-K K5 PMK1 1791888989059",
+        "name": "ARC-K K5 PMK1 1792053074470",
         "persisted": true,
         "cnt": "1"
       },
@@ -3929,7 +3930,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK2-1791888995955",
+        "pname": "ARC-K-PMK2-1792053081383",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -3975,7 +3976,7 @@
         "X"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK3-1792025580189",
+        "pname": "ARC-K-PMK3-1792053090645",
         "opened": true,
         "pillClicks": 2,
         "placeAfterEachPress": [
@@ -4035,7 +4036,7 @@
         "C"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK4-1791889019248",
+        "pname": "ARC-K-PMK4-1792053105270",
         "opened": true,
         "persisted": true,
         "cnt": "1"
@@ -4483,7 +4484,7 @@
         "T"
       ],
       "evidence": {
-        "tag": "K5TEST Bryan 1791889101664",
+        "tag": "K5TEST Bryan 1792053186311",
         "toast": "✓ Resume saved → backed up to ",
         "persisted": true,
         "cnt": "1"
@@ -4802,7 +4803,7 @@
         "sheet": true,
         "setOk": true,
         "toast": "Listing updated. Submitted for review.",
-        "finalTitle": "K6-MS1-1791889151135 EDITED"
+        "finalTitle": "K6-MS1-1792053233372 EDITED"
       },
       "err": null
     },
@@ -5135,7 +5136,505 @@
       "evidence": {
         "expanded": true,
         "tables": 2,
-        "cfgN": 2
+        "cfgN": 3
+      },
+      "err": null
+    },
+    {
+      "id": "PF1",
+      "phase": "K7",
+      "page": "public-feed.html",
+      "role": "anon",
+      "state": "landing-anon",
+      "title": "A visitor reads what crews have made public - every post the feed may show, and no more",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "shown": 15,
+        "truth": 15,
+        "first": "Reminder: MCCB recall notice from Schneider for ba"
+      },
+      "err": null
+    },
+    {
+      "id": "SP1",
+      "phase": "K7",
+      "page": "marketplace-seller-profile.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "A buyer opens a seller's profile and sees who they are and every listing they have published",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "name": "Isidro Suarez",
+        "stat": 1,
+        "truth": 1
+      },
+      "err": null
+    },
+    {
+      "id": "PI1",
+      "phase": "K7",
+      "page": "ph-intelligence.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "A supervisor opens PH intelligence and reads the report - or, below Stair 3, which stair unlocks it, where the hive stands and the next step",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "report": false,
+        "verdict": "",
+        "h1": "PH Intelligence unlocks at Stair 3: Predictive-Ready",
+        "where": true
+      },
+      "err": null
+    },
+    {
+      "id": "RS1",
+      "phase": "K7",
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "state": "authed",
+      "title": "A supervisor opens the report sender, sees who reports go to, and starts adding a recipient",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "card": true,
+        "opened": true,
+        "fields": true,
+        "closed": true
+      },
+      "err": null
+    },
+    {
+      "id": "SB1",
+      "phase": "K7",
+      "page": "shift-brain.html",
+      "role": "worker",
+      "state": "authed",
+      "title": "A technician opens the shift brief and reads this shift's plan - or is told none is published yet",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "F",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "brief": true,
+        "empty": false,
+        "window": "14-22",
+        "brief_len": 888
+      },
+      "err": null
+    },
+    {
+      "id": "ST1",
+      "phase": "K7",
+      "page": "status.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin reads the gateway status board and refreshes it",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "cards": 10,
+        "after": 10,
+        "summary": "10/10 services answering (100%) · 04:35 PM"
+      },
+      "err": null
+    },
+    {
+      "id": "DS1",
+      "phase": "K7",
+      "page": "design-system.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin reads the design system and presses a filter-chip specimen to see its pressed state",
+      "lenses": [
+        "R",
+        "J"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J"
+      ],
+      "passed_lenses": [
+        "R",
+        "J"
+      ],
+      "evidence": {
+        "specimens": 10,
+        "pressed": "All:false,Overdue:true"
+      },
+      "err": null
+    },
+    {
+      "id": "PA1",
+      "phase": "K7",
+      "page": "platform-actions.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin opens Platform Actions and the feedback queue counts every report on the platform",
+      "lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": true,
+        "C": null,
+        "X": null
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "T"
+      ],
+      "evidence": {
+        "actions": true,
+        "refused": false,
+        "all": 10,
+        "truth": 10
+      },
+      "err": null
+    },
+    {
+      "id": "FC1",
+      "phase": "K7",
+      "page": "founder-console.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin opens the retired Founder Console and is sent on to Platform Actions",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "shown": true,
+        "said": "The Founder Console has moved to Grafana",
+        "onward": "platform-actions.html",
+        "landed": true
+      },
+      "err": null
+    },
+    {
+      "id": "LO1",
+      "phase": "K7",
+      "page": "llm-observability.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin opens the retired LLM observability page and is sent on to Platform Actions",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "shown": true,
+        "said": "LLM Observability has moved to Grafana",
+        "onward": "platform-actions.html",
+        "landed": true
+      },
+      "err": null
+    },
+    {
+      "id": "AR1",
+      "phase": "K7",
+      "page": "agentic-rag-observability.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin opens the retired agentic-RAG observability page and is sent on to Platform Actions",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "shown": true,
+        "said": "Agentic-RAG Observability has moved to Grafana",
+        "onward": "platform-actions.html",
+        "landed": true
+      },
+      "err": null
+    },
+    {
+      "id": "MA1",
+      "phase": "K7",
+      "page": "marketplace-admin.html",
+      "role": "supervisor",
+      "state": "authed-admin",
+      "title": "The admin opens the retired marketplace admin and is sent on to Platform Actions",
+      "lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "ufai": [
+        "U",
+        "I"
+      ],
+      "external": false,
+      "verdict": {
+        "R": true,
+        "J": true,
+        "T": null,
+        "C": null,
+        "X": true
+      },
+      "live": true,
+      "applicable_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "passed_lenses": [
+        "R",
+        "J",
+        "X"
+      ],
+      "evidence": {
+        "shown": true,
+        "said": "Marketplace Admin has moved",
+        "onward": "platform-actions.html",
+        "landed": true
       },
       "err": null
     }
@@ -6354,16 +6853,336 @@
       "severity": 1,
       "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
       "owner": "designer"
+    },
+    {
+      "page": "public-feed.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "public-feed.html",
+      "role": "anon",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller-profile.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-seller-profile.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ph-intelligence.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "ph-intelligence.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#contact-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-body — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-field — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "shift-brain.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "shift-brain.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "status.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "design-system.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "design-system.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "A keyboard skip-to-content link improves operability for keyboard/AT users",
+      "basis": "qa-tester / WCAG-2.4.1",
+      "severity": 0,
+      "evidence": "body — no skip-to-content link found",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "platform-actions.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "platform-actions.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "platform-actions.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "founder-console.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "founder-console.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "founder-console.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "llm-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "llm-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "llm-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-admin.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-admin.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "div#toast — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "marketplace-admin.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
     }
   ],
   "summary": {
-    "journeys_total": 110,
-    "applicable": 109,
-    "live": 109,
+    "journeys_total": 122,
+    "applicable": 121,
+    "live": 121,
     "external": 1,
     "live_pct": 100.0,
     "floor_findings": 6,
-    "heuristic_findings": 116,
+    "heuristic_findings": 148,
     "critic_catalog_rules": 209
   },
   "per_page": [
@@ -6548,22 +7367,106 @@
       "applicable": 3,
       "external": 0,
       "live_pct": 100.0
+    },
+    {
+      "page": "public-feed.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "marketplace-seller-profile.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "ph-intelligence.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "report-sender.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "shift-brain.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "status.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "design-system.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "platform-actions.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "founder-console.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "llm-observability.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "agentic-rag-observability.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
+    },
+    {
+      "page": "marketplace-admin.html",
+      "live": 1,
+      "applicable": 1,
+      "external": 0,
+      "live_pct": 100.0
     }
   ],
   "per_lens": {
     "R": {
-      "applicable": 96,
-      "pass": 96,
+      "applicable": 108,
+      "pass": 108,
       "pct": 100.0
     },
     "J": {
-      "applicable": 99,
-      "pass": 99,
+      "applicable": 111,
+      "pass": 111,
       "pct": 100.0
     },
     "T": {
-      "applicable": 83,
-      "pass": 83,
+      "applicable": 86,
+      "pass": 86,
       "pct": 100.0
     },
     "C": {
@@ -6572,43 +7475,43 @@
       "pct": 100.0
     },
     "X": {
-      "applicable": 47,
-      "pass": 47,
+      "applicable": 51,
+      "pass": 51,
       "pct": 100.0
     }
   },
   "reruns": [
     {
-      "id": "LA7",
-      "from": "live_page_journeys_results.journey-LA7.json",
-      "ran": "2026-10-13T11:01:37.186Z",
+      "id": "HM3",
+      "from": "live_page_journeys_results.journey-HM3.json",
+      "ran": "2026-10-15T09:12:42.139Z",
       "was_live": false,
       "now_live": true,
-      "reason": "LA7 scrolled a fixed 800px; the page now reveals the bar once the hero CTA leaves through the top (2026-10-13 fix), so the journey scrolls just past that button"
+      "reason": "stale oracle: forged a supervisor role into storage and expected the supervisor launchpad; since the stored-role fix the page decides on the server's role, so the forged role is now asserted to be ignored"
     },
     {
-      "id": "AL4",
-      "from": "live_page_journeys_results.journey-AL4.json",
-      "ran": "2026-10-15T00:40:25.424Z",
+      "id": "HV2",
+      "from": "live_page_journeys_results.journey-HV2.json",
+      "ran": "2026-10-15T09:15:16.080Z",
       "was_live": false,
       "now_live": true,
-      "reason": "BRH198: the journey was stale, not the page - its seed brief collided with uq_amc_briefings_hive_shift (one brief per hive per day; the real one is moved aside for the run and restored), and Approve now asks first (whConfirm), which the journey never confirmed. Approved via the confirm, approved_by bound to the supervisor"
+      "reason": "stale oracle: found Remove by kickMember('<name>'); members are removed by id since the name-is-not-an-identity fix, the probe is inserted returning its id"
     },
     {
-      "id": "ENG1",
-      "from": "live_page_journeys_results.journey-ENG1.json",
-      "ran": "2026-10-15T00:42:31.486Z",
+      "id": "AQ3",
+      "from": "live_page_journeys_results.journey-AQ3.json",
+      "ran": "2026-10-15T09:17:50.762Z",
       "was_live": false,
       "now_live": true,
-      "reason": "BRH199: the journey wrote wh_nav_mode into storage, which nav-hub correctly treats as a guess and re-derives from the role; it now declares the lens with the hub's own mode button (wh_nav_mode_src=chosen), and Day Planner left its field-only list (joined the engineer lens 2026-09-10)"
+      "reason": "stale oracle: expected the stair gate; since SL AU4 a worker meets the supervisor-only card (the hive's AI spend is its supervisor's)"
     },
     {
-      "id": "PMK3",
-      "from": "live_page_journeys_results.journey-PMK3.json",
-      "ran": "2026-10-15T00:53:00.125Z",
-      "was_live": true,
+      "id": "AR2",
+      "from": "live_page_journeys_results.journey-AR2.json",
+      "ran": "2026-10-15T09:20:24.012Z",
+      "was_live": false,
       "now_live": true,
-      "reason": "BRH200: the status pill became a <button> (2026-10-14 a11y) and the journey still asked for span.status-pill. Fixed the journey, and the MCP walk then found a real defect its JS clicks had hidden: every refreshDetail() reopened the project on Overview, so each press lost the person's place (and realtime did it on teammates' edits). refreshDetail now keeps the tab, the scroll and the focused control; the journey presses the VISIBLE button with Scope opened once, and proves the rollup (Overview 0% -> 100%). Teeth: the old refresh fails it"
+      "reason": "the report did not finish compiling inside the long sweep while AR1 compiled it; alone it compiles and the PM KPI matches the database"
     }
   ]
 }

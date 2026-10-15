@@ -79,7 +79,12 @@ def main() -> int:
     ap.add_argument("ids", nargs="+")
     ap.add_argument("--reason", default="")
     ap.add_argument("--dry-run", action="store_true")
+    # SL CI2 (2026-10-15): the runner's --engine webkit writes .webkit-suffixed files (the board AND an isolated re-run),
+    # so a WebKit re-run folds into the WebKit board and never into the Chromium one
+    ap.add_argument("--engine", choices=("chromium", "webkit"), default="chromium")
     a = ap.parse_args()
+    sfx = ".webkit" if a.engine == "webkit" else ""
+    FULL = ROOT / f"live_page_journeys_results{sfx}.json"
     if not a.dry_run and not a.reason.strip():
         print("REFUSED: a fold needs --reason (it is written into the results file).")
         return 2
@@ -87,7 +92,7 @@ def main() -> int:
     swept = _ts(full["ran"])
     folds = []
     for jid in a.ids:
-        src = ROOT / f"live_page_journeys_results.journey-{jid}.json"
+        src = ROOT / f"live_page_journeys_results.journey-{jid}{sfx}.json"
         if not src.exists():
             print(f"REFUSED {jid}: no isolated run at {src.name} (run: node tools/live_page_journeys.mjs --journey {jid})")
             return 2

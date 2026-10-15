@@ -24,7 +24,9 @@ import { createHash } from 'node:crypto';
 import { takeBrowserSlot } from './browser_slot.mjs';
 
 const arg = (k) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : null; };
-const PORT = 5077, ORIGIN = `http://127.0.0.1:${PORT}`;
+// its own port: deploy-headers-local and cache-contract serve the working tree on 5077, and a rollout serving an OLD
+// build there would hand those gates yesterday's headers (or take theirs as its old build)
+const PORT = 5079, ORIGIN = `http://127.0.0.1:${PORT}`;
 const OUT = arg('--json') || '.tmp/rollout_results.json';
 const sh = (args) => execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 << 20 }).trim();
 const blobAt = (ref, rel) => { try { return execFileSync('git', ['cat-file', 'blob', `${ref}:${rel}`], { maxBuffer: 64 << 20 }); } catch (e) { return null; } };
@@ -85,8 +87,12 @@ async function returningDevice(browser, file, newRef) {
   const page = await ctx.newPage();
   const url = `${ORIGIN}/${file}`;
   await serve(FROM);
+  // the worker is installed by nav-hub.js on an APP page (public pages register none): a returning reader of a learn
+  // article got it from an earlier visit to the platform, so the device opens the home page first, as one would
+  await page.goto(`${ORIGIN}/index.html`, { waitUntil: 'load', timeout: 45000 }).catch(() => {});
+  await Promise.race([page.evaluate(() => navigator.serviceWorker && navigator.serviceWorker.ready).catch(() => {}), new Promise((r) => setTimeout(r, 15000))]);
+  await page.waitForTimeout(1500);
   await page.goto(url, { waitUntil: 'load', timeout: 45000 }).catch(() => {});
-  await page.evaluate(() => navigator.serviceWorker && navigator.serviceWorker.ready).catch(() => {});
   await page.waitForTimeout(1500);
   await page.reload({ waitUntil: 'load' }).catch(() => {});      // now controlled: the old worker keeps its copies
   await page.waitForTimeout(2500);
@@ -118,8 +124,11 @@ let teeth = { bit: false };
 {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await ctx.newPage();
-  const probe = PAGES.find((p) => { const s = sigOf(p); return s.old !== s.now; }) || PAGES[0];
+  // the planted script must be one the probe page LOADS (the first version planted an old utils.js under the about page,
+  // which loads no utils.js, so nothing could mix and the teeth read NOT CAUGHT)
   const oldScript = ['utils.js', 'nav-hub.js', 'wayfinding.js', 'learn-link.js'].find((s) => { const g = sigOf(s); return g.old && g.now && g.old !== g.now; });
+  const loads = (p) => new RegExp('src="[^"]*' + (oldScript || '').replace('.', '\\.') + '"').test(readFileSync(p, 'utf8'));
+  const probe = PAGES.find((p) => oldScript && loads(p)) || PAGES[0];
   await serve(null);
   if (oldScript) await ctx.route(`${ORIGIN}/${oldScript}*`, (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: blobAt(FROM, oldScript) }));
   const v = await visit(page, `${ORIGIN}/${probe}`);

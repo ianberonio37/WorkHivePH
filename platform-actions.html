@@ -1632,6 +1632,16 @@
         const { data: { session } } = await db.auth.getSession();
         if (!session && !IS_LOCAL_FOUNDER && typeof whSignInWall === 'function') { whSignInWall(); return; }
       } catch (_) { /* empty-catch-allow: the admin check below still fails closed */ }
+      // ★OFFLINE IS NOT "CHECKING" (2026-10-15, sw-navigation-fallback walked offline). The worker serves this page from its
+      // kept copy, the session is still on the device, and the admin check then waits on a server it cannot reach - the
+      // page sat on "Checking access…" for as long as the device stayed offline. Say why, and try again on reconnect.
+      if (navigator.onLine === false) {
+        const cg = document.getElementById('checking-gate');
+        cg.setAttribute('role', 'status');
+        cg.textContent = "You're offline. Platform Actions needs a connection to check your access and load its queues - it will try again as soon as you are back online.";
+        window.addEventListener('online', () => location.reload(), { once: true });
+        return;
+      }
       const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
       const ok = realAdmin || IS_LOCAL_FOUNDER;
       if (!ok) {

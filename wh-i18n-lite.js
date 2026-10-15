@@ -36,6 +36,35 @@
   } catch (_) { /* empty-catch-allow: the error net is optional; a page must never depend on it */ }
 })();
 
+// ★ONE VISIT, ONE BUILD (SL H4, 2026-10-15). sw.js takes over open pages the moment a new version activates (skipWaiting +
+// clients.claim), so a page that loaded under the OLD worker keeps the old precached scripts while everything it fetches
+// afterwards comes from the new one - half new and half old. tools/prove_rollout.mjs measured it on a real returning
+// device: 62 of 67 pages ran mixed on the first visit after a deploy (achievements: today's utils.js beside last week's
+// offline-queue.js and session-timeout.js; a learn article: last week's copy beside today's wh-ga4.js). When the worker
+// changes under a page a worker was ALREADY serving, the page reloads ONCE onto the new build - unless the person has
+// started tapping or typing, in which case nav-hub's "A new version is ready" notice is the polite answer. This lives in
+// scripts the old worker fetches from the network (utils.js, wh-i18n-lite.js), so it reaches the transition it heals.
+(function whOneBuildPerVisit() {
+  try {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+    if (window.__whOneBuild) return;
+    window.__whOneBuild = true;
+    var touched = false;
+    var mark = function () { touched = true; };
+    ['pointerdown', 'keydown', 'input'].forEach(function (t) { window.addEventListener(t, mark, { capture: true, passive: true }); });
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (touched) return;
+      var key = 'wh_one_build_reload';
+      try {
+        var last = JSON.parse(sessionStorage.getItem(key) || 'null');
+        if (last && last.href === location.href && Date.now() - last.at < 60000) return;   // never a loop
+        sessionStorage.setItem(key, JSON.stringify({ href: location.href, at: Date.now() }));
+      } catch (e) { return; }
+      location.reload();
+    });
+  } catch (e) { /* empty-catch-allow: a page without a worker has nothing to heal */ }
+})();
+
 (function whI18nLite() {
   'use strict';
   try {

@@ -193,7 +193,9 @@
         const b = ev.target && ev.target.closest ? ev.target.closest('#' + id + ' button.filter-chip') : null; if (!b) return;
         b.parentElement.querySelectorAll('button.filter-chip').forEach((x) => { const on = x === b; x.setAttribute('aria-pressed', String(on)); x.classList.toggle('active', on); x.style.cssText = look(on); }); }); }
       return '<div id="' + id + '" style="display:flex;gap:8px;flex-wrap:wrap;">' + [['All', true], ['Overdue', false]].map(([l, on]) => '<button type="button" class="filter-chip' + (on ? ' active' : '') + '" aria-pressed="' + on + '" style="' + look(on) + '">' + l + '</button>').join('') + '</div>'; },
-    FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') whListSkeleton(el, 3); }, 0); return '<div id="' + id + '"></div>'; },
+    // the skeleton SPECIMEN shows the shape and announces nothing: whListSkeleton marks its region aria-busy, and a busy
+    // region that never finishes tells a screen reader this page is loading for ever (SL H1 sweep, 2026-10-15)
+    FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') { whListSkeleton(el, 3); el.querySelectorAll('[aria-busy]').forEach((b) => { b.setAttribute('aria-busy', 'false'); b.removeAttribute('aria-live'); }); } }, 0); return '<div id="' + id + '" role="img" aria-label="Loading skeleton (specimen)"></div>'; },
     FF2() { return (typeof whOhBadge === 'function' ? whOhBadge('critical', '2 overdue') + ' ' + whOhBadge('ok', 'on track') : '') + (typeof whProgressStrip === 'function' ? whProgressStrip('PM this week', 4, 6) : ''); },
     FD1a() { return '<code style="font-size:.75rem;">whFmtDate(now) → ' + e(whFmtDate(new Date())) + ' · {time:true} → ' + e(whFmtDate(new Date(), { time: true })) + ' · {year:false, weekday:"short"} → ' + e(whFmtDate(new Date(), { year: false, weekday: 'short' })) + '</code>'; },
     FD1b() { return '<code style="font-size:.75rem;">whFmtNum(1234567.891, 1) → ' + e(whFmtNum(1234567.891, 1)) + '</code>'; },

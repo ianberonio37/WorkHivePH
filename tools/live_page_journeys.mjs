@@ -392,12 +392,17 @@ function scoreJourney(v) {
 }
 
 // ─── run one journey (context already signed-in for its role) ──────────────────
+// ★A JOURNEY MUST END (SL CI2, 2026-10-15): WebKit's web process died under a page and every await on it hung - a run
+// sat on one page until a watchdog that discards the WHOLE board. Each drive and each critic pass now has a ceiling;
+// passing it is reported as a crashed target, which the loop below already recycles and retries once.
+const JOURNEY_MS = Number(process.env.WH_JOURNEY_STEP_MS || 150000);
+const ceiling = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} did not finish in ${ms / 1000}s - Target crashed or stopped answering`)), ms))]);
 async function runJourney(context, j, criticCache) {
   const page = await context.newPage();
   const h = makeHelpers(page, RESOLVED_HIVES[j.role] || HIVE, RESOLVED_UIDS[j.role] || null);
   let verdict = { R: null, J: null, T: null, C: null, X: null }, evidence = {}, jfindings = [], err = null;
   try {
-    const out = await j.drive(page, h);
+    const out = await ceiling(j.drive(page, h), JOURNEY_MS, `journey ${j.id}`);
     verdict = { R: out.R ?? null, J: out.J ?? null, T: out.T ?? null, C: out.C ?? null, X: out.X ?? null };
     evidence = out.evidence || {};
     jfindings = out.findings || [];
@@ -414,9 +419,13 @@ async function runJourney(context, j, criticCache) {
   // critic (cached per page+role — run once): deterministic floor + heuristic backlog
   const key = `${j.page}::${j.role}`;
   let critic = criticCache.get(key);
-  if (!critic) { critic = await runCritic(page, j.page, j.role); criticCache.set(key, critic); }
+  if (!critic && !err) {
+    try { critic = await ceiling(runCritic(page, j.page, j.role), 120000, `critic on ${j.page}`); criticCache.set(key, critic); }
+    catch (e) { err = String(e).slice(0, 200); }
+  }
+  critic = critic || { findings: [], bat: { ok: false } };
 
-  await page.close();
+  await Promise.race([page.close().catch(() => {}), new Promise((r) => setTimeout(r, 10000))]);
   const sc = scoreJourney(verdict);
   return { verdict, evidence, score: sc, findings: jfindings, criticFindings: critic.findings, bat: critic.bat, err };
 }
@@ -558,7 +567,7 @@ const __runArcK = async () => {
   const DEAD_CTX = /browser has been closed|Target page|context or browser|Target closed|crashed/i;
   const sinceRecycle = {};
   async function recycleRole(role, why) {
-    try { await contexts[role].close(); } catch (_) {}
+    try { await Promise.race([contexts[role].close(), new Promise((r) => setTimeout(r, 10000))]); } catch (_) {}
     console.log(`[K] recycling ${role} context (${why})`);
     contexts[role] = await makeRoleContext(role);
     sinceRecycle[role] = 0;

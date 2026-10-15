@@ -30,7 +30,7 @@ import { chromium, webkit } from 'playwright';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname } from 'node:path';
-import { SEEDER, stubModelCalls } from './prover_harness.mjs';
+import { SEEDER, stubModelCalls, PAGE_QUERY } from './prover_harness.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const ENGINES = arg('--engine') ? [arg('--engine')] : ['chromium', 'webkit'];
@@ -154,14 +154,18 @@ async function visit(ctx, seen, page) {
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e && e.message || e).slice(0, 160)));
   let loadError = null;
-  await p.goto(`${SEEDER}/workhive/${page}`, { waitUntil: 'load', timeout: 60000 }).catch((e) => { loadError = String(e.message).slice(0, 120); });
+  // a page about one thing is opened on one thing, the way its own inbound link opens it (the seller profile's ?worker=)
+  await p.goto(`${SEEDER}/workhive/${page}${PAGE_QUERY[page] || ''}`, { waitUntil: 'load', timeout: 60000 }).catch((e) => { loadError = String(e.message).slice(0, 120); });
   await p.waitForLoadState('networkidle', { timeout: 12000 }).catch(() => {});
   await p.waitForTimeout(4000);
   const st = await p.evaluate(() => {
     const vis = (e) => !!e && (typeof e.checkVisibility === 'function' ? e.checkVisibility() : e.offsetParent !== null);
-    const busy = [...document.querySelectorAll('[aria-busy="true"], .wh-skeleton, .skeleton, .loading-spinner')].filter(vis).length;
+    // a skeleton presented as an IMAGE (design-system's specimen, role="img") is a picture of a loading state, not a load
+    const busy = [...document.querySelectorAll('[aria-busy="true"], .wh-skeleton, .skeleton, .loading-spinner')].filter((e) => vis(e) && !e.closest('[role="img"]')).length;
     return { chars: (document.body.innerText || '').replace(/\s+/g, ' ').trim().length, busy, cspv: (window.__cspv || []).slice(0, 6),
-      url: location.pathname.split('/').pop(), assets: (typeof _assets !== 'undefined' && Array.isArray(_assets)) ? _assets.length : null };
+      // the path after the app root - a directory page is learn/x/index.html, and its last segment alone (index.html)
+      // read every public directory page as having landed on the home page (2026-10-15)
+      url: location.pathname.replace(/^\/workhive\//, '').replace(/^\//, ''), assets: (typeof _assets !== 'undefined' && Array.isArray(_assets)) ? _assets.length : null };
   }).catch((e) => ({ chars: 0, busy: 0, cspv: [], url: '?', evalError: String(e.message).slice(0, 120) }));
   await p.close();
   const inserts = seen.inserts.slice(before);
