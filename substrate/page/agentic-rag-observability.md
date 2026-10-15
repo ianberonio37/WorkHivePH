@@ -2,19 +2,19 @@
 name: page-agentic-rag-observability
 type: page
 source: file:agentic-rag-observability.html
-source_sha: 9d6dca188b427101
+source_sha: 3391d4ae8b161f8a
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `agentic-rag-observability.html` — Agentic RAG Observability | WorkHive
 
-Size: 37KB · 12 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 38KB · 13 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)
 **Edge invokes**: (none)
 **Truth views read**: (none)
 
-**Functions**: deny, fmtNum, gate, loadTraces, p95, pct, renderHeaviest, renderRecent, renderRouteTable, renderSummary, sumCard, whenAgo
+**Functions**: cannotAsk, deny, fmtNum, gate, loadTraces, p95, pct, renderHeaviest, renderRecent, renderRouteTable, renderSummary, sumCard, whenAgo
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

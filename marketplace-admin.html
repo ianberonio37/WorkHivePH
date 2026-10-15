@@ -388,7 +388,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whReadError whStartupHive">
+<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whPlatformAdminAnswer whReadError whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -453,6 +453,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      elevated by a name - but a real admin whose display name had changed (or whose device remembered another
      person's) matched nothing and was shown "Platform Admins Only": walked as Leandro with another member's name
      cached. utils.js isPlatformAdmin(db) asks with the names the SERVER holds for this account. */
+  /* ★COULD NOT ASK IS NOT "NO" (SL CA4, 2026-10-16): offline, verifyPlatformAdmin() answered false and the page told an
+     admin "Platform Admins Only". adminAnswer() keeps 'unreachable' apart; showCannotAsk() keeps the page closed and
+     says why in the same gate card, and reopens the page when the connection is back. */
+  async function adminAnswer() {
+    if (typeof whPlatformAdminAnswer === 'function') return whPlatformAdminAnswer(db);
+    return (await verifyPlatformAdmin()) ? 'yes' : 'no';
+  }
+  function showCannotAsk() {
+    const g = document.getElementById('supervisor-gate');
+    const h = g.querySelector('h2'), p = g.querySelector('p');
+    if (h) h.textContent = 'Your access cannot be checked right now';
+    if (p) p.textContent = (typeof whAdminCheckOfflineText === 'function') ? whAdminCheckOfflineText('Marketplace Admin')
+      : "You're offline. Marketplace Admin needs a connection to check your access.";
+    g.setAttribute('role', 'status');
+    g.style.display = 'flex';
+    document.getElementById('main-content').style.display = 'none';
+    window.addEventListener('online', () => location.reload(), { once: true });
+  }
   async function verifyPlatformAdmin() {
     if (typeof isPlatformAdmin === 'function') return isPlatformAdmin(db);
     if (!WORKER_NAME) return false;   // an older cached utils.js without the shared gate: the previous check
@@ -1199,7 +1217,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // functions can still be seen by non-admins?"): the overlay above opened for anyone, before this gate. It now starts
       // hidden and opens only for a platform admin; anyone else gets Platform Admins Only. The moderation load stays
       // skipped either way.
-      if (await verifyPlatformAdmin()) {
+      const _aR = await adminAnswer();
+      if (_aR === 'unreachable') { showCannotAsk(); return; }
+      if (_aR === 'yes') {
         _retiredOv.style.display = 'flex';
         if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert();
       } else {
@@ -1211,7 +1231,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     /* Verify the worker is a platform admin via DB — supersedes HIVE_ROLE.
        Re-enabled 2026-05-17 (Layer 2 role runner found admin surfaces accessible
        to all roles when gate was commented out). */
-    _isPlatformAdmin = await verifyPlatformAdmin();
+    const _a = await adminAnswer();
+    if (_a === 'unreachable') { showCannotAsk(); return; }
+    _isPlatformAdmin = _a === 'yes';
     if (!_isPlatformAdmin) {
       document.getElementById('supervisor-gate').style.display = 'flex';
       document.getElementById('main-content').style.display    = 'none';

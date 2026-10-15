@@ -6536,11 +6536,27 @@ function rtConn(onState, ms) {
 // ─────────────────────────────────────────────
 // Reuses marketplace_platform_admins so admin grants are a single source of
 // truth. Returns false on no session, no profile, or worker not on allowlist.
-async function isPlatformAdmin(db) {
-  if (!db) return false;
+/* ★"COULD NOT ASK" IS NOT "NO" (SL CA4, 2026-10-16). Walked offline as a platform admin on the copy of an admin page kept
+   on the device: the page stayed blank for ~10 s, then said "Founder access only" - because isPlatformAdmin() answered
+   FALSE when its reads failed, and every admin gate read false as "not an admin". The same class as AU1's "a lapsed
+   session is not a missing grant". whPlatformAdminAnswer() keeps the three answers apart: 'yes', 'no' (the server said
+   so, or there is no session) and 'unreachable' (the reads never got an answer). isPlatformAdmin() is `=== 'yes'`, so
+   every gate stays fail-closed; a gate that wants to say WHY it is closed asks for the answer itself. */
+function _whCouldNotAsk(res) {
+  if (!res || !res.error) return false;
+  try { if (typeof navigator !== 'undefined' && navigator.onLine === false) return true; } catch (_) { /* empty-catch-allow: assume online */ }
+  var e = res.error, msg = String(e.message || ''), code = String(e.code || '');
+  if (res.status === 0) return true;
+  return !code && (!msg || /fetch|network|load failed|timed? ?out|abort/i.test(msg));
+}
+async function whPlatformAdminAnswer(db) {
+  if (!db) return 'no';
   try {
     const { data: { session } } = await db.auth.getSession();
-    if (!session) return false;
+    if (!session) return 'no';
+    // a device that knows it is offline is answered at once: waiting on reads that cannot land kept the admin pages
+    // blank for ~10 s before they could say anything (walked, SL CA4)
+    try { if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'unreachable'; } catch (_) { /* empty-catch-allow: assume online */ }
     /* GRAIN, NOT IDENTITY (fixed 2026-08-03). v_worker_truth is worker×HIVE: a person who belongs to
        two hives has TWO rows. `.maybeSingle()` demands exactly one and resolves NULL when it finds two,
        so this returned FALSE for precisely the people most likely to be admins — measured live, the
@@ -6548,19 +6564,31 @@ async function isPlatformAdmin(db) {
        still said no. That is the no-access gate on all 8 admin surfaces in production; only the
        localhost bypass hid it locally. Ask whether ANY identity this person holds is on the allowlist,
        rather than insisting they hold exactly one. Same class as the multi-hive sign-in bounce. */
-    const { data: profiles } = await db.from('v_worker_truth')
-      .select('worker_name').eq('auth_uid', session.user.id).limit(50);
-    const names = [...new Set((profiles || []).map(p => p && p.worker_name).filter(Boolean))];
-    if (!names.length) return false;
-    const { data: admin } = await db.from('marketplace_platform_admins')
-      .select('worker_name').in('worker_name', names).limit(1);
-    const yes = !!(admin && admin.length);
+    const r1 = await db.from('v_worker_truth').select('worker_name').eq('auth_uid', session.user.id).limit(50);
+    if (r1.error) return _whCouldNotAsk(r1) ? 'unreachable' : 'no';
+    const names = [...new Set((r1.data || []).map(p => p && p.worker_name).filter(Boolean))];
+    if (!names.length) return 'no';
+    const r2 = await db.from('marketplace_platform_admins').select('worker_name').in('worker_name', names).limit(1);
+    if (r2.error) return _whCouldNotAsk(r2) ? 'unreachable' : 'no';
+    const yes = !!(r2.data && r2.data.length);
     // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
-    // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself.
+    // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself. Only an answer
+    // the server GAVE is kept - 'unreachable' leaves the last one in place.
     try { sessionStorage.setItem('wh_platform_admin', yes ? '1' : '0'); } catch (_) { /* empty-catch-allow: storage blocked - the answer is still returned; only the before-paint offer loses its hint */ }
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
-    return yes;
-  } catch (_) { return false; }
+    return yes ? 'yes' : 'no';
+  } catch (_) {
+    try { if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'unreachable'; } catch (e2) { /* empty-catch-allow: assume online */ }
+    return 'no';
+  }
+}
+// the sentence an admin gate shows when it could not ask the server: the page stays closed, and this says why
+function whAdminCheckOfflineText(what) {
+  return "You're offline. " + (what || 'This page') + ' needs a connection to check your access - it will try again '
+    + 'as soon as you are back online.';
+}
+async function isPlatformAdmin(db) {
+  return (await whPlatformAdminAnswer(db)) === 'yes';
 }
 
 // ─────────────────────────────────────────────

@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whQueryTimeout whSignInWall whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whSignInWall whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1635,14 +1635,19 @@
       // ★OFFLINE IS NOT "CHECKING" (2026-10-15, sw-navigation-fallback walked offline). The worker serves this page from its
       // kept copy, the session is still on the device, and the admin check then waits on a server it cannot reach - the
       // page sat on "Checking access…" for as long as the device stayed offline. Say why, and try again on reconnect.
-      if (navigator.onLine === false) {
+      const _offlineGate = () => {
         const cg = document.getElementById('checking-gate');
         cg.setAttribute('role', 'status');
         cg.textContent = "You're offline. Platform Actions needs a connection to check your access and load its queues - it will try again as soon as you are back online.";
         window.addEventListener('online', () => location.reload(), { once: true });
-        return;
-      }
-      const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
+      };
+      if (navigator.onLine === false) { _offlineGate(); return; }
+      // ★AND WHEN THE BROWSER SAYS ONLINE BUT THE CHECK GETS NO ANSWER (SL CA4, 2026-10-16): navigator.onLine can stay
+      // true while every request fails, and the check then answered false - the no-access gate, to the founder. The
+      // three-answer check keeps 'unreachable' apart, and it gets the same sentence as the offline case.
+      const _ans = IS_LOCAL_FOUNDER ? 'yes' : (typeof whPlatformAdminAnswer === 'function') ? await whPlatformAdminAnswer(db) : null;
+      if (_ans === 'unreachable') { _offlineGate(); return; }
+      const realAdmin = _ans ? _ans === 'yes' : ((typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db));
       const ok = realAdmin || IS_LOCAL_FOUNDER;
       if (!ok) {
         document.getElementById('checking-gate').hidden = true;

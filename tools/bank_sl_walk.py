@@ -64,7 +64,7 @@ GATES = {
     "C1": ["device-clock-day"],
     "CA3": ["skew-heal", "skew-heal-live"],
     "CA1": ["sw-shell-membership", "sw-offline", "cache-contract", "pwa-sw-central-register", "sw-proxy-within-csp"],
-    "CA4": ["kept-copy-says-so", "sw-offline", "sw-navigation-fallback", "sw-shell-membership"],
+    "CA4": ["kept-copy-says-so", "offline-is-not-no", "sw-offline", "sw-navigation-fallback", "sw-shell-membership"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],

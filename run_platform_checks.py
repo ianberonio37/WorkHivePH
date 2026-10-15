@@ -4321,6 +4321,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "offline-is-not-no",
+        "script":  "tools/validate_offline_is_not_no.py",
+        "args":    [],
+        "label":   "SL CA4 (2026-10-16): a check that could not reach the server is never read as no - offline, Shift Brain sent a signed-in supervisor to sign in (getUser's AuthRetryableFetchError read as no session) and every admin page told the founder it was not for them (isPlatformAdmin false on failed reads). whPlatformAdminAnswer keeps 'unreachable' apart, isPlatformAdmin stays fail-closed, the five admin gates say why they are closed",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "kept-copy-says-so",
         "script":  "tools/validate_kept_copy_says_so.py",
         "args":    [],

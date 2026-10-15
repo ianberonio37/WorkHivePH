@@ -1426,8 +1426,19 @@
       // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent).
       // This MUST sit outside the restore block above: it used to be the block's last statement,
       // so it only ran for users who needed identity restored -- i.e. never on a normal load.
-      let _authUid = null;
-      try { _authUid = (await db.auth.getUser())?.data?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort settle */ }
+      let _authUid = null, _authErr = null;
+      try { const _gu = await db.auth.getUser(); _authUid = _gu?.data?.user?.id || null; _authErr = _gu?.error || null; }
+      catch (e) { _authErr = e; }
+      /* ★OFFLINE IS NOT SIGNED OUT (SL CA4, 2026-10-16). getUser() asks the SERVER; with the network gone it does not throw,
+         it answers no user plus an AuthRetryableFetchError (status 0) - and this page read that as "the session is gone"
+         and sent a signed-in supervisor, opening the copy of Shift Brain kept on this device, to the sign-in page, which
+         was not cached, so they met the offline fallback instead of their board. The server not being reachable says
+         nothing about the session: then the uid is the one the device's own session holds (the AU1 pages' getSession
+         rule). A server that ANSWERS "no user" still walls - that is the case the gate below exists for. */
+      if (!_authUid && _authErr && (_authErr.name === 'AuthRetryableFetchError' || _authErr.status === 0)) {
+        try { const { data: { session: _s } } = await db.auth.getSession(); _authUid = _s?.user?.id || null; }
+        catch (_) { /* empty-catch-allow: no session readable on the device either - the wall below is right */ }
+      }
 
       /* Phase B (auth migration): require an authenticated session -- PRODUCTION_FIXES.md #37.
          This page was LEFT BEHIND by that migration. pm-scheduler, project-manager, inventory,

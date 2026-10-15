@@ -1255,7 +1255,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whApplyRetiredInert whAutoSaveDraft whFmtPeso whWorker">
+<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whAutoSaveDraft whFmtPeso whPlatformAdminAnswer whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1333,6 +1333,22 @@
         const { data: { session } } = await db.auth.getSession();
         if (!session && !IS_LOCAL_FOUNDER) { whSignInWall(); return; }
       } catch (_) { /* empty-catch-allow: the admin check below still fails closed */ }
+      // ★COULD NOT ASK IS NOT "NO" (SL CA4, 2026-10-16): offline, the admin check got no answer and this page showed the
+      // no-access gate to the founder. 'unreachable' keeps the console closed, says why in the checking gate, and opens it
+      // when the connection is back. 'yes'/'no' are the server's answers, exactly as before.
+      const _fcAdminAnswer = async () => IS_LOCAL_FOUNDER ? 'yes'
+        : (typeof whPlatformAdminAnswer === 'function') ? whPlatformAdminAnswer(db)
+        : ((await isPlatformAdmin(db)) ? 'yes' : 'no');
+      const _fcCannotAsk = (gate) => {
+        if (!gate) return;
+        const sp = gate.querySelector('.spinner'); if (sp) sp.hidden = true;
+        const p = gate.querySelector('p');
+        if (p) p.textContent = (typeof whAdminCheckOfflineText === 'function') ? whAdminCheckOfflineText('The Founder Console')
+          : "You're offline. The Founder Console needs a connection to check your access.";
+        gate.setAttribute('role', 'status');
+        gate.hidden = false;
+        window.addEventListener('online', () => location.reload(), { once: true });
+      };
       const _retiredOv = document.getElementById('wh-retired-overlay');
       if (_retiredOv) {
         /* Keep the page VIEW while dropping the page's WORK. Someone arriving here is the signal that
@@ -1348,15 +1364,18 @@
         // no-access gate the live console gave. The console's work stays skipped either way.
         const checkingR = document.getElementById('checking-gate');
         if (checkingR) checkingR.hidden = false;
-        const okR = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
+        const aR = await _fcAdminAnswer();
+        if (aR === 'unreachable') { _fcCannotAsk(checkingR); return; }
         if (checkingR) checkingR.hidden = true;
-        if (okR) { _retiredOv.style.display = 'flex'; if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert(); }
+        if (aR === 'yes') { _retiredOv.style.display = 'flex'; if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert(); }
         else document.getElementById('no-access-gate').hidden = false;
         return;
       }
       const checking = document.getElementById('checking-gate');
       checking.hidden = false;   // the console stays hidden (markup) until access is confirmed - say what is happening
-      const ok = IS_LOCAL_FOUNDER || await isPlatformAdmin(db);
+      const a = await _fcAdminAnswer();
+      if (a === 'unreachable') { _fcCannotAsk(checking); return; }
+      const ok = a === 'yes';
       if (!ok) {
         checking.hidden = true;
         document.getElementById('no-access-gate').hidden = false;
