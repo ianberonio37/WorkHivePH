@@ -4886,7 +4886,7 @@ VALIDATORS = [
     {"id":"page-reachable","script":"tools/prove_page_reachable.mjs","args":[],
      "label":"SL F3 (2026-10-15): every control on every page is reached, named and pressed - axe's own name rules at 1280, a REAL Tab walk at 1280 (every offered control focused, a composite widget's roving members by one of them), a visible focus on each (computed look vs at rest, the parent's for :focus-within), and a 44x44 target at 390 (WCAG 2.5.5; a link inline in a sentence exempt, a checkbox with its label). Per-page floors in page_reach_baseline.json; a row closes at 0. Teeth every run: a planted unnamed icon button, invisible focus, 20px target and tabindex=-1 link, and their clean twin",
      "group":"Platform","skip_if_fast":True},
-    {"id":"rollout","script":"tools/prove_rollout.mjs","args":[],
+    {"id":"rollout","script":"tools/prove_rollout.mjs","args":[],"timeout":3000,  # ~30s a page x 67; 1200 killed it at ~40
      "label":"SL H4 (2026-10-15): a RETURNING DEVICE moves to the new build within one visit, never half new and half old - a fresh profile visits each page while the origin serves the previous build (the newest commit with a different sw.js CACHE_NAME, served from git by serve_vercel_headers --ref), then the same origin serves the working tree: visit 1 must run ONE build, visit 2 the new one, and only the new cache may remain. Teeth every run: the new page with an old shared script is caught as mixed",
      "group":"Platform","skip_if_fast":True},
     {"id":"page-journeys","script":"tools/prove_page_journeys.py","args":[],
@@ -14005,6 +14005,11 @@ def run_validator(v):
     # then wrote no platform_health.json at all, which is why every restamp downstream refused:
     # the reports existed but the run never closed.
     cmd = [interp, v["script"]] + list(v.get("args") or [])
+    # ★A GATE WHOSE HONEST RUNTIME EXCEEDS THE CAP CAN NEVER PASS (2026-10-16). `rollout` (prove_rollout.mjs) walks
+    # every page twice across two builds with the waits a self-heal reload needs - ~30s a page, ~34 min for 67 - and
+    # the 1200s cap killed it at page ~40 every run, so the board reported FAIL for a prover that was passing. A
+    # registration may declare its own "timeout" (seconds) with the reason beside it; every other gate keeps the cap.
+    cap = int(v.get("timeout") or VALIDATOR_TIMEOUT_SECONDS)
     t0  = time.time()
     popen_kw = {}
     if os.name != "nt":
@@ -14016,7 +14021,7 @@ def run_validator(v):
     except Exception as ex:
         return {"status": "ERROR", "reason": str(ex), "output": "", "elapsed": 0}
     try:
-        out, err = proc.communicate(timeout=VALIDATOR_TIMEOUT_SECONDS)
+        out, err = proc.communicate(timeout=cap)
         elapsed = round(time.time() - t0, 1)
         stdout  = (out or "") + (err or "")
         status  = "PASS" if proc.returncode == 0 else "FAIL"
@@ -14033,8 +14038,8 @@ def run_validator(v):
         partial = (out or "") + (err or "")
         return {
             "status":  "FAIL",
-            "reason":  f"hung; process TREE killed after {VALIDATOR_TIMEOUT_SECONDS}s",
-            "output":  partial + f"{chr(10)}[TIMEOUT — process TREE killed after {VALIDATOR_TIMEOUT_SECONDS}s]",
+            "reason":  f"hung; process TREE killed after {cap}s",
+            "output":  partial + f"{chr(10)}[TIMEOUT — process TREE killed after {cap}s]",
             "elapsed": elapsed,
         }
     except Exception as ex:
