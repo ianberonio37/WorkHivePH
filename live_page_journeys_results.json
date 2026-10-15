@@ -541,12 +541,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
+        "J": true,
+        "T": true,
         "C": null,
         "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -555,40 +555,43 @@
       ],
       "passed_lenses": [
         "R",
+        "J",
+        "T",
         "X"
       ],
       "evidence": {
+        "declared": "engineer/chosen",
         "perPage": [
           {
             "page": "engineering-design.html",
             "hub": true,
-            "mode": "supervisor",
+            "mode": "engineer",
             "lanePresent": true,
-            "fieldHidden": false,
+            "fieldHidden": true,
             "self": true
           },
           {
             "page": "analytics.html",
             "hub": true,
-            "mode": "supervisor",
+            "mode": "engineer",
             "lanePresent": true,
-            "fieldHidden": false,
+            "fieldHidden": true,
             "self": true
           },
           {
             "page": "asset-hub.html",
             "hub": true,
-            "mode": "supervisor",
+            "mode": "engineer",
             "lanePresent": true,
-            "fieldHidden": false,
+            "fieldHidden": true,
             "self": true
           },
           {
             "page": "project-manager.html",
             "hub": true,
-            "mode": "supervisor",
+            "mode": "engineer",
             "lanePresent": true,
-            "fieldHidden": false,
+            "fieldHidden": true,
             "self": true
           }
         ],
@@ -2968,11 +2971,11 @@
       "verdict": {
         "R": null,
         "J": true,
-        "T": false,
+        "T": true,
         "C": true,
-        "X": false
+        "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "J",
         "T",
@@ -2981,14 +2984,19 @@
       ],
       "passed_lenses": [
         "J",
-        "C"
+        "T",
+        "C",
+        "X"
       ],
       "evidence": {
-        "today": "2026-10-13",
-        "briefId": null,
+        "today": "2026-10-15",
+        "briefId": "4563d703-693b-4435-922d-d122b0050c27",
+        "realBriefMovedAside": true,
         "hasCard": true,
         "clicked": true,
-        "final_status": "?"
+        "confirmed": true,
+        "final_status": "approved",
+        "approved_by": "Leandro Marquez"
       },
       "err": null
     },
@@ -3948,12 +3956,12 @@
       "external": false,
       "verdict": {
         "R": true,
-        "J": false,
-        "T": false,
+        "J": true,
+        "T": true,
         "C": null,
-        "X": false
+        "X": true
       },
-      "live": false,
+      "live": true,
       "applicable_lenses": [
         "R",
         "J",
@@ -3961,12 +3969,28 @@
         "X"
       ],
       "passed_lenses": [
-        "R"
+        "R",
+        "J",
+        "T",
+        "X"
       ],
       "evidence": {
-        "pname": "ARC-K-PMK3-1791889005854",
+        "pname": "ARC-K-PMK3-1792025580189",
         "opened": true,
-        "final_status": "pending"
+        "pillClicks": 2,
+        "placeAfterEachPress": [
+          {
+            "pane": "scope",
+            "focusOnPill": true
+          },
+          {
+            "pane": "scope",
+            "focusOnPill": true
+          }
+        ],
+        "final_status": "done",
+        "overviewProgressBefore": "0%",
+        "overviewProgress": "100%"
       },
       "err": null
     },
@@ -6335,9 +6359,9 @@
   "summary": {
     "journeys_total": 110,
     "applicable": 109,
-    "live": 106,
+    "live": 109,
     "external": 1,
-    "live_pct": 97.2,
+    "live_pct": 100.0,
     "floor_findings": 6,
     "heuristic_findings": 116,
     "critic_catalog_rules": 209
@@ -6345,10 +6369,10 @@
   "per_page": [
     {
       "page": "index.html",
-      "live": 13,
+      "live": 14,
       "applicable": 14,
       "external": 0,
-      "live_pct": 92.9
+      "live_pct": 100.0
     },
     {
       "page": "learn/start-digital-logbook-philippine-factory/index.html",
@@ -6429,10 +6453,10 @@
     },
     {
       "page": "alert-hub.html",
-      "live": 3,
+      "live": 4,
       "applicable": 4,
       "external": 0,
-      "live_pct": 75.0
+      "live_pct": 100.0
     },
     {
       "page": "audit-log.html",
@@ -6471,10 +6495,10 @@
     },
     {
       "page": "project-manager.html",
-      "live": 4,
+      "live": 5,
       "applicable": 5,
       "external": 0,
-      "live_pct": 80.0
+      "live_pct": 100.0
     },
     {
       "page": "project-report.html",
@@ -6534,13 +6558,13 @@
     },
     "J": {
       "applicable": 99,
-      "pass": 97,
-      "pct": 98.0
+      "pass": 99,
+      "pct": 100.0
     },
     "T": {
       "applicable": 83,
-      "pass": 80,
-      "pct": 96.4
+      "pass": 83,
+      "pct": 100.0
     },
     "C": {
       "applicable": 71,
@@ -6549,8 +6573,8 @@
     },
     "X": {
       "applicable": 47,
-      "pass": 45,
-      "pct": 95.7
+      "pass": 47,
+      "pct": 100.0
     }
   },
   "reruns": [
@@ -6561,6 +6585,30 @@
       "was_live": false,
       "now_live": true,
       "reason": "LA7 scrolled a fixed 800px; the page now reveals the bar once the hero CTA leaves through the top (2026-10-13 fix), so the journey scrolls just past that button"
+    },
+    {
+      "id": "AL4",
+      "from": "live_page_journeys_results.journey-AL4.json",
+      "ran": "2026-10-15T00:40:25.424Z",
+      "was_live": false,
+      "now_live": true,
+      "reason": "BRH198: the journey was stale, not the page - its seed brief collided with uq_amc_briefings_hive_shift (one brief per hive per day; the real one is moved aside for the run and restored), and Approve now asks first (whConfirm), which the journey never confirmed. Approved via the confirm, approved_by bound to the supervisor"
+    },
+    {
+      "id": "ENG1",
+      "from": "live_page_journeys_results.journey-ENG1.json",
+      "ran": "2026-10-15T00:42:31.486Z",
+      "was_live": false,
+      "now_live": true,
+      "reason": "BRH199: the journey wrote wh_nav_mode into storage, which nav-hub correctly treats as a guess and re-derives from the role; it now declares the lens with the hub's own mode button (wh_nav_mode_src=chosen), and Day Planner left its field-only list (joined the engineer lens 2026-09-10)"
+    },
+    {
+      "id": "PMK3",
+      "from": "live_page_journeys_results.journey-PMK3.json",
+      "ran": "2026-10-15T00:53:00.125Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "BRH200: the status pill became a <button> (2026-10-14 a11y) and the journey still asked for span.status-pill. Fixed the journey, and the MCP walk then found a real defect its JS clicks had hidden: every refreshDetail() reopened the project on Overview, so each press lost the person's place (and realtime did it on teammates' edits). refreshDetail now keeps the tab, the scroll and the focused control; the journey presses the VISIBLE button with Scope opened once, and proves the rollup (Overview 0% -> 100%). Teeth: the old refresh fails it"
     }
   ]
 }

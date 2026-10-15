@@ -3605,7 +3605,28 @@ async function clientRollup(projectId) {
   };
 }
 
-async function refreshDetail() { if (_detailId) await openDetail(_detailId); }
+/* ★A REFRESH KEEPS THE PERSON'S PLACE (BRH200, 2026-10-15). openDetail rebuilds the tab strip with Overview active,
+   so every one of this function's callers - a scope item's status button, a saved log, an approved change order, and
+   the realtime handlers below, which fire on ANY scope item or log change in the hive - sent the person back to
+   Overview and destroyed the control they had just pressed. Marking an item done took: press, lose the list, reopen
+   Scope, press again. A refresh is not an open: the tab they were on, where they were scrolled to, and the control
+   that had focus (matched by its id, or by its own onclick, which names the item) come back after the repaint. */
+async function refreshDetail() {
+  if (!_detailId) return;
+  const pane = document.querySelector('#detail-tabs button.active')?.dataset.pane || null;
+  const ae = document.activeElement;
+  const inDetail = !!(ae && ae.closest && ae.closest('#detail-view'));
+  const focusId = inDetail ? ae.id || null : null;
+  const focusClick = inDetail && !ae.id ? ae.getAttribute('onclick') : null;
+  const y = window.scrollY;
+  await openDetail(_detailId);
+  if (_detailId == null) return;
+  if (pane && pane !== 'overview' && $('detail-tabs').querySelector(`button[data-pane="${pane}"]`)) setActivePane(pane);
+  window.scrollTo(0, y);
+  let back = focusId ? document.getElementById(focusId) : null;
+  if (!back && focusClick) back = [...document.querySelectorAll('#detail-view [onclick]')].find((el) => el.getAttribute('onclick') === focusClick) || null;
+  if (back && typeof back.focus === 'function') back.focus({ preventScroll: true });
+}
 
 /* ── Realtime ──────────────────────────────────────────────── */
 function subscribeRealtime() {

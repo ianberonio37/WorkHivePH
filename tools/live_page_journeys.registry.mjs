@@ -419,12 +419,26 @@ export const JOURNEYS = [
       // Measured before writing this: the hub renders its tiles EAGERLY (no FAB press needed),
       // and the four modes give 11 / 13 / 20 / 20 tiles for engineer / field / supervisor / all.
       const LANE = ['engineering-design.html', 'analytics.html', 'asset-hub.html', 'project-manager.html'];
-      const FIELD_ONLY = ['logbook.html', 'inventory.html', 'dayplanner.html'];
+      // Day Planner left this list on 2026-09-10 (nav-hub W3-JN J26): an engineer had no route to it at all, so it
+      // joined the engineer lens on purpose. Listing it here failed the lens for a decision the product made after
+      // this journey was written (BRH199, 2026-10-15).
+      const FIELD_ONLY = ['logbook.html', 'inventory.html'];
       const tiles = () => h.evalIn(() =>
         [...document.querySelectorAll('#wh-hub-tiles a.wh-hub-tile')].map(a => a.getAttribute('href')));
 
       await h.goto('index.html');
-      await h.evalIn(() => { try { localStorage.setItem('wh_nav_mode', 'engineer'); } catch (_) {} });
+      // ★DECLARE THE LENS THE WAY A PERSON DOES (BRH199, 2026-10-15). Writing wh_nav_mode into storage is not a
+      // choice: nav-hub records WHY a mode is stored (wh_nav_mode_src 'chosen' | 'derived' | 'guess') and re-derives
+      // any mode the person did not choose from their role - so the engineer lens written by hand read 'supervisor' on
+      // every lane page, and the journey failed the product for behaving correctly. The hub's own mode button
+      // (setMode) is the person's declaration; it is pressed once, here, and never again.
+      if (!(await h.exists('#wh-hub-panel [data-mode="engineer"]'))) {
+        await page.locator('#wh-hub-fab').first().click().catch(() => {}); await page.waitForTimeout(900);
+      }
+      await page.locator('#wh-hub-panel [data-mode="engineer"]').first().click({ timeout: 4000 })
+        .catch(() => h.evalIn(() => { const b = document.querySelector('#wh-hub-panel [data-mode="engineer"]'); if (b) b.click(); }));
+      await page.waitForTimeout(600);
+      const declared = await h.evalIn(() => { try { return localStorage.getItem('wh_nav_mode') + '/' + localStorage.getItem('wh_nav_mode_src'); } catch (_) { return null; } });
 
       // Walk the lane. The lens is declared ONCE; every page must honour it without being told
       // again - the same "declared myself once, had to declare it again" defect the sibling gate
@@ -455,12 +469,12 @@ export const JOURNEYS = [
         !/\/index\.html/.test(location.pathname) && !!document.querySelector('#entries-list, #logbook-form, main'));
 
       // restore the default so later journeys are not walked through an engineer lens
-      await h.evalIn(() => { try { localStorage.removeItem('wh_nav_mode'); } catch (_) {} });
+      await h.evalIn(() => { try { localStorage.removeItem('wh_nav_mode'); localStorage.removeItem('wh_nav_mode_src'); } catch (_) {} });
 
       return {
         R: reached, J: lensHeld, T: perPage.every(r => r.mode === 'engineer'), C: null,
         X: hiddenStillReachable,
-        evidence: { perPage, hiddenStillReachable },
+        evidence: { declared, perPage, hiddenStillReachable },
         findings: [],
       };
     },
@@ -1687,18 +1701,39 @@ function alertHubJourneys() {
         h.resetRates();
         // seed a pending brief for today so the journey is deterministic. brief is JSONB →
         // pass valid JSON (tagged so cleanup is precise + doesn't touch a real brief).
+        // ★TWO THINGS MADE THIS JOURNEY STALE, NOT THE PAGE (BRH198, 2026-10-15). (1) uq_amc_briefings_hive_shift allows
+        // ONE brief per hive per shift day, and the 06:00 PHT run writes the real one - so the seed failed, briefId was
+        // null, and the click landed on the REAL brief. Today's real brief is moved a century back for the run and put
+        // back in `finally`, whatever happens. (2) Approve now asks first (whConfirm: "the crew suggestions go out to
+        // your whole hive under your name", 2026-09-15) - an unconfirmed click leaves the brief pending, as it should.
         const today = h.adminQuery(`select to_char((now() at time zone 'Asia/Manila'),'YYYY-MM-DD');`).toString().trim();
+        const hive = h.hive || K4HIVE;
         h.adminQuery(`delete from amc_briefings where brief->>'tag'='ARC-K-AL4';`);
-        const ins = h.adminQuery(`insert into amc_briefings (id, hive_id, shift_date, status, brief, generated_at) values (gen_random_uuid(),'${h.hive || K4HIVE}','${today}','pending','{"tag":"ARC-K-AL4","summary":"seeded brief","headline":"ARC-K test brief"}'::jsonb, now()) returning id;`);
-        const briefId = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null;
-        const reach = await reachAlert(page, h);
-        const hasCard = await h.waitFor('#amc-card', 8000);
-        const clicked = await h.evalIn(() => { const b = document.getElementById('amc-approve-btn'); if (b) { b.click(); return true; } return false; });
-        await page.waitForTimeout(1800);
-        const st = briefId ? h.adminQuery(`select coalesce(max(status),'?') from amc_briefings where id='${briefId}';`) : '?';
+        const realRaw = h.adminQuery(`select id from amc_briefings where hive_id='${hive}' and shift_date='${today}';`);
+        const realId = (typeof realRaw === 'string' && /^[0-9a-f-]{36}$/.test(realRaw.trim())) ? realRaw.trim() : null;
+        if (realId) h.adminQuery(`update amc_briefings set shift_date = shift_date - 36500 where id='${realId}';`);
+        let briefId = null, reach = false, hasCard = false, clicked = false, confirmed = false, st = '?', by = '';
+        try {
+          const ins = h.adminQuery(`insert into amc_briefings (id, hive_id, shift_date, status, brief, generated_at) values (gen_random_uuid(),'${hive}','${today}','pending','{"tag":"ARC-K-AL4","summary":"seeded brief","headline":"ARC-K test brief"}'::jsonb, now()) returning id;`);
+          briefId = (typeof ins === 'string') ? ((ins.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [null])[0]) : null;
+          reach = await reachAlert(page, h);
+          hasCard = await h.waitFor('#amc-card', 8000);
+          await h.waitFor('#amc-approve-btn:not([style*="display: none"]):not([style*="display:none"])', 8000);
+          clicked = await h.evalIn(() => { const b = document.getElementById('amc-approve-btn'); if (b && b.offsetParent !== null) { b.click(); return true; } return false; });
+          // the confirm dialog animates in; wait for it, then press its OK ("Approve brief")
+          confirmed = await h.waitFor('[data-wh-modal-ok]', 4000);
+          await page.waitForTimeout(300);
+          await h.evalIn(() => { const b = document.querySelector('[data-wh-modal-ok]'); if (b) b.click(); });
+          await page.waitForTimeout(2200);
+          st = briefId ? h.adminQuery(`select coalesce(max(status),'?') from amc_briefings where id='${briefId}';`) : '?';
+          by = briefId ? h.adminQuery(`select coalesce(max(approved_by),'') from amc_briefings where id='${briefId}';`) : '';
+        } finally {
+          h.adminQuery(`delete from amc_briefings where brief->>'tag'='ARC-K-AL4';`);
+          if (briefId) h.adminQuery(`delete from hive_audit_log where target_id='${briefId}';`);
+          if (realId) h.adminQuery(`update amc_briefings set shift_date = shift_date + 36500 where id='${realId}';`);
+        }
         const approved = (typeof st === 'string') && /approved/i.test(st);
-        h.adminQuery(`delete from amc_briefings where brief->>'tag'='ARC-K-AL4';`);
-        return { R: null, J: hasCard && (clicked || approved), T: approved, C: hasCard, X: approved, evidence: { today, briefId, hasCard, clicked, final_status: st }, findings: [] };
+        return { R: null, J: hasCard && clicked && confirmed && approved, T: approved && !!by, C: hasCard, X: approved, evidence: { today, briefId, realBriefMovedAside: !!realId, hasCard, clicked, confirmed, final_status: st, approved_by: by }, findings: [] };
       },
     },
   ];
@@ -2122,14 +2157,41 @@ function projectManagerJourneys() {
         const reach = await reachPM(page, h); await page.waitForTimeout(800);
         const opened = await h.evalIn((p) => { const card = [...document.querySelectorAll('#card-grid .pcard')].find(c => (c.textContent || '').includes(p)); if (card) { card.click(); return true; } return false; }, pname);
         await page.waitForTimeout(800);
+        // the control reading: the same Overview figure before the item moves (0%), so a 100% after it is the rollup
+        const readProgress = () => h.evalIn(() => { const k = [...document.querySelectorAll('#pane-overview .kpi')].find(x => /^\s*Progress/.test((x.querySelector('.kpi-label') || {}).textContent || '')); return k ? ((k.querySelector('.kpi-value') || {}).textContent || '').trim() : null; });
+        await h.evalIn(() => { const b = document.querySelector("#detail-tabs button[data-pane='overview']"); if (b) b.click(); });
+        await page.waitForTimeout(600);
+        const before = await readProgress();
         await h.evalIn(() => { const b = document.querySelector("#detail-tabs button[data-pane='scope']"); if (b) b.click(); });
         await page.waitForTimeout(500);
-        // cycle the scope status pill until done (pending→in_progress→done)
-        for (let k = 0; k < 3; k++) { await h.evalIn(() => { const p = document.querySelector("#pane-scope span.status-pill[onclick^='cycleScopeStatus']"); if (p) p.click(); }); await page.waitForTimeout(900); const st = h.adminQuery(`select coalesce(max(status),'?') from project_items where project_id='${pid}';`); if (typeof st === 'string' && /done/i.test(st)) break; }
+        // cycle the scope status pill until done (pending→in_progress→done). The pill became a <button> in the
+        // 2026-10-14 release (a span with onclick was not a control to a keyboard or a screen reader); the journey still
+        // asked for span.status-pill, clicked nothing, and read the page as broken (BRH200, 2026-10-15). Any element.
+        // ★PRESSED THE WAY A PERSON PRESSES IT, AND NEVER RE-OPENED (BRH200, 2026-10-15). A JS click reaches a control
+        // the person can no longer see: after the first press the page's refresh had put them back on Overview, and this
+        // journey kept clicking the hidden Scope list and passed. Now: the VISIBLE button, pressed with the pointer, with
+        // the Scope tab opened ONCE above - so a refresh that loses the person's place stops the journey on press two.
+        let pills = 0; const kept = [];
+        for (let k = 0; k < 3; k++) {
+          const pill = page.locator("#pane-scope button.status-pill[onclick^='cycleScopeStatus']").first();
+          if (!(await pill.isVisible().catch(() => false))) break;
+          await pill.click().catch(() => {}); pills++;
+          await page.waitForTimeout(1500);
+          kept.push(await h.evalIn(() => ({ pane: (document.querySelector('#detail-tabs button.active') || {}).dataset?.pane || null,
+            focusOnPill: !!(document.activeElement && document.activeElement.matches && document.activeElement.matches('#pane-scope button.status-pill')) })));
+          const s = h.adminQuery(`select coalesce(max(status),'?') from project_items where project_id='${pid}';`); if (typeof s === 'string' && /done/i.test(s)) break;
+        }
+        const placeKept = kept.length > 0 && kept.every((x) => x.pane === 'scope' && x.focusOnPill);
         const st = h.adminQuery(`select coalesce(max(status),'?') from project_items where project_id='${pid}';`);
         const done = (typeof st === 'string') && /done/i.test(st);
+        // the title's second half: the project's own progress rolls up. Its one item is done, so the Overview's
+        // Progress figure must read 100% - read on the page the person opens, after the page's own refresh.
+        await h.evalIn(() => { const b = document.querySelector("#detail-tabs button[data-pane='overview']"); if (b) b.click(); });
+        await page.waitForTimeout(900);
+        const rolled = await readProgress();
+        const rolledUp = before === '0%' && rolled === '100%';
         delProject(h, pid);
-        return { R: reach, J: opened && done, T: done, C: null, X: done, evidence: { pname, opened, final_status: st }, findings: [] };
+        return { R: reach, J: opened && done && rolledUp && placeKept, T: done && rolledUp, C: null, X: done && placeKept, evidence: { pname, opened, pillClicks: pills, placeAfterEachPress: kept, final_status: st, overviewProgressBefore: before, overviewProgress: rolled }, findings: [] };
       },
     },
     {

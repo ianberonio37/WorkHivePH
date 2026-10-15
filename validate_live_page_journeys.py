@@ -74,7 +74,7 @@ def main():
         print("  [OK] pass (partial run not gated)")
         return 0
 
-    failures = []
+    failures = pinned_failures(res, base)
     if live < base_live:
         failures.append(f"live REGRESSED: {live} < baseline {base_live}")
     if base_floor is not None and floor > int(base_floor):
@@ -106,6 +106,34 @@ def main():
     return 0
 
 
+# ★A COUNT CANNOT HOLD ONE JOURNEY (BRH-J, 2026-10-15). live >= 95 deliberately absorbs the LLM journeys' flicker, so a
+# DETERMINISTIC journey that breaks - 109 -> 108 - stays green. A journey banked as live is pinned by id in the
+# baseline (pinned_live), and each pinned id must be present and live in the results, whatever the total says.
+def pinned_failures(res, base):
+    out = []
+    rows = {j.get("id"): j for j in res.get("journeys", [])}
+    for jid in base.get("pinned_live", []):
+        j = rows.get(jid)
+        if not j:
+            out.append(f"pinned journey {jid} is missing from the results")
+        elif not j.get("live"):
+            failing = "".join(k for k, v in (j.get("verdict") or {}).items() if v is False)
+            out.append(f"pinned journey {jid} is NOT live (fails {failing or '?'})")
+    return out
+
+
+def self_test():
+    base = {"pinned_live": ["A1", "B2"]}
+    ok_res = {"journeys": [{"id": "A1", "live": True}, {"id": "B2", "live": True}]}
+    bad_res = {"journeys": [{"id": "A1", "live": True}, {"id": "B2", "live": False, "verdict": {"J": False, "T": True}}]}
+    gone_res = {"journeys": [{"id": "A1", "live": True}]}
+    ok = (not pinned_failures(ok_res, base) and len(pinned_failures(bad_res, base)) == 1
+          and len(pinned_failures(gone_res, base)) == 1 and not pinned_failures(bad_res, {}))
+    print(("PASS" if ok else "FAIL") + " live-page-journeys self-test - a pinned journey that is not live, or missing, "
+          "reddens; an unpinned one does not")
+    return 0 if ok else 1
+
+
 def _write_report(obj):
     try:
         with open(REPORT, "w", encoding="utf-8") as f:
@@ -115,4 +143,4 @@ def _write_report(obj):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(self_test() if "--self-test" in sys.argv else main())

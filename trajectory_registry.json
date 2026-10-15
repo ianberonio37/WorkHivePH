@@ -718468,8 +718468,8 @@
     },
     {
       "id": "BRH198",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-J",
       "title": "a live-as-a-user journey that is not live - alert hub · AL4 - supervisor",
       "pages": [
@@ -718528,12 +718528,18 @@
         "repro": "run `node tools/live_page_journeys.mjs --journey <id>`: a lens the journey promises fails on the real page",
         "fix": "fix the page (or, if the journey's premise went stale on purpose, the journey - by the page's own rule), then re-run it alone and fold it into the sweep with tools/fold_journey_rerun.py; live-page-journeys ratchets",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the journey driven through the MCP browser as the row's cast, one viewport per call, with the product's own visible controls (a pointer press on the button a person sees, the confirm the page asks, the hub's own mode button) - its data seeded and restored outside the browser between calls on the LOCAL database, and the outcome read back from that database): BRH-J AL4 - live as its cast, at both widths, and pinned. Witness: AL4 ('Review + approve the AMC daily brief'), walked as Leandro Marquez (the row's cast), at 390 and 1280. FAILED in the 2026-10-13 sweep. THE JOURNEY WAS STALE, NOT THE PAGE, in two ways. (1) Its seed brief collided with uq_amc_briefings_hive_shift (one brief per hive per shift day; the 06:00 PHT run writes the real one), so briefId was null and the click landed on the REAL brief. (2) Approve now asks first (whConfirm, 2026-09-15: 'the crew suggestions go out to your whole hive under your name'), and the journey never confirmed - so the brief stayed pending, as it should. Re-run with both repaired: the real brief moved aside for the run and restored in `finally`. WALKED THROUGH THE MCP BROWSER: Approve shown on the card, the confirm asked 'Approve today's brief? The crew suggestions go out to your whole hive under your name. Cancel Approve brief', confirmed, and the card read 'Approved by Leandro Marquez at Oct 15, 2026, 08:47 AM.'; the database read back status approved, approved_by 'Leandro Marquez' (bound by tg_bind_approved_by) and one approve_amc_brief audit row - at 390 and at 1280, the brief reset to pending between the two and today's real brief put back on its day afterwa Receipt .tmp/mcp_walks/BRH198.json.",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys"
+        ]
       }
     },
     {
       "id": "BRH199",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-J",
       "title": "a live-as-a-user journey that is not live - index · ENG1 - supervisor",
       "pages": [
@@ -718594,12 +718600,18 @@
         "repro": "run `node tools/live_page_journeys.mjs --journey <id>`: a lens the journey promises fails on the real page",
         "fix": "fix the page (or, if the journey's premise went stale on purpose, the journey - by the page's own rule), then re-run it alone and fold it into the sweep with tools/fold_journey_rerun.py; live-page-journeys ratchets",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the journey driven through the MCP browser as the row's cast, one viewport per call, with the product's own visible controls (a pointer press on the button a person sees, the confirm the page asks, the hub's own mode button) - its data seeded and restored outside the browser between calls on the LOCAL database, and the outcome read back from that database): BRH-J ENG1 - live as its cast, at both widths, and pinned. Witness: ENG1 ('T52: the Engineer lens is set once and survives the whole design-and-reliability lane, and hiding a tool never denies access to it'), walked as Leandro Marquez (the row's cast), at 390 and 1280. FAILED in the 2026-10-13 sweep. THE JOURNEY WAS STALE, NOT THE PAGE. It wrote wh_nav_mode='engineer' into storage; nav-hub records WHY a mode is stored (wh_nav_mode_src chosen | derived | guess) and correctly re-derives any mode the person did not choose from their role, so every lane page read 'supervisor'. It now declares the lens with the hub's own mode button. And Day Planner left its field-only list: it joined the engineer lens on purpose on 2026-09-10 (an engineer had no route to it). WALKED THROUGH THE MCP BROWSER: the Engineer lens chosen ONCE with the hub's mode button (engineer/chosen), then engineering-design, analytics, asset-hub and project-manager each kept it (12 tiles, the engineering lane present, logbook and inventory hidden), and logbook still opened by its URL as a supervisor - a lens is not a permission - at 390 and 1280. The isolated runner run is folded into the sweep with its reason (fold_journey_rerun.py; the sweep now reads 109/109 live). LOCK: live-page-jou Receipt .tmp/mcp_walks/BRH199.json.",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys"
+        ]
       }
     },
     {
       "id": "BRH200",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-J",
       "title": "a live-as-a-user journey that is not live - project manager · PMK3 - fleet-supervisor",
       "pages": [
@@ -718658,6 +718670,12 @@
         "repro": "run `node tools/live_page_journeys.mjs --journey <id>`: a lens the journey promises fails on the real page",
         "fix": "fix the page (or, if the journey's premise went stale on purpose, the journey - by the page's own rule), then re-run it alone and fold it into the sweep with tools/fold_journey_rerun.py; live-page-journeys ratchets",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the journey driven through the MCP browser as the row's cast, one viewport per call, with the product's own visible controls (a pointer press on the button a person sees, the confirm the page asks, the hub's own mode button) - its data seeded and restored outside the browser between calls on the LOCAL database, and the outcome read back from that database): BRH-J PMK3 - live as its cast, at both widths, and pinned. Witness: PMK3 ('Mark a scope item done → project progress rolls up'), walked as Leandro Marquez (the row's cast), at 390 and 1280. FAILED in the 2026-10-13 sweep. THE JOURNEY WAS STALE, AND UNDER IT A REAL DEFECT. The status pill became a <button> in the 2026-10-14 release and the journey still asked for span.status-pill, so it clicked nothing. Repaired, it passed - but only because its JS click reached a hidden control: walking it with the pointer showed that every refreshDetail() rebuilt the project on its Overview tab, so a person who pressed an item's status was thrown off the Scope list and lost focus, and the realtime handlers did the same on any teammate's scope or log change. FIXED in project-manager.html: a refresh keeps the open tab, the scroll position and the focused control. WALKED THROUGH THE MCP BROWSER: the seeded project opened, Overview Progress read 0%, Scope opened ONCE, the item's status button pressed with the pointer twice (pending -> in progress -> done) - after each press still on Scope with focus on that button - and Overview read 100%; the database read back done, 100% - at 390 and 1280. The isolated runner run is folded into the sweep with its reason (fold_journe Receipt .tmp/mcp_walks/BRH200.json.",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys"
+        ]
       }
     },
     {
@@ -984446,5 +984464,5 @@
       }
     }
   ],
-  "next": "BRH L 26/26 (+4 ai-quality offers banked; gated-offers now checks a marker's hidden-default claim) -> BRH J (3 journeys not live: AL4, ENG1, PMK3 - walk each live as its cast) -> K (37 design-detector pairs, design skills first: impeccable context + craft-floor, emil, taste)"
+  "next": "BRH J 3/3 (AL4, ENG1, PMK3 live and pinned; project-manager refresh keeps the person's place) -> BRH K (37 design-detector pairs the ratchet holds: design skills first - impeccable context + reference/craft-floor.md, emil review-animations STANDARDS, design-taste; fix each pair, run impeccable detect, ratchet the baseline down)"
 }
