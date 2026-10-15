@@ -320,7 +320,7 @@
     .feed-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 0.875rem;
+      border-radius: 12px;
       padding: 1rem;
       transition: border-color 0.2s;
       border-left-width: 3px;
@@ -416,7 +416,7 @@
     .handover-btn:active { transform: scale(0.98); }
     #handover-sheet .sheet-inner {
       background: linear-gradient(160deg, var(--wh-navy-mid), var(--wh-navy));
-      border-radius: 1.5rem 1.5rem 0 0;
+      border-radius: 16px 16px 0 0;
       border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
       max-height: 85vh; overflow-y: auto; width: 100%;
     }
@@ -428,7 +428,7 @@
        their caps, because .status-badge renders PM DONE and .supervisor-tag renders Supervisor. */
     .ho-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
     .ho-item { font-size: 0.75rem; color:rgba(255,255,255,0.83); padding: 4px 0; display: flex; align-items: baseline; gap: 6px; }
-    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
+    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
     .ho-input::placeholder { color: rgba(255,255,255,0.80); }
     .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
   </style>
@@ -1264,7 +1264,7 @@
            dimension name; letting the word break is the durable answer, and these are uppercase labels
            where a mid-word break reads acceptably. */
         .stair-dim-label { font-size: 12px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:rgba(255,255,255,0.86); margin:0 0 4px; overflow-wrap:anywhere; }
-        .stair-dim-track { width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+        .stair-dim-track { width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
         /* ★SIX BARS ANIMATED `width` FOR 450ms ON AN EASE-IN-OUT (2026-09-19, W45920 motion lens). Three
            faults in one declaration and none of them visible as a wrong value: width is a LAYOUT
            property, so every frame reflowed the row on a page of 151 cards; 450ms is half again the
@@ -1272,7 +1272,7 @@
            curve, an ease-IN-out that starts slowly. These fills are solid colours, so the compositor
            answer works cleanly: full width, scaled from the left, which paints nothing and reflows
            nothing. The JS writes a scale instead of a percentage at all three call sites. */
-        .stair-dim-fill { width:100%; height:100%; border-radius:3px; transform:scaleX(0); transform-origin:left center; transition:transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
+        .stair-dim-fill { width:100%; height:100%; border-radius:999px; transform:scaleX(0); transform-origin:left center; transition:transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
         .stair-dim-value { font-size:12px; font-weight:800; color:rgba(255,255,255,0.86); margin:4px 0 0; line-height:1; font-variant-numeric:tabular-nums; }
         @media (max-width: 480px) {
           #stair-dims { grid-template-columns: repeat(5, minmax(0,1fr)); gap:4px; }
@@ -1387,7 +1387,7 @@
         .ss-foot { text-align:center; color:rgba(255,255,255,0.80); font-size:0.75rem; font-weight:600; margin-top:16px; padding:12px 8px; }
         .ss-foot span[aria-hidden] { color:var(--wh-green); font-weight:800; }
         /* v4 first-run value-first view (O1/O2) */
-        .ss-firstrun { padding:20px 16px; border-radius:14px; background:linear-gradient(180deg, rgba(249,178,58,0.08), transparent), var(--wh-navy); border:1px solid rgba(249,178,58,0.28); margin-bottom:16px; }
+        .ss-firstrun { padding:20px 16px; border-radius:16px; background:linear-gradient(180deg, rgba(249,178,58,0.08), transparent), var(--wh-navy); border:1px solid rgba(249,178,58,0.28); margin-bottom:16px; }
         .ss-fr-steps { display:flex; align-items:center; gap:0; margin-bottom:16px; }
         .ss-fr-step { font-size: 0.75rem; font-weight:700; color:rgba(255,255,255,0.80); white-space:nowrap; }
         .ss-fr-step.done { color:var(--wh-green); } .ss-fr-step.now { color:var(--wh-orange-text); }
@@ -1400,7 +1400,7 @@
            hero has scrolled off (IntersectionObserver). Desktop never sees it. */
         #ss-sticky { display:none; }
         @media (max-width:640px){
-          #ss-sticky.on { display:flex; position:fixed; left:12px; right:88px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:45; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:12px 16px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.875rem; border-radius:14px; text-decoration:none; box-shadow:0 8px 24px rgba(0,0,0,0.42); }
+          #ss-sticky.on { display:flex; position:fixed; left:12px; right:88px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:45; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:12px 16px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.875rem; border-radius:16px; text-decoration:none; box-shadow:0 8px 24px rgba(0,0,0,0.42); }
         }
 
         .ss-tiles-head { font-size: 0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.80); margin:0 0 8px; display:flex; align-items:center; gap:6px; }
@@ -4701,7 +4701,7 @@ async function loadKnowledgePipeline() {
           <span style="font-size: 0.75rem; color:rgba(255,255,255,0.80);" data-i="kpipe_searchable">searchable</span>
         </div>
         <!-- E1: coverage as a length bar (preattentive), not a bare colored number. -->
-        <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-top: 4px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:2px;"></div></div>
+        <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:999px; margin-top: 4px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:999px;"></div></div>
         <div style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin-top:4px;">
           ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} ${_t('rows', 'rows')}
         </div>
@@ -5343,7 +5343,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
       'position:fixed; inset:0; z-index:60; display:none; align-items:flex-end; ' +
       'justify-content:center; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);';
     drawer.innerHTML =
-      '<div id="wh-wp-panel" style="background:var(--wh-navy); border-top:1px solid rgba(255,255,255,0.08); border-radius:18px 18px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
+      '<div id="wh-wp-panel" style="background:var(--wh-navy); border-top:1px solid rgba(255,255,255,0.08); border-radius:16px 16px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
     drawer.addEventListener('click', e => { if (e.target === drawer) drawer.style.display = 'none'; });
     document.body.appendChild(drawer);
   }
@@ -5399,19 +5399,19 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     if (!body) return;
     body.innerHTML =
       '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
-        '<div style="padding: 12px 12px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px;">' +
+        '<div style="padding: 12px 12px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange-text); margin:0 0 2px;">Top discipline</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
         '</div>' +
-        '<div style="padding: 12px 12px; background:rgba(41,182,217,0.08); border:1px solid rgba(41,182,217,0.2); border-radius:10px;">' +
+        '<div style="padding: 12px 12px; background:rgba(41,182,217,0.08); border:1px solid rgba(41,182,217,0.2); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
         '</div>' +
-        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
+        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.80); margin:0 0 2px;">Role</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
-        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">' +
+        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,0.80); margin:0 0 2px;">Joined</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
@@ -6953,9 +6953,9 @@ async function loadBenchmarks() {
         + '<p style="font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
         + '<p style="font-size:0.875rem; font-weight:800; color:' + color + '; font-variant-numeric:tabular-nums;">' + escHtml(myMTBF) + ' <span style="font-size: 0.75rem; font-weight:600;">' + label + '</span></p>'
         + '</div>'
-        + '<div style="position:relative; height:6px; background:rgba(255,255,255,0.06); border-radius:3px;">'
-        +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:3px;"></div>'
-        +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:1px;"></div>'
+        + '<div style="position:relative; height:6px; background:rgba(255,255,255,0.06); border-radius:999px;">'
+        +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:999px;"></div>'
+        +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:0;"></div>'
         + '</div>'
         + '<p style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
         + '</div>';

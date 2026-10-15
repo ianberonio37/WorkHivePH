@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:667
-source_sha: ab87cebd7674a976
+source: dir:supabase/migrations:668
+source_sha: a574a7b91b431fa7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (667 migrations)
+## migration · catalog (668 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000015_money_spine_payment_record_and_cashback` — policies:service_payments_intake,service_payments_read · fns:guard_settle_requires_payment,mint_service_cashback,mint_settlement_commission,trg_fn_mint_service_cashback · triggers:trg_guard_settle_requires_payment,trg_mint_service_cashback · tables:service_payments
 - `20260731000016_min_list_balance_becomes_the_accept_floor` — (misc DDL/DML)
 - `20260731000017_a_sale_needs_a_counterparty` — fns:guard_listing_sale_needs_counterparty,recompute_seller_sales_and_tier · triggers:trg_guard_listing_sale_needs_counterparty · tables:marketplace_inquiries,marketplace_listings
 - `20260731000018_dispute_adjustment_never_deletion` — fns:apply_dispute_adjustment
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261014000002_client_errors_anonymous_visitors` — policies:client_errors_insert_anon
 - `20261014000003_a_profile_claims_only_a_hive_it_belongs_to` — policies:mkt_sellers_insert,mkt_sellers_update,resume_documents_insert,resume_documents_update
 - `20261014000004_observability_reads_follow_the_page_gate` — policies:agentic_rag_traces_read,ai_cost_log_read,gateway_audit_read
+- `20261015000001_a_logbook_id_is_a_token` — tables:logbook
 
 (showing last 200)
 

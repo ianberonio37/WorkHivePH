@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: e968d1c98f2c3272
+source_sha: ca64371c83b77f9e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1373) — the 'what's already gated' brain
+## gate · registered validators (1387) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1007)
+### Platform (1016)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -492,7 +492,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `av-adoption` ⚡ [fail] — AV Adoption (AV1 offline chrome set as one unit + AV2 session-hygiene floor keyed to each page's identity signals; tag-matched, no-partial AND no-zero, forward-
 - `availability-pages` [warn] — Availability across the page set - offline refusal, retry path, rate-limit legibility, induced and judged in one pass by the shared live-state runner. CITED BY 
 - `avatar-state` ⚡ [fail] — Avatar State Management (Phase 10: emotion tracking, animations)
-- `axe-live-authed` [fail] — Axe a11y — AUTHENTICATED write surfaces (LIVE: password-grants a seeded supervisor + scans the 9 Tier-1 write pages [hive/inventory/logbook/pm-scheduler/skillma
+- `axe-live-authed` [fail] — Axe a11y WCAG 2.2 AA - every page the SL program walks (CI3, 2026-10-15: was the 9 Tier-1 write pages + 3), authed as the seeded supervisor, a public page signe
 - `bank-marketplace-gate-selftest` ⚡ [fail] — Marketplace-Bank Conversion Guards (one oracle and one persona per conversion; a category name is a filing label, not the claim)
 - `bank-spec-results-selftest` ⚡ [fail] — Spec-Bank Harness Discrimination (a harness failure is left unmeasured, never filed as a defect against the page it never reached)
 - `benchmark-rollup-faithfulness` [fail] — Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchma
@@ -509,6 +509,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `bundle-bloat` ⚡ [fail] — Edge Function Bundle Bloat (4-layer: LOC + imports + distribution + dynamic adoption)
 - `button-type-in-form` ⚡ [fail] — Button Type in Form (every <button> inside <form> declares type=button/submit/reset; forward-only ratchet)
 - `c-track-self-coverage` ⚡ [fail] — C-track Self-Coverage (meta: 9 artifacts + 5 validators + registry + roadmap labels of the Self-Improving Gate C-track)
+- `cache-contract` ⚡ [fail] — SL CA2/H2 (2026-10-15): every page of the roster, at every path a person reaches it by (/x.html, and a directory page at /dir as the deploy serves it with trail
 - `cache-invalidation` ⚡ [fail] — Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)
 - `cache-keeps-no-no-answer` ⚡ [fail] — The shared response cache never files 'no model answered' (UFAI edge walk W4745, 2026-10-12): _shared/cache.ts cached() stored whatever its fetcher returned, an
 - `calc-related-links` ⚡ [fail] — every calculator is linked from a sibling block (0 orphans, 0 repeated pairs) and no Related list prints one destination twice
@@ -1028,9 +1029,15 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
 - `page-contrast` [fail] — T116: the contrast zero that IS certified, and the one page where it is not. tools/prove_page_contrast.mjs is a mature TWO-ORACLE instrument - axe for WCAG 2.x,
+- `page-craft` ⚡ [fail] — SL F5 (2026-10-15): every page is built from the design tokens with nothing the design detector flags - the detector's own pipeline (motion antipatterns include
 - `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). Three invariant shapes, because not every entity is a worker
+- `page-fit` ⚡ [fail] — SL F2 (2026-10-15): every page fits at 320 and 390 wide and at 1280 - read from the phone-fit lens's own record (phone_fit_report.json, axes phone-fit@320/@390/
+- `page-gate-teeth` ⚡ [fail] — SL CI1 (2026-10-15): on every page of the roster, two registered gates both READ the page and BITE on its breach - csp-covers-what-ships (a script from an origi
 - `page-health` [fail] — Page health: every DB page paints its main container with no page error (signed in, 23 pages)
 - `page-log-tags` ⚡ [fail] — Reference pages tag every console.error/warn with their own name ([validator-catalog], [symbol-gallery], [design-system], [llm-observability], [founder-console]
+- `page-ratchets` ⚡ [fail] — SL CI3 (2026-10-15): every page is HELD - measured on the latest run, at or under its floor - by the design ratchet (scope + floors), the phone-fit ratchet at 3
+- `page-reachable` [fail] — SL F3 (2026-10-15): every control on every page is reached, named and pressed - axe's own name rules at 1280, a REAL Tab walk at 1280 (every offered control foc
+- `page-registries` ⚡ [fail] — SL CI4 (2026-10-15): every page of the roster is in every registry its class needs, read from each registry's own source - the SL classes, the design ratchet's 
 - `page-roster` ⚡ [fail] — Page Roster Parity (T1.4: ONE roster (substrate/reference/page_roster.json), every consumer's scope checked inside it — sw.js SHELL_FILES (a precached 404 fails
 - `page-survives-optional-failures` [fail] — SL A3/AV1/H1 (2026-10-14): every page production's client_errors named (production_error_groups.json) starts up in real WebKit AND Chromium under the SHIPPED ve
 - `paginated-order-totality` ⚡ [fail] — PAGINATED ORDER TOTALITY — every query that pages or truncates must sort by a TOTAL order, i.e. end its ORDER BY with a column unique per row. Found live 2026-0
@@ -1053,9 +1060,11 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `pgvector-consistency` ⚡ [fail] — pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)
 - `phantom-captures` ⚡ [fail] — Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)
 - `phantom-columns` ⚡ [fail] — Phantom Column Auditor (schema-bloat: every column in registry must have >=1 consumer)
-- `phone-fit` [fail] — Phone fit: at 390x844 no overflow, no wrapped control label, no spilled text, menus inside the viewport (51 pages)
+- `phone-fit` [fail] — Phone fit: at 390x844 no overflow, no wrapped control label, no spilled text, menus inside the viewport (every page of the SL roster since 2026-10-15 - a public
+- `phone-fit-1280` [fail] — Fit at 1280 wide on a desktop context (no touch, DPR 1): nothing outside the viewport, clipped or occluded over the SL roster (F2)
+- `phone-fit-320` [fail] — Phone fit at 320 wide, signed in (a public page signed out): the narrowest phone over the SL roster (F2)
 - `phone-fit-320-fil` [fail] — Phone fit at 320 wide, signed out, Filipino, with the interaction sweep: occlusion + element overflow + the P-M lenses on the public funnel (10 pages)
-- `phone-fit-360` [fail] — Phone fit at 360 wide: the P-M lenses on the narrower phone class (51 pages)
+- `phone-fit-360` [fail] — Phone fit at 360 wide: the P-M lenses on the narrower phone class (the SL roster)
 - `photo-survives-queue` [fail] — T14's LAST PROBE (LIVE Playwright): the dead-zone entry a worker most wants to keep is the one with the PICTURE on it — the cracked bearing, the leak, the burnt
 - `pick-prefills-category` ⚡ [fail] — Critic-deepwalk T21 lock: pick-from-registered prefills the REQUIRED Category. Walked live: name/tag/location prefilled but Category stayed empty - TYPE_TO_CATE
 - `picker-arrow-keys` ⚡ [regression] — T48: the logbook asset-picker is a keyboard combobox, not a Tab-only list - ArrowDown/ArrowUp move focus through the options (the keyboard-a11y gap T48 measured
@@ -1439,14 +1448,17 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (31)
+### Security (36)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
+- `csp-exact` [fail] — SL S3 (2026-10-15): every page of the S3 roster, loaded in Chromium as its cast under the policy vercel.json resolves for its own path (serve_vercel_headers - t
+- `csp-exact-profiles` ⚡ [fail] — SL S3 (2026-10-15): every served page's Content-Security-Policy in vercel.json is the one its own code needs today - the origins its HTML and every script it lo
 - `destructive-sweep` [fail] — Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)
 - `federated-consent` ⚡ [fail] — Cross-hive figures come only from hives that consented: _shared/federated-consent.ts reads hives.federated_benchmark_opted_in and fails closed; benchmark-comput
 - `fn-contracts` [fail] — Function contracts (a foreign-hive request refused with a sentence, a provider failure that degrades legibly, a documented shape somebody calls)
 - `gated-offers` ⚡ [fail] — BRH-L (Ian 2026-10-14: "founder/admin pages button should also be visible to only founder/admin"): a page that refuses some people is offered only to the people
+- `handler-values-escaped` ⚡ [fail] — SL S4 (2026-10-15): every value interpolated into an inline event handler (onclick="...") goes through escJsAttr - escHtml is not enough there, because the brow
 - `hostile-personas` [fail] — Hostile personas (ex-employee, scraper, self-rater, bulk abuser, spoofer, false disputer, insider - each refused on their own token)
 - `hosting-reality` [fail] — Hosting reality (what the DEPLOYED origin hands a person: headers, links, arrivals, cacheable assets)
 - `leaving-honesty` [fail] — Leaving honesty (the export runs for a supervisor, is refused a worker, and nobody's work loses its author)
@@ -1454,6 +1466,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `member-writes-by-row` ⚡ [fail] — No page changes a hive membership by display name: remove and supervisor hand-over target the row id (two members can share a name; 2026-10-14, hive.html kicked
 - `memory-identity` [fail] — AI memory WHOSE (live): anonymous recall/store of a person's durable memory is refused (401), a member cannot read or write under someone else's name (403), a m
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it
+- `no-secret-served` [fail] — SL S5 (2026-10-15): every page of the S5 roster, loaded in Chromium as its cast, receives no secret: every response body (HTML, scripts, styles, database and ed
 - `observability-reads` ⚡ [fail] — SL AU4 (2026-10-14): the observability tables are read only by the people their pages admit. Any active member could read gateway_audit_log (teammates' ip_hash,
 - `orchestrator-query-binding` ⚡ [fail] — Every read of an RLS-disabled truth view binds the hive AND handles a caller who has none (an unbound read is every tenant's rows)
 - `ownership-by-account` ⚡ [fail] — SL AU3 (2026-10-14): 'mine' is decided by the ACCOUNT, never by the display name the device remembers - no `_mineFilter` builds the wide union (auth_uid OR name
@@ -1467,6 +1480,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `session-death-is-not-removal` ⚡ [fail] — SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from "you were removed from this hive" u
 - `session-states-honest` [fail] — SL AU1 + BRH-M (Ian 2026-10-14: "working as (name of a user).. not signed in.. what is that slop?"): every page that reads the remembered display name (29 produ
 - `shared-handover` [fail] — Shared-device handover (nothing one person typed survives to the next on the same browser)
+- `stored-text-escaped` [fail] — SL S4 (2026-10-15): every page of the S4 roster, loaded in Chromium as its cast with every database read (tables and rpc) answered with its stored free text car
 - `tenant-refusal` ⚡ [fail] — Tenant refusal (a plain member of hive A gets NO row of hive B from PostgREST, and neither does anon)
 - `trigger-writes-need-definer` ⚡ [fail] — DEFINER FOR CLIENT-UNWRITABLE WRITES - a SECURITY INVOKER function that writes a table the end user cannot write raises 42501 INSIDE the trigger and takes the u
 - `unprotected-write-grant` ⚡ [fail] — UNPROTECTED WRITE GRANT — no end-user write privilege may stand on the GRANT alone. FOUND 2026-07-30 by teaching the marketplace test bank's SQL runner the `ano

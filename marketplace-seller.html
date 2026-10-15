@@ -101,7 +101,7 @@
     }
     .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: var(--wh-radius); padding: 0.75rem 0.375rem; }
     /* TEXT tier, not the FILL tier -- the fourth instance of this on this page (see the seller
-       initials at :67). #F7A21B on the dark card scores APCA Lc 59.5 against the Lc 60 floor for
+       initials at :67). var(--wh-orange,#F7A21B) on the dark card scores APCA Lc 59.5 against the Lc 60 floor for
        19px/800, so all three stat numbers missed by half a point while WCAG passed them at 7.56.
        --wh-orange-text / --wh-blue-text exist for exactly this. */
     .pstat-num { font-size: 1.125rem; font-weight: 800; color: var(--wh-orange-text); }
@@ -129,7 +129,7 @@
     .item-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .listing-item {
       background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden;
     }
     .listing-item.draft     { border-left: 3px solid var(--wh-orange); }
     .listing-item.published { border-left: 3px solid var(--wh-green); }
@@ -175,7 +175,7 @@
     .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Inquiry items */
-    .inquiry-item { background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 1rem; }
+    .inquiry-item { background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem; }
     .inquiry-item.replied { opacity: 0.65; }
     .inq-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
     .inq-buyer { font-size: 0.875rem; font-weight: 700; }
@@ -223,9 +223,9 @@
     /* Bottom sheet */
     .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
-    .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 1rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
+    .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 16px 16px 0 0; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
     .sheet.open { transform: translateY(0); }
-    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
+    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .sheet-title { font-size: 1.125rem; font-weight: 700; }
     .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); }
@@ -1634,7 +1634,7 @@
                    style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size: 0.75rem;" data-i="showcontact">Show contact</button>`
               : `<strong>Not provided</strong>`}
           </div>
-          ${inq.reply_text ? `<div style="font-size: 0.75rem;color:var(--wh-green);padding:0.375rem 0.75rem;background:rgba(74,222,128,0.06);border-radius:0.4rem;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
+          ${inq.reply_text ? `<div style="font-size: 0.75rem;color:var(--wh-green);padding:0.375rem 0.75rem;background:rgba(74,222,128,0.06);border-radius:12px;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
           ${!isReplied ? `
             <div class="reply-area">
               <textarea class="reply-textarea" placeholder="Type your reply… (optional, you can also reply directly via the buyer's contact)" aria-label="Your reply to this inquiry" data-inq-id="${e(inq.id)}"></textarea>
@@ -1681,7 +1681,7 @@
             <div class="skel" style="height:11px;width:50%;"></div>
           </div>
         </div>
-        <div class="li-actions"><div class="skel" style="height:30px;width:80px;border-radius:0.45rem;"></div></div>
+        <div class="li-actions"><div class="skel" style="height:30px;width:80px;border-radius:8px;"></div></div>
       </div>`).join('');
   }
 
@@ -3325,7 +3325,7 @@
   async function loadAnalytics() {
     const area = document.getElementById('content-area');
     if (!area) return;
-    area.innerHTML = `<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:0.875rem;"></div></div>`;
+    area.innerHTML = `<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:8px;"></div></div>`;
 
     const e = escHtml;
     let myAvgH = null, platformAvgH = null;
@@ -3399,7 +3399,7 @@
       </div>
 
       <!-- Response time benchmark -->
-      <div style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));border:1px solid rgba(255,255,255,0.07);border-radius:0.875rem;padding:1rem;margin-bottom:1rem;">
+      <div style="background:linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:1rem;margin-bottom:1rem;">
         <!-- "Reply Time", matching the seller PROFILE's "Avg Reply" tile and its "Inquiries Replied"
              counter. The same seller's speed was called a RESPONSE here and a REPLY one page over,
              which is the cross-surface half of one-concept-one-word: a seller checking their own

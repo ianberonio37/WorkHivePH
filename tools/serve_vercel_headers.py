@@ -57,16 +57,24 @@ def load_rules(root: Path) -> list[tuple[re.Pattern, list[tuple[str, str]]]]:
     return rules
 
 
+def headers_for(path: str, rules: list) -> dict[str, str]:
+    """The headers the deploy sends for one request path: every matching rule, in order, later keys winning. ONE
+    matcher for the server and for every prover that asks what a page will be served with (S3's CSP prover reads it
+    through --resolve rather than re-deriving Vercel's matching)."""
+    path = path.split("?", 1)[0].split("#", 1)[0]
+    applied: dict[str, str] = {}
+    for rx, headers in rules:
+        if rx.match(path):
+            for k, v in headers:
+                applied[k] = v
+    return applied
+
+
 class Handler(SimpleHTTPRequestHandler):
     rules: list = []
 
     def end_headers(self):
-        path = self.path.split("?", 1)[0].split("#", 1)[0]
-        applied = {}
-        for rx, headers in self.rules:
-            if rx.match(path):
-                for k, v in headers:
-                    applied[k] = v
+        applied = headers_for(self.path, self.rules)
         for k, v in applied.items():
             if k.lower() == "content-type":
                 # vercel.json can override the type (markdown twins): replace the guessed one
@@ -83,9 +91,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=5077)
     ap.add_argument("--root", default=str(ROOT))
+    ap.add_argument("--resolve", nargs="+", metavar="PATH",
+                    help="print, as JSON, the headers the deploy sends for each request path, and exit")
     a = ap.parse_args()
     root = Path(a.root).resolve()
     Handler.rules = load_rules(root)
+    if a.resolve:
+        print(json.dumps({p: headers_for(p, Handler.rules) for p in a.resolve}, ensure_ascii=False))
+        return 0
     mimetypes.add_type("text/markdown", ".md")
     os.chdir(root)
     srv = ThreadingHTTPServer(("127.0.0.1", a.port), Handler)

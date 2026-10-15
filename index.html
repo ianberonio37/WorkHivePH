@@ -456,13 +456,13 @@
 
     /* ---- buttons ---- */
     .btn-primary {
-      /* ★APCA: the gradient used to DARKEN toward --wh-orange-dark (#D88A0E), which put the navy
+      /* ★APCA: the gradient used to DARKEN toward --wh-orange-dark (var(--wh-orange-dark,#D88A0E)), which put the navy
          label on an effective #E89615 at Lc 54.5 against the Lc 60 floor for 14-16px text — the
          primary call to action on the landing page was the least legible text on it. Measured live
          2026-08-05 walking PB-index-147.
          The label is already --wh-navy, so the only lever is the fill: lightening the gradient raises
          the lightness gap instead of closing it. This uses the two hues the palette ALREADY defines
-         (--wh-orange-light #FDB94A, --wh-orange #F7A21B) rather than inventing a colour, so the button
+         (--wh-orange-light var(--wh-orange-light,#FDB94A), --wh-orange var(--wh-orange,#F7A21B)) rather than inventing a colour, so the button
          reads the same brand amber, just brighter. Verified in the browser across all 6 .btn-primary
          instances: every 'Join the Hive' / 'See All Tools' node clears its floor and the page's total
          APCA failures fell 7 -> 3. Four candidate fills were trialled live; this is the mildest that
@@ -570,10 +570,10 @@
        rgb(29,71,94)) measured APCA Lc 44.6 against a floor of 45 -- the old gradient painted its
        own darkest stop as the real foreground while the declared color:#fff was never painted,
        which is why a stylesheet read would have called it fine.
-       --wh-blue #29B6D9 is a FILL hue; as text it fails (Lc 44.6). --wh-blue-text #5FCCE8 -> Lc 56.8.
+       --wh-blue var(--wh-blue,#29B6D9) is a FILL hue; as text it fails (Lc 44.6). --wh-blue-text var(--wh-blue-light,#5FCCE8) -> Lc 56.8.
        Same fix as the .text-blue-wh utility override lower in tokens.css (PB-index-147, 2026-08-05).
-       .stat-orange carried the identical defect (--wh-orange #F7A21B -> Lc 57.8 at 18px vs floor 60;
-       --wh-orange-text #FDB94A -> Lc 67.6) and was fixed with it even though no .stat-orange element
+       .stat-orange carried the identical defect (--wh-orange var(--wh-orange,#F7A21B) -> Lc 57.8 at 18px vs floor 60;
+       --wh-orange-text var(--wh-orange-light,#FDB94A) -> Lc 67.6) and was fixed with it even though no .stat-orange element
        renders at a failing size -- fixing only the walked path is how the sibling ships broken.
        Fills, icons and borders KEEP the brand hues; text takes the -text stop. */
     .stat-orange { color: var(--wh-orange-text); }
@@ -1067,7 +1067,7 @@
     .faq-item {
       background: rgba(31,46,69,0.55);
       border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 14px;
+      border-radius: 16px;
       transition: border-color .2s ease, background .2s ease;
     }
     .faq-item[open] {
@@ -1222,7 +1222,7 @@
   html.wh-signed-in a[data-i="signup"]{display:none !important;}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 <main id="wh-main-content">
 
 
@@ -1314,7 +1314,7 @@
     <div class="pt-4 flex flex-col gap-3">
       <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
               class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
-              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange-text);padding:10px 16px;border-radius:10px;width:100%;"
+              style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange-text);padding:10px 16px;border-radius:8px;width:100%;"
               aria-label="Install WorkHive">
         <span class="ic ic-parts" aria-hidden="true"></span>
         <span data-i="installwh">Install WorkHive</span>
@@ -1823,7 +1823,7 @@
                   position: absolute; bottom: 0; right: 0;
                   width: 72px; height: 86px; pointer-events: none;
                   clip-path: polygon(62.5% 0%,100% 18.1%,100% 100%,19.2% 100%,0% 90.7%,0% 30.2%);
-                  border-bottom-right-radius: 13px;
+                  border-bottom-right-radius: inherit;   /* the card's own corner (14px; its 13px inner edge sits inside it) - follows the card, off no scale */
                   opacity: 0.07;
                 }
                 /* from this card's outer edge to the next card's, across the grid's 10px gap (right:-11px = the 1px
@@ -1854,7 +1854,7 @@
               <div class="stage-grid">
 
                 <!-- Card 1: Paper-to-Digital -->
-                <div class="stage-card stage-links-next" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card stage-links-next" onclick="openStagePopup(1)" style="border-radius:16px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Get out of paper. Build the operating rhythm.</p>
@@ -1867,7 +1867,7 @@
                 </div>
 
                 <!-- Card 2: Disciplined -->
-                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:14px; border:1px solid rgba(0,196,180,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card" onclick="openStagePopup(2)" style="border-radius:16px; border:1px solid rgba(0,196,180,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(0,196,180,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
@@ -1880,7 +1880,7 @@
                 </div>
 
                 <!-- Card 3: Predictive-Ready -->
-                <div class="stage-card stage-links-next" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:1px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card stage-links-next" onclick="openStagePopup(3)" style="border-radius:16px; border:1px solid rgba(155,89,232,0.25); border-top:1px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Move from reacting to predicting.</p>
@@ -1893,7 +1893,7 @@
                 </div>
 
                 <!-- Card 4: Industry Leader -->
-                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:14px; border:1px solid rgba(255,184,0,0.35); border-top:1px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card hc3-elite" onclick="openStagePopup(4)" style="border-radius:16px; border:1px solid rgba(255,184,0,0.35); border-top:1px solid var(--wh-orange); background:linear-gradient(150deg,rgba(247,162,27,0.16) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-orange);">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Become an industrial intelligence source.</p>
@@ -4307,7 +4307,7 @@
       host.id = 'wh-toast';
       host.setAttribute('role', 'status');
       host.setAttribute('aria-live', 'polite');
-      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:0.6rem;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
+      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:12px;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
       document.body.appendChild(host);
     }
     host.textContent = msg;
@@ -4570,7 +4570,7 @@
           const note = document.createElement('div');
           note.id = 'oh-session-dead';
           note.setAttribute('role', 'status');
-          note.style.cssText = 'margin:0 0 16px;padding:12px 16px;border-radius:10px;'
+          note.style.cssText = 'margin:0 0 16px;padding:12px 16px;border-radius:12px;'
             + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
             + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
           note.innerHTML = '<strong>Your session ended. These numbers were not read.</strong><br>'
@@ -5887,7 +5887,7 @@
               ${_t('Dismiss','I-dismiss')} &times;
             </button>
           </div>
-          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; margin-bottom:16px;">
+          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-bottom:16px;">
             <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));"></div>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
@@ -5975,7 +5975,7 @@
           <p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length} ${_t(lowStock.length === 1 ? 'part' : 'parts', 'piyesa')})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
-              <div style="font-size: 0.75rem; font-weight:600; background:rgba(247,162,27,.08); border:1px solid rgba(247,162,27,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
+              <div style="font-size: 0.75rem; font-weight:600; background:rgba(247,162,27,.08); border:1px solid rgba(247,162,27,.2); border-radius:12px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
                 ${escHtml(i.part_name)} <span style="color:var(--wh-orange-text);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
             ${lowStock.length > 8 ? `<div style="font-size: 0.75rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}

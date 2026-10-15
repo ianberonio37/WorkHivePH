@@ -978,7 +978,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     table_rows = "\n".join(
         f"          <tr><td>{e(l)}</td><td>{e(v)}{(' ' + e(u)) if u else ''}</td></tr>" for l, v, u in rows)
     faq_html = "\n".join(
-        f'      <details class="faq"><summary>{e(q)}</summary><p>{e(a)}</p></details>' for q, a in faqs)
+        f'      <details class="faq-item"><summary>{e(q)}</summary><div class="faq-answer">{e(a)}</div></details>' for q, a in faqs)
     # same list the JSON-LD HowTo uses — rendered, so the markup describes visible content
     steps_html = "\n".join(f"        <li>{e(x)}</li>" for x in _steps(data))
     sibs = data.get("siblings") or _siblings(slug, data)
@@ -1011,7 +1011,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
   /* A2/C3 (2026-09-06): the page was one unbroken prose column - no grouped region a scanner can land on. Each section
      becomes a card (edge + padding), which is what A2's "blocks" and C3's "grouped into common regions" measure, and what
      the rest of the platform looks like. Measured: staged pages 98%% -> 100%%. */
-  .prose-wh section {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
+  .prose-wh section {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px;
                       padding: 1.25rem 1.35rem 0.35rem; margin: 1.5rem 0; }}   /* 24px: on the 8-pt scale (R1 flagged 28px) */
   .prose-wh section > h2:first-child {{ margin-top: 0.25rem; }}
   .prose-wh section > [data-table-scroll] {{ margin-bottom: 1rem; }}
@@ -1048,7 +1048,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
      time with nothing to jump with. These are the platform's SEO surface - the pages a stranger
      meets first. Matches the shared link in wayfinding.js, inlined because these pages load none of
      the app chrome that carries it. -->
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 {SITE_HEADER}
 

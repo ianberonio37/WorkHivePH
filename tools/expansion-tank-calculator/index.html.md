@@ -32,4 +32,4 @@ Related calculators
 [Duct Sizing Calculator](https://workhiveph.com/tools/duct-sizing-calculator/)
 [Refrigerant Pipe Sizing Calculator](https://workhiveph.com/tools/refrigerant-pipe-calculator/)
 
-<!-- md-twin source-sha: aba659d5e16a8a6e -->
+<!-- md-twin source-sha: 1bbb6e32790d165d -->

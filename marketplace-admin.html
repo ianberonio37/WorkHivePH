@@ -57,7 +57,7 @@
     #supervisor-gate a {
       margin-top: 0.5rem; display: inline-block; padding: 0.6rem 1.5rem;
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.3);
-      border-radius: 0.625rem; color:var(--wh-orange-text); font-weight: 600; font-size: 0.82rem; text-decoration: none;
+      border-radius: 8px; color:var(--wh-orange-text); font-weight: 600; font-size: 0.82rem; text-decoration: none;
     }
 
     /* Tab switcher */
@@ -91,7 +91,7 @@
     }
     .stat-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem; padding: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.875rem;
       text-align: center;
     }
     .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
@@ -107,7 +107,7 @@
     .search-input {
       width: 100%; min-height: 44px; padding: 0.625rem 0.875rem 0.625rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
@@ -131,7 +131,7 @@
       display: flex; align-items: flex-start; gap: 0.875rem; padding: 0.875rem;
     }
     .card-thumb {
-      width: 72px; height: 72px; border-radius: 0.625rem; flex-shrink: 0;
+      width: 72px; height: 72px; border-radius: 12px; flex-shrink: 0;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden;
     }
@@ -240,7 +240,7 @@
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
       background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.12);
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.82rem; font-weight: 600;
-      z-index: 200; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 200; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);   /* a strong ease-out, no overshoot (BRH322) */
       white-space: nowrap; max-width: 90vw;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
@@ -973,7 +973,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     area.innerHTML = Array(4).fill(0).map(() => `
       <div class="admin-card draft skel-pulse">
         <div class="card-top">
-          <div class="skel" style="width:72px;height:72px;border-radius:0.625rem;flex-shrink:0;"></div>
+          <div class="skel" style="width:72px;height:72px;border-radius:12px;flex-shrink:0;"></div>
           <div style="flex:1;padding-left:0.5rem;">
             <div class="skel" style="height:14px;width:65%;margin-bottom:8px;"></div>
             <div class="skel" style="height:11px;width:80%;margin-bottom:8px;"></div>

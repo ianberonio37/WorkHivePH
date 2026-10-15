@@ -32,4 +32,4 @@ Related calculators
 [Lighting Design Calculator](https://workhiveph.com/tools/lighting-design-calculator/)
 [Voltage Drop Calculator](https://workhiveph.com/tools/voltage-drop-calculator/)
 
-<!-- md-twin source-sha: 98e98c9b6993c0b8 -->
+<!-- md-twin source-sha: 3116548a561af338 -->

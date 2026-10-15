@@ -81,16 +81,17 @@
       flex-wrap:wrap; gap:.75rem;
     }
     .hdr-left { display:flex; align-items:center; gap:.75rem; }
+    /* the platform-checks state: a still dot in the state's colour, named in words (BRH320/321, 2026-10-15) - it blinked
+       forever under a coloured glow, and said nothing to anyone who could not see the colour. While the checks load it
+       is a still blue; the "Loading" text beside the ring already says the work is moving. */
     .pulse {
-      width:10px; height:10px; border-radius:50%;
-      background:var(--green); box-shadow:0 0 8px var(--green);
-      animation:blink 2s infinite;
+      width:10px; height:10px; border-radius:50%; flex-shrink:0;
+      background:var(--green);
     }
-    .pulse.warn { background:var(--yellow); box-shadow:0 0 8px var(--yellow); }
-    .pulse.fail { background:var(--red);    box-shadow:0 0 8px var(--red); }
-    .pulse.busy { background:var(--blue);   box-shadow:0 0 8px var(--blue); animation:spin-pulse .8s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
-    @keyframes spin-pulse { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+    .pulse.warn { background:var(--yellow); }
+    .pulse.fail { background:var(--red); }
+    .pulse.busy { background:var(--blue); }
+    .pulse.none { background:rgba(255,255,255,.45); }   /* nothing was read: not green - green would claim a pass */
     h1 { font-size: 1rem; font-weight:700; color:var(--gold); }
     .hdr-meta { font-size: 0.75rem; color:var(--muted); }
     .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
@@ -106,14 +107,14 @@
     .refresh-btn:disabled { opacity:.4; cursor:not-allowed; }
     .refresh-btn.spinning .refresh-ico { animation:spin .8s linear infinite; display:inline-block; }
     .auto-select {
-      padding:.4rem .7rem; border-radius:.45rem; min-height:44px; /* D1 U2: gloved-field tap target */
+      padding:.4rem .7rem; border-radius:8px; min-height:44px; /* D1 U2: gloved-field tap target */
       background:rgba(255,255,255,.04); border:1px solid var(--border);
       color:var(--text); font-family:inherit; font-size:1rem; font-weight:600; /* 16px = no iOS auto-zoom */
     }
     .kbd {
       display:inline-block; font-family:ui-monospace,monospace;
       font-size: 0.75rem; padding:.05rem .35rem; border:1px solid var(--border);
-      border-radius:.25rem; color:var(--muted);
+      border-radius:8px; color:var(--muted);
     }
 
     /* ── Hero strip: ring + chips ── */
@@ -227,9 +228,9 @@
       width:9px; height:9px; border-radius:50%; flex-shrink:0;
       background:var(--muted);
     }
-    .rag-dot.good { background:var(--green); box-shadow:0 0 6px rgba(74,222,128,.6); }
-    .rag-dot.warn { background:var(--yellow); box-shadow:0 0 6px rgba(251,191,36,.6); }
-    .rag-dot.fail { background:var(--red); box-shadow:0 0 6px rgba(248,113,113,.6); }
+    .rag-dot.good { background:var(--green); }   /* the colour is the state; the coloured glow went (BRH319) */
+    .rag-dot.warn { background:var(--yellow); }
+    .rag-dot.fail { background:var(--red); }
 
     /* ── Panel header subtitle (plain-language "what this tells you") ── */
     .panel-sub {
@@ -266,7 +267,7 @@
     /* ── Panel ── */
     .panel {
       background:var(--surface); border:1px solid var(--border);
-      border-radius:.85rem; margin-bottom:1.25rem; overflow:hidden;
+      border-radius:12px; margin-bottom:1.25rem; overflow:hidden;
     }
     .panel-hdr {
       display:flex; align-items:center; gap:.6rem;
@@ -298,7 +299,7 @@
     .memento-headline {
       font-size:.78rem; color:var(--text); margin-bottom:.85rem;
       padding:.5rem .65rem; background:rgba(41,182,217,.06);
-      border-left:2px solid var(--blue); border-radius:.3rem;
+      border-left:2px solid var(--blue); border-radius:12px;
     }
     .memento-grid {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
@@ -381,7 +382,7 @@
       font-size: 0.75rem; color:var(--muted); margin-top:.5rem; line-height:1.4;
     }
     .src-chip code {
-      background:rgba(255,255,255,.06); padding:1px 5px; border-radius:3px;
+      background:rgba(255,255,255,.06); padding:1px 5px; border-radius:8px;
       font-size: 1rem;
     }
 
@@ -402,11 +403,11 @@
     /* DAU sparkline (CSS-only, no chart lib) */
     .sparkline {
       display:flex; align-items:flex-end; gap:2px; height:42px; margin:.6rem 0 .3rem;
-      padding:.2rem .15rem; background:rgba(255,255,255,.02); border-radius:.35rem;
+      padding:.2rem .15rem; background:rgba(255,255,255,.02); border-radius:8px;
     }
     .spark-bar {
       flex:1; background:linear-gradient(180deg,var(--green),rgba(74,222,128,.4));
-      min-height:2px; border-radius:1px 1px 0 0; transition:height .4s;
+      min-height:2px; border-radius:0; transition:height .4s;
     }
     .spark-axis {
       display:flex; justify-content:space-between; font-size: 0.75rem; color:var(--muted);
@@ -446,7 +447,7 @@
     .stair-name .num { font-size: 0.75rem; color:var(--muted); margin-right:.4rem; }
     .stair-bar {
       height:14px; background:rgba(255,255,255,.04);
-      border-radius:.35rem; overflow:hidden;
+      border-radius:999px; overflow:hidden;
     }
     .stair-fill {
       height:100%; transition:width .5s;
@@ -468,9 +469,9 @@
     }
     .pareto-name { font-size: 0.75rem; font-weight:600; color:var(--text);
                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .pareto-bar { height:8px; background:rgba(255,255,255,.05); border-radius:.3rem; overflow:hidden; }
+    .pareto-bar { height:8px; background:rgba(255,255,255,.05); border-radius:999px; overflow:hidden; }
     .pareto-fill { height:100%; background:linear-gradient(90deg,var(--purple),var(--blue));
-                    border-radius:.3rem; transition:width .5s; }
+                    border-radius:999px; transition:width .5s; }
     .pareto-count { font-size: 0.75rem; color:var(--muted); text-align:right; }
 
     /* ── Marketplace ── */
@@ -540,7 +541,7 @@
     .audit-item {
       display:flex; align-items:flex-start; gap:.55rem;
       padding:.45rem .65rem; border:1px solid var(--border);
-      border-radius:.4rem; background:rgba(255,255,255,.015);
+      border-radius:12px; background:rgba(255,255,255,.015);
       font-size: 0.75rem;
     }
     .audit-action {
@@ -717,7 +718,7 @@
     }
   
     /* C5 (2026-09-05, last of the numeral tints - appended at the end of the sheet so the cascade cannot lose):
-       --wh-blue (#29b6d9) reads Lc 51/60 on the 21-22px pulse-card / tech-chip figures; the lighter sky keeps the hue. */
+       --wh-blue (var(--wh-blue,#29b6d9)) reads Lc 51/60 on the 21-22px pulse-card / tech-chip figures; the lighter sky keeps the hue. */
     .pulse-card .n, .tech-chip.skip .n { color:#7dd3fc; }
     .tech-chip.warn .n { color:#fcd34d; }
     .tech-chip.fail .n { color:#fca5a5; }
@@ -790,7 +791,7 @@
     <!-- Header -->
     <div class="hdr">
       <div class="hdr-left">
-        <div id="hdr-pulse" class="pulse"></div>
+        <div id="hdr-pulse" class="pulse busy" role="img" aria-label="Checking the platform" title="Checking the platform"></div>
         <div>
           <h1 data-i="p_workhivefounderconsole_f883">WorkHive Founder Console</h1>
     <details class="wh-help">
@@ -853,7 +854,7 @@
       <div class="hero-stats">
         <div class="stat">
           <span><span class="n" id="stat-validators">-</span><span class="trend" id="stat-validators-trend"></span></span>
-          <span data-i="p_techchecksworkhiveplatformhe_e52b" class="l" title="WorkHive Platform Health: composite pass-rate across all validators (0-100)">Tech checks · WorkHive Platform Health</span>
+          <span data-i="p_techchecksworkhiveplatformhe_e52b" class="l" title="WorkHive Platform Health: composite pass-rate across all validators (0-100)">Platform health</span>
           <span data-i="p_scanning_b746" class="sub" id="stat-validators-sub">scanning…</span>
         </div>
         <div class="stat">
@@ -1391,6 +1392,8 @@
       });
     }
 
+    // the header dot's state in words - the same branches that pick its colour (BRH320/321)
+    function _sayPulse(el, text) { if (el) { el.setAttribute('aria-label', text); el.title = text; } }
     async function refreshAll() {
       // Cancel any in-flight refresh, start a new one (architect skill: AbortController)
       if (_state.inFlight) _state.inFlight.abort();
@@ -1402,6 +1405,7 @@
       btn.disabled = true;
       btn.classList.add('spinning');
       pulse.classList.add('busy');
+      _sayPulse(pulse, 'Checking the platform');
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
@@ -1450,14 +1454,16 @@
         document.getElementById('last-sync').textContent = _state.lastSyncAt.toLocaleTimeString();
         pulse.classList.remove('busy');
         // Pulse color reflects fail count
-        pulse.classList.remove('warn','fail');
-        if (tech && tech.summary && tech.summary.fail > 0) pulse.classList.add('fail');
-        else if (tech && tech.summary && tech.summary.warn > 0) pulse.classList.add('warn');
+        pulse.classList.remove('warn','fail','none');
+        if (tech && tech.summary && tech.summary.fail > 0) { pulse.classList.add('fail'); _sayPulse(pulse, 'Some platform checks are failing'); }
+        else if (tech && tech.summary && tech.summary.warn > 0) { pulse.classList.add('warn'); _sayPulse(pulse, 'Some platform checks warn'); }
+        else if (tech && tech.summary) _sayPulse(pulse, 'Platform checks pass');
+        else { pulse.classList.add('none'); _sayPulse(pulse, 'No platform checks were read'); }
       } catch (e) {
         if (e && e.name === 'AbortError') return;  // superseded by newer click
         console.warn('[founder-console] refreshAll err:', e && e.message);
         showToast(whReadError(e, 'the console figures') + ' The numbers on screen are the last good read, not live.');
-        pulse.classList.remove('busy'); pulse.classList.add('fail');
+        pulse.classList.remove('busy'); pulse.classList.add('fail'); _sayPulse(pulse, 'Could not read the platform checks');
       } finally {
         if (_state.inFlight === ctrl) _state.inFlight = null;
         btn.disabled = false;

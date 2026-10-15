@@ -2914,7 +2914,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Building Type <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(for permit documentation: also suggests Room Function)</span></div>
         <div class="toggle-group" id="tg-building">
           ${['Office','Industrial','Residential','Hospital','Food Processing'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${v}');applyBuildingTypeDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-building','${escJsAttr(v)}');applyBuildingTypeDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -2925,7 +2925,7 @@ function renderInputForm(calcType) {
         <div id="room-function-hint" style="font-size:0.75rem;color:#F7A21B;margin-bottom:0.4rem;min-height:1rem;"></div>
         <div class="toggle-group" id="tg-function">
           ${['Office','Conference','Server Room','Production Floor','Warehouse','Retail'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyRoomDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${escJsAttr(v)}');applyRoomDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -2988,7 +2988,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Wall / Roof Insulation</div>
         <div class="toggle-group" id="tg-insulation">
           ${['Standard','Good','Excellent'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-insulation','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-insulation','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -2998,7 +2998,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Glass / Window Type</div>
         <div class="toggle-group" id="tg-glass">
           ${['Standard','Tinted','LowE'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-glass','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-glass','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3008,7 +3008,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Window Orientation <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(East/West: 700 W/m² peak solar: 3.5× higher than Mixed)</span></div>
         <div class="toggle-group" id="tg-orientation">
           ${['North','South','East','West','Horizontal','Mixed'].map((v,i) =>
-            `<button class="toggle-btn${i===5?' active':''}" onclick="toggle('tg-orientation','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===5?' active':''}" onclick="toggle('tg-orientation','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3051,7 +3051,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Room / Space Type</div>
         <div class="toggle-group" id="tg-function">
           ${['Office','Conference','Server Room','Production Floor','Warehouse','Toilet / CR','Kitchen','Laboratory','Lobby','Hospital Ward'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${v}');applyVentDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-function','${escJsAttr(v)}');applyVentDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3061,7 +3061,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Ventilation Type</div>
         <div class="toggle-group" id="tg-vent-type">
           ${['Supply and Exhaust','Supply Only','Exhaust Only'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-vent-type','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-vent-type','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3116,7 +3116,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Fluid</div>
         <div class="toggle-group" id="tg-fluid">
           ${['Water','Chilled Water','Hot Water','Glycol Solution','Seawater'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-fluid','${v}');applyFluidDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-fluid','${escJsAttr(v)}');applyFluidDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3162,7 +3162,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Pipe Material</div>
         <div class="toggle-group" id="tg-pipe-mat">
           ${['PVC','Galvanized Steel','Stainless Steel','HDPE','Copper','Cast Iron'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3242,7 +3242,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Boiler Type</div>
         <div class="toggle-group" id="tg-boiler-type">
           ${['Steam','Hot Water'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-boiler-type','${v}');toggleBoilerType()">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-boiler-type','${escJsAttr(v)}');toggleBoilerType()">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3255,7 +3255,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Load Input Mode</div>
           <div class="toggle-group" id="tg-load-mode">
             ${['Steam Demand (kg/hr)','Heat Load (kW)'].map((v,i) =>
-              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-load-mode','${v}');toggleBoilerLoadMode()">${v}</button>`
+              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-load-mode','${escJsAttr(v)}');toggleBoilerLoadMode()">${v}</button>`
             ).join('')}
           </div>
         </div>
@@ -3397,7 +3397,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Fuel Type</div>
         <div class="toggle-group" id="tg-fuel">
           ${['LPG','Diesel','Bunker C','Natural Gas','Biomass'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-fuel','${v}');applyBoilerFuelDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-fuel','${escJsAttr(v)}');applyBoilerFuelDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3444,7 +3444,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Service Type</div>
         <div class="toggle-group" id="tg-service">
           ${['Chilled Water Supply','Chilled Water Return','Hot Water Supply','Condenser Water','Cold Water Supply','Fire Protection','General Water'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-service','${v}');applyServiceDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-service','${escJsAttr(v)}');applyServiceDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3472,7 +3472,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Pipe Material</div>
         <div class="toggle-group" id="tg-pipe-mat">
           ${['PVC','Galvanized Steel','Stainless Steel','HDPE','Copper','Cast Iron'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3599,7 +3599,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Supply Type</div>
         <div class="toggle-group" id="tg-supply-type">
           ${['Cold and Hot','Cold Only','Hot Only'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-supply-type','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-supply-type','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3608,7 +3608,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Pipe Material</div>
         <div class="toggle-group" id="tg-pipe-mat">
           ${['PVC','Copper','Galvanized Steel','HDPE','Stainless Steel'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3756,7 +3756,7 @@ function renderInputForm(calcType) {
         <div class="field-label">System Type</div>
         <div class="toggle-group" id="tg-drain-system">
           ${['Horizontal Branch','Drain Stack','Building Drain'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-system','${v}');updateDrainSlopeVisibility()">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-system','${escJsAttr(v)}');updateDrainSlopeVisibility()">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3774,7 +3774,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Pipe Material</div>
         <div class="toggle-group" id="tg-drain-mat">
           ${['PVC','Cast Iron','Concrete','Clay Tile'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-mat','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-drain-mat','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -3815,7 +3815,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Occupancy Type</div>
         <div class="toggle-group" id="tg-occ-type" style="flex-wrap:wrap;">
           ${OCC_OPTIONS.map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-occ-type','${v}');applySepticDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-occ-type','${escJsAttr(v)}');applySepticDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4389,7 +4389,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Facility Type</div>
         <div class="toggle-group" id="tg-gt-fac" style="flex-wrap:wrap;">
           ${GT_FAC_TYPES.map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gt-fac','${v}');applyGTFacDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gt-fac','${escJsAttr(v)}');applyGTFacDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4443,7 +4443,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Design Rainfall Intensity <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(PAGASA 10-yr, 60-min: or enter custom)</span></div>
         <div class="toggle-group mb-2" id="tg-rd-city">
           ${Object.entries(RD_CITY_INTENSITY).map(([city, val], i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-rd-city','${city}');rdSetIntensity('${city}',${val})">${city}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-rd-city','${escJsAttr(city)}');rdSetIntensity('${escJsAttr(city)}',${escJsAttr(val)})">${city}</button>`
           ).join('')}
         </div>
         <div class="input-group">
@@ -4475,7 +4475,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Parapet Walls Present? <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(overflow drains required when Yes: IPC §1101.7)</span></div>
         <div class="toggle-group" id="tg-parapet">
           ${['Yes','No'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-parapet','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-parapet','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4493,7 +4493,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Pipe Material</div>
           <div class="toggle-group" id="tg-pipe-mat">
             ${['uPVC','Cast Iron','Galv. Steel'].map((v,i) =>
-              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${v}')">${v}</button>`
+              `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pipe-mat','${escJsAttr(v)}')">${v}</button>`
             ).join('')}
           </div>
         </div>
@@ -4521,7 +4521,7 @@ function renderInputForm(calcType) {
         <div class="field-label">System Configuration</div>
         <div class="toggle-group" id="tg-phase">
           ${['1-Phase 2-Wire (230V)','1-Phase 3-Wire (230V)','3-Phase 3-Wire (400V)','3-Phase 4-Wire (400V)'].map((v,i) =>
-            `<button class="toggle-btn${i===3?' active':''}" onclick="toggle('tg-phase','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===3?' active':''}" onclick="toggle('tg-phase','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4561,7 +4561,7 @@ function renderInputForm(calcType) {
         <div class="field-label">System Configuration</div>
         <div class="toggle-group" id="tg-gen-phase">
           ${['1-Phase 2-Wire (230V)','3-Phase 4-Wire (400V)'].map((v,i) =>
-            `<button class="toggle-btn${i===1?' active':''}" onclick="toggle('tg-gen-phase','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===1?' active':''}" onclick="toggle('tg-gen-phase','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4570,7 +4570,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Generator Application</div>
         <div class="toggle-group" id="tg-gen-app">
           ${['Standby (ESP)','Prime Power (PRP)','Emergency (10 s)'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gen-app','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-gen-app','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4648,7 +4648,7 @@ function renderInputForm(calcType) {
         <div class="field-label">System Type</div>
         <div class="toggle-group" id="tg-pv-type">
           ${['Grid-Tied','Off-Grid','Hybrid'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pv-type','${v}');togglePVBatteryFields()">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-pv-type','${escJsAttr(v)}');togglePVBatteryFields()">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4657,7 +4657,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Location <span style="color:var(--wh-text-faint);font-size:0.75rem;">(sets Peak Sun Hours)</span></div>
         <div class="toggle-group" id="tg-pv-loc" style="flex-wrap:wrap;">
           ${[['Metro Manila','4.5'],['Cebu','4.8'],['Davao','4.9'],['Iloilo','4.7'],['Baguio','4.2'],['CDO','4.6'],['Zamboanga','4.9'],['Batangas','4.6'],['Legazpi','4.4'],['Tacloban','4.5'],['Custom','']].map(([loc,psh],i) =>
-            `<button class="toggle-btn${i===0?' active':''}" data-val="${loc}" onclick="setPVLocation('${loc}','${psh}')">${loc}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" data-val="${loc}" onclick="setPVLocation('${escJsAttr(loc)}','${escJsAttr(psh)}')">${loc}</button>`
           ).join('')}
         </div>
       </div>
@@ -4684,7 +4684,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Panel Wp Rating</div>
           <div class="toggle-group" id="tg-pv-wp" style="flex-wrap:wrap;">
             ${[300,400,450,550,600].map((v,i) =>
-              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pv-wp','${v}')">${v} Wp</button>`
+              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pv-wp','${escJsAttr(v)}')">${v} Wp</button>`
             ).join('')}
           </div>
         </div>
@@ -4794,7 +4794,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Existing Power Factor</div>
         <div class="toggle-group" id="tg-pfc-pf-exist" style="flex-wrap:wrap;">
           ${[0.60,0.65,0.70,0.75,0.80,0.82,0.84].map((v,i) =>
-            `<button class="toggle-btn${i===3?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-pf-exist','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===3?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-pf-exist','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4803,7 +4803,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Target Power Factor <span style="color:var(--wh-text-faint);font-size:0.75rem;">(≥ 0.85 avoids Meralco surcharge)</span></div>
         <div class="toggle-group" id="tg-pfc-pf-target">
           ${[0.90,0.92,0.95,0.97,0.99].map((v,i) =>
-            `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-pf-target','${v}')">${v}</button>`
+            `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-pf-target','${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -4813,7 +4813,7 @@ function renderInputForm(calcType) {
           <div class="field-label">System Voltage</div>
           <div class="toggle-group" id="tg-pfc-volt" style="flex-wrap:wrap;">
             ${[[230,'230 V'],[400,'400 V'],[415,'415 V'],[11000,'11 kV'],[22000,'22 kV']].map(([v,label],i) =>
-              `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-volt','${v}')">${label}</button>`
+              `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-pfc-volt','${escJsAttr(v)}')">${label}</button>`
             ).join('')}
           </div>
         </div>
@@ -5618,7 +5618,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Conductor Size</div>
         <div class="toggle-group" id="tg-vd-wire" style="flex-wrap:wrap;">
           ${['2.0','3.5','5.5','8.0','14','22','30','38','50','60','80','100'].map((v,i) =>
-            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-vd-wire','${v}')">${v} mm²</button>`
+            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-vd-wire','${escJsAttr(v)}')">${v} mm²</button>`
           ).join('')}
         </div>
       </div>
@@ -5650,7 +5650,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Load Type</div>
         <div class="toggle-group" id="tg-ws-load-type">
           ${['General Load','Motor (continuous)','HVAC Compressor','Lighting (continuous)','Receptacle'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ws-load-type','${v}');applyWSLoadDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ws-load-type','${escJsAttr(v)}');applyWSLoadDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -5726,7 +5726,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Transformer kVA Rating</div>
         <div class="toggle-group" id="tg-sc-kva">
           ${[25,50,100,167,250,500,1000].map((v,i) =>
-            `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-kva','${v}')">${v} kVA</button>`
+            `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-kva','${escJsAttr(v)}')">${v} kVA</button>`
           ).join('')}
         </div>
       </div>
@@ -5754,7 +5754,7 @@ function renderInputForm(calcType) {
           <div class="field-label">Cable Size (mm²)</div>
           <div class="toggle-group" id="tg-sc-cable">
             ${[22,30,38,50,60,80,100,150,250].map((v,i) =>
-              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-cable','${v}')">${v}</button>`
+              `<button class="toggle-btn${i===2?' active':''}" data-val="${v}" onclick="toggle('tg-sc-cable','${escJsAttr(v)}')">${v}</button>`
             ).join('')}
           </div>
         </div>
@@ -5797,7 +5797,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Space Type</div>
         <div class="toggle-group" id="tg-ld-space">
           ${['Office','Conference Room','Corridor','Toilet','Warehouse','Production Floor','School / Classroom','Retail'].map((v,i) =>
-            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ld-space','${v}');applyLDSpaceDefaults('${v}')">${v}</button>`
+            `<button class="toggle-btn${i===0?' active':''}" onclick="toggle('tg-ld-space','${escJsAttr(v)}');applyLDSpaceDefaults('${escJsAttr(v)}')">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -6217,7 +6217,7 @@ function renderInputForm(calcType) {
             ['Extra Hazard Grp 1', 'Woodworking, die casting'],
             ['Extra Hazard Grp 2', 'Flammable liquids, spray painting'],
           ].map(([v, hint], i) =>
-            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-hazard','${v}');applyHazardDefaults('${v}')" title="${hint}">${v}</button>`
+            `<button class="toggle-btn${i===1?' active':''}" data-val="${v}" onclick="toggle('tg-hazard','${escJsAttr(v)}');applyHazardDefaults('${escJsAttr(v)}')" title="${hint}">${v}</button>`
           ).join('')}
         </div>
       </div>
@@ -8018,7 +8018,7 @@ function addToolRow(defaultTool = 'Impact Wrench 1/2', defaultQty = 1) {
   row.id    = `tool-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 80px 80px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="tool-type-${id}" onchange="toggleCustomCFM(${id})">
+    <select class="wh-input py-2" id="tool-type-${id}" onchange="toggleCustomCFM(${escJsAttr(id)})">
       ${TOOL_OPTIONS.map(t => `<option value="${t}"${t===defaultTool?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8029,7 +8029,7 @@ function addToolRow(defaultTool = 'Impact Wrench 1/2', defaultQty = 1) {
       <input id="tool-cfm-${id}" aria-label="Tool CFM" class="wh-input py-2" type="number" value="0" min="0" placeholder="CFM" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">CFM</span>
     </div>
-    <button onclick="document.getElementById('tool-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('tool-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('tool-list').appendChild(row);
   toggleCustomCFM(id);
@@ -8050,7 +8050,7 @@ function addFixtureRow(defaultFixture = 'Water Closet (Flush Tank)', defaultQty 
   row.id    = `fixture-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="fix-type-${id}" onchange="toggleCustomFixture(${id})">
+    <select class="wh-input py-2" id="fix-type-${id}" onchange="toggleCustomFixture(${escJsAttr(id)})">
       ${FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultFixture?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8065,7 +8065,7 @@ function addFixtureRow(defaultFixture = 'Water Closet (Flush Tank)', defaultQty 
       <input id="fix-lpm-${id}" aria-label="Fixture L/min" class="wh-input py-2" type="number" value="3.8" min="0" placeholder="L/min" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">L/min</span>
     </div>
-    <button onclick="document.getElementById('fixture-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('fixture-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('fixture-list').appendChild(row);
 }
@@ -8089,7 +8089,7 @@ function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1
   row.id    = `hw-use-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="hw-type-${id}" onchange="toggleCustomRate(${id})">
+    <select class="wh-input py-2" id="hw-type-${id}" onchange="toggleCustomRate(${escJsAttr(id)})">
       ${HW_USE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8104,7 +8104,7 @@ function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1
       <input id="hw-rate-${id}" aria-label="Hot water rate" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">L</span>
     </div>
-    <button onclick="document.getElementById('hw-use-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('hw-use-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('hw-use-list').appendChild(row);
   toggleCustomRate(id);
@@ -8137,7 +8137,7 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
   row.id    = `drain-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 70px 70px 70px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="drain-type-${id}" onchange="toggleCustomDFU(${id})">
+    <select class="wh-input py-2" id="drain-type-${id}" onchange="toggleCustomDFU(${escJsAttr(id)})">
       ${DRAIN_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8149,7 +8149,7 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
       <span class="input-unit" style="font-size:0.75rem;">DFU</span>
     </div>
     <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
-    <button onclick="document.getElementById('drain-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('drain-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('drain-fixture-list').appendChild(row);
   toggleCustomDFU(id);
@@ -8202,7 +8202,7 @@ function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6,
   row.id    = `gt-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 100px 70px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="gt-type-${id}" onchange="toggleGTCustomFlow(${id})">
+    <select class="wh-input py-2" id="gt-type-${id}" onchange="toggleGTCustomFlow(${escJsAttr(id)})">
       ${GT_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8213,7 +8213,7 @@ function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6,
       <input id="gt-qty-${id}" aria-label="Gas tool quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
-    <button onclick="document.getElementById('gt-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('gt-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('gt-fixture-list').appendChild(row);
   toggleGTCustomFlow(id);
@@ -8263,7 +8263,7 @@ function addLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW
   row.id    = `load-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="lt-type-${id}" onchange="applyLoadDefaults(${id})">
+    <select class="wh-input py-2" id="lt-type-${id}" onchange="applyLoadDefaults(${escJsAttr(id)})">
       ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8278,7 +8278,7 @@ function addLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defaultW
       <input id="lt-pf-${id}" aria-label="Lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">PF</span>
     </div>
-    <button onclick="document.getElementById('load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('load-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('load-list').appendChild(row);
 }
@@ -8296,7 +8296,7 @@ function addGenLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defau
   row.id    = `gen-load-row-${id}`;
   row.style.cssText = 'display:grid;grid-template-columns:1fr 55px 80px 80px 28px;gap:0.4rem;align-items:center;';
   row/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <select class="wh-input py-2" id="glt-type-${id}" onchange="applyGenLoadDefaults(${id})">
+    <select class="wh-input py-2" id="glt-type-${id}" onchange="applyGenLoadDefaults(${escJsAttr(id)})">
       ${LOAD_TYPE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
@@ -8311,7 +8311,7 @@ function addGenLoadRow(defaultType = 'Lighting (General)', defaultQty = 1, defau
       <input id="glt-pf-${id}" aria-label="General lighting power factor" class="wh-input py-2" type="number" value="${defaultPF}" min="0.5" max="1.0" step="0.05" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">PF</span>
     </div>
-    <button onclick="document.getElementById('gen-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('gen-load-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('gen-load-list').appendChild(row);
 }
@@ -8346,7 +8346,7 @@ function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, de
       <input id="ct-w-${id}" aria-label="Conduit weight" class="wh-input py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">kg/m</span>
     </div>
-    <button onclick="document.getElementById('ct-cable-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('ct-cable-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('ct-cable-list').appendChild(row);
 }
@@ -8372,7 +8372,7 @@ function addUPSLoadRow(defaultDesc = 'Load', defaultVA = 1000, defaultPF = 0.9, 
       <input id="ups-qty-${id}" aria-label="UPS quantity" class="wh-input py-2" type="number" value="${defaultQty}" min="1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
-    <button onclick="document.getElementById('ups-load-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('ups-load-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('ups-load-list').appendChild(row);
 }
@@ -8398,7 +8398,7 @@ function addDuctSegRow(defaultName = 'Segment', defaultFlow = 500, defaultLen = 
     <select class="wh-input py-2" id="duct-type-${id}">
       ${DUCT_SEG_TYPES.map(t => `<option value="${t}"${t === defaultType ? ' selected' : ''}>${t}</option>`).join('')}
     </select>
-    <button onclick="document.getElementById('duct-seg-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('duct-seg-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('duct-seg-list').appendChild(row);
 }
@@ -8469,7 +8469,7 @@ function addFCURoomRow(defaultName = 'Room', defaultArea = 30, defaultLoad = 5.0
     <input id="fcu-area-${id}" aria-label="FCU area" class="wh-input py-2" type="number" value="${defaultArea}"  min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
     <input id="fcu-load-${id}" aria-label="FCU cooling load" class="wh-input py-2" type="number" value="${defaultLoad}"  min="0.1" step="0.1" style="font-size:16px;padding:0.5rem 0.4rem;" />
     <input id="fcu-qty-${id}" aria-label="FCU quantity"  class="wh-input py-2" type="number" value="${defaultQty}"   min="1"   step="1"   style="font-size:16px;padding:0.5rem 0.4rem;" />
-    <button onclick="document.getElementById('fcu-room-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('fcu-room-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('fcu-room-list').appendChild(row);
 }
@@ -8491,7 +8491,7 @@ function addRefrigLineRow(defaultName = 'Line', defaultType = 'Suction: Horizont
       <input id="refrig-len-${id}" aria-label="Refrigerant line length" class="wh-input py-2" type="number" value="${defaultLen}" min="0.5" step="0.5" style="font-size:16px;padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">m</span>
     </div>
-    <button onclick="document.getElementById('refrig-line-row-${id}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
+    <button onclick="document.getElementById('refrig-line-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
   `;
   document.getElementById('refrig-line-list').appendChild(row);
 }
@@ -28548,8 +28548,8 @@ async function loadHistory() {
           <div class="text-right flex-shrink-0">
             <div class="text-xs" style="color:rgba(255,255,255,0.6);">${dt}</div>
             <div class="flex gap-2 mt-2">
-              <button class="btn-ghost text-xs py-1 px-3" onclick="viewHistoryById('${row.id}')">View</button>
-              <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);" onclick="deleteCalc('${row.id}')">Delete</button>
+              <button class="btn-ghost text-xs py-1 px-3" onclick="viewHistoryById('${escJsAttr(row.id)}')">View</button>
+              <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);" onclick="deleteCalc('${escJsAttr(row.id)}')">Delete</button>
             </div>
           </div>
         </div>
@@ -28788,18 +28788,18 @@ function renderBomChecklist() {
   }
   container.innerHTML = _bomItems.map((item, i) => `
     <div class="bom-checklist-item ${item.checked === false ? 'unchecked' : ''}" id="bom-row-${i}">
-      <input type="checkbox" class="bom-item-check" ${item.checked !== false ? 'checked' : ''} onchange="toggleBomItem(${i})" />
+      <input type="checkbox" class="bom-item-check" ${item.checked !== false ? 'checked' : ''} onchange="toggleBomItem(${escJsAttr(i)})" />
       <div class="bom-item-fields">
         <div class="bom-item-row">
           <input class="bom-item-input desc" type="text" placeholder="Description" value="${escHtml(item.description || '')}"
-            oninput="_bomItems[${i}].description=this.value" />
+            oninput="_bomItems[${escJsAttr(i)}].description=this.value" />
         </div>
         <div class="bom-item-row">
           <input class="bom-item-input spec" type="text" placeholder="Specification" value="${escHtml(item.specification || '')}"
-            oninput="_bomItems[${i}].specification=this.value" />
+            oninput="_bomItems[${escJsAttr(i)}].specification=this.value" />
           <input class="bom-item-input qty" aria-label="Item quantity" type="number" min="0" step="0.1" value="${item.qty ?? 1}"
-            oninput="_bomItems[${i}].qty=parseFloat(this.value)||0" />
-          <select class="bom-item-select" onchange="_bomItems[${i}].unit=this.value">
+            oninput="_bomItems[${escJsAttr(i)}].qty=parseFloat(this.value)||0" />
+          <select class="bom-item-select" onchange="_bomItems[${escJsAttr(i)}].unit=this.value">
             ${(() => {
               const stdUnits = ['unit','set','pc','lot','m','m²','m³','kg','L','roll','pair','panel','breaker','tank','battery','length','run','assembly'];
               const opts = stdUnits.includes(item.unit) ? stdUnits : [...stdUnits, item.unit];
@@ -28809,10 +28809,10 @@ function renderBomChecklist() {
         </div>
         <div class="bom-item-row">
           <input class="bom-item-input rmk" type="text" placeholder="Remarks (optional)" value="${escHtml(item.remarks || '')}"
-            oninput="_bomItems[${i}].remarks=this.value" />
+            oninput="_bomItems[${escJsAttr(i)}].remarks=this.value" />
         </div>
       </div>
-      <button class="bom-delete-btn" onclick="deleteBomRow(${i})" title="Remove" aria-label="Remove">✕</button>
+      <button class="bom-delete-btn" onclick="deleteBomRow(${escJsAttr(i)})" title="Remove" aria-label="Remove">✕</button>
     </div>`).join('');
 }
 
@@ -28847,9 +28847,9 @@ function renderSowChecklist() {
   /* xss-allow: SOW checklist ternary outputs hardcoded CSS class, user-controlled labels passed through escHtml() in inner spans */
   container.innerHTML = _sowSections.map((sec, i) => `
     <div class="sow-checklist-item ${sec.checked === false ? 'unchecked' : ''}" id="sow-row-${i}">
-      <div class="sow-item-header" onclick="toggleSowExpand(${i})">
+      <div class="sow-item-header" onclick="toggleSowExpand(${escJsAttr(i)})">
         <input type="checkbox" class="bom-item-check" ${sec.checked !== false ? 'checked' : ''}
-          onclick="event.stopPropagation(); toggleSowItem(${i})" />
+          onclick="event.stopPropagation(); toggleSowItem(${escJsAttr(i)})" />
         <div style="flex:1;min-width:0;">
           <span class="text-xs font-semibold" style="color:#F7A21B;">${escHtml(sec.section_no || '')}</span>
           <span class="text-sm font-semibold ml-1" style="color:rgba(255,255,255,0.85);">${escHtml(sec.title || '')}</span>
@@ -28858,7 +28858,7 @@ function renderSowChecklist() {
       </div>
       <div class="sow-item-body" id="sow-body-${i}" style="display:none;">
         <textarea class="bom-item-input" style="width:100%;min-height:64px;resize:vertical;padding:0.4rem 0.55rem;font-size:0.76rem;"
-          oninput="_sowSections[${i}].content=this.value">${escHtml(sec.content || '')}</textarea>
+          oninput="_sowSections[${escJsAttr(i)}].content=this.value">${escHtml(sec.content || '')}</textarea>
       </div>
     </div>`).join('');
 }

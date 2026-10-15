@@ -63,7 +63,7 @@
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(self), microphone=(self), geolocation=(self)
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://workhive-assistant.ian-beronio37.workers.dev https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'
 
 # Stale backups + the v3 test page are served from the web root (publish = "."), and
 # each is a near-duplicate of the live homepage or logbook with the same <title>, no
@@ -118,6 +118,21 @@
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 /*.html
+  Cache-Control: public, max-age=0, must-revalidate
+# a directory page is served at /learn/x, /tools/x, /about, /feedback (trailingSlash false) - no .html in the path
+/learn/*
+  Cache-Control: public, max-age=0, must-revalidate
+/tools/*
+  Cache-Control: public, max-age=0, must-revalidate
+/about
+  Cache-Control: public, max-age=0, must-revalidate
+/feedback
+  Cache-Control: public, max-age=0, must-revalidate
+/learn
+  Cache-Control: public, max-age=0, must-revalidate
+/privacy-policy
+  Cache-Control: public, max-age=0, must-revalidate
+/terms-of-service
   Cache-Control: public, max-age=0, must-revalidate
 /*.png
   Cache-Control: public, max-age=31536000, immutable

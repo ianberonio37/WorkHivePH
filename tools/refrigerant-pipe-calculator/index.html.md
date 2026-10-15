@@ -32,4 +32,4 @@ Related calculators
 [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
 [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
 
-<!-- md-twin source-sha: 5b6cc18bc41c68be -->
+<!-- md-twin source-sha: 296e8e4c720b36c0 -->

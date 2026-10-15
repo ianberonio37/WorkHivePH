@@ -32,4 +32,4 @@ Related calculators
 [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/)
 [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/)
 
-<!-- md-twin source-sha: 3a5e48bc1f00b3c6 -->
+<!-- md-twin source-sha: 1ee88a0529cb3be7 -->

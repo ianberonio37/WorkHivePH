@@ -20,6 +20,7 @@
 //   node tools/prove_phone_fit.mjs --pages a.html,b.html   # a subset (halves for the 10-minute background cap)
 //   node tools/prove_phone_fit.mjs --width 320 --anon --lang fil --sweep --pages tools/oee-calculator/index.html
 import { chromium } from 'playwright';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { SEEDER, signIn, PAGE_QUERY, DB_PAGES, VIS_JS, assertSignedIn } from './prover_harness.mjs';
 import { record, issuesOf, interactionSweep } from './phone_fit_audit.mjs';
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
@@ -30,24 +31,58 @@ const LANG = (() => { const i = process.argv.indexOf('--lang'); return i >= 0 ? 
 const SWEEP = process.argv.includes('--sweep');
 // the P-M pool (51 pages = every root page + 8 calculators), generated from tools/seed_p_program_catalog.py _pool_for('P-M') on 2026-09-06
 const PHONE_POOL = ["agentic-rag-observability.html", "ai-quality.html", "design-system.html", "founder-console.html", "llm-observability.html", "marketplace-admin.html", "offline-fallback.html", "plant-connections.html", "platform-actions.html", "promo-poster.html", "learn/index.html", "achievements.html", "alert-hub.html", "analytics-report.html", "analytics.html", "asset-hub.html", "assistant.html", "audit-log.html", "community.html", "dayplanner.html", "engineering-design.html", "hive.html", "index.html", "integrations.html", "inventory.html", "logbook.html", "marketplace-seller-profile.html", "marketplace-seller.html", "marketplace.html", "ph-intelligence.html", "pm-scheduler.html", "project-manager.html", "project-report.html", "public-feed.html", "report-sender.html", "resume.html", "shift-brain.html", "skillmatrix.html", "status.html", "voice-journal.html", "tools/ahu-sizing-calculator/index.html", "tools/beam-design-calculator/index.html", "tools/bearing-life-calculator/index.html", "tools/boiler-steam-calculator/index.html", "tools/boiler-system-calculator/index.html", "tools/bolt-torque-calculator/index.html", "tools/cable-tray-sizing-calculator/index.html", "tools/chiller-sizing-calculator/index.html"];
-const PAGES = ONLY ? [ONLY] : LIST ? LIST : PHONE_POOL;
+// ★THE POOL IS THE PROGRAM'S PAGES, NOT A LIST (CI3, 2026-10-15). PHONE_POOL was written by hand on 2026-09-06 and held
+// 51 pages; the SL program walks 155, so 104 pages - most learn articles and calculators - were never held by this lens.
+// The roster is that list plus every page the registry's SL rows name, and a PUBLIC page is read signed out, as the
+// visitor it is for (its real reader), in a second context.
+const REG = JSON.parse(readFileSync('trajectory_registry.json', 'utf8'));
+const SL_CLASS = new Map();
+for (const t of REG.trajectories) if (t.sl && t.sl.page && t.status !== 'descoped') SL_CLASS.set(t.sl.page, t.sl.page_class);
+const ROSTER = [...new Set([...PHONE_POOL, ...SL_CLASS.keys()])].filter((f) => existsSync(f));
+const PAGES = ONLY ? [ONLY] : LIST ? LIST : ROSTER;
+const PUBLIC = (f) => SL_CLASS.get(f) === 'public';
+// ★A FLOOR PER PAGE, SO A COUNT CAN ONLY FALL (CI3). The gate was zero-tolerance over its 51 pages; held over 155, a page it
+// never read would fail it on day one for findings that predate the read. Each axis keeps a floor per page in
+// phone_fit_baseline.json: a page absent from it has a floor of 0 (the 51 stay zero-tolerance), a count above the floor
+// fails, --rebase lowers floors that fell, and --reseed --reason "..." records the floor when the roster widened.
+const BASE_FILE = 'phone_fit_baseline.json';
+const BASE = existsSync(BASE_FILE) ? JSON.parse(readFileSync(BASE_FILE, 'utf8')) : { _doc: 'Per-axis, per-page phone-fit issue floors (tools/prove_phone_fit.mjs). A count above its floor fails; --rebase lowers; --reseed --reason records a re-measure. Generated, never hand-edited.', axes: {} };
+const REBASE = process.argv.includes('--rebase');
+const RESEED = process.argv.includes('--reseed');
+const REASON = (() => { const i = process.argv.indexOf('--reason'); return i >= 0 ? process.argv[i + 1] : ''; })();
+if (RESEED && !REASON.trim()) { console.log('REFUSED --reseed: say why the floor is re-measured (--reason "...")'); process.exit(1); }
+const measured = {};
 const MENU_RE = /(⋯|…|⋮|\bmore\b|\bmenu\b|\boptions\b|\bactions\b)/i;
 const AXIS = `phone-fit@${W}${ANON ? ' anon' : ''}${LANG !== 'en' ? ' ' + LANG : ''}${SWEEP ? ' +sweep' : ''}`;
 
+// ★1280 IS A DESKTOP, NOT A WIDE PHONE (F2, 2026-10-15). F2 asks for 320, 390 and 1280; a 1280 reading taken with
+// isMobile + touch is a tablet emulation that no desktop reader sees (mobile viewport meta, touch hit-testing, DPR 2).
+const MOBILE = W < 768;
+const VIEW = { viewport: { width: W, height: MOBILE ? 844 : 800 }, isMobile: MOBILE, hasTouch: MOBILE, deviceScaleFactor: MOBILE ? 2 : 1 };
 const b = await chromium.launch();
-const ctx = await b.newContext({ viewport: { width: W, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, serviceWorkers: 'block',
+const ctx = await b.newContext({ ...VIEW, serviceWorkers: 'block',
   locale: LANG === 'fil' ? 'fil-PH' : 'en-PH' });
 // the platform reads `wh_lang` from localStorage at load (utils.js); setting it BEFORE the first script runs is how a
 // Filipino reader arrives, and the record below reads document.documentElement.lang back so a page that ignored the
 // setting is visible in the receipt rather than assumed (the wave-3 lesson: "set wh_lang and never looked")
 if (LANG === 'fil') await ctx.addInitScript(() => { try { localStorage.setItem('wh_lang', 'fil'); } catch (e) { void e; } });
 if (!ANON) await assertSignedIn(signIn(ctx));
+let anonCtx = null;
+const ctxFor = async (file) => {
+  if (ANON || !PUBLIC(file)) return ctx;
+  if (!anonCtx) {
+    anonCtx = await b.newContext({ ...VIEW, serviceWorkers: 'block',
+      locale: LANG === 'fil' ? 'fil-PH' : 'en-PH' });
+    if (LANG === 'fil') await anonCtx.addInitScript(() => { try { localStorage.setItem('wh_lang', 'fil'); } catch (e) { void e; } });
+  }
+  return anonCtx;
+};
 
 let bad = 0, n = 0;
 for (const file of PAGES) {
   n++;
-  const p = await ctx.newPage();
-  await p.goto(`${SEEDER}/workhive/${file}${ANON ? '' : (PAGE_QUERY[file] || '')}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
+  const p = await (await ctxFor(file)).newPage();
+  await p.goto(`${SEEDER}/workhive/${file}${(ANON || PUBLIC(file)) ? '' : (PAGE_QUERY[file] || '')}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(6500);   // layout settles well inside this; 51 pages x 9 s alone exceeded the 10-minute background cap
   const a = await record(p, VIS_JS, 'at rest');
   // menus: tap every visible more/kebab/menu trigger; the revealed menu (aria-controls, or the newest visible menu/dialog) must fit
@@ -63,7 +98,8 @@ for (const file of PAGES) {
   // the interaction sweep: the states a journey passes through, each with its own record
   const sweep = SWEEP ? await interactionSweep(p, VIS_JS, { max: 6 }) : [];
   if (a.poster) { console.log(`  n/a ${file.padEnd(34)} print poster: a fixed-width artifact by design (rubric artifact-genre=poster)`); n--; await p.close(); continue; }
-  if (a.retired) { console.log(`  n/a ${file.padEnd(34)} retired behind #wh-retired-overlay: every control is covered by design; stranded capabilities are validate_retired_page_sole_control.py's question, not this gate's`); n--; await p.close(); continue; }
+  // a retired page whose overlay is SHOWN to this reader is measured as that overlay (phone_fit_audit.mjs, 2026-10-15);
+  // stranded capabilities stay validate_retired_page_sole_control.py's question
   // ★A MIXED PAGE SATISFIES 3.1.2, NOT 3.1.1, AND THIS ASKED ONLY 3.1.1 (2026-09-29). The old test was
   // `<html lang>` alone, so every learn article and calculator read BAD in FIL — 4 of the 10 pages in the
   // 320-wide sweep — for a state their code chose on purpose. wh-i18n-lite.js swaps the CHROME to Filipino
@@ -94,11 +130,34 @@ for (const file of PAGES) {
     ? [`fonts: ${fellBack} of ${1 + sweep.length} record(s) measured BEFORE the webfont applied (document.fonts.ready timed out) - text-fit findings on this page are against the fallback metrics, not the shipped ones`]
     : [];
   const issues = issuesOf(a).concat(menuBad.map((s) => 'menu: ' + s), langNote, fontNote, ...sweep.map((s) => issuesOf(s)));
-  if (issues.length) bad++;
-  console.log(`  ${issues.length ? 'BAD' : 'ok '} ${file.padEnd(34)} ${issues.length ? issues.length + ' issue(s)' : 'fits'}${a.error ? ' (' + a.error + ')' : ''}${SWEEP ? ` · ${sweep.length} interaction state(s)` : ''}`);
+  const floor = ((BASE.axes[AXIS] || {})[file]) ?? 0;
+  measured[file] = issues.length;
+  if (issues.length > floor) bad++;
+  console.log(`  ${issues.length > floor ? 'BAD' : (issues.length ? 'held' : 'ok ')} ${file.padEnd(34)} ${issues.length ? issues.length + ' issue(s)' + (issues.length <= floor ? ` (floor ${floor})` : ` > floor ${floor}`) : 'fits'}${PUBLIC(file) && !ANON ? ' [signed out]' : ''}${a.retired ? ' [its retired overlay]' : ''}${a.error ? ' (' + a.error + ')' : ''}${SWEEP ? ` · ${sweep.length} interaction state(s)` : ''}`);
   for (const s of issues.slice(0, ONLY ? 40 : 6)) console.log(`        ${s.slice(0, 170)}`);
   await p.close();
 }
 await b.close();
-console.log(`${bad ? 'FAIL' : 'PASS'} ${AXIS} - ${n - bad}/${n} pages fit a phone (no overflow, no clipped text, no occluded control, menus inside the viewport)`);
+// what this axis MEASURED, page by page - the record a coverage prover (CI3: is this page held by the phone-fit ratchet?)
+// reads, so 'held' means measured on this run, not merely listed
+{ const REPORT = 'phone_fit_report.json'; const rep = existsSync(REPORT) ? JSON.parse(readFileSync(REPORT, 'utf8')) : { _doc: 'The last measured phone-fit issue count per axis and page (tools/prove_phone_fit.mjs). Regenerated by every run.', axes: {} };
+  if (!ONLY && !LIST) { rep.axes[AXIS] = { generated: new Date().toISOString(), pages: measured }; writeFileSync(REPORT, JSON.stringify(rep, null, 1) + '\n'); }
+  // a --pages re-read of part of a full run is merged into it, each merged page stamped with its own time, so a page
+  // the full run could not read (an instrument fix after the run) is measured without a second 50-minute pass
+  else if (LIST && rep.axes[AXIS]) { const ax = rep.axes[AXIS]; ax.merged = ax.merged || {}; const at = new Date().toISOString();
+    for (const [f, c] of Object.entries(measured)) { ax.pages[f] = c; ax.merged[f] = at; } writeFileSync(REPORT, JSON.stringify(rep, null, 1) + '\n'); } }
+if (RESEED || REBASE) {
+  const axis = BASE.axes[AXIS] || {};
+  if (REBASE && bad) { console.log(`REFUSED --rebase: ${bad} page(s) rose above their floor; fix them first`); process.exit(1); }
+  for (const [f, c] of Object.entries(measured)) axis[f] = RESEED ? c : Math.min(c, axis[f] ?? 0);
+  for (const f of Object.keys(axis)) if (!axis[f]) delete axis[f];
+  BASE.axes[AXIS] = axis;
+  BASE.generated = new Date().toISOString();
+  if (RESEED) BASE.note = `${AXIS}: reseeded - ${REASON}`;
+  writeFileSync(BASE_FILE, JSON.stringify(BASE, null, 1) + '\n');
+  console.log(`${RESEED ? 'reseeded' : 'rebased'} ${AXIS}: ${Object.keys(axis).length} page(s) hold a non-zero floor (${Object.values(axis).reduce((x, y) => x + y, 0)} issue(s))`);
+  process.exit(0);
+}
+const held = Object.entries(measured).filter(([f, c]) => c && c <= (((BASE.axes[AXIS] || {})[f]) ?? 0)).length;
+console.log(`${bad ? 'FAIL' : 'PASS'} ${AXIS} - ${n - bad}/${n} pages at or under their floor (no overflow, no clipped text, no occluded control, menus inside the viewport)${held ? `; ${held} page(s) held at a non-zero floor` : ''}`);
 process.exit(bad ? 1 : 0);

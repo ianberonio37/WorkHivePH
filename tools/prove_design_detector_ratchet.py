@@ -61,6 +61,11 @@ def served_files() -> list[str]:
     from seed_expansion_wave4 import served_pages  # noqa: E402
     classes = served_pages()
     files = [p for cls in classes.values() for p in cls]
+    # ★THE FOUNDER SURFACES ARE SERVED TOO (CI4, 2026-10-15): the served roster is the production + public set, so the
+    # five founder pages the SL program walks (founder-console, marketplace-admin, the two observability dashboards,
+    # design-system) were never scanned - a page the ratchet does not read is a page whose count can rise unseen.
+    from sublayer_inventory import page_classes  # noqa: E402
+    files += [p for p in page_classes().get("founder", []) if p not in files and (ROOT / p).exists()]
     chrome = [c for c in SHARED_CHROME if (ROOT / c).exists()]
     files += chrome + [c for c in style_injecting_scripts() if c not in chrome]
     return files

@@ -172,7 +172,7 @@
     .gate-card {
       text-align: center; padding: 40px 24px;
       background: rgba(22,32,50,0.85); border: 1px solid var(--border);
-      border-radius: 14px; margin-top: 40px;
+      border-radius: 16px; margin-top: 40px;
     }
     .gate-card h2 { font-size: 1.125rem; margin-bottom: 8px; }
     .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
@@ -209,7 +209,7 @@
     .amc-card {
       background: linear-gradient(180deg, rgba(167,139,250,0.10), rgba(167,139,250,0.04));
       border: 1px solid rgba(167,139,250,0.30);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 16px;
       margin-bottom: 16px;
     }
@@ -1224,7 +1224,7 @@
     if (!host) {
       host = document.createElement('div');
       host.id = 'wh-toast';
-      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:0.6rem;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
+      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:12px;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
       document.body.appendChild(host);
     }
     host.textContent = msg;

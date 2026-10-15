@@ -197,7 +197,12 @@ def scan_rogue_radius():
             val = m.group(1).strip().rstrip('"').rstrip("'").strip()
             if "var(" in val:                       # drawing from the system = correct
                 continue
-            parts = [x for x in re.split(r"[\s/]+", val) if x]
+            # ★A SPELLING IS NOT A DIFFERENT CORNER (F5, 2026-10-15): `.5rem` and `.75rem` ARE the legal 0.5rem and 0.75rem,
+            # and 28 of them were counted rogue for a missing leading zero; `!important` is not part of the length either.
+            # an inline style that ends without a semicolon hands the pattern the rest of the tag (`999px"></div>`):
+            # the value ends where the attribute does
+            val = re.split(r"[\"'<>]", val)[0].replace("!important", "").strip()
+            parts = [re.sub(r"^\.(\d)", r"0.\1", x) for x in re.split(r"[\s/]+", val) if x]
             if parts and all(x in LEGAL_RADIUS for x in parts):
                 continue
             cnt += 1

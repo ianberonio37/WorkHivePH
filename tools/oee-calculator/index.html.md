@@ -35,4 +35,4 @@ Related calculators
 [MTBF & MTTR Calculator](https://workhiveph.com/tools/mtbf-calculator/)
 [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: 5f80a978a3a7c74e -->
+<!-- md-twin source-sha: f724d09c096c295b -->

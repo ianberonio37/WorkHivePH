@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1013-files
-source_sha: 8b9c86ca6bbda98d
+source_sha: dce09d701ba91d73
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -129,7 +129,7 @@ Entries (name · type · sha):
 - `feedback_a_payload_rebuilt_from_the_form_drops_what_the_form_lacks` · feedback · 354ac18636319672
 - `feedback_a_phone_has_a_fixed_chrome_budget_and_it_was_spent` · feedback · 1a15c2da99d9184b
 - `feedback_a_plan_is_the_number_of_trajectories_lived_start_to_end` · feedback · 29625af0a2e0895d
-- `feedback_a_policy_gate_must_audit_what_ships_and_what_the_code_does` · feedback · c39a714af1776dc4
+- `feedback_a_policy_gate_must_audit_what_ships_and_what_the_code_does` · feedback · f697d5d60bd62f45
 - `feedback_a_predicate_that_never_checks_a_caller_is_not_an_access_rule` · feedback · 0e224662e0ecf3a7
 - `feedback_a_preservation_rule_on_one_side_of_a_paired_write` · feedback · 20e48974ab853425
 - `feedback_a_promise_that_never_settles_is_invisible` · feedback · b57e2eb1534f2cff
@@ -492,7 +492,7 @@ Entries (name · type · sha):
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_rpc_overload_pgrst203_kills_endpoint` · feedback · d5e03cfb65d06cdc
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
-- `feedback_run_the_suite_at_milestones_not_per_lens` · feedback · e2d0c0e54141f4da
+- `feedback_run_the_suite_at_milestones_not_per_lens` · feedback · 79bbe3a6061e83ce
 - `feedback_same_grant_harmless_130_times_catastrophic_16` · feedback · c9e88bf61f47bd40
 - `feedback_scrolling_the_page_put_a_control_under_the_fixed_band` · feedback · 349044f61d0385f7
 - `feedback_scrollwidth_is_a_rendering_fact_not_a_dom_fact` · feedback · ddffd962fbab0601

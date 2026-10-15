@@ -32,4 +32,4 @@ Related calculators
 [Bearing Life (L10) Calculator](https://workhiveph.com/tools/bearing-life-calculator/)
 [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/)
 
-<!-- md-twin source-sha: 572678d51ef7ee5c -->
+<!-- md-twin source-sha: 3b95fcceac7d5377 -->

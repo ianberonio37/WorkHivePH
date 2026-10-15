@@ -61,14 +61,14 @@
        for anything a person reads; both to the label step, with the padding snapped onto the 4px
        grid at the same time. */
     .pill { display:inline-block; padding:4px 12px; border-radius:999px; font-size:.75rem; font-weight:600; letter-spacing:.02em; }
-    .pill-orange { background:rgba(247,162,27,.18); color:#FDB94A; border:1px solid rgba(247,162,27,.35); }
+    .pill-orange { background:rgba(247,162,27,.18); color:var(--wh-orange-light,#FDB94A); border:1px solid rgba(247,162,27,.35); }
     /* TOUCH TARGET (2026-09-16): a 24px-tall box - the text line and nothing else. It clears WCAG 2.5.8's
        24x24 minimum by exactly nothing, and the project's own rule is 44px for the primary nav a gloved hand
        reaches for on a phone. inline-flex + min-height gives a real target and moves no text, because the
        header row is items-center. Matches the same repair on about, privacy-policy and terms-of-service. */
     .nav-link { color:rgba(244,246,250,.65); transition:color .15s; font-weight:500;
       display:inline-flex; align-items:center; min-height:44px; }
-    .nav-link:hover { color:#F4F6FA; }
+    .nav-link:hover { color:var(--wh-cloud,#F4F6FA); }
 
     .fb-card { background:linear-gradient(145deg,rgba(42,61,88,.5),rgba(31,46,69,.7));
       border:1px solid rgba(255,255,255,.07); border-radius:1rem; padding:1.25rem;
@@ -94,14 +94,14 @@
     .vote-btn { display:flex; flex-direction:column; align-items:center; justify-content:center;
       min-width:54px; min-height:54px;             /* mobile-maestro: 44px+ */
       background:rgba(22,32,50,.6); border:1px solid rgba(255,255,255,.1);
-      border-radius:.75rem; color:#F4F6FA; cursor:pointer;
+      border-radius:.75rem; color:var(--wh-cloud,#F4F6FA); cursor:pointer;
       transition:all .15s; font-family:inherit; padding:.35rem .5rem; }
     .vote-btn:hover { border-color:rgba(247,162,27,.5); transform:translateY(-1px); }
     .vote-btn:active { transform:scale(.96); }
-    .vote-btn.voted { background:rgba(247,162,27,.18); border-color:#F7A21B; color:#FDB94A; }
+    .vote-btn.voted { background:rgba(247,162,27,.18); border-color:var(--wh-orange,#F7A21B); color:var(--wh-orange-light,#FDB94A); }
     .vote-btn .count { font-weight:700; font-size:1rem; line-height:1; margin-top:.15rem; }
     .vote-btn .arrow { font-size:1rem; line-height:1; }
-    .vote-btn:focus-visible { outline:2px solid #29B6D9; outline-offset:2px; }
+    .vote-btn:focus-visible { outline:2px solid var(--wh-blue,#29B6D9); outline-offset:2px; }
 
     /* ★ELEVEN OF SIXTEEN CONTROLS WERE UNDER THE 44px TAP FLOOR, and six of them are these chips at
        33px tall - the only way to filter this list. A public page is where a first-time visitor
@@ -111,8 +111,8 @@
     .filter-chip { padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:999px; font-size:.75rem; font-weight:500;
       background:rgba(255,255,255,.04); border:1px solid transparent; color:rgba(244,246,250,.65);
       cursor:pointer; transition:all .15s; font-family:inherit; }
-    .filter-chip:hover { color:#F4F6FA; }
-    .filter-chip.active { background:rgba(247,162,27,.14); border-color:rgba(247,162,27,.4); color:#FDB94A; }
+    .filter-chip:hover { color:var(--wh-cloud,#F4F6FA); }
+    .filter-chip.active { background:rgba(247,162,27,.14); border-color:rgba(247,162,27,.4); color:var(--wh-orange-light,#FDB94A); }
   </style>
 
   <!-- Local-dev URL rewrite (same pattern as /learn/) -->
@@ -161,7 +161,7 @@
 <link rel="stylesheet" href="/wh-tw-pub-feedback.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a data-i="p_skiptomaincontent_be50" class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a data-i="p_skiptomaincontent_be50" class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 
 <!-- Nav -->
@@ -181,7 +181,7 @@
     <nav class="flex flex-wrap items-center justify-end gap-x-5 gap-y-2">
       <a href="/" class="nav-link" data-i="home">Home</a>
       <a href="/learn/" class="nav-link" data-i="learn">Learn</a>
-      <a data-i="p_roadmap_8119" href="/feedback/" class="nav-link" style="color:#F4F6FA;">Roadmap</a>
+      <a data-i="p_roadmap_8119" href="/feedback/" class="nav-link" style="color:var(--wh-cloud,#F4F6FA);">Roadmap</a>
       <a href="/?signin=1" class="nav-link" data-i="signin">Sign In</a>
       <a href="/?signup=1" class="nav-link" data-i="signup">Sign Up Free</a>
     </nav>
@@ -202,7 +202,7 @@
          where that fill-color does not apply the word renders in its inherited WHITE straight onto the amber
          box; dayplanner.html measured exactly that at 1.72:1 before the same fix. Solid #F7A21B is the colour
          the gradient was imitating and it cannot fall back to anything - 7.8:1 on the page's #162032. -->
-      <span data-i="p_filipinoplantworkers_8dab" style="color:#F7A21B;">Filipino plant workers</span> are asking for
+      <span data-i="p_filipinoplantworkers_8dab" style="color:var(--wh-orange,#F7A21B);">Filipino plant workers</span> are asking for
     </h1>
     <p data-i="p_voteonbugreportsandfeatureid_23f2" class="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto font-light">
       Vote on bug reports and feature ideas. They come from the crew running WorkHive on the job — technicians, supervisors and plant engineers — sent with the floating feedback button on any page and published here once the admin marks them public. Top-voted items get prioritized, so what slows a shift is what gets looked at first.

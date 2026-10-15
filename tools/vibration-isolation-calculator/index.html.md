@@ -32,4 +32,4 @@ Related calculators
 [Shaft Design Calculator](https://workhiveph.com/tools/shaft-design-calculator/)
 [Pressure Vessel Shell Calculator](https://workhiveph.com/tools/pressure-vessel-calculator/)
 
-<!-- md-twin source-sha: ccb7427a31d62883 -->
+<!-- md-twin source-sha: 9cebd90166b9d231 -->

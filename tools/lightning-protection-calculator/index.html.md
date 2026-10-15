@@ -32,4 +32,4 @@ Related calculators
 [Electrical Load Schedule Calculator](https://workhiveph.com/tools/load-schedule-calculator/)
 [Short Circuit Calculator](https://workhiveph.com/tools/short-circuit-calculator/)
 
-<!-- md-twin source-sha: cf9ca829b86ade15 -->
+<!-- md-twin source-sha: 5d8a9b46447d5aeb -->

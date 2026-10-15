@@ -129,7 +129,7 @@
     #hive-gate a {
       margin-top: 1.25rem; padding: 0.65rem 1.25rem;
       background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
-      color: var(--navy-wh); border-radius: 0.6rem; font-weight: 700;
+      color: var(--navy-wh); border-radius: 8px; font-weight: 700;
       text-decoration: none; font-size: 0.85rem;
     }
 
@@ -138,7 +138,7 @@
       display: flex; gap: 0.5rem; margin-bottom: 1rem;
     }
     .search-input {
-      flex: 1; height: 44px; border-radius: 0.6rem;
+      flex: 1; height: 44px; border-radius: 8px;
       background: rgba(255,255,255,0.04); border: 1px solid var(--border);
       color: var(--wh-cloud); padding: 0 0.85rem;
       font-size: 16px; /* iOS auto-zoom rule */
@@ -151,7 +151,7 @@
     .asset-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 0.85rem;
+      border-radius: 12px;
       padding: 12px 16px;   /* 13.6px was the single largest source of this
                               page's 121 off-grid paddings (x50, design lens craft 2026-09-15) */
       cursor: pointer;
@@ -179,7 +179,7 @@
     /* Empty state */
     .empty {
       padding: 2rem 1rem; text-align: center;
-      border: 1px dashed var(--border); border-radius: 0.85rem;
+      border: 1px dashed var(--border); border-radius: 12px;
       color: var(--muted); font-size: 0.85rem;
     }
 
@@ -349,7 +349,7 @@
       display: inline-flex; gap: 4px; font-size: 0.75rem; color:rgba(255,255,255,0.80);
     }
     .fmea-sod span {
-      background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 3px;
+      background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 8px;
     }
     .fmea-source-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
@@ -2425,7 +2425,7 @@
               + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:var(--wh-radius-sm);">'
               +   '<div style="display:flex; align-items:center; gap:8px;">'
               +     '<span style="flex:1; font-size:0.8rem; font-weight:700; letter-spacing:.02em; color:var(--wh-cloud);">' + e(label) + '</span>'
-              +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden;">'
+              +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:999px; overflow:hidden;">'
               +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
               +     '</div>'
               +     '<span style="font-size:0.75rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
@@ -4352,7 +4352,7 @@
   }
   .no-print button {
     padding: 6px 12px; font-size: 10pt; cursor: pointer;
-    background: var(--wh-blue); color: #fff; border: none; border-radius: 4px;
+    background: var(--wh-blue); color: #fff; border: none; border-radius: 8px;
   }
   .no-print button.secondary { background: #888; }
 </style>

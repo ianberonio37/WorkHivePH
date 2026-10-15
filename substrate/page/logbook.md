@@ -2,7 +2,7 @@
 name: page-logbook
 type: page
 source: file:logbook.html
-source_sha: fc99fe5d876b1796
+source_sha: d6b11bcf09b132fe
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -32,4 +32,4 @@ Related calculators
 [Refrigerant Pipe Sizing Calculator](https://workhiveph.com/tools/refrigerant-pipe-calculator/)
 [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
 
-<!-- md-twin source-sha: d56ab044df3654bb -->
+<!-- md-twin source-sha: 454c223712489a66 -->

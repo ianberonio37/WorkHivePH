@@ -2,7 +2,7 @@
 name: page-dayplanner
 type: page
 source: file:dayplanner.html
-source_sha: 5c1a46975166b4b8
+source_sha: 97a98fe4f1f68e34
 last_verified: 2026-07-13
 supersedes: null
 ---

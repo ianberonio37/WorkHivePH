@@ -34,4 +34,4 @@ Related calculators
 [OEE Calculator](https://workhiveph.com/tools/oee-calculator/)
 [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/)
 
-<!-- md-twin source-sha: deda675bf1934a01 -->
+<!-- md-twin source-sha: fa06cd311ddcba46 -->

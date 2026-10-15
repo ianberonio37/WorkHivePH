@@ -32,4 +32,4 @@ Related calculators
 [Heat Exchanger LMTD Calculator](https://workhiveph.com/tools/heat-exchanger-calculator/)
 [RC Beam Design Calculator](https://workhiveph.com/tools/beam-design-calculator/)
 
-<!-- md-twin source-sha: 01c89627ae539a57 -->
+<!-- md-twin source-sha: fd0d57679eda3bd4 -->

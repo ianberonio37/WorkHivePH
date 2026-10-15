@@ -876,7 +876,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[plant-connections] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:12px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

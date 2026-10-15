@@ -32,4 +32,4 @@ Related calculators
 [Fire Alarm Battery Calculator](https://workhiveph.com/tools/fire-alarm-battery-calculator/)
 [Stairwell Pressurization Calculator](https://workhiveph.com/tools/stairwell-pressurization-calculator/)
 
-<!-- md-twin source-sha: a04a6acbf177e990 -->
+<!-- md-twin source-sha: 5fdaab46d17e3faa -->

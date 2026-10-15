@@ -32,4 +32,4 @@ Related calculators
 [Voltage Drop Calculator](https://workhiveph.com/tools/voltage-drop-calculator/)
 [Electrical Load Estimation Calculator](https://workhiveph.com/tools/load-estimation-calculator/)
 
-<!-- md-twin source-sha: d6ea6dbe4f39c877 -->
+<!-- md-twin source-sha: 2c9289f7019cd626 -->

@@ -295,7 +295,7 @@
          destructive control. Background and border keep the red. */
       color: var(--wh-red-text);
       font-weight: 600;
-      border-radius: 0.625rem;
+      border-radius: 8px;
       padding: 0.4rem 0.875rem;
       font-size: 0.75rem;
       cursor: pointer;
@@ -412,7 +412,7 @@
     mark {
       background: rgba(247,162,27,0.3);
       color: var(--wh-orange-light);
-      border-radius: 2px;
+      border-radius: 0;
       padding: 0 2px;
     }
 
@@ -452,7 +452,7 @@
       justify-content: center;
       min-height: 44px;
       padding: 0.5rem;
-      border-radius: 0.625rem;
+      border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
@@ -474,7 +474,7 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
     /* T124 (2026-08-26) - THE PRINTABLE SET, decided by what a plant actually carries on paper:
        pm-scheduler (this shift's PM list, done 2026-08-25), project-report (already had print CSS),
        and THESE TWO - the logbook day-sheet (what happened, taken to the morning meeting) and the
@@ -692,7 +692,7 @@
                 <p data-i="p_editinganexistingentrynotlog_5f65" class="text-xs font-bold" style="color:var(--wh-orange-text);letter-spacing:0.01em;">Editing an existing entry, not logging a new one</p>
                 <p id="edit-mode-machine" class="text-sm font-semibold text-white/80 truncate mt-0.5"></p>
               </div>
-              <button data-i="p_canceledit_0f6f" type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:0.625rem;color:var(--wh-red);font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
+              <button data-i="p_canceledit_0f6f" type="button" onclick="cancelEditMode()" style="min-height:44px;padding:0.5rem 1rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:8px;color:var(--wh-red);font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Cancel Edit</button>
             </div>
 
             <!-- ── STEP 1: Machine + Type + Status ── -->
@@ -3644,9 +3644,9 @@ function renderAssetList() {
           ${a.location ? `<p class="text-xs text-white/80">${escHtml(a.location)}</p>` : ''}
         </div>
         <div class="flex gap-2 flex-wrap">
-          <button onclick="openAssetDetail('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
-          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _isMine(a)) ? `<button onclick="openEditAsset('${a.id}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
-          <button onclick="deleteAsset('${a.id}')" class="btn-danger text-xs py-1 px-2.5" data-i="remove">Remove</button>
+          <button onclick="openAssetDetail('${escJsAttr(a.id)}')" class="btn-secondary text-xs py-1 px-2.5" aria-label="View ${escHtml(a.name || 'asset')} details" data-i="view">View</button>
+          ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _isMine(a)) ? `<button onclick="openEditAsset('${escJsAttr(a.id)}')" class="btn-secondary text-xs py-1 px-2.5" style="color:var(--wh-blue-light);border-color:rgba(41,182,217,0.3);" data-i="edit">Edit</button>` : ''}
+          <button onclick="deleteAsset('${escJsAttr(a.id)}')" class="btn-danger text-xs py-1 px-2.5" data-i="remove">Remove</button>
         </div>
       </div>
     </div>`).join('');
@@ -4988,7 +4988,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${e.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -5134,12 +5134,12 @@ async function openModal(id) {
 
     ${_canWriteEntry(entry) ? `
     <div class="flex gap-2 pt-2 border-t border-white/[0.07] mt-2">
-      <button onclick="openEditModal('${entry.id}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
+      <button onclick="openEditModal('${escJsAttr(entry.id)}')" class="btn-primary flex-1 text-sm">Edit Entry</button>
       <!-- T50/T27 (2026-08-28): the inline modal-hide used to run SYNCHRONOUSLY, immediately after
            calling an async confirm - so the entry's modal vanished before the person had answered,
            and cancelling still closed it. deleteEntry closes the modal itself, and only once the
            delete has actually landed. -->
-      <button onclick="confirmDelete('${entry.id}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
+      <button onclick="confirmDelete('${escJsAttr(entry.id)}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
     </div>` : `
     <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <span class="ic ic-secure" aria-hidden="true"></span>
@@ -6467,7 +6467,7 @@ function applySmartVoiceFill(e, transcript, reply) {
   let html = `<p style="color:rgba(74,222,128,0.9); font-weight:700; margin-bottom:8px;">✓ Filled ${filled.length} ${filled.length === 1 ? 'field' : 'fields'}: ${filled.join(', ')}</p>`;
 
   if (e.loto_detected) {
-    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:6px; margin-bottom:6px; font-size:0.75rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
+    html += `<div style="padding:6px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:12px; margin-bottom:6px; font-size:0.75rem; color:var(--wh-red); font-weight:600;">⚠ LOTO/Isolation detected${e.loto_note ? ': ' + escHtml(e.loto_note) : ''} (add to LOTO notes)</div>`;
   }
 
   if (e.parts_mentioned?.length) {
@@ -7561,11 +7561,11 @@ function renderSelectedParts() {
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <span class="text-xs" style="color:rgba(255,255,255,0.80);">Qty:</span>
         <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity of ${escHtml(p.partName)} used"
-          onchange="_partsUsed[${idx}].qty = Math.max(1, parseInt(this.value)||1)"
+          onchange="_partsUsed[${escJsAttr(idx)}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
           style="width:3rem; background:rgba(22,32,50,0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
         <span class="text-xs" style="color:rgba(255,255,255,0.80);">${escHtml(p.unit)}</span>
-        <button type="button" onclick="_partsUsed.splice(${idx},1); renderSelectedParts();"
+        <button type="button" onclick="_partsUsed.splice(${escJsAttr(idx)},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"
           style="background:rgba(239,68,68,0.1); color:var(--wh-red); border:1px solid rgba(239,68,68,0.2); min-height:44px; min-width:44px; cursor:pointer;" aria-label="Remove ${escHtml(p.partName)}">
           <span class="ic ic-close" aria-hidden="true"></span>
@@ -7604,8 +7604,8 @@ function renderOpenJobs(entries) {
     : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
-      onclick="openModal('${e.id}')" role="button" tabindex="0"
-      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${e.id}')}"
+      onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}"
       aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([e.machine || _t('Unknown machine', 'Hindi kilalang makina'), (e.problem || '').slice(0, 60), e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''].filter(Boolean).join(' - '))}"
       onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
       <div class="flex items-center justify-between gap-2">

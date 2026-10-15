@@ -32,4 +32,4 @@ Related calculators
 [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
 [Cooling Tower Sizing Calculator](https://workhiveph.com/tools/cooling-tower-calculator/)
 
-<!-- md-twin source-sha: 54c51fb644e6b1c3 -->
+<!-- md-twin source-sha: e7ebed695ea61233 -->

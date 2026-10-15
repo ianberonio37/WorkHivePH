@@ -31,4 +31,4 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Hoist Capacity Calculator](https://workhiveph.com/tools/hoist-capacity-calculator/)
 
-<!-- md-twin source-sha: 8a85db93aae18014 -->
+<!-- md-twin source-sha: ac8d197d7dc03963 -->

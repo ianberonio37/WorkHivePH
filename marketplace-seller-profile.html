@@ -89,7 +89,7 @@
     .badge-verified {
       display: inline-flex; align-items: center; gap: 0.25rem;
       padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
-      /* C2 (rubric sweep 2026-09-05): --wh-blue-light #5FCCE8 on this badge's composited background
+      /* C2 (rubric sweep 2026-09-05): --wh-blue-light var(--wh-blue-light,#5FCCE8) on this badge's composited background
          measured 4.44:1 on "PRC Registered" — under the 4.5:1 AA floor for 0.7rem text. A brighter
          SCOPED tint of the same hue clears it; the brand token is left alone (C2 fix pattern). */
       background: rgba(41,182,217,0.15); color: var(--wh-blue-text, #5FCCE8); border: 1px solid rgba(41,182,217,0.3);   /* was #8fdcf0, off the blue family (critique W45957) */
@@ -98,7 +98,7 @@
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px;  /* D1 U2: was 41px tap target */
       padding: 0.75rem 1.25rem;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
-      border: none; border-radius: 0.625rem;
+      border: none; border-radius: 8px;
       color: var(--wh-navy, #162032); font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 700;
       cursor: pointer; text-decoration: none;
       margin-top: 1rem;
@@ -126,10 +126,10 @@
     }
     /* THE FILL TOKEN IS NOT THE TEXT TOKEN — fourth time this exact substitution has been found today
        (Reject on platform-actions, the XP number on community, the avatar initials on the seller
-       dashboard, and now every orange label on this page). --wh-orange #F7A21B is the brand FILL: it
+       dashboard, and now every orange label on this page). --wh-orange var(--wh-orange,#F7A21B) is the brand FILL: it
        is meant to sit BEHIND things. Used as a label colour on the navy shell the seller's rating
        "4.7★" measured APCA Lc 58.5 at 22.4px/800, under the Lc 60 content floor, on the one number a
-       buyer uses to decide. --wh-orange-text #FDB94A exists for exactly this and clears it. The other
+       buyer uses to decide. --wh-orange-text var(--wh-orange-light,#FDB94A) exists for exactly this and clears it. The other
        five uses here (avatar initials, both tier badges, the active filter chip, the back link hover)
        are the same category error sitting above the small-text floor by luck — they fail the moment
        someone bumps a font size, so they move with it rather than waiting to be found separately. */
@@ -138,7 +138,7 @@
        #stat-replies (22px, weight 800, rgb(41,182,217) on rgb(28,42,61)): APCA Lc 51.7 against a
        floor of 60 — the one failing sample out of 69 on this page. It passes WCAG 2 at 6.06:1,
        which is exactly why nobody caught it: the older ratio is blind to the size-and-weight
-       interaction APCA measures. --wh-blue-text (#5FCCE8) is the platform's text-safe variant and
+       interaction APCA measures. --wh-blue-text (var(--wh-blue-light,#5FCCE8)) is the platform's text-safe variant and
        already sits beside --wh-orange-text, which .stat-num two lines up has used all along for the
        same reason. */
     .stat-num.blue  { color: var(--wh-blue-text); }
@@ -157,7 +157,7 @@
     .reviews-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.45), rgba(31,46,69,0.65));
       border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 0.875rem;
+      border-radius: 12px;
       padding: 1rem;
     }
     .review-item { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -196,7 +196,7 @@
     }
     .listing-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;
       overflow: hidden; cursor: pointer;
       transition: transform 0.2s, border-color 0.2s;
     }
@@ -323,7 +323,7 @@
         <span class="ic ic-list" aria-hidden="true"></span>
         View Listings
       </a>
-      <a id="hero-messenger" href="#" target="_blank" rel="noopener noreferrer" style="display:none;align-items:center;gap:0.4rem;padding:0.65rem 1.25rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;">
+      <a id="hero-messenger" href="#" target="_blank" rel="noopener noreferrer" style="display:none;align-items:center;gap:0.4rem;padding:0.65rem 1.25rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:8px;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;">
         <span class="ic ic-message" aria-hidden="true"></span>
         Message on Messenger
       </a>

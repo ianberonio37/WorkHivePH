@@ -32,4 +32,4 @@ Related calculators
 [Harmonic Distortion (THD/TDD) Calculator](https://workhiveph.com/tools/harmonic-distortion-calculator/)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 
-<!-- md-twin source-sha: 4097c8225a1112cd -->
+<!-- md-twin source-sha: d0d1f592b487ca73 -->

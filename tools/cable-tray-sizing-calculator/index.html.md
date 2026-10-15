@@ -32,4 +32,4 @@ Related calculators
 [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
 [Electrical Load Schedule Calculator](https://workhiveph.com/tools/load-schedule-calculator/)
 
-<!-- md-twin source-sha: e7ed4c27e0674461 -->
+<!-- md-twin source-sha: e46d96a9c4edb755 -->

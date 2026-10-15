@@ -31,4 +31,4 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Boiler / Steam Duty Calculator](https://workhiveph.com/tools/boiler-steam-calculator/)
 
-<!-- md-twin source-sha: acce3e83640869a5 -->
+<!-- md-twin source-sha: 86f59c8f8a9af180 -->

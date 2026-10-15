@@ -32,4 +32,4 @@ Related calculators
 [Cooling Tower Sizing Calculator](https://workhiveph.com/tools/cooling-tower-calculator/)
 [Compressed Air System Calculator](https://workhiveph.com/tools/compressed-air-calculator/)
 
-<!-- md-twin source-sha: 243e015916556046 -->
+<!-- md-twin source-sha: 2e60b9b002908f1d -->

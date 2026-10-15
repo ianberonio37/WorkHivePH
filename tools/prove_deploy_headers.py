@@ -55,6 +55,11 @@ def rows():
     reg = json.loads((ROOT / "trajectory_registry.json").read_text(encoding="utf-8"))
     out = []
     for t in reg["trajectories"]:
+        # a DESCOPED row is out of the denominator: its page may no longer exist (architecture, symbol-gallery and
+        # validator-catalog were deleted on Ian's word, 2026-10-14, and their six rows descoped) - reading them kept
+        # this gate red on 404s for pages nobody is served. The same class journey-paths learned (§SL).
+        if t.get("status") == "descoped":
+            continue
         title = t.get("title") or ""
         page = (t.get("pages") or [None])[0]
         if not page:

@@ -32,4 +32,4 @@ Related calculators
 [Pressure Vessel Shell Calculator](https://workhiveph.com/tools/pressure-vessel-calculator/)
 [V-Belt Drive Calculator](https://workhiveph.com/tools/v-belt-drive-calculator/)
 
-<!-- md-twin source-sha: 8dc80fecc237fdae -->
+<!-- md-twin source-sha: 26e2b577109eaa67 -->

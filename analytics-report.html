@@ -245,7 +245,7 @@
     .doc-panel .doc-title-block { flex: 1 1 220px; }
     .doc-panel .doc-logo {
       /* ★THE WORDMARK PRINTED PURPLE ON THE ONE ARTIFACT THAT LEAVES THE PLATFORM (design lens critique,
-         2026-09-15). DESIGN.md binds amber #F7A21B on navy and calls violet 'a status hue for the companion,
+         2026-09-15). DESIGN.md binds amber var(--wh-orange,#F7A21B) on navy and calls violet 'a status hue for the companion,
          NOT a surface'. The contrast reasoning below was right and its premise about the brand was wrong:
          amber on white fails the same test, so the wordmark takes the navy the brand actually pairs with,
          and the amber rides the rule beneath it - which is how the brand reads on paper. */
@@ -262,7 +262,7 @@
          analytics-UFAI invariant reads the FIRST matching rule for this selector to check the print
          ink, found the border-only rule, and reported the wordmark's colour as MISSING while the navy
          below was doing its job. One selector, one rule. */
-      border-bottom: 3px solid #F7A21B; padding-bottom: 2px; display: inline-block;   /* the brand's amber, where it can carry weight on white */
+      border-bottom: 3px solid var(--wh-orange,#F7A21B); padding-bottom: 2px; display: inline-block;   /* the brand's amber, where it can carry weight on white */
     }
     .doc-panel .doc-subtitle {
       font-size: 0.78rem; color: #555; margin-top: 0.2rem;
@@ -504,7 +504,7 @@
 
     /* Stacked bar (one row, multiple colored segments — for RCM consequence split) */
     .doc-panel .stack-bar {
-      height: 28px; border-radius: 6px; overflow: hidden;
+      height: 28px; border-radius: 999px; overflow: hidden;
       display: flex; margin: 0.5rem 0; border: 1px solid #e5e7eb;
     }
     .doc-panel .stack-bar > div {
@@ -521,7 +521,7 @@
       font-size: 0.8rem; color: #444; margin-top: 0.35rem;
     }
     .doc-panel .stack-legend-dot {
-      display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+      display: inline-block; width: 10px; height: 10px; border-radius: 999px;
       margin-right: 4px; vertical-align: middle;
     }
 
@@ -600,7 +600,7 @@
     .doc-panel .appendix-note {
       font-size: 0.8rem; color: #6b7280; font-style: italic;
       margin: 0.4rem 0 0.75rem; padding: 0.55rem 0.75rem;
-      background: #f9fafb; border-left: 3px solid #d1d5db; border-radius: 4px;
+      background: #f9fafb; border-left: 3px solid #d1d5db; border-radius: 12px;
     }
     .doc-panel .appendix-section table { font-size: 0.8rem; }
     .doc-panel .appendix-section th { font-size: 0.75rem; padding: 0.3rem 0.4rem; }

@@ -32,4 +32,4 @@ Related calculators
 [V-Belt Drive Calculator](https://workhiveph.com/tools/v-belt-drive-calculator/)
 [Hydraulic Cylinder Calculator](https://workhiveph.com/tools/hydraulic-cylinder-calculator/)
 
-<!-- md-twin source-sha: 488e5df0877d4f69 -->
+<!-- md-twin source-sha: 7f5559c4fffe3f14 -->

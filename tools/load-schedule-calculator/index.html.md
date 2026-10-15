@@ -32,4 +32,4 @@ Related calculators
 [Short Circuit Calculator](https://workhiveph.com/tools/short-circuit-calculator/)
 [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/)
 
-<!-- md-twin source-sha: 06c45bf4a8ae1d3a -->
+<!-- md-twin source-sha: 3ab734b53e8eda1c -->

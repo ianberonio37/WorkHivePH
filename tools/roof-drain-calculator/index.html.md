@@ -32,4 +32,4 @@ Related calculators
 [Water Softener Sizing Calculator](https://workhiveph.com/tools/water-softener-calculator/)
 [Drainage Pipe Sizing Calculator](https://workhiveph.com/tools/drainage-pipe-sizing-calculator/)
 
-<!-- md-twin source-sha: 7a522111c4448e3d -->
+<!-- md-twin source-sha: 19c4b39ee1d5b5e1 -->

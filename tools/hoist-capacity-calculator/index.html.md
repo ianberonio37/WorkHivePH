@@ -31,4 +31,4 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Elevator Traffic Calculator](https://workhiveph.com/tools/elevator-traffic-calculator/)
 
-<!-- md-twin source-sha: 410fa6d659d147e2 -->
+<!-- md-twin source-sha: 79950259ee97e58a -->

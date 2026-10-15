@@ -32,4 +32,4 @@ Related calculators
 [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/)
 [Water Softener Sizing Calculator](https://workhiveph.com/tools/water-softener-calculator/)
 
-<!-- md-twin source-sha: b0297d737d0c7755 -->
+<!-- md-twin source-sha: d05cade69adcbb20 -->

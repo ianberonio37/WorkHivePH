@@ -358,6 +358,27 @@ def vercel_policy_text(root: Path = ROOT) -> str:
     return "\n".join(out)
 
 
+def per_page_audit() -> tuple[list, int]:
+    """★EACH PAGE AGAINST ITS OWN POLICY (S3, 2026-10-15). vercel.json now serves every page the policy its own code
+    needs (tools/build_csp_profiles.py), not one union for all, so auditing every file against the base rule checks a
+    policy most pages are no longer served. Each served page's code (its HTML and every local script it loads) is
+    audited against the headers the one matcher (serve_vercel_headers.headers_for) resolves for that page's path."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    from build_csp_profiles import served_pages, code_closure   # noqa: E402
+    from serve_vercel_headers import load_rules, headers_for     # noqa: E402
+    rules = load_rules(ROOT)
+    out, pages = [], 0
+    for page in served_pages():
+        hdr = headers_for("/" + page, rules)
+        text = "\n".join(f"{k}: {v}" for k, v in hdr.items()
+                         if k.lower() in ("content-security-policy", "permissions-policy"))
+        files = [str(f) for f in code_closure(page) if not SKIP.search(f.name)]
+        probs, _s, _d = audit(files, text)
+        out += [f"{page} (its own policy): {p}" for p in probs]
+        pages += 1
+    return out, pages
+
+
 def parity(intent: str, shipped: str) -> list:
     """Where `_headers` (the documented intent) and vercel.json (what ships) disagree, directive by directive."""
     out = []
@@ -387,6 +408,8 @@ def main() -> int:
         return 1
 
     problems, subresources, documented = audit(files, shipped)
+    page_problems, pages = per_page_audit()
+    problems += page_problems
     headers_path = ROOT / "_headers"
     if headers_path.exists():
         problems += [f"drift - {d}" for d in parity(
@@ -394,7 +417,7 @@ def main() -> int:
 
     print(f"  external subresources declared in shipped code: {subresources} "
           f"| CSP requirements stated in source comments: {documented} "
-          f"| files scanned: {len(files)}")
+          f"| files scanned: {len(files)} | served pages audited against their own policy: {pages}")
 
     if problems:
         print(f"FAIL csp-covers-what-ships - {len(problems)} shipped dependency(ies) the production "

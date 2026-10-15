@@ -32,4 +32,4 @@ Related calculators
 [Hydraulic Cylinder Calculator](https://workhiveph.com/tools/hydraulic-cylinder-calculator/)
 [Bearing Life (L10) Calculator](https://workhiveph.com/tools/bearing-life-calculator/)
 
-<!-- md-twin source-sha: 7e7f695a1dcf2ce0 -->
+<!-- md-twin source-sha: 6031da07460547cf -->

@@ -32,4 +32,4 @@ Related calculators
 [Vibration Isolation Calculator](https://workhiveph.com/tools/vibration-isolation-calculator/)
 [Shaft Design Calculator](https://workhiveph.com/tools/shaft-design-calculator/)
 
-<!-- md-twin source-sha: edc0cb06d92ba8c7 -->
+<!-- md-twin source-sha: 628d779379ac7c8a -->

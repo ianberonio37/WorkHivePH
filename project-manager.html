@@ -164,7 +164,7 @@
   .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
   .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-  .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
   .progress-bar { height: 100%; background: var(--blue); transition: width 0.3s; }
   .progress-bar.green { background: var(--green); }
   .progress-bar.amber { background: var(--amber); }
@@ -332,10 +332,10 @@
   .blank-link { font-size: 0.85rem; color: var(--blue); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
 
   /* Step 3: item checklist */
-  .item-checklist { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 8px; }
+  .item-checklist { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 4px; margin-bottom: 8px; }
   .item-row {
     display: grid; grid-template-columns: auto 1fr auto auto auto;
-    gap: 8px; align-items: center; padding: 6px 8px; border-radius: 6px;
+    gap: 8px; align-items: center; padding: 6px 8px; border-radius: 12px;
     transition: background 0.1s;
   }
   .item-row:hover { background: var(--card); }
@@ -366,8 +366,8 @@
 
   /* ── Critical path bar ────────────────────────────────────── */
   .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
-  .gantt-bar-wrap { background: rgba(255,255,255,0.04); height: 16px; border-radius: 4px; position: relative; overflow: hidden; }
-  .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 4px; }
+  .gantt-bar-wrap { background: rgba(255,255,255,0.04); height: 16px; border-radius: 999px; position: relative; overflow: hidden; }
+  .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 8px; }
   .gantt-bar.critical { background: var(--red); }
   .gantt-bar.done { background: var(--green); }
 /* Plain-Read summary (Layer D — UX Contract) */
@@ -1197,7 +1197,7 @@ async function loadProjects() {
 
 function pcardHtml(p) {
   return `
-    <div class="pcard" onclick="openDetail('${e(p.id)}')">
+    <div class="pcard" onclick="openDetail('${escJsAttr(p.id)}')">
       <div class="pcard-head">
         <span class="pcode">${e(p.project_code)}</span>
         <span class="ptype-pill ptype-${p.project_type}">${e(p.project_type)}</span>
@@ -1443,7 +1443,7 @@ function renderList() {
     const open = (_groupOpen[status] !== undefined) ? _groupOpen[status] : (status === 'active');
     return `
       <div class="group ${open ? '' : 'collapsed'}" data-status="${status}">
-        <div class="group-header" onclick="toggleGroup('${status}')">
+        <div class="group-header" onclick="toggleGroup('${escJsAttr(status)}')">
           <div class="group-title">
             <span class="status-pill status-${status}">${e(labels[status])}</span>
             <span class="small" style="color:var(--muted);">${items.length} project${items.length === 1 ? '' : 's'}</span>
@@ -1498,7 +1498,7 @@ function renderRecents() {
   if (!valid.length) { strip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   strip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<span class="recent-label">Jump back:</span>' +
     valid.map(r => `
-      <span class="recent-chip" onclick="openDetail('${e(r.id)}')" title="${e(r.name)}">
+      <span class="recent-chip" onclick="openDetail('${escJsAttr(r.id)}')" title="${e(r.name)}">
         <span class="pcode">${e(r.code)}</span>
         <span class="ptype-pill ptype-${r.type}">${e(r.type)}</span>
       </span>`).join('');
@@ -1809,7 +1809,7 @@ function renderWizardTemplates() {
   const tmpls = PROJECT_TEMPLATES[_wizardState.type] || [];
   list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tmpls.map(t => {
     const totalH = t.items.reduce((s, i) => s + (i.est_h || 0), 0);
-    return `<div class="template-card" data-tid="${e(t.id)}" onclick="wizardPickTemplate('${e(t.id)}')">
+    return `<div class="template-card" data-tid="${e(t.id)}" onclick="wizardPickTemplate('${escJsAttr(t.id)}')">
       <div class="template-card-name">${e(t.name)}</div>
       <div class="template-card-meta">
         <span>📋 ${t.items.length} ${t.items.length === 1 ? 'item' : 'items'}</span>
@@ -1832,11 +1832,11 @@ function renderWizardItems() {
   } else {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _wizardState.items.map((it, idx) => `
       <div class="item-row ${it._checked ? '' : 'unchecked'}" data-idx="${idx}">
-        <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${idx}, this.checked)" aria-label="Include scope item ${e(it.title) || (idx + 1)}">
-        <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${idx}, 'title', this.value)" aria-label="Scope item title" placeholder="Scope item">
-        <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${idx}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours" aria-label="Estimated hours for ${e(it.title) || (idx + 1)}">
+        <input type="checkbox" ${it._checked ? 'checked' : ''} onchange="wizardToggleItem(${escJsAttr(idx)}, this.checked)" aria-label="Include scope item ${e(it.title) || (idx + 1)}">
+        <input type="text" value="${e(it.title)}" oninput="wizardEditItem(${escJsAttr(idx)}, 'title', this.value)" aria-label="Scope item title" placeholder="Scope item">
+        <input type="number" class="est-input" value="${it.est_h || ''}" oninput="wizardEditItem(${escJsAttr(idx)}, 'est_h', this.value)" min="0" step="0.5" title="Estimated hours" aria-label="Estimated hours for ${e(it.title) || (idx + 1)}">
         <span class="phase-tag phase-${it.freq_phase || 'execute'}">${e(it.freq_phase || 'execute')}</span>
-        <button type="button" class="item-remove" onclick="wizardRemoveItem(${idx})" title="Remove" aria-label="Remove scope item ${e(it.title) || (idx + 1)}">×</button>
+        <button type="button" class="item-remove" onclick="wizardRemoveItem(${escJsAttr(idx)})" title="Remove" aria-label="Remove scope item ${e(it.title) || (idx + 1)}">×</button>
       </div>
     `).join('');
   }
@@ -2323,7 +2323,7 @@ function buildDetailTabs(type) {
     { key: 'signoff',  label: 'Sign-off', show: true },               // all types — workorder bundles also benefit from lessons + print report
   ];
   $('detail-tabs')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tabs.filter(t => t.show)
-    .map((t, i) => `<button data-pane="${t.key}" class="${i === 0 ? 'active' : ''}" onclick="setActivePane('${t.key}')">${e(t.label)}</button>`).join('');
+    .map((t, i) => `<button data-pane="${t.key}" class="${i === 0 ? 'active' : ''}" onclick="setActivePane('${escJsAttr(t.key)}')">${e(t.label)}</button>`).join('');
   document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
   $('pane-overview').classList.add('active');
 }
@@ -2459,11 +2459,11 @@ function renderScope() {
         <td class="mono small">${e(it.wbs_code || '')}</td>
         <td>${e(it.title)}</td>
         <td class="small">${e(it.owner_name || '-')}</td>
-        <td><button type="button" class="status-pill status-${sCls}" aria-label="${e(it.status.replace('_', ' '))}: change to ${it.status === 'pending' ? 'in progress' : it.status === 'in_progress' ? 'done' : 'pending'}" onclick="cycleScopeStatus('${e(it.id)}', event)">${e(it.status.replace('_', ' '))}</button></td>
+        <td><button type="button" class="status-pill status-${sCls}" aria-label="${e(it.status.replace('_', ' '))}: change to ${it.status === 'pending' ? 'in progress' : it.status === 'in_progress' ? 'done' : 'pending'}" onclick="cycleScopeStatus('${escJsAttr(it.id)}', event)">${e(it.status.replace('_', ' '))}</button></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
         <td class="small">${it.estimated_hours || '-'}h</td>
-        <td><button class="btn small ghost" onclick="openEditScope('${e(it.id)}')" data-i="edit">Edit</button></td>
+        <td><button class="btn small ghost" onclick="openEditScope('${escJsAttr(it.id)}')" data-i="edit">Edit</button></td>
       </tr>`;
   };
 
@@ -2705,17 +2705,17 @@ function renderLinked() {
     return `<div style="margin-bottom: 12px;">
       <h4 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
-        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${e(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
+        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
       `).join('')}</div>
     </div>`;
   }).join('');
   const suggestionBanner = _linkSuggestions.length ? `
-    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 10px; padding: 10px 16px; margin-bottom: 12px;">
+    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;">
       <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length} open logbook ${_linkSuggestions.length === 1 ? 'entry' : 'entries'} from the last 30 days</div>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
         ${_linkSuggestions.map((c, i) => `
-          <span class="link-pill" style="cursor:pointer;" onclick="linkSuggested(${i})" title="Click to link">
+          <span class="link-pill" style="cursor:pointer;" onclick="linkSuggested(${escJsAttr(i)})" title="Click to link">
             ${e((c.machine || '?') + ': ' + (c.problem || '').slice(0, 50))} <span style="color: var(--gold);">+ link</span>
           </span>`).join('')}
       </div>
@@ -2818,7 +2818,7 @@ function renderProgress() {
       ${l.blockers ? `<div class="log-entry-blockers">⚠ Blocker: ${e(l.blockers)}</div>` : ''}
       ${l.acknowledged_by
         ? `<div class="log-entry-ack">✓ Acknowledged by ${e(l.acknowledged_by)} on ${e(fmtDate(l.acknowledged_at))}</div>`
-        : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${e(l.id)}')" data-i="acknowledge">Acknowledge</button>` : '')}
+        : (isSupervisor() ? `<button class="btn small" style="margin-top:6px;" onclick="ackLog('${escJsAttr(l.id)}')" data-i="acknowledge">Acknowledge</button>` : '')}
     </div>
   `).join('');
   $('pane-progress')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
@@ -2992,7 +2992,7 @@ function renderCpm() {
   if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
     resHtml = `
       <h3 style="font-size: 0.92rem; margin-top: 16px;">Resource Overload</h3>
-      <div style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; padding: 10px 16px;">
+      <div style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; padding: 10px 16px;">
         <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
         <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
@@ -3047,7 +3047,7 @@ function renderRoles() {
                LOTO column and the same fix the community's best-answer took ("chosen by X · when"),
                so the vocabulary matches what the platform already says elsewhere. -->
           ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: 0.75rem;">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
-          ${isSupervisor() ? `<button onclick="removeRole('${e(r.id)}')" title="Remove" aria-label="Remove ${e(r.worker_name)} from this project">×</button>` : ''}
+          ${isSupervisor() ? `<button onclick="removeRole('${escJsAttr(r.id)}')" title="Remove" aria-label="Remove ${e(r.worker_name)} from this project">×</button>` : ''}
         </span>`).join('')}
     </div>`).join('');
   // Owner from projects.owner_name (legacy) shown if no explicit owner role assigned
@@ -3164,12 +3164,12 @@ function renderChangeOrders() {
         ${co.status === 'rejected' && co.rejection_reason ? `<div class="small" style="color: var(--red); margin-top: 6px;">Rejected: ${e(co.rejection_reason)}</div>` : ''}
         ${co.status === 'pending' && isSupervisor() ? `
           <div class="row" style="gap: 6px; margin-top: 10px;">
-            <button class="btn small primary" onclick="approveCO('${e(co.id)}')" data-i="approve">Approve</button>
-            <button class="btn small danger" onclick="rejectCO('${e(co.id)}')" data-i="reject">Reject</button>
+            <button class="btn small primary" onclick="approveCO('${escJsAttr(co.id)}')" data-i="approve">Approve</button>
+            <button class="btn small danger" onclick="rejectCO('${escJsAttr(co.id)}')" data-i="reject">Reject</button>
           </div>` : ''}
         ${co.status === 'pending' && (co.requested_by === WORKER_NAME || isSupervisor()) ? `
           <div class="row" style="gap: 6px; margin-top: 6px;">
-            <button class="btn small ghost" onclick="cancelCO('${e(co.id)}')" data-i="cancelrequest">Cancel request</button>
+            <button class="btn small ghost" onclick="cancelCO('${escJsAttr(co.id)}')" data-i="cancelrequest">Cancel request</button>
           </div>` : ''}
         ${co.status === 'cancelled' ? `<div class="small" style="color: var(--muted); margin-top: 6px;">Cancelled by ${e(co.approved_by || co.requested_by)} on ${e(fmtDate(co.approved_at || co.created_at))}</div>` : ''}
       </div>`;

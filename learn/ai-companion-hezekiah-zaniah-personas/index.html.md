@@ -136,4 +136,4 @@ Yes. It accepts English, Filipino and Taglish and replies in the language you us
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 5a3a276d1d8f20cb -->
+<!-- md-twin source-sha: 4b8c7d348dfe0b08 -->

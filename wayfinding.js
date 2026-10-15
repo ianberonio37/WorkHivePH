@@ -156,7 +156,7 @@
          2026-09-17, W45924). 20px: on the 4px rhythm, and the roomier of the two neighbours for a control
          that only ever appears under keyboard focus. */
         'background:var(--wh-orange, #F7A21B);color:var(--wh-navy, #162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;' +
-        'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;' +
+        'font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;' +
         // ★THE FIRST FOCUSABLE ELEMENT ON EVERY PAGE MOVED ON THE WRONG CURVE (2026-09-19, W46053
         // motion lens on status.html, where it is the ONLY animated element in the document). `ease` is
         // the CSS default and it is an ease-IN-out: the motion starts slowly. This is the control that

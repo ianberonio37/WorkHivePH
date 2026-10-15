@@ -5348,7 +5348,7 @@ function renderKpiTile(opts) {
   // the ARIA Authoring Practices accordion pattern. Margins zeroed = pixel-identical.
   return `<div class="card" style="border-left:1px solid ${c.border};margin-bottom:1rem;">
     <h2 style="margin:0;font:inherit;color:inherit;">
-    <button class="kpi-toggle" aria-expanded="${autoOpen ? 'true' : 'false'}" aria-controls="${id}" onclick="if(window.toggleKPI)toggleKPI('${id}')" style="background:${c.bg};border:1px solid ${c.border};color:inherit;min-height:${detail ? '72px' : '0'};">
+    <button class="kpi-toggle" aria-expanded="${autoOpen ? 'true' : 'false'}" aria-controls="${id}" onclick="if(window.toggleKPI)toggleKPI('${escJsAttr(id)}')" style="background:${c.bg};border:1px solid ${c.border};color:inherit;min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
         <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
           ${escHtml(opts.title || '')} <span style="font-size:0.75rem;font-weight:500;">${escHtml(opts.standard || '')}</span>
@@ -6722,7 +6722,7 @@ async function loadWorkerTiers(db, workerNames) {
     /* The circle mask now rides the IMAGE, so a future avatar photo still clips to the circle while
        the badge that is meant to overhang can actually overhang. */
     '.wh-avatar > img{width:100%;height:100%;object-fit:cover;border-radius:50%;}',
-    '.wh-avatar-lvl{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);',
+    '.wh-avatar-lvl{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);',
     'background:var(--tier-clr,#7B8794);color:var(--wh-navy, #162032);',
     /* 11px, not 9 (design lens slop on achievements, 2026-09-15): the level number is functional text a person reads
        ("95", "38") and 9px was the smallest type on the page - 15 nodes under the 11px floor after every other label
@@ -6732,9 +6732,14 @@ async function loadWorkerTiers(db, workerNames) {
        badge was still the one sub-floor element on the pages that render it: measured live on community.html, two
        .wh-avatar-lvl badges reading "34" at 11px, the only text under the floor on the page. The earlier row's own
        argument is the reason to finish it - functional text a person reads belongs on the ramp, not one step below it. */
-    'font-size:12px;font-weight:800;padding:1px 6px;',
+    /* ★AND THE PILL MUST NOT SIT ON THE NAME IT LABELS (F5 walk, 2026-10-15). At 12px with line-height 1.5 the pill is
+       24px tall; hung 8px below a 32px avatar it covered the lower three quarters of the circle, the initials included -
+       measured live on community.html, a 32x24 "60" over "BG" on every post. A tighter line (1.1, still a 12px digit)
+       and no vertical padding make it ~17px, and it hangs 11px below the circle (was 8), so its top lands under the
+       initials (measured: 0px overlap at 32, 44, 52 and 72px avatars). */
+    'font-size:12px;font-weight:800;padding:0 6px;',
     'border-radius:999px;border:2px solid var(--wh-navy, #162032);',
-    'min-width:22px;text-align:center;line-height:1.5;',
+    'min-width:22px;text-align:center;line-height:1.1;',
     'pointer-events:none;white-space:nowrap;z-index:3;',
     'box-shadow:0 2px 6px rgba(0,0,0,0.45),',
     '           inset 0 1px 0 rgba(255,255,255,0.3);}',

@@ -117,4 +117,4 @@ Your resume lives in your WorkHive account and is not shared with employers or o
 - Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements
 - TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications
 
-<!-- md-twin source-sha: 0d8002dd67b5181e -->
+<!-- md-twin source-sha: a1a36786284e3045 -->

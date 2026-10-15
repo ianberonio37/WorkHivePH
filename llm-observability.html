@@ -94,6 +94,8 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
     .card h3 { margin: 0 0 8px; font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+    /* a KPI card's label names the figure; it is not a section heading (F5, 2026-10-15) */
+    .card .kpi-label { margin: 0 0 8px; font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
     .card .big { font-size: 26px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
     .card .delta { font-size: 12px; color: var(--dim); margin-top: 4px; }
     .card.good .big { color: var(--pass); }
@@ -109,7 +111,7 @@
     /* U2: outline:none above strips the focus ring (focus-miss) — restore a visible keyboard indicator. font-size:16px + min-height:44px = no iOS auto-zoom + gloved-field tap target. */
     select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--accent); }
-    .meter { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+    .meter { height: 6px; background: var(--bg2); border-radius: 999px; overflow: hidden; }
     .meter > div { height: 100%; background: var(--accent); }
     .empty { padding: 24px; text-align: center; color: var(--dim); }
     .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
@@ -166,16 +168,16 @@
 
     <!-- Top-line KPIs -->
     <div class="grid" style="min-height:240px"><!-- I2: the KPI grid holds its box while the rollups load -->
-      <div class="card" id="kpi-total"><h3 data-i="p_totalcalls_d9a1">Total calls</h3><div class="big">-</div><div class="delta">↑ window-over-window</div></div>
-      <div class="card" id="kpi-cache"><h3>Cache hit rate</h3><div class="big">-</div><div data-i="p_vsllmservedcalls_d23b" class="delta">vs LLM-served calls</div></div>
-      <div class="card" id="kpi-fallback"><h3>Fallback rate</h3><div class="big">-</div><div data-i="p_nonprimaryprovider_7a53" class="delta">non-primary provider</div></div>
-      <div class="card" id="kpi-tokens"><h3 data-i="p_tokensused_57b5">Tokens used</h3><div class="big">-</div><div class="delta">in + out (estimated)</div></div>
-      <div class="card" id="kpi-latency"><h3>p50 latency</h3><div class="big">-</div><div data-i="p_msllmservedonly_1c1f" class="delta">ms (LLM-served only)</div></div>
-      <div class="card" id="kpi-error-rate"><!-- was role=alert/aria-live=assertive (2026-09-05): a KPI tile is a stat, not an alert - it announced "Error rate" on every load and read as "the page says it failed" to the fourth-state prover --><h3>Error rate</h3><div class="big">-</div><div data-i="p_fallbackorschemafail_07c7" class="delta">fallback or schema fail</div></div>
+      <div class="card" id="kpi-total"><p class="kpi-label" data-i="p_totalcalls_d9a1">Total calls</p><div class="big">-</div><div class="delta">↑ window-over-window</div></div>
+      <div class="card" id="kpi-cache"><p class="kpi-label">Cache hit rate</p><div class="big">-</div><div data-i="p_vsllmservedcalls_d23b" class="delta">vs LLM-served calls</div></div>
+      <div class="card" id="kpi-fallback"><p class="kpi-label">Fallback rate</p><div class="big">-</div><div data-i="p_nonprimaryprovider_7a53" class="delta">non-primary provider</div></div>
+      <div class="card" id="kpi-tokens"><p class="kpi-label" data-i="p_tokensused_57b5">Tokens used</p><div class="big">-</div><div class="delta">in + out (estimated)</div></div>
+      <div class="card" id="kpi-latency"><p class="kpi-label">p50 latency</p><div class="big">-</div><div data-i="p_msllmservedonly_1c1f" class="delta">ms (LLM-served only)</div></div>
+      <div class="card" id="kpi-error-rate"><!-- was role=alert/aria-live=assertive (2026-09-05): a KPI tile is a stat, not an alert - it announced "Error rate" on every load and read as "the page says it failed" to the fourth-state prover --><p class="kpi-label">Error rate</p><div class="big">-</div><div data-i="p_fallbackorschemafail_07c7" class="delta">fallback or schema fail</div></div>
     </div>
 
     <!-- Per-task routing -->
-    <h2 data-i="p_pertaskrouting_70fb" style="font-size: 14px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em;">Per-task routing</h2>
+    <h2 data-i="p_pertaskrouting_70fb" style="font-size: 15px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em;">Per-task routing</h2>
     <table id="by-task" aria-label="Per-task routing">
       <caption data-i="p_pertaskllmroutingcallscacheh_b31b" class="visually-hidden" style="position:absolute;left:-9999px;">Per-task LLM routing: calls, cache hit rate, p50 latency, provider mix</caption>
       <thead><tr><th>Task / Fn</th><th data-i="p_calls_0a19">Calls</th><th>Cache %</th><th>p50 ms</th><th>Provider mix</th></tr></thead>
@@ -183,7 +185,7 @@
     </table>
 
     <!-- Per-hive budget -->
-    <h2 data-i="p_perhivebudgetburn_8676" style="font-size: 14px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 24px /* R1 2026-09-05 */;">Per-hive budget burn</h2>
+    <h2 data-i="p_perhivebudgetburn_8676" style="font-size: 15px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 24px /* R1 2026-09-05 */;">Per-hive budget burn</h2>
     <table id="by-hive" aria-label="Per-hive budget burn">
       <caption data-i="p_perhivellmbudgetburncallsinw_0843" class="visually-hidden" style="position:absolute;left:-9999px;">Per-hive LLM budget burn: calls in window vs limit, last activity</caption>
       <thead><tr><th>Hive</th><th data-i="p_callswindow_633b">Calls (window)</th><th>Limit/hr</th><th>Budget burn</th><th data-i="p_lastcall_8254">Last call</th></tr></thead>

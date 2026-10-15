@@ -49,6 +49,16 @@ const PAGES = [
   // coverage list — add it so its WCAG 2.2 AA @390px violations are measured + ratcheted.
   'asset-hub.html', 'alert-hub.html', 'shift-brain.html',
 ];
+// ★EVERY PAGE THE PROGRAM WALKS IS HELD (CI3, 2026-10-15). The list above held 12 pages; the SL program walks 155, and
+// the 104 it never read included every learn article and calculator. The roster is the list plus every page the
+// registry's SL rows name; a PUBLIC page is scanned signed out, as the visitor it is for, in its own context. A page's
+// first measurement is its floor (the ratchet below already adds an unseen page at its count), so widening holds every
+// page from today without failing it for findings that predate the read.
+const REG = JSON.parse(fs.readFileSync(path.join(ROOT, 'trajectory_registry.json'), 'utf8'));
+const SL_CLASS = new Map();
+for (const t of REG.trajectories) if (t.sl && t.sl.page && t.status !== 'descoped') SL_CLASS.set(t.sl.page, t.sl.page_class);
+for (const f of SL_CLASS.keys()) if (!PAGES.includes(f) && fs.existsSync(path.join(ROOT, f))) PAGES.push(f);
+const PUBLIC = (f) => SL_CLASS.get(f) === 'public';
 
 // Seeded supervisor of the test hive (same identity the live deep-walk uses).
 // HIVE_ID fixed 2026-07-19: was the STALE fixture 9b4eaeac (leandromarquez is NOT a member → RLS returned
@@ -166,22 +176,25 @@ function resolveHive(key, session) {
     localStorage.setItem('wh_nav_mode', 'engineer');
   }, { sess: session, hiveId: liveHive, hiveName: HIVE_NAME, worker: WORKER });
 
+  const anonCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const anonPage = await anonCtx.newPage();
   const detail = {};
   for (const p of PAGES) {
+    const pg = PUBLIC(p) ? anonPage : page;
     try {
-      await page.goto(BASE + '/' + p, { waitUntil: 'domcontentloaded', timeout: 20000 });
-      await page.waitForTimeout(1100); // first render + auth settle
-      const after = page.url();
+      await pg.goto(BASE + '/' + p, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      await pg.waitForTimeout(1100); // first render + auth settle
+      const after = pg.url();
       const bounced = after.includes('signin=1') || !after.includes(p.replace('.html', ''));
       if (bounced) { detail[p] = { skipped: true, reason: 'auth gate (session not accepted)', url_after: after, nodes: 0 }; continue; }
-      await page.addScriptTag({ content: AXE_SRC });
-      const res = await page.evaluate(async (tags) => {
+      await pg.addScriptTag({ content: AXE_SRC });
+      const res = await pg.evaluate(async (tags) => {
         const r = await axe.run(document, { runOnly: { type: 'tag', values: tags }, resultTypes: ['violations'] });
         const byRule = {}; let nodes = 0;
         for (const v of r.violations) { byRule[v.id] = { impact: v.impact, nodes: v.nodes.length }; nodes += v.nodes.length; }
         return { byRule, nodes, els: document.querySelectorAll('*').length };
       }, WCAG_TAGS);
-      detail[p] = { skipped: false, els: res.els, nodes: res.nodes, byRule: res.byRule };
+      detail[p] = { skipped: false, els: res.els, nodes: res.nodes, byRule: res.byRule, as: PUBLIC(p) ? 'signed out' : SUPERVISOR };
     } catch (e) {
       detail[p] = { skipped: true, reason: String(e && e.message || e).slice(0, 160), nodes: 0 };
     }

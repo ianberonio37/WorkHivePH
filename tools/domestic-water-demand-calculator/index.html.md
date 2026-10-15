@@ -32,4 +32,4 @@ Related calculators
 [Water Supply Pipe Sizing Calculator](https://workhiveph.com/tools/water-supply-pipe-calculator/)
 [Hot Water Demand Calculator](https://workhiveph.com/tools/hot-water-demand-calculator/)
 
-<!-- md-twin source-sha: 6f5f6e776b62f1d1 -->
+<!-- md-twin source-sha: de54a1113d6afb3a -->

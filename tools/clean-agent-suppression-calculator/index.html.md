@@ -32,4 +32,4 @@ Related calculators
 [Fire Pump Sizing Calculator](https://workhiveph.com/tools/fire-pump-calculator/)
 [Fire Alarm Battery Calculator](https://workhiveph.com/tools/fire-alarm-battery-calculator/)
 
-<!-- md-twin source-sha: 1a74d5811dc60b31 -->
+<!-- md-twin source-sha: 4b9e044fe67861cd -->

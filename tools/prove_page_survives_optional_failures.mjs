@@ -64,6 +64,15 @@ const LOCAL_CSP = SHIPPED_CSP.replaceAll(`https://${PROD_HOST}`, `http://${LOCAL
   .replace(/img-src ([^;]*)/, (m, v) => `img-src ${v} http://${LOCAL}`);
 const PERMISSIONS = hdr('permissions-policy');
 if (!SHIPPED_CSP.includes(`wss://${PROD_HOST}`)) { console.log('FAIL - vercel.json CSP does not name the realtime socket'); process.exit(1); }
+// ★EACH PAGE IS SERVED ITS OWN POLICY (S3, 2026-10-15): vercel.json now carries one per page (tools/build_csp_profiles
+// .py), so "as served" means the policy the one matcher resolves for THAT page's path - never the base rule's union.
+const RESOLVED = JSON.parse(execFileSync('python', ['tools/serve_vercel_headers.py', '--resolve',
+  ...new Set(['index.html', 'logbook.html', ...PAGES].map((p) => '/' + p))], { encoding: 'utf8', maxBuffer: 16 << 20 }));
+const LOCAL_CSP_OF = (page) => {
+  const v = (Object.entries(RESOLVED['/' + page] || {}).find(([k]) => k.toLowerCase() === 'content-security-policy') || [])[1] || SHIPPED_CSP;
+  return v.replaceAll(`https://${PROD_HOST}`, `http://${LOCAL}`).replaceAll(`wss://${PROD_HOST}`, `ws://${LOCAL}`)
+    .replace(/img-src ([^;]*)/, (m, x) => `img-src ${x} http://${LOCAL}`);
+};
 
 // the pre-fix files come from git as committed, so they get the SAME cloud->local rewrite the seeder applies to every
 // page and script it serves (test-data-seeder/app.py _rewrite: URL and publishable key), read from that file rather
@@ -114,7 +123,7 @@ async function context(engine, condition, prefix) {
     if (prefix && file === 'logbook.html') body = REWRITE(execFileSync('git', ['show', `${prefix}:logbook.html`], { encoding: 'utf8', maxBuffer: 64 << 20 }));
     else { const r = await route.fetch(); body = await r.text(); }
     return route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body,
-      headers: { 'Content-Security-Policy': LOCAL_CSP, 'Permissions-Policy': PERMISSIONS, 'Cache-Control': 'no-store' } });
+      headers: { 'Content-Security-Policy': LOCAL_CSP_OF(file), 'Permissions-Policy': PERMISSIONS, 'Cache-Control': 'no-store' } });
   });
   if (prefix) {
     const oldUtils = REWRITE(execFileSync('git', ['show', `${prefix}:utils.js`], { encoding: 'utf8', maxBuffer: 64 << 20 }));

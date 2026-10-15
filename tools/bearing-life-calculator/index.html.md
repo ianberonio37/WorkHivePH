@@ -32,4 +32,4 @@ Related calculators
 [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/)
 [Noise / Acoustics Calculator](https://workhiveph.com/tools/noise-acoustics-calculator/)
 
-<!-- md-twin source-sha: 68aea267202c46fd -->
+<!-- md-twin source-sha: a6655bb7be1c1752 -->

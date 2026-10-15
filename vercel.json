@@ -26,7 +26,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://workhive-assistant.ian-beronio37.workers.dev https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
         }
       ]
     },
@@ -50,6 +50,24 @@
     },
     {
       "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(learn|tools)/:slug",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(about|feedback|learn|privacy-policy|terms-of-service)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -103,6 +121,249 @@
         {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/ahu-sizing-calculator/index.html|tools/ahu-sizing-calculator|tools/ahu-sizing-calculator/|tools/beam-design-calculator/index.html|tools/beam-design-calculator|tools/beam-design-calculator/|tools/bearing-life-calculator/index.html|tools/bearing-life-calculator|tools/bearing-life-calculator/|tools/boiler-steam-calculator/index.html|tools/boiler-steam-calculator|tools/boiler-steam-calculator/|tools/boiler-system-calculator/index.html|tools/boiler-system-calculator|tools/boiler-system-calculator/|tools/bolt-torque-calculator/index.html|tools/bolt-torque-calculator|tools/bolt-torque-calculator/|tools/cable-tray-sizing-calculator/index.html|tools/cable-tray-sizing-calculator|tools/cable-tray-sizing-calculator/|tools/chiller-sizing-calculator/index.html|tools/chiller-sizing-calculator|tools/chiller-sizing-calculator/|tools/clean-agent-suppression-calculator/index.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/clean-agent-suppression-calculator|tools/clean-agent-suppression-calculator/|tools/compressed-air-calculator/index.html|tools/compressed-air-calculator|tools/compressed-air-calculator/|tools/cooling-tower-calculator/index.html|tools/cooling-tower-calculator|tools/cooling-tower-calculator/|tools/domestic-water-demand-calculator/index.html|tools/domestic-water-demand-calculator|tools/domestic-water-demand-calculator/|tools/drainage-pipe-sizing-calculator/index.html|tools/drainage-pipe-sizing-calculator|tools/drainage-pipe-sizing-calculator/|tools/duct-sizing-calculator/index.html|tools/duct-sizing-calculator|tools/duct-sizing-calculator/|tools/earthing-grounding-calculator/index.html|tools/earthing-grounding-calculator|tools/earthing-grounding-calculator/|tools/elevator-traffic-calculator/index.html|tools/elevator-traffic-calculator|tools/elevator-traffic-calculator/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/expansion-tank-calculator/index.html|tools/expansion-tank-calculator|tools/expansion-tank-calculator/|tools/fcu-selection-calculator/index.html|tools/fcu-selection-calculator|tools/fcu-selection-calculator/|tools/fire-alarm-battery-calculator/index.html|tools/fire-alarm-battery-calculator|tools/fire-alarm-battery-calculator/|tools/fire-pump-calculator/index.html|tools/fire-pump-calculator|tools/fire-pump-calculator/|tools/fire-sprinkler-calculator/index.html|tools/fire-sprinkler-calculator|tools/fire-sprinkler-calculator/|tools/generator-sizing-calculator/index.html|tools/generator-sizing-calculator|tools/generator-sizing-calculator/|tools/grease-trap-calculator/index.html|tools/grease-trap-calculator|tools/grease-trap-calculator/|tools/harmonic-distortion-calculator/index.html|tools/harmonic-distortion-calculator|tools/harmonic-distortion-calculator/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/heat-exchanger-calculator/index.html|tools/heat-exchanger-calculator|tools/heat-exchanger-calculator/|tools/hoist-capacity-calculator/index.html|tools/hoist-capacity-calculator|tools/hoist-capacity-calculator/|tools/hot-water-demand-calculator/index.html|tools/hot-water-demand-calculator|tools/hot-water-demand-calculator/|tools/hvac-cooling-load-calculator/index.html|tools/hvac-cooling-load-calculator|tools/hvac-cooling-load-calculator/|tools/hydraulic-cylinder-calculator/index.html|tools/hydraulic-cylinder-calculator|tools/hydraulic-cylinder-calculator/|tools/lighting-design-calculator/index.html|tools/lighting-design-calculator|tools/lighting-design-calculator/|tools/lightning-protection-calculator/index.html|tools/lightning-protection-calculator|tools/lightning-protection-calculator/|tools/load-estimation-calculator/index.html|tools/load-estimation-calculator)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/load-estimation-calculator/|tools/load-schedule-calculator/index.html|tools/load-schedule-calculator|tools/load-schedule-calculator/|tools/mtbf-calculator/index.html|tools/mtbf-calculator|tools/mtbf-calculator/|tools/noise-acoustics-calculator/index.html|tools/noise-acoustics-calculator|tools/noise-acoustics-calculator/|tools/oee-calculator/index.html|tools/oee-calculator|tools/oee-calculator/|tools/pipe-sizing-calculator/index.html|tools/pipe-sizing-calculator|tools/pipe-sizing-calculator/|tools/power-factor-correction-calculator/index.html|tools/power-factor-correction-calculator|tools/power-factor-correction-calculator/|tools/pressure-vessel-calculator/index.html|tools/pressure-vessel-calculator|tools/pressure-vessel-calculator/|tools/pump-tdh-calculator/index.html|tools/pump-tdh-calculator|tools/pump-tdh-calculator/|tools/refrigerant-pipe-calculator/index.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/refrigerant-pipe-calculator|tools/refrigerant-pipe-calculator/|tools/roof-drain-calculator/index.html|tools/roof-drain-calculator|tools/roof-drain-calculator/|tools/septic-tank-calculator/index.html|tools/septic-tank-calculator|tools/septic-tank-calculator/|tools/sewer-drainage-calculator/index.html|tools/sewer-drainage-calculator|tools/sewer-drainage-calculator/|tools/shaft-design-calculator/index.html|tools/shaft-design-calculator|tools/shaft-design-calculator/|tools/short-circuit-calculator/index.html|tools/short-circuit-calculator|tools/short-circuit-calculator/|tools/solar-pv-calculator/index.html|tools/solar-pv-calculator|tools/solar-pv-calculator/|tools/stairwell-pressurization-calculator/index.html|tools/stairwell-pressurization-calculator|tools/stairwell-pressurization-calculator/|tools/storm-drain-calculator/index.html|tools/storm-drain-calculator)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/storm-drain-calculator/|tools/transformer-sizing-calculator/index.html|tools/transformer-sizing-calculator|tools/transformer-sizing-calculator/|tools/ups-sizing-calculator/index.html|tools/ups-sizing-calculator|tools/ups-sizing-calculator/|tools/v-belt-drive-calculator/index.html|tools/v-belt-drive-calculator|tools/v-belt-drive-calculator/|tools/ventilation-ach-calculator/index.html|tools/ventilation-ach-calculator|tools/ventilation-ach-calculator/|tools/vibration-isolation-calculator/index.html|tools/vibration-isolation-calculator|tools/vibration-isolation-calculator/|tools/voltage-drop-calculator/index.html|tools/voltage-drop-calculator|tools/voltage-drop-calculator/|tools/wastewater-stp-calculator/index.html|tools/wastewater-stp-calculator|tools/wastewater-stp-calculator/|tools/water-softener-calculator/index.html|tools/water-softener-calculator)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(tools/water-softener-calculator/|tools/water-supply-pipe-calculator/index.html|tools/water-supply-pipe-calculator|tools/water-supply-pipe-calculator/|tools/water-treatment-calculator/index.html|tools/water-treatment-calculator|tools/water-treatment-calculator/|tools/wire-sizing-calculator/index.html|tools/wire-sizing-calculator|tools/wire-sizing-calculator/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(about/index.html|about|about/|learn/ai-companion-hezekiah-zaniah-personas/index.html|learn/ai-companion-hezekiah-zaniah-personas|learn/ai-companion-hezekiah-zaniah-personas/|learn/ai-quality-and-roi-stage-2-plants/index.html|learn/ai-quality-and-roi-stage-2-plants|learn/ai-quality-and-roi-stage-2-plants/|learn/ai-work-assistant-maintenance-technicians/index.html|learn/ai-work-assistant-maintenance-technicians|learn/ai-work-assistant-maintenance-technicians/|learn/asset-brain-360-one-machine-history-philippine-plant/index.html|learn/asset-brain-360-one-machine-history-philippine-plant|learn/asset-brain-360-one-machine-history-philippine-plant/|learn/autonomous-shift-planning-philippine-plants/index.html|learn/autonomous-shift-planning-philippine-plants|learn/autonomous-shift-planning-philippine-plants/|learn/best-free-cmms-software-philippines/index.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/best-free-cmms-software-philippines|learn/best-free-cmms-software-philippines/|learn/bms-facilities-maintenance-peza-buildings/index.html|learn/bms-facilities-maintenance-peza-buildings|learn/bms-facilities-maintenance-peza-buildings/|learn/building-asset-register-zero-budget/index.html|learn/building-asset-register-zero-budget|learn/building-asset-register-zero-budget/|learn/cmms-vs-excel-spreadsheet-maintenance/index.html|learn/cmms-vs-excel-spreadsheet-maintenance|learn/cmms-vs-excel-spreadsheet-maintenance/|learn/connecting-workhive-to-sap-maximo-cmms/index.html|learn/connecting-workhive-to-sap-maximo-cmms|learn/connecting-workhive-to-sap-maximo-cmms/|learn/dilo-wilo-day-planner-supervisors/index.html|learn/dilo-wilo-day-planner-supervisors|learn/dilo-wilo-day-planner-supervisors/|learn/dole-iso-audit-trail-from-logbook/index.html|learn/dole-iso-audit-trail-from-logbook)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/dole-iso-audit-trail-from-logbook/|learn/fmea-worked-example-philippine-bottling-line/index.html|learn/fmea-worked-example-philippine-bottling-line|learn/fmea-worked-example-philippine-bottling-line/|learn/food-beverage-plant-maintenance-philippines/index.html|learn/food-beverage-plant-maintenance-philippines|learn/food-beverage-plant-maintenance-philippines/|learn/four-phases-maintenance-analytics-philippine-plants/index.html|learn/four-phases-maintenance-analytics-philippine-plants|learn/four-phases-maintenance-analytics-philippine-plants/|learn/free-engineering-calculators-philippine-plants/index.html|learn/free-engineering-calculators-philippine-plants|learn/free-engineering-calculators-philippine-plants/|learn/free-pm-checklist-templates/index.html|learn/free-pm-checklist-templates|learn/free-pm-checklist-templates/|learn/gamifying-maintenance-for-engagement/index.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/gamifying-maintenance-for-engagement|learn/gamifying-maintenance-for-engagement/|learn/index.html|learn|learn/|learn/industrial-community-of-practice-philippines/index.html|learn/industrial-community-of-practice-philippines|learn/industrial-community-of-practice-philippines/|learn/industrial-marketplace-philippine-specialists/index.html|learn/industrial-marketplace-philippine-specialists|learn/industrial-marketplace-philippine-specialists/|learn/joining-and-growing-your-hive/index.html|learn/joining-and-growing-your-hive|learn/joining-and-growing-your-hive/|learn/loto-procedures-dole-oshs-template/index.html|learn/loto-procedures-dole-oshs-template|learn/loto-procedures-dole-oshs-template/|learn/maintenance-metrics-reliability-guide/index.html|learn/maintenance-metrics-reliability-guide|learn/maintenance-metrics-reliability-guide/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/maintenance-project-planning-template/index.html|learn/maintenance-project-planning-template|learn/maintenance-project-planning-template/|learn/maintenance-shift-handover-template/index.html|learn/maintenance-shift-handover-template|learn/maintenance-shift-handover-template/|learn/mtbf-vs-mttr-for-supervisors/index.html|learn/mtbf-vs-mttr-for-supervisors|learn/mtbf-vs-mttr-for-supervisors/|learn/ofw-engineer-portable-portfolio/index.html|learn/ofw-engineer-portable-portfolio|learn/ofw-engineer-portable-portfolio/|learn/ph-industrial-benchmarks-intelligence/index.html|learn/ph-industrial-benchmarks-intelligence|learn/ph-industrial-benchmarks-intelligence/|learn/ph-plant-compliance-guide/index.html|learn/ph-plant-compliance-guide|learn/ph-plant-compliance-guide/|learn/philippine-plants-now-pay-the-highest-power-rates/index.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/philippine-plants-now-pay-the-highest-power-rates|learn/philippine-plants-now-pay-the-highest-power-rates/|learn/plant-alert-inbox-amc-daily-brief/index.html|learn/plant-alert-inbox-amc-daily-brief|learn/plant-alert-inbox-amc-daily-brief/|learn/power-plant-reliability-metrics-philippines/index.html|learn/power-plant-reliability-metrics-philippines|learn/power-plant-reliability-metrics-philippines/|learn/predictive-alert-thresholds-plants/index.html|learn/predictive-alert-thresholds-plants|learn/predictive-alert-thresholds-plants/|learn/predictive-maintenance-on-a-budget-philippines/index.html|learn/predictive-maintenance-on-a-budget-philippines|learn/predictive-maintenance-on-a-budget-philippines/|learn/print-ready-maintenance-analytics-report/index.html|learn/print-ready-maintenance-analytics-report|learn/print-ready-maintenance-analytics-report/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/psme-iiee-piche-which-association-to-join/index.html|learn/psme-iiee-piche-which-association-to-join|learn/psme-iiee-piche-which-association-to-join/|learn/ra-11285-energy-efficiency-plant-checklist/index.html|learn/ra-11285-energy-efficiency-plant-checklist|learn/ra-11285-energy-efficiency-plant-checklist/|learn/reduce-unplanned-downtime-guide/index.html|learn/reduce-unplanned-downtime-guide|learn/reduce-unplanned-downtime-guide/|learn/reliability-centered-maintenance-philippine-plants/index.html|learn/reliability-centered-maintenance-philippine-plants|learn/reliability-centered-maintenance-philippine-plants/|learn/resume-builder-for-filipino-industrial-workers/index.html|learn/resume-builder-for-filipino-industrial-workers|learn/resume-builder-for-filipino-industrial-workers/|learn/sensor-cmms-gateway-operations/index.html|learn/sensor-cmms-gateway-operations)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/sensor-cmms-gateway-operations/|learn/skill-matrix-for-maintenance-technicians/index.html|learn/skill-matrix-for-maintenance-technicians|learn/skill-matrix-for-maintenance-technicians/|learn/spare-parts-inventory-philippine-plants/index.html|learn/spare-parts-inventory-philippine-plants|learn/spare-parts-inventory-philippine-plants/|learn/start-digital-logbook-philippine-factory/index.html|learn/start-digital-logbook-philippine-factory|learn/start-digital-logbook-philippine-factory/|learn/start-digital-maintenance-guide/index.html|learn/start-digital-maintenance-guide|learn/start-digital-maintenance-guide/|learn/tesda-nc-mapping-to-skill-matrix/index.html|learn/tesda-nc-mapping-to-skill-matrix|learn/tesda-nc-mapping-to-skill-matrix/|learn/thermography-for-pm-philippine-plants/index.html|learn/thermography-for-pm-philippine-plants|learn/thermography-for-pm-philippine-plants/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/vibration-analysis-on-a-phone-budget/index.html|learn/vibration-analysis-on-a-phone-budget|learn/vibration-analysis-on-a-phone-budget/|learn/voice-to-text-maintenance-philippine-plant-floor/index.html|learn/voice-to-text-maintenance-philippine-plant-floor|learn/voice-to-text-maintenance-philippine-plant-floor/|learn/what-is-oee-how-to-calculate/index.html|learn/what-is-oee-how-to-calculate|learn/what-is-oee-how-to-calculate/|learn/what-is-workhive-complete-platform-guide/index.html|learn/what-is-workhive-complete-platform-guide|learn/what-is-workhive-complete-platform-guide/|learn/workhive-ai-companion-complete-capabilities/index.html|learn/workhive-ai-companion-complete-capabilities|learn/workhive-ai-companion-complete-capabilities/|learn/workhive-vs-maintainx-comparison/index.html|learn/workhive-vs-maintainx-comparison|learn/workhive-vs-maintainx-comparison/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(learn/workhive-vs-upkeep-free-cmms-comparison/index.html|learn/workhive-vs-upkeep-free-cmms-comparison|learn/workhive-vs-upkeep-free-cmms-comparison/|privacy-policy/index.html|privacy-policy|privacy-policy/|terms-of-service/index.html|terms-of-service|terms-of-service/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob:; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(achievements.html|alert-hub.html|analytics-report.html|assistant.html|audit-log.html|community.html|dayplanner.html|design-system.html|founder-console.html|hive.html|llm-observability.html|marketplace-admin.html|marketplace-seller-profile.html|marketplace-seller.html|ph-intelligence.html|plant-connections.html|platform-actions.html|pm-scheduler.html|project-manager.html|project-report.html|public-feed.html|report-sender.html|shift-brain.html|voice-journal.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(asset-hub.html|integrations.html|inventory.html|logbook.html|resume.html|skillmatrix.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(agentic-rag-observability.html|ai-quality.html|status.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(engineering-design.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://engineering-calc-api.onrender.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(analytics.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plot.ly; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(feedback/index.html|feedback|feedback/)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/(marketplace.html)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://tiles.openfreemap.org; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
         }
       ]
     }

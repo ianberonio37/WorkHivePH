@@ -59,7 +59,7 @@
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-72px);
       background: rgba(31,46,69,0.96); color: var(--text); padding: 0.5rem 1.25rem;
-      border-radius: .625rem; font-size: .75rem; font-weight: 500;
+      border-radius: 12px; font-size: .75rem; font-weight: 500;
       /* ★THE RETIREMENT GREPPED THE TOKEN'S NAME, NOT ITS VALUE (design lens slop, 2026-09-15).
          tokens.css records that --wh-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1), was retired the same
          day for overshooting by 56% - "a git grep found it declared here and used NOWHERE". True of the
@@ -402,7 +402,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Getting Started workflow guide (dismissible) -->
   <div id="cmms-guide" style="margin-bottom:1.5rem; display:none;">
-    <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:14px; padding:16px 20px;">
+    <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:12px; padding:16px 20px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
         <!-- Sentence case: a five-word HEADING is not a two-or-three-word status pill, which is what
              DESIGN.md reserves all-caps for, and 0.06em is over its 0.04em ceiling either way. -->
@@ -412,7 +412,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
 
         <!-- Step 1 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(247,162,27,0.07); border-radius:10px; margin-right:8px; margin-bottom:8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(247,162,27,0.07); border-radius:12px; margin-right:8px; margin-bottom:8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(247,162,27,0.2); border:1px solid rgba(247,162,27,0.4); color:var(--gold); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
             <p data-i="p_importfile_173d" style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
@@ -425,7 +425,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.55); font-size:1.125rem;">→</div>
 
         <!-- Step 2 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(41,182,217,0.06); border-radius:10px; margin:0 8px 8px 8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(41,182,217,0.06); border-radius:12px; margin:0 8px 8px 8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.35); color:var(--blue); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
@@ -447,7 +447,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.55); font-size:1.125rem;">→</div>
 
         <!-- Step 3 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(167,139,250,0.06); border-radius:10px; margin-left:8px; margin-bottom:8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(167,139,250,0.06); border-radius:12px; margin-left:8px; margin-bottom:8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             <span style="width:22px; height:22px; border-radius:50%; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.35); color:var(--purple); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
@@ -2377,7 +2377,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }[k] || k);
 
       const scoreHtml = `
-        <div style="margin-top:16px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 16px;">
+        <div style="margin-top:16px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 16px;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
             <p style="font-size:.75rem; font-weight:700;">Data Quality Scorecard</p>
             <span style="font-size:1.125rem; font-weight:800; color:${scoreColor};">${avgScore}%</span>
@@ -2387,8 +2387,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               const c = v >= 80 ? 'var(--green)' : v >= 60 ? '#f7a21b' : 'var(--red)';
               return `<div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:0.75rem; color:var(--muted); width:110px; flex-shrink:0;">${scoreLabel(k)}</span>
-                <div style="flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px;">
-                  <div style="width:${v}%; height:100%; background:${c}; border-radius:3px;"></div>
+                <div style="flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:999px;">
+                  <div style="width:${v}%; height:100%; background:${c}; border-radius:999px;"></div>
                 </div>
                 <span style="font-size:0.75rem; font-weight:700; color:${c}; width:34px; text-align:right;">${v}%</span>
               </div>`;
@@ -2718,8 +2718,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return `<div style="margin-bottom:8px;">
           <p style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
           <div style="display:flex; gap:6px; align-items:center;">
-            <code style="flex:1; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:6px; font-size:0.75rem; color:var(--blue); word-break:break-all;">${escHtml(whUrl)}</code>
-            <button onclick="navigator.clipboard.writeText('${escJsAttr(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 12px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:0.75rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
+            <code style="flex:1; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; font-size:0.75rem; color:var(--blue); word-break:break-all;">${escHtml(whUrl)}</code>
+            <button onclick="navigator.clipboard.writeText('${escJsAttr(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 12px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
           </div>
         </div>`;
       }).join('');
@@ -2740,8 +2740,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p style="font-size:0.75rem; color:var(--muted);">${escHtml(c.system_type.toUpperCase())} · ${escHtml(c.sync_freq || 'manual')} · last: <span style="color:${statusColor};">${lastSync}</span>${statusBadge}${c.last_sync_count ? ' · ' + c.last_sync_count + ' records' : ''}</p>
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn btn-blue" style="padding:8px 12px; font-size:0.75rem;" onclick="runSync('${c.id}')" data-i="runnow">Run Now</button>
-          <button class="btn btn-ghost" style="padding:8px 12px; font-size:0.75rem;" onclick="editConfig('${c.id}')" data-i="edit">Edit</button>
+          <button class="btn btn-blue" style="padding:8px 12px; font-size:0.75rem;" onclick="runSync('${escJsAttr(c.id)}')" data-i="runnow">Run Now</button>
+          <button class="btn btn-ghost" style="padding:8px 12px; font-size:0.75rem;" onclick="editConfig('${escJsAttr(c.id)}')" data-i="edit">Edit</button>
         </div>
       </div>`;
     }).join('');
@@ -2891,7 +2891,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 16px; margin-bottom:4px;">
       <p style="font-size:0.75rem; color:var(--green); font-weight:700; margin-bottom:8px;">✓ ${escHtml(_t(`API key generated: copy it now, it won't be shown again.`, 'Nagawa na ang API key: kopyahin ito ngayon, hindi na ito ipapakita ulit.'))}</p>
       <code style="font-size:.75rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
-      <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:6px; font-size:0.75rem; cursor:pointer; font-family:inherit;">Copy Key</button>
+      <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;">Copy Key</button>
     </div>`;
     document.getElementById('api-key-label').value = '';
     loadApiKeys();
@@ -2910,7 +2910,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p style="font-size:.75rem; font-weight:600;">${escHtml(k.label || 'Unnamed')}</p>
           <p style="font-size:0.75rem; color:var(--muted);">${escHtml(k.key_prefix)}... · ${k.call_count || 0} calls · last: ${last}</p>
         </div>
-        <button onclick="revokeKey('${k.id}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:0.75rem; cursor:pointer; font-family:inherit;" data-i="revoke">Revoke</button>
+        <button onclick="revokeKey('${escJsAttr(k.id)}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;" data-i="revoke">Revoke</button>
       </div>`;
     }).join('');
   }
@@ -2971,7 +2971,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div style="font-size:.75rem; font-weight:600;">${escHtml(row.entity_type || 'work_order')} · ${escHtml((row.system_type || '').replace('sap_pm','SAP PM').replace('maximo','Maximo').replace('generic','Generic'))}</div>
               <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">${dt} · ${row.rows_written} written${row.rows_failed ? ` · ${row.rows_failed} failed` : ''}${avgQ !== null ? ` · <span style="color:${qColor};">${avgQ}% quality</span>` : ''}</div>
             </div>
-            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:0.75rem; color:var(--muted);">Expired</span>`}
+            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:0.75rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
     } catch (_) { /* cmms_audit_log may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
@@ -3236,8 +3236,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <span style="font-size:0.75rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
             </div>
             <div style="display:flex; gap:6px;">
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
             </div>
           </div>`).join('')}`;
     } catch (e) {

@@ -80,4 +80,4 @@ Or see it working first: the [OEE calculator](https://workhiveph.com/tools/oee-c
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f59f7d70ff1e4751 -->
+<!-- md-twin source-sha: b5badf15ba758eb5 -->

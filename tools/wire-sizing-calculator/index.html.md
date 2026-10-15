@@ -36,4 +36,4 @@ Related calculators
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
 
-<!-- md-twin source-sha: 30c20b54e8c0d432 -->
+<!-- md-twin source-sha: c22af60cfd74d0f4 -->

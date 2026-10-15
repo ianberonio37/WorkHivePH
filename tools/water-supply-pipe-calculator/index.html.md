@@ -35,4 +35,4 @@ Related calculators
 [Hot Water Demand Calculator](https://workhiveph.com/tools/hot-water-demand-calculator/)
 [Grease Trap Sizing Calculator](https://workhiveph.com/tools/grease-trap-calculator/)
 
-<!-- md-twin source-sha: 73aa0aef6b57b079 -->
+<!-- md-twin source-sha: 96d802c591ca1510 -->

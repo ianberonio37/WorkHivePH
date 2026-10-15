@@ -36,7 +36,7 @@
     .ds-api { font-family: ui-monospace, monospace; font-size: 0.75rem; color: rgba(255,255,255,0.72); margin-top: 6px; word-break: break-word; }
     .ds-guide { font-size: 0.75rem; color: rgba(255,255,255,0.72); margin-top: 6px; line-height: 1.5; }
     .ds-guide b { color: rgba(255,255,255,0.9); }
-    .ds-spec { margin-top: 12px; padding: 16px; border: 1px dashed rgba(255,255,255,0.14); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .ds-spec { margin-top: 12px; padding: 16px; border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px; background: rgba(255,255,255,0.02); }
     .ds-spec-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,0.62); margin-bottom: 8px; }
     .ds-adopt { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }   /* phone fit (2026-09-06): at 360px the nowrap label spilled 30px past the row; the label drops under the bar instead */
     .ds-adopt-bar { flex: 1 1 120px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
@@ -89,7 +89,7 @@
   // that shared script did not arrive, say so in the content root instead of leaving the page silently empty.
   if (typeof escHtml !== 'function' || typeof renderSourceChip !== 'function') {
     console.error('[design-system] utils.js did not load; the gallery cannot render');
-    root.innerHTML = '<p class="honest-empty" role="status" style="padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:10px;">The component gallery could not load its shared script (utils.js). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;">Reload to try again</button>.</p>';
+    root.innerHTML = '<p class="honest-empty" role="status" style="padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:12px;">The component gallery could not load its shared script (utils.js). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;">Reload to try again</button>.</p>';
     return;
   }
   if (typeof whListSkeleton === 'function') whListSkeleton(root, 6); // dogfood: G1 while the registry loads
@@ -172,7 +172,7 @@
         const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '—';
         return '<div class="swatch"><div class="sw" style="background:var(' + n + ')"></div><div class="sw-name mono">' + e(n) + '<br>' + e(v) + '</div></div>';
       }).join('') + '</div>'; },
-    FT2() { return [4,8,12,16,24,32].map(px => '<div style="display:flex;align-items:center;gap:10px;margin:4px 0;"><div style="width:' + px + 'px;height:12px;background:var(--wh-blue);border-radius:3px;"></div><span style="font-size: 0.75rem;color:rgba(255,255,255,0.62);">' + px + 'px</span></div>').join(''); },
+    FT2() { return [4,8,12,16,24,32].map(px => '<div style="display:flex;align-items:center;gap:10px;margin:4px 0;"><div style="width:' + px + 'px;height:12px;background:var(--wh-blue);border-radius:999px;"></div><span style="font-size: 0.75rem;color:rgba(255,255,255,0.62);">' + px + 'px</span></div>').join(''); },
     FT3() { return '<div style="display:flex;gap:12px;flex-wrap:wrap;">' + [['--wh-radius-sm','sm'],['--wh-radius','base'],['--wh-radius-lg','lg']].map(([t,l]) => '<div style="width:90px;height:56px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:var(' + t + ',12px);display:flex;align-items:center;justify-content:center;font-size: 0.75rem;color:rgba(255,255,255,0.7);">' + l + '</div>').join('') + '</div>'; },
     FT4() { return '<button class="wh-tap" style="background:rgba(41,182,217,0.15);border:1px solid rgba(41,182,217,0.4);border-radius:8px;color:var(--wh-blue-light);font-family:inherit;cursor:pointer;">.wh-tap ≥44px</button>'; },
     FT5() { return '<p class="wh-text-muted" style="font-size:.8rem;">.wh-text-muted: secondary text at the AA floor</p><p class="wh-text-faint" style="font-size:.8rem;">.wh-text-faint: tertiary text</p>'; },

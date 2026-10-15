@@ -1,0 +1,5 @@
+{
+ "_doc": "Per-page F5 craft counts (detector + off-scale radii + bare brand hex) - tools/prove_page_craft.py. A page above its floor fails; 0 closes its row.",
+ "generated": "2026-10-15T17:59:37",
+ "pages": {}
+}

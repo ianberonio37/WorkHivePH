@@ -32,4 +32,4 @@ Related calculators
 [Fire Sprinkler Hydraulic Calculator](https://workhiveph.com/tools/fire-sprinkler-calculator/)
 [Clean Agent Suppression Calculator](https://workhiveph.com/tools/clean-agent-suppression-calculator/)
 
-<!-- md-twin source-sha: 96840d7fa3001fe0 -->
+<!-- md-twin source-sha: d45ec7eadae203cc -->

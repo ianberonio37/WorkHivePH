@@ -32,4 +32,4 @@ Related calculators
 [Expansion Tank Sizing Calculator](https://workhiveph.com/tools/expansion-tank-calculator/)
 [Duct Sizing Calculator](https://workhiveph.com/tools/duct-sizing-calculator/)
 
-<!-- md-twin source-sha: fed15ca5ee719ece -->
+<!-- md-twin source-sha: 1e06f1249188098e -->

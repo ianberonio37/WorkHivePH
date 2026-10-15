@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9f0ab130e41393fb -->
+<!-- md-twin source-sha: 6f81e724775d089c -->

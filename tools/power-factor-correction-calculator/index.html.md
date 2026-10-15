@@ -32,4 +32,4 @@ Related calculators
 [Generator Sizing Calculator](https://workhiveph.com/tools/generator-sizing-calculator/)
 [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/)
 
-<!-- md-twin source-sha: c2bfb35d3f342507 -->
+<!-- md-twin source-sha: c279831927b14bc7 -->

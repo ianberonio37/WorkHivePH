@@ -32,4 +32,4 @@ Related calculators
 [Electrical Load Estimation Calculator](https://workhiveph.com/tools/load-estimation-calculator/)
 [Harmonic Distortion (THD/TDD) Calculator](https://workhiveph.com/tools/harmonic-distortion-calculator/)
 
-<!-- md-twin source-sha: 292977ce9605ab0a -->
+<!-- md-twin source-sha: a7fddf6c7c6039f6 -->

@@ -109,12 +109,12 @@
       min-height: 44px; /* WCAG 2.5.8 / F1 — name links are primary identity taps */
     }
     .author-link:hover { color: var(--wh-orange); text-decoration: underline; }
-    .author-link:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; border-radius: 3px; }
+    .author-link:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; border-radius: 8px; }
     .avatar-btn { background: none; border: none; padding: 0; cursor: pointer; border-radius: 999px; }
     .avatar-btn:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
 
     /* ── Person card (identity + reputation + marketplace bridge) ── */
-    .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: rgba(255,255,255,0.04); border-radius: 0.6rem; }
+    .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; }
     .pc-stat b { display: block; font-size: 1.1rem; font-weight: 800; color: white; }
     .pc-stat span { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color:rgba(255,255,255,0.80); }
     .pc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
@@ -175,7 +175,7 @@
     /* ── Post cards ── */
     .post-card {
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 0.875rem;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;
       border-left-width: 3px; transition: border-color 0.2s;
     }
     .post-card:hover { border-color: rgba(255,255,255,0.14); }
@@ -202,11 +202,11 @@
     }
     .cat-general     { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
-    .cat-technical   { background: rgba(41,182,217,0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue #29B6D9 @ 4.03:1 → #4fc3e8 ~4.7:1) */
-    /* C2/BH: --wh-orange (#F7A21B) measures 4.06:1 on this tint at 10px, under the 4.5 AA floor.
+    .cat-technical   { background: rgba(41,182,217,0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue var(--wh-blue,#29B6D9) @ 4.03:1 → #4fc3e8 ~4.7:1) */
+    /* C2/BH: --wh-orange (var(--wh-orange,#F7A21B)) measures 4.06:1 on this tint at 10px, under the 4.5 AA floor.
        The card underneath is itself a SEMI-TRANSPARENT gradient (rgba(42,61,88,0.5) ->
        rgba(31,46,69,0.7)), so the effective background is page -> translucent card -> tint, and a
-       calculation against an opaque card reads ~5:1 and misses it. --wh-orange-text (#FDB94A) is the
+       calculation against an opaque card reads ~5:1 and misses it. --wh-orange-text (var(--wh-orange-light,#FDB94A)) is the
        token that exists for text on dark and clears the floor. Same move .cat-technical already made
        (--wh-blue 4.03:1 -> #4fc3e8). */
     .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange-text); }
@@ -270,7 +270,7 @@
     .sheet-inner {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
       background: linear-gradient(160deg, var(--wh-navy-mid), var(--wh-navy));
-      border-radius: 1.5rem 1.5rem 0 0; border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+      border-radius: 16px 16px 0 0; border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
       max-height: 90vh; overflow-y: auto; padding: 1.25rem 1.25rem;
       padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
       transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
@@ -394,7 +394,7 @@
       color: var(--wh-blue);
       background: rgba(41,182,217,0.1);
       padding: 1px 5px;
-      border-radius: 4px;
+      border-radius: 8px;
       font-weight: 600;
     }
     #mention-dropdown {
@@ -579,9 +579,9 @@
         <div id="panel-feed">
           <!-- Skeleton while loading -->
           <div id="feed-skeleton" style="display:flex; flex-direction:column; gap:0.75rem;">
-            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
-            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
-            <div style="height:90px; border-radius:0.875rem;" class="skeleton"></div>
+            <div style="height:90px; border-radius:8px;" class="skeleton"></div>
+            <div style="height:90px; border-radius:8px;" class="skeleton"></div>
+            <div style="height:90px; border-radius:8px;" class="skeleton"></div>
           </div>
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
@@ -630,7 +630,7 @@
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:0.75rem; text-align:center;">
               <!-- var(--wh-orange-text), not --wh-orange: the base token is a FILL, and as small text it
                    measured APCA Lc 55.3 against a floor of 60 on rgb(41,55,77). tokens.css already carries
                    the AA-safe variant for exactly this (#FDB94A), and the C2 contrast cluster established
@@ -639,7 +639,7 @@
               <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange-text); font-variant-numeric:tabular-nums;" aria-label="posts: unknown, not loaded">-</p>
               <p data-i="p_posts_a0ca" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
             </div>
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
+            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:0.75rem; text-align:center;">
               <!-- --wh-blue-text, not --wh-blue. --wh-blue (#29B6D9) is the accent FILL; the text tier
                    exists because the fill does not carry on a dark tint. Measured on this chip's own
                    background: the fill scores APCA Lc 53.1 against the Lc 60 floor for 20px/800, and
@@ -714,9 +714,9 @@
             <strong>+20</strong> when a post earns 3 reactions. Voice-of-the-Hive badge at 10 posts.
           </p>
           <div id="leaderboard-list" style="min-height:132px;">
-            <div style="height:16px; width:80%; border-radius:4px;" class="skeleton"></div>
-            <div style="height:16px; width:70%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
-            <div style="height:16px; width:60%; border-radius:4px; margin-top:10px;" class="skeleton"></div>
+            <div style="height:16px; width:80%; border-radius:8px;" class="skeleton"></div>
+            <div style="height:16px; width:70%; border-radius:8px; margin-top:10px;" class="skeleton"></div>
+            <div style="height:16px; width:60%; border-radius:8px; margin-top:10px;" class="skeleton"></div>
           </div>
         </div>
       </div>
@@ -749,13 +749,13 @@
       <option data-i="p_announcementsupervisoronly_5ff6" value="announcement" id="opt-announcement" style="display:none;">Announcement (Supervisor only)</option>
     </select>
     <!-- Knowledge->commerce bridge: a commerce-intent post points to the FREE marketplace -->
-    <p id="marketplace-hint" style="display:none; font-size:0.75rem; color:rgba(255,255,255,0.83); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:0.6rem; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
+    <p id="marketplace-hint" style="display:none; font-size:0.75rem; color:rgba(255,255,255,0.83); background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.25); border-radius:12px; padding:0.6rem 0.75rem; margin:-0.5rem 0 1rem; line-height:1.5;">
       🛒 Buying or selling parts, or offering a service? Post it here to reach your hive, and list it on the
       <a data-i="p_freemarketplace_ac32" href="marketplace.html" style="color:var(--wh-orange); font-weight:700; text-decoration:none;">free Marketplace →</a>
     </p>
 
     <!-- Share publicly (supervisor-only); auto-locked ON for announcements -->
-    <label id="post-public-row" for="post-public" style="display:none; align-items:center; gap:10px; margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:0.625rem; cursor:pointer;">
+    <label id="post-public-row" for="post-public" style="display:none; align-items:center; gap:10px; margin-bottom:1rem; padding:0.65rem 0.85rem; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:12px; cursor:pointer;">
       <input type="checkbox" id="post-public" style="width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:var(--wh-green);" aria-label="Share publicly with all WorkHive teams" />
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
@@ -771,7 +771,7 @@
          board named "community" where the reasonable guess is that everyone can read it. The
          destination of a post is the one thing that cannot be taken back, so it is stated to both
          roles, not only the one that can change it. -->
-    <p data-i="p_thisstaysinsideyourhiveonlyy_1b5d" id="post-private-note" style="font-size:0.75rem; color:rgba(255,255,255,0.80); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:0.625rem; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
+    <p data-i="p_thisstaysinsideyourhiveonlyy_1b5d" id="post-private-note" style="font-size:0.75rem; color:rgba(255,255,255,0.80); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
       🔒 This stays inside your hive. Only your hive-mates can read it, and it will not appear on the public Global feed.
     </p>
 
@@ -1376,7 +1376,7 @@ function _isMinePost(p) {
     const s = document.createElement('div');
     s.className        = 'vcard-stub';
     s.dataset.postId   = postId;
-    s.style.cssText    = `height:${heightCache[postId] || CARD_H_EST}px; border-radius:0.875rem; background:rgba(255,255,255,0.02); flex-shrink:0;`;
+    s.style.cssText    = `height:${heightCache[postId] || CARD_H_EST}px; border-radius:12px; background:rgba(255,255,255,0.02); flex-shrink:0;`;
     return s;
   }
 
@@ -1537,7 +1537,7 @@ function _isMinePost(p) {
       const disc = Array.isArray(r.shared_disciplines) ? r.shared_disciplines : [];
       // Top 2 shared disciplines as chips; "+N" if the overlap is larger.
       const chips = disc.slice(0, 2).map(d =>
-        `<span style="display:inline-block; font-size:0.75rem; font-weight:600; color:var(--wh-blue-light); background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.25); border-radius:6px; padding:1px 6px; margin:2px 4px 0 0;">${escHtml(d.discipline)}</span>`
+        `<span style="display:inline-block; font-size:0.75rem; font-weight:600; color:var(--wh-blue-light); background:rgba(41,182,217,0.12); border:1px solid rgba(41,182,217,0.25); border-radius:8px; padding:1px 6px; margin:2px 4px 0 0;">${escHtml(d.discipline)}</span>`
       ).join('');
       const more = disc.length > 2
         ? `<span style="font-size:0.75rem; color:rgba(255,255,255,0.80);">+${disc.length - 2} more</span>` : '';
@@ -1915,22 +1915,22 @@ function _isMinePost(p) {
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
     const modActions = HIVE_ROLE === 'supervisor' ? `
-      ${isMine ? `<button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
+      ${isMine ? `<button class="btn-icon" onclick="openEditor('${escJsAttr(p.id)}')" title="Edit post" aria-label="Edit my post">
         <span class="ic ic-edit" aria-hidden="true"></span>
       </button>` : ''}
-      <button class="btn-icon" data-on="${p.pinned ? '1' : '0'}" style="--on:#F7A21B;--on-bg:rgba(247,162,27,0.14)" onclick="togglePin('${p.id}', ${p.pinned})" title="${escHtml(p.pinned ? _t('Unpin', 'Alisin sa pin') : _t('Pin', 'I-pin'))}" aria-label="${escHtml(p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'))}">
+      <button class="btn-icon" data-on="${p.pinned ? '1' : '0'}" style="--on:var(--wh-orange,#F7A21B);--on-bg:rgba(247,162,27,0.14)" onclick="togglePin('${escJsAttr(p.id)}', ${escJsAttr(p.pinned)})" title="${escHtml(p.pinned ? _t('Unpin', 'Alisin sa pin') : _t('Pin', 'I-pin'))}" aria-label="${escHtml(p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'))}">
         <span class="ic ic-pin" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" data-on="${p.public ? '1' : '0'}" style="--on:#4ade80;--on-bg:rgba(74,222,128,0.12)" onclick="togglePublic('${p.id}', ${p.public})" title="${escHtml(p.public ? _t('Make private', 'Gawing pribado') : _t('Make public', 'Gawing pampubliko'))}" aria-label="${escHtml(p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'))}">
+      <button class="btn-icon" data-on="${p.public ? '1' : '0'}" style="--on:#4ade80;--on-bg:rgba(74,222,128,0.12)" onclick="togglePublic('${escJsAttr(p.id)}', ${escJsAttr(p.public)})" title="${escHtml(p.public ? _t('Make private', 'Gawing pribado') : _t('Make public', 'Gawing pampubliko'))}" aria-label="${escHtml(p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'))}">
         <span class="ic ic-globe" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" data-on="${p.flagged ? '1' : '0'}" style="--on:#f87171;--on-bg:rgba(248,113,113,0.12)" onclick="toggleFlag('${p.id}', ${p.flagged})" title="${escHtml(p.flagged ? _t('Unflag', 'Alisin ang flag') : _t('Flag', 'I-flag'))}" aria-label="${escHtml(p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'))}">
+      <button class="btn-icon" data-on="${p.flagged ? '1' : '0'}" style="--on:#f87171;--on-bg:rgba(248,113,113,0.12)" onclick="toggleFlag('${escJsAttr(p.id)}', ${escJsAttr(p.flagged)})" title="${escHtml(p.flagged ? _t('Unflag', 'Alisin ang flag') : _t('Flag', 'I-flag'))}" aria-label="${escHtml(p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'))}">
         <span class="ic ic-flag" aria-hidden="true"></span>
       </button>
-      <button class="btn-icon" onclick="deletePost('${p.id}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete post', 'Burahin ang post'))}" style="margin-left:22px">
+      <button class="btn-icon" onclick="deletePost('${escJsAttr(p.id)}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete post', 'Burahin ang post'))}" style="margin-left:22px">
         <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : (isMine ? `
-      <button class="btn-icon" onclick="openEditor('${p.id}')" title="Edit post" aria-label="Edit my post">
+      <button class="btn-icon" onclick="openEditor('${escJsAttr(p.id)}')" title="Edit post" aria-label="Edit my post">
         <span class="ic ic-edit" aria-hidden="true"></span>
       </button>
       <!-- THE SAME RULE THIS FILE ALREADY APPLIES TO THE OTHER DELETE (walked 2026-09-10, Z3 95%).
@@ -1944,10 +1944,10 @@ function _isMinePost(p) {
            controls on this surface now behave identically. Same shape as the paired-write family: a
            safety rule applied to one side of a pair and not the other.
            NOT changed: the 44x44 target itself, which already meets the floor. -->
-      <button class="btn-icon" onclick="deletePost('${p.id}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete my post', 'Burahin ang post ko'))}" style="margin-left:22px">
+      <button class="btn-icon" onclick="deletePost('${escJsAttr(p.id)}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete my post', 'Burahin ang post ko'))}" style="margin-left:22px">
         <span class="ic ic-delete" aria-hidden="true"></span>
       </button>` : `
-      <button class="btn-icon" onclick="openReport('${p.id}')" title="Report this post to your supervisor" aria-label="Report this post">
+      <button class="btn-icon" onclick="openReport('${escJsAttr(p.id)}')" title="Report this post to your supervisor" aria-label="Report this post">
         <span class="ic ic-warning" aria-hidden="true"></span>
       </button>`);
 
@@ -1970,7 +1970,7 @@ function _isMinePost(p) {
             ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
             ${_rxButton(p, _rx, 'fire','Fire','🔥')}
             ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
-            <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${p.id}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
+            <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${escJsAttr(p.id)}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
               <span class="ic ic-message" aria-hidden="true"></span>
               <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
             </button>
@@ -3016,7 +3016,7 @@ function _isMinePost(p) {
               : '')
         : '';
       const markBtn = canMark
-        ? `<button type="button" class="reaction-btn" style="font-size:0.75rem;padding:3px 9px;min-height:44px;" onclick="markAnswer('${escJsAttr(r.id)}', ${accepted ? 'false' : 'true'})" aria-pressed="${accepted}">${accepted ? 'Unmark' : '✓ Mark as answer'}</button>`
+        ? `<button type="button" class="reaction-btn" style="font-size:0.75rem;padding:3px 9px;min-height:44px;" onclick="markAnswer('${escJsAttr(r.id)}', ${escJsAttr(accepted ? 'false' : 'true')})" aria-pressed="${accepted}">${accepted ? 'Unmark' : '✓ Mark as answer'}</button>`
         : '';
       return `<div class="reply-card${accepted ? ' accepted' : ''}">
         <div style="display:flex; align-items:flex-start; gap:8px;">
@@ -3545,7 +3545,7 @@ function _isMinePost(p) {
       return `<div class="mention-item${i === _mentionSelected ? ' active' : ''}"
                    role="option" aria-selected="${i === _mentionSelected}"
                    data-name="${escHtml(m.worker_name)}"
-                   onmousedown="event.preventDefault(); selectMention(${i});">
+                   onmousedown="event.preventDefault(); selectMention(${escJsAttr(i)});">
         <div class="avatar-initial">${escHtml(initials)}</div>
         <span>${escHtml(m.worker_name)}</span>
         <span style="margin-left:auto; font-size:0.75rem; color:rgba(255,255,255,0.80); text-transform:capitalize;">${escHtml(m.role || 'worker')}</span>
@@ -3759,7 +3759,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[community] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:12px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

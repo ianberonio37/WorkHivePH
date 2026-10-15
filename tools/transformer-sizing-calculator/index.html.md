@@ -32,4 +32,4 @@ Related calculators
 [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
 [Generator Sizing Calculator](https://workhiveph.com/tools/generator-sizing-calculator/)
 
-<!-- md-twin source-sha: 16df1c5e48704e94 -->
+<!-- md-twin source-sha: fce87b70516b233b -->

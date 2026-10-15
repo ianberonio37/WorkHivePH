@@ -31,4 +31,4 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Boiler System Sizing Calculator](https://workhiveph.com/tools/boiler-system-calculator/)
 
-<!-- md-twin source-sha: 1947fdcde6d2e096 -->
+<!-- md-twin source-sha: 09cefaeec23c1c7c -->

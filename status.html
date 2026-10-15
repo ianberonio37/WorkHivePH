@@ -24,8 +24,8 @@
 <style>
   /* ★FIVE OF THIS PAGE'S SEVEN PALETTE DECLARATIONS WERE DEAD, AND TWO OF THEM WERE SELF-REFERENTIAL
      (2026-09-18, W46049 slop lens). The block read as the page's palette. Measured on the running page,
-     it is not: --wh-navy resolves to #162032 and not the #0f1b2d declared here, --wh-amber to #facc15
-     and not the var(--wh-orange) #F7A21B this block asks for, and --wh-blue / --wh-green / --wh-red to
+     it is not: --wh-navy resolves to var(--wh-navy,#162032) and not the #0f1b2d declared here, --wh-amber to #facc15
+     and not the var(--wh-orange) var(--wh-orange,#F7A21B) this block asks for, and --wh-blue / --wh-green / --wh-red to
      the platform's values. tokens.css is linked AFTER this <style>, so for every name both files
      declare, tokens wins the cascade and the line here never applies.
      ★AND THE ORDER WAS LOAD-BEARING IN A WAY NOBODY HAD WRITTEN DOWN. `--wh-blue: var(--wh-blue)` is a
@@ -40,7 +40,7 @@
      rather than swapped for a near neighbour - substituting a nearby token is what once turned an
      undeclared #86929D into var(--wh-steel) and broke 4.5:1 at 4.46:1. */
   :root {
-    --wh-navy-2: #16223a;   /* this page's card surface; tokens' --wh-navy-mid (#1F2E45) is warmer */
+    --wh-navy-2: #16223a;   /* this page's card surface; tokens' --wh-navy-mid (var(--wh-navy-mid,#1F2E45)) is warmer */
     --wh-grey:   #8aa0bd;   /* measured 0 contrast failures across 73 nodes at both viewports */
     --wh-text:   #e8eef7;
   }
@@ -63,7 +63,7 @@
   /* ★THE ONE LINE A TECHNICIAN NEEDS, AND WHY IT USES --wh-text AND NOT --wh-grey (2026-10-05).
      .sub is this page's muted token for secondary chrome. This sentence is not secondary: it is the
      answer to "can I still do my job", read by someone mid-shift on a phone in a plant, so it takes the
-     full-contrast text token (#e8eef7 on #162032) rather than the grey. It is deliberately NOT an alert -
+     full-contrast text token (#e8eef7 on var(--wh-navy,#162032)) rather than the grey. It is deliberately NOT an alert -
      no amber, no red, no icon, no border-radius card: a page about outages must not look like it is having
      one, and a reassurance styled as a warning reads as a new problem. (A coloured left rule was tried and
      removed the same week: a side-stripe accent is a banned pattern here, and full-contrast prose above the

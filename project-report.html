@@ -31,7 +31,7 @@
     --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
     /* RAG inks are PAPER inks, not screen fills. Measured live 2026-08-06 on the rendered report,
        whose --paper is #FFFFFF: --green #1F7A3A already passed comfortably (WCAG 5.38, APCA Lc 79.1)
-       but --amber and --red were pointed at the brand SCREEN fills --wh-orange #f7a21b (2.07 / Lc 42.8)
+       but --amber and --red were pointed at the brand SCREEN fills --wh-orange var(--wh-orange,#f7a21b) (2.07 / Lc 42.8)
        and --wh-red #f87171 (2.77 / Lc 55.5) - both failing BOTH standards on white, in the KPI values a
        client reads. The lens caught the red one at 19px Lc 49 against its 60 floor and named the exact
        node, which is how this was found rather than guessed.
@@ -42,7 +42,7 @@
     /* SECOND PASS, and the correction matters more than the first. My first fix measured --amber
        against the WHITE paper only (#b45309 on #FFFFFF = 5.02, PASS) and left --gold alone entirely.
        Re-walking in the live MCP browser then reported a REAL axe violation I had not caused but had
-       also not looked for: .phase-close renders var(--gold) - still the screen fill #f7a21b - on the
+       also not looked for: .phase-close renders var(--gold) - still the screen fill var(--wh-orange,#f7a21b) - on the
        pale #FBEED2 pill at 11px/700, ratio 1.80. Auditing EVERY usage against its ACTUAL background
        (not just the paper) also caught my own amber falling short: --amber is used on .status-on_hold,
        another #FBEED2 pill, where #b45309 gives only 4.37 against the 4.5 bar.
@@ -193,7 +193,7 @@
      see this one because the card is rendered by script. */
   .insight-card { background: #FDF6E6;
                   border: 1px solid #E8D6A8; padding: 12px 16px;
-                  border-radius: 6px; margin: 12px 0; }
+                  border-radius: 12px; margin: 12px 0; }
   .insight-card .label { font-size: 9pt; color: var(--muted); font-weight: 700;
                          text-transform: uppercase; letter-spacing: 0.04em; }
   .insight-card .text { font-size: 11pt; color: var(--ink); margin-top: 4px; }
@@ -218,14 +218,14 @@
   .phase-close                   { background: #FBEED2; color: var(--gold); }
   .phase-gate                    { background: #FBE4E4; color: var(--red); }
 
-  .signoff-block { border: 1px solid var(--rule); border-radius: 6px; padding: 16px;
+  .signoff-block { border: 1px solid var(--rule); border-radius: 12px; padding: 16px;
                    margin-top: 12px; background: var(--cell-bg); }
   .signoff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }   /* 30/18px were off the 4px rhythm (W46013) */
   .signoff-line { border-top: 1px solid var(--ink); padding-top: 4px; font-size: 9pt; color: var(--muted); }
   .signoff-line strong { color: var(--ink); display: block; font-size: 10pt; margin-bottom: 1px; }
 
   .progress-mini { display: inline-block; vertical-align: middle; height: 6px; background: var(--rule);
-                   border-radius: 3px; overflow: hidden; width: 80px; }
+                   border-radius: 999px; overflow: hidden; width: 80px; }
   .progress-mini > div { height: 100%; background: var(--accent); }
   .empty-section { padding: 16px; color: var(--muted); font-style: italic; text-align: center; }
   /* The truncation marker and its note must PRINT — this page exists to be handed over on paper,
@@ -803,7 +803,7 @@ async function aiGenerateNarrative() {
     // moved while the hardcoded copy stayed on the old value. It is the exact partial-fix error that
     // comment warns about. The design-token ratchet caught it as the single raw brand hex over
     // baseline (169 vs 168), which is the gate doing its job on a real usage rather than a false hit.
-    summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 6px; margin: 12px 0;';
+    summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 8px; margin: 12px 0;';
     summaryDiv.innerHTML = `
       <div style="font-size: 9pt; color: #5B6878; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700;">🤖 AI-drafted executive summary</div>
       ${_exec ? `<div style="font-size: 11pt; margin-top: 6px;">${_exec.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
@@ -984,7 +984,7 @@ function renderExecSummary(p, items, logs) {
       <div class="kpi"><div class="kpi-label">Daily logs</div><div class="kpi-value">${logs.length}</div><div class="kpi-sub">${recentBlockers} flagged</div></div>
     </div>
     ${evHtml}
-    ${p.description ? `<div style="margin-top: 12px; padding: 10px 16px; background: var(--cell-bg); border-radius: 6px; font-size: 10pt; line-height: 1.5;">${e(p.description).replace(/\n/g, '<br>')}</div>` : ''}
+    ${p.description ? `<div style="margin-top: 12px; padding: 10px 16px; background: var(--cell-bg); border-radius: 12px; font-size: 10pt; line-height: 1.5;">${e(p.description).replace(/\n/g, '<br>')}</div>` : ''}
   `;
 }
 
@@ -1090,7 +1090,7 @@ function renderLessons(p) {
     return;
   }
   $('lessons-section').innerHTML = `
-    <div style="background: var(--cell-bg); padding: 12px 16px; border-left: 3px solid var(--green); border-radius: 4px; font-size: 10pt; line-height: 1.55;">
+    <div style="background: var(--cell-bg); padding: 12px 16px; border-left: 3px solid var(--green); border-radius: 8px; font-size: 10pt; line-height: 1.55;">
       ${e(lessons).replace(/\n/g, '<br>')}
     </div>`;
 }

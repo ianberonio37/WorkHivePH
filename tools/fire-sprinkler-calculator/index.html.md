@@ -33,4 +33,4 @@ Related calculators
 [Clean Agent Suppression Calculator](https://workhiveph.com/tools/clean-agent-suppression-calculator/)
 [Fire Pump Sizing Calculator](https://workhiveph.com/tools/fire-pump-calculator/)
 
-<!-- md-twin source-sha: 6941af2b9822b75c -->
+<!-- md-twin source-sha: 9a1e6ad62320cfdb -->

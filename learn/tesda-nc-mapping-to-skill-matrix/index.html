@@ -94,31 +94,31 @@
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     body { font-family: 'Poppins', sans-serif; }
     .hex-pattern { background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }
-    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 20px 24px; margin: 1.75rem 0; }
-    .audience-label { font-size: 0.75rem; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .audience-block { background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 16px; padding: 20px 24px; margin: 1.75rem 0; }
+    .audience-label { font-size: 0.75rem; font-weight: 700; color: var(--wh-blue-light,#5FCCE8); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
     .audience-block ul { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .answer-first { background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.30); padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.65; }
-    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 24px; margin: 2rem 0; }
+    .toc { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; }
     .toc h2, .toc h4 { margin: 0 0 8px; font-size: 0.85rem; color: rgba(244,246,250,0.8); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
     .toc ol { margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.85; }
     .toc a { color: rgba(244,246,250,0.85); }
-    .toc a:hover { color: #FDB94A; }
-    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
+    .toc a:hover { color: var(--wh-orange-light,#FDB94A); }
+    .prose-wh h2 { font-size: 1.55rem; font-weight: 800; color: var(--wh-cloud,#F4F6FA); margin: 2.25rem 0 1rem; letter-spacing: -0.01em; }
     .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
     .prose-wh p { overflow-wrap: anywhere; word-break: break-word; font-size: 1.05rem; color: rgba(244,246,250,0.85); line-height: 1.75; margin: 1rem 0; }
     /* MEASURE (2026-09-16): 72ch, inside the 65-75 craft floor. Measured at 1280 before the
        cap: 80ch here against 73ch on the articles that already carried this rule. Below ~1100px
        the column is already narrower than the cap, so nothing moves on a phone. */
     .prose-wh p, .prose-wh li { max-width: 72ch; }
-    .prose-wh strong { color: #F4F6FA; }
-    .prose-wh a { color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }
+    .prose-wh strong { color: var(--wh-cloud,#F4F6FA); }
+    .prose-wh a { color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; }
     .prose-wh ol, .prose-wh ul { color: rgba(244,246,250,0.85); padding-left: 1.4rem; margin: 1rem 0; line-height: 1.75; }
-    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 24px 28px; margin: 2.25rem 0; }
-    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 12px 24px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }
+    .tool-cta { background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 16px; padding: 24px 28px; margin: 2.25rem 0; }
+    .tool-cta a { display: inline-block; margin-top: 12px; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); color: var(--wh-navy,#162032); font-weight: 700; padding: 12px 24px; border-radius: 8px; text-decoration: none; transition: transform 0.15s; }
     .tool-cta a:hover { transform: translateY(-1px); }
     .faq-item { background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.75rem 0; }
-    .faq-item summary { cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1.05rem; }
-    .faq-item[open] summary { color: #FDB94A; }
+    .faq-item summary { cursor: pointer; font-weight: 600; color: var(--wh-cloud,#F4F6FA); font-size: 1.05rem; }
+    .faq-item[open] summary { color: var(--wh-orange-light,#FDB94A); }
     .faq-item .faq-answer { margin-top: 12px; color: rgba(244,246,250,0.85); font-size: 0.95rem; line-height: 1.7; }
     .sources-list { list-style: none; padding: 0; }
     .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
@@ -140,7 +140,7 @@
 <link rel="stylesheet" href="/wh-tw-pub-article.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 
 <nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
@@ -268,7 +268,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-08-25">25 Aug 2026</time></span></p>
+    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-08-25">25 Aug 2026</time></span></p>
     <div class="flex gap-5">
       <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>

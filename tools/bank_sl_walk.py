@@ -44,6 +44,17 @@ PROVER = "tools/prove_page_survives_optional_failures.mjs"
 # the gates that hold each sub-layer this banker settles (all registered in run_platform_checks.py)
 GATES = {
     "H1": ["page-survives-optional-failures", "csp-covers-what-ships", "deploy-headers-local"],
+    "S3": ["csp-exact", "csp-exact-profiles", "csp-covers-what-ships", "deploy-headers-local"],
+    "S4": ["stored-text-escaped", "handler-values-escaped", "dom_xss_fields"],
+    "CA2": ["cache-contract", "deploy-headers-local"],
+    "CI1": ["page-gate-teeth", "csp-covers-what-ships", "scripts-parse"],
+    "CI4": ["page-registries", "design-detector-ratchet", "csp-exact-profiles"],
+    "F5": ["page-craft", "design-detector-ratchet", "design-tokens"],
+    "CI3": ["page-ratchets", "design-detector-ratchet"],
+    "F2": ["page-fit", "phone-fit", "phone-fit-320", "phone-fit-1280"],
+    "F3": ["page-reachable", "clickable-keyboard-a11y", "aria-label-coverage", "icon-button-label", "arc-u-focus-trap"],
+    "H2": ["cache-contract", "deploy-headers-local"],
+    "S5": ["no-secret-served", "committed_env_secret"],
     "A3": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "AV1": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
@@ -126,18 +137,53 @@ PROVER_READS = {
            "engines": ("chromium", "webkit")},
     "L1": {"prover": "tools/prove_error_capture_everywhere.mjs", "gate": "error-capture-everywhere", "condition": None,
            "engines": ("chromium", "webkit")},
+    # S3 names ORIGINS, which are engine-independent; WebKit's socket strictness is H1's reading
+    "S3": {"prover": "tools/prove_csp_exact.mjs", "gate": "csp-exact", "condition": "as-served", "engines": ("chromium",)},
+    # CA2/H2 are a header CONTRACT, walked over HTTP against the local edge substitute (no browser engine involved)
+    # CI1 is a property of the GATES over the page, proven by breaking a temporary copy (no browser engine involved)
+    "F5": {"prover": "tools/prove_page_craft.py", "gate": "page-craft", "condition": "craft", "engines": ("static",)},
+    "CI3": {"prover": "tools/prove_page_ratchets.py", "gate": "page-ratchets", "condition": "ratchets", "engines": ("static",)},
+    "F2": {"prover": "tools/prove_page_fit.py", "gate": "page-fit", "condition": "fit", "engines": ("chromium",)},
+    "F3": {"prover": "tools/prove_page_reachable.mjs", "gate": "page-reachable", "condition": "reachable",
+           "engines": ("chromium",)},
+    "CI4": {"prover": "tools/prove_page_registries.py", "gate": "page-registries", "condition": "registries",
+            "engines": ("static",)},
+    "CI1": {"prover": "tools/prove_page_gate_teeth.py", "gate": "page-gate-teeth", "condition": "breach", "engines": ("static",)},
+    "CA2": {"prover": "tools/prove_cache_contract.py", "gate": "cache-contract", "condition": "as-served", "engines": ("http",)},
+    "H2": {"prover": "tools/prove_cache_contract.py", "gate": "cache-contract", "condition": "as-served", "engines": ("http",)},
+    "S4": {"prover": "tools/prove_stored_text_escaped.mjs", "gate": "stored-text-escaped", "condition": "poisoned",
+           "engines": ("chromium",)},
+    "S5": {"prover": "tools/prove_no_secret_served.mjs", "gate": "no-secret-served", "condition": "as-served",
+           "engines": ("chromium",)},
 }
 GATE_SCRIPTS = {"csp-covers-what-ships": "tools/validate_csp_covers_what_ships.py",
                 "deploy-headers-local": "tools/prove_deploy_headers.py",
                 "realtime-blocked-socket": "tools/prove_realtime_blocked_socket.mjs",
                 "production-errors-read": "tools/validate_production_error_groups.py",
-                "error-capture": "tools/validate_error_capture.py"}
+                "error-capture": "tools/validate_error_capture.py",
+                "csp-exact-profiles": "tools/build_csp_profiles.py",
+                "cache-contract": "tools/prove_cache_contract.py",
+                "scripts-parse": "tools/validate_scripts_parse.mjs",
+                "design-detector-ratchet": "tools/prove_design_detector_ratchet.py",
+                "design-tokens": "validate_design_tokens.py",
+                "dom_xss_fields": "tools/validate_dom_xss_fields.py",
+                "handler-values-escaped": "tools/validate_handler_values_escaped.py",
+                "committed_env_secret": "tools/validate_committed_env_secret.py",
+                "clickable-keyboard-a11y": "tools/validate_clickable_keyboard_a11y.py",
+                "aria-label-coverage": "validate_aria_label_coverage.py",
+                "icon-button-label": "validate_icon_button_label.py",
+                "arc-u-focus-trap": "tools/validate_arc_u_focus_trap.py"}
+# the browser lenses whose RECORD a static prover reads are not re-run at bank time (a 50-minute pass each): the prover's
+# own results carry their run times, and the gate is checked by that record, never skipped silently
+RECORD_GATES = {"phone-fit", "phone-fit-320", "phone-fit-1280"}
+GATE_ARGS = {"csp-exact-profiles": ("--check",)}
 
 
 def _basis(sublayer: str, t: dict, page: str, per: dict, gate_lines: list, results_path: str, results: dict,
            today: str) -> str:
     spec = PROVER_READS[sublayer]
-    head = f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; real Chromium AND WebKit"
+    head = (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; real "
+            + " AND ".join(e.capitalize() for e in spec["engines"]))
     tail = f" Gates: {', '.join(gate_lines)}. Receipt {results_path} (generated {results.get('generated')})."
     if sublayer == "L1":
         who = "anonymous" if t.get("persona") == "anon" else f"signed in as {t.get('persona')} through the product's own form"
@@ -149,6 +195,132 @@ def _basis(sublayer: str, t: dict, page: str, per: dict, gate_lines: list, resul
                 + f". The anonymous path is proven by a REAL write per engine through migration 20261014000002's policy "
                 f"({real} row(s), read back and removed); teeth: the pre-change shared scripts capture nothing. Read half: "
                 f"production-errors-read answers every group in production_error_groups.json." + tail)
+    if sublayer == "CI3":
+        r = per["static"][0]
+        return (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; HELD means "
+                f"MEASURED - each ratchet's own record of its last run is read): CI3 on {page} - {'; '.join(r.get('held') or [])}. "
+                f"The phone-fit pool was a hand-written 51 pages and the axe list 12; on 2026-10-15 both became the "
+                f"program's pages (a public page read signed out, as its visitor), each page's first measurement its floor. "
+                f"Phone-fit run {results.get('phone_run')}, axe run {results.get('axe_run')}. Teeth: a page missing from a "
+                f"ratchet's run, and a count above its floor, are each caught ({(results.get('teeth') or {}).get('bit')})." + tail)
+    if sublayer == "F3":
+        r = per["chromium"][0]
+        who = "signed out, as the visitor it is for" if r.get("as") == "signed out" else "signed in through the harness"
+        return (head + f", {who}): F3 on {page} - {r.get('reached')}/{r.get('controls')} offered control(s) reached by a "
+                f"REAL Tab walk at 1280 (a composite widget's roving members by one of them), each with a visible focus "
+                f"(its computed look against its look at rest, the parent's for :focus-within); axe-core's own name rules "
+                f"({', '.join(['button-name', 'link-name', 'label', 'select-name', 'input-button-name', 'aria-command-name', 'aria-input-field-name', 'aria-toggle-field-name'])}) "
+                f"read 0; and every target at 390 on a phone context is at least 44x44 CSS px (WCAG 2.5.5 - a link inline "
+                f"in a sentence exempt by name, a checkbox or radio measured with its label). Counts {r.get('counts')}. "
+                f"Teeth (same run, same contexts): a planted unnamed icon button, invisible focus, 20px target and "
+                f"tabindex=-1 link read {(results.get('teeth') or {}).get('slop')}, their clean twin "
+                f"{(results.get('teeth') or {}).get('clean')}." + tail)
+    if sublayer == "F2":
+        r = per["chromium"][0]
+        runs = results.get("runs") or {}
+        who = ("signed out, as the visitor it is for" if t.get("sl", {}).get("page_class") == "public"
+               else "signed in through the harness (Leandro Marquez, a supervisor and platform admin - a retired page "
+                    "measured as the overlay it shows him)")
+        return (head + f", {who}): F2 on {page} - the phone-fit lens's own record reads "
+                + ", ".join(f"{k.split('@')[1]} wide: {v} issue(s)" for k, v in (r.get("read") or {}).items())
+                + " - no horizontal overflow, no element outside the viewport, no clipped or spilled text, no unbroken "
+                  "token wider than its box, no element overflowing its clipping container, no occluded control, and "
+                  "every more/menu trigger's menu inside the viewport; 320 and 390 are phones (mobile, touch, DPR 2), "
+                  "1280 a desktop (no touch, DPR 1). Runs: "
+                + ", ".join(f"{k} {v}" for k, v in runs.items())
+                + f". Teeth: a page missing from an axis, and one issue on an axis, are each caught "
+                  f"({(results.get('teeth') or {}).get('bit')})." + tail)
+    if sublayer == "F5":
+        r = per["static"][0]
+        teeth = results.get("teeth") or {}
+        return (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; each reading from "
+                f"the instrument that owns it): F5 on {page} - the design ratchet's own pipeline (impeccable detect + the "
+                f"declared-dot leg, motion antipatterns included) reads {r.get('detector')} primary finding(s); "
+                f"{r.get('rogue_radii')} corner(s) off DESIGN.md's radius scale by validate_design_tokens' own rule; "
+                f"{r.get('bare_hex')} brand colour(s) written as bare hex in CSS. The 119 public pages reached 0 on "
+                f"2026-10-15: 765 corners mapped onto the scale BY ROLE (section cards 16px, pills 999px, buttons and the "
+                f"skip link 8px, inline code and chips 8px) and 2,523 brand colours made token references "
+                f"(var(--wh-*, #fallback): they load no tokens.css), in the pages and in the generators that write them. "
+                f"Teeth: a planted off-scale corner, a bare brand hex and a 9px label each fail a clean page "
+                f"({teeth.get('bit')})." + tail)
+    if sublayer == "CI4":
+        r = per["static"][0]
+        teeth = results.get("teeth") or {}
+        return (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; every registry "
+                f"read from its own source, never retyped): CI4 on {page} ({r.get('class')} page) - listed in "
+                f"{len(r.get('listed') or [])} registries: {'; '.join(r.get('listed') or [])}. No sitemap entry, hub href, "
+                f"SW shell page or founder name points at a page that does not exist ({len(results.get('dangling') or [])} "
+                f"dangling). Found on the way: the five founder pages were outside the design ratchet's scope, which now "
+                f"reads them (floor re-measured with the reason recorded). Teeth: a public, a production and a founder "
+                f"page each taken out of its class's registry, and a planted dangling sitemap entry, were all caught "
+                f"({teeth.get('bit')})." + tail)
+    if sublayer == "CI1":
+        r = per["static"][0]
+        return (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; the registered "
+                f"gates' own detectors run on the page and on a temporary BREACHED copy, never the file itself): CI1 on "
+                f"{page} - csp-covers-what-ships reads the page clean against the policy vercel.json resolves for its path "
+                f"and reddens when the copy loads a script from an origin that policy does not name ({r.get('covers_said')}); "
+                f"scripts-parse reads it clean and reddens on an inline script that does not parse. Two registered gates "
+                f"hold this page's contract, each shown to bite on it." + tail)
+    if sublayer in ("CA2", "H2"):
+        r = per["http"][0]
+        c = r.get("checked") or {}
+        teeth = results.get("teeth") or {}
+        return (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {spec['prover']} (gate {spec['gate']}; over HTTP "
+                f"against tools/serve_vercel_headers.py, the local substitute for the Vercel edge serving vercel.json's own "
+                f"rules - the dev seeder on :5000 is a rewriting test proxy that answers no-store, fresher than every "
+                f"class, and is not a surface a person is served from): {sublayer} on {page} - {c.get('html')} page path(s) "
+                f"(a directory page also at the path the deploy serves it, trailingSlash false), {c.get('code')} script/"
+                f"stylesheet(s) and {c.get('image')} image(s) it loads, and sw.js, each with its class's Cache-Control "
+                f"(HTML max-age=0 + must-revalidate; scripts/styles the same plus an ETag/Last-Modified validator; images "
+                f"a year, immutable; sw.js no-store), and the server sent exactly what vercel.json says. Found and fixed "
+                f"on the way: the 119 public directory pages had NO cache header at their served path. Teeth: under "
+                f"{teeth.get('commit')}'s vercel.json {teeth.get('failed_under_commit')}/{teeth.get('directory_pages')} "
+                f"directory pages fail, and with scripts cached an hour {teeth.get('failed_with_hour_scripts')}/"
+                f"{teeth.get('pages')} pages fail." + tail)
+    if sublayer in ("S4", "S5"):
+        r = per["chromium"][0]
+        who = ("as the visitor it is for (signed out)" if t.get("persona") == "anon"
+               else f"signed in as {t.get('persona')} through the product's own form")
+        teeth = results.get("teeth") or {}
+        if sublayer == "S4":
+            if r.get("noText"):
+                reading = (f"its {r.get('responses')} database read(s) carry no free text - the page renders no stored "
+                           f"text that could become markup ({r.get('chars')} characters on screen)")
+            else:
+                reading = (f"{r.get('fields')} poisoned field(s) in {r.get('responses')} response(s) "
+                           f"({', '.join(r.get('poisonedReads') or [])}), rendered as TEXT {r.get('shown')} time(s), "
+                           f"{r.get('visible')} visible (e.g. \"{r.get('line')}\"), the handler ran {r.get('ran')} time(s), "
+                           f"{r.get('elements')} payload element(s) in the DOM")
+            return (head + f", {who}; every database read the page made - tables and rpc - was answered with its stored "
+                    f"free text carrying the payload {results.get('payload')!r} (the reader's own name, hive and admin "
+                    f"grant are poisoned only on the pages that draw them, index and hive, so every other page's start-up "
+                    f"keeps working), and every table write held so the poison never reached the database): S4 on {page} - "
+                    f"{reading}. Every value drawn into an inline handler goes through escJsAttr (gate "
+                    f"handler-values-escaped). Teeth: {teeth.get('page')} served a utils.js whose escHtml returns its input "
+                    f"unchanged - the payload ran {teeth.get('ran')} time(s) and became {teeth.get('elements')} "
+                    f"element(s)." + tail)
+        return (head + f", {who}): S5 on {page} - {r.get('responses')} response bodies ({r.get('kb')} KB: the HTML, every "
+                f"script and stylesheet, every database and edge answer) and the page's localStorage / sessionStorage "
+                f"scanned for the {len(results.get('secrets_checked') or [])} secret VALUE(s) .env holds (by name: "
+                f"{', '.join(results.get('secrets_checked') or [])}), any JWT whose role is not anon or authenticated, "
+                f"and {len(results.get('shapes') or [])} key shapes ({', '.join(results.get('shapes') or [])}): none "
+                f"served. Teeth: {teeth.get('page')} served a planted service_role-shaped token and an .env secret value "
+                f"- both caught (shape {teeth.get('caughtShape')}, value {teeth.get('caughtValue')})." + tail)
+    if sublayer == "S3":
+        r = per["chromium"][0]
+        who = ("as the visitor it is for (signed out)" if t.get("persona") == "anon"
+               else f"signed in as {t.get('persona')} through the product's own form")
+        used = sum(len(v) for v in (r.get("used") or {}).values())
+        why = "; ".join(f"{k} <- {v}" for k, v in (r.get("basis") or {}).items())
+        teeth = results.get("teeth") or {}
+        return (head + f", {who}, the document served the policy vercel.json resolves for its own path through "
+                f"tools/serve_vercel_headers.py - the one matcher - with only the production Supabase origins mapped to "
+                f"the local stack): S3 on {page} - {r.get('chars')} chars rendered, {used} origin(s) loaded across "
+                f"{len(r.get('used') or {})} directive(s), 0 CSP violations, every origin it loaded named. NOTHING MORE: "
+                f"the policy names {len(r.get('named') or [])} origin(s), each with its basis ({why or 'none - only self'}), "
+                f"and no scheme wildcard. Teeth: under {teeth.get('commit')}'s site-wide policy {teeth.get('failed')} of "
+                f"{teeth.get('pages')} page(s) named origins with no basis (e.g. {teeth.get('sample')})." + tail)
     chars = " and ".join(f"{rs[0].get('chars')} chars in {e.capitalize()}" for e, rs in per.items())
     return (head + f", signed in as {t.get('persona')} through the product's own sign-in form, every document served the "
             f"SHIPPED vercel.json CSP and Permissions-Policy with only the production Supabase origins mapped to the local "
@@ -210,9 +382,16 @@ def bank_prover(results_path: str, sublayer: str, gates_only: bool) -> int:
     gate_lines = []
     for g in GATES[sublayer]:
         script = None if g == spec["gate"] else GATE_SCRIPTS.get(g)   # the prover's own run IS the results file
+        if g in RECORD_GATES:
+            run = (results.get("runs") or {}).get("phone-fit@" + (g.split("-")[-1] if g != "phone-fit" else "390"))
+            if not run:
+                print(f"gate {g} has no run on file in the prover's record - nothing banked")
+                return 1
+            gate_lines.append(f"{g} RECORD (run {run})")
+            continue
         if not script:
             continue
-        ok, line = _run_gate(script)
+        ok, line = _run_gate(script, *GATE_ARGS.get(g, ()))
         gate_lines.append(f"{g} {'PASS' if ok else 'FAIL'}")
         if not ok:
             print(f"gate {g} is not green ({line}) - nothing banked")

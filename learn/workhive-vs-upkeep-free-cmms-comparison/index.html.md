@@ -83,4 +83,4 @@ Or try what “free” actually means here, with no account: the [OEE calculator
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2fec2b7ac3fdfc41 -->
+<!-- md-twin source-sha: e08e69f4cfe98cd0 -->

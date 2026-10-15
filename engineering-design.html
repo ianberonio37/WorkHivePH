@@ -242,7 +242,7 @@
       background: rgba(255,255,255,0.2);
       transition: all 0.2s;
     }
-    .step-dot.active { background: var(--wh-orange); width: 20px; border-radius: 4px; }
+    .step-dot.active { background: var(--wh-orange); width: 20px; border-radius: 999px; }
     .step-dot.done { background: rgba(247,162,27,0.4); }
 
     /* Report styles: clean/neutral for printing. The panel is a document, so it is set in DESIGN.md's document
@@ -295,15 +295,15 @@
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }
-    #report-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
+    #report-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
     .doc-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; cursor: text; display: inline; }
-    .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed var(--wh-orange); padding: 0.25rem 0.4rem; border-radius: 4px; }
-    .doc-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
+    .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed var(--wh-orange); padding: 0.25rem 0.4rem; border-radius: 8px; }
+    .doc-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
     .doc-panel .editable-field[style*="display:block"]:focus { background: #fffbf0; }
 
     /* Drawing panel: title block editable fields */
     #drawing-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; cursor: text; display: block; }
-    #drawing-panel .editable-field:focus { background: #fffbf0; border-radius: 2px; }
+    #drawing-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
     @media print { #drawing-panel .editable-field { border-bottom: none; } }
     #drawing-panel.svg-edit-mode svg { cursor: crosshair; }
     #drawing-panel.svg-edit-mode svg text { cursor: move !important; user-select: none; }
@@ -315,7 +315,7 @@
     #drawing-panel.svg-edit-mode svg polygon,
     #drawing-panel.svg-edit-mode svg polyline,
     #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
-    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:0.4rem; padding:0.25rem 0.85rem; font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom:0.5rem; }
+    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:12px; padding:0.25rem 0.85rem; font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom:0.5rem; }
 
     /* History card */
     .hist-card {
@@ -372,7 +372,7 @@
     /* ── BOM + SOW styles ───────────────────────────────────────── */
     .bom-tab-btn {
       padding: 0.5rem 1rem;
-      border-radius: 0.625rem;
+      border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 500;
       border: 1px solid rgba(255,255,255,0.12);
@@ -389,7 +389,7 @@
       align-items: flex-start;
       gap: 0.65rem;
       padding: 0.75rem 0.75rem;
-      border-radius: 0.625rem;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(22,32,50,0.45);
       margin-bottom: 0.5rem;
@@ -398,7 +398,7 @@
     .bom-checklist-item.unchecked { opacity: 0.42; }
     .bom-item-check {
       width: 18px; height: 18px; flex-shrink: 0;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       accent-color: var(--wh-orange);
       margin-top: 3px;
@@ -408,7 +408,7 @@
     .bom-item-input {
       background: rgba(22,32,50,0.7);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.45rem;
+      border-radius: 8px;
       color: white;
       padding: 0.25rem 0.55rem;
       font-size: 0.75rem;
@@ -423,7 +423,7 @@
     .bom-item-select {
       background: rgba(22,32,50,0.7);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.45rem;
+      border-radius: 8px;
       color: white;
       padding: 0.25rem 0.4rem;
       font-size: 0.75rem;
@@ -438,7 +438,7 @@
       cursor: pointer;
       font-size: 0.95rem;
       padding: 0.2rem 0.25rem;
-      border-radius: 4px;
+      border-radius: 8px;
       flex-shrink: 0;
       transition: color 0.15s;
     }
@@ -446,7 +446,7 @@
 
     .sow-checklist-item {
       padding: 0.75rem 0.75rem;
-      border-radius: 0.625rem;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(22,32,50,0.45);
       margin-bottom: 0.5rem;
@@ -509,7 +509,7 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
 
     /* ════════════════════════════════
        UX ENHANCEMENTS: TEST BUILD
@@ -597,7 +597,7 @@
       font-size: 0.75rem; font-weight: 600;
       color:rgba(255,255,255,0.80);
       background: rgba(255,255,255,0.06);
-      border-radius: 4px; padding: 2px 5px;
+      border-radius: 8px; padding: 2px 5px;
       margin-left: auto; flex-shrink: 0;
       white-space: nowrap;
     }

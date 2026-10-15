@@ -2281669,6 +2281669,91 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "BRH318",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "founder-console.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH319",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "founder-console.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH320",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "founder-console.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH321",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "founder-console.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH322",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "founder-console.html",
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }

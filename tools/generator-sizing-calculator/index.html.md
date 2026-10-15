@@ -32,4 +32,4 @@ Related calculators
 [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/)
 [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
 
-<!-- md-twin source-sha: e8d18e6c85bba30e -->
+<!-- md-twin source-sha: fdd86ee6e5788939 -->

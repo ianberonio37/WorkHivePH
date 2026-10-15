@@ -32,4 +32,4 @@ Related calculators
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 
-<!-- md-twin source-sha: d37c212a1a4d3191 -->
+<!-- md-twin source-sha: b2526da1a6b42d03 -->

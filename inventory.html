@@ -224,12 +224,12 @@
     .empty-state { opacity: 1; }
 
     /* Search highlight */
-    mark { background: rgba(247,162,27,0.3); color: var(--wh-orange-light); border-radius: 2px; padding: 0 2px; }
+    mark { background: rgba(247,162,27,0.3); color: var(--wh-orange-light); border-radius: 0; padding: 0 2px; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
 
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px;   /* 14px was off-grid (W45938) */ margin-bottom:16px; border-radius:12px; border:1px solid; }
@@ -1380,7 +1380,7 @@ function renderParts() {
               ${HIVE_ID && item.status && item.status !== 'approved' ? '' : statusBadge(st)}
               ${approvalBadge(item)}
             </div>
-            <button onclick="openDetailModal('${item.id}')" aria-label="${escHtml(_t('Open item details', 'Buksan ang detalye ng item'))}" class="text-white/80 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
+            <button onclick="openDetailModal('${escJsAttr(item.id)}')" aria-label="${escHtml(_t('Open item details', 'Buksan ang detalye ng item'))}" class="text-white/80 hover:text-white/60 transition-colors flex-shrink-0 p-1 flex items-center justify-center" style="min-height:44px;min-width:44px;">
               <span class="ic ic-next" aria-hidden="true"></span>
             </button>
           </div>
@@ -1417,7 +1417,7 @@ function renderParts() {
                 const _rf = getReservedFor(item.id);
                 const _tr = (typeof _t === 'function') ? _t : (en) => en;
                 const _for = _rf.length ? ' ' + _tr('for', 'para sa') + ' ' + _rf.map(escHtml).join(', ') : '';
-                return `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;">${getReservedQty(item.id)} ${_tr('reserved', 'naka-reserba')}${_for}</span>`;
+                return `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:8px;">${getReservedQty(item.id)} ${_tr('reserved', 'naka-reserba')}${_for}</span>`;
               })() : ''}
             </div>
             <div class="flex gap-2 flex-wrap">
@@ -1427,19 +1427,19 @@ function renderParts() {
                    aiming at one mis-taps the other. 20px + the row's 8px gap = 28px separation, clearing
                    Z3's destructive-adjacency floor. Found on J23/J2 narrow-320 + tablet-768 walks (both
                    widths). Same fix pattern as resume.html's destructive-gap. -->
-              <button onclick="openUseModal('${item.id}')" class="btn-danger text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" style="margin-right:1.25rem;${locked ? 'opacity:0.4;cursor:not-allowed;' : ''}">
+              <button onclick="openUseModal('${escJsAttr(item.id)}')" class="btn-danger text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" style="margin-right:1.25rem;${locked ? 'opacity:0.4;cursor:not-allowed;' : ''}">
                 <span class="ic ic-minus" aria-hidden="true"></span>
                 <span data-i="inv_use">Use</span>
               </button>
-              <button onclick="openRestockModal('${item.id}')" class="btn-green text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
+              <button onclick="openRestockModal('${escJsAttr(item.id)}')" class="btn-green text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" ${locked ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>
                 <span class="ic ic-add" aria-hidden="true"></span>
                 <span data-i="restock">Restock</span>
               </button>
-              ${!locked && st === 'surplus' ? `<button onclick="sellSurplus('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" title="${escHtml(_t('You hold 3x+ your minimum of this part: list the surplus on the Marketplace for another plant', '3x+ ng minimum mo ang hawak mong part na ito: ilista ang sobra sa Marketplace para sa ibang planta'))}" aria-label="${escHtml(_t('You hold 3x or more of your minimum of this part: list the surplus on the Marketplace for another plant', '3x o higit pa sa minimum mo ang hawak mong part na ito: ilista ang sobra sa Marketplace para sa ibang planta'))}">
+              ${!locked && st === 'surplus' ? `<button onclick="sellSurplus('${escJsAttr(item.id)}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" title="${escHtml(_t('You hold 3x+ your minimum of this part: list the surplus on the Marketplace for another plant', '3x+ ng minimum mo ang hawak mong part na ito: ilista ang sobra sa Marketplace para sa ibang planta'))}" aria-label="${escHtml(_t('You hold 3x or more of your minimum of this part: list the surplus on the Marketplace for another plant', '3x o higit pa sa minimum mo ang hawak mong part na ito: ilista ang sobra sa Marketplace para sa ibang planta'))}">
                 <span class="ic ic-list" aria-hidden="true"></span>
                 <span data-i="inv_sellsurplus">Sell surplus</span>
               </button>` : ''}
-              ${(st === 'low' || st === 'out' || st === 'critical') && !locked ? `<button onclick="findOnMarketplace('${item.id}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" title="${escHtml(_t('Below reorder: source this part from other plants on the Marketplace', 'Wala sa reorder point: kunin ang part na ito mula sa ibang planta sa Marketplace'))}" aria-label="${escHtml(_t('Below reorder: source this part from other plants on the Marketplace', 'Wala sa reorder point: kunin ang part na ito mula sa ibang planta sa Marketplace'))}">
+              ${(st === 'low' || st === 'out' || st === 'critical') && !locked ? `<button onclick="findOnMarketplace('${escJsAttr(item.id)}')" class="mkt-bridge-btn text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" title="${escHtml(_t('Below reorder: source this part from other plants on the Marketplace', 'Wala sa reorder point: kunin ang part na ito mula sa ibang planta sa Marketplace'))}" aria-label="${escHtml(_t('Below reorder: source this part from other plants on the Marketplace', 'Wala sa reorder point: kunin ang part na ito mula sa ibang planta sa Marketplace'))}">
                 <span class="ic ic-search" aria-hidden="true"></span>
                 <span data-i="inv_findmkt">Find on Marketplace</span>
               </button>` : ''}
@@ -2336,11 +2336,11 @@ function openDetailModal(id) {
     </div>` : ''}
 
     <div class="flex gap-2 mb-4">
-      <button onclick="closeDetailModal();openUseModal('${item.id}')" class="btn-danger flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="usestock">Use Stock</button>
-      <button onclick="closeDetailModal();openRestockModal('${item.id}')" class="btn-green flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="restock">Restock</button>
-      ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _ownsItem(item)) ? `<button onclick="closeDetailModal();openAddModal('${item.id}')" class="btn-secondary px-3 text-sm" data-i="edit">Edit</button>` : ''}
+      <button onclick="closeDetailModal();openUseModal('${escJsAttr(item.id)}')" class="btn-danger flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="usestock">Use Stock</button>
+      <button onclick="closeDetailModal();openRestockModal('${escJsAttr(item.id)}')" class="btn-green flex-1 text-sm" ${HIVE_ID && (item.status === 'pending' || item.status === 'rejected') ? 'style="opacity:0.4;cursor:not-allowed;"' : ''} data-i="restock">Restock</button>
+      ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || _ownsItem(item)) ? `<button onclick="closeDetailModal();openAddModal('${escJsAttr(item.id)}')" class="btn-secondary px-3 text-sm" data-i="edit">Edit</button>` : ''}
     </div>
-    ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && _ownsItem(item))) ? `<button onclick="confirmDeleteItem('${item.id}')" class="w-full text-xs text-red-400/40 hover:text-red-400/70 transition-colors py-1" data-i="removefrominventory">Remove from inventory</button>` : ''}
+    ${(!HIVE_ID || HIVE_ROLE === 'supervisor' || (item.status === 'rejected' && _ownsItem(item))) ? `<button onclick="confirmDeleteItem('${escJsAttr(item.id)}')" class="w-full text-xs text-red-400/40 hover:text-red-400/70 transition-colors py-1" data-i="removefrominventory">Remove from inventory</button>` : ''}
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-3">${escHtml(_t('Transaction History (last 20)', 'Kasaysayan ng Transaksyon (huling 20)'))}</p>

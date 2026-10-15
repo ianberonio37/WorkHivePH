@@ -407,7 +407,7 @@
     .sheet {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
       background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%);
-      border-radius: 1rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px 16px 0 0; border-top: 1px solid rgba(255,255,255,0.1);
       /* The bottom padding clears the home indicator. marketplace-seller.html's .sheet — the same
          rule, on the other side of the same marketplace — has always read
          calc(2rem + env(safe-area-inset-bottom)); this one read a flat 2rem, so on a notched phone
@@ -427,7 +427,7 @@
    tree; the delayed visibility transition lets the slide-out still animate (nav-hub's own panel technique). */
 .sheet:not(.open) { visibility: hidden; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.25s; }
 .sheet.open { visibility: visible; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
-    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 1rem; }
+    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
     .btn-close-sheet {
@@ -458,7 +458,7 @@
     .wh-textarea {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
       resize: vertical; min-height: 80px;
     }
@@ -483,7 +483,7 @@
     /* Buttons */
     .btn-primary {
       width: 100%; padding: 0.75rem;
-      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 8px;
       color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; transition: opacity 0.2s;
     }
@@ -492,14 +492,14 @@
     .btn-secondary {
       flex: 1; padding: 0.7rem;
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 0.625rem; color: var(--wh-cloud);
+      border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer;
       transition: background 0.15s;
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.08); }
     .btn-cta {
       flex: 2; padding: 0.7rem;
-      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem;
+      background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 8px;
       color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer;
     }
     /* STICKY, because this row is the ONLY way to transact and it was unreachable without scrolling.
@@ -567,7 +567,7 @@
     /* Info notice */
     .info-notice {
       background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.15);
-      border-radius: 0.625rem; padding: 0.625rem 0.875rem;
+      border-radius: 12px; padding: 0.625rem 0.875rem;
       font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom: 1rem;
       display: flex; align-items: flex-start; gap: 0.5rem;
     }
@@ -595,7 +595,7 @@
 
     /* Load More button */
     .btn-load-more {
-      padding: 0.65rem 2rem; border-radius: 0.625rem; cursor: pointer;
+      padding: 0.65rem 2rem; border-radius: 8px; cursor: pointer;
       background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.25);
       color:var(--wh-orange-text); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
       display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.15s;
@@ -1002,7 +1002,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
         <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
         <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
-          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:8px;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
           <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
         </button>
       </div>
@@ -1034,7 +1034,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Image picker — single photo, compressed client-side before upload -->
     <div class="form-group">
       <label for="post-image-file" class="form-label" data-i="photo">Photo (recommended)</label>
-      <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
+      <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image ic-lg" aria-hidden="true"></span>
@@ -1656,7 +1656,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (plr) plr.textContent = selected.length === 1 ? '' : 's';
     if (list) {
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
-        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size: 0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:12px;font-size: 0.75rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--wh-cloud);">${e(item.title)}</span>
           <span style="color:var(--wh-steel-bright);white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
@@ -2245,8 +2245,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
                 ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
-                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:8px;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:8px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
               </div>
             </div>
           </div>`;
@@ -3314,7 +3314,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           Received this? Add to your inventory
         </button>` : ''}
       ${sellerProfile?.messenger_username
-        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
+        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:8px;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
             <span class="ic ic-message" aria-hidden="true"></span>
             Message on Messenger
           </a>`
@@ -3678,7 +3678,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       if (error || !rows.length) { sec.style.display = 'none'; return; }
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
-          style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
+          style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:8px;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
           <div style="font-size: 0.75rem;font-weight:700;color:var(--wh-blue-text);font-family:monospace;">#${e(r.part_number)}</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
           <div style="font-size: 0.75rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>

@@ -224,11 +224,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     body .text-white\\/75 {{ color: rgb(255 255 255 / 0.85); }}
     body {{ font-family: 'Poppins', sans-serif; }}
     .hex-pattern {{ background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }}
-    .audience-block {{ background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 14px; padding: 18px 22px; margin: 1.75rem 0; }}
-    .audience-label {{ font-size: 11px; font-weight: 700; color: #5FCCE8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }}
+    .audience-block {{ background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 16px; padding: 18px 22px; margin: 1.75rem 0; }}
+    .audience-label {{ font-size: 11px; font-weight: 700; color: var(--wh-blue-light,#5FCCE8); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }}
     .audience-block ul {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.78); font-size: 0.92rem; line-height: 1.7; }}
-    .answer-first {{ background: rgba(247,162,27,0.06); border-left: 3px solid #F7A21B; padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }}
-    .toc {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px 22px; margin: 2rem 0; }}
+    .answer-first {{ background: rgba(247,162,27,0.06); border-left: 3px solid var(--wh-orange,#F7A21B); padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }}
+    .toc {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 22px; margin: 2rem 0; }}
     /* ~W46101: BOTH tags. The label has been an h2 and an h4 at different times and the
        selector was once coupled to the tag - when the tag moved and the selector did not,
        45 of 54 published articles rendered this label at the browser default 16px for as
@@ -238,26 +238,26 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .toc h2, .toc h4 {{ margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }}
     .toc ol {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.75); font-size: 0.92rem; line-height: 1.85; }}
     .toc a {{ color: rgba(244,246,250,0.75); }}
-    .toc a:hover {{ color: #FDB94A; }}
-    .prose-wh h2 {{ font-size: 1.55rem; font-weight: 800; color: #F4F6FA; margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }}
+    .toc a:hover {{ color: var(--wh-orange-light,#FDB94A); }}
+    .prose-wh h2 {{ font-size: 1.55rem; font-weight: 800; color: var(--wh-cloud,#F4F6FA); margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }}
     .prose-wh p {{ font-size: 1.005rem; color: rgba(244,246,250,0.78); line-height: 1.75; margin: 0.85rem 0; }}
-    .prose-wh strong {{ color: #F4F6FA; }}
-    .prose-wh a {{ color: #5FCCE8; text-decoration: underline; text-underline-offset: 3px; }}
+    .prose-wh strong {{ color: var(--wh-cloud,#F4F6FA); }}
+    .prose-wh a {{ color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; }}
     .prose-wh ol, .prose-wh ul {{ color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }}
     .prose-wh table {{ width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }}
     .prose-wh th, .prose-wh td {{ padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }}
-    .prose-wh th {{ background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
-    .callout {{ background: rgba(41,182,217,0.06); border-left: 3px solid #29B6D9; border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }}
-    .callout strong {{ color: #5FCCE8; }}
+    .prose-wh th {{ background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
+    .callout {{ background: rgba(41,182,217,0.06); border-left: 3px solid var(--wh-blue,#29B6D9); border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }}
+    .callout strong {{ color: var(--wh-blue-light,#5FCCE8); }}
     .article-fig {{ margin: 1.75rem 0; }}
     .article-fig img {{ width: 100%; height: auto; display: block; }}
     .article-fig figcaption {{ margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.55); line-height: 1.55; }}
-    .tool-cta {{ background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 14px; padding: 22px 26px; margin: 2.25rem 0; }}
-    .tool-cta a {{ display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #F7A21B, #FDB94A); color: #162032; font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none; transition: transform 0.15s; }}
+    .tool-cta {{ background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 16px; padding: 22px 26px; margin: 2.25rem 0; }}
+    .tool-cta a {{ display: inline-block; margin-top: 10px; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); color: var(--wh-navy,#162032); font-weight: 700; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: transform 0.15s; }}
     .tool-cta a:hover {{ transform: translateY(-1px); }}
     .faq-item {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }}
-    .faq-item summary {{ cursor: pointer; font-weight: 600; color: #F4F6FA; font-size: 1rem; }}
-    .faq-item[open] summary {{ color: #FDB94A; }}
+    .faq-item summary {{ cursor: pointer; font-weight: 600; color: var(--wh-cloud,#F4F6FA); font-size: 1rem; }}
+    .faq-item[open] summary {{ color: var(--wh-orange-light,#FDB94A); }}
     .faq-item .faq-answer {{ margin-top: 12px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }}
     .sources-list {{ list-style: none; padding: 0; }}
     .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }}
@@ -337,7 +337,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:#5FCCE8;">admin@workhiveph.com</a> with corrections or contributions.</p>
+    <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions.</p>
     <div class="flex gap-5">
       <a href="/" class="hover:text-white/65 transition-colors">Home</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>

@@ -18,7 +18,7 @@
     .hdr { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem; }
     h1 { font-size:1.4rem; font-weight:800; margin:0; }
     .sub { color:var(--muted); font-size:0.85rem; margin-top:0.25rem; max-width:52ch; }
-    .to-grafana { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1rem; border-radius:0.6rem;
+    .to-grafana { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1rem; border-radius:8px;
                   background:rgba(52,211,153,0.12); color:var(--green); border:1px solid rgba(52,211,153,0.35);
                   text-decoration:none; font-weight:700; font-size:0.82rem; min-height:44px; }
     .to-grafana:hover { background:rgba(52,211,153,0.2); }
@@ -79,7 +79,7 @@
          inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
          desktop and makes a guarded and an unguarded rule look identical. */
     #toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:9999; }
-    .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:0.6rem; font-size:0.85rem;
+    .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:12px; font-size:0.85rem;
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }
     .toast-msg.error { border-color:rgba(248,113,113,0.5); }
@@ -184,7 +184,7 @@
      pulling in nav-hub, because a navigation hub on an admin console is a product decision and a
      skip link is not. Matches the shared link's look so the two do not diverge. -->
 <a class="wh-skip-link" href="#actions"
-   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform var(--wh-dur-fast,.15s) var(--wh-ease-out,cubic-bezier(0.23,1,0.32,1));box-sizing:border-box;"
+   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform var(--wh-dur-fast,.15s) var(--wh-ease-out,cubic-bezier(0.23,1,0.32,1));box-sizing:border-box;"
    onfocus="this.style.transform='translateY(0)'"
    onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
   <!-- Gate: not signed in or not admin -->
@@ -1724,7 +1724,7 @@ window.addEventListener('load', function () { setTimeout(function () {
   try { console.error('[platform-actions] utils.js did not load; the page cannot render its data'); } catch (e) { void e; }
   var m = document.querySelector('main') || document.body; if (!m || m.querySelector('.wh-shared-missing')) return;
   var d = document.createElement('div'); d.className = 'honest-empty wh-shared-missing'; d.setAttribute('role', 'alert');
-  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
+  d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:12px;background:rgba(248,113,113,.08);color:#fca5a5;font:14px/1.5 system-ui,sans-serif;';
   d.innerHTML = 'WorkHive could not load its shared script (utils.js), so this page cannot show your data. <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';

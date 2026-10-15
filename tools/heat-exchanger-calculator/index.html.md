@@ -32,4 +32,4 @@ Related calculators
 [RC Beam Design Calculator](https://workhiveph.com/tools/beam-design-calculator/)
 [Vibration Isolation Calculator](https://workhiveph.com/tools/vibration-isolation-calculator/)
 
-<!-- md-twin source-sha: 65a33f49aa3ed6d4 -->
+<!-- md-twin source-sha: 76a4844ebd19b90e -->

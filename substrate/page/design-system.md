@@ -2,7 +2,7 @@
 name: page-design-system
 type: page
 source: file:design-system.html
-source_sha: 08af40d3fa2db6e3
+source_sha: 715c7218d0161937
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -80,7 +80,7 @@ SKIP = (
     'style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);'
     'background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;'
     'display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;'
-    'border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);'
+    'border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);'
     'transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" '
     "onfocus=\"this.style.transform='translateY(0)'\" "
     "onblur=\"this.style.transform='translateY(-120%)'\">Skip to main content</a>\n"

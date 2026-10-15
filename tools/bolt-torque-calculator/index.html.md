@@ -32,4 +32,4 @@ Related calculators
 [Noise / Acoustics Calculator](https://workhiveph.com/tools/noise-acoustics-calculator/)
 [Heat Exchanger LMTD Calculator](https://workhiveph.com/tools/heat-exchanger-calculator/)
 
-<!-- md-twin source-sha: e558edb93cb53558 -->
+<!-- md-twin source-sha: 0ef94acbbe85a7e5 -->

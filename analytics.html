@@ -170,7 +170,7 @@
       color: var(--wh-blue-text);
       padding: 0.25rem 0.5rem;
       background: rgba(41,182,217,0.06);
-      border-radius: 0.4rem;
+      border-radius: 12px;
       margin-top: 0.25rem;
     }
     /* Mobile: chips wrap.
@@ -2603,7 +2603,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const anomalies = d.anomalies || [];
     const anomalyHtml = anomalies.length
-      ? anomalies.map(a => `<div style="padding:0.6rem;border-radius:0.625rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);margin-bottom:0.5rem;">
+      ? anomalies.map(a => `<div style="padding:0.6rem;border-radius:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);margin-bottom:0.5rem;">
           <div style="display:flex;justify-content:space-between;">
             <span style="font-size:0.75rem;font-weight:600;color:#fff;">${escHtml(a.machine)}</span>
             <span class="alert" style="font-size:0.8rem;font-weight:700;">${escHtml(a.direction)} · ${a.deviation}σ</span>
@@ -2809,7 +2809,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }).join('');
 
       return `<div style="margin-bottom:0.5rem;border-radius:0.75rem;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
-        <button onclick="togglePMAsset('${id}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(255,255,255,0.03);border:none;cursor:pointer;min-height:48px;-webkit-tap-highlight-color:transparent;">
+        <button onclick="togglePMAsset('${escJsAttr(id)}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(255,255,255,0.03);border:none;cursor:pointer;min-height:48px;-webkit-tap-highlight-color:transparent;">
           <div style="display:flex;align-items:center;gap:0.625rem;flex:1;min-width:0;">
             <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
             <span style="font-size:0.8rem;font-weight:600;color:#fff;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(assetName)}</span>
@@ -3026,7 +3026,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       searchPlaceholder: 'Filter by asset name or code…',
       renderRow: (r) => {
         const codeBadge = r.machine_code
-          ? `<code style="font-size:0.75rem;color:var(--wh-orange-text);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:4px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
+          ? `<code style="font-size:0.75rem;color:var(--wh-orange-text);background:rgba(247,162,27,0.08);padding:1px 6px;border-radius:8px;margin-left:0.4rem;">${escHtml(r.machine_code)}</code>`
           : '';
         const scopeNote = r.scope_items_count
           ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`

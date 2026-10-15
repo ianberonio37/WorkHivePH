@@ -32,4 +32,4 @@ Related calculators
 [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/)
 [Earthing / Grounding Calculator](https://workhiveph.com/tools/earthing-grounding-calculator/)
 
-<!-- md-twin source-sha: 885ea6d2c3be27f4 -->
+<!-- md-twin source-sha: 7f510a2588281c9c -->

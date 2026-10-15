@@ -32,4 +32,4 @@ Related calculators
 [Earthing / Grounding Calculator](https://workhiveph.com/tools/earthing-grounding-calculator/)
 [Lighting Design Calculator](https://workhiveph.com/tools/lighting-design-calculator/)
 
-<!-- md-twin source-sha: 41eb146bcb0c6f65 -->
+<!-- md-twin source-sha: 6ec491ab7e13d27d -->
