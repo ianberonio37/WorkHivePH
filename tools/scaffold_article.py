@@ -505,8 +505,11 @@ def _render_figures(slug: str, article: dict):
         cap = _esc(spec.get("title", ""))
         if spec.get("source"):
             cap += f" Source: {_esc(spec['source'])}."
+        # Root-absolute, never bare: vercel.json's trailingSlash:false serves learn/<slug>/index.html at
+        # /learn/<slug>, so a bare "fig-1.svg" resolves to /learn/fig-1.svg - a 404 on every reader's screen
+        # (12 figures on 6 articles, 2026-09-11 -> 2026-10-16). Gate: deploy-payload's served-URL check.
         sec["paragraphs"].append(
-            f'<figure class="article-fig"><img src="{fname}" alt="{alt}" '
+            f'<figure class="article-fig"><img src="/learn/{slug}/{fname}" alt="{alt}" '
             f'width="660" height="440" loading="lazy" />'
             f"<figcaption>{cap}</figcaption></figure>")
         print(f"  [scaffold] figure {n}: {fname} -> section '{sec['h2'][:40]}'")

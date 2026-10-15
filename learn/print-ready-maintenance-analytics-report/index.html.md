@@ -118,4 +118,4 @@ No, the report is a zero-budget solution that compiles from your existing data, 
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: 771463ca2714b2b7 -->
+<!-- md-twin source-sha: 815884d901c3a618 -->
