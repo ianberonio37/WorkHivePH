@@ -338,11 +338,11 @@
       .join('');
     document.querySelector('#by-hive tbody').innerHTML = hiveRows || '<tr><td colspan="5" class="empty">No calls in window.</td></tr>';
 
-    document.getElementById('meta').innerHTML = `<strong>${total}</strong> calls across <strong>${Object.keys(byTask).length}</strong> fn surfaces, <strong>${Object.keys(byHive).length}</strong> hive(s) in last ${win}h. · as of ${new Date().toLocaleTimeString()} · refreshes on each window change`;
+    document.getElementById('meta').innerHTML = `<strong>${total}</strong> calls across <strong>${Object.keys(byTask).length}</strong> fn surfaces, <strong>${Object.keys(byHive).length}</strong> hive(s) in last ${win}h. · as of ${new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' })} · refreshes on each window change`;
     // cap is not a total (2026-09-05): the window read is .limit(5000); when the cap bites, say so beside the count.
     if (logs.length >= 5000) document.getElementById('meta').innerHTML += ' · <strong>showing the latest 5,000</strong> calls: the true total in this window is larger';
 
-    document.getElementById('loaded-at').textContent = 'Loaded ' + new Date().toLocaleTimeString();
+    document.getElementById('loaded-at').textContent = 'Loaded ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
   }
 
   // ★A RETIRED PAGE DOES NO WORK (SL F1, 2026-10-16; the founder-console / marketplace-admin rule): the overlay says this page has moved, and the walk measured it still reading ai_cost_log behind it. Test the overlay itself, so the documented un-retire (delete the overlay block) restores the load with it.

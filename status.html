@@ -438,7 +438,7 @@
           'Could not reach any surface from this browser ({n} of {t}). This is a loading problem here, not a reading of the platform. Check your connection and press Refresh.',
           'Walang maabot na surface mula sa browser na ito ({n} sa {t}). Problema ito sa pag-load dito, hindi pagbasa sa plataporma. Tingnan ang koneksyon mo at pindutin ang I-refresh.')
             .replace('{n}', unr).replace('{t}', rows.length)
-          + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
+          + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' }));
         btn.disabled = false;
         return;
       }
@@ -456,7 +456,7 @@
         (tmo ? ' · ' + tmo + _t(' did not answer in time (not counted either way)', ' ang hindi sumagot sa oras (hindi binibilang kahit saang panig)') : '') +
         (unr ? ' · ' + unr + _t(' unreachable from here (not counted either way)', ' ang hindi maabot mula rito (hindi binibilang kahit saang panig)') : '') +
         (noh ? ' · ' + noh + _t(' without /health', ' ang walang /health') : '') +
-        ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString());
+        ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' }));
       btn.disabled = false;
     }
 

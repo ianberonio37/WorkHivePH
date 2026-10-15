@@ -41,6 +41,16 @@ PATTERNS = {
                                              r"|toLocaleDateString\(\s*(?:'[^']*'|\"[^\"]*\"|undefined)\s*\)"
                                              r"|toLocaleDateString\(\s*(?:'[^']*'|\"[^\"]*\"|undefined|\[[^\]]*\])\s*,\s*\{(?![^}]*timeZone)[^}]*\}\s*\)"),
     "P4 device hour/weekday/date of now": re.compile(r"new Date\(\s*\)\s*\.\s*get(?:Hours|Day|Date)\(\s*\)"),
+    # SL C1 (2026-10-16): the differential walk read alert-hub's brief as "composed live 10:00 AM" on a Manila device and
+    # "10:00 PM" on a New York one - toLocaleTimeString with no timeZone prints the DEVICE's time. 12 sites, now 0.
+    "P5 time in the device zone": re.compile(r"toLocaleTimeString\(\s*\)"
+                                             r"|toLocaleTimeString\(\s*(?:'[^']*'|\"[^\"]*\"|undefined|\[[^\]]*\])\s*\)"
+                                             r"|toLocaleTimeString\(\s*(?:'[^']*'|\"[^\"]*\"|undefined|\[[^\]]*\])\s*,\s*\{(?![^}]*timeZone)[^}]*\}\s*\)"),
+    # ...and a DATE-TIME: platform-actions' queues read "7/29/2026, AM" on a Manila device and "7/28/2026, PM" on a New
+    # York one. Only `new Date(...).toLocaleString(` - a bare x.toLocaleString() is just as often a number. 9 sites, now 0.
+    "P6 date-time in the device zone": re.compile(r"new Date\([^()]*(?:\([^()]*\)[^()]*)*\)\s*\.toLocaleString\("
+                                                  r"(?:\s*\)|\s*(?:'[^']*'|\"[^\"]*\"|undefined|\[[^\]]*\])\s*\)"
+                                                  r"|\s*(?:'[^']*'|\"[^\"]*\"|undefined|\[[^\]]*\])\s*,\s*\{(?![^}]*timeZone)[^}]*\}\s*\))"),
 }
 ALLOW = "device-clock-allow:"
 
@@ -175,10 +185,15 @@ def self_test() -> int:
     # every pattern bites on its own shape, and the Manila-pinned forms do not
     for kind, shape in (("P2 UTC date as today", "const name = 'report-' + new Date().toISOString().slice(0, 10);"),
                         ("P3 date in the device zone", "lbl = d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });"),
-                        ("P4 device hour/weekday/date of now", "const h = new Date().getHours();")):
+                        ("P4 device hour/weekday/date of now", "const h = new Date().getHours();"),
+                        ("P5 time in the device zone", "const _hm = _now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });"),
+                        ("P6 date-time in the device zone", "' · filed ' + e(new Date(r.created_at).toLocaleString())")):
         if not PATTERNS[kind].search(shape):
             fails.append(kind + " must match its own shape")
     for shape in ("d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short' })",
+                  "d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' })",
+                  "new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })",
+                  "'₱' + Number(v).toLocaleString()",
                   "const h = Number(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', hourCycle: 'h23' }))"):
         if any(rx.search(shape) for rx in PATTERNS.values()):
             fails.append("a Manila-pinned form must NOT match: " + shape[:60])

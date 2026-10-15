@@ -865,7 +865,8 @@
         try {
           const _meta = document.getElementById('amc-shift-meta');
           const _now = new Date(_liveBrief.at || Date.now());
-          const _hm = _now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          // the hive's clock, not the device's (SL C1, 2026-10-16): a New York device read this Manila brief as 'composed live 10:00 PM'
+          const _hm = _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' });
           if (opts && opts.stored === false) {
             // ★NO STORED BRIEF, STILL A BRIEF (2026-10-08): the card said "no brief for this shift" and the compose
             // just landed - so it now says what it IS: composed live, because the 6 am brief has not run yet.
@@ -2508,7 +2509,7 @@
   // ── Helpers ────────────────────────────────────────────────────────────────
   function fmtRelative(iso) { return (typeof whFmtAgo === 'function') ? whFmtAgo(iso) : ''; } // FD1e: delegates to canonical utils.js whFmtAgo
   function fmtTime(d) {
-    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' }); // FD1a canonical
+    return (typeof whFmtDate === 'function') ? whFmtDate(d, { timeOnly: true }) : d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }); // FD1a canonical
   }
 
 })();

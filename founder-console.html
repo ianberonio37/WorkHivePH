@@ -1451,7 +1451,7 @@
         setRagDots({ tech, dau14, mau, aicost, hives, mkt, audit, maturity, pareto, heatmap });
         renderTLDR({ tech, dau14, mau, aicost, hives, mkt });
         _state.lastSyncAt = new Date();
-        document.getElementById('last-sync').textContent = _state.lastSyncAt.toLocaleTimeString();
+        document.getElementById('last-sync').textContent = _state.lastSyncAt.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
         pulse.classList.remove('busy');
         // Pulse color reflects fail count
         pulse.classList.remove('warn','fail','none');
@@ -2169,7 +2169,7 @@
           // T133: a null amount here rendered "₱NaN" - Number(null) is 0 but Number(undefined) is NaN, and
           // this row is a GCash top-up, where a wrong or nonsense figure is the worst kind.
           '<div style="font-size:0.8rem;"><strong>' + (typeof whFmtPeso === 'function' ? whFmtPeso(r.amount) : '₱' + Number(r.amount).toLocaleString()) + '</strong> · ref <code>' + e(r.gcash_ref) + '</code>' +
-          '<div style="font-size: 0.75rem;opacity:0.8;">' + e(r.provider_display_name || r.account_type) + ' · filed ' + e(new Date(r.created_at).toLocaleString()) + '</div></div>' +
+          '<div style="font-size: 0.75rem;opacity:0.8;">' + e(r.provider_display_name || r.account_type) + ' · filed ' + e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })) + '</div></div>' +
           '<span style="display:inline-flex;gap:0.4rem;">' +
           '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', true)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;" data-i="verifymintcredits">Verify: mint credits</button>' +
           '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', false)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;" data-i="reject">Reject</button></span></div>'
@@ -3006,7 +3006,7 @@
                      : /reject/i.test(ev.action || '') ? 'reject'
                      : /kick|remove/i.test(ev.action || '') ? 'kick'
                      : 'default';
-        const when = ev.created_at ? new Date(ev.created_at).toLocaleString() : '-';
+        const when = ev.created_at ? new Date(ev.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : '-';
         return `<div class="audit-item">
           <span class="audit-dot ${dotCls}"></span>
           <div style="flex:1;">
@@ -3047,7 +3047,7 @@
           .limit(500);   // cap-ok: the feedback list discloses 'of N+ (the latest 500 were loaded)' at the cap (see applyFeedbackView)
         if (error) throw error;
         _fb.rows = data || [];
-        upd.textContent = new Date().toLocaleTimeString();
+        upd.textContent = new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
         applyFeedbackView();
         subscribeFeedbackRealtime();   // idempotent
       } catch (e) {
@@ -3143,7 +3143,7 @@
 
       body.innerHTML = `
         <div class="meta">
-          ${escHtml(new Date(row.created_at).toLocaleString())}
+          ${escHtml(new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}
           · ${escHtml(row.kind)}
           · status: <strong>${escHtml(row.status)}</strong>
           ${row.priority ? ' · ' + escHtml(row.priority).toUpperCase() : ''}

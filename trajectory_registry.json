@@ -802268,8 +802268,8 @@
     },
     {
       "id": "SL1161",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · achievements",
       "pages": [
@@ -802326,12 +802326,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on achievements.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (David Velasco, worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 5 utils.js functions (whFmtAgo, whFreshnessFooter, whListError, whListSkeleton, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on achievements.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1161.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1162",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · alert hub",
       "pages": [
@@ -802388,12 +802395,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on alert-hub.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Dela Cruz Delivery Fleet) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 14 utils.js functions (whActionPlanHasContent, whAiTrustRow, whFmtAgo, whFmtDate, whFocusCapture, whFocusRestore...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on alert-hub.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1162.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1163",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · analytics report",
       "pages": [
@@ -802450,12 +802464,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on analytics-report.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Oscar Ramos, supervisor of Ramos Jeepney Line) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 3 utils.js functions (whAiTrustRow, whFmtDate, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on analytics-report.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1163.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1164",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · analytics",
       "pages": [
@@ -802514,12 +802535,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on analytics.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 7 utils.js functions (whAiTrustRow, whFmtAgo, whIsAuthFailure, whListError, whListSkeleton, whReconcileHiveRole...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on analytics.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1164.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1165",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · asset hub",
       "pages": [
@@ -802576,12 +802604,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on asset-hub.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 12 utils.js functions (whAiTrustRow, whEnsureHiveContext, whFmtAgo, whFmtDate, whFreshnessFooter, whLevelWord...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on asset-hub.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1165.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1166",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · assistant",
       "pages": [
@@ -802638,12 +802673,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on assistant.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 5 utils.js functions (whHiveId, whListError, whListSkeleton, whReadError, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on assistant.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1166.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1167",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · community",
       "pages": [
@@ -802700,12 +802742,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on community.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Oscar Ramos, supervisor of Ramos Jeepney Line) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 16 utils.js functions (whAbbr, whFmtAgo, whFmtDate, whFreshnessFooter, whHiveContextLost, whHiveContextNotice...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on community.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1167.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1168",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · dayplanner",
       "pages": [
@@ -802762,12 +802811,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on dayplanner.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 12 utils.js functions (whFmtDate, whFreshnessFooter, whHiveContextLost, whHiveContextNotice, whHiveId, whHiveMembershipLost...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on dayplanner.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1168.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1169",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · hive",
       "pages": [
@@ -802824,12 +802880,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on hive.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 10 utils.js functions (whAiTrustRow, whFmtAgo, whFmtDate, whFocusCapture, whFreshnessFooter, whHiveId...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on hive.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1169.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1170",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · index",
       "pages": [
@@ -802886,12 +802949,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on index.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 13 utils.js functions (whClearIdentity, whFmtAgo, whFreshnessFooter, whHiveId, whIsDismissed, whListError...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on index.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1170.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1171",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - solo-owner · integrations",
       "pages": [
@@ -802948,12 +803018,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on integrations.html as solo-owner: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as solo-owner (Oscar Ramos, supervisor of Ramos Jeepney Line (the solo-owner row's page is supervisor-only)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 9 utils.js functions (whFmtDate, whIsDismissed, whListSkeleton, whReadError, whReconcileHiveRole, whRequireOnline...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on integrations.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1171.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1172",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · inventory",
       "pages": [
@@ -803010,12 +803087,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on inventory.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (David Velasco, worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 10 utils.js functions (whFmtDate, whHiveContextNotice, whListError, whListSkeleton, whProgressStrip, whReadError...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on inventory.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1172.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · logbook",
       "pages": [
@@ -803072,12 +803156,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on logbook.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Bryan Garcia, worker of Baguio Textile Mills) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 16 utils.js functions (whAiTrustRow, whCompressImage, whEnsureHiveContext, whFmtDate, whFold, whFreshnessFooter...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on logbook.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1173.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1174",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - buyer · marketplace seller profile",
       "pages": [
@@ -803134,12 +803225,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on marketplace-seller-profile.html as buyer: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as buyer (Bryan Garcia, worker of Baguio Textile Mills) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 8 utils.js functions (whCreditsBackChipHtml, whFmtAgo, whFmtPeso, whFreshnessFooter, whListError, whListSkeleton...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on marketplace-seller-profile.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1174.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1175",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - buyer · marketplace seller",
       "pages": [
@@ -803196,12 +803294,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on marketplace-seller.html as buyer: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as buyer (Bryan Garcia, worker of Baguio Textile Mills) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 12 utils.js functions (whAutoSaveDraft, whCardSkeleton, whFmtAgo, whFmtPeso, whFreshnessFooter, whHiveId...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on marketplace-seller.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1175.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1176",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - buyer · marketplace",
       "pages": [
@@ -803258,12 +803363,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on marketplace.html as buyer: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as buyer (Isidro Suarez, worker of Manila Electronics Assembly) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 13 utils.js functions (whAutoSaveDraft, whCardSkeleton, whFmtAgo, whFmtDate, whFmtPeso, whFreshnessFooter...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on marketplace.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1176.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1177",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · ph intelligence",
       "pages": [
@@ -803320,12 +803432,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on ph-intelligence.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Christine Dizon, supervisor of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 4 utils.js functions (whListError, whListSkeleton, whSignInWall, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on ph-intelligence.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1177.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - machine-client · plant connections",
       "pages": [
@@ -803382,12 +803501,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on plant-connections.html as machine-client: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as machine-client (Christine Dizon, supervisor of Baguio Textile Mills (the machine-client row's page is supervisor-only)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 4 utils.js functions (whListError, whListSkeleton, whReconcileHiveRole, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on plant-connections.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1178.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1179",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · pm scheduler",
       "pages": [
@@ -803444,12 +803570,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on pm-scheduler.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Oscar Ramos, supervisor (the hive has no worker account) of Ramos Jeepney Line) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 8 utils.js functions (whCardSkeleton, whFmtDate, whFreshnessFooter, whHiveContextNotice, whListError, whProgressStrip...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on pm-scheduler.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1179.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1180",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · project manager",
       "pages": [
@@ -803506,12 +803639,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on project-manager.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Christine Dizon, supervisor of Baguio Textile Mills) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 7 utils.js functions (whFmtDate, whFreshnessFooter, whListError, whListSkeleton, whReadError, whRequireOnline...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on project-manager.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1180.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · project report",
       "pages": [
@@ -803568,12 +803708,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on project-report.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 4 utils.js functions (whFmtDate, whIsAuthFailure, whListSkeleton, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on project-report.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1181.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - an anonymous visitor · public feed",
       "pages": [
@@ -803624,12 +803771,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on public-feed.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed out, fresh contexts with service workers blocked and the signed-in state restored. The page guards 10 utils.js functions (whAbbr, whFmtAgo, whFmtDate, whFreshnessFooter, whHiveId, whListError...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on public-feed.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1182.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1183",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · report sender",
       "pages": [
@@ -803686,12 +803840,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on report-sender.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Christine Dizon, supervisor of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 7 utils.js functions (whAbbr, whAiTrustRow, whHiveContextLost, whHiveContextNotice, whListSkeleton, whRequireOnline...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on report-sender.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1183.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · resume",
       "pages": [
@@ -803748,12 +803909,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on resume.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Isidro Suarez, worker of Manila Electronics Assembly) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 7 utils.js functions (whAiTrustRow, whAutoSaveDraft, whIsAuthFailure, whListError, whListSkeleton, whReconcileHiveRole...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on resume.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1184.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1185",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · shift brain",
       "pages": [
@@ -803810,12 +803978,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on shift-brain.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (Oscar Ramos, supervisor (the hive has no worker account) of Ramos Jeepney Line) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 9 utils.js functions (whActionPlanHasContent, whAiProgress, whAiTrustRow, whFmtDate, whFreshnessFooter, whListSkeleton...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on shift-brain.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1185.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - worker · skillmatrix",
       "pages": [
@@ -803872,12 +804047,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on skillmatrix.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as worker (David Velasco, worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 6 utils.js functions (whFmtDate, whFreshnessFooter, whListError, whListSkeleton, whRequireOnline, whStartupHive). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on skillmatrix.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1186.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1187",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · agentic rag observability",
       "pages": [
@@ -803928,12 +804110,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on agentic-rag-observability.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 5 utils.js functions (whFmtAgo, whFmtNum, whFreshnessFooter, whListSkeleton, whSignInWall). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on agentic-rag-observability.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1187.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - supervisor · ai quality",
       "pages": [
@@ -803990,12 +804179,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on ai-quality.html as supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as supervisor (Christine Dizon, supervisor of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 5 utils.js functions (whListError, whListSkeleton, whReconcileHiveRole, whStartupHive, whViewerAdmits). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on ai-quality.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1188.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - fleet-supervisor · audit log",
       "pages": [
@@ -804052,12 +804248,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on audit-log.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 8 utils.js functions (whFmtAgo, whFmtDate, whFreshnessFooter, whHiveId, whListError, whListSkeleton...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on audit-log.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1189.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · design system",
       "pages": [
@@ -804108,12 +804311,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from design system itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on design-system.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 5 utils.js functions (whAbbr, whListError, whListSkeleton, whOhBadge, whProgressStrip). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on design-system.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1190.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · founder console",
       "pages": [
@@ -804164,12 +804374,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on founder-console.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 4 utils.js functions (whApplyRetiredInert, whAutoSaveDraft, whFmtPeso, whWorker). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on founder-console.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1191.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1192",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · marketplace admin",
       "pages": [
@@ -804220,12 +804437,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on marketplace-admin.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 7 utils.js functions (whApplyRetiredInert, whCardSkeleton, whFmtAgo, whFmtPeso, whFreshnessFooter, whReadError...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on marketplace-admin.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1192.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1193",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · platform actions",
       "pages": [
@@ -804276,12 +804500,19 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on platform-actions.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 9 utils.js functions (whAutoRememberFilters, whAutoSaveDraft, whIsAuthFailure, whQueryTimeout, whSignInWall, whStartupHive...). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on platform-actions.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1193.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
       "id": "SL1194",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA3 · The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call - oversight · status",
       "pages": [
@@ -804332,6 +804563,13 @@
         "engine": "chromium",
         "ask": "The platform must notice when this page runs with an older shared script and heal it, never silently skip the missing call",
         "closes": "the CA3 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored): CA3 on status.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca3_walk_*.js), tools/prove_skew_heal.mjs's method; the heal roster (tools/render_skew_heal.py) now covers every SL page that guards a function. Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, fresh contexts with service workers blocked and the signed-in state restored. The page guards 2 utils.js functions (whBuildVersion, whFmtDate). With the real utils.js at 390: one document load, no refetch, none missing - no false heal. With yesterday's copy (those functions undefined) at 390 and 1280: the old script ran, the page fetched utils.js past the cache, reloaded once (two loads) and ended on status.html with every function present. teeth: the same skew walk on design-system and status as committed at b79380df (no heal block) read one load, no refetch and design-system.html still missing 4, status.html still missing 2 - the silent skip. Receipt .tmp/mcp_walks/SL1194.json.",
+      "artifacts": {
+        "gates": [
+          "skew-heal",
+          "skew-heal-live"
+        ]
       }
     },
     {
@@ -832715,8 +832953,8 @@
     },
     {
       "id": "SL1646",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · alert hub",
       "pages": [
@@ -832774,12 +833012,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on alert-hub.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Dela Cruz Delivery Fleet) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 5821 characters and sent the same 21 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1646.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1647",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · analytics report",
       "pages": [
@@ -832837,12 +833081,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on analytics-report.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Oscar Ramos, supervisor of Ramos Jeepney Line) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 527 characters and sent the same 5 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1647.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1648",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · asset hub",
       "pages": [
@@ -832900,12 +833150,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on asset-hub.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1800 characters and sent the same 12 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1648.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1649",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · assistant",
       "pages": [
@@ -832963,12 +833219,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on assistant.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 937 characters and sent the same 8 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1649.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1650",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · community",
       "pages": [
@@ -833026,12 +833288,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on community.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Oscar Ramos, supervisor of Ramos Jeepney Line) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1476 characters and sent the same 18 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1650.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1651",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · dayplanner",
       "pages": [
@@ -833089,12 +833357,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on dayplanner.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 986 characters and sent the same 9 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1651.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1652",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · hive",
       "pages": [
@@ -833152,12 +833426,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on hive.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 2177 characters and sent the same 17 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1652.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1653",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · index",
       "pages": [
@@ -833215,12 +833495,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on index.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1013 characters and sent the same 8 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1653.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1654",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - solo-owner · integrations",
       "pages": [
@@ -833278,12 +833564,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on integrations.html as solo-owner: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as solo-owner (Oscar Ramos, supervisor of Ramos Jeepney Line (the solo-owner row's page is supervisor-only)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 2212 characters and sent the same 8 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1654.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1655",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · inventory",
       "pages": [
@@ -833341,12 +833633,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on inventory.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (David Velasco, worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 2239 characters and sent the same 12 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1655.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1656",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · logbook",
       "pages": [
@@ -833404,12 +833702,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on logbook.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Bryan Garcia, worker of Baguio Textile Mills) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 4499 characters and sent the same 17 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1656.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1657",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - buyer · marketplace",
       "pages": [
@@ -833467,12 +833771,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on marketplace.html as buyer: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as buyer (Isidro Suarez, worker of Manila Electronics Assembly) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 2814 characters and sent the same 21 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1657.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1658",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - machine-client · plant connections",
       "pages": [
@@ -833530,12 +833840,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on plant-connections.html as machine-client: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as machine-client (Christine Dizon, supervisor of Baguio Textile Mills (the machine-client row's page is supervisor-only)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1024 characters and sent the same 12 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1658.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1659",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · pm scheduler",
       "pages": [
@@ -833593,12 +833909,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on pm-scheduler.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Oscar Ramos, supervisor (the hive has no worker account) of Ramos Jeepney Line) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1766 characters and sent the same 11 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1659.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1660",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · project manager",
       "pages": [
@@ -833656,12 +833978,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on project-manager.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Christine Dizon, supervisor of Baguio Textile Mills) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1627 characters and sent the same 10 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1660.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1661",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · project report",
       "pages": [
@@ -833719,12 +834047,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on project-report.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 357 characters and sent the same 6 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1661.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1662",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - an anonymous visitor · public feed",
       "pages": [
@@ -833776,12 +834110,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on public-feed.html as anon: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed out, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 2703 characters and sent the same 1 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1662.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1663",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · shift brain",
       "pages": [
@@ -833839,12 +834179,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on shift-brain.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (Oscar Ramos, supervisor (the hive has no worker account) of Ramos Jeepney Line) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1876 characters and sent the same 8 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1663.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1664",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - worker · skillmatrix",
       "pages": [
@@ -833902,12 +834248,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on skillmatrix.html as worker: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as worker (David Velasco, worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1900 characters and sent the same 7 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1664.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1665",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - fleet-supervisor · audit log",
       "pages": [
@@ -833965,12 +834317,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on audit-log.html as fleet-supervisor: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as fleet-supervisor (Gloria Tan, supervisor of Tan Delivery Vans) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 881 characters and sent the same 11 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1665.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1666",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - oversight · founder console",
       "pages": [
@@ -834022,12 +834380,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on founder-console.html as oversight: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 340 characters and sent the same 3 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1666.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1667",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - oversight · llm observability",
       "pages": [
@@ -834079,12 +834443,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on llm-observability.html as oversight: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 937 characters and sent the same 3 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1667.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1668",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - oversight · platform actions",
       "pages": [
@@ -834136,12 +834506,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on platform-actions.html as oversight: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 4442 characters and sent the same 15 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1668.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1669",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - oversight · status",
       "pages": [
@@ -834193,12 +834569,18 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on status.html as oversight: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 1862 characters and sent the same 10 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1669.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
       "id": "SL1670",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-C",
       "title": "C1 · The platform must date this page's records by the hive's day in Manila, not the device's clock - an anonymous visitor · feedback",
       "pages": [
@@ -834250,6 +834632,12 @@
         "engine": "chromium",
         "ask": "The platform must date this page's records by the hive's day in Manila, not the device's clock",
         "closes": "the C1 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read): C1 on feedback/index.html as anon: a differential walk through playwright-mcp's browser_run_code (.tmp/slw/c1_walk_*.js, page.clock.setFixedTime + per-context timezoneId). Witness: playwright-mcp, signed out, two contexts with service workers blocked - device clock Asia/Manila and America/New_York - the page opened at the same pinned instant 2026-10-16T02:00:00Z (Fri 16 Oct 10:00 Manila, Thu 15 Oct 22:00 New York) at 390 and 1280: the two devices read the same 894 characters and sent the same 2 queries (every date window identical), at both viewports. The instant puts the devices on different calendar days, so a device-clock 'today', weekday or midnight would have shown. Receipt .tmp/mcp_walks/SL1670.json.",
+      "artifacts": {
+        "gates": [
+          "device-clock-day"
+        ]
       }
     },
     {
@@ -1004163,5 +1004551,5 @@
       }
     }
   ],
-  "next": "SL wave: C1 device-clock differential (25 rows, .tmp/slw/c1_walk_*.js) -> CA3 old-script heal (34; heal roster now the SL roster) -> CA1 precache shell -> H3 install as app -> D1-4, A1/A2/A4, AV2-4, C2-3, L2-4, LB1-4, RL1-3. Ian: push (vercelignore allowlist; migrations 20261014000004, 20261015000001), old Vercel deployments, skills_table approval"
+  "next": "SL wave (after the 2026-10-16 production release): CA1 precache + next-deploy replacement (37 rows, .tmp/slw/ca1_walk_*.js + scratchpad bank_ca1.py ready) -> CA4 kept copy / offline fallback says which (127, ca4 template ready) -> H3 install as app on the edge substitute (93, h3 template ready) -> D1-4, A1/A2/A4, AV2-4, C2-3, L2-4, LB1-4, RL1-3. Ian: old Vercel deployments, skills_table approval"
 }

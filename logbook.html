@@ -525,7 +525,7 @@
         if (!el) return;
         var hive = localStorage.getItem('wh_hive_name') || '';  /* storage-key-allow: print stamp reads identity only */
         var who  = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || '';  /* storage-key-allow: print stamp */
-        var when = new Date().toLocaleString();
+        var when = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
         var bits = [];
         if (hive) bits.push('Hive: ' + hive);
         if (who) bits.push('Printed by: ' + who);

@@ -6620,7 +6620,7 @@
 
         // Format turns for semantic context: older turns first
         const turns = results.map((row, idx) => {
-          const ts = new Date(row.created_at).toLocaleTimeString();
+          const ts = new Date(row.created_at).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
           const sim = row.similarity ? ' (match: ' + Math.round(row.similarity * 100) + '%)' : '';
           return 'At ' + ts + sim + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
         });
@@ -6647,7 +6647,7 @@
       if (error || !data || !data.length) return '';
 
       const turns = data.reverse().map(row => {
-        const ts = new Date(row.created_at).toLocaleTimeString();
+        const ts = new Date(row.created_at).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
         return 'At ' + ts + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
       });
 

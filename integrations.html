@@ -2727,7 +2727,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(c => {
       const statusColor = c.last_sync_status === 'success' ? 'var(--green)' : c.last_sync_status === 'failed' ? 'var(--red)' : 'var(--muted)';
-      const lastSync = c.last_sync_at ? new Date(c.last_sync_at).toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Never';
+      const lastSync = c.last_sync_at ? new Date(c.last_sync_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Never';
       // U2 (WCAG 1.4.1): failure must be conveyed by more than the red date color —
       // add a visible "Failed" text badge (+ the error reason when available, escHtml'd).
       const statusBadge = c.last_sync_status === 'failed'

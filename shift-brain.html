@@ -506,7 +506,7 @@
     function fmtDate(s) {
       // FD1a: canonical compact variant (year:false — shift-scoped events, year is noise)
       if (typeof whFmtDate === 'function') return whFmtDate(s, { time: true, year: false });
-      try { return new Date(s).toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
+      try { return new Date(s).toLocaleString(undefined, { timeZone: 'Asia/Manila', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
       catch (_) { return String(s || ''); }
     }
 

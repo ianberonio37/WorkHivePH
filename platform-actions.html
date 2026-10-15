@@ -648,7 +648,7 @@
         + '<div><div class="mod-empty">Most-opened page (30d)</div><div style="font-size:1rem; font-weight:700;">' + escHtml(String(topPage)) + '</div></div>'
         + '</div>';
       const st = document.getElementById('usage-updated');
-      if (st) st.textContent = 'Updated ' + new Date().toLocaleTimeString();
+      if (st) st.textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
     }
 
     async function fetchSvcTopups() {
@@ -700,7 +700,7 @@
         box.innerHTML = rows.map(r => `
           <div class="mod-row">
             <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.gcash_ref)}</strong>
-              <span class="mod-sub">${e(r.provider_display_name || r.account_type)} · filed ${e(new Date(r.created_at).toLocaleString())}</span></div>
+              <span class="mod-sub">${e(r.provider_display_name || r.account_type)} · filed ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}</span></div>
             <div class="mod-actions">
               <button class="mod-btn ok" data-topup-act="verify" data-id="${e(r.id)}" data-i="verifymintcredits">Verify: mint credits</button>
               <button class="mod-btn no" data-topup-act="reject" data-id="${e(r.id)}" data-i="reject">Reject</button>
@@ -961,7 +961,7 @@
       box.innerHTML = rows.map(r => `
         <div class="mod-row">
           <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.reference)}</strong>
-            <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString())}</span>
+            <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}</span>
             <span class="mod-sub">${e(r.match_note || '')}</span></div>
         </div>`).join('');
       setCount('gcash-receipts-count', (typeof _gcashCount === 'number' ? _gcashCount : rows.length), 'warn');   // exact count, not the 20-row page
@@ -1137,7 +1137,7 @@
         if (fb) renderFeedback(fb);
         renderCreditPosition(cp);
         renderUsage(usage);
-        if (_sync) _sync.textContent = 'Updated ' + new Date().toLocaleTimeString();
+        if (_sync) _sync.textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
       } catch (err) {
         // The busy state must not outlive the attempt. A stamp stuck on "Refreshing…" says the
         // console is working on it, which is the one thing that is definitely not true.
@@ -1413,7 +1413,7 @@
         ? `<div class="fb-meta">${'★'.repeat(row.rating)}${'☆'.repeat(5 - row.rating)}</div>` : '';
 
       body.innerHTML = `
-        <div class="fb-meta">${e(new Date(row.created_at).toLocaleString())} · ${e(row.kind)}
+        <div class="fb-meta">${e(new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))} · ${e(row.kind)}
           · status: <strong>${e(row.status)}</strong>${row.priority ? ' · ' + e(String(row.priority).toUpperCase()) : ''}</div>
         <div class="fb-subject" style="font-size:1rem;margin-top:.4rem">${e(row.subject || '(no subject)')}</div>
         ${stars}

@@ -2615,7 +2615,7 @@
           + pending.map(t => '<div style="margin-top:0.25rem;opacity:0.95;">'
               + e(whFmtPeso(t.amount, { decimals: 2 }))
               + ' · ref ' + e(t.gcash_ref || '-')
-              + ' · filed ' + e(new Date(t.created_at).toLocaleString())
+              + ' · filed ' + e(new Date(t.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))
               + '</div>').join('')
           + '<div style="margin-top:0.25rem;opacity:0.8;">Credits appear here the moment it is verified. '
           + 'Nothing is lost while it waits.</div></div>'

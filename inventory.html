@@ -881,7 +881,7 @@ function formatDate(iso) {
   // FD1a: date part = canonical whFmtDate (en-PH + Asia/Manila); the ' · time' layout is kept.
   const d = new Date(iso);
   const datePart = (typeof whFmtDate === 'function') ? whFmtDate(iso) : d.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric', year:'numeric' });
-  return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit' });
+  return datePart + ' · ' + d.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' });
 }
 
 // Stock status canonical anchor: prefer the derived flags from
