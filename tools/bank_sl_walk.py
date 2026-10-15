@@ -65,6 +65,7 @@ GATES = {
     "CA3": ["skew-heal", "skew-heal-live"],
     "CA1": ["sw-shell-membership", "sw-offline", "cache-contract", "pwa-sw-central-register", "sw-proxy-within-csp"],
     "CA4": ["kept-copy-says-so", "offline-is-not-no", "sw-offline", "sw-navigation-fallback", "sw-shell-membership"],
+    "H3": ["pwa", "pwa-sw-central-register", "sw-install-survives-loss", "deploy-payload"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
@@ -80,6 +81,7 @@ GATES = {
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
     "CA1": ("two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy"),
+    "H3": ("on the local edge substitute (tools/serve_vercel_headers.py --local-stack: the production path layout and vercel.json's headers, the pages pointed at the local stack), the worker allowed and installed from the home page; Chromium's installability verdict read in the browser's persistent context as the row's cast"),
     "CA4": ("the service worker allowed and installed from the home page; kept: the page opened once online, then the network cut (context.setOffline) and the page opened again; fallback: a second device with the worker installed and the page never opened, the network cut, the page opened"),
     "CA3": ("utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored"),
     "C1": ("a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read"),

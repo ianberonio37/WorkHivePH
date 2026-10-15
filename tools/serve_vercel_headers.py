@@ -29,6 +29,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def _local_stack_pairs() -> list[tuple[bytes, bytes]]:
+    """The cloud -> local Supabase URL and key, read from the local tester (test-data-seeder/app.py), which rewrites
+    every page it serves the same way. One source of truth, so the two servers cannot disagree about which stack a page
+    talks to."""
+    try:
+        src = (ROOT / "test-data-seeder" / "app.py").read_text(encoding="utf-8", errors="replace")
+        g = {k: re.search(rf'^{k}\s*=\s*"([^"]+)"', src, re.M).group(1) for k in ("CLOUD_URL", "LOCAL_URL", "CLOUD_KEY", "LOCAL_KEY")}
+        return [(g["CLOUD_URL"].encode(), g["LOCAL_URL"].encode()), (g["CLOUD_KEY"].encode(), g["LOCAL_KEY"].encode())]
+    except (OSError, AttributeError):
+        return []
+
+
 def source_to_regex(source: str) -> re.Pattern:
     """Vercel `source` is a path-to-regexp string: literal characters outside parentheses, regex inside them.
     A bare `.` outside a group is a literal dot (`/(.*).(js|css)` means "ends with .js or .css")."""
@@ -83,19 +95,34 @@ class Handler(SimpleHTTPRequestHandler):
     rules: list = []
     ref: str | None = None          # --ref: serve every file as it was at this commit (a returning device's old build)
     local_supabase = False          # --local-supabase: let the CSP reach the local stack the pages talk to
+    local_stack = False             # --local-stack: also serve HTML/JS with the cloud URL+key rewritten to the local stack
+    _pairs: list = []
     _blobs: dict = {}
 
     def send_head(self):
-        if not self.ref:
+        # ★--local-stack: THE PAGES TALK TO THE LOCAL STACK (2026-10-16). --local-supabase only widens the CSP: every page
+        # still named the PRODUCTION Supabase URL and key (the local tester on :5000 rewrites them; this server did not), so
+        # a walk on this substitute signed its test cast in against production's login function (400) and every page read
+        # went to production. With --local-stack, HTML and JS are served with the cloud URL and key replaced by the local
+        # ones, exactly as test-data-seeder/app.py does. A separate flag, because prove_rollout.mjs serves with
+        # --local-supabase and compares served bytes to the files on disk.
+        if not self.ref and not self.local_stack:
             return super().send_head()
         rel = urllib.parse.unquote(self.path.split("?", 1)[0].split("#", 1)[0]).lstrip("/")
         cands = [rel or "index.html"] if not rel.endswith("/") else [rel + "index.html"]
         if rel and not rel.endswith("/"):
             cands.append(rel + "/index.html")            # vercel.json trailingSlash false: /learn/x serves learn/x/index.html
         for c in cands:
-            if c not in self._blobs:
-                self._blobs[c] = git_blob(self.ref, c)
+            if c not in self._blobs or not self.ref:
+                if self.ref:
+                    self._blobs[c] = git_blob(self.ref, c)
+                else:
+                    p = (ROOT / c)
+                    self._blobs[c] = p.read_bytes() if p.is_file() and ROOT in p.resolve().parents else None
             data = self._blobs[c]
+            if data is not None and self.local_stack and c.endswith((".html", ".js", ".mjs")):
+                for cloud, local in self._pairs:
+                    data = data.replace(cloud, local)
             if data is not None:
                 self.send_response(200)
                 self.send_header("Content-Type", self.guess_type(c))
@@ -128,12 +155,18 @@ def main() -> int:
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--ref", help="serve every file as it was at this git commit (and that commit's vercel.json rules)")
     ap.add_argument("--local-supabase", action="store_true", help="let the CSP's connect-src reach the local stack")
+    ap.add_argument("--local-stack", action="store_true",
+                    help="serve HTML/JS with the production Supabase URL and key rewritten to the local stack (implies --local-supabase)")
     ap.add_argument("--resolve", nargs="+", metavar="PATH",
                     help="print, as JSON, the headers the deploy sends for each request path, and exit")
     a = ap.parse_args()
     root = Path(a.root).resolve()
     Handler.rules = load_rules(root, a.ref)
-    Handler.ref, Handler.local_supabase = a.ref, a.local_supabase
+    Handler.ref, Handler.local_supabase = a.ref, a.local_supabase or a.local_stack
+    Handler.local_stack, Handler._pairs = a.local_stack, (_local_stack_pairs() if a.local_stack else [])
+    if a.local_stack and not Handler._pairs:
+        print('--local-stack: could not read the cloud/local pairs from test-data-seeder/app.py - refusing to serve production URLs')
+        return 1
     if a.resolve:
         print(json.dumps({p: headers_for(p, Handler.rules) for p in a.resolve}, ensure_ascii=False))
         return 0
