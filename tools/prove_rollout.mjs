@@ -46,10 +46,17 @@ const H4 = new Map();
 for (const t of REG.trajectories) if (t.sl && t.sl.sublayer === 'H4' && t.status !== 'descoped') H4.set(t.sl.page, t);
 const PAGES = (arg('--pages') ? arg('--pages').split(',') : [...H4.keys()].sort()).filter((f) => existsSync(f));
 
+// ★EVERY AWAIT ON THE PAGE IS BOUNDED (2026-10-16). An unbounded page.evaluate(caches.keys()) on marketplace.html, on a
+// host at 0.3 GB free, waited 10 minutes and froze the run at page 53 of 67 - a hang reads as no verdict at all. A bounded
+// await that runs out returns its fallback, and the fallback reads as a FAILED page (not controlled / no new cache), so a
+// stuck page is reported, never waited on.
+const within = (p, ms, fallback) => Promise.race([Promise.resolve(p).catch(() => fallback), new Promise((r) => setTimeout(() => r(fallback), ms))]);
+
 // ── the origin: one port, two builds ──
 let srv = null;
 const serve = async (ref) => {
-  if (srv) { srv.kill(); await new Promise((r) => srv.once('exit', r)); srv = null; }
+  // an origin that already died never emits 'exit' again - waiting for it unbounded was a hang on a crashed server
+  if (srv) { const s = srv; s.kill(); if (s.exitCode === null && s.signalCode === null) await within(new Promise((r) => s.once('exit', r)), 10000, null); srv = null; }
   srv = spawn(process.platform === 'win32' ? 'python' : 'python3',
     ['tools/serve_vercel_headers.py', '--port', String(PORT), '--local-supabase', ...(ref ? ['--ref', ref] : [])], { stdio: 'ignore' });
   for (let i = 0; i < 40; i++) { try { const r = await fetch(`${ORIGIN}/sw.js`); if (r.ok) return; } catch (e) { void e; } await new Promise((r) => setTimeout(r, 250)); }
@@ -96,12 +103,12 @@ async function returningDevice(browser, file, newRef) {
   await page.waitForTimeout(1500);
   await page.reload({ waitUntil: 'load' }).catch(() => {});      // now controlled: the old worker keeps its copies
   await page.waitForTimeout(2500);
-  const oldState = await page.evaluate(async () => ({ controlled: !!navigator.serviceWorker.controller, caches: await caches.keys() })).catch(() => ({}));
+  const oldState = await within(page.evaluate(async () => ({ controlled: !!navigator.serviceWorker.controller, caches: await caches.keys() })), 20000, {});
   await serve(newRef);
   const v1 = await visit(page, url);
   const v2 = await visit(page, url);
-  const caches = await page.evaluate(async () => caches.keys()).catch(() => []);
-  await ctx.close();
+  const caches = await within(page.evaluate(async () => caches.keys()), 20000, []);
+  await within(ctx.close(), 20000, null);
   return { oldState, v1, v2, caches };
 }
 
@@ -133,7 +140,7 @@ let teeth = { bit: false };
   if (oldScript) await ctx.route(`${ORIGIN}/${oldScript}*`, (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: blobAt(FROM, oldScript) }));
   const v = await visit(page, `${ORIGIN}/${probe}`);
   teeth = { page: probe, planted: oldScript, mixed: v.mixed, bit: !!oldScript && v.mixed.length > 0 };
-  await ctx.close();
+  await within(ctx.close(), 20000, null);
   console.log(`  teeth - ${probe} served new with an OLD ${oldScript}: ${teeth.bit ? 'CAUGHT as half new and half old' : 'NOT CAUGHT'}`);
 }
 const results = [];
