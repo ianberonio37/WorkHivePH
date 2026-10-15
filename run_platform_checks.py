@@ -4321,6 +4321,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "sw-proxy-within-csp",
+        "script":  "tools/validate_sw_proxy_within_csp.py",
+        "args":    [],
+        "label":   "SW proxy within its own CSP (2026-10-16 post-deploy smoke: the worker answered every page's Poppins stylesheet with 503 - its pass-through fetch() obeys the connect-src sent with sw.js, which named no font host): every host sw.js fetches for a page must be allowed by the connect-src vercel.json sends with /sw.js",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "deploy-payload",
         "script":  "tools/deploy_payload.py",
         "args":    ["--check"],
