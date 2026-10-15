@@ -1443,7 +1443,7 @@
 
     // E2 consistent states: shimmer skeleton in the alert feed while sources fetch
     // so #feed never flashes blank before alerts render (shared whListSkeleton).
-    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('feed'), 5);
+    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('feed'), 5, 'your alerts');
 
     // ...and the SAME state inside #amc-card, which is the V2 view the anatomy names. The reveal has
     // to happen HERE, before the FIRST await: under a slow backend every read in this function is
@@ -1459,7 +1459,7 @@
         _ld.id = 'amc-loading';
         _ld.setAttribute('aria-busy', 'true');
         _c.appendChild(_ld);
-        if (typeof whListSkeleton === 'function') whListSkeleton(_ld, 2);
+        if (typeof whListSkeleton === 'function') whListSkeleton(_ld, 2, "today's maintenance brief");
         else _ld.textContent = 'Loading today’s brief…';
         _c.style.display = 'block';
       }

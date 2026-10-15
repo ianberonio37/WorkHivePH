@@ -234,7 +234,7 @@
     <div class="card">
       <div class="sec-head">
         <span data-i="p_equipmentreliabilityranking_e97e" class="sec-title">Equipment Reliability Ranking</span>
-        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size: 0.75rem; color:var(--muted);">Days between failures (higher = better)</span>
+        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size: 0.75rem; color:var(--muted);">Mean time between failures (MTBF), in days - higher is better</span>
       </div>
       <div class="mtbf-bar-wrap" id="mtbf-chart"></div>
     </div>
@@ -432,7 +432,7 @@
     // G1 (FF1): canonical skeleton replaces the text-only wait state while the report
     // query is in flight (#report-content stays hidden until load, so this card IS the
     // visible loading surface — a skeleton inside the hidden content would show nothing).
-    if (typeof whListSkeleton === 'function') whListSkeleton(loading, 3);
+    if (typeof whListSkeleton === 'function') whListSkeleton(loading, 3, 'the intelligence report');
 
     let data, error;
     try {

@@ -1617,7 +1617,7 @@ async function loadData() {
   // load only). Replaces the #dash-loading text as the visible wait state — never show both.
   const _alList = document.getElementById('asset-list');
   if (_alList && !assets.length && !_alList.childElementCount && typeof whCardSkeleton === 'function') {
-    whCardSkeleton(_alList, 3);
+    whCardSkeleton(_alList, 3, { label: 'your PM assets' });
     const _dl = document.getElementById('dash-loading');
     if (_dl) _dl.classList.add('hidden');
   }

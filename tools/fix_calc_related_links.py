@@ -63,9 +63,11 @@ def expected_items(slug: str, data: dict) -> str:
     sibs = data.get("siblings") or _siblings(slug, data)
     rel = data.get("related_article")
     rows = [f'        <li><a href="{e(PILLAR[0])}">{e(PILLAR[1])}</a> (pillar)</li>']
-    rows += [f'        <li><a href="{e(u)}">{e(t)}</a></li>' for u, t in sibs]
+    # the generator wraps a label's acronyms in <abbr title> (SL F4, 2026-10-16) - the expected rows must too
+    ab = getattr(_bcp, "_abbr", lambda s: s)
+    rows += [f'        <li><a href="{e(u)}">{ab(e(t))}</a></li>' for u, t in sibs]
     if rel and rel[0] != PILLAR[0]:
-        rows.append(f'        <li><a href="{e(rel[0])}">{e(rel[1])}</a></li>')
+        rows.append(f'        <li><a href="{e(rel[0])}">{ab(e(rel[1]))}</a></li>')
     return "\n" + "\n".join(rows) + "\n      "
 
 

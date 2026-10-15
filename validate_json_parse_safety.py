@@ -36,9 +36,15 @@ CHECK_NAMES = ["json_parse_safety"]
 
 
 def _is_in_try(src: str, idx: int) -> bool:
-    """Heuristic: scan backward up to 800 chars; if a `try {` appears
-    without a matching `}` before the parse call, we're inside a try."""
-    window = src[max(0, idx-800): idx]
+    """Heuristic: scan backward up to 800 chars OF CODE; if a `try {` appears
+    without a matching `}` before the parse call, we're inside a try.
+
+    ★COMMENTS ARE NOT CODE (2026-10-16). utils.js's role correction opens `try {`, explains a stale-mode fix in
+    seven comment lines, then parses wh_hives - guarded, and read as unguarded because the comment alone pushed the
+    `try` past the 800-char window. Line comments (`//` after whitespace or punctuation, never `https://`) are
+    dropped before the window is measured, so prose cannot move a parse out of its try."""
+    before = re.sub(r"(^|[\s;{}(,])//[^\n]*", r"\1", src[:idx], flags=re.M)
+    window = before[-800:]
     # Walk forward through the window tracking depth
     depth = 0
     in_try_depths = []

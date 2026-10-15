@@ -29,9 +29,9 @@ Part of the [guide to starting digital maintenance in a Philippine factory](http
 
 In Philippine plants, shift planning is crucial for maintaining equipment uptime and crew productivity. Traditional shift planning involves manually writing briefs to guide technicians on what to fix first. That brief is written by whoever is free at handover, from memory, and it is the first thing dropped when the shift starts badly - so the shifts most in need of a plan are the ones that get none. WorkHive's **Shift Brain** writes it instead, on a fixed cadence, whether or not anyone has time.
 
-**Shift Brain** runs on a schedule, generating briefs at 06:00, 14:00, and 22:00 PHT, one brief per shift. It uses four sub-agents to gather information: risk-ranking assets most likely to fail, listing preventive maintenance tasks due, carrying forward open work from the previous shift, and pre-staging necessary spare parts. The supervisor reviews what it drafted and publishes it to the crew with one tap, so the crew reads one ranked list instead of hearing four different answers at handover.
+**Shift Brain** runs on a schedule, generating briefs at 06:00, 14:00, and 22:00 PHT, one brief per shift. It uses four sub-agents to gather information: risk-ranking assets most likely to fail, listing preventive maintenance tasks due, carrying forward open work from the previous shift, and setting aside the spare parts the work needs. The supervisor reviews what it drafted and publishes it to the crew with one tap, so the crew reads one ranked list instead of hearing four different answers at handover.
 
-By automating shift planning, **Shift Brain** saves time and reduces the administrative burden on plant staff. With zero budget and no CMMS rollout required, plants can start logging and scheduling preventive maintenance tasks, allowing the brief to improve over time as history grows. It matters most in brownout and typhoon season, when a shift can lose half its hours to events nobody scheduled and the little time left has to go to the right asset.
+By automating shift planning, **Shift Brain** saves time and reduces the administrative burden on plant staff. With zero budget and no CMMS (computerized maintenance management system) rollout required, plants can start logging and scheduling preventive maintenance tasks, allowing the brief to improve over time as history grows. It matters most in brownout and typhoon season, when a shift can lose half its hours to events nobody scheduled and the little time left has to go to the right asset.
 
 ## How Shift Brain Works
 
@@ -109,4 +109,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 5691a85d658ce394 -->
+<!-- md-twin source-sha: 806c2a6df0802ff0 -->

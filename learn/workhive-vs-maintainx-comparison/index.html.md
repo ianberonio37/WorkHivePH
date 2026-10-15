@@ -36,7 +36,7 @@ Pricing verified against vendor and directory listings on 5 August 2026; SaaS pr
 - **No per-seat cost.** Free at the worker tier means adding technicians does not add cost: the opposite of per-seat pricing.
 - **Dead-spot capture.** Offline-first is the difference between a record written at the asset and a record written from memory hours later.
 - **Filipino-language capture** including Taglish voice-to-text.
-- **Philippine compliance** records: the DOLE OSHS audit trail, LOTO permits, and the action record an RA 11285 energy audit asks for: WorkHive logs the energy-related actions, not the kilowatt-hours. Plus 60 engineering calculators for the design side.
+- **Philippine compliance** records: the DOLE OSHS audit trail, LOTO (lock-out/tag-out) permits, and the action record an RA 11285 energy audit asks for: WorkHive logs the energy-related actions, not the kilowatt-hours. Plus 60 engineering calculators for the design side.
 
 ## Frequently asked questions
 
@@ -63,9 +63,9 @@ Or try the parts of it this page compares, without an account: the [MTBF calcula
 ## Sources
 
 - Vendor published pricing and feature pages (MaintainX), accessed August 2026.
-- Independent CMMS landscape reviews, 2026.
+- Independent CMMS (computerized maintenance management system) landscape reviews, 2026.
 - Related: [WorkHive vs UpKeep](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/) · [Best free CMMS options](https://workhiveph.com/learn/best-free-cmms-software-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 50c92632f162c927 -->
+<!-- md-twin source-sha: 739dd96c4ec8c5d8 -->

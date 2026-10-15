@@ -31,7 +31,7 @@ Maintenance analytics is what a plant can say about its own equipment from the r
 
 The Analytics Engine is designed to guide maintenance teams through four phases of analytics maturity: descriptive, diagnostic, predictive, and prescriptive analytics. The **Descriptive** phase provides a snapshot of what has happened, through live KPI tiles. The **Diagnostic** phase delves into why things happened, using Pareto and root-cause analysis. The **Predictive** phase forecasts what might happen, through failure risk and forecast tools. Finally, the **Prescriptive** phase recommends what to do next, via an AI-driven action plan. This structured approach ensures that maintenance teams can systematically improve their operations.
 
-WorkHive's Analytics Engine is built with industry standards in mind, including ISO 14224 and ISA-101. It offers a zero-budget, no-CMMS rollout solution that gets richer as your logbook grows. By starting with logbook entries, plants can begin their analytics journey without significant upfront investment. The engine's outputs, such as Predictive Analytics, Asset Hub, and print-ready Analytics Reports, are all interconnected, providing a comprehensive view of maintenance performance. This holistic approach enables Philippine plants, such as those in Cabuyao or Batangas, to benchmark their performance against PH Industry Intelligence standards.
+WorkHive's Analytics Engine is built with industry standards in mind, including ISO 14224 and ISA-101. It offers a zero-budget, no-CMMS (computerized maintenance management system) rollout solution that gets richer as your logbook grows. By starting with logbook entries, plants can begin their analytics journey without significant upfront investment. The engine's outputs, such as Predictive Analytics, Asset Hub, and print-ready Analytics Reports, are all interconnected, providing a comprehensive view of maintenance performance. This holistic approach enables Philippine plants, such as those in Cabuyao or Batangas, to benchmark their performance against PH Industry Intelligence standards.
 
 ## Descriptive Analytics: What Happened
 
@@ -114,4 +114,4 @@ WorkHive provides technical support and training for Analytics Engine users. Thi
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [The print-ready analytics report](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 2d8423ba2bb7814a -->
+<!-- md-twin source-sha: f5eb7ddcea91c675 -->

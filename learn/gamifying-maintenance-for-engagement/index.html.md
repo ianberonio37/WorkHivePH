@@ -47,7 +47,7 @@ Gamification, done right, makes the invisible visible. A badge for "100 logbook 
 
 - **Leaderboards that rank workers publicly.** Demoralises the bottom 40 percent and triggers gaming of the top metric. Private dashboards with personal targets work better.
 - **Badges for vanity metrics** (most logins, most clicks). Reward the input, not the outcome.
-- **Speed badges** ("fastest fault closure"). Trades quality for visibility. Always backfires within 6 months when MTBF drops.
+- **Speed badges** ("fastest fault closure"). Trades quality for visibility. Always backfires within 6 months when MTBF (mean time between failures) drops.
 - **One-shot launch with no maintenance.** Badges introduced in January and never updated lose meaning by June. Quarterly refresh keeps the system alive.
 
 ## Badge design that survives 12 months
@@ -55,7 +55,7 @@ Gamification, done right, makes the invisible visible. A badge for "100 logbook 
 Four design rules:
 
 1. **Hard to earn.** If 80 percent of workers have it, it stops meaning anything. Top 20 to 30 percent is the right rarity for the prestigious badges.
-2. **Tied to documented outcomes.** Not "knows about RCM" but "completed 5 verified RCM-driven PM changes."
+2. **Tied to documented outcomes.** Not "knows about RCM (reliability-centered maintenance)" but "completed 5 verified RCM-driven PM changes."
 3. **Stackable with skill matrix.** Earning the badge unlocks or evidences a skill matrix level advance.
 4. **Recognised externally.** The badge appears on the worker's portable WorkHive portfolio that they can share with future employers.
 
@@ -125,4 +125,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d73d757a7741faa3 -->
+<!-- md-twin source-sha: 1328ba73803ced92 -->

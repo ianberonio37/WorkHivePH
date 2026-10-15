@@ -22,9 +22,9 @@ After four weeks you will have a ranked list, and it is almost always lopsided: 
 
 ## Step 2: fix the recurring few at root cause
 
-Restoring a machine is not the same as fixing it. For each top failure mode, ask what condition produced it: lubrication, alignment, contamination, operating outside design, or a deferred PM. [FMEA](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/) gives a structured way to rank by risk, and [RCM](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/) picks the right strategy per mode instead of applying the same PM to everything.
+Restoring a machine is not the same as fixing it. For each top failure mode, ask what condition produced it: lubrication, alignment, contamination, operating outside design, or a PM that was put off and is still due. [FMEA](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/) gives a structured way to rank by risk, and [RCM](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/) picks the right strategy per mode instead of applying the same PM to everything.
 
-The test of a root-cause fix is simple: the interval to the next identical failure gets longer. If MTBF is flat, the cause was not addressed.
+The test of a root-cause fix is simple: the interval to the next identical failure gets longer. If MTBF (mean time between failures) is flat, the cause was not addressed.
 
 ## Step 3: hold PM compliance above 90%
 
@@ -84,4 +84,4 @@ The PM Scheduler is the step after recording stoppages, where a due date chases 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3054dcb6e0290734 -->
+<!-- md-twin source-sha: ebbef7cdc11b6103 -->

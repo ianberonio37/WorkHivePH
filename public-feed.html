@@ -276,7 +276,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whQueryTimeout whReadError whStartupHive">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whQueryTimeout whReadError whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -424,7 +424,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <span class="cat-badge ${cc}">${escHtml(catLabel(p.category))}</span>
         <span class="post-time">${escHtml(formatTimeAgo(p.created_at))}</span>
       </div>
-      <p class="post-content">${escHtml(p.content)}</p>
+      <p class="post-content">${typeof whAbbr === 'function' ? whAbbr(escHtml(p.content)) : escHtml(p.content)}</p>
     </div>`;
   }
 
@@ -487,7 +487,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // G1 (FF1) converge: canonical skeleton takes over the wait state once JS runs; the
     // static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve.
     const _fsk = document.getElementById('feed-skeleton');
-    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3); _fsk.dataset.whSkel = '1'; }
+    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3, 'the public feed'); _fsk.dataset.whSkel = '1'; }
     /* THE SECOND LOAD HAD NO LOADING STATE. This function only ever HIDES the skeleton (below), so on
        the first load it works and on every load after -- pressing Retry on the error state, most of all
        -- the skeleton stayed hidden and the feed area sat showing the stale error, or nothing, with no
@@ -504,7 +504,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _fl = document.getElementById('feed-list');
     if (_fl) {
       _fl.style.display = 'block';
-      if (typeof whListSkeleton === 'function') whListSkeleton(_fl, 3);
+      if (typeof whListSkeleton === 'function') whListSkeleton(_fl, 3, 'the public feed');
       else _fl.innerHTML = '<div class="empty-state" aria-busy="true">Loading the public feed…</div>';
     }
     /* AND BOUND IT, or the skeleton above becomes the eternal one. A supabase-js query never passes

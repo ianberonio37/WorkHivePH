@@ -45,7 +45,7 @@ The FMEA worksheet consists of 7 columns: Failure Mode, Effects of Failure, Seve
 
 To calculate the RPN, we multiply the severity, occurrence, and detection ratings. In this case, let's assume the detection rating is 3 out of 10, as the plant supervisor or shift in-charge may not always detect the pump failure immediately. The RPN would be 8 x 4 x 3 = 96. Asset Hub allows users to easily calculate and track RPNs for multiple failure modes. For example, if the cost of downtime for this pump failure is estimated to be PHP 180,000 per hour, and the average downtime is 2 hours, the total cost of downtime would be PHP 360,000.
 
-Based on the RPN, we can prioritize the top 3 failure modes to address first. Let's say the top 3 failure modes for our bottling line filler are pump failure (RPN = 96), conveyor belt failure (RPN = 80), and electrical control failure (RPN = 72). By focusing on these high-priority failure modes, the plant can reduce downtime and increase overall efficiency. Asset Hub provides a platform for storing and tracking FMEA worksheets, making it easier to review and update the analysis over time. For instance, a failure on the night shift that nobody can clear until the day crew arrives costs the whole gap between them, which is the argument for staging the part in advance rather than finding it at 03:00.
+Based on the RPN, we can prioritize the top 3 failure modes to address first. Let's say the top 3 failure modes for our bottling line filler are pump failure (RPN = 96), conveyor belt failure (RPN = 80), and electrical control failure (RPN = 72). By focusing on these high-priority failure modes, the plant can reduce downtime and increase overall efficiency. Asset Hub provides a platform for storing and tracking FMEA worksheets, making it easier to review and update the analysis over time. For instance, a failure on the night shift that nobody can clear until the day crew arrives costs the whole gap between them, which is the argument for having the part picked and set aside in advance rather than finding it at 03:00.
 
 ## Calculating RPN
 
@@ -126,9 +126,9 @@ Use a standard formula to calculate the cost of downtime, taking into account fa
 
 ## Sources
 
-- ISO 14224:2016, 'Reliability centred maintenance (RCM) - Process for specification and analysis of equipment reliability'
+- ISO 14224:2016, 'Reliability centred maintenance (RCM: reliability-centered maintenance) - Process for specification and analysis of equipment reliability'
 - SMRP CMRP BoK, 'Failure Mode and Effects Analysis (FMEA)'
 - DOLE OSHS, 'Guidelines on Occupational Safety and Health in the Philippines'
 - IIEE Code, 'Code of Practice for Electrical Safety in the Philippines'
 
-<!-- md-twin source-sha: 683b711446493d18 -->
+<!-- md-twin source-sha: 61314b74cb1855bb -->

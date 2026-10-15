@@ -14,7 +14,7 @@ The Occupational Safety and Health Standards are no longer advisory: RA 11058 an
 
 ## Lockout/tagout (LOTO) under DO 198-18
 
-Every maintenance task that exposes a worker to stored or live energy needs a documented lockout/tagout procedure: the isolation points, the sequence, the verification, and who signed off. LOTO is one of the highest-liability areas in a plant because the failure mode is a fatality, and it is one of the first things a DOLE inspector examines. Use the ready-made procedure and permit format in [LOTO procedures and DOLE OSHS template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/). Keep each completed permit in the record: a LOTO you performed but cannot prove is, to an auditor, a LOTO you did not perform.
+Every maintenance task that exposes a worker to stored or live energy needs a documented lockout/tagout procedure: the isolation points, the sequence, the verification, and who signed off. LOTO (lock-out/tag-out) is one of the highest-liability areas in a plant because the failure mode is a fatality, and it is one of the first things a DOLE inspector examines. Use the ready-made procedure and permit format in [LOTO procedures and DOLE OSHS template](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/). Keep each completed permit in the record: a LOTO you performed but cannot prove is, to an auditor, a LOTO you did not perform.
 
 ## RA 11285: energy efficiency reporting
 
@@ -61,4 +61,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3d06c3342cd226fc -->
+<!-- md-twin source-sha: 6ad1329b54341387 -->

@@ -27,7 +27,7 @@ Pricing verified against vendor and directory listings on 5 August 2026; SaaS pr
 
 Read a free tier by what it *caps*, not what it advertises. The usual limits are the number of users, the number of assets or work orders, history retention, and whether reporting or PM automation is included at all. Those caps are deliberate: the free tier is the top of a sales funnel, and the cap is placed exactly where a growing plant will hit it.
 
-That is not dishonest: it is a business model, and for a funded plant the paid product may well be worth it. But it means "free CMMS" and "free forever for my whole crew" are different questions. Ask specifically: how many users, how many assets, and what happens to my history if I stop paying?
+That is not dishonest: it is a business model, and for a funded plant the paid product may well be worth it. But it means "free CMMS (computerized maintenance management system)" and "free forever for my whole crew" are different questions. Ask specifically: how many users, how many assets, and what happens to my history if I stop paying?
 
 ## The Philippine-specific criteria most lists ignore
 
@@ -35,7 +35,7 @@ International comparison lists rank on features. For a Philippine plant, four pr
 
 - **Offline capture.** If the tool needs signal at the asset, entries get written from memory later, or not at all.
 - **Language.** Technicians who work in Filipino or Taglish record more, and more accurately, when they can capture in their own language.
-- **Local compliance.** DOLE OSHS audit trails, LOTO permits, and RA 11285 energy reporting are what an inspector asks for: see the [compliance guide](https://workhiveph.com/learn/ph-plant-compliance-guide/).
+- **Local compliance.** DOLE OSHS audit trails, LOTO (lock-out/tag-out) permits, and RA 11285 energy reporting are what an inspector asks for: see the [compliance guide](https://workhiveph.com/learn/ph-plant-compliance-guide/).
 - **Cost in pesos per seat.** $20/user/month is a different decision in a Philippine plant than in a US one.
 
 ## How to choose a free CMMS for a Philippine plant
@@ -80,4 +80,4 @@ Or see it working first: the [OEE calculator](https://workhiveph.com/tools/oee-c
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b5badf15ba758eb5 -->
+<!-- md-twin source-sha: 04a9a87c4eb16a34 -->

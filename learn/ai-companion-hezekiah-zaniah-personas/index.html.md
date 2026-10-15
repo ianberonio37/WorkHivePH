@@ -39,13 +39,13 @@ Hezekiah is the hands-on reliability and maintenance expert. He pulls from the t
 - "What broadband vibration velocity means I should take a machine offline?"
 - "What goes on a monthly PM checklist for a centrifugal pump?"
 - "Walk me through an FMEA for a bottling line filler."
-- "What is the difference between MTBF and MTTR, with the formulas?"
+- "What is the difference between MTBF (mean time between failures) and MTTR (mean time to repair), with the formulas?"
 
 He answers like a senior technician who has read every standard and remembers every entry: specific, sourced, and practical.
 
 ## Zaniah, the strategist
 
-Zaniah is the maintenance strategist. She pulls from the strategic knowledge: OEE and reliability benchmarks, KPI selection, maturity models, cost-of-downtime and life-cycle cost, and prioritisation. Ask Zaniah when the question is about *what to do next* and *why it is worth it*:
+Zaniah is the maintenance strategist. She pulls from the strategic knowledge: OEE (overall equipment effectiveness) and reliability benchmarks, KPI (key performance indicator) selection, maturity models, cost-of-downtime and life-cycle cost, and prioritisation. Ask Zaniah when the question is about *what to do next* and *why it is worth it*:
 
 - "We are reactive today. What is the highest-return next step?"
 - "Which two KPIs should I put on the plant dashboard first?"
@@ -95,7 +95,7 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ## What it is NOT good at
 
-- **Safety decisions.** LOTO scope, permit issuance, confined-space entry. Always human-signed, never delegated to the companion.
+- **Safety decisions.** LOTO (lock-out/tag-out) scope, permit issuance, confined-space entry. Always human-signed, never delegated to the companion.
 - **Overriding the OEM manual or DOLE OSHS.** If the companion contradicts the manufacturer's manual or the regulation, those win.
 - **Management calls about people, budgets, and vendors.** Zaniah can frame the trade-off; the decision stays human.
 - **Real-time sensor interpretation.** It reasons over history and standards, not a live orbit plot on a turbine.
@@ -136,4 +136,4 @@ Yes. It accepts English, Filipino and Taglish and replies in the language you us
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 4b8c7d348dfe0b08 -->
+<!-- md-twin source-sha: c669e7ae30aacb13 -->

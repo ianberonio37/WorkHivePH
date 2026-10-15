@@ -967,7 +967,7 @@
       // G1 (FF1): canonical skeleton while the record counts load (first load only).
       const _rl = document.getElementById('records-list');
       // three rows because three rows arrive - the skeleton used to promise 3 and deliver 1.
-      if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3);
+      if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3, 'your record counts');
       const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
       // ★THIS PANEL AND THE WELCOME COUNTED DIFFERENT THINGS (design lens critique, 2026-09-15). This read
       // the logbook ALONE and drove the empty-records nudge from it, while startChat's `hasRecords` is
@@ -1673,7 +1673,7 @@ happens to know maintenance, not a manual.`;
       // greeting settled, removeTypingIndicator() cleared _typingTimers - the question's staged "Still working" notes
       // with it - so the question waited 26s in silence. The greeting now owns its own indicator and its own timers.
       const _greetTimers = [];
-      const _greetTyping = addTypingIndicator({ stoppable: false, id: 'typing-indicator-greeting', timers: _greetTimers });
+      const _greetTyping = addTypingIndicator({ stoppable: false, id: 'typing-indicator-greeting', timers: _greetTimers, label: 'Reading your job records…' });
 
       // Build system prompt and welcome message in background.
       // Cold-load 401 sibling: this count runs in PARALLEL with buildSystemPrompt (whose own
@@ -2019,7 +2019,7 @@ happens to know maintenance, not a manual.`;
         // ★THE ONBOARDING WAS ENGLISH-ONLY (design lens copy, 2026-09-15). These three chips are what a
         // first-time worker reads to learn WHAT the assistant answers - the reason the empty chat is not a
         // dead end - and they are exactly the sentences he would want to ask in his own language.
-        ? [_t('Which of my assets has the worst MTBF, and what should I do?',
+        ? [_t('Which of my assets breaks down most often, and what should I do?',
               'Aling asset ko ang may pinakamasamang MTBF, at ano ang dapat kong gawin?'),
            _t('What should I prioritise this week?', 'Ano ang dapat kong unahin ngayong linggo?'),
            _t('Any parts running low that I should reorder?', 'May mga parts bang nauubos na dapat kong i-reorder?')]
@@ -2270,7 +2270,10 @@ happens to know maintenance, not a manual.`;
       // The label is what everyone reads during a wait of up to a minute - on screen since 2026-10-15 (it was
       // screen-reader-only behind three dots), and it was English on a bilingual page (design lens critique, 2026-09-15).
       const _sr = wrap.querySelector('#typing-sr');
-      if (_sr) _sr.textContent = _t('Thinking…', 'Nag-iisip…');
+      // ★THE OPENING WAIT SAYS WHAT IT READS (SL F1, 2026-10-16): the greeting reuses this indicator while it counts
+      // the person's records, and it said "Thinking…" - the F1 walk held those counts and read the page at 1.5 s:
+      // nothing named what was being waited on. A caller can name it; an answer still says Thinking…
+      if (_sr) _sr.textContent = (opts && opts.label) || _t('Thinking…', 'Nag-iisip…');
       const _note = wrap.querySelector('#typing-note');
       [[8000,  _t('Still working - reading your records.', 'Ginagawa pa - binabasa ang mga record mo.')],
        [20000, _t('Still working - trying a faster route.', 'Ginagawa pa - sinusubukan ang mas mabilis na ruta.')],

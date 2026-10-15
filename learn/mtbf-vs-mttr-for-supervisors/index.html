@@ -433,7 +433,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
       <div class="cta-box">
         <p class="cta-eyebrow">The tool this guide is about</p>
         <h3>WorkHive Analytics computes MTBF and MTTR per asset</h3>
-        <p>Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is <strong>downtime hours</strong> on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure <em>&ldquo;Worst MTBF (partial)&rdquo;</em>, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.</p>
+        <p>Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is <strong>downtime hours</strong> on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure <em>&ldquo;Worst MTBF (partial)&rdquo;</em>, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS (computerized maintenance management system) license. Built for Stage 1 of the 4-stage path.</p>
         <a href="/analytics.html" class="cta-btn">Open Analytics</a>
         <p class="cta-secondary">No hive yet? <a href="/?signup=1">Join WorkHive</a> first (free, takes 30 seconds).</p>
       </div>
@@ -442,8 +442,8 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
       <p>Engineering availability is the cleanest combined metric:</p>
       <pre tabindex="0">Availability = MTBF / (MTBF + MTTR)</pre>
       <p>For the Cabuyao pump example: <code>1,091 / (1,091 + 4) = 99.6%</code></p>
-      <p>That 99.6 percent looks excellent on paper, but the OEE on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.</p>
-      <p>This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.</p>
+      <p>That 99.6 percent looks excellent on paper, but the OEE (overall equipment effectiveness) on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.</p>
+      <p>This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM (reliability-centered maintenance) analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.</p>
 
       <h2 id="zero-budget">Tracking both with zero CMMS budget</h2>
       <p>You do not need to buy SAP PM, IBM Maximo, or any paid CMMS to track MTBF and MTTR. You need a digital logbook that captures three things per fault:</p>
@@ -509,7 +509,7 @@ MTTR               = 38 / 12 = 3.17 hr</pre>
       <ul>
         <li>ISO 14224:2016, <strong>Petroleum, petrochemical and natural gas industries: Collection and exchange of reliability and maintenance data for equipment</strong>. The international standard for MTBF/MTTR data definitions and failure categorization.</li>
         <li>IEC 60050-192, <strong>International Electrotechnical Vocabulary: Dependability</strong>. The formal definitions of reliability, availability, MTBF, and MTTR used across industry.</li>
-        <li>Society for Maintenance and Reliability Professionals (SMRP), <strong>Best Practices, 5th Edition</strong>, 2017. North American KPI library and benchmark ranges.</li>
+        <li>Society for Maintenance and Reliability Professionals (SMRP), <strong>Best Practices, 5th Edition</strong>, 2017. North American KPI (key performance indicator) library and benchmark ranges.</li>
         <li>WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. <a href="/">workhiveph.com</a></li>
       </ul>
 

@@ -21,7 +21,7 @@ Who this is for
 
 - Reliability and maintenance engineers
 - Asset and planning managers
-- Plant managers starting CMMS journey
+- Plant managers starting CMMS (computerized maintenance management system) journey
 - Supervisors auditing what they own
 - Contractors mapping client assets
 - Suppliers building installed-base data
@@ -33,7 +33,7 @@ Part of the [guide to starting digital maintenance in a Philippine factory](http
 
 Walk into any Philippine plant and ask "how many critical pumps do you have?" You will get three answers from three people. The maintenance supervisor knows it is "around 40, more or less." The planner has a spreadsheet that says 47. The finance team's depreciation schedule says 52. The procurement records show 38 in active service. All four are partially right and entirely useless for running maintenance.
 
-An asset register fixes this by making one canonical source of truth. Every asset has exactly one identity. Every logbook entry, PM, fault, parts consumption, and skill assignment points to that identity. The result is searchable history, accurate MTBF, defensible insurance valuations, and a foundation that every higher-stage system (PdM, CMMS integration, AI assistant) depends on.
+An asset register fixes this by making one canonical source of truth. Every asset has exactly one identity. Every logbook entry, PM, fault, parts consumption, and skill assignment points to that identity. The result is searchable history, accurate MTBF (mean time between failures), defensible insurance valuations, and a foundation that every higher-stage system (PdM, CMMS integration, AI assistant) depends on.
 
 The most common reason Philippine plants do not have an asset register is not budget. It is that nobody owned the project. The supervisor thought it was the engineer's job; the engineer thought it was the planner's job; the planner thought it was IT's job. After 5 years of mutual assumption, you have 3 spreadsheets and a problem.
 
@@ -174,4 +174,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ac9bca669089cac1 -->
+<!-- md-twin source-sha: 9a33140dceb0bc97 -->

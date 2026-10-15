@@ -97,7 +97,7 @@ The tool this guide is about
 
 ### WorkHive Project Manager runs the 6 steps end to end
 
-Project Manager has a critical-path Gantt, Monte Carlo schedule risk so the end date comes with a spread, resource-overload flagging, change orders when scope moves, a daily progress log with supervisor sign-off, BOM import from Engineering Design, and a variance and lessons-learned summary at the close. Projects carry a budget figure and link to the assets, logbook entries, PM completions, inventory items and calculations they touch. Free at the worker tier. Closing a work order can push the completion to SAP or Maximo; the financial side stays in those systems.
+Project Manager has a critical-path Gantt, Monte Carlo schedule risk so the end date comes with a spread, resource-overload flagging, change orders when scope moves, a daily progress log with supervisor sign-off, BOM (bill of materials) import from Engineering Design, and a variance and lessons-learned summary at the close. Projects carry a budget figure and link to the assets, logbook entries, PM completions, inventory items and calculations they touch. Free at the worker tier. Closing a work order can push the completion to SAP or Maximo; the financial side stays in those systems.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -136,7 +136,7 @@ WorkHive Project Manager handles the operations side:
 - Scope items, and links to the asset, the logbook entries, PM completions, inventory items and engineering calculations the project touches
 - Variance summary and lessons learned at the close
 
-They meet at one point today, and it is worth knowing exactly where: when a worker closes a work order in the logbook, WorkHive pushes that completion out to your configured CMMS: the machine, who did it, actual hours and the close timestamp: translated into that system’s own status code rather than the literal word “closed”. See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup. Nothing financial crosses in either direction: budgets, WBS structure, PO matching and capitalisation stay entirely in SAP or Maximo, and a cost figure you want in both places is entered in both places. Plants that use both well treat them as complementary; plants that try to make either do both end up with one half-used system.
+They meet at one point today, and it is worth knowing exactly where: when a worker closes a work order in the logbook, WorkHive pushes that completion out to your configured CMMS (computerized maintenance management system): the machine, who did it, actual hours and the close timestamp: translated into that system’s own status code rather than the literal word “closed”. See the [CMMS integration guide](https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms/) for the setup. Nothing financial crosses in either direction: budgets, WBS structure, PO matching and capitalisation stay entirely in SAP or Maximo, and a cost figure you want in both places is entered in both places. Plants that use both well treat them as complementary; plants that try to make either do both end up with one half-used system.
 
 ## Handback discipline: where most projects end badly
 
@@ -191,4 +191,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c385d6d1463179b9 -->
+<!-- md-twin source-sha: 5ab180bc6d6806c5 -->

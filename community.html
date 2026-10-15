@@ -895,7 +895,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whReconcileHiveRole whRequireOnline whSafeSearchTerm whStartupHive whStatValue">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whReconcileHiveRole whRequireOnline whSafeSearchTerm whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1480,9 +1480,14 @@ function _isMinePost(p) {
         ? ((typeof whHiveContextLost === 'function')
             ? whHiveContextLost('this hive')
             : 'You are no longer a member of this hive, so its activity is not shown.')
-        : 'No activity yet.';
-      el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">'
-                   + escHtml(_lbMsg) + '</p>';
+        // ★THE INVITATION THE COMMENT ABOVE PROMISED (SL F1, 2026-10-16): "an empty leaderboard keeps the invitation" -
+        // but the sentence that shipped was "No activity yet." alone, naming neither the board nor what fills it.
+        : 'No one has earned community XP in this hive yet. Your first post puts you on the board.';
+      el.innerHTML = '<p style="font-size:0.875rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0 0.5rem; margin:0;">'
+                   + escHtml(_lbMsg) + '</p>'
+                   + (_hiveLost ? '' : '<div style="text-align:center;"><button type="button" id="lb-first-post" style="font-size:0.875rem;font-weight:600;padding:0 16px;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;cursor:pointer;">Write a post</button></div>');
+      const fp = document.getElementById('lb-first-post');
+      if (fp && typeof openComposer === 'function') fp.addEventListener('click', () => openComposer());
       return;
     }
 
@@ -1656,7 +1661,7 @@ function _isMinePost(p) {
     // static 3×90 placeholder divs stay in markup ONLY as the pre-JS first-paint reserve
     // (hidden-block CLS rule: reserve >= filled). One-time swap, then display-toggled as before.
     const _fsk = document.getElementById('feed-skeleton');
-    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3); _fsk.dataset.whSkel = '1'; }
+    if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3, 'the community feed'); _fsk.dataset.whSkel = '1'; }
     document.getElementById('feed-skeleton').style.display = 'flex';
     document.getElementById('feed-list').style.display     = 'none';
     _resetFeed();
@@ -3524,14 +3529,14 @@ function _isMinePost(p) {
   // escapeHtml first, then inject styled spans for each known mention.
   function renderContentWithMentions(content, mentions) {
     let out = escHtml(content || '');
-    if (!mentions || !mentions.length) return out;
+    if (!mentions || !mentions.length) return (typeof whAbbr === 'function' ? whAbbr(out) : out);
     const sorted = [...mentions].sort((a, b) => b.length - a.length);
     for (const name of sorted) {
       const escaped = escHtml(name);
       const re = new RegExp('@' + _reEscape(escaped) + '(?![A-Za-z0-9_])', 'g');
       out = out.replace(re, `<span class="mention">@${escaped}</span>`);
     }
-    return out;
+    return (typeof whAbbr === 'function' ? whAbbr(out) : out);
   }
 
   function _mentionDropdownEl() { return document.getElementById('mention-dropdown'); }

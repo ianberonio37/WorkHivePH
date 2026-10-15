@@ -2184,6 +2184,30 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// whAbbr — a domain acronym in rendered text says what it stands for (SL F4, 2026-10-16). The F4 walk read 155 pages
+// as a person reads them and met MTBF, CMMS, OEE and LOTO with nothing on the page explaining them - in a starter
+// question, a report name, community posts. Pass ALREADY-ESCAPED text; each known acronym comes back wrapped in
+// <abbr title="...">, so a screen reader and a long-press both reach the words. WH_GLOSS is the twin of
+// tools/gloss_first_use.py TERMS - that gate fails if the two drift apart.
+var WH_GLOSS = {
+  MTBF: 'mean time between failures',
+  MTTR: 'mean time to repair',
+  OEE: 'overall equipment effectiveness',
+  RCM: 'reliability-centered maintenance',
+  FMEA: 'failure mode and effects analysis',
+  RPN: 'risk priority number',
+  LOTO: 'lock-out/tag-out',
+  CMMS: 'computerized maintenance management system',
+  SOW: 'scope of work',
+  BOM: 'bill of materials',
+  PPE: 'personal protective equipment',
+  KPI: 'key performance indicator'
+};
+function whAbbr(escaped) {
+  return String(escaped || '').replace(/(^|[^A-Za-z])(MTBF|MTTR|OEE|RCM|FMEA|RPN|LOTO|CMMS|SOW|BOM|PPE|KPI)(?![A-Za-z])/g,
+    function (m, pre, t) { return pre + '<abbr title="' + WH_GLOSS[t] + '">' + t + '</abbr>'; });
+}
+
 // escJsAttr — XSS-safe for a value placed inside a JS STRING LITERAL that itself
 // sits inside an HTML attribute, e.g.  onclick="fn('${escJsAttr(v)}')".
 // escHtml ALONE is WRONG here: the HTML parser decodes &#39; back to ' BEFORE the
@@ -2960,10 +2984,22 @@ function renderSourceChip(opts) {
 // Pair with the page's existing #empty-state (no-data) + the catch→showToast.
 // Styles live in components.css (.wh-skeleton / .wh-list-error). Pass the list's
 // container element; for the error, pass an onRetry fn to wire the Retry button.
-function whListSkeleton(el, rows) {
+//
+// ★A WAIT STATE SAYS WHICH LIST IT IS (SL F1, 2026-10-16). The F1 walk held every list read on 24 pages and read
+// each page at 1.5 s: wherever this helper drew the wait, the page showed grey bars and nothing else - no word of
+// what was coming, and an aria-live region with no text, so a screen reader was told nothing either. Pass the list's
+// name as it reads in a sentence ("your logbook entries") and the bars carry a caption, "Loading your logbook
+// entries…". Pass false only when the caller already captions the wait itself (the boot-wait panels). The
+// skeleton-labelled gate (tools/validate_skeleton_labelled.py) fails any call that names neither.
+function whSkeletonCaption(label) {
+  if (label === false) return '';
+  var t = String(label || '').trim();
+  return '<p class="wh-skeleton-label">' + (t ? 'Loading ' + escHtml(t) + '&hellip;' : 'Loading&hellip;') + '</p>';
+}
+function whListSkeleton(el, rows, label) {
   if (!el) return;
   rows = rows || 3;
-  var html = '<div class="wh-skeleton" aria-busy="true" aria-live="polite">';
+  var html = '<div class="wh-skeleton" aria-busy="true" aria-live="polite">' + whSkeletonCaption(label);
   for (var i = 0; i < rows; i++) html += '<div class="wh-skeleton-row"></div>';
   html += '</div>';
   el.innerHTML = html;
@@ -3045,7 +3081,8 @@ function whCardSkeleton(el, count, opts) {
       + '<div class="wh-cs" style="height:26px;width:55px;border-radius:8px;"></div>'
       + '</div></div></div>';
   }
-  var html = '<div class="wh-cardskel" aria-busy="true" aria-live="polite">';
+  // the caption spans the whole grid row: .wh-cardskel is display:contents, so it lands as one of the grid's items
+  var html = '<div class="wh-cardskel" aria-busy="true" aria-live="polite">' + whSkeletonCaption(opts && opts.label);
   for (var i = 0; i < count; i++) html += card;
   html += '</div>';
   el.innerHTML = html;
@@ -3458,6 +3495,8 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
   whListStatesCss.id = 'wh-list-states-css';
   whListStatesCss.textContent =
     '.wh-skeleton{display:flex;flex-direction:column;gap:8px;padding:4px 0}' +
+    /* SL F1: the wait names its list - a caption above the bars, the same muted line the boot-wait panels use */
+    '.wh-skeleton-label{grid-column:1/-1;margin:0;font-size:0.875rem;line-height:1.4;color:var(--wh-text-muted,rgba(255,255,255,0.80))}' +
     /* composited sweep, not an animated background-position - DevTools named the old rule a non-composited
        animation and attributed 0.0241 of alert-hub's layout-shift cluster to it (2026-09-15) */
     '.wh-skeleton-row{position:relative;overflow:hidden;height:44px;border-radius:12px;background:rgba(255,255,255,0.05)}' +
@@ -6518,7 +6557,7 @@ async function isPlatformAdmin(db) {
     const yes = !!(admin && admin.length);
     // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
     // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself.
-    try { sessionStorage.setItem('wh_platform_admin', yes ? '1' : '0'); } catch (_) {}
+    try { sessionStorage.setItem('wh_platform_admin', yes ? '1' : '0'); } catch (_) { /* empty-catch-allow: storage blocked - the answer is still returned; only the before-paint offer loses its hint */ }
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return yes;
   } catch (_) { return false; }
@@ -6557,7 +6596,7 @@ function whViewerAdmits(gate) {
     // a page that admits its hive's supervisor AND a platform admin (ai-quality)
     if (gate === 'supervisor-or-admin') return localStorage.getItem('wh_hive_role') === 'supervisor'   // role-check-allow: offer decision
       || sessionStorage.getItem('wh_platform_admin') === '1';
-  } catch (_) {}
+  } catch (_) { /* empty-catch-allow: storage blocked - nothing is offered, which is the safe answer */ }
   return false;
 }
 

@@ -36,13 +36,13 @@ Three patterns kill PM effectiveness in Philippine plants:
 
 - **The checklist is too vague.** "Inspect motor" is not a PM task. "Measure vibration at DE and NDE bearings with 4-second VA reading; flag above 2.8 mm/s" is.
 - **The technician ticks the box but does not do the work.** This is the most common failure mode. The PM looks 100 percent complete in the dashboard, and the asset still fails 3 weeks later.
-- **The frequency is wrong.** Annual PMs on equipment that fails every 4 months are theatre. Monthly PMs on equipment that fails every 8 years are wasteful. Frequency should match the asset's failure pattern (MTBF), not a one-size schedule.
+- **The frequency is wrong.** Annual PMs on equipment that fails every 4 months are theatre. Monthly PMs on equipment that fails every 8 years are wasteful. Frequency should match the asset's failure pattern (MTBF: mean time between failures), not a one-size schedule.
 
 The fix is structural: better checklists, supervisor-enforced sign-off, and frequencies tied to actual MTBF data. The rest of this guide is the template plus the rule.
 
 ## The 5 sections every PM checklist needs
 
-1. **Pre-work safety.** LOTO confirmed, PPE on, permit-to-work valid, work area cleared. This is not bureaucratic; this is the section DOLE inspectors sample first.
+1. **Pre-work safety.** LOTO (lock-out/tag-out) confirmed, PPE (personal protective equipment) on, permit-to-work valid, work area cleared. This is not bureaucratic; this is the section DOLE inspectors sample first.
 2. **Inspection or service tasks.** One tick box per task. Specific verb plus specific object. Not “check belts” but “check belt tension by deflection at midspan under the OEM deflection force; re-tension if it exceeds 1/64 of the span”. Note that the limit is a RATIO, not a fixed millimetre figure: a number like “13 mm” is only meaningful beside the span it was derived from, and writing it without the span is the same vagueness this bullet is arguing against.
 3. **Measurement readings.** Numerical readings with normal-range guides printed on the checklist. Vibration, temperature, current, pressure, flow rate. The reading is the data; the tick box is the evidence the work was done.
 4. **Parts replaced.** Part number, quantity, reason replaced (preventive vs corrective). This feeds inventory and MTBF tracking.
@@ -120,7 +120,7 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 ## Sources
 
-- Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017. PM frequency benchmarks and compliance KPI definitions.
+- Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017. PM frequency benchmarks and compliance KPI (key performance indicator) definitions.
 - Department of Labor and Employment (DOLE), **Occupational Safety and Health Standards (OSHS) Rule 1063**: Safety and Health Records, plus Rule 1090 on Mechanical Equipment safety.
 - ISO 14224:2016, **Petroleum, petrochemical and natural gas industries: Collection and exchange of reliability and maintenance data for equipment**. Source for failure-mode-driven PM frequency.
 - OEM PM schedules for any specific equipment (always supersedes generic guidance).
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 4c7dd8610d8a06ea -->
+<!-- md-twin source-sha: ce56769fe1af38ec -->

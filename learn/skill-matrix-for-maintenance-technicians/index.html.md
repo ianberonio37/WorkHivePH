@@ -61,7 +61,7 @@ Start with what your assets actually demand, not a generic template. For a typic
 - **Instrumentation:** loop checks, calibration (pressure, temperature, flow, level), HART configuration, valve positioner, control valve trim
 - **HVAC and Refrigeration:** AHU, FCU, chillers, refrigerant handling (TESDA NC II), BMS programming
 - **Civil and Structural:** foundations, structural steel, drainage, roofing, flooring repair
-- **Safety:** LOTO, confined space, work at height, hot work, permit-to-work issuer/holder roles, first aid
+- **Safety:** LOTO (lock-out/tag-out), confined space, work at height, hot work, permit-to-work issuer/holder roles, first aid
 - **Cross-cutting (Level 3+ techs only):** root cause analysis (RCA), vibration analysis, thermography, oil analysis, ultrasonic leak detection
 - **Software and Digital (new in 2026):** WorkHive Logbook, WorkHive PM Scheduler, AI work assistant prompting, basic Excel pivot
 
@@ -172,4 +172,4 @@ Yes. The matrix gives an objective answer to who has earned the next role. A tec
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e9382ea7da34a76e -->
+<!-- md-twin source-sha: 47675c48658b89d8 -->

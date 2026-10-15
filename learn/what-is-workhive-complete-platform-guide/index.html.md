@@ -177,7 +177,7 @@ Two things make WorkHive different from the imported systems most Philippine pla
 
 **It is built for the way Philippine plants actually work.** It runs in a phone browser and works offline, so a brownout, a weak signal, or a tablet shared across a crew does not stop a repair from being recorded. It expects local conditions: the benchmarks account for typhoon season, brownouts, and salt air, and the engineering calculators use tropical constants instead of temperate defaults. The calculators, benchmarks, and safety references are anchored to Philippine standards, so the answers hold up for a local audit and a local reviewer.
 
-Here is how that plays out against a typical paid CMMS, feature by feature.
+Here is how that plays out against a typical paid CMMS (computerized maintenance management system), feature by feature.
 
 | Capability | WorkHive (free) | Typical paid CMMS |
 | --- | --- | --- |
@@ -315,4 +315,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 86d53baff626aaac -->
+<!-- md-twin source-sha: 36e6e4acd1938b49 -->

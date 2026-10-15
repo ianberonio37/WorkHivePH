@@ -21,7 +21,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whStartupHive">
+<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1123,7 +1123,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 aria-pressed="${_selected.has(r.id)}"
                 ${r.phase3 ? 'data-ph3="1"' : ''}>
           <span class="chip-dot" style="background:${r.color}"></span>
-          <span class="chip-label">${escHtml(r.label)}${r.window
+          <span class="chip-label">${typeof whAbbr === 'function' ? whAbbr(escHtml(r.label)) : escHtml(r.label)}${r.window
             ? `<span style="display:block;font-size: 0.75rem;opacity:0.7;font-weight:400;">${escHtml(r.window)}</span>`
             : ''}</span>
           ${r.phase3
@@ -1334,7 +1334,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!HIVE_ID) return;
       // G1 (FF1): canonical skeleton while the history query runs (first load only).
       const _hl = document.getElementById('history-list');
-      if (_hl && !_hl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_hl, 3);
+      if (_hl && !_hl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_hl, 3, 'your send history');
       // Try with created_at first; fall back without it if column missing (400 = schema gap)
       let { data, error, count } = await db
         .from('v_ai_reports_truth')
@@ -1587,7 +1587,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Fixing the card and leaving the list is the half-fix this platform keeps catching: one
       // element told the truth while its neighbour, describing the same fact, said nothing.
       const _cl = document.getElementById('contacts-list');
-      if (_cl && !_cl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_cl, 3);
+      if (_cl && !_cl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_cl, 3, 'your saved contacts');
       if (!HIVE_ID) {
         // No hive — load from localStorage (persists across navigation). Not a failure: there is no
         // hive to read from, so the local copy IS the truth here.

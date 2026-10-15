@@ -70,7 +70,7 @@ The same caution applies: WorkHive does not ship a fixed list of Maximo objects.
 
 ### Other CMMS
 
-Everything else goes through the **generic REST** connector: if your CMMS exposes an HTTP endpoint that returns records and accepts a bearer token, it can be configured the same way as SAP or Maximo, with your own field mapping on top. That covers the common mid-market systems without WorkHive claiming a bespoke connector for each - there is one connector, and it is general. If your system has no API at all, the CSV import path exists precisely for that case and is the fastest thing in this guide to get working.
+Everything else goes through the **generic REST** connector: if your CMMS (computerized maintenance management system) exposes an HTTP endpoint that returns records and accepts a bearer token, it can be configured the same way as SAP or Maximo, with your own field mapping on top. That covers the common mid-market systems without WorkHive claiming a bespoke connector for each - there is one connector, and it is general. If your system has no API at all, the CSV import path exists precisely for that case and is the fastest thing in this guide to get working.
 
 ## Sensor data via OPC-UA and MQTT
 
@@ -162,4 +162,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d7564ac55538f4bd -->
+<!-- md-twin source-sha: 859b8a819d6200cf -->

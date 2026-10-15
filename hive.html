@@ -1794,7 +1794,7 @@
         <div class="flex items-center justify-between mb-2">
           <p role="heading" aria-level="2" data-i="p_shifthandover_e502" class="text-xs font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Completed jobs, open items, LOTO alerts and the watch list, ready for the next team.</p>
+        <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Completed jobs, open items, lock-out/tag-out (LOTO) alerts and the watch list, ready for the next team.</p>
         <p id="handover-source-chip" style="margin:0 0 8px;"></p>
         <!-- C-AH (2026-09-11): this whole panel was UNSTAMPED - heading, description and button all
              English on a page a Filipino worker reads, and INVISIBLE to every i18n measurement, which
@@ -2409,7 +2409,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     if (typeof whListSkeleton === 'function') {
       const sk = document.createElement('div');
       w.appendChild(sk);
-      whListSkeleton(sk, 3);
+      whListSkeleton(sk, 3, false /* the boot-wait panel above already says 'Loading your hive board…' */);
     }
   };
   /* ★ AND IT HAS TO WAIT FOR ITS HOST. This inline script executes DURING PARSE, before
@@ -3533,7 +3533,7 @@ async function initBoard() {
   // wait is blocking — the same ordering defect as the identity-restore fixes on this platform, where
   // the handler was present, correct, and sequenced behind the thing it covered.
   const _feedEl = document.getElementById('feed');
-  if (_feedEl && !_feedEl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_feedEl, 4);
+  if (_feedEl && !_feedEl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_feedEl, 4, "the hive's activity");
 
   _board = null;
   if (HIVE_ID) {
@@ -5126,7 +5126,7 @@ async function loadFeed() {
   // E2 consistent states: shimmer skeleton in the activity feed while it loads so
   // #feed never flashes blank before entries render (shared whListSkeleton). On the
   // synchronous _board path it's replaced in the same tick (no flash).
-  if (feed && typeof whListSkeleton === 'function') whListSkeleton(feed, 4);
+  if (feed && typeof whListSkeleton === 'function') whListSkeleton(feed, 4, "the hive's activity");
 
   // Fetch logbook + pm_completions + open count — from the board RPC payload
   // when available (initial load), else three parallel queries.
@@ -6403,7 +6403,7 @@ async function loadAuditLog() {
   // E2: shimmer skeleton while the async fetch is in flight (the _board cache path renders
   // synchronously below, so it never flashes the skeleton).
   const _auditList = document.getElementById('audit-log-list');
-  if (_auditList && !(_board && _board.audit_log) && typeof whListSkeleton === 'function') whListSkeleton(_auditList, 3);
+  if (_auditList && !(_board && _board.audit_log) && typeof whListSkeleton === 'function') whListSkeleton(_auditList, 3, "the hive's audit log");
 
   let data, error = null;
   if (_board && _board.audit_log) {

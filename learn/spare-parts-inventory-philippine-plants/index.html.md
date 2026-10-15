@@ -26,7 +26,7 @@ Who this is for
 - Suppliers managing consignment stock
 - New graduates rotating through MRO
 
-Run your spare parts inventory on three disciplines: ABC classification, FIFO on every shelf, and reorder points built from real usage history (ABC and reorder points follow APICS/ASCM CPIM methods). It matters because 40 to 50 percent of MTTR in Philippine plants is just waiting for the part to arrive, and a well-run storeroom cuts that.
+Run your spare parts inventory on three disciplines: ABC classification, FIFO on every shelf, and reorder points built from real usage history (ABC and reorder points follow APICS/ASCM CPIM methods). It matters because 40 to 50 percent of MTTR (mean time to repair) in Philippine plants is just waiting for the part to arrive, and a well-run storeroom cuts that.
 
 ## Why most Philippine storerooms fail
 
@@ -106,14 +106,14 @@ In our [MTBF vs MTTR guide](https://workhiveph.com/learn/mtbf-vs-mttr-for-superv
 This means that for every hour you reduce parts-waiting time, you reduce MTTR by roughly 25 minutes. Compare cost-per-hour saved:
 
 - **Hiring a second electrician for a 24/7 shift** to reduce wait-for-skill time: PHP 600,000 to PHP 900,000 per year.
-- **Buying a CMMS work-order system** to reduce admin time: PHP 200,000 to PHP 1.2M per year in licenses.
+- **Buying a CMMS (computerized maintenance management system) work-order system** to reduce admin time: PHP 200,000 to PHP 1.2M per year in licenses.
 - **Fixing the storeroom** with ABC, FIFO, and reorder points: usually free (one supervisor weekend + ongoing 30 minutes per month).
 
 The storeroom fix is almost always the cheapest hour of MTTR reduction available. It is also the one most plants put off because nobody owns it. The maintenance supervisor thinks it is the storeroom keeper's job; the storeroom keeper thinks it is procurement's job; procurement thinks it is the supervisor's job. The fix is to assign the maintenance supervisor formal ownership of MRO inventory health, with 30 minutes monthly tied to the existing 5S walk.
 
 ## Common Philippine plant mistakes
 
-- **Treating MRO inventory as a procurement metric.** Procurement cares about price-per-PO; maintenance cares about availability. The two pull in opposite directions. MRO inventory health is a maintenance metric reported on the maintenance KPI sheet, not procurement.
+- **Treating MRO inventory as a procurement metric.** Procurement cares about price-per-PO; maintenance cares about availability. The two pull in opposite directions. MRO inventory health is a maintenance metric reported on the maintenance KPI (key performance indicator) sheet, not procurement.
 - **Bulk-buying to get unit discount.** A 15 percent discount on a 6-month supply of an item with 24-month shelf life is real money. The same discount on an item with 6-month shelf life is a guaranteed write-off in month 7.
 - **No write-off discipline.** A part withdrawn from inventory but not used is supposed to be returned and re-shelved with a "previously issued" note. In practice, technicians keep it in their toolbox, and the system shows the part as still on the shelf. Quarterly reconciliation between bin card and shelf catches this.
 - **One reorder point set in 2019.** Usage patterns change. ABC classification should be recomputed annually; reorder points should be recomputed quarterly on A items.
@@ -157,4 +157,4 @@ No, not for plants with fewer than 1,000 SKUs. A clean spreadsheet or the free W
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2af33e5534caf183 -->
+<!-- md-twin source-sha: abe985c32b6e73b0 -->

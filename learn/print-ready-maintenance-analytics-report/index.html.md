@@ -25,9 +25,9 @@ Who this is for
 
 ## What is the WorkHive Analytics Report?
 
-The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For a plant in Calabarzon like the Laguna Technopark, that means the month's review starts from a document rather than from someone re-keying figures the night before. The report provides an executive summary, KPI tiles with RAG colours, an AI-generated action plan, and a sign-off block.
+The WorkHive Analytics Report is a print-ready maintenance report automatically compiled from the four analytics phases in WorkHive. For a plant in Calabarzon like the Laguna Technopark, that means the month's review starts from a document rather than from someone re-keying figures the night before. The report provides an executive summary, KPI (key performance indicator) tiles with RAG colours, an AI-generated action plan, and a sign-off block.
 
-This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The KPI strip carries four tiles, each tinted green, amber or red against its own threshold: **PM Compliance** as a percentage, **Fleet MTBF** in days (note the unit: the metrics guides work in hours), **Total Failures** for the period, and **High Risk (Predicted)**, which is the count of assets the risk model expects to fail next. That last one is the tile a plant manager should read first, and it is the one a spreadsheet cannot produce.
+This report is the one-click output of the Analytics Engine, which is fed by logbook and PM completions. It mirrors the standard maintenance audit format, satisfying management, ISO auditors, and DOLE compliance reviews. The KPI strip carries four tiles, each tinted green, amber or red against its own threshold: **PM Compliance** as a percentage, **Fleet MTBF (mean time between failures)** in days (note the unit: the metrics guides work in hours), **Total Failures** for the period, and **High Risk (Predicted)**, which is the count of assets the risk model expects to fail next. That last one is the tile a plant manager should read first, and it is the one a spreadsheet cannot produce.
 
 The Analytics Report is a management-ready document that turns raw entries into a printable, signed, audit-ready document. Plant managers, operations heads, and auditors can use it to assess maintenance performance. The **Generate Report** button produces a PDF that can be saved and signed off by a supervisor, so the signature sits on the same document the figures came from rather than on a summary of it.
 
@@ -118,4 +118,4 @@ No, the report is a zero-budget solution that compiles from your existing data, 
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: 1144a86049b1d555 -->
+<!-- md-twin source-sha: 771463ca2714b2b7 -->

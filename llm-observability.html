@@ -197,6 +197,25 @@
 <!-- Use existing Supabase singleton from the app -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
+<script data-wh-skew-heal="whSignInWall">
+/* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
+   The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
+   some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
+   runs on the old script, fetch utils.js past the cache and reload - once per tab. A second miss is logged and the
+   page carries on; a clean load clears the guard so a later deploy can heal again. No utils.js at all (getDb
+   missing) is not skew: the page's own did-not-load notice answers that. */
+(function (s) {
+  if (typeof window.getDb !== 'function') return;
+  var need = ((s && s.getAttribute('data-wh-skew-heal')) || '').split(' '), missing = [], tried = true, i;
+  for (i = 0; i < need.length; i++) if (need[i] && typeof window[need[i]] !== 'function') missing.push(need[i]);
+  try { tried = sessionStorage.getItem('wh_utils_refetched') === '1'; } catch (e) { void e; }
+  if (!missing.length) { if (tried) { try { sessionStorage.removeItem('wh_utils_refetched'); } catch (e) { void e; } } return; }
+  if (tried) { try { console.error('[skew] utils.js still lacks ' + missing.join(', ') + ' after one refetch'); } catch (e) { void e; } return; }
+  try { sessionStorage.setItem('wh_utils_refetched', '1'); } catch (e) { return; }
+  try { window.stop(); } catch (e) { void e; }
+  fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
+})(document.currentScript);
+</script>
 <script>
 (async function () {
   const escHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -326,6 +345,8 @@
     document.getElementById('loaded-at').textContent = 'Loaded ' + new Date().toLocaleTimeString();
   }
 
+  // ★A RETIRED PAGE DOES NO WORK (SL F1, 2026-10-16; the founder-console / marketplace-admin rule): the overlay says this page has moved, and the walk measured it still reading ai_cost_log behind it. Test the overlay itself, so the documented un-retire (delete the overlay block) restores the load with it.
+  if (document.getElementById('wh-retired-overlay')) return;
   document.getElementById('refresh').addEventListener('click', load);
   document.getElementById('window').addEventListener('change', load);
   load();

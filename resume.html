@@ -1043,7 +1043,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // invisible to every gate. render() must run on every path out of this function.
     async function loadResumeIntoView() {
       const _sections = document.getElementById('sections');
-      if (_sections && typeof whListSkeleton === 'function') whListSkeleton(_sections, 4);
+      if (_sections && typeof whListSkeleton === 'function') whListSkeleton(_sections, 4, 'your resume');
       _cloudLoadFailed = false;
       let draft = null, loaded = false;
       try {
@@ -1173,7 +1173,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const e = escHtml;
       // E2 consistent states: shared shimmer skeleton while saved resumes load
       // (was a plain "Loading…" the List View Contract didn't recognize).
-      if (typeof whListSkeleton === 'function') whListSkeleton(wrap, 3);
+      if (typeof whListSkeleton === 'function') whListSkeleton(wrap, 3, 'your saved resumes');
       else wrap.innerHTML = '<div style="font-size: 0.75rem;color:var(--wh-steel-bright);padding:0.4rem 0;">Loading…</div>';
       let docs;
       try {

@@ -1264,7 +1264,7 @@
     async function loadAssetNodes() {
       // E2 consistent states: skeleton in the asset list while it fetches so
       // #asset-list never flashes blank before cards render (shared whListSkeleton).
-      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5);
+      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5, 'your assets');
       // Narrow select per performance skill, hive-scoped per multitenant skill.
       const { data, error } = await scopeNodes(db.from('asset_nodes')
         .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at'))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,

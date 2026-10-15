@@ -12,6 +12,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
+<script data-wh-skew-heal="whAbbr whListError whListSkeleton whOhBadge whProgressStrip">
+/* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
+   The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
+   some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
+   runs on the old script, fetch utils.js past the cache and reload - once per tab. A second miss is logged and the
+   page carries on; a clean load clears the guard so a later deploy can heal again. No utils.js at all (getDb
+   missing) is not skew: the page's own did-not-load notice answers that. */
+(function (s) {
+  if (typeof window.getDb !== 'function') return;
+  var need = ((s && s.getAttribute('data-wh-skew-heal')) || '').split(' '), missing = [], tried = true, i;
+  for (i = 0; i < need.length; i++) if (need[i] && typeof window[need[i]] !== 'function') missing.push(need[i]);
+  try { tried = sessionStorage.getItem('wh_utils_refetched') === '1'; } catch (e) { void e; }
+  if (!missing.length) { if (tried) { try { sessionStorage.removeItem('wh_utils_refetched'); } catch (e) { void e; } } return; }
+  if (tried) { try { console.error('[skew] utils.js still lacks ' + missing.join(', ') + ' after one refetch'); } catch (e) { void e; } return; }
+  try { sessionStorage.setItem('wh_utils_refetched', '1'); } catch (e) { return; }
+  try { window.stop(); } catch (e) { void e; }
+  fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
+})(document.currentScript);
+</script>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="components.css">
   <style>
@@ -92,7 +111,7 @@
     root.innerHTML = '<p class="honest-empty" role="status" style="padding:1rem;border:1px solid rgba(255,255,255,.12);border-radius:12px;">The component gallery could not load its shared script (utils.js). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;">Reload to try again</button>.</p>';
     return;
   }
-  if (typeof whListSkeleton === 'function') whListSkeleton(root, 6); // dogfood: G1 while the registry loads
+  if (typeof whListSkeleton === 'function') whListSkeleton(root, 6, 'the component registry'); // dogfood: G1 while the registry loads
 
   let reg, base, apiReg = null, apiBase = null;
   try {
@@ -164,6 +183,8 @@
   })();
 
   const e = escHtml;
+  // SL F4: a registry guide's acronyms carry their meaning ("KPI digits"); guarded, so an older utils.js renders plain text
+  const ab = (s) => (typeof whAbbr === 'function' ? whAbbr(s) : s);
 
   // ── live specimens per component id ──────────────────────────────────────
   const SPEC = {
@@ -177,9 +198,9 @@
     FT4() { return '<button class="wh-tap" style="background:rgba(41,182,217,0.15);border:1px solid rgba(41,182,217,0.4);border-radius:8px;color:var(--wh-blue-light);font-family:inherit;cursor:pointer;">.wh-tap ≥44px</button>'; },
     FT5() { return '<p class="wh-text-muted" style="font-size:.8rem;">.wh-text-muted: secondary text at the AA floor</p><p class="wh-text-faint" style="font-size:.8rem;">.wh-text-faint: tertiary text</p>'; },
     FT6() { return '<span class="wh-num" style="font-size:1.2rem;font-weight:800;">1,234,567.89</span> <span style="font-size: 0.75rem;color:rgba(255,255,255,0.6);">(tabular: digits don\'t jitter when they tick)</span>'; },
-    FC1() { return '<div class="simple-card" style="max-width:220px;"><span class="sc-label">MTBF</span><span class="sc-hero">6.4d</span><span class="sc-sub">across 12 assets</span><span class="sc-tag tag-ok">healthy</span></div>'; },
+    FC1() { return '<div class="simple-card" style="max-width:220px;"><span class="sc-label"><abbr title="mean time between failures">MTBF</abbr></span><span class="sc-hero">6.4d</span><span class="sc-sub">across 12 assets</span><span class="sc-tag tag-ok">healthy</span></div>'; },
     FC2() { return '<div class="sum-card" style="max-width:140px;"><span class="sn">27</span><span class="sl">Open jobs</span></div>'; },
-    FC3() { return '<div class="wh-scroll-x"><table class="demo-table" aria-label="Example asset reliability table"><thead><tr><th>Asset</th><th>MTBF</th><th>MTTR</th><th>Availability</th><th>Last failure</th><th>Next PM</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td>Compressor C-102</td><td class="wh-num">6.4d</td><td class="wh-num">3.1h</td><td class="wh-num">97.2%</td><td>Jul 12, 2026</td><td>Jul 21, 2026</td><td>R. Santos</td><td>OK</td></tr></tbody></table></div><p style="font-size: 0.75rem;color:rgba(255,255,255,0.6);margin-top:6px;">← the wrapper scrolls; the page never does</p>'; },
+    FC3() { return '<div class="wh-scroll-x"><table class="demo-table" aria-label="Example asset reliability table"><thead><tr><th>Asset</th><th><abbr title="mean time between failures">MTBF</abbr></th><th><abbr title="mean time to repair">MTTR</abbr></th><th>Availability</th><th>Last failure</th><th>Next PM</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td>Compressor C-102</td><td class="wh-num">6.4d</td><td class="wh-num">3.1h</td><td class="wh-num">97.2%</td><td>Jul 12, 2026</td><td>Jul 21, 2026</td><td>R. Santos</td><td>OK</td></tr></tbody></table></div><p style="font-size: 0.75rem;color:rgba(255,255,255,0.6);margin-top:6px;">← the wrapper scrolls; the page never does</p>'; },
     FI1() { return '<details class="wh-disclose"><summary><span class="wh-disclose-title">Ops detail (.wh-disclose)</span></summary><div class="wh-disclose-body"><p style="font-size:.75rem;color:rgba(255,255,255,0.72);">Deferred complexity lives here.</p></div></details><details class="wh-help"><summary>Inline help (.wh-help)</summary><p>How-this-works copy lives here.</p></details>'; },
     FI2() { return '<button class="wh-tap-h" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:8px;color:var(--wh-red);font-family:inherit;font-size:.75rem;padding:0 16px;cursor:pointer;" onclick="whConfirm(\'Delete this demo row?\', { danger: true }).then(ok => whToast && whToast(ok ? \'Confirmed\' : \'Cancelled\'))">whConfirm demo</button>'; },
     // ★THE SPECIMEN IS THE PATTERN, SO IT MUST BE THE REAL ONE (SL F3, 2026-10-15): this was a <span role="button"> with
@@ -195,7 +216,7 @@
       return '<div id="' + id + '" style="display:flex;gap:8px;flex-wrap:wrap;">' + [['All', true], ['Overdue', false]].map(([l, on]) => '<button type="button" class="filter-chip' + (on ? ' active' : '') + '" aria-pressed="' + on + '" style="' + look(on) + '">' + l + '</button>').join('') + '</div>'; },
     // the skeleton SPECIMEN shows the shape and announces nothing: whListSkeleton marks its region aria-busy, and a busy
     // region that never finishes tells a screen reader this page is loading for ever (SL H1 sweep, 2026-10-15)
-    FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') { whListSkeleton(el, 3); el.querySelectorAll('[aria-busy]').forEach((b) => { b.setAttribute('aria-busy', 'false'); b.removeAttribute('aria-live'); }); } }, 0); return '<div id="' + id + '" role="img" aria-label="Loading skeleton (specimen)"></div>'; },
+    FF1() { const id = 'spec-skel'; setTimeout(() => { const el = document.getElementById(id); if (el && typeof whListSkeleton === 'function') { whListSkeleton(el, 3, 'your logbook entries'); el.querySelectorAll('[aria-busy]').forEach((b) => { b.setAttribute('aria-busy', 'false'); b.removeAttribute('aria-live'); }); } }, 0); return '<div id="' + id + '" role="img" aria-label="Loading skeleton (specimen)"></div>'; },
     FF2() { return (typeof whOhBadge === 'function' ? whOhBadge('critical', '2 overdue') + ' ' + whOhBadge('ok', 'on track') : '') + (typeof whProgressStrip === 'function' ? whProgressStrip('PM this week', 4, 6) : ''); },
     FD1a() { return '<code style="font-size:.75rem;">whFmtDate(now) → ' + e(whFmtDate(new Date())) + ' · {time:true} → ' + e(whFmtDate(new Date(), { time: true })) + ' · {year:false, weekday:"short"} → ' + e(whFmtDate(new Date(), { year: false, weekday: 'short' })) + '</code>'; },
     FD1b() { return '<code style="font-size:.75rem;">whFmtNum(1234567.891, 1) → ' + e(whFmtNum(1234567.891, 1)) + '</code>'; },
@@ -227,7 +248,7 @@
       return '<div class="ds-row">' +
         '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">satisfies ' + e(c.satisfies) + '</span></div>' +
         '<div class="ds-api mono">' + e(c.api) + '</div>' +
-        '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+        '<div class="ds-guide"><b>Use:</b> ' + ab(e(c.when_to_use || '-')) + ' &nbsp;·&nbsp; <b>Not:</b> ' + ab(e(c.when_not || '-')) +
         (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ').replace(/\.html/g, '')) + ' <span class="wh-text-faint">(' + e(c.exempt_reason || '') + ')</span>' : '') + '</div>' +
         (spec ? '<div class="ds-spec"><div class="ds-spec-label">Live specimen</div>' + spec + '</div>' : '') +
         adopt +
@@ -254,7 +275,7 @@
         return '<div class="ds-row">' +
           '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies) + '</span></div>' +
           '<div class="ds-api mono">' + e(c.api) + '</div>' +
-          '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+          '<div class="ds-guide"><b>Use:</b> ' + ab(e(c.when_to_use || '-')) + ' &nbsp;·&nbsp; <b>Not:</b> ' + ab(e(c.when_not || '-')) +
           (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.join(', ')) : '') + '</div>' +
           adopt +
           '<div class="ds-src mono">defined in ' + e(c.defined_in || 'supabase/functions/_shared/') + '</div>' +
@@ -290,7 +311,7 @@
         return '<div class="ds-row">' +
           '<div class="ds-head"><span class="ds-id">' + e(c.id) + '</span><span class="ds-name">' + e(c.name) + '</span><span class="ds-dim">' + e(c.satisfies || '-') + '</span></div>' +
           '<div class="ds-api mono">' + e(c.api || '') + '</div>' +
-          '<div class="ds-guide"><b>Use:</b> ' + e(c.when_to_use || '-') + ' &nbsp;·&nbsp; <b>Not:</b> ' + e(c.when_not || '-') +
+          '<div class="ds-guide"><b>Use:</b> ' + ab(e(c.when_to_use || '-')) + ' &nbsp;·&nbsp; <b>Not:</b> ' + ab(e(c.when_not || '-')) +
           (c.exempt && c.exempt.length ? ' &nbsp;·&nbsp; <b>Exempt:</b> ' + e(c.exempt.map(x => String(x).replace('.html', '')).join(', ')) : '') + '</div>' +
           adopt +
           '<div class="ds-src mono">' + e(c.defined_in || L.src) + '</div>' +

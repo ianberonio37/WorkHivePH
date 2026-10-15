@@ -59,6 +59,8 @@ GATES = {
     "S5": ["no-secret-served", "committed_env_secret"],
     "A3": ["page-survives-optional-failures", "realtime-blocked-socket"],
     "AV1": ["page-survives-optional-failures", "realtime-blocked-socket"],
+    "F1": ["skeleton-labelled", "failed-read-is-not-empty", "loading-state", "empty-state"],
+    "F4": ["jargon-glossed", "glossary-registry", "user-facing-jargon"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
@@ -73,6 +75,8 @@ GATES = {
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
+    "F4": ("as served - the page read from its live render (innerText, what a person reads) with every domain term checked for its gloss on the same page and every flagged figure read with its card, column header and the page's stated window"),
+    "F1": ("each list read induced in turn - answered empty (an empty hive: [] and Content-Range */0; an object read hollowed), answered 500, and held 9 s and read at 1.5 s - through a context with service workers BLOCKED, every rest read, rpc and edge function the page makes on load except the identity, hive and gate reads its start-up needs"),
     "AU2": ("the device role written into the page's own storage before the page loaded - the honest role and a false "
             "one, the same signed-in person with the server's hive_members.role set on the LOCAL database"),
     "AU3": ("the device's remembered display name (wh_last_worker) written into the page's own storage before it loaded - "

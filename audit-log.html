@@ -733,7 +733,7 @@
     const feedEl = document.getElementById('feed');
     // E2 consistent states: shimmer skeleton while the audit feed fetches so the
     // panel never flashes blank before rows arrive (shared whListSkeleton).
-    if (typeof whListSkeleton === 'function') whListSkeleton(feedEl, 5);
+    if (typeof whListSkeleton === 'function') whListSkeleton(feedEl, 5, 'the audit log');
     let q = db.from('hive_audit_log')
       .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
       .eq('hive_id', HIVE_ID)

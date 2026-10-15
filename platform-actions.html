@@ -1678,6 +1678,12 @@
          the first fetch costs one extra beat behind an "access" gate the page already shows, and the
          layout lands once. The finally{} guarantees the reveal even if a queue throws -- a page that
          stayed on "Checking access…" because one fetch failed would be a worse bug than the shift. */
+      /* ★THE WAIT SAYS WHAT IT IS WAITING FOR (SL F1, 2026-10-16). Access is settled by now; what the founder waits
+         on next is the queues - but the gate kept saying "Checking access…" through the whole first fetch (the F1
+         walk held the queue reads: 37 characters on the page, and the one sentence named the wrong wait). Same
+         element, one line, so the reveal still lands once. */
+      const _cg = document.getElementById('checking-gate');
+      if (_cg) { _cg.removeAttribute('data-i'); _cg.setAttribute('role', 'status'); _cg.textContent = 'Loading the action queues: listings to review, top-ups, receipts and feedback…'; }
       try {
         await refreshQueues();
       } finally {

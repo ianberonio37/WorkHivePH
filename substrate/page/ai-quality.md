@@ -2,7 +2,7 @@
 name: page-ai-quality
 type: page
 source: file:ai-quality.html
-source_sha: 4450621e3f18d6e3
+source_sha: c6164822870f085e
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -124,6 +124,7 @@
     .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
     .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
+    .simple-card .sc-next  { display:inline-flex; align-items:center; min-height:44px; margin-top:4px; font-size:0.875rem; font-weight:600; color: var(--wh-orange); text-decoration: underline; text-underline-offset: 3px; }
 
     .action-card {
       background: rgba(41,182,217,0.06);
@@ -170,7 +171,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <header class="page-header">
       <div>
         <h1 class="page-title" data-i="pctitle">Connections</h1>
-        <p data-i="p_cmmssyncsensorbridgegatewaya_2e66" class="page-sub">CMMS sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
+        <p data-i="p_cmmssyncsensorbridgegatewaya_2e66" class="page-sub">CMMS (maintenance management system) sync · sensor bridge · gateway audit, all in one supervisor surface.</p>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
@@ -274,7 +275,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const host = document.getElementById('content');
       // E2 consistent states: shimmer skeleton while the integration data fetches so
       // #content never flashes blank before the cards render (shared whListSkeleton).
-      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4);
+      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4, 'your plant connections');
       let cfgs, syncs, topics, audit, retention, sso;
       try {
         [cfgs, syncs, topics, audit, retention, sso] = await Promise.all([
@@ -326,7 +327,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Card 1 — CMMS Sync
       let cmms;
       if (!s.cfgs.length) {
-        cmms = { hero: 'Not connected', sub: 'No CMMS systems linked yet', tag: 'NO LINK', tone: 'grey' };
+        // ★AN EMPTY TILE SAYS WHAT TO DO (SL F1, 2026-10-16): with nothing linked, this tile said 'No CMMS systems linked yet'
+        // and stopped - the one control that links a system sat in the CMMS integrations card further down, below the fold.
+        cmms = { hero: 'Not connected', sub: 'No CMMS system linked yet', tag: 'NO LINK', tone: 'grey', next: { label: 'Link a CMMS in Integrations', href: 'integrations.html' } };
       } else {
         // Use the freshest integration as the headline.
         const sorted = s.cfgs.slice().sort((a, b) => {
@@ -350,7 +353,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Card 2 — Sensor feed
       let sensors;
       if (!s.topics.length) {
-        sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped: Anomaly Engine sensor source is dark', tag: 'NOT WIRED', tone: 'grey' };
+        sensors = { hero: '0 sensors', sub: 'No MQTT/OPC-UA topics mapped yet. Point your edge gateway at WorkHive and they appear here.', tag: 'NOT WIRED', tone: 'grey' };
       } else {
         sensors = {
           hero: `${s.topics.length} ${s.topics.length === 1 ? 'sensor' : 'sensors'}`,
@@ -447,6 +450,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div class="sc-hero">${escHtml(c.hero)}</div>
           <div class="sc-sub">${escHtml(c.sub)}</div>
           <span class="sc-tag">${escHtml(c.tag)}</span>
+          ${c.next ? `<div><a class="sc-next" href="${escHtml(c.next.href)}">${escHtml(c.next.label)} &rarr;</a></div>` : ''}
         </div>
       `;
       return `

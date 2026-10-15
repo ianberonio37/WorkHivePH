@@ -3645,7 +3645,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // G1 (FF1): canonical skeleton replaces the hand-rolled spinner block as the wait
     // state while autoLoad() computes/hydrates (results-panel is fully re-rendered on load).
     const _rp = document.getElementById('results-panel');
-    if (_rp && typeof whListSkeleton === 'function') whListSkeleton(_rp, 4);
+    if (_rp && typeof whListSkeleton === 'function') whListSkeleton(_rp, 4, "your hive's figures");
     // T37 (2026-08-28): autoLoad was called BARE. Its known read paths are defended -- loadSnapshots
     // sets _snapshotReadFailed and returns rather than throwing, fetchPhase catches -- but the
     // function also calls showSkeleton, applySavedFilters, renderPhase, renderRoleQuickView and

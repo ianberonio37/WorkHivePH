@@ -1671,7 +1671,7 @@
     if (!area) return;
     // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js, row
     // variant) — this was the THIRD page-local skeleton copy; the pattern now lives once.
-    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 3, { variant: 'row' }); return; }
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 3, { variant: 'row', label: 'your listings' }); return; }
     area.innerHTML = Array(3).fill(0).map(() => `
       <div class="listing-item draft skel-pulse skeleton">
         <div class="li-body">

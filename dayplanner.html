@@ -3170,7 +3170,7 @@ document.addEventListener('keydown', e => {
     _ensureDpQueue();
     // E2 consistent states: skeleton in the logbook sidebar while it fetches so
     // #sidebar-items never flashes blank before open items render (shared whListSkeleton).
-    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4);
+    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('sidebar-items'), 4, 'your open logbook items');
     await Promise.all([loadLogbook(), loadSchedule(), loadPlantWork()]);
     // loadSchedule renders the summary when IT lands, but the PM rail can land after it and only re-renders the
     // sidebar - so the summary's overdue-PM line is computed once more here, with all three reads in (W45908)

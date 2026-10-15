@@ -2587,7 +2587,7 @@ async function loadEntries(append = false) {
   // nothing left to clear it: the 'promise that never settles is invisible' shape, except the promise
   // resolved in 58ms and it was the SKELETON that was orphaned.
   // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
-  if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
+  if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4, 'your logbook entries');
   let query = db.from('logbook')
     .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .or(_MINE())
@@ -4842,7 +4842,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
       // G1: shared whListSkeleton while the entries query is in flight (first load only —
       // a re-filter with entries on screen must not flash a skeleton over them)
       const _lbList = document.getElementById('entries-list');
-      if (_lbList && !_allEntries.length && typeof whListSkeleton === 'function') whListSkeleton(_lbList, 4);
+      if (_lbList && !_allEntries.length && typeof whListSkeleton === 'function') whListSkeleton(_lbList, 4, 'your logbook entries');
       await loadEntries();
       // Load synced machine sources once after entries reload (fire-and-forget)
       if (!Object.keys(_syncedMachineSource).length) loadSyncedMachines();
@@ -7743,7 +7743,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     if (typeof whListSkeleton === 'function') {
       const sk = document.createElement('div');
       w.appendChild(sk);
-      whListSkeleton(sk, 4);
+      whListSkeleton(sk, 4, false /* the boot-wait panel above already says 'Loading your logbook…' */);
     }
   })();
 

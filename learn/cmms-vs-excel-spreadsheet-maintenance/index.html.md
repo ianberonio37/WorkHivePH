@@ -17,12 +17,12 @@ This deserves saying plainly, because "you need software" is usually a sales lin
 - PM intervals are simple and few enough to hold in your head;
 - Nobody outside the team needs to read the records.
 
-If that describes you, a well-kept spreadsheet beats a badly-adopted CMMS. Adoption, not features, is what determines whether records exist.
+If that describes you, a well-kept spreadsheet beats a badly-adopted CMMS (computerized maintenance management system). Adoption, not features, is what determines whether records exist.
 
 ## The four ways spreadsheets fail
 
 1. **Single owner.** The file lives with one person. When they resign, the formulas, the conventions, and the context leave with them.
-2. **No triggers.** A due-date in a cell does not notify anyone. PM compliance quietly drops because nothing chases it, and PM compliance is the leading indicator that drives MTBF (see the [metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)).
+2. **No triggers.** A due-date in a cell does not notify anyone. PM compliance quietly drops because nothing chases it, and PM compliance is the leading indicator that drives MTBF (mean time between failures) (see the [metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)).
 3. **Concurrent edits.** Two people editing means version conflicts, and the fix is usually "send me the latest copy," which is how history diverges.
 4. **No audit trail.** A cell can be changed with no record of who changed it or when. That is exactly what a DOLE OSHS or ISO auditor is trying to verify: see [PH plant compliance](https://workhiveph.com/learn/ph-plant-compliance-guide/).
 
@@ -79,4 +79,4 @@ The digital Logbook is the surface that replaces the spreadsheet, with the asset
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 37b9e825f1b7ad17 -->
+<!-- md-twin source-sha: 8a66735d2628461c -->

@@ -40,6 +40,8 @@ import json
 import re
 import importlib
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gloss_first_use import abbr as _abbr  # noqa: E402  SL F4: one acronym registry for every page that renders one
 
 _HERE = Path(__file__).resolve().parent
 ROOT = _HERE.parent
@@ -987,9 +989,11 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     # suffix on the first. A reader tabbing the list met one destination under one
     # name twice. Emit the extra row only when the page has its OWN related article.
     rel = data.get("related_article")
-    sib_html = "\n".join(f'        <li><a href="{e(u)}">{e(t)}</a></li>' for u, t in sibs)
+    # SL F4 (2026-10-16): a sibling's name can be an acronym this page never explains ("MTBF & MTTR Calculator" on the
+    # OEE page) - the label wraps it in <abbr title>, from the one registry tools/gloss_first_use.py keeps
+    sib_html = "\n".join(f'        <li><a href="{e(u)}">{_abbr(e(t))}</a></li>' for u, t in sibs)
     if rel and rel[0] != PILLAR[0]:
-        sib_html += (f'\n        <li><a href="{e(rel[0])}">{e(rel[1])}</a></li>')
+        sib_html += (f'\n        <li><a href="{e(rel[0])}">{_abbr(e(rel[1]))}</a></li>')
     meta = data.get("meta") or (data["blurb"] + " Free online, with a worked example. Built for Philippine plants by WorkHive.")
     jsonld = _jsonld(data, url)
 

@@ -60,7 +60,7 @@
     .sum-card.red .sn   { color: var(--red); }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .card h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
+    .card h3, .card h2.card-h { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
     .card .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
 
     table.fn-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
@@ -231,7 +231,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_aqSup && !_aqAdmin) {
         document.getElementById('content').innerHTML = `
           <div class="card" data-wh-gate="supervisor-only" role="status">
-            <h3>Supervisors only</h3>
+            <h2 class="card-h">Supervisors only</h2><!-- an h2: it sits directly under the page's h1 (heading-hierarchy) -->
             <p class="meta" style="margin:0;">${escHtml(_t('The hive\'s AI spend, quality and feedback are for its supervisor. Ask your hive supervisor to share what you need.',
               'Para sa supervisor ng hive ang AI spend, kalidad at feedback nito. Hilingin sa supervisor ng hive mo ang kailangan mo.'))}</p>
           </div>`;
@@ -247,7 +247,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            late). #content stays empty until the gate answers, so on a slow line the page sat at its header with
            nothing saying it was working. The shared skeleton (aria-busy, polite) holds the place until the gate -
            and then render() or the honest-empty card - replaces it. */
-        if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('content'), 4);
+        if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('content'), 4, 'your AI quality figures');
         const gate = await window.checkMaturityGate(db, HIVE_ID, 2);
         if (gate.blocked) {
           const mainEl = document.querySelector('main') || document.body;
@@ -280,7 +280,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const host = document.getElementById('content');
       // E2 consistent states: shared shimmer skeleton while data fetches (was a
       // bespoke renderLoadingState() the List View Contract didn't recognize).
-      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4);
+      if (typeof whListSkeleton === 'function') whListSkeleton(host, 4, 'your AI quality figures');
       else host.innerHTML = renderLoadingState();
 
       // Cost/fallback/schema signals live on ai_cost_log (the 2026-05-11

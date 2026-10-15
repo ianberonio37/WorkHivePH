@@ -164,6 +164,8 @@
    shimmer skeleton while fetching and an inline error+retry on failure, never a blank
    panel (the P14 IDB-blank class). Reduced-motion users get a static block. */
 .wh-skeleton { display:flex; flex-direction:column; gap:8px; padding:4px 0; }
+/* SL F1 (2026-10-16): the wait names its list - whListSkeleton/whCardSkeleton draw this caption above the bars */
+.wh-skeleton-label { grid-column:1/-1; margin:0; font-size:0.875rem; line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 /* The sweep is a COMPOSITED transform, not an animated background-position: Chrome DevTools measured the
    old rule as a non-composited animation (UNSUPPORTED_CSS_PROPERTY: background-position-x) and blamed it
    for 0.0241 of alert-hub's 0.032 layout-shift cluster on a 4x-throttled phone (2026-09-15). */

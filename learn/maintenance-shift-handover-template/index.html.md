@@ -94,7 +94,7 @@ The supervisor who wrote the P1 entry did not know any of this would happen. He 
 | **Multi-audience (plant mgr, reliability, safety)** | No (only the binder) | Yes (shared dashboard) |
 | **Survives technician turnover** | No | Yes |
 | **DOLE OSHS audit response** | Manual photocopy | PDF export in seconds |
-| **Cost** | Notebook + pen | Free (with a free tool) or ₱20-200/user/month for paid CMMS |
+| **Cost** | Notebook + pen | Free (with a free tool) or ₱20-200/user/month for paid CMMS (computerized maintenance management system) |
 
 **Where paper still wins.** Every row above favours digital, and a table that only
  goes one way is worth distrusting. Paper needs no battery, no signal and no login; it works in a
@@ -172,4 +172,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9c6121de743e5e89 -->
+<!-- md-twin source-sha: 5117c5a97dad3e19 -->

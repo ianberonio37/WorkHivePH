@@ -28,9 +28,9 @@ Who this is for
 
 ## Why PH plants need PH benchmarks
 
-Most industrial KPI benchmarks available to Philippine plants come from North American or European sources (SMRP, ARC, Plant Engineering surveys). The benchmarks are useful but the context is wrong: those plants run with different ambient temperatures, different labor cost structures, different supplier ecosystems, different regulatory regimes, and different power-quality conditions. A borrowed "85 percent OEE" benchmark from a German automotive plant tells a Cabuyao food plant nothing useful about whether their 62 percent is good.
+Most industrial KPI (key performance indicator) benchmarks available to Philippine plants come from North American or European sources (SMRP, ARC, Plant Engineering surveys). The benchmarks are useful but the context is wrong: those plants run with different ambient temperatures, different labor cost structures, different supplier ecosystems, different regulatory regimes, and different power-quality conditions. A borrowed "85 percent OEE (overall equipment effectiveness)" benchmark from a German automotive plant tells a Cabuyao food plant nothing useful about whether their 62 percent is good.
 
-PH-specific benchmarks fix this. When a Pampanga beverage plant sees that the median PH beverage-sector MTTR is 4.2 hours and their MTTR is 5.8 hours, the gap is actionable. When the same plant sees the global best is 1.5 hours, the gap is demoralising and unactionable.
+PH-specific benchmarks fix this. When a Pampanga beverage plant sees that the median PH beverage-sector MTTR (mean time to repair) is 4.2 hours and their MTTR is 5.8 hours, the gap is actionable. When the same plant sees the global best is 1.5 hours, the gap is demoralising and unactionable.
 
 ## What the reports cover
 
@@ -125,4 +125,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9c610f85bc19b0fd -->
+<!-- md-twin source-sha: 002cb8126bba72e0 -->

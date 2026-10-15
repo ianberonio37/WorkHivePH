@@ -97,7 +97,7 @@ Cross-hive access exists but only via explicit, scoped, named permissions: a con
 Filipino conglomerates often run 3 to 20 plants across the country. The pattern that works:
 
 - **Each plant is its own hive.** Day-to-day operations stay autonomous; each plant's supervisor manages their own membership and PM schedule.
-- **There is no group layer yet.** A corporate roll-up across child hives: one dashboard showing PM compliance, MTBF, MTTR and OEE for every plant: is on the roadmap and not in the product, so a director wanting the comparison today collects it per plant. Worth knowing before you plan a rollout around it.
+- **There is no group layer yet.** A corporate roll-up across child hives: one dashboard showing PM compliance, MTBF (mean time between failures), MTTR (mean time to repair) and OEE (overall equipment effectiveness) for every plant: is on the roadmap and not in the product, so a director wanting the comparison today collects it per plant. Worth knowing before you plan a rollout around it.
 - **Per-plant benchmarking** becomes natural. Plant A's PM compliance is 87 percent; Plant B's is 62 percent. The corporate team can see the gap and dispatch help.
 
 **The bigger picture:** The hive is not just a workspace; it is the trust boundary. Plants adopt WorkHive because the boundary is real and enforced at the database. Workers join hives because their skill badges are held against their own name and survive leaving; the plant's records stay with the plant, which is the same boundary read from the other side. Both halves of the trust equation are needed for a free industrial platform to work in the Philippines, where data sensitivity is high and trust in cloud SaaS is still being earned.
@@ -136,4 +136,4 @@ Each site is its own hive. The parent company can create a hive group that lets 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f5e32714fba21fe6 -->
+<!-- md-twin source-sha: 3558d63a295c1b56 -->

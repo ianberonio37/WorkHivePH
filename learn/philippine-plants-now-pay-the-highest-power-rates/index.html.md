@@ -53,7 +53,7 @@ If the audit shows high consumption, the report can turn into a blame tool. The 
 
 Start by writing down what the plant actually draws, then open the Engineering Design calculator and pick a calculator from the **Electrical** discipline: connected load and demand factor, feeder and service-entrance sizing, voltage drop.
 
-Be clear about what that does and does not do: it sizes and checks the loads *you* enter against the Philippine Electrical Code, and it names the standard behind every number. It does not read your meter, and it cannot tell you whether you have crossed the 500,000 kWh line: that comes from your own annual consumption. List the low-cost controls you are weighing as BOM items, export the PDF, and send it to the reliability lead. You need no new equipment to start; just re-evaluate the loads you already run.
+Be clear about what that does and does not do: it sizes and checks the loads *you* enter against the Philippine Electrical Code, and it names the standard behind every number. It does not read your meter, and it cannot tell you whether you have crossed the 500,000 kWh line: that comes from your own annual consumption. List the low-cost controls you are weighing as BOM (bill of materials) items, export the PDF, and send it to the reliability lead. You need no new equipment to start; just re-evaluate the loads you already run.
 
 **Do this arithmetic with your own figures:** a saving is only as sound as the baseline under it, and the commonest mistake is to price the nameplate rating instead of the draw: a 500‑kW boiler room seldom pulls 500 kW. Measure what a line really draws across a full shift, then price the cut. A 5% reduction on a line drawing 200 kW for 16 hours a day is 160 kWh a day; at ₱12 per kWh that is about ₱1,900 a day. Numbers like these are worth taking to a budget meeting only when the kWh in them is one you measured.
 
@@ -129,4 +129,4 @@ The DOE publishes rate information under 'Electricity Tariff Rates' on doe.gov.p
 - Department of Energy, Electricity Tariff Rates (June 2024). https://www.doe.gov.ph/electricity-tariff-rates
 - Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285_2019.html
 
-<!-- md-twin source-sha: 25040be49d5e354d -->
+<!-- md-twin source-sha: 27c50c2801fc97e2 -->

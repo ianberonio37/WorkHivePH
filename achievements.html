@@ -1072,7 +1072,7 @@
     const standingsEl = document.getElementById('standings-list');
     // E2 consistent states: skeleton in the hive standings while it fetches so the
     // panel never flashes blank before rows render (shared whListSkeleton).
-    if (standingsEl && typeof whListSkeleton === 'function') whListSkeleton(standingsEl, 5);
+    if (standingsEl && typeof whListSkeleton === 'function') whListSkeleton(standingsEl, 5, 'the hive standings');
     const { data: members, error: membersErr } = await db
       // Canonical: v_worker_truth (wraps hive_members + worker_profiles).
       // hive_members.status -> v_worker_truth.hive_status (rename to avoid

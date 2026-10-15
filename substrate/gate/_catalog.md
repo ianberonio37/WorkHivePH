@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 54bc4c5abcb14bb8
+source_sha: 024208bb1ca1460e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1391) — the 'what's already gated' brain
+## gate · registered validators (1393) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1020)
+### Platform (1022)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -868,6 +868,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `invite-code-is-unguessable` [fail] — T185/security: the one credential that admits a stranger to a plant (2026-08-26). A hive's 6-character invite code is the whole of what stands between an outsid
 - `invite-code-round-trip` [fail] — T6/T7/T185: the invite-code round trip — the briefing-room exchange (2026-08-26). The platform's whole onboarding rests on one exchange: a supervisor creates a 
 - `iot-protocols` ⚡ [fail] — IoT and MQTT Protocol Safety Validator
+- `jargon-glossed` ⚡ [fail] — SL F4 (2026-10-16): the page that says a domain acronym explains it. The F4 walk read 155 pages as a person reads them and found 119 acronyms rendered with noth
 - `javascript-href` ⚡ [fail] — <a href='javascript:'> Anti-Pattern (use <button> for actions; reserve <a href> for navigation; forward-only ratchet)
 - `join-lands` [fail] — T6/T7: join-lands-on-roster gate — T6+T7's shared instrument close (2026-08-26). Runs tools/prove_join_lands.mjs: a two-context paired journey where an OUTSIDE 
 - `join-names-the-namesake` [fail] — T185: two people who share a name both get into the hive (2026-08-26). A plant pilots WorkHive and five workers are handed ONE invite code at the morning briefi
@@ -1251,6 +1252,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `signout-says-why` [fail] — T8: the sign-in screen says WHY the worker is looking at it (2026-08-26). A worker mid-task looks up and finds a sign-in modal with no explanation, which is ind
 - `silo-monitor` ⚡ [fail] — Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)
 - `sitemap-page-existence` ⚡ [fail] — Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)
+- `skeleton-labelled` ⚡ [fail] — SL F1 (2026-10-16): every list's wait says which list it is. The F1 walk held each page's list reads and read the page at 1.5 s: wherever the shared whListSkele
 - `skeleton_resolves` [fail] — Loading skeletons resolve (no shimmer may outlive its load; a stuck placeholder is invisible to console, axe and every static check — logbook's team-mode orphan
 - `skew-heal` ⚡ [fail] — BRH-D (Ian's missing hive assets, 2026-10-14: the new logbook ran on an hour-old utils.js and its typeof guard turned the missing function into silence): every 
 - `skew-heal-live` [fail] — BRH-D, in a browser: each of those pages at 390 and 1280 leaves a current utils.js alone (no refetch, one navigation - a false heal would reload every visitor) 

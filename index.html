@@ -4767,9 +4767,10 @@
     clearTimeout(guard);
   }, { once: true });
 })();
-</script>
+/* FOLDED, NOT A SEPARATE SCRIPT TAG (2026-10-16): the BRH-D skew-heal block took a tag of its own (it must sit directly
+   after utils.js, its body unedited), which put this page one un-nonced inline script over the CSP ratchet's 12. Two
+   adjacent, self-contained IIFEs share one tag; their order is unchanged. */
 
-<script>
 /* ── PWA Install Button ── */
 (function() {
   var _prompt = null;
@@ -5089,7 +5090,13 @@
     // G1 (FF1): canonical skeleton in the open-jobs list while the dashboard queries run
     // (first render only — re-renders from hive-switch/setLang keep the existing rows).
     const _ohJobs = document.getElementById('oh-jobs');
-    if (_ohJobs && !_ohJobs.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_ohJobs, 3);
+    if (_ohJobs && !_ohJobs.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_ohJobs, 3, 'the open jobs');
+    // ★THE RESERVE SAYS WHAT IT IS HOLDING (SL F1, 2026-10-16): the tile strip keeps its height while the dashboard
+    // reads run, so the layout lands once - and for those seconds it was a blank band under "Today at a Glance" (the F1
+    // walk held get_hive_dashboard and read the page at 1.5 s: nothing on it said anything was coming). One caption
+    // line inside the reserve; renderStats replaces it, and the failure branch below clears it.
+    const _ohStatsWait = document.getElementById('oh-stats');
+    if (_ohStatsWait && !_ohStatsWait.childElementCount) _ohStatsWait.innerHTML = '<p class="wh-skeleton-label" role="status" style="align-self:center;">Loading today’s counts…</p>';
 
     // Persona Contract Phase 5: hydrate the companion toggle from
     // worker_profiles.preferred_persona (account-level) so the choice follows the worker
@@ -5389,6 +5396,8 @@
       // shimmers FOREVER, telling the person something is loading that will never arrive
       // (plain string: `_t` in THIS branch is the #oh-today element, shadowing the translator)
       const _ohJobsEl = document.getElementById('oh-jobs');
+      const _ohStatsEl = document.getElementById('oh-stats');   // its wait caption must not outlive the wait either
+      if (_ohStatsEl && _ohStatsEl.querySelector('.wh-skeleton-label')) _ohStatsEl.innerHTML = '';
       if (_ohJobsEl) _ohJobsEl.innerHTML = '<div class="oh-card" style="padding:12px 16px; font-size: 0.75rem; color:rgba(255,255,255,.7);">'
         + 'Open jobs are unknown right now, not zero.</div>';
       if (_t && typeof whListError === 'function') {

@@ -33,10 +33,10 @@ Most workers either oversell what AI can do ("it will diagnose anything") or und
 
 1. **Fault diagnosis with reasoning.** "Pump P-101A vibration spiked from 2.1 to 4.8 mm/s in 7 hours; what should I check first?" gets a prioritized list with the reason for each check, not a single guess.
 2. **Shift handover drafting.** The AI reads your shift's logbook entries, categorises them by priority, and pre-fills the 5-section handover for the supervisor to review in 5 minutes.
-3. **Procedure and standard recall.** "What is the LOTO sequence for a 4160V breaker?" pulls the right OEM and DOLE OSHS reference without flipping through the binder.
+3. **Procedure and standard recall.** "What is the LOTO (lock-out/tag-out) sequence for a 4160V breaker?" pulls the right OEM and DOLE OSHS reference without flipping through the binder.
 4. **Inventory lookup by description.** "I need an O-ring about 50 mm diameter for a hydraulic valve" returns the matching part number from your inventory, not a generic catalogue match.
 5. **Pattern recall across history.** "Has this asset had coupling issues before?" surfaces the last 12 months of entries tagged to this asset in 2 seconds, with the senior technician who fixed each one.
-6. **Concept explanation at your level.** "Explain MTBF like I am a new technician" gives a 2-paragraph plain-English answer. "Explain it for a reliability engineer with 8 years" gives a different answer with formulas and benchmarks.
+6. **Concept explanation at your level.** "Explain MTBF (mean time between failures) like I am a new technician" gives a 2-paragraph plain-English answer. "Explain it for a reliability engineer with 8 years" gives a different answer with formulas and benchmarks.
 
 That is the whole list. Anything else, treat with suspicion.
 
@@ -162,4 +162,4 @@ It will, sometimes. Always cross-check against three things: (1) the OEM service
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: faa12808bfb1a06e -->
+<!-- md-twin source-sha: 18641d3defc8f7d8 -->

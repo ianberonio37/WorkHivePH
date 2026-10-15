@@ -264,7 +264,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      (both connect external systems, same supervisor audience). One nav entry; this
      tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
 <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; max-width:900px; margin:0 auto 1.25rem; flex-wrap:wrap;">
-  <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">CMMS Integration</span>
+  <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);"><abbr title="computerized maintenance management system">CMMS</abbr> Integration</span>
   <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
 </div>
 
@@ -3140,7 +3140,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!HIVE_ID) { listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--muted);">Join a hive first.</div>'; return; }
 
     // G1 (FF1): canonical skeleton instead of the hand-rolled "Scanning..." text (kept as fallback).
-    if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3);
+    if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3, 'the sync conflicts');
     else listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--muted);">Scanning for conflicts...</div>';
 
     try {

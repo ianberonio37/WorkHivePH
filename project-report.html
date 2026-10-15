@@ -523,14 +523,21 @@ function getPhase(it) {
         // as their "recent" work is exactly the two-surfaces-two-answers problem the view exists to
         // end. (Identical result today - raw 12, non-deleted 12, view 12 - so this changes the
         // CONTRACT, not the current screen.) The view names the key `project_id`, not `id`.
-        const { data: recent, error: recentErr } = await db.from('v_project_truth')
-          .select('project_id, project_code, name, status, updated_at')
-          .eq('hive_id', HIVE_ID)
-          .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
+        // ★THE CHOOSER SAYS IT IS COMING (SL F1, 2026-10-16): the box was built only after this read answered, so for the
+        // whole wait the page showed the placeholder and nothing about the list on its way. It goes in first, saying
+        // what it is fetching, and the answer below replaces its content - no second element, no shift when it lands.
         const box = document.createElement('div');
         box.className = 'empty-section';
         box.setAttribute('role', 'region');
         box.setAttribute('aria-label', T('Recent projects', 'Mga kamakailang project'));
+        box.setAttribute('aria-busy', 'true');
+        box.textContent = T("Loading your hive's recent projects…", 'Nilo-load ang mga kamakailang project ng hive mo…');
+        $('exec-summary').appendChild(box);
+        const { data: recent, error: recentErr } = await db.from('v_project_truth')
+          .select('project_id, project_code, name, status, updated_at')
+          .eq('hive_id', HIVE_ID)
+          .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
+        box.removeAttribute('aria-busy');
         if (recent && recent.length) {
           // ★THE CHOOSER BROKE AT 390 (critique W46013, 2026-10-13). Each link is inline-flex (for its 44px height), which
           // made the name's text and the status <span> two flex ITEMS: the space between them collapsed ("Overhaul· active"),
@@ -559,9 +566,12 @@ function getPhase(it) {
           box.textContent = T('No projects in this hive yet. Create one in the Project Manager and its report will build here.',
                               'Wala pang project sa hive na ito. Gumawa ng isa sa Project Manager at dito mabubuo ang report nito.');
         }
-        $('exec-summary').appendChild(box);
       }
-    } catch (_) { /* empty-catch-allow: the chooser is a courtesy; the back link above still stands */ }
+    } catch (_) {
+      // the chooser is a courtesy and the back link above still stands - but a wait it announced must not outlive it
+      const _b = document.querySelector('#exec-summary .empty-section[aria-busy="true"]');
+      if (_b) { _b.removeAttribute('aria-busy'); _b.textContent = 'Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.'; }
+    }
     prMarkUnloaded();
     return;
   }
@@ -586,7 +596,7 @@ const projLabel = (p) => (p && p.project_code) || (p && p.name) || 'This project
 async function loadAndRender(projectId) {
   // G1 (FF1): canonical skeleton in the summary section while the 4 project queries run.
   const _es = document.getElementById('exec-summary');
-  if (_es && !_es.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_es, 3);
+  if (_es && !_es.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_es, 3, 'the project summary');
   // ★ `Promise.all` REJECTS, AND THE SKELETON PAID FOR IT. The branch below reasons carefully about
   // projRes.error — 401 vs 42501 vs a fault vs a genuine deletion, four different recoveries — but it
   // only ever runs when the reads RESOLVE. A dropped connection or a transport timeout rejects, so

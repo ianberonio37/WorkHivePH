@@ -110,7 +110,7 @@ The tool this guide is about
 
 ### WorkHive Analytics computes MTBF and MTTR per asset
 
-Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is **downtime hours** on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure *“Worst MTBF (partial)”*, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS license. Built for Stage 1 of the 4-stage path.
+Every fault entry in the WorkHive Logbook feeds the Analytics reliability dashboard. The field that does the work is **downtime hours** on the entry: there is no separate stop and restart timestamp to fill in: alongside the category, root cause and the closing time. MTBF and MTTR are recomputed on the first view of each day and saved, so the figures are never more than a day stale and nobody waits for a recalculation. One caveat worth carrying with you: the dashboard labels its own figure *“Worst MTBF (partial)”*, because it divides calendar time rather than operating time: which is the shortcut this page warns about, declared openly rather than hidden. For an asset that runs 24/7 the two are the same; for one that does not, treat the dashboard figure as the conservative one. No spreadsheets, no per-user CMMS (computerized maintenance management system) license. Built for Stage 1 of the 4-stage path.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
@@ -120,9 +120,9 @@ Engineering availability is the cleanest combined metric:
 
 For the Cabuyao pump example: `1,091 / (1,091 + 4) = 99.6%`
 
-That 99.6 percent looks excellent on paper, but the OEE on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.
+That 99.6 percent looks excellent on paper, but the OEE (overall equipment effectiveness) on the production line that depends on this pump may still be 50 percent because the 4-hour repair always hits at the worst possible moment. Engineering availability does not capture criticality; it just captures up-time fraction.
 
-This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.
+This is why MTBF and MTTR alone are not enough. They feed into OEE, RCM (reliability-centered maintenance) analysis, and PM strategy decisions. Use them as inputs, not as the final scorecard.
 
 ## Tracking both with zero CMMS budget
 
@@ -180,9 +180,9 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 - ISO 14224:2016, **Petroleum, petrochemical and natural gas industries: Collection and exchange of reliability and maintenance data for equipment**. The international standard for MTBF/MTTR data definitions and failure categorization.
 - IEC 60050-192, **International Electrotechnical Vocabulary: Dependability**. The formal definitions of reliability, availability, MTBF, and MTTR used across industry.
-- Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017. North American KPI library and benchmark ranges.
+- Society for Maintenance and Reliability Professionals (SMRP), **Best Practices, 5th Edition**, 2017. North American KPI (key performance indicator) library and benchmark ranges.
 - WorkHive platform positioning, "Four Gaps One Hive": Execution, Skills, Intelligence, Marketplace. [workhiveph.com](https://workhiveph.com/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 99099293ef38cd84 -->
+<!-- md-twin source-sha: 93205fb4d3984ffe -->

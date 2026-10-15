@@ -1082,7 +1082,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const emptyEl = $('history-empty');
       // G1 (FF1): converge the hand-rolled skeleton-rows to the canonical whListSkeleton
       // (aria-busy/aria-live ship with it); keep the old markup as a no-utils fallback.
-      if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3);
+      if (typeof whListSkeleton === 'function') whListSkeleton(listEl, 3, 'your voice notes');
       else listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
       emptyEl.style.display = 'none';
 

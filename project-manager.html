@@ -1134,7 +1134,7 @@ async function loadHiveMembers() {
 async function loadProjects() {
   // E2 consistent states: skeleton in the project card grid while it fetches so
   // #card-grid never flashes blank before project cards render (shared whListSkeleton).
-  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
+  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4, 'your projects');
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
@@ -1212,7 +1212,7 @@ function pcardHtml(p) {
       <div class="progress"><div class="progress-bar ${progressColor(p._pct)}" style="width: ${p._pct || 0}%"></div></div>
       <div class="pcard-foot">
         <span class="status-pill status-${p.status}">${e(p.status.replace('_', ' '))}</span>
-        <span>${p._pct || 0}%</span>
+        <span>${p._pct || 0}% done</span><!-- SL F4: the card read "active 25%" - 25% of what; it is the project's work done -->
       </div>
     </div>`;
 }

@@ -2657,7 +2657,7 @@ async function initData() {
   // E2 consistent states: show a skeleton while the fetch runs so the panel
   // never flashes blank (renderParts() at the end overwrites it with data or
   // the empty-state).
-  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('parts-list'), 4);
+  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('parts-list'), 4, 'your parts');
   let lsItems = [], lsTxns = [], lsAssets = [];
   try { lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]'); } catch (_) { lsItems  = []; }
   try { lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]'); } catch (_) { lsTxns   = []; }

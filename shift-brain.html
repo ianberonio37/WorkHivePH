@@ -352,7 +352,7 @@
            blocked splits cannot be rendered honestly — the definition instead says plainly that the
            bucket hides those three states and routes the reader to the person who knows. If a
            carry-reason field is ever added to the log, replace this line with the real breakdown. -->
-      <p style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
+      <p style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred (still due) and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
       <div id="carry-list"></div>
     </div>
 
@@ -558,7 +558,7 @@
       // E2 consistent states: skeleton in the carry-forward list while the plan
       // re-fetches (e.g. on a shift-window switch, when the section is already
       // visible) so it never flashes stale rows before renderPlan repaints.
-      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('carry-list'), 3);
+      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('carry-list'), 3, 'the carry-over list');
 
       // Look for the most recent plan for this hive + window. Prefer today's; else fall back
       // to the latest within 24h to handle overnight windows.

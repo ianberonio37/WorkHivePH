@@ -2,7 +2,7 @@
 name: page-public-feed
 type: page
 source: file:public-feed.html
-source_sha: d509a950da41a830
+source_sha: 0edf26ef124c4b07
 last_verified: 2026-07-13
 supersedes: null
 ---

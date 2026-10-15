@@ -47,7 +47,7 @@ To scan a machine's QR code, simply navigate to the Asset Hub page and click the
 
 Asset Brain 360 in WorkHive Asset Hub brings together a machine's entire history in one easily accessible timeline. After scanning a QR code on a machine, technicians can view logbook entries, PM history, inventory and parts movements, and project work all in one chronological record. This comprehensive view allows for a deeper understanding of the asset's performance over time.
 
-Around that timeline the page adds the parent breadcrumb, a **Risk Profile** for this asset alone, and **Ask Asset Brain**, which answers questions using only this machine's own records. Below them sits the part most readers never find: the **Reliability Workbench**, five tabs of standards-anchored analysis on the same asset: an FMEA matrix (AIAG-VDA 2019), RCM strategy (SAE JA1011 / JA1012), a Weibull fit (IEC 61649), P-F intervals (ISO 13381-1), and the last 365 days of corrective history. The hierarchy underneath it all is ISO 14224 asset and failure coding.
+Around that timeline the page adds the parent breadcrumb, a **Risk Profile** for this asset alone, and **Ask Asset Brain**, which answers questions using only this machine's own records. Below them sits the part most readers never find: the **Reliability Workbench**, five tabs of standards-anchored analysis on the same asset: an FMEA (failure mode and effects analysis) matrix (AIAG-VDA 2019), RCM (reliability-centered maintenance) strategy (SAE JA1011 / JA1012), a Weibull fit (IEC 61649), P-F intervals (ISO 13381-1), and the last 365 days of corrective history. The hierarchy underneath it all is ISO 14224 asset and failure coding.
 
 **Worked example:** Consider a bottling line in a Cabuyao plant running around the clock, where pump P-204B stops. Before you can price that stoppage you need to know how often it has happened and how long it took to clear each time: which is the timeline's job. Scanning the pump's tag brings up its logbook entries, PM history and project work in one chronological record, and the downtime minutes your own team logged against it are already there. Use your line's own cost per hour, not a figure from an article.
 
@@ -55,7 +55,7 @@ Around that timeline the page adds the parent breadcrumb, a **Risk Profile** for
 
 In Asset Hub, when you scan a machine's QR code, Asset Brain 360 opens, showing not just the asset's timeline but also its relationships with other machines. For example, consider Pump P-204B in a Cabuyao bottling line. A breadcrumb above its name shows the parent it belongs to: the line, the skid, the system, so a technician can place the pump in the hierarchy at a glance. The chain is one hop today; deeper traversal is still being built.
 
-Parts appear on the page in two ways, and it is worth knowing which is which. Every part ever issued against this machine is already in the timeline, as inventory movements you can read back. Separately, a **Recommended Parts to Stage** card appears when the model has enough history to predict what this asset will need: a pre-staging suggestion with a confidence chip attached, which you accept or ignore. The first is a record of what was used; the second is a forecast of what to have ready.
+Parts appear on the page in two ways, and it is worth knowing which is which. Every part ever issued against this machine is already in the timeline, as inventory movements you can read back. Separately, a **Recommended Parts to Stage** card appears when the model has enough history to predict what this asset will need: a suggestion of which parts to set aside before the job, with a confidence chip attached, which you accept or ignore. The first is a record of what was used; the second is a forecast of what to have ready.
 
 Read together, the parent chain and the parts record answer a question a single work order never can: whether this machine keeps failing on its own, or keeps failing because of what it is attached to. This feature, available in Asset Hub, supports more efficient maintenance and repair processes, ultimately contributing to increased equipment reliability and reduced downtime.
 
@@ -117,4 +117,4 @@ No, the information displayed in Asset Brain 360 is standardized based on ISO 14
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [Building an asset register from scratch](https://workhiveph.com/learn/building-asset-register-zero-budget/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) · [FMEA worked example](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/)
 
-<!-- md-twin source-sha: 83d59026f963f2c7 -->
+<!-- md-twin source-sha: 93c53f69e7c6a162 -->

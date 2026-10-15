@@ -969,7 +969,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!area) return;
     // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js) —
     // this page's hand-rolled copy was LIFTED there (row variant), per the §10 lever.
-    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 4, { variant: 'row' }); return; }
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(area, 4, { variant: 'row', label: 'the review queue' }); return; }
     area.innerHTML = Array(4).fill(0).map(() => `
       <div class="admin-card draft skel-pulse">
         <div class="card-top">

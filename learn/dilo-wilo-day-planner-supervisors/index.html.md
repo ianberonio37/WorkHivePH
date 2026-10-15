@@ -60,8 +60,8 @@ In December (or the last quarter), the supervisor sits with the plant manager fo
 Examples of real Philippine plant YILO outcomes:
 
 - PM compliance from 62 percent to 85 percent
-- OEE on Line 2 from 51 percent to 65 percent
-- MTTR on critical pumps from 4.5 hours to 2.5 hours
+- OEE (overall equipment effectiveness) on Line 2 from 51 percent to 65 percent
+- MTTR (mean time to repair) on critical pumps from 4.5 hours to 2.5 hours
 - Skill matrix coverage: 100 percent of critical disciplines have Level 3+ coverage on every shift
 - Zero recordable safety incidents
 
@@ -118,7 +118,7 @@ A realistic Philippine plant supervisor day allocates the 8-hour shift across 5 
 | --- | --- | --- |
 | **PM execution** | 20-25% | Walk-throughs, PM verification, completion sign-off, exception handling |
 | **Breakdown response** | 25-35% | Triage, technician assignment, parts hunt, escalation, post-fault review |
-| **Project work** | 15-20% | Planned shutdowns, improvement projects, RCA investigations, MTBF review |
+| **Project work** | 15-20% | Planned shutdowns, improvement projects, RCA investigations, MTBF (mean time between failures) review |
 | **People** | 10-15% | 1-on-1s, training, skill matrix updates, hiring, performance conversations |
 | **Admin** | 10-15% | Reports, approvals, procurement, vendor calls, system logging |
 
@@ -183,4 +183,4 @@ Two weeks for personal results (less end-of-day stress, better sleep, fewer carr
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2d12704f6ee7aa8f -->
+<!-- md-twin source-sha: 072ff4bc69391d64 -->

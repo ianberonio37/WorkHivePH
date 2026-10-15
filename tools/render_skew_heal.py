@@ -34,6 +34,22 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 from bug_hunt_inventory import DEFINED, production_pages, skew_needs  # noqa: E402
 
+
+def heal_pages() -> list[str]:
+    """Every page that must heal: the LX production pages AND every root page of the SL program's roster (SL CA3,
+    2026-10-16). The roster started as LX's production list, which leaves out design-system, status, voice-journal and
+    the retired observability pages - each of which guards utils.js functions and, on an older copy, skipped them in
+    silence: the exact defect the block exists for. A page the SL walk measures is a page that must heal."""
+    import json
+    sl = set()
+    try:
+        reg = json.loads((ROOT / "trajectory_registry.json").read_text(encoding="utf-8"))
+        sl = {(t.get("sl") or {}).get("page") for t in reg.get("trajectories", [])}
+    except (OSError, ValueError):
+        pass
+    sl = {x for x in sl if x and "/" not in x and x.endswith(".html") and (ROOT / x).exists()}
+    return sorted(set(production_pages()) | sl)
+
 UTILS_TAG = re.compile(r'<script src="utils\.js"></script>')
 BLOCK_RX = re.compile(r'<script data-wh-skew-heal="([^"]*)">(.*?)</script>', re.S)
 
@@ -118,7 +134,7 @@ def problems(page: str, src: str, defined: set) -> list[str]:
 def main(apply: bool, check: bool) -> int:
     defined = defined_in((ROOT / "utils.js").read_text(encoding="utf-8", errors="replace"))
     found, written = [], []
-    for page in production_pages():
+    for page in heal_pages():
         path = ROOT / page
         src = path.read_bytes().decode("utf-8", errors="replace")
         probs = problems(page, src, defined)
@@ -135,7 +151,7 @@ def main(apply: bool, check: bool) -> int:
         print(f"wrote {len(written)} page(s): {', '.join(written) or '-'}")
     for p in found:
         print("  FAIL " + p)
-    healed = sum(1 for page in production_pages()
+    healed = sum(1 for page in heal_pages()
                  if BLOCK_RX.search((ROOT / page).read_text(encoding="utf-8", errors="replace")))
     if found:
         print(f"FAIL skew-heal - {len(found)} problem(s)")
@@ -174,7 +190,7 @@ def needs_map() -> dict:
     tools/prove_skew_heal.mjs walks, from the same measurement as the blocks."""
     defined = defined_in((ROOT / "utils.js").read_text(encoding="utf-8", errors="replace"))
     out = {}
-    for page in production_pages():
+    for page in heal_pages():
         names = skew_needs(_strip_block((ROOT / page).read_text(encoding="utf-8", errors="replace")), defined)
         if names:
             out[page] = names

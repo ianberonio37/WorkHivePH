@@ -45,7 +45,7 @@ If you have lived through this in your plant, you already know which one killed 
 
 The cruelest part: the executives who signed the multi-million-peso check often blame the technicians for not adopting the system, when the actual cause is that the plant was never operationally ready to use it.
 
-What does any of this have to do with a digital logbook? Everything. The digital logbook is the smallest, cheapest, lowest-risk step toward the operational discipline that any ERP, CMMS, or AI system later depends on. Plants that try to skip this step almost always fail at the bigger step.
+What does any of this have to do with a digital logbook? Everything. The digital logbook is the smallest, cheapest, lowest-risk step toward the operational discipline that any ERP, CMMS (computerized maintenance management system), or AI system later depends on. Plants that try to skip this step almost always fail at the bigger step.
 
 > This guide is the practical version of Munar's recommendation: "prioritize localized, appropriately-scaled solutions over prestigious platforms."
 
@@ -233,4 +233,4 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 771c777ff1d7153f -->
+<!-- md-twin source-sha: fe308e42972a40b7 -->

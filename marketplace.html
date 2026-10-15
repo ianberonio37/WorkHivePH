@@ -2768,7 +2768,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     grid.removeAttribute('role');  // A11y: skeletons are non-article; role=feed restored when cards render
     // G1 (FF1): converged 2026-07-17 onto the canonical whCardSkeleton (utils.js) —
     // this page's hand-rolled copy was LIFTED there (grid variant), per the §10 lever.
-    if (typeof whCardSkeleton === 'function') { whCardSkeleton(grid, 8, { variant: 'grid' }); return; }
+    if (typeof whCardSkeleton === 'function') { whCardSkeleton(grid, 8, { variant: 'grid', label: 'the listings' }); return; }
     grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = Array(8).fill(0).map(() => `
       <div class="skel-card skel-pulse skeleton">
         <div class="skel" style="height:160px;"></div>

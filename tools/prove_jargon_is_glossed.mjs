@@ -112,7 +112,9 @@ const TERMS = [
   { t: 'RCM',  expand: 'reliability-centered maintenance' },
   { t: 'FMEA', expand: 'failure mode' },
   { t: 'RPN',  expand: 'risk priority number' },
-  { t: 'LOTO', expand: 'lock-out' },
+  // both spellings are the term (SL F4, 2026-10-16): the learn index described LOTO as "lockout/tagout" - the OSHA
+  // spelling - and a hyphen-only oracle read that correct gloss as missing
+  { t: 'LOTO', expand: ['lock-out', 'lockout'] },
   { t: 'CMMS', expand: 'maintenance management' },
   { t: 'SOW',  expand: 'scope of work' },
   { t: 'BOM',  expand: 'bill of materials' },
@@ -190,7 +192,7 @@ for (const { page, floor: pageFloor, open, query } of PAGES) {
       const word = new RegExp('(^|[^A-Za-z])' + t + '([^A-Za-z]|$)');
       if (!word.test(text)) continue;
       out.present.push(t);
-      const glossed = haystack.includes(expand.toLowerCase());
+      const glossed = [].concat(expand).some((x) => haystack.includes(x.toLowerCase()));
       if (!glossed) out.bare.push(t);
     }
     // the overloaded-word half: same gloss test, reported separately because a bare acronym and a

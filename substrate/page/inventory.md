@@ -2,7 +2,7 @@
 name: page-inventory
 type: page
 source: file:inventory.html
-source_sha: 0e1de2b96ba0e167
+source_sha: 4577d80fa8d888b7
 last_verified: 2026-07-13
 supersedes: null
 ---

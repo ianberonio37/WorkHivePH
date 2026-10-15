@@ -33,7 +33,7 @@ Operate the Plant Connections gateway daily, not install-and-forget. Three thing
 The edge gateway is a small server (physical or virtual) running on the plant network that:
 
 - Reads sensor data from your OT systems via OPC-UA (for PLCs and SCADA) or MQTT (for IoT sensors)
-- Reads work orders, asset master, and PM schedule from your CMMS (SAP PM, IBM Maximo, others) via its REST API
+- Reads work orders, asset master, and PM schedule from your CMMS (computerized maintenance management system) (SAP PM, IBM Maximo, others) via its REST API
 - Pushes condition summaries and operational data to WorkHive cloud over secure HTTPS
 - Pushes WorkHive completion data back to the CMMS for finance and asset register sync
 
@@ -130,4 +130,4 @@ The gateway continues reading sensor and CMMS data locally and buffers it. Buffe
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 508a11ef2040663a -->
+<!-- md-twin source-sha: 712a3bc496ee46d2 -->

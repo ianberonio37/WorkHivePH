@@ -399,7 +399,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
   <section id="onboarding-section">
     <div class="card onboard-card">
       <h2 data-i="chooseprimary">Choose Your Primary Discipline</h2>
-      <p data-i="p_yourprimaryskillissettotarge_a30e">Your primary skill is set to target Level 5. All other skills default to Level 2. You can adjust targets anytime.</p>
+      <!-- SL F1 (2026-10-16): the first-run state is the matrix's EMPTY state, and it never said so - it opened on the
+           target levels. It now names what is empty and the one step that starts it. -->
+      <p>No skill matrix yet. Pick your primary discipline to start one: it targets Level 5, every other discipline defaults to Level 2, and you can change any target later.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
       </div>
@@ -407,8 +409,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     </div>
   </section>
 
-  <!-- Skeleton loaders -->
-  <section id="skeleton-section">
+  <!-- Skeleton loaders. ★THE WAIT SAYS WHAT IS COMING (SL F1, 2026-10-16): the F1 walk held the profile and badge
+       reads and read the page at 1.5 s - a grey circle and three grey cards, no word of what they stood for, and no
+       status role, so a screen reader was told nothing. Same caption as the shared whListSkeleton. -->
+  <section id="skeleton-section" role="status" aria-busy="true">
+    <p class="wh-skeleton-label" style="margin-bottom:0.75rem;">Loading your skill matrix&hellip;</p>
     <div class="card chart-section" style="margin-bottom:1.5rem;">
       <div class="skeleton skel-chart"></div>
     </div>
@@ -835,7 +840,7 @@ async function init() {
   // Load profile and badges in parallel
   // G1 (FF1): canonical skeleton on the target grid while profile/badges load.
   const _tg = document.getElementById('target-grid');
-  if (_tg && !_tg.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_tg, 3);
+  if (_tg && !_tg.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_tg, 3, 'your skill targets');
   _smReadFailed = false;   // a recovered read must clear it, or the Retry can never succeed: the flag
                            // stayed true after a successful re-read and the three-way branch below took
                            // the failure path again, so the error panel outlived the fix that cleared it

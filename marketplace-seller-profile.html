@@ -847,7 +847,7 @@
     const grid = document.getElementById('listing-grid');
     // E2 consistent states: shimmer skeleton while listings fetch so the grid
     // never flashes blank before cards render (shared whListSkeleton).
-    if (grid && typeof whListSkeleton === 'function') whListSkeleton(grid, 6);
+    if (grid && typeof whListSkeleton === 'function') whListSkeleton(grid, 6, "this seller's listings");
     /* AND SAY SOMETHING IF IT DRAGS. whQueryTimeout bounds this read at 15s, but a skeleton that
        shimmers in silence for fifteen seconds is only technically not-infinite -- measured by the
        failure lens at 4s in: stuckSkeleton true, saysSomething FALSE. Four seconds is past "fast" and

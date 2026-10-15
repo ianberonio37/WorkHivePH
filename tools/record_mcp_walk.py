@@ -77,6 +77,17 @@ KNOWN_INSTRUMENTS = ("chrome-devtools-mcp", "playwright-mcp", "postgres-mcp", "p
 DESIGN_VIEWPORTS = {"phone-390", "desktop-1280"}
 
 
+def _sparse_wait(s: dict) -> bool:
+    """★A LOADING STEP IS SPARSE BY DESIGN (SL F1, 2026-10-16). The 120-character floor below exists to catch the
+    sign-in wall - a step that rendered 69 characters because the person was no longer signed in. A step whose CONDITION
+    is a held load is a different thing: Platform Actions fills its queues before it reveals them, so for those seconds
+    its whole page is its heading and "Loading the action queues: listings to review, top-ups, receipts and feedback…"
+    - 99 characters, honest, and with the admin still signed in. Such a step arrives when it carries the wait it NAMED
+    (`said`) and kept its identity; a thin step with no named wait, or any thin step of another condition, still fails."""
+    return (s.get("condition") == "loading" and bool(str(s.get("said") or "").strip())
+            and s.get("identityKept", True) is True)
+
+
 def build_receipt(rid: str, instrument: str, condition: str, cast: str,
                   steps: list, note: str, generated: str, unproven: str = "",
                   w4: dict | None = None) -> dict:
@@ -90,13 +101,13 @@ def build_receipt(rid: str, instrument: str, condition: str, cast: str,
         raise ValueError("a walk with no steps is not a receipt - refusing to write one")
     if instrument not in KNOWN_INSTRUMENTS:
         raise ValueError(f"unknown instrument {instrument!r}: use one of {KNOWN_INSTRUMENTS}")
-    arrived = [s for s in steps if int(s.get("chars") or 0) >= 120 and not s.get("loadError")]
+    arrived = [s for s in steps if (int(s.get("chars") or 0) >= 120 or _sparse_wait(s)) and not s.get("loadError")]
     kept = all(s.get("identityKept", True) for s in steps)
     problems = []
     for s in steps:
         if s.get("loadError"):
             problems.append(f"{s.get('page')}: {str(s['loadError'])[:80]}")
-        elif int(s.get("chars") or 0) < 120:
+        elif int(s.get("chars") or 0) < 120 and not _sparse_wait(s):
             problems.append(f"{s.get('page')}: rendered {s.get('chars')} characters")
     if not kept:
         problems.append("identity did not survive every hop")
@@ -342,6 +353,17 @@ def _self_test() -> int:
     r = build_receipt("T1", "chrome-devtools-mcp", "offline-3g", "A Worker", thin, "n", "s")["results"][0]
     if r["ok"] or "69" not in " ".join(r["problems"]):
         fails.append("a 69-character step must redden and say so - that is the sign-in wall")
+
+    # a held load is sparse by design: it arrives when it names its wait and kept the person - and only then
+    wait = [{"page": "a.html", "chars": 99, "identityKept": True, "condition": "loading", "said": "Loading the action queues…"}]
+    if not build_receipt("T1", "playwright-mcp", "normal", "A Worker", wait, "n", "s")["results"][0]["ok"]:
+        fails.append("a 99-character loading step that names its wait must read ok")
+    for bad, why in (({"condition": "loading", "said": ""}, "a loading step that names no wait"),
+                     ({"condition": "empty", "said": "No parts yet."}, "a thin step of another condition"),
+                     ({"condition": "loading", "said": "Loading…", "identityKept": False}, "a loading step that lost the person")):
+        step = {"page": "a.html", "chars": 99, "identityKept": True, **bad}
+        if build_receipt("T1", "playwright-mcp", "normal", "A Worker", [step], "n", "s")["results"][0]["ok"]:
+            fails.append(f"{why} must still redden at 99 characters")
 
     lost = [{"page": "a.html", "chars": 2000, "identityKept": False}]
     r = build_receipt("T1", "chrome-devtools-mcp", "normal", "A Worker", lost, "n", "s")["results"][0]
