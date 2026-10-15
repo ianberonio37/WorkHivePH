@@ -143,13 +143,37 @@
     _publishHeight();
   }
 
+  /* ★A KEPT COPY SAYS IT IS ONE (SL CA4, 2026-10-16). Offline, the worker answers a page the person opened before with
+     the copy it kept from that visit. Walked: a learn article and a calculator rendered in full and said NOTHING - no
+     sign the network was gone, that this was a saved copy, or how old it was; the logbook said "you are offline" four
+     ways and never that the page itself was the copy from the last visit. Only the worker knows it answered from the
+     kept copy, so it marks that HTML (<meta name="wh-kept-copy" content="<when it was saved>">, the cached response's
+     own Date) and adds this script to pages that do not load it. The mark, not navigator.onLine, decides: it exists only
+     when the network really failed, and navigator.onLine can stay true while every request fails. English only. */
+  function keptAt() {
+    var m = document.querySelector('meta[name="wh-kept-copy"]');
+    return m ? (m.getAttribute('content') || '') : null;
+  }
+  function keptText() {
+    var at = keptAt(), when = '';
+    try {
+      if (at) when = new Date(at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short',
+        hour: 'numeric', minute: '2-digit' }) + ' Philippine time';
+    } catch (_) { when = ''; /* empty-catch-allow: an unreadable date falls back to "an earlier visit" */ }
+    return 'You are offline. This is the copy of this page saved on this device ' +
+      (when ? 'on ' + when : 'from an earlier visit') + ' - it may be out of date.';
+  }
+
   function onOffline() {
     if (onlineTimer) { clearTimeout(onlineTimer); onlineTimer = null; }
+    if (keptAt() !== null) { show('offline', keptText()); return; }
     show('offline', _tt('You are offline. Some actions may not work.',
                         'Offline ka ngayon. May mga bagay na hindi gagana.'));
   }
 
   function onOnline() {
+    // a kept copy stays a kept copy when the network returns: say how to get the live page, and leave it up
+    if (keptAt() !== null) { show('online', 'Back online. Reload to see the latest version of this page.'); return; }
     show('online', _tt('Back online.', 'Online ka na ulit.'));
     onlineTimer = setTimeout(hide, 2000);
   }
@@ -162,7 +186,7 @@
   }
 
   function initOnce() {
-    if (!navigator.onLine) onOffline();
+    if (!navigator.onLine || keptAt() !== null) onOffline();
     window.addEventListener('offline', onOffline);
     window.addEventListener('online',  onOnline);
   }
@@ -185,6 +209,7 @@
       try {
         if (!navigator.onLine) return;
         if (banner && banner.classList.contains('offline')) return;
+        if (keptAt() !== null) return;   // a kept copy's own notice is more specific than "still loading"
         // ★AND IT YIELDS TO THE MORE SPECIFIC NOTICE, the way it yields to the offline banner (2026-10-06, achievements
         // x assistive-tech, PostgREST stopped). After the page's own read failed, shared chrome kept issuing
         // background reads (companion follow-ups, the Community unread count, identity) that stayed in flight to

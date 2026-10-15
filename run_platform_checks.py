@@ -4321,6 +4321,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "kept-copy-says-so",
+        "script":  "tools/validate_kept_copy_says_so.py",
+        "args":    [],
+        "label":   "SL CA4 (2026-10-16): a page answered from the copy kept on a past visit says that is what it is - walked offline, a learn article and a calculator rendered in full and said nothing; the worker now marks a kept navigation (wh-kept-copy, its saved Date) and adds the precached offline bar, which says 'This is the copy of this page saved on this device on <date>'",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "sw-proxy-within-csp",
         "script":  "tools/validate_sw_proxy_within_csp.py",
         "args":    [],
