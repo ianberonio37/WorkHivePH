@@ -79,6 +79,13 @@ async function read(row, [w, h]) {
   await stubModelCalls(ctx);
   await ctx.route('**/functions/v1/**', (r) => r.request().method() === 'OPTIONS' ? r.fallback()
     : r.fallback({ headers: { ...r.request().headers(), 'x-wh-walk-no-model': '1' } }));
+  // ★A SLOW SEAT, ON PURPOSE (2026-10-15). shift-brain checked `if (!HIVE_ID)` BEFORE awaiting its seat, so whether it
+  // showed "Shift Brain needs a hive" over a seated hive depended on which round trip answered first - and this prover's
+  // readings happened to win the race. With the stored hive wiped, the account lookups the seat makes answer 1.5 s late:
+  // a page that decides anything about the hive before awaiting the seat now fails every time, not by luck.
+  if (row.cls === 'H' && !row.baseline) {
+    await ctx.route(/\/rest\/v1\/(v_worker_truth|v_hives_truth)/, async (r) => { await new Promise((ok) => setTimeout(ok, 1500)); return r.fallback(); });
+  }
   // the device state is written BEFORE any page script runs, on every document of this context
   await ctx.addInitScript(([cls, wipe, stale, baseline]) => {
     try {

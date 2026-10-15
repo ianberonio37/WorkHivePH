@@ -94,7 +94,31 @@ DUAL_MODE = re.compile(r"is\('hive_id',\s*null\)|hive_id\.is\.null|!HIVE_ID\b")
 EMPTY_STATE = re.compile(r"[>`'\"]\s*(No [a-z][^<`'\"]{3,60}?yet\.?)")
 ROLE_READ = re.compile(r"localStorage\.getItem\(\s*'wh_hive_role'\s*\)")
 ROLE_REVALIDATES = re.compile(r"from\(\s*'hive_members'\s*\)[^;]{0,300}select\([^)]*role|from\(\s*'v_worker_truth'|"
-                              r"get_hive_board_dashboard|validateHiveMembership|validateMembership", re.S)
+                              r"get_hive_board_dashboard|validateHiveMembership|validateMembership|"
+                              r"whReconcileHiveRole\(", re.S)   # utils.js: the membership row by auth_uid (BRH-F, 2026-10-14)
+ROLE_DECL = re.compile(r"\b(?:const|let|var)\s+(\w+)\s*=\s*localStorage\.getItem\(\s*'wh_hive_role'\s*\)")
+
+
+def _live_uses(src: str, name: str) -> int:
+    """Uses of `name` outside comments, line by line on the RAW source (the block-comment blanker is naive about "/*"
+    inside strings - accept="image/*" swallowed resume.html's real code)."""
+    n = 0
+    for line in src.split("\n"):
+        for m in re.finditer(r"\b%s\b" % re.escape(name), line):
+            pre = line[:m.start()]
+            if re.search(r"(?<!:)//|/\*", pre) or pre.lstrip().startswith("*"):
+                continue
+            n += 1
+    return n
+
+
+def _dead_role_read(src: str) -> bool:
+    """A role read that is declared and never used again is no trust: nothing compares or shows it (marketplace-admin's
+    HIVE_ROLE - its gate is the server's platform-admin check; BRH153 refuted live, 20 vs 20 controls)."""
+    d = ROLE_DECL.search(src)
+    return bool(d) and len(ROLE_READ.findall(src)) == 1 and _live_uses(src, d.group(1)) == 1
+
+
 NAME_READ = re.compile(r"localStorage\.getItem\(\s*'wh_hive_name'\s*\)")
 HIVE_READ = re.compile(r"\bwhHiveId\(\)")
 OWN_RESTORE = re.compile(r"\bwhEnsureHiveContext\(|\bwhStartupHive\(")
@@ -259,8 +283,11 @@ def collect(sources: dict | None = None) -> list[dict]:
             sites.append({"cls": "D", "page": page, "line": guards[0][1], "key": f"{len(guards)} guards",
                           "detail": f"{len(guards)} typeof guards on {len(names)} utils.js functions: "
                                     + ", ".join(names[:6]) + (" ..." if len(names) > 6 else "")})
-        # E - scope-silent empty states on a dual-mode page (one row per distinct string)
-        if DUAL_MODE.search(src):
+        # E - scope-silent empty states on a dual-mode page (one row per distinct string). A sentence misleads in ONE
+        # state: a member's page in personal mode. A page that seats the hive in its own start-up (whStartupHive /
+        # whEnsureHiveContext, or a page that owns seating) never reaches that state, so its sentences speak for the
+        # hive's lists - the scope-empty gate proves it per page in a browser (BRH-E, 2026-10-15)
+        if DUAL_MODE.search(src) and page not in OWNS_SEATING and not OWN_RESTORE.search(src):
             seen = set()
             for m in EMPTY_STATE.finditer(src):
                 text = re.sub(r"\s+", " ", m.group(1)).strip()
@@ -271,7 +298,7 @@ def collect(sources: dict | None = None) -> list[dict]:
                               "detail": f'empty state "{text}" names neither the personal nor the hive list'})
         # F - stored role trusted without re-validation (one row per page)
         rm = ROLE_READ.search(src)
-        if rm and not ROLE_REVALIDATES.search(src):
+        if rm and not ROLE_REVALIDATES.search(src) and not _dead_role_read(src):
             sites.append({"cls": "F", "page": page, "line": _line_of(src, rm.start()), "key": "wh_hive_role",
                           "detail": "reads wh_hive_role from localStorage and never re-validates it against hive_members"})
         # G - stored hive name never reconciled (one row per page)
@@ -377,7 +404,14 @@ def self_test() -> int:
         "half.html": "<script data-wh-skew-heal=\"whHiveId\"></script>"
                      "<script>if (typeof whHiveId === 'function') {} if (typeof whEnsureHiveContext === 'function') {}</script>",
         "dual.html": "<script>let HIVE_ID = whHiveId(); if (!HIVE_ID) {} x.innerHTML = `<p>No parts yet.</p><p>No parts yet.</p>`; y = 'No jobs yet'</script>",
-        "role.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role');</script>",
+        # E: the same page seating its hive in its own start-up never falls into personal mode for a member
+        "dual_seated.html": "<script>let HIVE_ID = whHiveId(); const _s = whStartupHive(db); if (!HIVE_ID) {} x.innerHTML = `<p>No parts yet.</p>`</script>",
+        "role.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role'); if (HIVE_ROLE === 'supervisor') {}</script>",
+        # F: the shared reconcile clears it; so does a read nothing compares or shows (a comment naming it is no use)
+        "role_rec.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role'); await whReconcileHiveRole(db); if (HIVE_ROLE) {}</script>",
+        "role_dead.html": "<script>const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';\n  /* supersedes HIVE_ROLE */\n// HIVE_ROLE\n</script>",
+        # ...but a URL's // before a real use is not a comment
+        "role_url.html": "<script>const HIVE_ROLE = localStorage.getItem('wh_hive_role');\nfetch('https://x/' + HIVE_ROLE);</script>",
         "role_ok.html": "<script>let HIVE_ROLE = localStorage.getItem('wh_hive_role'); await validateHiveMembership();</script>",
         "name.html": "<script>const HIVE_NAME = localStorage.getItem('wh_hive_name');</script>",
         "name_ok.html": "<script>const HIVE_NAME = localStorage.getItem('wh_hive_name'); whReconcileHiveName(db);</script>",
@@ -393,13 +427,14 @@ def self_test() -> int:
         "search-overlay.js": "const hits = window.WHNavTools.filter(m);",
     }
     got = Counter((s["cls"], s["page"]) for s in collect(pages))
-    want = {("D", "skew.html"): 1, ("D", "healed.html"): 0, ("D", "half.html"): 1, ("E", "dual.html"): 2, ("F", "role.html"): 1, ("G", "name.html"): 1,
+    want = {("D", "skew.html"): 1, ("D", "healed.html"): 0, ("D", "half.html"): 1, ("E", "dual.html"): 2, ("F", "role.html"): 1, ("F", "role_url.html"): 1, ("G", "name.html"): 1,
             ("H", "reload.html"): 1, ("H", "dual.html"): 1, ("H", "skew.html"): 0,
             # L: the live link and the scripted one count, the commented one does not, and a link inside an admin page
             # (whose audience is admitted everywhere) is no offer; the role-blind search is one more, met on the home
             ("L", "links.html"): 2, ("L", "admin.html"): 0, ("L", "index.html"): 1, ("M", "named.html"): 1}
     ok = all(got.get(k, 0) == v for k, v in want.items()) and ("D", "dual.html") not in got and ("F", "role_ok.html") not in got \
-        and ("G", "name_ok.html") not in got and ("H", "own.html") not in got         and ("G", "startup.html") not in got and ("H", "startup.html") not in got
+        and ("G", "name_ok.html") not in got and ("H", "own.html") not in got         and ("G", "startup.html") not in got and ("H", "startup.html") not in got \
+        and ("E", "dual_seated.html") not in got and ("F", "role_rec.html") not in got and ("F", "role_dead.html") not in got
     print(("PASS" if ok else "FAIL") + f" bug-hunt inventory self-test - {dict(got)}")
     return 0 if ok else 1
 

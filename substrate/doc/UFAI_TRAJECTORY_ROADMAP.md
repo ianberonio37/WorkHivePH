@@ -2,7 +2,7 @@
 name: doc-UFAI_TRAJECTORY_ROADMAP
 type: doc
 source: file:UFAI_TRAJECTORY_ROADMAP.md
-source_sha: ca3f0b92ae128e5e
+source_sha: ecf7d15e20ca4de0
 last_verified: 2026-07-13
 supersedes: null
 ---

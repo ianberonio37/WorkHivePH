@@ -54,6 +54,7 @@ GATES = {
     "BRH-D": ["skew-heal", "skew-heal-live"],
     "BRH-H": ["hive-startup", "hive-restore-adoption"],
     "BRH-G": ["hive-startup", "hive-restore-adoption"],
+    "BRH-E": ["scope-empty", "hive-startup", "hive-restore-adoption"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
@@ -96,11 +97,17 @@ CONDITION["BRH-G"] = ("per viewport through the MCP browser, in a fresh tab whos
                       "'Old Plant Name' before any page script - the readout is whether that name is shown, whether the "
                       "hive's real name is shown, and the stored name once the page settles; a supervisors-only page is "
                       "read by the hive's supervisor, the person it shows the name to")
+CONDITION["BRH-E"] = ("per viewport through the MCP browser, in a fresh tab whose init script removed the stored hive (its "
+                      "id, name, role and list) and SPENT the after-load recovery (wh_hive_recovered) before any page "
+                      "script - the state a member met when a page fell into personal mode - read against the same page "
+                      "with the device as it normally is: the hive the page settled in, and whether the row's own "
+                      "'No X yet.' sentence is on screen")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
                       "D": "BRH-D",                         # D - version skew silenced by a typeof guard: no SL sub-layer walks it, so it is its own key
-                      "H": "BRH-H", "G": "BRH-G"}           # H/G - the stored hive and its name settled in the page's start-up (whStartupHive)
+                      "H": "BRH-H", "G": "BRH-G",           # H/G - the stored hive and its name settled in the page's start-up (whStartupHive)
+                      "E": "BRH-E"}                         # E - an empty state never speaks for the personal list while the hive holds X
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",
