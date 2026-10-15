@@ -790015,8 +790015,8 @@
     },
     {
       "id": "SL965",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - worker · index",
       "pages": [
@@ -790073,12 +790073,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on index.html as worker: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed in as worker (Ben Ocampo, worker of Tan Delivery Vans) through the product's own sign-in form, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 26 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL965.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL966",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - buyer · marketplace seller",
       "pages": [
@@ -790135,12 +790145,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on marketplace-seller.html as buyer: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed in as buyer (Bryan Garcia, worker of Baguio Textile Mills) through the product's own sign-in form, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 24 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL966.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL967",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - fleet-supervisor · report sender",
       "pages": [
@@ -790197,12 +790217,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on report-sender.html as fleet-supervisor: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed in as fleet-supervisor (Christine Dizon, supervisor of Lucena Pharmaceutical Mfg.) through the product's own sign-in form, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 23 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL967.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL968",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - oversight · agentic rag observability",
       "pages": [
@@ -790253,6 +790283,16 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on agentic-rag-observability.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL968.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
@@ -790314,8 +790354,8 @@
     },
     {
       "id": "SL970",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - oversight · llm observability",
       "pages": [
@@ -790366,12 +790406,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on llm-observability.html as oversight: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed in as oversight (Leandro Marquez, platform admin (oversight)) through the product's own sign-in form, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL970.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL971",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · about",
       "pages": [
@@ -790422,12 +790472,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from about itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on about/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 6 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL971.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL972",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · feedback",
       "pages": [
@@ -790478,12 +790538,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on feedback/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL972.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL973",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · ai companion hezekiah zaniah personas",
       "pages": [
@@ -790534,12 +790604,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from ai companion hezekiah zaniah personas itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/ai-companion-hezekiah-zaniah-personas/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL973.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL974",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · ai quality and roi stage 2 plants",
       "pages": [
@@ -790590,12 +790670,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from ai quality and roi stage 2 plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/ai-quality-and-roi-stage-2-plants/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL974.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL975",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · ai work assistant maintenance technicians",
       "pages": [
@@ -790646,12 +790736,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from ai work assistant maintenance technicians itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/ai-work-assistant-maintenance-technicians/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL975.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL976",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · building asset register zero budget",
       "pages": [
@@ -790702,12 +790802,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from building asset register zero budget itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/building-asset-register-zero-budget/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL976.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL977",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · connecting workhive to sap maximo cmms",
       "pages": [
@@ -790758,12 +790868,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from connecting workhive to sap maximo cmms itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/connecting-workhive-to-sap-maximo-cmms/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL977.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL978",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · dilo wilo day planner supervisors",
       "pages": [
@@ -790814,12 +790934,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from dilo wilo day planner supervisors itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/dilo-wilo-day-planner-supervisors/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL978.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL979",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · dole iso audit trail from logbook",
       "pages": [
@@ -790870,12 +791000,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from dole iso audit trail from logbook itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/dole-iso-audit-trail-from-logbook/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL979.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL980",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · free engineering calculators philippine plants",
       "pages": [
@@ -790926,12 +791066,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from free engineering calculators philippine plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/free-engineering-calculators-philippine-plants/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL980.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL981",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · free pm checklist templates",
       "pages": [
@@ -790982,12 +791132,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from free pm checklist templates itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/free-pm-checklist-templates/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL981.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL982",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · gamifying maintenance for engagement",
       "pages": [
@@ -791038,12 +791198,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from gamifying maintenance for engagement itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/gamifying-maintenance-for-engagement/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL982.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL983",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · learn",
       "pages": [
@@ -791094,12 +791264,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from learn itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 6 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL983.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL984",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · industrial community of practice philippines",
       "pages": [
@@ -791150,12 +791330,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from industrial community of practice philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/industrial-community-of-practice-philippines/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL984.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL985",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · industrial marketplace philippine specialists",
       "pages": [
@@ -791206,12 +791396,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from industrial marketplace philippine specialists itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/industrial-marketplace-philippine-specialists/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL985.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL986",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · joining and growing your hive",
       "pages": [
@@ -791262,12 +791462,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from joining and growing your hive itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/joining-and-growing-your-hive/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL986.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL987",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · maintenance project planning template",
       "pages": [
@@ -791318,12 +791528,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from maintenance project planning template itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/maintenance-project-planning-template/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL987.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL988",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · maintenance shift handover template",
       "pages": [
@@ -791374,12 +791594,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from maintenance shift handover template itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/maintenance-shift-handover-template/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL988.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL989",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · mtbf vs mttr for supervisors",
       "pages": [
@@ -791430,12 +791660,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from mtbf vs mttr for supervisors itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/mtbf-vs-mttr-for-supervisors/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL989.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL990",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · ph industrial benchmarks intelligence",
       "pages": [
@@ -791486,12 +791726,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from ph industrial benchmarks intelligence itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/ph-industrial-benchmarks-intelligence/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL990.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL991",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · predictive alert thresholds plants",
       "pages": [
@@ -791542,12 +791792,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from predictive alert thresholds plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/predictive-alert-thresholds-plants/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL991.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL992",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · predictive maintenance on a budget philippines",
       "pages": [
@@ -791598,12 +791858,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from predictive maintenance on a budget philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/predictive-maintenance-on-a-budget-philippines/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL992.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL993",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · sensor cmms gateway operations",
       "pages": [
@@ -791654,12 +791924,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from sensor cmms gateway operations itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/sensor-cmms-gateway-operations/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL993.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL994",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · skill matrix for maintenance technicians",
       "pages": [
@@ -791710,12 +791990,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from skill matrix for maintenance technicians itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/skill-matrix-for-maintenance-technicians/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL994.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL995",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · spare parts inventory philippine plants",
       "pages": [
@@ -791766,12 +792056,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from spare parts inventory philippine plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/spare-parts-inventory-philippine-plants/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL995.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL996",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · start digital logbook philippine factory",
       "pages": [
@@ -791822,12 +792122,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from start digital logbook philippine factory itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/start-digital-logbook-philippine-factory/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL996.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL997",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · voice to text maintenance philippine plant floor",
       "pages": [
@@ -791878,12 +792188,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from voice to text maintenance philippine plant floor itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/voice-to-text-maintenance-philippine-plant-floor/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL997.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL998",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · what is oee how to calculate",
       "pages": [
@@ -791934,12 +792254,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from what is oee how to calculate itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/what-is-oee-how-to-calculate/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL998.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL999",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · what is workhive complete platform guide",
       "pages": [
@@ -791990,12 +792320,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from what is workhive complete platform guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/what-is-workhive-complete-platform-guide/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL999.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL1000",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · workhive ai companion complete capabilities",
       "pages": [
@@ -792046,12 +792386,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from workhive ai companion complete capabilities itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on learn/workhive-ai-companion-complete-capabilities/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 7 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL1000.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL1001",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · privacy policy",
       "pages": [
@@ -792102,12 +792452,22 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from privacy policy itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on privacy-policy/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 5 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL1001.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
       "id": "SL1002",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-CA",
       "title": "CA1 · The platform must precache this page's shell under the current version and replace it on the next deploy - an anonymous visitor · terms of service",
       "pages": [
@@ -792158,6 +792518,16 @@
         "engine": "chromium",
         "ask": "The platform must precache this page's shell under the current version and replace it on the next deploy",
         "closes": "the CA1 ask is answered from terms of service itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy): CA1 on terms-of-service/index.html as anon: walked through playwright-mcp's browser_run_code (.tmp/slw/ca1_walk_*.js), read from Cache Storage (caches.keys + match per shell URL). Witness: playwright-mcp, signed out, two devices with the service worker allowed, each installed from the home page. Now (a device on the current build): the page was controlled and its whole shell - 5 files, its document and every same-origin script and stylesheet - was held in workhive-shell-v534 at 390 and 1280. Deploy (a second device installed the previous build - sw.js with CACHE_NAME workhive-shell-v534-prev - and the browser's own update check fetched the real sw.js, new bytes at the same URL): the device held workhive-shell-v534-prev, then it was gone and the whole shell was held under workhive-shell-v534, at both viewports. Receipt .tmp/mcp_walks/SL1002.json.",
+      "artifacts": {
+        "gates": [
+          "cache-contract",
+          "pwa-sw-central-register",
+          "sw-offline",
+          "sw-proxy-within-csp",
+          "sw-shell-membership"
+        ]
       }
     },
     {
@@ -1004551,5 +1004921,5 @@
       }
     }
   ],
-  "next": "SL wave (after the 2026-10-16 production release): CA1 precache + next-deploy replacement (37 rows, .tmp/slw/ca1_walk_*.js + scratchpad bank_ca1.py ready) -> CA4 kept copy / offline fallback says which (127, ca4 template ready) -> H3 install as app on the edge substitute (93, h3 template ready) -> D1-4, A1/A2/A4, AV2-4, C2-3, L2-4, LB1-4, RL1-3. Ian: old Vercel deployments, skills_table approval"
+  "next": "SL wave: CA4 offline kept copy or fallback, said in words (127 rows, .tmp/slw/ca4 template; worker allowed, two devices like CA1) -> H3 install and open as the app (93, edge 5081 --local-supabase) -> D1-4, A1/A2/A4, AV2-4, C2-3, L2-4, LB1-4, RL1-3. Ian: old Vercel deployments, skills_table approval, VALIDATE logbook_id_is_a_token after a prod read"
 }

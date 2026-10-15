@@ -63,7 +63,7 @@ GATES = {
     "F4": ["jargon-glossed", "glossary-registry", "user-facing-jargon"],
     "C1": ["device-clock-day"],
     "CA3": ["skew-heal", "skew-heal-live"],
-    "CA1": ["sw-shell-membership", "sw-offline", "cache-contract"],
+    "CA1": ["sw-shell-membership", "sw-offline", "cache-contract", "pwa-sw-central-register", "sw-proxy-within-csp"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
@@ -78,7 +78,7 @@ GATES = {
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
-    "CA1": ("the service worker allowed and installed from the home page, then sw.js served under the next version's name (the change a deploy's CACHE_NAME bump makes) and the registration updated"),
+    "CA1": ("two devices with the service worker allowed, each installed from the home page: one on the current build; one that installed the previous build (sw.js served once at registration with its CACHE_NAME renamed '-prev') and was moved to the current build by the browser's own update check - new bytes at the same URL, exactly a deploy"),
     "CA3": ("utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored"),
     "C1": ("a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read"),
     "F4": ("as served - the page read from its live render (innerText, what a person reads) with every domain term checked for its gloss on the same page and every flagged figure read with its card, column header and the page's stated window"),

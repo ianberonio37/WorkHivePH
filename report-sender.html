@@ -837,10 +837,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
-    // ── PWA: service worker + install prompt ──────────────────────────────────────
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
+    // ── PWA: install prompt ──────────────────────────────────────────────────────
+    // The service worker is registered by nav-hub.js (loaded below) at the derived root, on every page. This page used
+    // to register '/sw.js' itself as well - the same worker in production, but a SECOND registration at another URL and
+    // scope under the local /workhive/ prefix, whose activate deleted the first one's cache (found by the CA1 walk,
+    // 2026-10-16). One owner: gate pwa-sw-central-register now refuses a literal register() path anywhere.
 
     let _deferredInstall = null;
     const _installBtn    = document.getElementById('install-icon-btn');

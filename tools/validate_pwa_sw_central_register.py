@@ -33,6 +33,24 @@ CHECK_NAMES = ["pwa-sw-central-register"]
 _WHSWROOT = re.compile(r"function\s+whSwRoot\s*\(|whSwRoot\s*=\s*function|const\s+whSwRoot\s*=")
 _REGISTER_DERIVED = re.compile(r"""serviceWorker\.register\(\s*root\s*\+\s*['"]sw\.js['"]|serviceWorker\.register\(\s*whSwRoot\(\)""")
 _HARDCODED = re.compile(r"""serviceWorker\.register\(\s*['"]/workhive/sw\.js['"]""")
+# 3. NO PAGE REGISTERS A LITERAL PATH (2026-10-16, found by the CA1 walk). T44 made nav-hub.js the owner but left
+# report-sender.html's own register('/sw.js') beside it - the same worker in production, but under the local /workhive/
+# prefix a SECOND registration at another URL and scope, whose activate deleted the first one's cache. This gate read
+# only nav-hub.js, so it never saw the page. Any register() in a shipped page or script must take the derived root
+# (root + 'sw.js' / whSwRoot() / a variable built from it), never a quoted path.
+_LITERAL = re.compile(r"""serviceWorker\.register\(\s*['"`]""")
+_BLOCK_COMMENTS = re.compile(r"<!--.*?-->|/\*.*?\*/", re.S)
+_LINE_COMMENTS = re.compile(r"""(?m)(?<![:"'`\\/])//[^\n]*$""")
+
+
+def literal_registrations(src: str) -> int:
+    return len(_LITERAL.findall(_LINE_COMMENTS.sub("", _BLOCK_COMMENTS.sub(" ", src))))
+
+
+def shipped_sources() -> list[str]:
+    sys.path.insert(0, str(ROOT / "tools"))
+    import deploy_payload as dp  # the deploy's own matcher: what production serves
+    return sorted(f for f in dp.shipped() if f.endswith((".html", ".js")))
 
 
 def check(src: str) -> list[str]:
@@ -53,13 +71,19 @@ def main() -> int:
     if not SHELL.exists():
         print("FAIL pwa-sw-central-register: nav-hub.js not found"); return 1
     problems = check(SHELL.read_text(encoding="utf-8", errors="replace"))
+    for f in shipped_sources():
+        n = literal_registrations((ROOT / f).read_text(encoding="utf-8", errors="replace"))
+        if n:
+            problems.append(f"{f} registers the service worker with a literal path ({n}x) - a second registration "
+                            f"beside nav-hub.js's derived one wherever the path differs; use whSwRoot().")
     if problems:
         print("FAIL pwa-sw-central-register — the offline shell is not registered centrally with a derived root:")
         for p in problems:
             print(f"    {p}")
         return 1
     print("PASS pwa-sw-central-register — nav-hub.js registers the service worker on every page at a derived "
-          "root (whSwRoot), so the offline shell works everywhere and the path does not 404 in prod.")
+          "root (whSwRoot), so the offline shell works everywhere and the path does not 404 in prod; no shipped page "
+          "or script registers a literal path beside it.")
     return 0
 
 
@@ -74,9 +98,18 @@ def self_test() -> int:
         fails.append("whSwRoot present but no register(root+...) should FAIL")
     if not any("hardcodes" in p for p in check("function whSwRoot(){return '/';} const root=whSwRoot(); navigator.serviceWorker.register('/workhive/sw.js', {scope:root});")):
         fails.append("a hardcoded /workhive/sw.js register should FAIL")
+    if literal_registrations("navigator.serviceWorker.register('/sw.js').catch(() => {});") != 1:
+        fails.append("a page registering a literal '/sw.js' should be counted")
+    if literal_registrations("reg = await navigator.serviceWorker.register(_swRoot + 'sw.js', { scope: _swRoot });"
+                             "// navigator.serviceWorker.register('/old.js')") != 0:
+        fails.append("a derived-root register and a commented literal should not be counted")
+    import subprocess
+    old = subprocess.run(["git", "show", "683ecea5:report-sender.html"], cwd=ROOT, capture_output=True)
+    if old.returncode != 0 or literal_registrations(old.stdout.decode("utf-8", "replace")) != 1:
+        fails.append("teeth: report-sender.html as shipped in 683ecea5 (its own register('/sw.js')) should be caught")
     if fails:
         print("SELF-TEST FAIL:", "; ".join(fails)); return 1
-    print("PASS validate_pwa_sw_central_register self-test (missing whSwRoot / no-derived-register / hardcoded-path redden)")
+    print("PASS validate_pwa_sw_central_register self-test (missing whSwRoot / no-derived-register / hardcoded-path / a page's literal register() redden; teeth on report-sender 683ecea5)")
     return 0
 
 

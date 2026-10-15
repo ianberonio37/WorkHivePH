@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 024208bb1ca1460e
+source_sha: d0ec24b6d77d3f37
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1393) — the 'what's already gated' brain
+## gate · registered validators (1394) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1022)
+### Platform (1023)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1295,6 +1295,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `sw-install-survives-loss` ⚡ [fail] — SW install survives a lost request (10 cases): install ran cache.addAll(SHELL_FILES), which is ATOMIC - one failed entry rejects, the rejection escapes waitUnti
 - `sw-navigation-fallback` [fail] — Offline navigation to a non-precached page lands on offline-fallback.html (live: worker controls, network cut, learn/index + architecture)
 - `sw-offline` ⚡ [fail] — Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)
+- `sw-proxy-within-csp` ⚡ [fail] — SW proxy within its own CSP (2026-10-16 post-deploy smoke: the worker answered every page's Poppins stylesheet with 503 - its pass-through fetch() obeys the con
 - `sw-shell-membership` ⚡ [fail] — CA (Caching/CDN) deep-walk cell — every page in the service-worker OFFLINE SHELL (sw.js SHELL_FILES) must (a) exist on disk (a stale entry 404s the SW precache 
 - `swallowed-placeholder-tags` ⚡ [fail] — No placeholder written as a bare tag in served markup (critic batch, 2026-10-13). marketplace-seller's hint said buyers reach you at m.me/<your-handle>: the par
 - `tabindex-positive` ⚡ [fail] — Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)
