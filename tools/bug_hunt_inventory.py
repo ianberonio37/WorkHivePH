@@ -336,7 +336,9 @@ def collect(sources: dict | None = None) -> list[dict]:
             f, anti = pair.split(" :: ", 1)
             if f in skip:
                 continue
-            page = f if f.endswith(".html") and (ROOT / f).exists() else "index.html"   # shared chrome is met on the home
+            # shared chrome is met on the home - but a script ONE page loads is met on that page (engineering-design.js
+            # draws engineering-design.html's reports; casting it on the home would walk a page that never runs it)
+            page = f if f.endswith(".html") and (ROOT / f).exists() else _page_loading(f) or "index.html"
             sites.append({"cls": "K", "page": page, "line": 0, "key": pair,
                           "detail": f"{n} primary '{anti}' finding(s) in {f} still held by the design-detector ratchet"})
     # L and M in the shared chrome: met on every page that loads it, so the row is met on the home (K's precedent)
@@ -391,6 +393,14 @@ def collect(sources: dict | None = None) -> list[dict]:
             print(f"  bug-hunt N: not measured ({e})", file=sys.stderr)
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
+
+
+def _page_loading(script: str) -> str | None:
+    """The one production page whose markup loads `script` (src="script"), or None when none or several do."""
+    rx = re.compile(r"""<script\b[^>]*\bsrc=["'](?:\./)?%s(?:\?[^"']*)?["']""" % re.escape(script), re.I)
+    hits = [p for p in sorted(os.path.basename(x) for x in glob.glob(str(ROOT / "*.html")))
+            if rx.search((ROOT / p).read_text(encoding="utf-8", errors="replace"))]
+    return hits[0] if len(hits) == 1 else None
 
 
 def self_test() -> int:

@@ -252,7 +252,11 @@ MCP_FOR_KIND = [
     # acronym here is anchored now, for the same reason the grafana rule anchors \bSLO\b.
     ("chrome-devtools-mcp",           r"\bCWV\b|\bLCP\b|\bCLS\b|\bINP\b|\bTTFB\b|performance|bundle|cache|payload size|waterfall|cold start"),
     ("raw-http fetch (no JS - what a crawler receives)",                  "Learn arrival|Tools arrival|arrival|SEO|crawler|citation|sitemap|canonical URL"),
-    ("mail-catcher (the product's OUTBOX, not the owner's inbox)",               "email|inbox|deliver|bounce|notification reaches"),
+    # ★"BOUNCE" MATCHED INSIDE "DEBOUNCE" AND "BOUNCE-EASING" (2026-10-15) - the SLO-inside-slower lesson a third
+    # time. Thirty-nine RL3 rows ("the platform must DEBOUNCE this page's typing") and a motion row (the companion's
+    # bounce-EASING) were sent to the mail catcher; the walked motion row then sat open as "walked by the wrong
+    # lens". An email bounce is the word on its own; a hyphenated or embedded "bounce" is never mail.
+    ("mail-catcher (the product's OUTBOX, not the owner's inbox)",               r"email|inbox|deliver|\bbounced?\b(?!-)|notification reaches"),
     ("axe-mcp (MISSING - connect)",   "keyboard path|semantics & landmarks|announcement reaches|screen reader|WCAG|aria"),
     ("raw-http fetch (the deployed origin's response headers)", "_headers is prod-only|CDN|cache header|redirect|robots"),
 ]

@@ -9,7 +9,7 @@ Layer→gate: **L1/2**=page-battery · **L3/5**=hive/write-isolation · **L4**=r
 | alert-hub | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
 | asset-hub | 56 | ✓ | ✓ | ✓ | ✓5 | COVERED |
 | assistant | 56 | ✓ | ✓ | ✓ | ✓2 | COVERED |
-| hive | 56 | ✓ | ✓ | ✓ | ✓5 | DEEP |
+| hive | 56 | ✓ | ✓ | ✓ | ✓4 | DEEP |
 | index | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
 | integrations | 56 | ✓ | ✓ | ✓ | ✓3 | COVERED |
 | logbook | 56 | ✓ | ✓ | ✓ | ✓5 | COVERED |
@@ -33,13 +33,13 @@ Layer→gate: **L1/2**=page-battery · **L3/5**=hive/write-isolation · **L4**=r
 | marketplace-seller | 46 | ✓ | ✓ | ✓ | · | COVERED |
 | platform-actions | 46 | ✓ | ✓ | ✓ | · | COVERED |
 | achievements | 43 | ✓ | · | ✓ | · | COVERED |
+| audit-log | 43 | ✓ | · | ✓ | · | COVERED |
 | marketplace-seller-profile | 43 | ✓ | · | ✓ | · | COVERED |
 | plant-connections | 43 | ✓ | · | ✓ | · | COVERED |
 | public-feed | 43 | ✓ | · | ✓ | · | COVERED |
 | agentic-rag-observability | 40 | —reg | · | · | · | DEV |
 | ai-quality | 40 | ✓ | · | · | · | COVERED |
 | architecture | 40 | —reg | · | · | · | DEV |
-| audit-log | 40 | ✓ | · | · | · | COVERED |
 | design-system | 40 | —reg | · | · | · | DEV |
 | engineering-design | 40 | ✓ | · | · | · | COVERED |
 | llm-observability | 40 | —reg | · | · | · | DEV |

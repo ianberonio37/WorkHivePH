@@ -279,15 +279,17 @@
              stop with the focus ring on nothing. axe cannot catch this: it treats only display:none /
              visibility:hidden / aria-hidden as hidden, so an opacity:0 container passes it clean.
              visibility:hidden DOES remove the subtree from the tab order AND the a11y tree, and is
-             delayed until the fade-out finishes so the spring animation is unchanged. */
+             delayed until the fade-out finishes so the panel's motion is unchanged. */
           visibility: hidden;
-          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          /* a strong ease-out, not an overshoot (K+, 2026-10-15): the panel arrives fast and settles without the
+             0.56 bounce past its place - an overshoot belongs to a physical gesture, and this one is a tap */
+          transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1),
                       opacity 0.18s ease,
                       visibility 0s linear 0.25s;
           font-family: var(--wh-font, 'Poppins', sans-serif);
         }
 
-        /* Spring in when launched from the nav-hub Companion row; tuck back on close.
+        /* Ease in when launched from the nav-hub Companion row; tuck back on close.
            openPanel() adds body.wh-companion-open, closePanel() removes it. */
         body.wh-companion-open #wh-ai-widget {
           transform: scale(1) translateY(0);
@@ -517,17 +519,17 @@
           border-radius: 12px;
           border-bottom-left-radius: 4px;
         }
-        .wh-typing span {
-          width: 6px; height: 6px;
-          background: var(--wh-orange, #F7A21B);
-          border-radius: 50%;
-          animation: wh-dot 1.2s ease-in-out infinite;
+        /* the wait is the WORD, not three dots pulsing forever (BRH317, K+ 2026-10-15) - the pattern assistant and the
+           voice handler already use: on screen, breathing on opacity only (1 to 0.72, so the text never drops under its
+           contrast), so a long wait still reads as alive */
+        .wh-typing-label {
+          font-size: 0.82rem;
+          color: rgba(255,255,255,0.82);
+          animation: wh-typing-breathe 1.6s ease-in-out infinite;
         }
-        .wh-typing span:nth-child(2) { animation-delay: 0.2s; }
-        .wh-typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes wh-dot {
-          0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-          40%           { opacity: 1;   transform: scale(1.1); }
+        @keyframes wh-typing-breathe {
+          0%, 100% { opacity: 1; }
+          50%      { opacity: 0.72; }
         }
 
         /* ── Input Row ── */
@@ -616,10 +618,10 @@
            This file contained NO prefers-reduced-motion block at all, and that absence was
            invisible to a structural probe: every host page declares reduce blocks of its own, so
            a check that asks "does this page have a reduce block" answers yes while wh-pulse,
-           wh-nudge-pulse and wh-dot keep moving. Measured by flipping the media live - hive ran
+           wh-nudge-pulse and wh-dot kept moving. Measured by flipping the media live - hive ran
            5 animations normally and still 3 under reduce, project-report 2 and still 2.
            ONLY THE MOVEMENT STOPS, matching the pattern utils.js already uses. Each element keeps
-           its resting appearance: the trigger holds its avatar, the typing dots stay visible, and
+           its resting appearance: the trigger holds its avatar, the typing word stays visible, and
            a message simply appears instead of sliding in. A person who asked for less motion asked
            for stillness, not for missing UI.
            THE NUDGE IS THE EXCEPTION and is frozen rather than blanked. Its animation is a
@@ -630,7 +632,7 @@
         @media (prefers-reduced-motion: reduce) {
           #wh-ai-trigger,
           .wh-msg,
-          .wh-typing span { animation: none !important; }
+          .wh-typing-label { animation: none !important; }
           #wh-ai-trigger.wh-has-nudge {
             animation: none !important;
             box-shadow: 0 4px 20px rgba(var(--wh-red-rgb, 229,72,77),0.5),
@@ -908,10 +910,11 @@
     el.className = 'wh-typing';
     el.id = 'wh-typing-indicator';
     // ★THE WAIT WAS THREE SILENT DOTS (LM-L walk, LM511, 2026-10-08): a screen-reader user who asked heard nothing
-    // until the answer (or the failure) arrived. The indicator is a polite status with words; the dots stay visual.
+    // until the answer (or the failure) arrived. The indicator is a polite status with words. What a sighted person sees
+    // is the word too (BRH317): 'Thinking...' breathing, where three dots pulsed forever.
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.innerHTML = '<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>'
+    el.innerHTML = '<span class="wh-typing-label" aria-hidden="true">Thinking\u2026</span>'
       + '<span style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">'
       + _tt('The assistant is working on an answer.', 'Gumagawa ng sagot ang katulong.') + '</span>';
     msgs.appendChild(el);

@@ -62,9 +62,14 @@ typography:
   # role needed on 2026-09-16, and the same reason: a record that describes less than what ships turns
   # working code into findings, and the honest-looking response is to "fix" the working code.
   # Members: resume.html's .resume-paper export sheet; engineering-design.js's drawing title blocks
-  # (7-11px labels and signature lines, dark ink on white, to a drafting convention).
+  # (7-11px labels and signature lines, dark ink on white, to a drafting convention); engineering-design.js's
+  # calculation-report previews and their assumptions note, and its SOW / BOM PDFs (2026-10-15, BRH-K+ - the
+  # previews were Times New Roman and the PDFs Liberation Sans, so the sheet a person checked on screen was not
+  # the sheet they printed). 'Liberation Sans' is Arial's metric twin: the PDF service renders on Linux with
+  # fonts-liberation installed (python-api/Dockerfile) and no Arial, so a server-rendered sheet names it to set
+  # exactly the metrics the client's Arial sets.
   document:
-    fontFamily: "Arial, Helvetica, sans-serif"
+    fontFamily: "Arial, Helvetica, 'Liberation Sans', sans-serif"
     fontSize: "12px-24px (the printed sheet's own scale, not the UI ramp)"
     medium: "black ink on white; print and ATS parsing, never a screen surface of the product"
 rounded:

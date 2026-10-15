@@ -32,6 +32,12 @@
     html { scrollbar-gutter: stable; }
 
     * { font-family: 'Poppins', sans-serif; }
+    /* A document is set in DESIGN.md's document face, not the app's (K+, 2026-10-15). The rule above names Poppins
+       on EVERY element, so a document's text never inherited its panel's face: a report whose wrapper named the
+       document stack still rendered its every line in Poppins, and the BOM / SOW printed in Arial from the server
+       but in Poppins from the screen. The paper panels and everything in them restate the token; an inline
+       declaration (the monospace formula cells) still wins. */
+    #report-panel, #report-panel *, .doc-panel, .doc-panel *, #drawing-panel svg, #drawing-panel svg * { font-family: var(--wh-doc-font); }
     body { background-color: var(--wh-navy); min-height: 100vh; }
 
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -239,11 +245,13 @@
     .step-dot.active { background: var(--wh-orange); width: 20px; border-radius: 4px; }
     .step-dot.done { background: rgba(247,162,27,0.4); }
 
-    /* Report styles: clean/neutral for printing */
+    /* Report styles: clean/neutral for printing. The panel is a document, so it is set in DESIGN.md's document
+       face (K+, 2026-10-15): the reports whose renderers name no font of their own had inherited the app's
+       Poppins here, beside reports in the document stack - two faces for one kind of paper. */
     #report-panel {
       background: white;
       color: #1a1a1a;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--wh-doc-font);
       border-radius: 0.75rem;
       padding: 2.5rem;
       font-size: .875rem;
@@ -349,10 +357,6 @@
     }
     #toast.show { opacity: 1; }
 
-    @keyframes dotPulse {
-      0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
-      40%          { opacity: 1;   transform: scale(1.2); }
-    }
 
     /* Loading spinner */
     .spinner {
@@ -461,7 +465,7 @@
       border-radius: 0.75rem;
       padding: 2rem;
       font-size: 0.84rem;
-      font-family: 'Poppins', sans-serif;
+      font-family: var(--wh-doc-font);
       line-height: 1.7;
     }
     @media (max-width: 640px) { .doc-panel { padding: 1rem; font-size: 0.77rem; } }
@@ -764,13 +768,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Rotating status message -->
           <div data-i="p_preparingyourcalculation_276c" id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
           <!-- Sub-label -->
-          <div data-i="p_standardsgradeanalysisinprog_79fc" class="text-sm" style="color:rgba(255,255,255,0.35);">Standards-grade analysis in progress</div>
-          <!-- Dot progress indicator -->
-          <div class="flex gap-2 mt-5">
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out infinite;"></div>
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></div>
-            <div class="loading-dot" style="width:7px;height:7px;border-radius:50%;background:var(--wh-orange);animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></div>
-          </div>
+          <div data-i="p_standardsgradeanalysisinprog_79fc" class="text-sm" style="color:rgba(255,255,255,0.80);">Standards-grade analysis in progress</div>
+          <!-- no three-dot row (K+, 2026-10-15): the rotating status line above already says the work is moving -->
         </div>
 
         <!-- Report output -->

@@ -2281584,6 +2281584,91 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "BRH313",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH314",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH315",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH316",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH317",
+      "wave": "BRH-K",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }

@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1013-files
-source_sha: 6560df513ca53879
+source_sha: 8b9c86ca6bbda98d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -106,7 +106,7 @@ Entries (name · type · sha):
 - `feedback_a_locked_trajectory_still_had_the_defect` · feedback · 5bab23356ce11814
 - `feedback_a_long_boards_fail_count_is_a_claim_about_the_run` · feedback · 7fdedefaa1edfcbf
 - `feedback_a_manual_walk_must_resolve_the_pinned_hive_like_the_sweep_does` · feedback · 141437e9009500f6
-- `feedback_a_media_query_adds_no_specificity` · feedback · 0be613f5e6301afb
+- `feedback_a_media_query_adds_no_specificity` · feedback · 2dd410ad84d19e7f
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_metric_that_samples_one_element_has_a_blind_spot` · feedback · 1b4abb9774f34b9b
 - `feedback_a_migration_expires_every_db_anchored_claim` · feedback · d122ca9d564b03b2

@@ -2,7 +2,7 @@
 name: doc-DESIGN
 type: doc
 source: file:DESIGN.md
-source_sha: f6d463b4e7b15250
+source_sha: 8cbbd35caae5025c
 last_verified: 2026-07-13
 supersedes: null
 ---

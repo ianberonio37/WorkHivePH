@@ -2,7 +2,7 @@
 name: doc-PER_PAGE_BUGHUNT_SCOREBOARD
 type: doc
 source: file:PER_PAGE_BUGHUNT_SCOREBOARD.md
-source_sha: 447e4530d2570f01
+source_sha: 32d6302d779e707b
 last_verified: 2026-07-13
 supersedes: null
 ---

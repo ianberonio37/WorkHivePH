@@ -34,9 +34,7 @@
       padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
     }
     .card { max-width: 440px; width: 100%; text-align: center; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--wh-orange); display: inline-block; margin-right: 8px; vertical-align: middle; animation: pulse 1.6s ease-in-out infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
-    @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--wh-orange); display: inline-block; margin-right: 8px; vertical-align: middle; }   /* a state, not a process: the dot holds still (K+) */
     h1 { font-size: 1.3rem; margin: 16px 0 8px; }
     p { color: #d5d9e0; line-height: 1.5; margin: 0 0 24px; }  /* C5 (2026-09-05): #9aa0ac read Lc ~62 at 16px; #c3c8d2 still missed 75 on the sweep; #d5d9e0 clears */
     .links { display: grid; gap: 10px; }

@@ -1,7 +1,7 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
   "updated": "2026-10-13",
-  "count": 18071,
+  "count": 18076,
   "trajectories": [
     {
       "id": "T1",
@@ -726558,6 +726558,361 @@
       }
     },
     {
+      "id": "BRH313",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-K",
+      "title": "design slop the detector ratchet still holds - engineering design · engineering-design.js :: design-system-font - a person",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "any",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "a person reaches engineering design and meets a defect of a class a real person met on 2026-10-13/14: 5 primary 'design-system-font' finding(s) in engineering-design.js still held by the design-detector ratchet. MECHANISM: design slop the detector ratchet still holds. REPRO: run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds. FIX: fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-K:any",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "K",
+        "page": "engineering-design.html",
+        "line": 0,
+        "key": "engineering-design.js :: design-system-font",
+        "detail": "5 primary 'design-system-font' finding(s) in engineering-design.js still held by the design-detector ratchet",
+        "layer": "F",
+        "persona": "any",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "design slop the detector ratchet still holds",
+        "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+        "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K+ engineering-design.js :: design-system-font - fixed, walked in the live render, the ratchet's floor for it is 0. Witness: engineering-design.js :: design-system-font: the design detector counted 5 finding(s) here once the ratchet read every style-injecting shared script (K+); the ratchet now reads 0. FIXED: every generated report, the BOM / SOW document panels and the drawings are set in DESIGN.md's document face (Arial, Helvetica, Liberation Sans) through one token, --wh-doc-font: the Times New Roman and quoted Liberation Sans declarations take the token, and so do the 19 report wrappers and tables that named 'Segoe UI' (a face only Windows has). The 76 diagram labels take the literal stack, because an SVG attribute cannot resolve var() and a diagram is also saved as a standalone .svg. The walk found the cause under all of it: the page's universal rule set Poppins on EVERY element, so a report's text never inherited its panel's face. Even a report whose wrapper named the document stack rendered every line in Poppins, and the BOM / SOW printed in Arial from the server but in Poppins from the screen. The paper panels and everything in them now restate the token; an inline declaration (the monospace formula cells) still wins. Every server-PDF request states the token, so the PDF service never meets an u Receipt .tmp/mcp_walks/BRH313.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "BRH314",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-K",
+      "title": "design slop the detector ratchet still holds - engineering design · engineering-design.js :: overused-font - a person",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "any",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "a person reaches engineering design and meets a defect of a class a real person met on 2026-10-13/14: 1 primary 'overused-font' finding(s) in engineering-design.js still held by the design-detector ratchet. MECHANISM: design slop the detector ratchet still holds. REPRO: run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds. FIX: fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-K:any",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "K",
+        "page": "engineering-design.html",
+        "line": 0,
+        "key": "engineering-design.js :: overused-font",
+        "detail": "1 primary 'overused-font' finding(s) in engineering-design.js still held by the design-detector ratchet",
+        "layer": "F",
+        "persona": "any",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "design slop the detector ratchet still holds",
+        "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+        "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K+ engineering-design.js :: overused-font - fixed, walked in the live render, the ratchet's floor for it is 0. Witness: engineering-design.js :: overused-font: the design detector counted 1 finding(s) here once the ratchet read every style-injecting shared script (K+); the ratchet now reads 0. FIXED: every generated report, the BOM / SOW document panels and the drawings are set in DESIGN.md's document face (Arial, Helvetica, Liberation Sans) through one token, --wh-doc-font: the Times New Roman and quoted Liberation Sans declarations take the token, and so do the 19 report wrappers and tables that named 'Segoe UI' (a face only Windows has). The 76 diagram labels take the literal stack, because an SVG attribute cannot resolve var() and a diagram is also saved as a standalone .svg. The walk found the cause under all of it: the page's universal rule set Poppins on EVERY element, so a report's text never inherited its panel's face. Even a report whose wrapper named the document stack rendered every line in Poppins, and the BOM / SOW printed in Arial from the server but in Poppins from the screen. The paper panels and everything in them now restate the token; an inline declaration (the monospace formula cells) still wins. Every server-PDF request states the token, so the PDF service never meets an unreso Receipt .tmp/mcp_walks/BRH314.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "BRH315",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-K",
+      "title": "design slop the detector ratchet still holds - engineering design · engineering-design.js :: side-tab - a person",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "any",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "a person reaches engineering design and meets a defect of a class a real person met on 2026-10-13/14: 28 primary 'side-tab' finding(s) in engineering-design.js still held by the design-detector ratchet. MECHANISM: design slop the detector ratchet still holds. REPRO: run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds. FIX: fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-K:any",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "K",
+        "page": "engineering-design.html",
+        "line": 0,
+        "key": "engineering-design.js :: side-tab",
+        "detail": "28 primary 'side-tab' finding(s) in engineering-design.js still held by the design-detector ratchet",
+        "layer": "F",
+        "persona": "any",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "design slop the detector ratchet still holds",
+        "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+        "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K+ engineering-design.js :: side-tab - fixed, walked in the live render, the ratchet's floor for it is 0. Witness: engineering-design.js :: side-tab: the design detector counted 28 finding(s) here once the ratchet read every style-injecting shared script (K+); the ratchet now reads 0. FIXED: the generated reports lose their coloured side bars. Section headings take a 1.5px rule beneath them, the convention project-report already uses. Step heads take a light rule beneath. Callouts (tinted narrative blocks and notes) take a 1px hairline in a tint of the same hue, with even corners - the tint alone already marks them as callouts. 13 headings, 7 step heads, 24 callouts. WALKED through the MCP browser as Bryan Garcia at 390 and 1280, in the live render - a calculation run in engineering-design.html - Boiler System, Expansion Tank Sizing, Cooling Tower Sizing and Water Softener Sizing, auto-filled the way tools/browser_calc_sweep.mjs fills them - and the reports and drawing it rendered; the server-PDF request was answered locally by the walk (nothing reached the hosted API): 390: served script: 0 coloured side bar(s); Boiler System: 2795c, 0 side bar(s), font Arial, Helvetica, \"Liberation Sans\", san; 2 callout(s), 0px solid rgb(229, 231, 235) r0px | Expansion Tank Sizing: 2410c, 0 side bar(s), font  Receipt .tmp/mcp_walks/BRH315.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "BRH316",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-K",
+      "title": "design slop the detector ratchet still holds - index · companion-launcher.js :: bounce-easing - a person",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "any",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "a person reaches index and meets a defect of a class a real person met on 2026-10-13/14: 1 primary 'bounce-easing' finding(s) in companion-launcher.js still held by the design-detector ratchet. MECHANISM: design slop the detector ratchet still holds. REPRO: run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds. FIX: fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-K:any",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "K",
+        "page": "index.html",
+        "line": 0,
+        "key": "companion-launcher.js :: bounce-easing",
+        "detail": "1 primary 'bounce-easing' finding(s) in companion-launcher.js still held by the design-detector ratchet",
+        "layer": "F",
+        "persona": "any",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "design slop the detector ratchet still holds",
+        "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+        "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K+ companion-launcher.js :: bounce-easing - fixed, walked in the live render, the ratchet's floor for it is 0. Witness: companion-launcher.js :: bounce-easing: the design detector counted 1 finding(s) here once the ratchet read every style-injecting shared script (K+); the ratchet now reads 0. FIXED: the companion panel arrives on a strong ease-out, cubic-bezier(0.23, 1, 0.32, 1), instead of cubic-bezier(0.34, 1.56, 0.64, 1), which overshot its place by 0.56 before settling. An overshoot belongs to a physical gesture, and this one is a tap. WALKED through the MCP browser as Bryan Garcia at 390 and 1280, in the live render - index.html, the companion panel opened and its scale sampled every animation frame (an overshoot reads above 1): 390: transform eases on cubic-bezier(0.23, 1, 0.32, 1); 0 live rule(s) with the 1.56 overshoot; opened: 29 frames, scale 0.400 -> 1.000, peak 1.0000 (an overshoot would read above 1) | 1280: transform eases on cubic-bezier(0.23, 1, 0.32, 1); 0 live rule(s) with the 1.56 overshoot; opened: 28 frames, scale 0.400 -> 1.000, peak 1.0000 (an overshoot would read above 1) LOCK: design-detector-ratchet (every served page and the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH316.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
+      "id": "BRH317",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-K",
+      "title": "design slop the detector ratchet still holds - index · companion-launcher.js :: pulsing-dot-declared - a person",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "F"
+      ],
+      "ufai": [
+        "U",
+        "F"
+      ],
+      "persona": "any",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "a person reaches index and meets a defect of a class a real person met on 2026-10-13/14: 1 primary 'pulsing-dot-declared' finding(s) in companion-launcher.js still held by the design-detector ratchet. MECHANISM: design slop the detector ratchet still holds. REPRO: run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds. FIX: fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-K:any",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "K",
+        "page": "index.html",
+        "line": 0,
+        "key": "companion-launcher.js :: pulsing-dot-declared",
+        "detail": "1 primary 'pulsing-dot-declared' finding(s) in companion-launcher.js still held by the design-detector ratchet",
+        "layer": "F",
+        "persona": "any",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "design slop the detector ratchet still holds",
+        "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
+        "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K+ companion-launcher.js :: pulsing-dot-declared - found by the ratchet's new static leg, fixed, walked live (incl. reduced motion). Witness: companion-launcher.js :: pulsing-dot-declared: the companion's typing indicator was three 6px orange dots pulsing forever (wh-dot, scale + opacity, infinite) in the rule companion-launcher.js injects - the class K fixed on assistant and the voice handler. The detector read 0 here even after K+ widened its scope to the script; a NEW static leg of the ratchet (pulsing-dot-declared: one style attribute or rule block making a round element of 12px or less animate forever, a turning spinner and a larger signal excluded) measured it at 1, the floor was re-measured with the reason recorded, and the inventory seeded this row. Run on the committed files the leg also counts the dots K+ had already removed - analytics 3, engineering-design 3, offline-fallback 1 - and none of report-sender's 10px spinners: it has teeth on every site of the class. FIXED: the wait is the word, 'Thinking...', breathing on opacity only (1 to 0.72, so the text never drops under its contrast), still under reduced motion; the polite status sentence stays what a screen reader hears (LM511). WALKED through the MCP browser as Bryan Garcia on index.html, the companion opened and a question sent through its own input, the Receipt .tmp/mcp_walks/BRH317.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
+      }
+    },
+    {
       "id": "SL1",
       "status": "specced",
       "pct": 5,
@@ -984723,5 +985078,5 @@
       }
     }
   ],
-  "next": "BRH K 37/37 (design ratchet 82 -> 0; scripts-parse gate; ledger's W4 pin taught fewer-is-not-drift) -> BRH K+ (widen the design ratchet's shared-chrome scope to every style-injecting script - 11 missing, 35 findings: engineering-design.js report side-tabs/fonts 34, companion-launcher bounce 1 - plus a live probe for runtime pulsing dots on analytics 4, engineering-design 3, offline-fallback 1: seed as new K rows, fix with the design skills, walk) -> then the next roadmap wave per the scoreboard"
+  "next": "BRH K+ 5/5 (the ratchet reads every style-injecting script + a declared-dot leg; the reports restate the document face; companion typing is the word) -> SL walk order step 3 rest: S3 (CSP and security headers for what each page loads, 0/154) and S4 (no raw HTML from data, 0/36) - learn each row's instrument tag first, build the live prover, walk, bank -> then step 4's batch provers (F2/F3/F5, CA2, H1/H2, S5, CI1/CI3/CI4)"
 }

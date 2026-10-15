@@ -1,7 +1,7 @@
 {
  "_doc": "Per-(file :: antipattern) primary-finding counts from `impeccable detect --json` over every served page + the shared chrome. tools/prove_design_detector_ratchet.py --check fails on any increase; --rebase lowers it after fixes. Regenerated, never hand-edited.",
- "generated": "2026-10-15T14:43:38",
- "note": "rebased: 37 count(s) fell",
+ "generated": "2026-10-15T15:53:00",
+ "note": "rebased: 1 count(s) fell",
  "total": 0,
  "counts": {}
 }

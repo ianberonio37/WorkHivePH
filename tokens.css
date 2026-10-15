@@ -171,6 +171,10 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
   --wh-radius-sm: 8px; --wh-radius: 12px; --wh-radius-lg: 16px; --wh-radius-pill: 999px;
   /* Type */
   --wh-font: 'Poppins', system-ui, -apple-system, sans-serif;
+  /* DESIGN.md's DOCUMENT role - the type of what the app generates to print or send (report previews, PDFs, drawing
+     title blocks), black ink on white. One token, so the sheet checked on screen and the sheet printed share a face;
+     Liberation Sans is Arial's metric twin on the Linux PDF service. */
+  --wh-doc-font: Arial, Helvetica, Liberation Sans, sans-serif;
   /* Control heights — one shape per control ROLE (rubric R3). */
   --wh-control-h: 44px;
   /* Elevation (Arc W · W1) — soft dark-mode shadows, black-based so they layer anywhere. */

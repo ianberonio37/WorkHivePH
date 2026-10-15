@@ -38,12 +38,31 @@ DETECTOR = Path(os.environ.get("IMPECCABLE_HOME", str(Path.home() / ".claude" / 
     "impeccable.cmd" if os.name == "nt" else "impeccable")
 
 
+# ★THE CHROME IS WHAT THE CODE DOES, NOT A LIST (BRH-K+, 2026-10-15). SHARED_CHROME was written by hand and held 7
+# files; 16 root scripts create or inject their own styles, so 11 were never read - voice-handler.js's forever-pulsing
+# recording dot was found only by a live probe, and the 11 held 35 findings. Every root script that builds a <style>,
+# assigns a style sheet's text, or inserts a rule is chrome, and is scanned; SHARED_CHROME stays as the named floor.
+_INJECTS_STYLE = re.compile(r"""createElement\(\s*['"]style['"]\)|<style[\s>]|\.textContent\s*=\s*(?:STYLE|CSS|css|styles)\b|insertRule\(""")
+
+
+def style_injecting_scripts(root: Path = ROOT) -> list[str]:
+    out = []
+    for p in sorted(root.glob("*.js")):
+        try:
+            if _INJECTS_STYLE.search(p.read_text(encoding="utf-8", errors="replace")):
+                out.append(p.name)
+        except OSError:
+            pass
+    return out
+
+
 def served_files() -> list[str]:
     sys.path.insert(0, str(ROOT / "tools"))
     from seed_expansion_wave4 import served_pages  # noqa: E402
     classes = served_pages()
     files = [p for cls in classes.values() for p in cls]
-    files += [c for c in SHARED_CHROME if (ROOT / c).exists()]
+    chrome = [c for c in SHARED_CHROME if (ROOT / c).exists()]
+    files += chrome + [c for c in style_injecting_scripts() if c not in chrome]
     return files
 
 
@@ -366,6 +385,46 @@ def without_scrim_artifacts(now: dict[str, int], root: Path = ROOT) -> dict[str,
     return {k: v for k, v in out.items() if v > 0}
 
 
+# ★A DOT THAT PULSES FOREVER IS USUALLY BUILT BY A SCRIPT, WHERE THE DETECTOR CANNOT SEE IT (BRH-K+, 2026-10-15). The
+# K walk found eight on analytics (4), engineering-design (3) and offline-fallback (1) by probing the live render; the
+# detector had read 0, because each dot was a style attribute inside a JS template string or a rule the page only
+# paints later. And after K+ the companion's own typing indicator - three 6px dots pulsing in a rule companion-launcher
+# injects - still read 0. So the ratchet reads the DECLARATION too: one style attribute or one rule block that makes
+# a round element of 12px or less animate forever. A spinner is not a dot: a rotation shows work that ends, so any
+# block whose animation turns (spin / rotate) is left out, as is a larger element whose infinite motion is a signal.
+_DECL_BLOCK = re.compile(r"""style\s*=\s*(["'])(.*?)\1|\{([^{}]*)\}""", re.S)
+_DOT_SIZE = re.compile(r"(?<![-\w])(?:width|height)\s*:\s*(\d+(?:\.\d+)?)px", re.I)
+_ROUND = re.compile(r"border-radius\s*:\s*(?:50%|100%|9999px|999px)", re.I)
+_FOREVER = re.compile(r"animation(?:-iteration-count)?\s*:[^;\"'}]*\binfinite\b", re.I)
+_TURNS = re.compile(r"animation(?:-name)?\s*:[^;\"'}]*(?:spin|rotat)", re.I)
+DECLARED_DOT = "pulsing-dot-declared"
+
+
+def declared_pulsing_dots(files: list[str], root: Path = ROOT) -> dict[str, int]:
+    c: Counter = Counter()
+    for f in files:
+        p = Path(f) if Path(f).is_absolute() else root / f
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for m in _DECL_BLOCK.finditer(text):
+            body = m.group(2) if m.group(2) is not None else m.group(3)
+            if not body or not _FOREVER.search(body) or not _ROUND.search(body) or _TURNS.search(body):
+                continue
+            sizes = [float(x) for x in _DOT_SIZE.findall(body)]
+            if sizes and max(sizes) <= 12:
+                c[f"{os.path.relpath(p, root).replace(chr(92), '/')} :: {DECLARED_DOT}"] += 1
+    return dict(c)
+
+
+def with_declared_dots(now: dict[str, int], files: list[str], root: Path = ROOT) -> dict[str, int]:
+    out = dict(now)
+    for k, v in declared_pulsing_dots(files, root).items():
+        out[k] = out.get(k, 0) + v
+    return dict(sorted(out.items()))
+
+
 def is_measurement_artifact(f: dict) -> bool:
     """One predicate, four consumers: a finding the page's own semantics or media already refute."""
     return is_print_artifact(f) or is_aria_level_heading(f) or is_root_axis_clip(f)
@@ -492,10 +551,30 @@ def self_test() -> int:
                 f.unlink()
             except OSError:
                 pass
+    # The declared pulsing dot: a 7px round dot in a JS-built style attribute and a 6px dot in an injected rule count;
+    # a 10px spinner ring (it turns), a 56px trigger's infinite nudge and a dot that pulses a bounded number of times do not.
+    with tempfile.TemporaryDirectory() as d:
+        js = Path(d) / "dots.js"
+        js.write_text(
+            "el.innerHTML = `<div style=\"width:7px;height:7px;border-radius:50%;animation:dotPulse 1.4s ease-in-out infinite;\"></div>`;\n"
+            "const css = `.typing span { width: 6px; height: 6px; border-radius: 50%; animation: wh-dot 1.2s infinite; }\n"
+            ".ring { width: 10px; height: 10px; border-radius: 50%; border-top-color: #f7a21b; animation: spin 0.8s linear infinite; }\n"
+            "#trigger.nudge { width: 56px; height: 56px; border-radius: 50%; animation: nudge 1.6s ease-in-out infinite; }\n"
+            ".once { width: 8px; height: 8px; border-radius: 50%; animation: pop 0.4s ease-out 2; }`;\n", encoding="utf-8")
+        got = declared_pulsing_dots([str(js)], root=Path(d)).get(f"dots.js :: {DECLARED_DOT}", 0)
+        if got != 2:
+            print(f"FAIL self-test: the declared-dot leg counted {got} in a fixture holding exactly 2 forever-pulsing dots "
+                  "(beside a turning spinner, a 56px nudge and a bounded pulse, none of which is one)")
+            return 1
+        merged = with_declared_dots({"dots.js :: tiny-text": 1}, [str(js)], root=Path(d))
+        if merged.get(f"dots.js :: {DECLARED_DOT}") != 2 or merged.get("dots.js :: tiny-text") != 1:
+            print(f"FAIL self-test: the declared dots were not merged beside the detector's counts ({merged})")
+            return 1
     print("PASS design-detector-ratchet self-test - a 9px label is caught and counts as an increase, "
           "a print-only colour is not measured against the screen, an ARIA-declared heading level "
           "is honoured while a bare one still fails, tokens.css's root clip is exempt while an override still counts, "
-          "and a modal scrim is not a card while a dialog panel's nested card still counts")
+          "a modal scrim is not a card while a dialog panel's nested card still counts, and a dot a script declares "
+          "pulsing forever is counted while a spinner, a large nudge and a bounded pulse are not")
     return 0
 
 
@@ -516,7 +595,7 @@ def main() -> int:
     if a.self_test:
         return self_test()
     files = served_files()
-    now = without_scrim_artifacts(counts(detect(files)))
+    now = with_declared_dots(without_scrim_artifacts(counts(detect(files))), files)
     base = load_baseline()
     if a.reseed:
         if not a.reason.strip():

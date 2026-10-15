@@ -10941,7 +10941,7 @@ function renderBoilerReport(inputs, results, narrative) {
   const pass = v => v ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <div id="report-content" style="font-family:'Times New Roman',serif;color:#1a1a1a;line-height:1.6;max-width:780px;margin:0 auto;padding:2.5rem;">
+    <div id="report-content" style="font-family:var(--wh-doc-font);color:#1a1a1a;line-height:1.6;max-width:780px;margin:0 auto;padding:2.5rem;">
 
       <!-- Header -->
       <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
@@ -11098,7 +11098,7 @@ function renderHotWaterBoilerReport(inputs, results, narrative) {
   const pass = v => v ? '<span style="color:#16a34a;font-weight:700;">✓ PASS</span>' : '<span style="color:#dc2626;font-weight:700;">✗ FAIL</span>';
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <div id="report-content" style="font-family:'Times New Roman',serif;color:#1a1a1a;line-height:1.6;max-width:780px;margin:0 auto;padding:2.5rem;">
+    <div id="report-content" style="font-family:var(--wh-doc-font);color:#1a1a1a;line-height:1.6;max-width:780px;margin:0 auto;padding:2.5rem;">
 
       <!-- Header -->
       <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
@@ -11679,7 +11679,7 @@ function renderGeneratorReport(inputs, results, narrative) {
   const dateStr = new Date().toLocaleDateString('en-PH',{ timeZone: 'Asia/Manila',year:'numeric',month:'long',day:'numeric'});
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-    <div style="padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:'Times New Roman',Times,serif;font-size:0.9rem;line-height:1.6;">
+    <div style="padding:2.5rem;background:#fff;color:#1a1a1a;border-radius:1rem;font-family:var(--wh-doc-font);font-size:0.9rem;line-height:1.6;">
 
       <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
         <strong>Tip:</strong> Click any underlined field to edit before downloading.
@@ -11859,7 +11859,7 @@ function renderSolarPVReport(inputs, results, narrative) {
   const isOffGrid = (inputs.system_type || '').includes('Off-Grid') || (inputs.system_type || '').includes('Hybrid');
 
   const reportHTML = `
-  <div class="report-container" id="report-print-area" style="background:#fff;color:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;padding:2rem;max-width:900px;margin:0 auto;">
+  <div class="report-container" id="report-print-area" style="background:#fff;color:#1a1a2e;font-family:var(--wh-doc-font);padding:2rem;max-width:900px;margin:0 auto;">
 
     <!-- Header -->
     <div style="text-align:center;border-bottom:2px solid #162032;padding-bottom:1rem;margin-bottom:1.5rem;">
@@ -11952,13 +11952,13 @@ function renderSolarPVReport(inputs, results, narrative) {
     <!-- Narrative -->
     ${narrative?.objective ? `
     <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '4' : '3'}. Design Objective</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.objective)}</div>` : ''}
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.objective)}</div>` : ''}
     ${narrative?.assumptions ? `
     <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '5' : '4'}. Design Assumptions</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.assumptions)}</div>` : ''}
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.assumptions)}</div>` : ''}
     ${narrative?.recommendations ? `
     <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '6' : '5'}. Recommendations</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.recommendations)}</div>` : ''}
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;font-size:0.82rem;color:#333;line-height:1.6;margin-bottom:1.5rem;">${e(narrative.recommendations)}</div>` : ''}
 
     <!-- Compliance Notes -->
     <h2 style="font-size:1rem;font-weight:700;color:#162032;border-bottom:2px solid #162032;padding-bottom:0.4rem;margin-bottom:1rem;">${isOffGrid ? '7' : '6'}. Standards &amp; Compliance</h2>
@@ -12651,7 +12651,7 @@ function buildTransformerSLDSvg(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const T = (x,y,t,{a='middle',sz=10,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
   const VL = (x,y1,y2,sw=2,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=2,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const Badge = (x,y,label,bg=AO) => {
@@ -12941,7 +12941,7 @@ function buildTransformerSLDTitleBlockHtml(inputs, results) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('ELEC-XFMR-SLD-001')}</td>
@@ -13102,7 +13102,7 @@ function buildCleanAgentSVG(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
   const VL = (x,y1,y2,sw=2,clr=CC,dash='') =>
     `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
   const HL = (x1,y,x2,sw=2,clr=CC,dash='') =>
@@ -13353,7 +13353,7 @@ function buildCleanAgentTitleBlockHtml(inputs, results) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('FP-CAS-SCH-001')}</td>
@@ -14019,7 +14019,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const pressOK     = pressCheck.startsWith('PASS');
 
   const reportHTML = `
-  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-size:0.92rem;line-height:1.6;">
+  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:var(--wh-doc-font);font-size:0.92rem;line-height:1.6;">
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;color:#7a5800;">
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
@@ -14047,13 +14047,13 @@ function renderExpansionTankReport(inputs, results, narrative) {
     </div>
 
     <!-- 1. Objective -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">1. Objective</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">1. Objective</h2>
     <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
       ${narrative?.objective ? escHtml(narrative.objective) : `Size a closed bladder expansion tank for the ${escHtml(sysType)} system of ${escHtml(projName)}. The tank must accommodate the volumetric expansion of ${escHtml(sysVolL)} L of water as it heats from fill temperature ${fillT}°C to maximum operating temperature ${maxT}°C, while maintaining system pressure within the design range.`}
     </div>
 
     <!-- 2. Standards -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">2. Applicable Standards</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">2. Applicable Standards</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <thead>
         <tr>
@@ -14070,7 +14070,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     </table>
 
     <!-- 3. Design Basis -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">3. Design Basis</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">3. Design Basis</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">System Type</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(sysType)}</td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Volume Method</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(volMethod)}${volMethod === 'Estimate from kW' ? ` (${inputs.system_kw || ''}kW × rule-of-thumb factor)` : ''}</td></tr>
@@ -14082,7 +14082,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     </table>
 
     <!-- 4. Calculation -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">4. Calculation</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">4. Calculation</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">Water Expansion Factor E_w</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">(${vHighDisp} − ${vLowDisp}) / ${vLowDisp} = <strong>${Ew.toFixed(5)}</strong></td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Net Expansion Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L × ${Ew.toFixed(5)} = <strong>${netExpL} L</strong></td></tr>
@@ -14093,7 +14093,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     </table>
 
     <!-- 5. Results Summary -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">5. Results Summary</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">5. Results Summary</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;">
       <div style="background:#f0f7ff;border:2px solid #1a3a5c;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
         <div style="font-size:0.78rem;color:#3b82f6;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Selected Tank Size</div>
@@ -14118,7 +14118,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     </div>
 
     <!-- 6. Recommendations -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">6. Recommendations</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">6. Recommendations</h2>
     <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
       ${narrative?.recommendations ? escHtml(narrative.recommendations) : `Provide a ${selTankL} L closed bladder expansion tank (ASME BPVC Section VIII rated) pre-charged to ${prechargeG} kPa g with dry nitrogen. Connect at the pump suction side (point of no pressure change) per ASHRAE 2023 HVAC Systems Handbook Chapter 12. Set pressure relief valve at ${Math.round(Number(maxPressG) * 1.15)} kPa g (15% above max operating pressure). Verify pre-charge pressure at site against actual static head measurement before system fill. ${alpha < 0.25 ? 'WARNING: acceptance factor is below the ASHRAE minimum of 0.25: review system pressures before procurement.' : 'Acceptance factor is within ASHRAE acceptable range.'}`}
     </div>
@@ -14182,7 +14182,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </tr>`).join('');
 
   const reportHTML = `
-  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;font-size:0.92rem;line-height:1.6;">
+  <div style="padding:2.5rem;background:#fff;color:#1a1a1a;font-family:var(--wh-doc-font);font-size:0.92rem;line-height:1.6;">
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.85rem;color:#7a5800;">
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
@@ -14210,13 +14210,13 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </div>
 
     <!-- 1. Objective -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">1. Objective</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">1. Objective</h2>
     <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
       ${narrative?.objective ? escHtml(narrative.objective) : `Select standard fan coil units for ${escHtml(String(rooms.length))} room(s) of ${escHtml(projName)} based on room cooling loads. Compute chilled water flow rates per unit, total plant design load with diversity factor (${divF}), and size the chilled water main pipe. Pipe system: ${escHtml(pipeSys)}. Mounting: ${escHtml(mountType)}.`}
     </div>
 
     <!-- 2. Standards -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">2. Applicable Standards</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">2. Applicable Standards</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <thead>
         <tr>
@@ -14233,7 +14233,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </table>
 
     <!-- 3. Design Basis -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">3. Design Basis</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">3. Design Basis</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:45%;font-weight:600;">Pipe System</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(pipeSys)}</td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Mounting Type</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${escHtml(mountType)}</td></tr>
@@ -14246,7 +14246,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </table>
 
     <!-- 4. Velocity Limits -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">4. CHW Velocity Design Limits</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">4. CHW Velocity Design Limits</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
       <thead>
         <tr>
@@ -14264,7 +14264,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </table>
 
     <!-- 5. Room Schedule + FCU Selection -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">5. Room Schedule and FCU Selection</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">5. Room Schedule and FCU Selection</h2>
     <div style="overflow-x:auto;">
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;min-width:680px;border-collapse:collapse;font-size:0.85rem;">
         <thead>
@@ -14296,7 +14296,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </div>
 
     <!-- 6. Results Summary -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">6. Results Summary</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">6. Results Summary</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;">
       <div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:0.5rem;padding:1rem;page-break-inside:avoid;">
         <div style="font-size:0.78rem;color:#3b82f6;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Connected Load</div>
@@ -14327,7 +14327,7 @@ function renderFCUSelectionReport(inputs, results, narrative) {
     </table>
 
     <!-- 7. Recommendations -->
-    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-left:4px solid #1a3a5c;padding-left:0.75rem;">7. Recommendations</h2>
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">7. Recommendations</h2>
     <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
       ${narrative?.recommendations ? escHtml(narrative.recommendations) : `Install ${totalUnits} fan coil units totalling ${totalConnKW} kW / ${totalConnTR} TR connected, with a design load of ${totalDesKW} kW / ${totalDesTR} TR after applying the ${divF} diversity factor. Size the chilled water main at ${mainNps} mm NPS (Black Steel SCH40) at ${mainVel} m/s. Use ${chwSup}°C supply / ${chwRet}°C return, ΔT = ${(Number(chwRet) - Number(chwSup)).toFixed(1)}°C. Coordinate final FCU model selection and CHW branch pipe sizing with the approved chiller plant capacity.`}
     </div>
@@ -15028,7 +15028,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   const totalFlowLPM = fixtures.reduce((s, fx) => s + fx.flow_lpm * fx.qty, 0).toFixed(1);
 
   const html = `
-<div class="report-doc" style="font-family:'Segoe UI',sans-serif;max-width:900px;margin:0 auto;padding:24px 32px;background:#fff;color:#1e293b;line-height:1.6;">
+<div class="report-doc" style="font-family:var(--wh-doc-font);max-width:900px;margin:0 auto;padding:24px 32px;background:#fff;color:#1e293b;line-height:1.6;">
 
   <!-- Header -->
   <div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px;">
@@ -16119,7 +16119,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Room Dimensions</td><td style="padding:0.3rem 0.5rem;">${inputs.room_len_m} m × ${inputs.room_wid_m} m × ${inputs.ceiling_ht_m} m H</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Floor Area</td><td style="padding:0.3rem 0.5rem;">${r.floor_area_m2} m²</td></tr>
       </table>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
         <div id="ld-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.objective || `To determine the number of luminaires required to achieve ${inputs.target_lux} lux average maintained illuminance in the subject ${inputs.space_type.toLowerCase()} in accordance with IES recommended practice and PEC 2017 Article 3.60.`)}</div>
       </div>
@@ -16197,12 +16197,12 @@ function renderLightingDesignReport(inputs, results, narrative) {
         </div>
       </div>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
         <div id="ld-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.assumptions || `Room surface reflectances: ceiling 80%, walls 50%, floor 20% (IES typical). Work plane height assumed at 0.85 m (standard desk height). CU derived from IES Zonal Cavity tables for specified RCR and reflectance values. LLF of ${inputs.llf} applied for expected maintenance category.`)}</div>
       </div>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #f2d9a8;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
         <div id="ld-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.recommendations || 'See calculation above.')}</div>
       </div>
@@ -16248,7 +16248,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <tr><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">System Voltage</td><td style="padding:0.3rem 0.5rem;">${inputs.voltage_ll} V (L-L)</td><td style="padding:0.3rem 0.5rem;font-weight:600;color:#555;">Cable Run</td><td style="padding:0.3rem 0.5rem;">${inputs.cable_mm2} mm² Cu, ${inputs.cable_len_m} m</td></tr>
       </table>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">OBJECTIVE</div>
         <div id="sc-obj" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.objective || 'To determine the available 3-phase symmetrical fault current at the subject distribution panel and verify that the installed overcurrent protective device has sufficient interrupting capacity in accordance with PEC 2017 and IEC 60909.')}</div>
       </div>
@@ -16329,12 +16329,12 @@ function renderShortCircuitReport(inputs, results, narrative) {
         </div>
       </div>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #162032;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">ASSUMPTIONS</div>
         <div id="sc-assum" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.assumptions || 'Transformer impedance method used per IEC 60909. Infinite bus assumption at the primary side (utility source impedance neglected: conservative). Cable impedance includes both resistance (R) and reactance (X) at 50 Hz per XLPE/PVC LV cable data; Z_cable = √(R² + X²). Asymmetry factor of 1.8 applied per IEC 60909 for peak fault determination.')}</div>
       </div>
 
-      <div class="narrative-block" style="background:#f8f9fa;border-left:4px solid #F7A21B;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0 0.5rem 0.5rem 0;">
+      <div class="narrative-block" style="background:#f8f9fa;border:1px solid #f2d9a8;padding:0.75rem 1rem;margin-bottom:1.5rem;border-radius:0.5rem;">
         <div style="font-weight:700;font-size:0.8rem;margin-bottom:0.3rem;">RECOMMENDATIONS</div>
         <div id="sc-rec" contenteditable="true" style="font-size:0.78rem;outline:none;" spellcheck="false">${escHtml(narrative?.recommendations || 'See calculation above.')}</div>
       </div>
@@ -18423,6 +18423,10 @@ function _prepareReportHtml(reportEl) {
 }
 
 async function _tryServerPdf(html, fileName) {
+  // the report's own text is set in var(--wh-doc-font) (DESIGN.md's document face); the PDF service renders the
+  // HTML with no page stylesheet, so the token is stated here once for every server PDF
+  const docFont = getComputedStyle(document.documentElement).getPropertyValue('--wh-doc-font').trim() || 'Arial,Helvetica,Liberation Sans,sans-serif';
+  html = '<style>:root{--wh-doc-font:' + docFont + '}</style>' + html;
   // 45s ceiling: PDF rendering on Render free tier wakes a cold container
   // (~20s) then renders complex reports. Beyond 45s we fall back to client
   // html2pdf rather than leave the user waiting indefinitely.
@@ -18469,7 +18473,7 @@ function _fallbackHtml2pdf(reportEl, fileName) {
 
   const disclaimer = document.createElement('div');
   disclaimer.id = 'pdf-disclaimer';
-  disclaimer.style.cssText = 'margin-top:2rem;padding:0.75rem 1rem;border-top:1.5px solid #e0c97a;background:#fffdf0;font-size:10px;color:#555;line-height:1.6;font-family:Arial,sans-serif;';
+  disclaimer.style.cssText = 'margin-top:2rem;padding:0.75rem 1rem;border-top:1.5px solid #e0c97a;background:#fffdf0;font-size:12px;color:#555;line-height:1.6;font-family:var(--wh-doc-font);';
   disclaimer/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `<strong style="color:#8a6f00;">DISCLAIMER:</strong> This report is generated for preliminary engineering reference only. Results must be verified by a licensed Professional Engineer (PRC-registered) against the governing standards before use in any design, specification, or construction document. WorkHive and its developers assume no liability for errors or omissions.`;
   reportEl.appendChild(disclaimer);
 
@@ -18587,7 +18591,7 @@ function buildAHUTitleBlockHtml(inputs, results) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-AHU-SCH-001')}</td>
@@ -18624,7 +18628,7 @@ function buildHarmonicSpectrumTitleBlockHtml(inputs, results) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('ELEC-HD-SCH-001')}</td>
@@ -18667,7 +18671,7 @@ function buildDuctSizingTitleBlockHtml(inputs, results) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (style='') => `<td style="padding:6px 8px;vertical-align:top;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-DS-SCH-001')}</td>
@@ -19069,7 +19073,7 @@ function _buildGenericTitleBlock(inputs, ratingStr, opts) {
     <div style="border-top:1px solid #bbb;margin-top:5px;font-size:7px;color:#6b6b6b;text-align:center;padding-top:2px;">Signature over Printed Name / PRC Lic. No.</div>`;
   const TD  = (s='') => `<td style="padding:6px 8px;vertical-align:top;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(BR+'width:42%;')}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(BR+'width:23%;')}${LBL('Drawing No.')}${EF(opts.drawingNo||'DRAW-001')}</td>
@@ -19400,7 +19404,7 @@ function buildLPSZoneSvg(inputs, results) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
   const T = (x, y, t, { a='middle', sz=10, c=CC, w='normal', dy=0, style='' } = {}) =>
-    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}" ${style}>${esc(t)}</text>`;
+    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}" ${style}>${esc(t)}</text>`;
 
   const VL = (x, y1, y2, sw=2, clr=CC, dash='') =>
     `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash ? ' stroke-dasharray="'+dash+'"' : ''}/>` ;
@@ -19735,7 +19739,7 @@ function buildFirePumpPIDSvg(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const T = (x,y,t,{a='middle',sz=9,c=CP,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=2.5,clr=CP) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=2.5,clr=CP) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const DL = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${CI}" stroke-width="1" stroke-dasharray="4 3"/>`;
@@ -20026,7 +20030,7 @@ function buildLPSTitleBlockHtml(inputs, results) {
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / Structure Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('LPS-EL-001')}</td>
@@ -20099,7 +20103,7 @@ function buildElectricalSLDSvg(inputs, results) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
   const T = (x, y, t, { a='middle', sz=10, c=CC, w='normal', dy=0 } = {}) =>
-    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
+    `<text x="${x}" y="${y}" dy="${dy}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(t)}</text>`;
 
   const VL = (x, y1, y2, sw=2) =>
     `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${CC}" stroke-width="${sw}"/>`;
@@ -20334,7 +20338,7 @@ function buildSLDTitleBlockHtml(inputs, results) {
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / Panel Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('SLD-EL-001')}</td>
@@ -20439,7 +20443,7 @@ function buildGeneratorConnectionSvg(inputs, results) {
   const hdr = (x,y,w,h,fill,rx=4) =>
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" rx="${rx}"/><rect x="${x}" y="${y+h-4}" width="${w}" height="4" fill="${fill}"/>`;
   const tx  = (x,y,s,sz=10,fill='#1a2e4a',anchor='middle',weight='normal') =>
-    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="'Segoe UI',Arial,sans-serif" font-weight="${weight}">${s}</text>`;
+    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-weight="${weight}">${s}</text>`;
   const ln  = (x1,y1,x2,y2,stroke,sw=2,dash='') =>
     `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
   const dot = (x,y,r,fill) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
@@ -20660,7 +20664,7 @@ function buildGeneratorTitleBlockHtml(inputs, results) {
   const TDB = (style='') => `<td style="padding:6px 8px;vertical-align:bottom;${style}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('GEN-PWR-001')}</td>
@@ -20750,7 +20754,7 @@ function buildPumpPIDSvg(inputs, results) {
 
   // ── SVG helpers ────────────────────────────────────────────────────────────
   const tx = (x,y,s,sz=9,fill=CP,anchor='middle',wt='normal') =>
-    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="'Segoe UI',Arial,sans-serif" font-weight="${wt}">${s}</text>`;
+    `<text x="${x}" y="${y}" font-size="${sz}" fill="${fill}" text-anchor="${anchor}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-weight="${wt}">${s}</text>`;
   const ln = (x1,y1,x2,y2,stroke=CP,sw=2.5,dash='') =>
     `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
 
@@ -20970,7 +20974,7 @@ function buildPumpPIDTitleBlockHtml(inputs, results) {
   const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('PMP-PID-001')}</td>
@@ -21294,7 +21298,7 @@ function buildFireSprinklerTitleBlockHtml(inputs, results) {
   const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('FPS-HYDR-001')}</td>
@@ -21415,7 +21419,7 @@ function buildChillerSVG(inputs, results, calcType) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const Arrow = (x,y,dir,clr,sz=10) => {
@@ -21712,7 +21716,7 @@ function buildFCUSVG(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T  = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const DL = (x1,y1,x2,y2,c=SC) =>
@@ -21988,7 +21992,7 @@ function buildRefrigPipeSVG(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T  = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const DL = (x1,y1,x2,y2,clr=SC)  =>
@@ -22268,7 +22272,7 @@ function buildCoolingTowerSVG(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=3,clr=CC) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"/>`;
   const HL = (x1,y,x2,sw=3,clr=CC) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${clr}" stroke-width="${sw}"/>`;
   const Arrow = (x,y,dir,clr,sz=10) => {
@@ -22532,7 +22536,7 @@ function buildVentilationSVG(inputs, results) {
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const T = (x,y,t,{a='middle',sz=9,c=CC,w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const VL = (x,y1,y2,sw=2,clr=CC,dash='') =>
     `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${clr}" stroke-width="${sw}"${dash?` stroke-dasharray="${dash}"`:''}/>`;
   const HL = (x1,y,x2,sw=2,clr=CC,dash='') =>
@@ -22836,26 +22840,26 @@ function buildExpansionTankSVG(inputs, results) {
 
   // Title bar
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${SC}"/>`);
-  p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK: HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
+  p.push(`<text x="${W/2}" y="31" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="11" font-weight="bold" fill="white">EXPANSION TANK: HYDRONIC SYSTEM SCHEMATIC  |  ${sysType.toUpperCase()}  |  ASHRAE 2023 CH.12 / ASME VIII</text>`);
 
   // Divider
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${SC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${SC}" stroke-width="1.2"/>`);
 
   // Panel sub-heading
-  p.push(`<text x="70" y="58" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION (PUMP SUCTION SIDE)</text>`);
+  p.push(`<text x="70" y="58" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" font-weight="600" fill="${SC}">POINT OF NO PRESSURE CHANGE (PNPC) EXPANSION TANK CONNECTION (PUMP SUCTION SIDE)</text>`);
 
   // ── Supply header ──────────────────────────────────────────────────────────
   p.push(`<line x1="${lftX}" y1="${supY}" x2="${sepX-sepR}" y2="${supY}" stroke="${SUP_C}" stroke-width="4"/>`);
   p.push(`<line x1="${sepX+sepR}" y1="${supY}" x2="${rgtX}" y2="${supY}" stroke="${SUP_C}" stroke-width="4"/>`);
   const sArwX = Math.round((sepX + sepR + rgtX) / 2);
   p.push(`<polygon points="${sArwX-8},${supY-5} ${sArwX+10},${supY} ${sArwX-8},${supY+5}" fill="${SUP_C}"/>`);
-  p.push(`<text x="${Math.round((lftX+sepX)/2)}" y="${supY-10}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="600" fill="${SUP_C}">${isHHW ? 'HHW SUPPLY' : 'CHW SUPPLY'}  (${maxT}°C)</text>`);
+  p.push(`<text x="${Math.round((lftX+sepX)/2)}" y="${supY-10}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="600" fill="${SUP_C}">${isHHW ? 'HHW SUPPLY' : 'CHW SUPPLY'}  (${maxT}°C)</text>`);
 
   // ── Return header ──────────────────────────────────────────────────────────
   p.push(`<line x1="${lftX}" y1="${retY}" x2="${rgtX}" y2="${retY}" stroke="${RET_C}" stroke-width="4"/>`);
   const rArwX = Math.round((lftX + rgtX) * 0.58);
   p.push(`<polygon points="${rArwX+8},${retY-5} ${rArwX-10},${retY} ${rArwX+8},${retY+5}" fill="${RET_C}"/>`);
-  p.push(`<text x="${rArwX}" y="${retY+14}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="600" fill="${RET_C}">${isHHW ? 'HHW RETURN' : 'CHW RETURN'}  (${fillT}°C fill)</text>`);
+  p.push(`<text x="${rArwX}" y="${retY+14}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="600" fill="${RET_C}">${isHHW ? 'HHW RETURN' : 'CHW RETURN'}  (${fillT}°C fill)</text>`);
 
   // ── Left vertical (pump) ───────────────────────────────────────────────────
   p.push(`<line x1="${lftX}" y1="${supY}" x2="${lftX}" y2="${pmpY-pmpR}" stroke="${SUP_C}" stroke-width="4"/>`);
@@ -22864,32 +22868,32 @@ function buildExpansionTankSVG(inputs, results) {
   // Pump symbol
   p.push(`<circle cx="${pmpX}" cy="${pmpY}" r="${pmpR}" fill="${LGY}" stroke="${PMP_C}" stroke-width="2.2"/>`);
   p.push(`<polygon points="${pmpX-9},${pmpY-6} ${pmpX+11},${pmpY} ${pmpX-9},${pmpY+6}" fill="${PMP_C}"/>`);
-  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY-6}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${PMP_C}">CHW PUMP</text>`);
-  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY+6}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">P-01</text>`);
+  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY-6}" text-anchor="end" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="700" fill="${PMP_C}">CHW PUMP</text>`);
+  p.push(`<text x="${pmpX-pmpR-6}" y="${pmpY+6}" text-anchor="end" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">P-01</text>`);
 
   // ── Right vertical + Load box ──────────────────────────────────────────────
   p.push(`<line x1="${rgtX}" y1="${supY}" x2="${rgtX}" y2="${retY}" stroke="${GY}" stroke-width="2.5"/>`);
   const boxX = rgtX + 4, boxW = 58, boxH = retY - supY;
   p.push(`<rect x="${boxX}" y="${supY}" width="${boxW}" height="${boxH}" rx="4" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
-  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2-7}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">LOAD</text>`);
-  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+5}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="600" fill="${SC}">COILS</text>`);
-  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+17}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">/ FCUs</text>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2-7}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" font-weight="600" fill="${SC}">LOAD</text>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+5}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" font-weight="600" fill="${SC}">COILS</text>`);
+  p.push(`<text x="${boxX+boxW/2}" y="${supY+boxH/2+17}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">/ FCUs</text>`);
 
   // ── Air separator (inline on supply) ─────────────────────────────────────
   p.push(`<circle cx="${sepX}" cy="${supY}" r="${sepR}" fill="${LGY}" stroke="${GY}" stroke-width="2"/>`);
-  p.push(`<text x="${sepX}" y="${supY+4}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" font-weight="bold" fill="${SC}">AS</text>`);
+  p.push(`<text x="${sepX}" y="${supY+4}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" font-weight="bold" fill="${SC}">AS</text>`);
   p.push(`<line x1="${sepX}" y1="${supY-sepR}" x2="${sepX}" y2="${supY-sepR-14}" stroke="${GY}" stroke-width="1.5"/>`);
   p.push(`<circle cx="${sepX}" cy="${supY-sepR-18}" r="5" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
-  p.push(`<text x="${sepX+8}" y="${supY-sepR-14}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Air Vent  AV-01</text>`);
-  p.push(`<text x="${sepX}" y="${supY+sepR+12}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Air Sep. AS-01</text>`);
+  p.push(`<text x="${sepX+8}" y="${supY-sepR-14}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">Air Vent  AV-01</text>`);
+  p.push(`<text x="${sepX}" y="${supY+sepR+12}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">Air Sep. AS-01</text>`);
 
   // ── Makeup water stub (on return at fillX) ───────────────────────────────
   p.push(`<line x1="${fillX}" y1="${retY}" x2="${fillX}" y2="${retY+32}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
   const mvY2 = retY + 35;
   p.push(`<polygon points="${fillX-7},${mvY2-5} ${fillX+7},${mvY2-5} ${fillX},${mvY2+2}" fill="${GY}"/>`);
   p.push(`<polygon points="${fillX-7},${mvY2+10} ${fillX+7},${mvY2+10} ${fillX},${mvY2+2}" fill="${GY}"/>`);
-  p.push(`<text x="${fillX-12}" y="${mvY2+24}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Makeup Water</text>`);
-  p.push(`<text x="${fillX-12}" y="${mvY2+34}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">FV-01  MV</text>`);
+  p.push(`<text x="${fillX-12}" y="${mvY2+24}" text-anchor="end" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">Makeup Water</text>`);
+  p.push(`<text x="${fillX-12}" y="${mvY2+34}" text-anchor="end" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">FV-01  MV</text>`);
 
   // ── Expansion tank branch ─────────────────────────────────────────────────
   // Tee dot on return
@@ -22901,14 +22905,14 @@ function buildExpansionTankSVG(inputs, results) {
   const piCX = teeX + 24, piCY = retY - 4;
   p.push(`<line x1="${teeX+5}" y1="${retY-3}" x2="${piCX-10}" y2="${piCY}" stroke="${GY}" stroke-width="1"/>`);
   p.push(`<circle cx="${piCX}" cy="${piCY}" r="10" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
-  p.push(`<text x="${piCX}" y="${piCY+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6" font-weight="bold" fill="${SC}">PI</text>`);
-  p.push(`<text x="${piCX+13}" y="${piCY-2}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${GY}">PI-01</text>`);
-  p.push(`<text x="${piCX+13}" y="${piCY+8}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${SUP_C}">${fillPressG} kPa g</text>`);
+  p.push(`<text x="${piCX}" y="${piCY+3}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6" font-weight="bold" fill="${SC}">PI</text>`);
+  p.push(`<text x="${piCX+13}" y="${piCY-2}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${GY}">PI-01</text>`);
+  p.push(`<text x="${piCX+13}" y="${piCY+8}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${SUP_C}">${fillPressG} kPa g</text>`);
 
   // Isolation valve (two-triangle gate valve symbol)
   p.push(`<polygon points="${teeX-8},${isoY-7} ${teeX+8},${isoY-7} ${teeX},${isoY}" fill="${GY}"/>`);
   p.push(`<polygon points="${teeX-8},${isoY+7} ${teeX+8},${isoY+7} ${teeX},${isoY}" fill="${GY}"/>`);
-  p.push(`<text x="${teeX+12}" y="${isoY+4}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${GY}">ISO-01  Gate Valve</text>`);
+  p.push(`<text x="${teeX+12}" y="${isoY+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${GY}">ISO-01  Gate Valve</text>`);
 
   // Branch pipe below iso to tank top
   p.push(`<line x1="${teeX}" y1="${isoY+9}" x2="${teeX}" y2="${tnkTop}" stroke="${RET_C}" stroke-width="3"/>`);
@@ -22921,11 +22925,11 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<ellipse cx="${teeX}" cy="${bladY}" rx="${tnkH2-4}" ry="18" fill="${BLD_C}" stroke="${RET_C}" stroke-width="1.5"/>`);
   // N2 zone label (above bladder)
   const n2Y = Math.round((tnkTop + bladY) / 2) - 2;
-  p.push(`<text x="${teeX}" y="${n2Y}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${N2_C}">N₂</text>`);
-  p.push(`<text x="${teeX}" y="${n2Y+11}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6" fill="${N2_C}">${prechargeG} kPa g</text>`);
+  p.push(`<text x="${teeX}" y="${n2Y}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${N2_C}">N₂</text>`);
+  p.push(`<text x="${teeX}" y="${n2Y+11}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6" fill="${N2_C}">${prechargeG} kPa g</text>`);
   // Water zone label (below bladder)
   const watY = Math.round((bladY + tnkBot) / 2) + 2;
-  p.push(`<text x="${teeX}" y="${watY}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${RET_C}">H₂O</text>`);
+  p.push(`<text x="${teeX}" y="${watY}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${RET_C}">H₂O</text>`);
 
   // PRV on tank (right side at tnkTop+22)
   const prvBX = teeX + tnkH2, prvY = tnkTop + 22;
@@ -22933,22 +22937,22 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<polygon points="${prvBX+20},${prvY-6} ${prvBX+32},${prvY} ${prvBX+20},${prvY+6}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
   p.push(`<line x1="${prvBX+32}" y1="${prvY}" x2="${prvBX+42}" y2="${prvY}" stroke="${ORG}" stroke-width="1.5"/>`);
   // Label placed ABOVE the tank top (clear band between ISO-01 valve and tank labels column)
-  p.push(`<text x="${prvBX+5}" y="${tnkTop-3}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
+  p.push(`<text x="${prvBX+5}" y="${tnkTop-3}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
 
   // Tank tag labels (right of tank)
   const tLX = teeX + tnkH2 + 8;
-  p.push(`<text x="${tLX}" y="${tnkTop+12}" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="700" fill="${SC}">ET-01</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+23}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Bladder Type (ASME VIII)</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+36}" font-family="Segoe UI,Arial,sans-serif" font-size="8.5" font-weight="700" fill="${SUP_C}">${selTankL} L</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+48}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">Pre-charge: ${prechargeG} kPa g (N₂)</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+59}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${TANK_C}">MAWP: ${maxPressG} kPa g</text>`);
-  p.push(`<text x="${tLX}" y="${tnkTop+70}" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">Req'd: ${reqTankL} L</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+12}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" font-weight="700" fill="${SC}">ET-01</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+23}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">Bladder Type (ASME VIII)</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+36}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8.5" font-weight="700" fill="${SUP_C}">${selTankL} L</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+48}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${TANK_C}">Pre-charge: ${prechargeG} kPa g (N₂)</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+59}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${TANK_C}">MAWP: ${maxPressG} kPa g</text>`);
+  p.push(`<text x="${tLX}" y="${tnkTop+70}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">Req'd: ${reqTankL} L</text>`);
 
   // Acceptance factor badge
   const bdX = 375, bdY = supY - 32, bdW = 155, bdH = 28;
   p.push(`<rect x="${bdX}" y="${bdY}" width="${bdW}" height="${bdH}" rx="4" fill="${alphaOK ? '#e8f5e9' : '#ffebee'}" stroke="${ALP_C}" stroke-width="1.5"/>`);
-  p.push(`<text x="${bdX+bdW/2}" y="${bdY+11}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${ALP_C}">Acceptance Factor α = ${alpha.toFixed(4)}</text>`);
-  p.push(`<text x="${bdX+bdW/2}" y="${bdY+22}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${ALP_C}">${alphaOK ? 'PASS: ASHRAE min 0.25 ✓' : 'FAIL: below ASHRAE 0.25 ✗'}</text>`);
+  p.push(`<text x="${bdX+bdW/2}" y="${bdY+11}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="700" fill="${ALP_C}">Acceptance Factor α = ${alpha.toFixed(4)}</text>`);
+  p.push(`<text x="${bdX+bdW/2}" y="${bdY+22}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${ALP_C}">${alphaOK ? 'PASS: ASHRAE min 0.25 ✓' : 'FAIL: below ASHRAE 0.25 ✗'}</text>`);
 
   // ── DATA PANEL ────────────────────────────────────────────────────────────
   const DX = SPLIT_X + 10, DW = W - SPLIT_X - 22;
@@ -22957,20 +22961,20 @@ function buildExpansionTankSVG(inputs, results) {
 
   const secHdr = (label) => {
     const r = [`<rect x="${DX}" y="${dy}" width="${DW}" height="15" rx="2" fill="#dce3ef"/>`,
-               `<text x="${DX+DW/2}" y="${dy+10}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="700" fill="${SC}">${label}</text>`];
+               `<text x="${DX+DW/2}" y="${dy+10}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="700" fill="${SC}">${label}</text>`];
     dy += 18;  return r.join('');
   };
   const dataRow = (label, val, vc, idx) => {
     const bg = idx % 2 === 0 ? '#f0f4fa' : '#f8fafc';
     const r = [`<rect x="${DX}" y="${dy}" width="${DW}" height="${rowH}" fill="${bg}"/>`,
-               `<text x="${DX+4}" y="${dy+11}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="#5a6a7a">${label}</text>`,
-               `<text x="${DX+DW-4}" y="${dy+11}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" font-weight="bold" fill="${vc}">${val}</text>`];
+               `<text x="${DX+4}" y="${dy+11}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="#5a6a7a">${label}</text>`,
+               `<text x="${DX+DW-4}" y="${dy+11}" text-anchor="end" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" font-weight="bold" fill="${vc}">${val}</text>`];
     dy += rowH;  return r.join('');
   };
 
   // Header
   p.push(`<rect x="${DX}" y="${dy}" width="${DW}" height="20" rx="3" fill="${SC}"/>`);
-  p.push(`<text x="${DX+DW/2}" y="${dy+13}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="8.5" font-weight="bold" fill="white">DESIGN PARAMETERS</text>`);
+  p.push(`<text x="${DX+DW/2}" y="${dy+13}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8.5" font-weight="bold" fill="white">DESIGN PARAMETERS</text>`);
   dy += 24;
 
   [['System Type', sysType, SC], ['System Volume', `${sysVolL} L`, SC],
@@ -22990,51 +22994,51 @@ function buildExpansionTankSVG(inputs, results) {
    ['PRV Set Pressure', `${Math.round(maxPressG*1.15)} kPa g`, ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
 
   dy += 6;
-  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">V_tank = V_exp / α  |  α = 1 − P_fill(abs) / P_max(abs)</text>`);
+  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">V_tank = V_exp / α  |  α = 1 − P_fill(abs) / P_max(abs)</text>`);
   dy += 11;
-  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="7" fill="${GY}">ASHRAE 2023 HVAC S&amp;E Ch.12  |  IAPWS-IF97 water props</text>`);
+  p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">ASHRAE 2023 HVAC S&amp;E Ch.12  |  IAPWS-IF97 water props</text>`);
 
   // ── LEGEND ────────────────────────────────────────────────────────────────
   const LY = STRIP_Y + 6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${SC}" stroke-width="0.8"/>`);
-  p.push(`<text x="18" y="${LY+10}" font-family="Segoe UI,Arial,sans-serif" font-size="8" font-weight="700" fill="${SC}">LEGEND</text>`);
+  p.push(`<text x="18" y="${LY+10}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" font-weight="700" fill="${SC}">LEGEND</text>`);
 
   let lx = 25, ly = LY + 25;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${SUP_C}" stroke-width="4"/>`);
-  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Supply Pipe</text>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Supply Pipe</text>`);
   ly += 16;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${RET_C}" stroke-width="4"/>`);
-  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Return Pipe</text>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">${isHHW ? 'HHW' : 'CHW'} Return Pipe</text>`);
   ly += 16;
   p.push(`<line x1="${lx}" y1="${ly}" x2="${lx+30}" y2="${ly}" stroke="${GY}" stroke-width="1.5" stroke-dasharray="4 2"/>`);
-  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Instrument / Makeup Line</text>`);
+  p.push(`<text x="${lx+34}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Instrument / Makeup Line</text>`);
 
   lx = 280; ly = LY + 25;
   p.push(`<circle cx="${lx+8}" cy="${ly}" r="8" fill="${LGY}" stroke="${PMP_C}" stroke-width="1.5"/>`);
   p.push(`<polygon points="${lx+2},${ly-5} ${lx+15},${ly} ${lx+2},${ly+5}" fill="${PMP_C}"/>`);
-  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Centrifugal Pump (P)</text>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Centrifugal Pump (P)</text>`);
   ly += 16;
   p.push(`<circle cx="${lx+8}" cy="${ly}" r="8" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
-  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">AS</text>`);
-  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Air Separator (AS)</text>`);
+  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">AS</text>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Air Separator (AS)</text>`);
   ly += 16;
   p.push(`<polygon points="${lx},${ly-5} ${lx+14},${ly-5} ${lx+7},${ly+1}" fill="${GY}"/>`);
   p.push(`<polygon points="${lx},${ly+8} ${lx+14},${ly+8} ${lx+7},${ly+1}" fill="${GY}"/>`);
-  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Gate Valve: Isolation (ISO)</text>`);
+  p.push(`<text x="${lx+20}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Gate Valve: Isolation (ISO)</text>`);
 
   lx = 560; ly = LY + 25;
   p.push(`<rect x="${lx}" y="${ly-8}" width="20" height="17" rx="3" fill="${TANK_C}" stroke="${SC}" stroke-width="1"/>`);
   p.push(`<ellipse cx="${lx+10}" cy="${ly}" rx="10" ry="5" fill="${BLD_C}" stroke="${RET_C}" stroke-width="1"/>`);
-  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Bladder Expansion Tank (ET)</text>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Bladder Expansion Tank (ET)</text>`);
   ly += 16;
   p.push(`<circle cx="${lx+8}" cy="${ly}" r="7" fill="${LGY}" stroke="${GY}" stroke-width="1.5"/>`);
-  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">PI</text>`);
-  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Pressure Indicator (PI)</text>`);
+  p.push(`<text x="${lx+8}" y="${ly+3}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="5.5" font-weight="bold" fill="${SC}">PI</text>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Pressure Indicator (PI)</text>`);
   ly += 16;
   p.push(`<polygon points="${lx},${ly-6} ${lx+12},${ly}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
   p.push(`<polygon points="${lx},${ly+6} ${lx+12},${ly}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
   p.push(`<line x1="${lx+12}" y1="${ly}" x2="${lx+20}" y2="${ly}" stroke="${ORG}" stroke-width="1.5"/>`);
-  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Segoe UI,Arial,sans-serif" font-size="7.5" fill="${SC}">Pressure Relief Valve (PRV)</text>`);
+  p.push(`<text x="${lx+24}" y="${ly+4}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="${SC}">Pressure Relief Valve (PRV)</text>`);
 
   // Notes
   const notes = [
@@ -23043,7 +23047,7 @@ function buildExpansionTankSVG(inputs, results) {
     `3. TAB contractor to verify fill pressure at ${fillPressG} kPa g and α ≥ 0.25 after commissioning.`,
   ];
   notes.forEach((note, i) => {
-    p.push(`<text x="18" y="${LY+80+i*11}" font-family="Segoe UI,Arial,sans-serif" font-size="6.5" fill="${SC}">${note}</text>`);
+    p.push(`<text x="18" y="${LY+80+i*11}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${SC}">${note}</text>`);
   });
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  ` +
@@ -23056,7 +23060,7 @@ function buildPipeSizingSVG(inputs, results) {
   const r = results || {}, inp = inputs || {};
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
 
@@ -23236,7 +23240,7 @@ function buildCompressedAirSVG(inputs, results) {
   const r = results || {}, inp = inputs || {};
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Bubble = (cx,cy,top,bot,caseClr='#1a2e4a') =>
@@ -23443,7 +23447,7 @@ function buildBoilerSystemSVG(inputs, results) {
   const r = results || {}, inp = inputs || {};
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const GlobeV = (x,y,c='#607d8b') =>
@@ -23637,7 +23641,7 @@ function buildAHUSizingSVG(inputs, results) {
   const r = results || {}, inp = inputs || {};
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Arrow = (x,y,dir,clr,sz=10) => {
@@ -23845,7 +23849,7 @@ function buildDuctSizingSVG(inputs, results) {
   const r = results || {}, inp = inputs || {};
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T = (x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}) =>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL = (x1,y,x2,sw=3,c='#1a2e4a') => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL = (x,y1,y2,sw=3,c='#1a2e4a') => `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Arrow = (x,y,dir,clr,sz=10) => {
@@ -24027,7 +24031,7 @@ function buildSolarPVSVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
@@ -24183,7 +24187,7 @@ function buildPFCSVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
@@ -24322,7 +24326,7 @@ function buildUPSSVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Blk=(x,y,w2,h,fill,stk,lbl,sub='',sub2='')=>
@@ -24462,7 +24466,7 @@ function buildEarthingSVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
 
@@ -24615,7 +24619,7 @@ function buildStairwellPressSVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
 
@@ -24772,7 +24776,7 @@ function buildFireAlarmBatterySVG(inputs, results) {
   const r=results||{},inp=inputs||{};
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const T=(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={})=>
-    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
   const HL=(x1,y,x2,sw=3,c='#1a2e4a')=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c}" stroke-width="${sw}"/>`;
   const VL=(x,y1,y2,sw=3,c='#1a2e4a')=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c}" stroke-width="${sw}"/>`;
   const Box=(x,y,w2,h,fill,stk,lbl,sub='')=>`<rect x="${x}" y="${y}" width="${w2}" height="${h}" rx="4" fill="${fill}" stroke="${stk}" stroke-width="2"/>` +
@@ -24940,7 +24944,7 @@ function buildFireAlarmBatterySVG(inputs, results) {
 // ─── Plumbing SVG helpers (shared) ───────────────────────────────────────────
 function _plumbT(x,y,t,{a='middle',sz=9,c='#1a2e4a',w='normal'}={}){
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  return `<text x="${x}" y="${y}" text-anchor="${a}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
+  return `<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${c}" font-weight="${w}">${esc(String(t))}</text>`;
 }
 function _plumbPanel(p,DX,DW,rows,sections){
   const rowH=17,SC='#5a6a7a',CC='#1a2e4a';
@@ -27306,7 +27310,7 @@ function buildHVACTitleBlockHtml(inputs, results) {
   const TDB = (s='') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / System Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('HVAC-COOL-001')}</td>
@@ -27704,7 +27708,7 @@ function buildLightingTitleBlockHtml(inputs, results) {
   const TDB = (s = '') => `<td style="padding:6px 8px;vertical-align:bottom;${s}">`;
   const BR  = 'border-right:1px solid #c8d0da;';
 
-  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:'Segoe UI',Arial,sans-serif;background:#fff;">
+  return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;border:2px solid #1a2e4a;border-top:none;font-family:var(--wh-doc-font);background:#fff;">
   <tr style="border-bottom:1px solid #c8d0da;">
     ${TD(`${BR}width:42%;`)}${LBL('Project / Space Name')}${EF(proj)}</td>
     ${TD(`${BR}width:23%;`)}${LBL('Drawing No.')}${EF('LTG-LAYOUT-001')}</td>
@@ -27825,7 +27829,7 @@ function buildComplianceBadges(calcType, inputs, results, svgWidth) {
   const TOTAL_H = HDR_H + checks.length * ROW_H + PAD + 2;
 
   const T = (x, y, txt, sz, fill, anchor, weight) =>
-    `<text x="${x}" y="${y}" text-anchor="${anchor||'start'}" font-family="'Segoe UI',Arial,sans-serif" font-size="${sz}" fill="${fill}" font-weight="${weight||'normal'}">${txt}</text>`;
+    `<text x="${x}" y="${y}" text-anchor="${anchor||'start'}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="${sz}" fill="${fill}" font-weight="${weight||'normal'}">${txt}</text>`;
 
   let g = `<g id="compliance-overlay">`;
   // Panel background
@@ -27982,7 +27986,7 @@ function buildLayoutNotes(calcType, inputs, results, svgWidth, svgHeight) {
   // Teal header fill (two rects: full rx then flat-bottom cover)
   g += `<rect x="${PX}" y="${PY}" width="${PW}" height="${HDR_H}" rx="4" fill="#0e7490"/>`;
   g += `<rect x="${PX}" y="${PY + HDR_H - 4}" width="${PW}" height="4" fill="#0e7490"/>`;
-  g += `<text x="${PX + PW/2}" y="${PY + 13}" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="8" fill="white" font-weight="700">LAYOUT OPTIMIZATION</text>`;
+  g += `<text x="${PX + PW/2}" y="${PY + 13}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="8" fill="white" font-weight="700">LAYOUT OPTIMIZATION</text>`;
 
   notes.forEach((n, i) => {
     const ry   = PY + HDR_H + PAD + i * ROW_H;
@@ -27993,7 +27997,7 @@ function buildLayoutNotes(calcType, inputs, results, svgWidth, svgHeight) {
     const maxC = 34;
     const lbl  = String(n.label).length > maxC ? String(n.label).slice(0, maxC - 1) + '\u2026' : String(n.label);
     g += `<circle cx="${dotX}" cy="${dotY}" r="${dotR}" fill="${dotC}"/>`;
-    g += `<text x="${dotX + dotR + 4}" y="${dotY + 3.5}" font-family="'Segoe UI',Arial,sans-serif" font-size="7.5" fill="#1a2e4a" text-anchor="start">${esc(lbl)}</text>`;
+    g += `<text x="${dotX + dotR + 4}" y="${dotY + 3.5}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7.5" fill="#1a2e4a" text-anchor="start">${esc(lbl)}</text>`;
   });
 
   g += `</g>`;
@@ -29654,7 +29658,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
   const panel = document.getElementById('report-panel');
   panel/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-  <div id="report-content" style="background:#fff;color:#1a1a1a;border-radius:1rem;padding:2rem;margin-top:1.5rem;font-family:'Segoe UI',Arial,sans-serif;font-size:0.85rem;line-height:1.6;">
+  <div id="report-content" style="background:#fff;color:#1a1a1a;border-radius:1rem;padding:2rem;margin-top:1.5rem;font-family:var(--wh-doc-font);font-size:0.85rem;line-height:1.6;">
 
     <div style="border-bottom:3px solid #1a237e;padding-bottom:1rem;margin-bottom:1.5rem;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
@@ -29696,7 +29700,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 1: Load -->
     <div style="margin-bottom:1.2rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 1: Heat Rejection Load</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 1: Heat Rejection Load</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
         <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
         ${r.load_source === 'chiller' ? `
@@ -29709,7 +29713,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 2: Temperature Analysis -->
     <div style="margin-bottom:1.2rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 2: Temperature Analysis &amp; Approach Check</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 2: Temperature Analysis &amp; Approach Check</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
         <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Limit / Ref</th></tr>
         <tr><td style="padding:0.3rem 0.6rem;">Entering Water Temp (EWT)</td><td style="padding:0.3rem 0.6rem;text-align:right;">${r.ewt}°C</td><td style="padding:0.3rem 0.6rem;color:#555;">Hot deck (from condenser)</td></tr>
@@ -29729,7 +29733,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 3: Circulation Water -->
     <div style="margin-bottom:1.2rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 3: Circulation Water Flow Rate</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 3: Circulation Water Flow Rate</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
         <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Value</th><th style="padding:0.35rem 0.6rem;text-align:left;">Formula</th></tr>
         <tr><td style="padding:0.3rem 0.6rem;">Formula</td><td style="padding:0.3rem 0.6rem;text-align:right;font-family:monospace;font-size:0.75rem;">Q = ${r.q_rejection_kw} / (4.187 × ${r.range_c})</td><td style="padding:0.3rem 0.6rem;color:#555;">Q_circ = Q_rej / (Cp × Range)</td></tr>
@@ -29739,7 +29743,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 4: Water Losses -->
     <div style="margin-bottom:1.2rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 4: Water Loss Analysis (ASHRAE GRP-214)</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 4: Water Loss Analysis (ASHRAE GRP-214)</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
         <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Loss Type</th><th style="padding:0.35rem 0.6rem;text-align:right;">Rate</th><th style="padding:0.35rem 0.6rem;text-align:right;">L/hr</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
         <tr><td style="padding:0.3rem 0.6rem;">Evaporation</td><td style="padding:0.3rem 0.6rem;text-align:right;">0.085%/°C</td><td style="padding:0.3rem 0.6rem;text-align:right;font-weight:600;">${r.evap_lhr}</td><td style="padding:0.3rem 0.6rem;color:#555;">ASHRAE GRP-214; 0.085% × Range × Q_circ</td></tr>
@@ -29751,7 +29755,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 5: Fan Sizing -->
     <div style="margin-bottom:1.2rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 5: Fan Airflow &amp; Motor Sizing</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 5: Fan Airflow &amp; Motor Sizing</div>
       <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
         <tr style="background:#f0f4ff;"><th style="padding:0.35rem 0.6rem;text-align:left;">Parameter</th><th style="padding:0.35rem 0.6rem;text-align:right;">Total</th><th style="padding:0.35rem 0.6rem;text-align:right;">Per Cell</th><th style="padding:0.35rem 0.6rem;text-align:left;">Basis</th></tr>
         <tr><td style="padding:0.3rem 0.6rem;">L/G Ratio</td><td style="padding:0.3rem 0.6rem;text-align:right;" colspan="2">${r.lg_ratio}</td><td style="padding:0.3rem 0.6rem;color:#555;">Water/air mass flow (film fill: 1.0–1.5 typical)</td></tr>
@@ -29763,7 +29767,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
 
     <!-- Step 6: ASHRAE 90.1 Check -->
     <div style="margin-bottom:1.5rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Step 6: ASHRAE 90.1 Tower Efficiency Check</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Step 6: ASHRAE 90.1 Tower Efficiency Check</div>
       <div style="background:${ashraesBg};border:1px solid ${ashraeColor}22;border-radius:0.6rem;padding:0.75rem 1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
           <div>
@@ -29781,7 +29785,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
     <!-- Narrative -->
     ${narrative ? `
     <div style="margin-bottom:1.5rem;">
-      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-left:3px solid #1a237e;padding-left:0.6rem;margin-bottom:0.5rem;">Engineering Narrative</div>
+      <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Engineering Narrative</div>
       ${narrative.objective ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Objective</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.objective)}</div></div>` : ''}
       ${narrative.assumptions ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Assumptions</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.assumptions)}</div></div>` : ''}
       ${narrative.recommendations ? `<div class="narrative-block"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Recommendations</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.recommendations)}</div></div>` : ''}
@@ -29878,7 +29882,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
 
     <!-- 2. Daily Hardness Load -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">2. Daily Hardness Load</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
       <p style="margin:0 0 0.4rem;"><strong>Daily hardness load (g CaCO₃/day):</strong></p>
       <p style="margin:0 0 0.3rem;">Q<sub>d</sub> × ΔH = ${r.demand_lpd?.toLocaleString()} L/day × ${r.removal_mgL} mg/L ÷ 1,000 = <strong>${r.daily_load_g?.toLocaleString()} g CaCO₃/day</strong></p>
       <p style="margin:0;"><strong>Load per regeneration cycle (with ${r.safety_factor}× safety factor):</strong><br>
@@ -29888,7 +29892,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
 
     <!-- 3. Resin Volume Sizing -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">3. Resin Volume Sizing</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
       <p style="margin:0 0 0.3rem;"><strong>Exchange capacity at ${r.salt_dose_gL} g/L salt dose:</strong> ${r.exch_capacity_gL} g CaCO₃ / L resin</p>
       <p style="margin:0 0 0.3rem;"><strong>Resin volume per unit:</strong><br>
         Load / Capacity / Units = ${r.load_per_cycle_g} g ÷ ${r.exch_capacity_gL} g/L ÷ ${r.n_units} = <strong>${r.resin_L_per_unit} L (${r.resin_ft3_per_unit} ft³) per unit</strong>
@@ -29936,7 +29940,7 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
 
     <!-- 6. Regeneration Water & System Efficiency -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">6. Regeneration Water &amp; System Efficiency</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
       <p style="margin:0 0 0.3rem;"><strong>Rinse water per regeneration (per unit):</strong> ${r.selected_resin_L} L resin × 5 BV = <strong>${r.rinse_water_L_per_regen} L</strong></p>
       <p style="margin:0 0 0.3rem;"><strong>Monthly regeneration water waste (all units):</strong> ${r.rinse_water_L_per_regen} L × ${r.n_units} units × 30 ÷ ${r.regen_interval_days} ÷ 1,000 = <strong>${r.monthly_rinse_m3} m³/month</strong></p>
       <p style="margin:0;"><strong>System water efficiency:</strong> <span style="font-weight:700;color:${r.efficiency_pct >= 90 ? '#16a34a' : r.efficiency_pct >= 75 ? '#d97706' : '#dc2626'};">${r.efficiency_pct}%</span></p>
@@ -29960,13 +29964,13 @@ function renderWaterSoftenerReport(inputs, results, narrative) {
     <!-- Engineering Narrative -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">7. Engineering Narrative</h2>
     <div class="narrative-block">
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
         <strong>Objective:</strong><br>${escHtml(narrative?.objective || '')}
       </div>
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #1A9ABF;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #b5dfeb;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
         <strong>Assumptions:</strong><br>${escHtml(narrative?.assumptions || '')}
       </div>
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #F7A21B;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #f2d9a8;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
         <strong>Recommendations:</strong><br>${escHtml(narrative?.recommendations || '')}
       </div>
     </div>
@@ -30103,13 +30107,13 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
     <!-- 3. Recommended Treatment Train -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">3. Recommended Treatment Train</h2>
-    <div style="background:#f8f9fa;border-left:3px solid #162032;padding:0.75rem 1rem;border-radius:0.25rem;">
+    <div style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.75rem 1rem;border-radius:0.25rem;">
       ${trainHtml}
     </div>
 
     <!-- 4. Multimedia / Sand Filter Sizing -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">4. ${r.needs_iron_removal ? 'Iron Removal / Greensand' : 'Multimedia'} Filter Sizing</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
       <p style="margin:0 0 0.3rem;"><strong>Filtration rate:</strong> ${r.filtration_rate_mhr} m/hr (${r.needs_iron_removal ? 'Greensand / iron removal' : 'Multimedia: Quartz sand + Anthracite'})</p>
       <p style="margin:0 0 0.3rem;"><strong>Required filter area:</strong> ${r.peak_flow_m3hr} m³/hr ÷ ${r.filtration_rate_mhr} m/hr = <strong>${r.filter_area_req_m2} m²</strong> → dia. ≥ ${r.filter_dia_req_mm} mm</p>
       <p style="margin:0;"><strong>Selected standard tank:</strong> ⌀${r.selected_filter_dia_mm} mm pressure vessel → actual area ${r.selected_filter_area_m2} m² → actual filtration rate <strong>${r.actual_filtration_rate} m/hr</strong></p>
@@ -30143,7 +30147,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
         <tr style="background:#f8f9fa;">${td('Daily Alum Consumption', true, true)}${td(`${r.alum_daily_kg} kg/day`, true)}${td(`${r.alum_dose_mg_L} mg/L × ${r.demand_m3d} m³/day ÷ 1,000`, true)}</tr>
       </tbody>
     </table>
-    <div class="narrative-block" style="background:#fff3cd;border-left:3px solid #d97706;padding:0.6rem 0.8rem;border-radius:0.25rem;font-size:0.78rem;margin-top:0.5rem;color:#92400e;">
+    <div class="narrative-block" style="background:#fff3cd;border:1px solid #efc58b;padding:0.6rem 0.8rem;border-radius:0.25rem;font-size:0.78rem;margin-top:0.5rem;color:#92400e;">
       ⚠ <strong>Jar Test Required:</strong> The alum dose above (${r.alum_dose_mg_L} mg/L) is a typical starting value for turbidity ${r.turbidity_ntu} NTU. A laboratory jar test must be performed on the actual raw water sample to confirm the optimum coagulant dose and type before finalizing equipment sizing.
     </div>
     ` : ''}
@@ -30151,7 +30155,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
     <!-- 5/6. Disinfection -->
     ${r.needs_disinfection ? `
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">${r.needs_coag_floc ? '6' : '5'}. Disinfection: ${escHtml(r.disinfection_method || 'Chlorination')}</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.7rem;">
       <p style="margin:0 0 0.3rem;"><strong>Cl₂ dose (${r.raw_source}):</strong> ${r.cl2_dose_mg_L} mg/L</p>
       <p style="margin:0 0 0.3rem;"><strong>CT required (3-log Giardia, pH 7, 25°C):</strong> ≥${r.ct_required} mg·min/L</p>
       <p style="margin:0 0 0.3rem;"><strong>Contact time:</strong> CT ÷ Dose = ${r.ct_required} ÷ ${r.cl2_dose_mg_L} = <strong>${r.contact_time_min} min</strong></p>
@@ -30185,7 +30189,7 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
 
     <!-- Storage Tank -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Treated Water Storage Tank</h2>
-    <div class="narrative-block" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+    <div class="narrative-block" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
       <p style="margin:0;"><strong>Storage capacity (1-day demand):</strong> ${r.demand_lpd?.toLocaleString()} L/day × 1.0 = <strong>${r.storage_tank_L?.toLocaleString()} L (${r.storage_tank_m3} m³)</strong></p>
     </div>
 
@@ -30233,13 +30237,13 @@ function renderWaterTreatmentReport(inputs, results, narrative) {
     <!-- Engineering Narrative -->
     <h2 style="font-size:0.95rem;font-weight:700;color:#162032;border-bottom:1px solid #ccc;padding-bottom:0.3rem;margin:1.2rem 0 0.6rem;">Engineering Narrative</h2>
     <div class="narrative-block">
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #162032;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #d5dae2;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
         <strong>Objective:</strong><br>${escHtml(narrative?.objective || '')}
       </div>
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #1A9ABF;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #b5dfeb;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;margin-bottom:0.5rem;">
         <strong>Assumptions:</strong><br>${escHtml(narrative?.assumptions || '')}
       </div>
-      <div class="narrative-box" style="background:#f8f9fa;border-left:3px solid #F7A21B;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
+      <div class="narrative-box" style="background:#f8f9fa;border:1px solid #f2d9a8;padding:0.7rem 1rem;border-radius:0.25rem;font-size:0.82rem;">
         <strong>Recommendations:</strong><br>${escHtml(narrative?.recommendations || '')}
       </div>
     </div>
@@ -30327,7 +30331,7 @@ function renderRoofDrainReport(inputs, r, narrative) {
   const passLabel = r.overall_status || 'PASS';
 
   const html = `
-<div id="report-content" style="font-family:'Segoe UI',Arial,sans-serif;color:#1a1a1a;background:#fff;padding:1.5rem;max-width:900px;margin:0 auto;">
+<div id="report-content" style="font-family:var(--wh-doc-font);color:#1a1a1a;background:#fff;padding:1.5rem;max-width:900px;margin:0 auto;">
 
   <!-- Header -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
@@ -31204,7 +31208,7 @@ async function downloadBomDocPdf() {
       el.style.border = 'none'; el.style.borderBottom = 'none'; el.style.outline = 'none';
     });
     // Landscape A4 override via inline @page rule
-    const html = `<style>@page{size:A4 landscape;margin:10mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:8.5pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
+    const html = `<style>:root{--wh-doc-font:Arial,Helvetica,Liberation Sans,sans-serif}@page{size:A4 landscape;margin:10mm;}body{font-family:var(--wh-doc-font);font-size:8.5pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
     await _tryServerPdf(html, fileName);
     showToast('BOM PDF saved.');
     return;
@@ -31262,7 +31266,7 @@ async function downloadSowPdf() {
       el.removeAttribute('contenteditable');
       el.style.border = 'none'; el.style.borderBottom = 'none'; el.style.outline = 'none';
     });
-    const html = `<style>@page{size:A4;margin:12mm 15mm;}body{font-family:'Liberation Sans',Arial,sans-serif;font-size:9pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
+    const html = `<style>:root{--wh-doc-font:Arial,Helvetica,Liberation Sans,sans-serif}@page{size:A4;margin:12mm 15mm;}body{font-family:var(--wh-doc-font);font-size:9pt;}.editable-field{border:none!important;border-bottom:none!important;outline:none!important;}</style>` + clone.innerHTML;
     await _tryServerPdf(html, fileName);
     showToast('SOW PDF saved.');
     return;
@@ -32107,7 +32111,7 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
       = ${Lw} + 10 log(${(Qfactor / (4 * Math.PI * Math.pow(distM, 2))).toFixed(4)} + ${(4 / Number(room.R_m2)).toFixed(4)})
       = <strong>${room.Lp_dB} dB</strong>
     </p>
-    <p style="font-size:0.83rem;color:#333;color:#7a5a00;background:#fff8e1;border-left:3px solid #F7A21B;padding:0.5rem 0.75rem;border-radius:0.25rem;">
+    <p style="font-size:0.83rem;color:#333;color:#7a5a00;background:#fff8e1;border:1px solid #f2d9a8;padding:0.5rem 0.75rem;border-radius:0.25rem;">
       <strong>Note:</strong> The free-field value L<sub>p</sub> = ${r.Lp_at_distance_dB} dB underestimates the actual receiver level inside an enclosed room. The room equation result <strong>${room.Lp_dB} dB</strong> is the engineering value to compare against NC ${NCLim} for compliance assessment.
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
