@@ -1,3 +1,67 @@
+# Production Deploy Runbook — release `73335a30` + fixes `44bedbdd`, `d6b55009` (2026-10-16) ✅ DEPLOYED
+
+> **✅ DEPLOYED 2026-10-16 (executed by Claude on Ian's explicit instruction: "let us commit, deploy and push now what we
+> have, we will continue the trajectories after the push to production").** Release `03d4d056..73335a30`: 23 commits,
+> 559 files - the SL sub-layer wave (F1-F5, H1, H2, H4, AV1, A3, C1, CA2, CA3, CI1-CI4, S1-S5, L1, AU1-AU4) and the BRH arc.
+> Order A -> B -> C from the `Z:` subst drive. Then two fixes for what the release's own post-deploy smoke found.
+>
+> - **Leg A — DB: 4 migrations**, the dry-run listing exactly these, `migration list` showing all four remote after:
+>   `20261014000002_client_errors_anonymous_visitors` (anonymous errors recorded, no identity claimable),
+>   `20261014000003_a_profile_claims_only_a_hive_it_belongs_to` (marketplace seller + resume insert/update policies),
+>   `20261014000004_observability_reads_follow_the_page_gate` (gateway audit, AI cost, agentic RAG trace reads),
+>   `20261015000001_a_logbook_id_is_a_token` (CHECK `^[A-Za-z0-9_-]{1,80}$`, **NOT VALID** - holds for every write from
+>   now on without reading stored rows). **Follow-up:** `VALIDATE CONSTRAINT logbook_id_is_a_token` in a later migration
+>   once a production read confirms every stored id matches (all 31,257 local rows do; no production service key is in
+>   `.env`, so that read was not made).
+> - **Leg B — Edge:** no function changed since 2026-10-14, nothing to deploy.
+> - **Leg C — Frontend:** `git push origin master --no-verify` (the runbook's standing reason: the hook re-runs the
+>   ~17-min board that crashes this 8GB host; the 28 gates covering every changed file had run green). **The first deploy
+>   under the allowlist `.vercelignore` (cd7bcfca):** every tracked root page and shared asset answers 200; the 458
+>   tracked files that now 404 are all baselines, reports, registries and battery scripts (none is loaded by a shipped
+>   page - the two names found in index.html and sw.js are comments); the three pages Ian had deleted
+>   (architecture, validator-catalog, symbol-gallery), `trajectory_registry.json`, the roadmap, `tools/`, the migrations
+>   and `.env` all answer 404.
+>
+> **What the post-deploy smoke found - two defects in production that predate this release, both fixed and redeployed:**
+> - **Twelve learn figures were a 404 for five weeks** (fix `44bedbdd`, sw v532). `vercel.json` `trailingSlash:false`
+>   (since 2026-09-11) serves `learn/<slug>/index.html` at `/learn/<slug>`, so a bare `<img src="fig-1-step-flow.svg">`
+>   asked for `/learn/fig-1-step-flow.svg`. Six articles. Sources now root-absolute; `tools/scaffold_article.py` writes
+>   them that way; `deploy-payload` rule 4 (SERVED) resolves every relative reference against the URL production
+>   serves. Verified on production: 12/12 figures decode after a scroll, 0 failing requests on the six articles.
+> - **The service worker answered every page's Poppins stylesheet with 503** (fix `d6b55009`, sw v533). sw.js passed
+>   Google Fonts through its own `fetch()`, which obeys the CSP sent WITH sw.js - and its connect-src names no font
+>   host - so every returning visitor and installed phone painted the fallback font. The font hosts are no longer
+>   intercepted. Gate `sw-proxy-within-csp` (teeth on sw.js as shipped in 44bedbdd). Local live proof on the edge
+>   substitute: fixed build 3/3 controlled pages load 5 Poppins faces, 44bedbdd 0/3.
+>
+> **Post-deploy smoke:**
+> - **Full public tier, worker allowed** (`tools/post_deploy_smoke.mjs --tier=public`, every sitemap URL): **120/120 clean on
+>   v533** (95/120 on v531 - the figure 404s and the worker's font 503s; 102/120 on v532 - the font 503s alone).
+> - **Fonts, on production, worker allowed:** 6/6 controlled pages (about, feedback, learn, an article, hive, logbook) load
+>   5 Poppins faces, 0 font errors.
+> - **Learn figures, on production:** 12/12 decode after a scroll; 0 failing requests on the six articles.
+> - **Returning devices** (`tools/prove_rollout.mjs`, v532 -> v533, local edge substitute): 67/67 pages move to the new
+>   build within one visit, never half new and half old; teeth caught on both runs.
+> - 11/11 pages answer 200 with content.
+> - prod serves the service worker `workhive-shell-v533` (HTTP 200, read from the ACTIVE const line; expected workhive-shell-v533).
+> - utils.js carries the release's helpers (whSkeletonCaption, whListSkeleton, WH_GLOSS, whAbbr): yes (HTTP 200).
+> - components.css carries .wh-skeleton-label: yes (HTTP 200).
+> - logbook.html draws the entry id through escJsAttr: yes; its CSP header present: yes.
+> - ai-gateway /health -> HTTP 200 {"ok":true,"surface":"ai-gateway","status":"ok","deps":[{"na
+> - the memory fix still holds: an anonymous agent-memory-store recall -> HTTP 401
+> - **Not run:** the app tier (`--tier=app`) needs a production test account; `WH_SMOKE_EMAIL` / `WH_SMOKE_PASS` are not in
+>   `.env`. The app pages answer 200 with content (above) and walked clean locally on every SL lens.
+>
+> **Instruments fixed on the way** (both found while proving v533, both committed): the runner's single 1200 s cap killed
+> `rollout` at page ~40 on every board, so it read FAIL for a passing prover - a registration may now declare its own
+> `timeout` (`rollout`: 3000 s); and the rollout prover froze for 10 minutes on an unbounded `caches.keys()` with the
+> host at 0.3 GB free - every await on the page is now bounded and a hang reads as a failed page.
+>
+> **For Ian, on the phone:** open the site once; the worker updates to v533 and the platform's own font comes back on
+> every page. The six articles' figures appear on the next open.
+
+---
+
 # Production Deploy Runbook — release `a2f9a45f` (2026-10-14) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-14, the third release of the night, for the cause of Ian's missing logbook assets.** Release
