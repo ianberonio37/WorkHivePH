@@ -38,7 +38,7 @@
 //   engineering pages are member-accessible; "engineer" is a usage persona). The recipe
 //   account Leandro Marquez is the SUPERVISOR; Bryan Garcia is a WORKER.
 
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { pathToFileURL } from 'url';
@@ -137,8 +137,13 @@ const PAGE_ONLY = (() => { const i = args.indexOf('--page'); return i >= 0 ? arg
 // ALONE?" without walking the whole page again and reproducing the same accumulation. A finding that
 // cannot be isolated cannot be attributed, so the smallest runnable unit is now one journey.
 const JOURNEY_ONLY = (() => { const i = args.indexOf('--journey'); return i >= 0 ? args[i + 1] : null; })();
+// ★--engine webkit (SL CI2, 2026-10-15): "a live journey on this page that passes in Chromium AND in WebKit". The
+// same registered journeys, the same oracles, in Safari's engine - and its artifacts take the engine suffix, so a
+// WebKit run can never write over the Chromium board or ratchet its baseline.
+const ENGINE = (() => { const i = args.indexOf('--engine'); return i >= 0 ? args[i + 1] : 'chromium'; })();
+if (!['chromium', 'webkit'].includes(ENGINE)) { console.error(`[K] --engine must be chromium or webkit, not ${ENGINE}`); process.exit(2); }
 const NARROW = [PHASE_ONLY ? `phase-${PHASE_ONLY}` : '', PAGE_ONLY ? `page-${PAGE_ONLY}` : '',
-                JOURNEY_ONLY ? `journey-${JOURNEY_ONLY}` : '']
+                JOURNEY_ONLY ? `journey-${JOURNEY_ONLY}` : '', ENGINE === 'webkit' ? 'webkit' : '']
   .filter(Boolean).join('.').replace(/[^\w.-]+/g, '_');
 const RESULTS = NARROW ? `live_page_journeys_results.${NARROW}.json` : 'live_page_journeys_results.json';
 const BASELINE = NARROW ? `live_page_journeys_baseline.${NARROW}.json` : 'live_page_journeys_baseline.json';
@@ -193,7 +198,11 @@ async function signIn(context, role) {
   const acct = ACCOUNTS[role];
   if (!acct) return { ok: false, err: `unknown role ${role}` };
   const page = await context.newPage();
-  await page.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });
+  // ★SIGN IN WHERE NOTHING REDIRECTS (SL CI2 WebKit, 2026-10-15): shift-brain sends a signed-out visitor to the sign-in
+  // wall, and in WebKit that navigation landed DURING the evaluate below - the auth fetch aborted ("Load failed") and
+  // the context was destroyed, so no WebKit walk could start. Chromium happened to finish first. The sign-in page itself
+  // is the one document that stays put for a signed-out visitor.
+  await page.goto(`${SEEDER}/workhive/index.html?signin=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
   const r = await page.evaluate(async ({ email, password, hive, worker, role, hiveName, url }) => {
     try {
@@ -491,7 +500,7 @@ const __runArcK = async () => {
   // being held open by the timer itself.
   const MAX_MS = Number(process.env.WH_JOURNEY_MAX_MS || 20 * 60 * 1000);
   setTimeout(() => { console.error(`[K] WATCHDOG: run exceeded ${Math.round(MAX_MS / 60000)} min — exiting 3 (a hung await is a false board)`); process.exit(3); }, MAX_MS).unref();
-  const browser = await chromium.launch({ headless: !HEADED });
+  const browser = await (ENGINE === 'webkit' ? webkit : chromium).launch({ headless: !HEADED });
   // one signed-in context per role used by the selected journeys
   const rolesNeeded = [...new Set(journeys.map(j => j.role))];
   const contexts = {};
@@ -555,7 +564,7 @@ const __runArcK = async () => {
     sinceRecycle[role] = 0;
   }
 
-  const out = { ran: new Date().toISOString(), seeder: SEEDER, hive: HIVE,
+  const out = { ran: new Date().toISOString(), engine: ENGINE, seeder: SEEDER, hive: HIVE,
                 preflight: pf.checks, degraded: pf.bad, journeys: [], findings: [] };
   const criticCache = new Map();
   const allCritic = [];

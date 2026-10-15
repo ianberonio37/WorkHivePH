@@ -1,0 +1,5 @@
+{
+ "_doc": "Per-page F3 findings (unnamed + unreached + no visible focus + targets under 44px at 390) - tools/prove_page_reachable.mjs. A page above its floor fails; 0 closes its row. Generated, never hand-edited.",
+ "generated": "2026-10-15T06:18:40.913Z",
+ "pages": {}
+}

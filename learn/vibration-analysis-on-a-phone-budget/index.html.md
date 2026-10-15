@@ -124,4 +124,4 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 
 - ISO 10816-3, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 3: Industrial machines** (the Class I–IV severity zones quoted above). Part 1:2009 gives the general framework.
 
-<!-- md-twin source-sha: c61ac4db388daf8d -->
+<!-- md-twin source-sha: face1263e39929fa -->

@@ -674,6 +674,8 @@ export const JOURNEYS = [
   ...marketplaceSellerJourneys(),
   ...integrationsJourneys(),
   ...plantConnectionsJourneys(),
+  // ═══════════════════ K7 — the pages no journey walked (SL CI2) ═══════════════════
+  ...k7Journeys(),
 ];
 
 // ─── logbook add-entry wizard driver (shared by LOG1/LOG2/LOG3) ────────────────
@@ -2747,5 +2749,157 @@ function plantConnectionsJourneys() {
         return { R: expanded, J: null, T: tables >= 1 && cfgN != null, C: null, X: null, evidence: { expanded, tables, cfgN }, findings: [] };
       },
     },
+  ];
+}
+
+// ═══════════════════ K7 — THE PAGES NO JOURNEY WALKED (SL CI2, 2026-10-15) ═══════════════════
+// CI2 asks every page to keep a live journey in Chromium AND WebKit. 12 of the 36 app pages had none: five product
+// pages and the seven founder pages. Each journey below is the page's one job, walked as the cast the SL row names -
+// Leandro Marquez (`supervisor`) is also a platform admin, so he is the founder pages' reader; the retired consoles'
+// job is the "has moved" card and its in-app way on to Platform Actions. (The LLM and agentic-RAG cards offered only a
+// Grafana link at 127.0.0.1:3001 - a dead end anywhere that Grafana is not running - and gained Platform Actions here.)
+function k7Journeys() {
+  const num = (s) => { const m = String(s == null ? '' : s).replace(/,/g, '').match(/\d+/); return m ? parseInt(m[0], 10) : null; };
+  const sqlNum = (h, sql) => { const r = h.adminQuery(sql); return typeof r === 'string' && /^\d+$/.test(r) ? parseInt(r, 10) : null; };
+  const retired = (id, page, title, onward, land) => ({
+    id, phase: 'K7', page, role: 'supervisor', state: 'authed-admin',
+    title, lenses: ['R', 'J', 'X'], ufai: ['U', 'I'],
+    drive: async (pg, h) => {
+      await h.goto(page);
+      await h.waitFor('#wh-retired-overlay', 9000);
+      const shown = await h.exists('#wh-retired-overlay');
+      const said = (await h.qText('#wh-retired-overlay h1')) || '';
+      const link = `#wh-retired-overlay a[href="${onward}"]`;
+      const offered = await h.exists(link);
+      let landed = false;
+      if (offered) {
+        await Promise.all([pg.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {}), h.click(link)]);
+        landed = await h.waitFor(land, 15000);
+      }
+      return { R: shown, J: /moved/i.test(said) && offered, T: null, C: null, X: landed, evidence: { shown, said: said.slice(0, 70), onward, landed }, findings: [] };
+    },
+  });
+  return [
+    {
+      id: 'PF1', phase: 'K7', page: 'public-feed.html', role: 'anon', state: 'landing-anon',
+      title: 'A visitor reads what crews have made public - every post the feed may show, and no more',
+      lenses: ['R', 'J', 'T'], ufai: ['U', 'F'],
+      drive: async (page, h) => {
+        await h.goto('public-feed.html');
+        await h.waitFor('#feed-list .post-card, #feed-list .empty-state, #feed-list [class*="empty"]', 9000);
+        const shown = await h.count('#feed-list .post-card');
+        const first = (await h.qText('#feed-list .post-card .post-content')) || '';
+        const truth = sqlNum(h, "select count(*) from public.community_posts where public = true and flagged = false and deleted_at is null;");
+        return { R: shown > 0 || truth === 0, J: shown > 0 ? first.length > 0 : truth === 0, T: truth == null ? false : shown === Math.min(truth, 20), C: null, X: null,
+          evidence: { shown, truth, first: first.slice(0, 50) }, findings: [] };
+      },
+    },
+    {
+      id: 'SP1', phase: 'K7', page: 'marketplace-seller-profile.html', role: 'worker', state: 'authed',
+      title: "A buyer opens a seller's profile and sees who they are and every listing they have published",
+      lenses: ['R', 'J', 'T'], ufai: ['U', 'F'],
+      drive: async (page, h) => {
+        await h.goto('marketplace-seller-profile.html', '?worker=Isidro%20Suarez');
+        await h.waitFor('#hero-name', 9000);
+        await page.waitForTimeout(1500);
+        const name = (await h.qText('#hero-name')) || '';
+        const stat = num(await h.qText('#stat-listings'));
+        const truth = sqlNum(h, "select count(*) from public.v_marketplace_listings_public where seller_name = 'Isidro Suarez' and status = 'published';");
+        return { R: /isidro/i.test(name), J: stat != null, T: truth == null ? false : stat === Math.min(truth, 60), C: null, X: null,
+          evidence: { name: name.slice(0, 40), stat, truth }, findings: [] };
+      },
+    },
+    {
+      id: 'PI1', phase: 'K7', page: 'ph-intelligence.html', role: 'supervisor', state: 'authed',
+      title: "A supervisor opens PH intelligence and reads the report - or, below Stair 3, which stair unlocks it, where the hive stands and the next step",
+      lenses: ['R', 'J'], ufai: ['U', 'F', 'I'],
+      drive: async (page, h) => {
+        await h.goto('ph-intelligence.html');
+        await h.waitFor('#report-content:not(.hidden), h1', 12000);
+        await page.waitForTimeout(1500);
+        const report = await h.exists('#report-content:not(.hidden)');
+        const verdict = (await h.qText('#ph-verdict-label')) || '';
+        const h1 = (await h.qText('h1')) || '';
+        const locked = /unlocks at Stair\s*\d/i.test(h1);
+        const where = await h.evalIn(() => /Stair\s*\d/.test((document.body.innerText || '').split(/Your hive right now/i)[1] || ''));
+        return { R: report || locked, J: report ? verdict.length > 0 : (locked && where), T: null, C: null, X: null,
+          evidence: { report, verdict: verdict.slice(0, 40), h1: h1.replace(/\s+/g, ' ').slice(0, 70), where }, findings: [] };
+      },
+    },
+    {
+      id: 'RS1', phase: 'K7', page: 'report-sender.html', role: 'supervisor', state: 'authed',
+      title: 'A supervisor opens the report sender, sees who reports go to, and starts adding a recipient',
+      lenses: ['R', 'J'], ufai: ['U', 'F'],
+      drive: async (page, h) => {
+        await h.goto('report-sender.html');
+        const card = await h.waitFor('#main-card', 9000);
+        const opened = await h.click('#add-contact-btn') && await h.waitFor('#contact-sheet', 4000);
+        const fields = opened && await h.exists('#contact-name') && await h.exists('#contact-email');
+        const closed = opened && await h.click('#cancel-contact-btn');
+        return { R: card, J: !!(opened && fields && closed), T: null, C: null, X: null, evidence: { card, opened, fields, closed }, findings: [] };
+      },
+    },
+    {
+      id: 'SB1', phase: 'K7', page: 'shift-brain.html', role: 'worker', state: 'authed',
+      title: "A technician opens the shift brief and reads this shift's plan - or is told none is published yet",
+      lenses: ['R', 'J'], ufai: ['U', 'F', 'I'],
+      drive: async (page, h) => {
+        await h.goto('shift-brain.html');
+        await h.waitFor('#briefing-card, #empty-worker, #empty-state', 12000);
+        const brief = await h.exists('#briefing-card');
+        const briefText = (await h.qText('#brief-text')) || '';
+        const empty = await h.exists('#empty-worker, #empty-state');
+        const window_ = (await h.qText('#brief-window')) || '';
+        return { R: brief || empty, J: brief ? briefText.length > 20 : empty, T: null, C: null, X: null,
+          evidence: { brief, empty, window: window_.slice(0, 30), brief_len: briefText.length }, findings: [] };
+      },
+    },
+    {
+      id: 'ST1', phase: 'K7', page: 'status.html', role: 'supervisor', state: 'authed-admin',
+      title: 'The admin reads the gateway status board and refreshes it',
+      lenses: ['R', 'J'], ufai: ['U', 'I'],
+      drive: async (page, h) => {
+        await h.goto('status.html');
+        await h.waitFor('#grid .card', 9000);
+        const cards = await h.count('#grid .card');
+        const summary = (await h.qText('#summary')) || '';
+        const refreshed = await h.click('#refresh');
+        await page.waitForTimeout(1500);
+        const after = await h.count('#grid .card');
+        return { R: cards > 0, J: summary.length > 0 && refreshed && after > 0, T: null, C: null, X: null, evidence: { cards, after, summary: summary.slice(0, 60) }, findings: [] };
+      },
+    },
+    {
+      id: 'DS1', phase: 'K7', page: 'design-system.html', role: 'supervisor', state: 'authed-admin',
+      title: 'The admin reads the design system and presses a filter-chip specimen to see its pressed state',
+      lenses: ['R', 'J'], ufai: ['U', 'I'],
+      drive: async (page, h) => {
+        await h.goto('design-system.html');
+        await h.waitFor('#spec-chips button.filter-chip', 9000);
+        const specimens = await h.evalIn(() => document.querySelectorAll('#ds-root section, #ds-root [data-spec], #ds-root .spec').length);
+        await page.click('#spec-chips button.filter-chip:not([aria-pressed="true"])', { timeout: 4000 }).catch(() => {});
+        const pressed = await h.evalIn(() => [...document.querySelectorAll('#spec-chips button.filter-chip')].map((b) => b.textContent.trim() + ':' + b.getAttribute('aria-pressed')).join(','));
+        return { R: specimens > 0, J: /Overdue:true/.test(pressed) && /All:false/.test(pressed), T: null, C: null, X: null, evidence: { specimens, pressed }, findings: [] };
+      },
+    },
+    {
+      id: 'PA1', phase: 'K7', page: 'platform-actions.html', role: 'supervisor', state: 'authed-admin',
+      title: "The admin opens Platform Actions and the feedback queue counts every report on the platform",
+      lenses: ['R', 'J', 'T'], ufai: ['U', 'F'],
+      drive: async (page, h) => {
+        await h.goto('platform-actions.html');
+        const actions = await h.waitFor('#actions', 15000);
+        const refused = await h.exists('#no-access-gate');
+        await page.waitForTimeout(1500);
+        const all = num(await h.qText('#fb-count-all'));
+        const truth = sqlNum(h, 'select count(*) from public.platform_feedback;');
+        return { R: actions && !refused, J: all != null, T: truth == null || all == null ? false : all === Math.min(truth, 500), C: null, X: null,
+          evidence: { actions, refused, all, truth }, findings: [] };
+      },
+    },
+    retired('FC1', 'founder-console.html', 'The admin opens the retired Founder Console and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
+    retired('LO1', 'llm-observability.html', 'The admin opens the retired LLM observability page and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
+    retired('AR1', 'agentic-rag-observability.html', 'The admin opens the retired agentic-RAG observability page and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
+    retired('MA1', 'marketplace-admin.html', 'The admin opens the retired marketplace admin and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
   ];
 }

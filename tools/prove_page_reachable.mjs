@@ -81,8 +81,12 @@ function targets() {
   const BLOCK = /^(P|LI|TD|TH|BLOCKQUOTE|DIV|SECTION|ARTICLE|FIGCAPTION|DD|DT|H[1-6]|SPAN|SMALL|LABEL)$/;
   const inSentence = (el) => { if (el.tagName !== 'A') return false; let b = el.parentElement; while (b && !BLOCK.test(b.tagName)) b = b.parentElement; if (!b) return false;
     const t = (b.textContent || '').replace(/\s+/g, ' ').trim(), own = (el.textContent || '').replace(/\s+/g, ' ').trim(); return t.length > own.length + 12; };
+  // a TARGET is something a pointer activates (WCAG 2.5.5); a scroll region made focusable so a keyboard can scroll it
+  // (community's members-online strip, role=region tabindex=0) is reached, never tapped, so it is not sized here
+  const ACT = 'a[href], button, input, select, textarea, summary, [role="button"], [role="link"], [role="tab"], [role="menuitem"], [role="option"], [role="radio"], [role="checkbox"], [role="switch"]';
   const out = [];
   for (const e of document.querySelectorAll('[data-f3]')) {
+    if (!e.matches(ACT)) continue;
     const boxes = [];
     const hidden = e.getAttribute('data-f3-hidden') === '1';
     if (!hidden && vis(e)) boxes.push(e.getBoundingClientRect());
@@ -119,9 +123,14 @@ async function measure(desk, phone, url) {
   await desk.evaluate(() => { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); window.scrollTo(0, 0); });
   const byIdx = new Map(controls.map((c) => [c.i, c]));
   const reached = new Set(), noFocus = [];
-  const max = Math.min(900, controls.length * 2 + 40);
+  // ★THE BUDGET FOLLOWS THE PAGE, NOT THE FIRST COUNT: community loads more posts as focus scrolls the feed, so its tab
+  // order outgrew the 72 controls counted at rest and a budget fixed from that count ran out before the controls after
+  // the feed (load more, the FAQ, the post button). Re-counted from the live tab stops every 40 presses; 900 is the cap.
+  const stops = () => desk.evaluate(() => document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])').length);
+  let max = Math.min(900, Math.max(controls.length, await stops()) * 2 + 40);
   let bodyStreak = 0;
   for (let k = 0; k < max; k++) {
+    if (k && k % 40 === 0) max = Math.min(900, Math.max(max, (await stops()) * 2 + 40));
     await desk.keyboard.press('Tab');
     const f = await desk.evaluate(() => {
       const e = document.activeElement;

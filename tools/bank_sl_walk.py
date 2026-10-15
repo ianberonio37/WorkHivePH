@@ -52,6 +52,8 @@ GATES = {
     "F5": ["page-craft", "design-detector-ratchet", "design-tokens"],
     "CI3": ["page-ratchets", "design-detector-ratchet"],
     "F2": ["page-fit", "phone-fit", "phone-fit-320", "phone-fit-1280"],
+    "H4": ["rollout", "skew-heal", "sw-shell-membership"],
+    "CI2": ["page-journeys", "public-journeys", "live-page-journeys", "live-page-journeys-webkit"],
     "F3": ["page-reachable", "clickable-keyboard-a11y", "aria-label-coverage", "icon-button-label", "arc-u-focus-trap"],
     "H2": ["cache-contract", "deploy-headers-local"],
     "S5": ["no-secret-served", "committed_env_secret"],
@@ -144,6 +146,9 @@ PROVER_READS = {
     "F5": {"prover": "tools/prove_page_craft.py", "gate": "page-craft", "condition": "craft", "engines": ("static",)},
     "CI3": {"prover": "tools/prove_page_ratchets.py", "gate": "page-ratchets", "condition": "ratchets", "engines": ("static",)},
     "F2": {"prover": "tools/prove_page_fit.py", "gate": "page-fit", "condition": "fit", "engines": ("chromium",)},
+    "H4": {"prover": "tools/prove_rollout.mjs", "gate": "rollout", "condition": "returning-device", "engines": ("chromium",)},
+    "CI2": {"prover": "tools/prove_page_journeys.py", "gate": "page-journeys", "condition": "journey",
+            "engines": ("chromium", "webkit")},
     "F3": {"prover": "tools/prove_page_reachable.mjs", "gate": "page-reachable", "condition": "reachable",
            "engines": ("chromium",)},
     "CI4": {"prover": "tools/prove_page_registries.py", "gate": "page-registries", "condition": "registries",
@@ -172,11 +177,15 @@ GATE_SCRIPTS = {"csp-covers-what-ships": "tools/validate_csp_covers_what_ships.p
                 "clickable-keyboard-a11y": "tools/validate_clickable_keyboard_a11y.py",
                 "aria-label-coverage": "validate_aria_label_coverage.py",
                 "icon-button-label": "validate_icon_button_label.py",
-                "arc-u-focus-trap": "tools/validate_arc_u_focus_trap.py"}
+                "arc-u-focus-trap": "tools/validate_arc_u_focus_trap.py",
+                "skew-heal": "tools/render_skew_heal.py",
+                "sw-shell-membership": "tools/validate_sw_shell_membership.py"}
 # the browser lenses whose RECORD a static prover reads are not re-run at bank time (a 50-minute pass each): the prover's
 # own results carry their run times, and the gate is checked by that record, never skipped silently
-RECORD_GATES = {"phone-fit", "phone-fit-320", "phone-fit-1280"}
-GATE_ARGS = {"csp-exact-profiles": ("--check",)}
+RECORD_GATES = {"phone-fit": "phone-fit@390", "phone-fit-320": "phone-fit@320", "phone-fit-1280": "phone-fit@1280",
+                "public-journeys": "public", "live-page-journeys": "journeys-chromium",
+                "live-page-journeys-webkit": "journeys-webkit", "rollout": "rollout"}
+GATE_ARGS = {"csp-exact-profiles": ("--check",), "skew-heal": ("--check",)}
 
 
 def _basis(sublayer: str, t: dict, page: str, per: dict, gate_lines: list, results_path: str, results: dict,
@@ -203,6 +212,29 @@ def _basis(sublayer: str, t: dict, page: str, per: dict, gate_lines: list, resul
                 f"program's pages (a public page read signed out, as its visitor), each page's first measurement its floor. "
                 f"Phone-fit run {results.get('phone_run')}, axe run {results.get('axe_run')}. Teeth: a page missing from a "
                 f"ratchet's run, and a count above its floor, are each caught ({(results.get('teeth') or {}).get('bit')})." + tail)
+    if sublayer == "H4":
+        r = per["chromium"][0]
+        v1, v2 = r.get("v1") or {}, r.get("v2") or {}
+        return (head + "): H4 on " + page + f" - a RETURNING DEVICE built for real: a fresh profile visited the page while "
+                f"the origin served commit {results.get('from')} ({results.get('old_cache')}, file by file from git through "
+                f"serve_vercel_headers --ref), so the old worker installed and kept its copies; then the same origin served the "
+                f"working tree ({results.get('now_cache')}). Visit 1: {'/'.join(v1.get('builds') or []) or 'no differing file'} "
+                f"({v1.get('informative')} differing file(s) read{', after ' + str(v1.get('reloads')) + ' reload(s)' if v1.get('reloads') else ''}) "
+                f"- one build, never half new and half old; visit 2: {'/'.join(v2.get('builds') or []) or 'no differing file'}; "
+                f"caches after: {', '.join(r.get('caches') or [])}. Teeth: the new page with an OLD "
+                f"{(results.get('teeth') or {}).get('planted')} is caught as mixed ({(results.get('teeth') or {}).get('bit')})." + tail)
+    if sublayer == "CI2":
+        c, w = per["chromium"][0], per["webkit"][0]
+        runs = results.get("runs") or {}
+        if c.get("page_class") == "public":
+            what = (f"signed out, as the visitor it is for, the reader's job walked by tools/prove_public_journeys.mjs - "
+                    f"Chromium: {c.get('how')}; WebKit: {w.get('how')}")
+        else:
+            what = (f"the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - "
+                    f"Chromium: {c.get('how')}; WebKit: {w.get('how')}")
+        return (head + f"): CI2 on {page} - {what}. Runs: " + ", ".join(f"{k} {v}" for k, v in runs.items())
+                + f". Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read "
+                  f"open ({(results.get('teeth') or {}).get('bit')})." + tail)
     if sublayer == "F3":
         r = per["chromium"][0]
         who = "signed out, as the visitor it is for" if r.get("as") == "signed out" else "signed in through the harness"
@@ -383,7 +415,7 @@ def bank_prover(results_path: str, sublayer: str, gates_only: bool) -> int:
     for g in GATES[sublayer]:
         script = None if g == spec["gate"] else GATE_SCRIPTS.get(g)   # the prover's own run IS the results file
         if g in RECORD_GATES:
-            run = (results.get("runs") or {}).get("phone-fit@" + (g.split("-")[-1] if g != "phone-fit" else "390"))
+            run = (results.get("runs") or {}).get(RECORD_GATES[g])
             if not run:
                 print(f"gate {g} has no run on file in the prover's record - nothing banked")
                 return 1

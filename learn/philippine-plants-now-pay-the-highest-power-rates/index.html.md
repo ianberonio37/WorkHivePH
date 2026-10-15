@@ -129,4 +129,4 @@ The DOE publishes rate information under 'Electricity Tariff Rates' on doe.gov.p
 - Department of Energy, Electricity Tariff Rates (June 2024). https://www.doe.gov.ph/electricity-tariff-rates
 - Republic Act No. 11285, Energy Efficiency Act of 2019. https://lawphil.net/statutes/repacts/ra2019/ra_11285_2019.html
 
-<!-- md-twin source-sha: c8d7a0820669c481 -->
+<!-- md-twin source-sha: 25040be49d5e354d -->

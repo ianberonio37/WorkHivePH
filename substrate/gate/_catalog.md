@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: ca64371c83b77f9e
+source_sha: 54bc4c5abcb14bb8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1387) — the 'what's already gated' brain
+## gate · registered validators (1391) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1016)
+### Platform (1020)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -914,6 +914,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; T1 2026-08-24: roster DERIVED from the served root (42 pages, was a st
 - `listing-cost-transparency` ⚡ [regression] — T34: the listing composer tells the WHOLE cost truth at the commit point - the 10% credit reservation held at publish AND that it returns if the listing does no
 - `listing-preview` [fail] — T100: see it as a buyer before it is a commitment. The walk found the AI listing assist SOUND - it names its own inputs and invented no specs from a bare title 
+- `live-page-journeys-webkit` [fail] — SL CI2 (2026-10-15): the registered app-page jobs-to-be-done walked in WebKit (Safari's engine) - the same registry and oracles as live-page-journeys, artifacts
 - `live-walk-manifest` ⚡ [fail] — Live-walk ledger (CLOSED = walked live + gated; the manifest must match the registry - anti-drift on the two-bucket header)
 - `live_mcp_bank` [fail] — Live-MCP bank honesty (every non-owed scenario carries typed evidence — kind/ref/asserts — and that evidence EXPIRES when a file it depends on changes; forward-
 - `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
@@ -1034,6 +1035,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `page-fit` ⚡ [fail] — SL F2 (2026-10-15): every page fits at 320 and 390 wide and at 1280 - read from the phone-fit lens's own record (phone_fit_report.json, axes phone-fit@320/@390/
 - `page-gate-teeth` ⚡ [fail] — SL CI1 (2026-10-15): on every page of the roster, two registered gates both READ the page and BITE on its breach - csp-covers-what-ships (a script from an origi
 - `page-health` [fail] — Page health: every DB page paints its main container with no page error (signed in, 23 pages)
+- `page-journeys` ⚡ [fail] — SL CI2 (2026-10-15): every page keeps a live journey in Chromium AND WebKit - a public page's reader job (prove_public_journeys: arrive and read, a calculator's
 - `page-log-tags` ⚡ [fail] — Reference pages tag every console.error/warn with their own name ([validator-catalog], [symbol-gallery], [design-system], [llm-observability], [founder-console]
 - `page-ratchets` ⚡ [fail] — SL CI3 (2026-10-15): every page is HELD - measured on the latest run, at or under its floor - by the design ratchet (scope + floors), the phone-fit ratchet at 3
 - `page-reachable` [fail] — SL F3 (2026-10-15): every control on every page is reached, named and pressed - axe's own name rules at 1280, a REAL Tab walk at 1280 (every offered control foc
@@ -1108,6 +1110,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `public-feed-dated` [fail] — T158: the public window does not pretend to be fresh. public-feed is the shop window - an anon visitor's first sight of whether anyone is actually here - and a 
 - `public-feed-walk` [fail] — The anon public-feed surface walked end to end - 11 pass / 0 fail / 0 ungraded. ★REGISTERED 2026-08-28 FROM THE ORPHAN SWEEP. It was on disk, runnable, and invo
 - `public-funnel-kicker-floor` ⚡ [fail] — no .pill or .cta-eyebrow on the public funnel renders below the 12px type floor
+- `public-journeys` [fail] — SL CI2 public half (2026-10-15): every public page, signed out, in Chromium and WebKit - arrive (200, an <h1>, readable <main>), a calculator's worked example, 
 - `public-pages-chrome` ⚡ [fail] — the four public pages carry a main landmark, a skip link and 44px tap targets
 - `public-touch-action` ⚡ [fail] — every learn guide and public page sets touch-action: manipulation (no 300 ms tap delay on a phone)
 - `public_read_surface` [fail] — Public read surface (every table a client can SELECT must either consult the caller, inherit scoping through a subquery, deny by default, or be DECLARED public 
@@ -1194,6 +1197,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `role_adoption_centralized` ⚡ [fail] — A page may adopt the canonical role (`wh_hive_role`) from exactly ONE place. Adopting a role is not one assignment — it is the module variable, the stored hint,
 - `role_marker_revocation` ⚡ [fail] — A role-derived class on a PERSISTENT ROOT (<html>/<body>) must be removable — if a page adds one, it must also remove it on the path where the role is lost. Fou
 - `role_vocabulary_coverage` [fail] — The canonical client RBAC reader (wh-roles.js) must UNDERSTAND every role value hive_members actually stores. Found live 2026-07-27 (hive deepwalk H8c): the rea
+- `rollout` [fail] — SL H4 (2026-10-15): a RETURNING DEVICE moves to the new build within one visit, never half new and half old - a fresh profile visits each page while the origin 
 - `rpc-argument-consistency` ⚡ [fail] — RPC Argument Consistency (every db.rpc() name + arg keys exist; forward-only ratchet)
 - `rpc-write-integrity` [fail] — RPC write-integrity (LIVE: every public plpgsql function's INSERT covers its target's NOT NULL columns + only writes tables that EXIST — locks two silent-100%-f
 - `rubric-coverage` [warn] — UFAI rubric coverage board (UR-P4, 2026-07-21) — aggregates the 61 single-page dims (family_rubric_scoreboard.json) + the 2 cross-page dims S2/S3 (component_con

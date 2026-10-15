@@ -255,10 +255,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .tool-cta {{ background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 16px; padding: 22px 26px; margin: 2.25rem 0; }}
     .tool-cta a {{ display: inline-block; margin-top: 10px; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); color: var(--wh-navy,#162032); font-weight: 700; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: transform 0.15s; }}
     .tool-cta a:hover {{ transform: translateY(-1px); }}
-    .faq-item {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px 20px; margin: 0.7rem 0; }}
-    .faq-item summary {{ cursor: pointer; font-weight: 600; color: var(--wh-cloud,#F4F6FA); font-size: 1rem; }}
+    .faq-item {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 0; margin: 0.7rem 0; }}
+    .faq-item summary {{ cursor: pointer; font-weight: 600; color: var(--wh-cloud,#F4F6FA); font-size: 1rem; padding: 16px 20px; }}
     .faq-item[open] summary {{ color: var(--wh-orange-light,#FDB94A); }}
-    .faq-item .faq-answer {{ margin-top: 12px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }}
+    .faq-item .faq-answer {{ margin-top: 0; padding: 0 20px 16px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }}
     .sources-list {{ list-style: none; padding: 0; }}
     .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }}
   </style>
