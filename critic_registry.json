@@ -2281516,6 +2281516,74 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "BRH309",
+      "wave": "BRH-L",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH310",
+      "wave": "BRH-L",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH311",
+      "wave": "BRH-L",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH312",
+      "wave": "BRH-L",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }

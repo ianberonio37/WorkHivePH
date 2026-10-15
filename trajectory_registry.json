@@ -1,7 +1,7 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
   "updated": "2026-10-13",
-  "count": 18067,
+  "count": 18071,
   "trajectories": [
     {
       "id": "T1",
@@ -725997,6 +725997,290 @@
       "basis": "[2026-10-14] REPRODUCED LIVE, FIXED, GATED - the live witness waits on Ian's push. Reproduced on the live origin, read-only: https://workhiveph.com/architecture.html -> 206 (served; a one-byte range request). The kind: the three founder pages Ian does not use (architecture, validator-catalog, symbol-gallery) - 3 file(s), 0.07 MB that the deployment built from origin/master (03d4d056) stored and production serves on request, while no page, script, stylesheet, manifest or the service worker asks for them - (root) *.html; probe: https://workhiveph.com/architecture.html. Fix (cd7bcfca): .vercelignore is an allowlist of what the site serves, and this kind no longer ships (tools/deploy_payload.py: 450 files, 19.7 MB per deployment, down from 612.7 MB; git's matcher and the node 'ignore' library Vercel uses agree file for file). Gate that reddens on revert: deploy-payload (--check fails when a development artifact ships or the payload passes 40 MB; its --self-test runs the old denylist and reddens on both), with deploy-root-hygiene. Still owed: after the deploy the probe answers 404 on workhiveph.com - re-probe, record the receipt at both viewports and bank. pct -> 50"
     },
     {
+      "id": "BRH309",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-L",
+      "title": "a control offered to a person the page behind it refuses - hive:765 · -> ai-quality.html - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "AU"
+      ],
+      "ufai": [
+        "I"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches hive and meets a defect of a class a real person met on 2026-10-13/14: a control on hive.html:765 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin. MECHANISM: a control offered to a person the page behind it refuses. REPRO: sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face. FIX: show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-L:worker",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "L",
+        "page": "hive.html",
+        "line": 765,
+        "key": "-> ai-quality.html",
+        "detail": "a control on hive.html:765 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin",
+        "layer": "AU",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a control offered to a person the page behind it refuses",
+        "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
+        "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on hive.html - ai-quality (supervisors-or-admins only since SL AU4) is offered only to the people it admits, and the one place that was governed on its word alone is now checked. Witness: hive.html, ai-quality.html offered to a worker, at 390 and 1280. NOT A DEFECT IN ANY COMMITTED STATE, recorded as such: ai-quality became supervisors-or-admins only in SL AU4 (7db71ff4), and its wall and its WH_PAGE_GATES entry landed in the same change - the inventory measured these four sites only because BRH-L was seeded before it. WALKED through the MCP browser as Bryan Garcia (the rows' worker cast, signed in through the product's own form, 2139/2177 characters, his session kept) and as Leandro Marquez (supervisor, the positive control): the hive menu's AI Quality item. Opened as Bryan at 390 and 1280: the menu open, the item not visible (nor Audit Log); as Leandro, visible (3144/3182 characters). With a FORGED 'supervisor' role on Bryan's device before the page loaded, the reconcile set it back to 'worker' and the item stayed hidden. LOCK: gated-offers now CHECKS the menu's 'gated-offer-ok' reason instead of trusting it: the reason names a class \"hidden\" default, and the item's own tag must carry it - dropping `hidden` from the AI Quality item (or the Audit Log item, or marketplace's display:none admin link) reddens the gate, run against the real files this session and restor Receipt .tmp/mcp_walks/BRH309.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
+      }
+    },
+    {
+      "id": "BRH310",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-L",
+      "title": "a control offered to a person the page behind it refuses - index · nav-hub.js -> ai-quality.html - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "AU"
+      ],
+      "ufai": [
+        "I"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "worker reaches index and meets a defect of a class a real person met on 2026-10-13/14: the shared nav-hub.js offers ai-quality.html (nav-hub.js:254) on every page it loads, and ai-quality.html's own start-up refuses everyone but the hive supervisor or a platform admin. MECHANISM: a control offered to a person the page behind it refuses. REPRO: sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face. FIX: show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-L:worker",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "L",
+        "page": "index.html",
+        "line": 0,
+        "key": "nav-hub.js -> ai-quality.html",
+        "detail": "the shared nav-hub.js offers ai-quality.html (nav-hub.js:254) on every page it loads, and ai-quality.html's own start-up refuses everyone but the hive supervisor or a platform admin",
+        "layer": "AU",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a control offered to a person the page behind it refuses",
+        "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
+        "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - ai-quality (supervisors-or-admins only since SL AU4) is offered only to the people it admits, and the one place that was governed on its word alone is now checked. Witness: index.html, ai-quality.html offered to a worker, at 390 and 1280. NOT A DEFECT IN ANY COMMITTED STATE, recorded as such: ai-quality became supervisors-or-admins only in SL AU4 (7db71ff4), and its wall and its WH_PAGE_GATES entry landed in the same change - the inventory measured these four sites only because BRH-L was seeded before it. WALKED through the MCP browser as Bryan Garcia (the rows' worker cast, signed in through the product's own form, 849/936 characters, his session kept) and as Leandro Marquez (supervisor, the positive control): nav-hub.js's AI Quality tool, which the hub keeps hidden from every mode and the search overlay reads from the hub's whole list. Searched as Bryan for 'quality', 'ai quality' and 'roi' on index and on hive, at 390 and 1280: 0 results leading to ai-quality, and 0 with a forged 'supervisor' role on his device; as Leandro, 1 for each term on both pages. THE COUNTERFACTUAL, in Bryan's own page: with the rule's ai-quality entry removed (WH_PAGE_GATES, in that tab only) the search offered it to him, 1 for each term - the rule is what withholds it. LOCK: gated-offers: the search overlay must filter the hub's list through whOffers, and WH_PAGE_GATES mu Receipt .tmp/mcp_walks/BRH310.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
+      }
+    },
+    {
+      "id": "BRH311",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-L",
+      "title": "a control offered to a person the page behind it refuses - index:1127 · -> ai-quality.html - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "AU"
+      ],
+      "ufai": [
+        "I"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "worker reaches index and meets a defect of a class a real person met on 2026-10-13/14: a control on index.html:1127 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin. MECHANISM: a control offered to a person the page behind it refuses. REPRO: sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face. FIX: show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-L:worker",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "L",
+        "page": "index.html",
+        "line": 1127,
+        "key": "-> ai-quality.html",
+        "detail": "a control on index.html:1127 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin",
+        "layer": "AU",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a control offered to a person the page behind it refuses",
+        "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
+        "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - ai-quality (supervisors-or-admins only since SL AU4) is offered only to the people it admits, and the one place that was governed on its word alone is now checked. Witness: index.html, ai-quality.html offered to a worker, at 390 and 1280. NOT A DEFECT IN ANY COMMITTED STATE, recorded as such: ai-quality became supervisors-or-admins only in SL AU4 (7db71ff4), and its wall and its WH_PAGE_GATES entry landed in the same change - the inventory measured these four sites only because BRH-L was seeded before it. WALKED through the MCP browser as Bryan Garcia (the rows' worker cast, signed in through the product's own form, 849/936 characters, his session kept) and as Leandro Marquez (supervisor, the positive control): index's ROOT_PATHS, the local /workhive/ link rewriter's path list - not a control. Read as Bryan at 390 and 1280: no visible link to ai-quality anywhere on the landing page. LOCK: gated-offers holds every quoted path to a refusing page to the rule or a stated reason; this one's reason ('a path list for the local link rewriter, not a control anyone sees') is beside it, and the four places that ARE controls are held by the rows beside this one. Receipt .tmp/mcp_walks/BRH311.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
+      }
+    },
+    {
+      "id": "BRH312",
+      "status": "locking",
+      "pct": 60,
+      "wave": "BRH-L",
+      "title": "a control offered to a person the page behind it refuses - index:1963 · -> ai-quality.html - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "AU"
+      ],
+      "ufai": [
+        "I"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "worker reaches index and meets a defect of a class a real person met on 2026-10-13/14: a control on index.html:1963 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin. MECHANISM: a control offered to a person the page behind it refuses. REPRO: sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face. FIX: show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-L:worker",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "L",
+        "page": "index.html",
+        "line": 1963,
+        "key": "-> ai-quality.html",
+        "detail": "a control on index.html:1963 leads to ai-quality.html, whose own start-up refuses everyone but the hive supervisor or a platform admin",
+        "layer": "AU",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a control offered to a person the page behind it refuses",
+        "repro": "sign in as a person the destination refuses (a worker for a supervisors-only page, anyone but a platform admin for a founder page) and open the page: the link, nav entry or search result is there, and tapping it lands on 'Supervisors only' or an admin refusal - the product offered a door it then shuts in their face",
+        "fix": "show the control only to the people the destination admits, decided from the verified account (the role re-read from hive_members, isPlatformAdmin) - never from a remembered role or a chosen nav mode - through one shared rule the chrome applies, so a new link to a gated page cannot skip it",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same surfaces read as a person the destination refuses (Bryan Garcia, a worker of Baguio Textile Mills; signed out for the public landing page) and as one it admits (Leandro Marquez, its supervisor and a platform admin): the hub in each display mode, the search overlay, the page controls; a latent door induced where no local data shows it (asset-hub's telemetry empty state revealed, ph-intelligence's readiness answered Stair 3 for the walk)): BRH-L on index.html - ai-quality (supervisors-or-admins only since SL AU4) is offered only to the people it admits, and the one place that was governed on its word alone is now checked. Witness: index.html, ai-quality.html offered to a worker, at 390 and 1280. NOT A DEFECT IN ANY COMMITTED STATE, recorded as such: ai-quality became supervisors-or-admins only in SL AU4 (7db71ff4), and its wall and its WH_PAGE_GATES entry landed in the same change - the inventory measured these four sites only because BRH-L was seeded before it. WALKED through the MCP browser as Bryan Garcia (the rows' worker cast, signed in through the product's own form, 849/936 characters, his session kept) and as Leandro Marquez (supervisor, the positive control): index's screen-reader catalog entry for AI Quality (data-wh-requires=\"supervisor-or-admin\"). As Bryan at 390 and 1280 it computes display:none; as Leandro, list-item. LOCK: gated-offers: dropping the entry's data-wh-requires reddens it, and so does render_public_surface --check (the catalog is generated from each page's measured gate) - both run this session. Receipt .tmp/mcp_walks/BRH312.json.",
+      "artifacts": {
+        "gates": [
+          "admin-gates",
+          "gated-offers",
+          "role-reconciled"
+        ]
+      }
+    },
+    {
       "id": "SL1",
       "status": "specced",
       "pct": 5,
@@ -984162,5 +984446,5 @@
       }
     }
   ],
-  "next": "BRH E 116/116 banked (scope-empty, 74 reproduced + 35 seats-itself + 7 redirected-away; BRH196 re-banked under the slow seat) -> BRH L +4 (ai-quality, supervisors-only since SL AU4, still offered to workers by hive.html, index.html x2 and nav-hub.js: seed BRH-L 22 -> 26, reproduce, fix through the one offer rule, walk) -> J (3 journeys: AL4, ENG1, PMK3) -> K (37 design-detector pairs, design skills first)"
+  "next": "BRH L 26/26 (+4 ai-quality offers banked; gated-offers now checks a marker's hidden-default claim) -> BRH J (3 journeys not live: AL4, ENG1, PMK3 - walk each live as its cast) -> K (37 design-detector pairs, design skills first: impeccable context + craft-floor, emil, taste)"
 }

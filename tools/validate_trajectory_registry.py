@@ -411,7 +411,19 @@ def check(reg: dict, header_ok: bool, matrix: dict, gate_ids: set[str]) -> list[
         problems.append("the P-program wave sizes could not be imported from "
                         f"tools/seed_p_program_catalog.py ({_P_IMPORT_ERROR!r}) — the gate cannot "
                         "validate ids it has no declaration for")
-    expected = [f"T{n}" for n in range(1, 501)] + [i for w in NAMED_WAVE_ORDER for i in NAMED_WAVES[w]]
+    # ★THE BRH ID SPACE IS ONE BLOCK IN SEEDING ORDER, NOT ONE BLOCK PER CLASS (2026-10-15). It grows by appending each
+    # newly measured site (seed_expansion_wave4: "the wave stays one block", a banked row is never renumbered), so a
+    # class measured later lands after classes seeded before it: BRH309-312 are class L, after N. Grouping by wave name
+    # held only while every batch brought new classes in order. Every BRH id must still appear exactly once, in order.
+    expected = [f"T{n}" for n in range(1, 501)]
+    _brh_placed = False
+    for w in NAMED_WAVE_ORDER:
+        if w.startswith("BRH-"):
+            if not _brh_placed:
+                expected += [f"BRH{n}" for n in range(1, BRH_PROGRAM_TOTAL + 1)]
+                _brh_placed = True
+            continue
+        expected += NAMED_WAVES[w]
     if ids != expected:
         problems.append(f"ids are not exactly T1..T500 + named waves ({'+'.join(NAMED_WAVE_ORDER)}) "
                         f"in order ({len(ids)} entries)")

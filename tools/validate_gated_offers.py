@@ -37,6 +37,11 @@ MAP_RX = re.compile(r"var WH_PAGE_GATES = \{(.*?)\};", re.S)
 PAIR_RX = re.compile(r"'([a-z0-9-]+\.html)':\s*'([a-z-]+)'")
 MARKER = "gated-offer-ok:"
 GOVERNED_LINE = re.compile(r"data-wh-requires=|whOffers\(|whViewerAdmits\(")
+# a marker that names a hidden default makes a claim about the control's own tag - checked, not trusted
+CLAIMS_HIDDEN_CLASS = re.compile(r"""class\s*["']?hidden\b""")
+HAS_HIDDEN_CLASS = re.compile(r"""\bclass\s*=\s*["'][^"']*\bhidden\b""")
+CLAIMS_DISPLAY_NONE = re.compile(r"display\s*:\s*none")
+HAS_DISPLAY_NONE = re.compile(r"""\bstyle\s*=\s*["'][^"']*display\s*:\s*none""")
 # a chrome file governs every offer it makes when its offer path asks the rule (the hub's visibility, the search filter)
 CHROME_GOVERNS = {"nav-hub.js": re.compile(r"function isVisibleInMode\([^)]*\)\s*\{[^}]*?whOffers\(", re.S),
                   "search-overlay.js": re.compile(r"WHNavTools[^;]*?\.filter\(_matches\)[^;]*?whOffers\(", re.S)}
@@ -71,9 +76,20 @@ def ungoverned(name: str, src: str, gated: dict) -> list[tuple[int, str]]:
         line = code[:m.start()].count("\n") + 1
         here = raw[line - 1] if line - 1 < len(raw) else ""
         window = "\n".join(raw[max(0, line - 9):line])
-        if chrome_ok or GOVERNED_LINE.search(here) or MARKER in window or re.search(r"whOffers\(|whViewerAdmits\(", window):
+        if chrome_ok or GOVERNED_LINE.search(here) or re.search(r"whOffers\(|whViewerAdmits\(", window):
             continue
-        bad.append((line, d))
+        if MARKER in window:
+            # ★A MARKER'S CLAIM IS CHECKED, NOT TRUSTED (BRH309, 2026-10-15). hive.html's menu says each item is class
+            # "hidden" until the supervisor block reveals it; dropping `hidden` from the AI Quality item offered it to
+            # every worker and this gate still passed, because it read only that a reason existed. A reason that names a
+            # hidden default must be true of the control's own tag.
+            reason = window[window.rindex(MARKER):].split("\n", 1)[0]
+            claim = CLAIMS_HIDDEN_CLASS.search(reason) and not HAS_HIDDEN_CLASS.search(here) and "hidden class"
+            claim = claim or (CLAIMS_DISPLAY_NONE.search(reason) and not HAS_DISPLAY_NONE.search(here) and "display:none")
+            if claim:
+                bad.append((line, d, f"its '{MARKER}' reason claims a {claim} default its own tag does not have"))
+            continue
+        bad.append((line, d, ""))
     return bad
 
 
@@ -87,9 +103,9 @@ def check(read, pages: list[str], chrome: list[str], all_pages: list[str], utils
         problems.append(f"WH_PAGE_GATES in utils.js disagrees with the pages' own gates - measured but not declared "
                         f"(or declared differently): {miss}; declared but not measured: {extra}")
     for f in pages + chrome:
-        for line, d in ungoverned(f, read(f), measured):
-            problems.append(f"{f}:{line} offers {d} ({measured[d]}) to everyone - route it through whOffers / "
-                            f"data-wh-requires, or say why with '{MARKER} <reason>'")
+        for line, d, why in ungoverned(f, read(f), measured):
+            problems.append(f"{f}:{line} offers {d} ({measured[d]}) to everyone - " + (why or
+                            f"route it through whOffers / data-wh-requires, or say why with '{MARKER} <reason>'"))
     # a script that offers the HUB'S tool list names no page itself (the search overlay), so the scan above cannot see
     # it: it must filter that list through the rule, or it offers every gated tool the hub withholds
     for f in chrome:
@@ -131,15 +147,23 @@ def self_test() -> int:
         "open.html": "<a href='audit.html'>Audit</a>",                                    # ungoverned
         "attr.html": "<a href='audit.html' data-wh-requires='supervisor'>Audit</a>",       # governed by the attribute
         "marked.html": "<!-- gated-offer-ok: revealed only by the supervisor block -->\n<a href='admin.html'>x</a>",
+        # a marker naming a hidden default is held to it: true on the tag passes, false on the tag reddens
+        "hid_ok.html": "<!-- gated-offer-ok: each item is class \"hidden\" until the supervisor block reveals it -->\n"
+                       "<a id='b' href='audit.html' class=\"menu-item hidden\">x</a>",
+        "hid_bad.html": "<!-- gated-offer-ok: each item is class \"hidden\" until the supervisor block reveals it -->\n"
+                        "<a id='b' href='audit.html' class=\"menu-item\">x</a>",
+        "none_ok.html": "<!-- gated-offer-ok: display:none until the admin check -->\n<a href='admin.html' style=\"display:none;color:red\">x</a>",
+        "none_bad.html": "<!-- gated-offer-ok: display:none until the admin check -->\n<a href='admin.html' style=\"color:red\">x</a>",
         "comment.html": "<!-- <a href='audit.html'> -->",                                  # not a control
         "nav-hub.js": "function isVisibleInMode(tool, mode) { if (!whOffers(tool.href)) return false; }\n"
                       "var TOOLS = [{ href: 'audit.html' }];",
         "search-overlay.js": "const hits = window.WHNavTools.filter(m); go('audit.html');",  # chrome that does not ask
     }
     read = lambda p: pages.get(p, "")  # noqa: E731
-    probs = check(read, ["open.html", "attr.html", "marked.html", "comment.html"], ["nav-hub.js", "search-overlay.js"],
-                  ["audit.html", "admin.html", "open.html", "attr.html", "marked.html", "comment.html"], utils)
-    want_bad = {"open.html", "search-overlay.js"}
+    claims = ["hid_ok.html", "hid_bad.html", "none_ok.html", "none_bad.html"]
+    probs = check(read, ["open.html", "attr.html", "marked.html", "comment.html"] + claims, ["nav-hub.js", "search-overlay.js"],
+                  ["audit.html", "admin.html", "open.html", "attr.html", "marked.html", "comment.html"] + claims, utils)
+    want_bad = {"open.html", "search-overlay.js", "hid_bad.html", "none_bad.html"}
     got_bad = {re.split(r"[: ]", p, maxsplit=1)[0] for p in probs}
     ok = got_bad == want_bad
     drift = check(read, [], [], ["audit.html", "admin.html"], "var WH_PAGE_GATES = {\n  'audit.html': 'supervisor'\n};")
