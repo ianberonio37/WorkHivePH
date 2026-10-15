@@ -265,9 +265,110 @@ def is_aria_level_heading(f: dict) -> bool:
     return False
 
 
+# ── the root's axis guard ──────────────────────────────────────────────────────────────────────────
+# tokens.css R2: `html, body { overflow-x: clip; }` - deliberately CLIP, not hidden: it stops off-screen decorations
+# (the feedback panel parked at translateX(100%)) from widening the page, without making either element a scroll
+# container, so position:sticky keeps working. The detector reports it as "html clips a positioned child" whenever a
+# page has a position:fixed nav - but a fixed box's containing block is the VIEWPORT, so an ancestor's overflow never
+# clips it. Exempt ONLY when the file links tokens.css and nothing on that element overrides the clip: a body that
+# carries overflow-x-hidden (index.html did - Tailwind's class beat the clip and made body a scroll container) still
+# counts, because then the finding is true.
+_ROOT_CLIP = re.compile(r"^(html|body)(\.[^\s]+)?\s+clips a positioned child")
+
+
+def is_root_axis_clip(f: dict) -> bool:
+    if f.get("antipattern") != "clipped-overflow-container":
+        return False
+    snip = f.get("snippet") or ""
+    m = _ROOT_CLIP.match(snip)
+    if not m or "overflow" in (m.group(2) or ""):
+        return False
+    try:
+        src = Path(f.get("file") or "").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    if not re.search(r"""<link[^>]+href=["'](?:\./)?tokens\.css["']""", src):
+        return False
+    if m.group(1) == "html":
+        # the ROOT's overflow is propagated to the viewport: hidden or clip, it never makes a scroll container and
+        # never clips a fixed box - it is the axis guard either way (index.html also sets it inline, pre-tokens)
+        return True
+    # BODY is different: hidden on body (with html not visible) makes body a scroll container and breaks sticky -
+    # so a body that overrides the clip in its own tag still counts
+    tag = re.search(r"<body\b[^>]*>", src)
+    return not (tag and "overflow" in tag.group(0))
+
+
+# ── the modal scrim read as a card ─────────────────────────────────────────────────────────────────
+# The platform's modal contract (validate_modal_a11y.py, critique C7; utils.js whModalA11y and whConfirm) puts
+# role="dialog" + aria-modal on the FULL-BLEED OVERLAY, whose background is the scrim. The detector treats a
+# role="dialog" element with a background as a card, so every styled panel inside a scrim reads "card inside card"
+# (measured 2026-10-15 on fixtures: role + background -> flagged; background without the role, or the role without a
+# background -> not). The scrim is not a card. This is DIFFERENTIAL, not a count of dialogs: the detector re-runs on a
+# copy of the page whose full-bleed dialog overlays carry no background, and only the nested-cards that DISAPPEAR are
+# the scrim's. A dialog that IS the panel (not full-bleed) is never touched, so a card nested in it still counts.
+_DIV_OPEN_RX = re.compile(r"<div\b[^>]*>", re.I)
+
+
+def _is_fullbleed_dialog(tag: str) -> bool:
+    if not re.search(r"""role\s*=\s*["']dialog["']""", tag, re.I):
+        return False
+    cls = (re.search(r"""class\s*=\s*["']([^"']*)["']""", tag) or [None, ""])[1]
+    sty = (re.search(r"""style\s*=\s*["']([^"']*)["']""", tag) or [None, ""])[1].replace(" ", "")
+    return ("fixed" in cls.split() and "inset-0" in cls.split()) or ("position:fixed" in sty and "inset:0" in sty)
+
+
+def _strip_scrim_backgrounds(src: str) -> str:
+    def fix(m: re.Match) -> str:
+        tag = m.group(0)
+        if not _is_fullbleed_dialog(tag):
+            return tag
+        return re.sub(r"""(style\s*=\s*["'])([^"']*)""",
+                      lambda s: s.group(1) + re.sub(r"(?:-webkit-)?(?:backdrop-filter|background(?:-color)?)\s*:[^;\"']*;?", "", s.group(2)),
+                      tag, count=1)
+    return _DIV_OPEN_RX.sub(fix, src)
+
+
+def scrim_artifacts(now: dict[str, int], root: Path = ROOT) -> dict[str, int]:
+    """Per 'file :: nested-cards' key, how many of its findings are the modal scrim (see above)."""
+    keys = [k for k, v in now.items() if k.endswith(" :: nested-cards") and v]
+    variants: dict[str, Path] = {}
+    try:
+        for k in keys:
+            rel = k.split(" :: ", 1)[0]
+            src_path = root / rel
+            try:
+                src = src_path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            stripped = _strip_scrim_backgrounds(src)
+            if stripped == src:
+                continue
+            v = src_path.with_name("zz_scrimtest_" + src_path.name)     # beside it: its stylesheets resolve
+            v.write_text(stripped, encoding="utf-8")
+            variants[k] = v
+        if not variants:
+            return {}
+        found = detect([str(v) for v in variants.values()], cwd=root)
+        per = Counter(Path(f.get("file") or "").name for f in found if f.get("antipattern") == "nested-cards")
+        return {k: max(0, now[k] - per.get(v.name, 0)) for k, v in variants.items()}
+    finally:
+        for v in variants.values():
+            try:
+                v.unlink()
+            except OSError:
+                pass
+
+
+def without_scrim_artifacts(now: dict[str, int], root: Path = ROOT) -> dict[str, int]:
+    art = scrim_artifacts(now, root)
+    out = {k: v - art.get(k, 0) for k, v in now.items()}
+    return {k: v for k, v in out.items() if v > 0}
+
+
 def is_measurement_artifact(f: dict) -> bool:
     """One predicate, four consumers: a finding the page's own semantics or media already refute."""
-    return is_print_artifact(f) or is_aria_level_heading(f)
+    return is_print_artifact(f) or is_aria_level_heading(f) or is_root_axis_clip(f)
 
 
 def self_test() -> int:
@@ -342,9 +443,59 @@ def self_test() -> int:
         if is_aria_level_heading(by_file.get("bare.html", {})):
             print("FAIL self-test: a BARE h4 after an h1 is a real skip and must still count")
             return 1
+    # The root's axis guard: tokens.css's clip on html/body is exempt; a body that overrides it with a hidden class,
+    # a page that does not link tokens.css, and a CARD that clips its child all still count.
+    with tempfile.TemporaryDirectory() as d:
+        ok = Path(d) / "rootclip.html"
+        ok.write_text('<link rel="stylesheet" href="tokens.css"><body class="text-white"><nav>x</nav></body>', encoding="utf-8")
+        over = Path(d) / "rootover.html"
+        over.write_text('<link rel="stylesheet" href="tokens.css"><body class="overflow-x-hidden"><nav>x</nav></body>', encoding="utf-8")
+        bare = Path(d) / "roottokenless.html"
+        bare.write_text('<body class="text-white"><nav>x</nav></body>', encoding="utf-8")
+        ca = "clipped-overflow-container"
+        if not is_root_axis_clip({"antipattern": ca, "file": str(ok), "snippet": "html clips a positioned child"}) or \
+           not is_root_axis_clip({"antipattern": ca, "file": str(ok), "snippet": "body.text-white clips a positioned child"}):
+            print("FAIL self-test: tokens.css's clip on html/body was not recognised as the root's axis guard")
+            return 1
+        if is_root_axis_clip({"antipattern": ca, "file": str(over), "snippet": "body.overflow-x-hidden clips a positioned child"}) or \
+           is_root_axis_clip({"antipattern": ca, "file": str(bare), "snippet": "html clips a positioned child"}) or \
+           is_root_axis_clip({"antipattern": ca, "file": str(ok), "snippet": "div.stage-card clips a positioned child"}):
+            print("FAIL self-test: an overriding body, a page without tokens.css, or a card clipping its child was exempted")
+            return 1
+    # The modal scrim: a card inside a FULL-BLEED role="dialog" overlay is the scrim's artifact and is exempt; the same
+    # card inside a dialog that IS the panel still counts. Built beside the real pages with inventory.html's own head,
+    # because the detector reads the page's stylesheets to call something a card (a bare temp fixture never fires).
+    head = (ROOT / "inventory.html").read_text(encoding="utf-8")
+    head = head[:head.index("<body")]
+    card = '<div class="card w-full max-w-lg p-7 relative"><span>Part Number</span></div></div>'
+    scrim, panel = ROOT / "zz_selftest_scrim.html", ROOT / "zz_selftest_panel.html"
+    try:
+        scrim.write_text(head + '<body><div role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 '
+                         'p-4" style="display:none; background:rgba(0,0,0,0.75);">' + card + "</body></html>", encoding="utf-8")
+        panel.write_text(head + '<body><div role="dialog" aria-modal="true" aria-label="Add part" class="w-full max-w-lg p-4 '
+                         'rounded-2xl" style="background:rgba(0,0,0,0.75);">' + card + "</body></html>", encoding="utf-8")
+        raw = counts(detect([str(scrim), str(panel)]))
+        net = without_scrim_artifacts(raw)
+        k_s, k_p = "zz_selftest_scrim.html :: nested-cards", "zz_selftest_panel.html :: nested-cards"
+        if raw.get(k_s, 0) < 1 or raw.get(k_p, 0) < 1:
+            print(f"FAIL self-test: the detector no longer flags the scrim/panel fixtures ({raw}) - its nested-cards rule changed")
+            return 1
+        if net.get(k_s, 0) != 0:
+            print("FAIL self-test: a card inside a full-bleed role=dialog scrim was not recognised as the scrim's artifact")
+            return 1
+        if net.get(k_p, 0) < 1:
+            print("FAIL self-test: a card nested in a dialog that IS the panel was exempted - it must still count")
+            return 1
+    finally:
+        for f in (scrim, panel):
+            try:
+                f.unlink()
+            except OSError:
+                pass
     print("PASS design-detector-ratchet self-test - a 9px label is caught and counts as an increase, "
-          "a print-only colour is not measured against the screen, and an ARIA-declared heading level "
-          "is honoured while a bare one still fails")
+          "a print-only colour is not measured against the screen, an ARIA-declared heading level "
+          "is honoured while a bare one still fails, tokens.css's root clip is exempt while an override still counts, "
+          "and a modal scrim is not a card while a dialog panel's nested card still counts")
     return 0
 
 
@@ -365,7 +516,7 @@ def main() -> int:
     if a.self_test:
         return self_test()
     files = served_files()
-    now = counts(detect(files))
+    now = without_scrim_artifacts(counts(detect(files)))
     base = load_baseline()
     if a.reseed:
         if not a.reason.strip():

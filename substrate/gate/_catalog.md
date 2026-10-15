@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 32b17b779265906d
+source_sha: e968d1c98f2c3272
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1372) — the 'what's already gated' brain
+## gate · registered validators (1373) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1006)
+### Platform (1007)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1202,6 +1202,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `schema-drift` ⚡ [fail] — Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)
 - `schema-phantom` ⚡ [fail] — Schema Phantom Column Detector (4-layer: phantom reads + dead columns + alias drift + layer hotspots)
 - `scope-empty` [fail] — BRH-E (Ian's logbook said 'No assets registered yet.' about the PERSONAL list while his hive held six): an empty state speaks for the wrong list in exactly one 
+- `scripts-parse` ⚡ [fail] — Every shared script and every classic inline script on every served page PARSES (2026-10-15): a comment written inside offline-banner.js's CSS closed the JS tem
 - `scroll-gate-at-open` [fail] — T18: a read-gate must not depend on an event that may never fire. skillmatrix gates its exam behind 'read the lesson first' - the Take-exam button starts disabl
 - `search-button-is-not-dead` [fail] — T78: the search button is not dead — the spine's dead-control oracle (2026-08-26). nav-hub.js is on every page and lazy-loads search-overlay.js asynchronously, 
 - `search-term-survives-punctuation` [fail] — T99: a comma in a search box must not 400 the read (2026-08-26). MEASURED against the live REST endpoint: or=(machine.ilike.*bearing, spherical*,...) returns HT

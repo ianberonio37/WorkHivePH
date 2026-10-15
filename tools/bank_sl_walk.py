@@ -56,6 +56,7 @@ GATES = {
     "BRH-G": ["hive-startup", "hive-restore-adoption"],
     "BRH-E": ["scope-empty", "hive-startup", "hive-restore-adoption"],
     "BRH-J": ["live-page-journeys"],
+    "BRH-K": ["design-detector-ratchet", "scripts-parse"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
@@ -107,13 +108,18 @@ CONDITION["BRH-J"] = ("the journey driven through the MCP browser as the row's c
                       "product's own visible controls (a pointer press on the button a person sees, the confirm the "
                       "page asks, the hub's own mode button) - its data seeded and restored outside the browser between "
                       "calls on the LOCAL database, and the outcome read back from that database")
+CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets "
+                      "it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one "
+                      "probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline "
+                      "banner raised with the page's own offline event")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
                       "D": "BRH-D",                         # D - version skew silenced by a typeof guard: no SL sub-layer walks it, so it is its own key
                       "H": "BRH-H", "G": "BRH-G",           # H/G - the stored hive and its name settled in the page's start-up (whStartupHive)
                       "E": "BRH-E",                         # E - an empty state never speaks for the personal list while the hive holds X
-                      "J": "BRH-J"}                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
+                      "J": "BRH-J",
+                      "K": "BRH-K"}                         # K - design slop the detector ratchet held, fixed and walked in the live render                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",

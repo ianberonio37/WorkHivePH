@@ -67,18 +67,23 @@
        --wh-offline-banner-h offsets the fixed wayfinding pill; an IN-FLOW top control (hive's own "Back"
        link at the very top) still sat under the banner. While the banner is up, the body drops by the
        banner's height so nothing at the top is covered - a margin (not padding) so a page's own top
-       padding is preserved, and fixed elements (the FAB stack) are unaffected. A margin, and a transition,
-       so it slides with the banner rather than jumping. */
+       padding is preserved, and fixed elements (the FAB stack) are unaffected.
+       ★THE MARGIN MOVES IN ONE STEP; ONLY THE BANNER SLIDES (K, 2026-10-15). Transitioning margin-top re-laid out
+       the whole page on every frame of the slide - on the low-end phones this banner exists for - and a transform
+       on <body> is not a substitute: it makes the body the containing block of every position:fixed element under
+       it (the FAB stack, the toasts, this banner). The banner's own transform slide carries the motion into the
+       space the content has already given it. */
     html.wh-offline-banner-open body { margin-top: var(--wh-offline-banner-h, 0px); }
-    body { transition: margin-top 0.18s ease-out; }
+    @media (prefers-reduced-motion: reduce) { .wh-offline-banner { transition: none; } }
     /* ★AND DROP THE PAGE'S OWN FIXED TOP NAV TOO (W41399, wave-4 ratchet on hive.html, 2026-09-14). A body
        margin moves in-flow content, but a page's <nav class="fixed top-0"> (hive, and every page built on the
        same Tailwind header) is position:fixed and does not move - so its Back link / logo / bell still sat UNDER
        the banner (elementFromPoint at hive's "Back" @20,6 returned .wh-offline-banner). Same fix wayfinding.js got
        in v385: while the banner is up, a fixed top nav/header drops by the banner's height. Specificity
-       (html.class nav.class) beats Tailwind's .top-0, and the transition matches the banner's slide. */
+       (html.class nav.class) beats Tailwind's .top-0. It moves in the same single step as the body (a transition
+       on top is a layout animation too). NO BACKTICKS in this sheet: it is a JS template literal. */
     html.wh-offline-banner-open nav.fixed,
-    html.wh-offline-banner-open header.fixed { top: var(--wh-offline-banner-h, 0px); transition: top 0.18s ease-out; }
+    html.wh-offline-banner-open header.fixed { top: var(--wh-offline-banner-h, 0px); }
   `;
 
   function inject() {

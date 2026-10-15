@@ -834,19 +834,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-list" aria-hidden="true"></span>
       <span data-i="p_countinglistings_3d0a" id="txt-total-listings">counting listings…</span>
     </div>
-    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="My Watchlist">
+    <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="My Watchlist">
       <span class="ic ic-save" aria-hidden="true"></span>
       <span data-i="watchlist">Watchlist</span>
     </button>
     <!-- --wh-violet-text, not --wh-violet: the brand lilac #a78bfa measures 4.21:1 on this button's
          computed navy (#283a56) at 11.2px, under the 4.5 small-text bar. tokens.css already carries the
          accessible twin (#C4B5FD, ~6.2:1) for precisely this case; this control had just never adopted it. -->
-    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="Saved Searches">
+    <button id="btn-saved-searches" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:8px;color:var(--wh-violet-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;" aria-label="Saved Searches">
       <span class="ic ic-saved" aria-hidden="true"></span>
       <span data-i="searches">Searches</span>
       <span id="saved-search-badge" title="New listings matching your saved searches" style="display:none;background:var(--wh-orange);color:#1a1a1a;font-size: 0.75rem;font-weight:800;border-radius:999px;padding:0.05rem 0.35rem;min-width:1rem;text-align:center;">0</span>
     </button>
-    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
+    <a href="marketplace-seller.html" style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.25);border-radius:999px;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Listings">
       <span class="ic ic-list" aria-hidden="true"></span>
       My Listings
     </a>
@@ -859,7 +859,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          that hid the only live control: the markup surviving underneath is exactly what makes it
          invisible to a grep and to any check that queries for the button. -->
     <!-- gated-offer-ok: display:none until updateAdminLink() finds this viewer in marketplace_platform_admins (fail-closed) -->
-    <a id="btn-admin-link" href="platform-actions.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Platform Actions">
+    <a id="btn-admin-link" href="platform-actions.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;min-height:44px;padding:0.25rem 0.625rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Platform Actions">
       <span class="ic ic-admin" aria-hidden="true"></span>
       Admin
     </a>
@@ -944,8 +944,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span data-i="p_tapuptolistingstorequestquot_fc5a" style="font-size: 0.75rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.25rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
-      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
+      <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));border:none;color:#0f1923;font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <span class="ic ic-send" aria-hidden="true"></span>
         <span data-i="requestquotes">Request Quotes</span>
       </button>
@@ -1002,7 +1002,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
         <label class="form-label" for="post-desc" style="margin:0;" data-i="description">Description</label>
         <button type="button" id="post-ai-assist" aria-label="Suggest a category and description with AI"
-          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
+          style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:44px;padding:0.4rem 0.85rem;background:rgba(41,182,217,0.1);border:1px solid rgba(41,182,217,0.35);border-radius:0.55rem;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;transition:background 0.15s;">
           <span aria-hidden="true">✨</span><span id="post-ai-assist-label" data-i="aiassist">AI assist</span>
         </button>
       </div>
@@ -1042,9 +1042,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div data-i="p_jpegpngorwebpuptomblistingsw_14fb" style="font-size: 0.75rem;margin-top:0.25rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
-          <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
+          <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
+          <img id="post-image-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="post-image-status" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="post-image-url" value="" />
@@ -1876,9 +1877,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
             <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="apply">Apply</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="apply">Apply</button>
               <button class="btn-delete-search" data-id="${e(s.id)}"
-                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="delete">Delete</button>
+                style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="delete">Delete</button>
             </div>
           </div>`;
       }).join('');
@@ -2244,8 +2245,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
                 ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
               <div style="display:flex;gap:0.4rem;margin-top:0.5rem;">
-                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
-                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:'Poppins',sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
+                ${!removed ? `<button class="btn-watch-view"   data-id="${e(item.id)}" aria-label="View ${e(item.title)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="view">View</button>` : ''}
+                <button class="btn-watch-remove" data-id="${e(item.id)}" style="padding:0.3rem 0.625rem;border-radius:0.4rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="remove">Remove</button>
               </div>
             </div>
           </div>`;
@@ -3313,7 +3314,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           Received this? Add to your inventory
         </button>` : ''}
       ${sellerProfile?.messenger_username
-        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
+        ? `<a href="https://m.me/${e(sellerProfile.messenger_username)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.625rem;padding:0.7rem;background:rgba(0,132,255,0.12);border:1px solid rgba(0,132,255,0.35);border-radius:0.625rem;color:var(--wh-blue-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.82rem;font-weight:700;text-decoration:none;">
             <span class="ic ic-message" aria-hidden="true"></span>
             Message on Messenger
           </a>`
@@ -4238,8 +4239,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
      (guard trigger enforces intake states + attribution) and the
      select_quote RPC. 0-row honesty on every write.
   ============================================================ */
-  const _svcBtnC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;min-height:44px;';
-  const _svcGhostC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
+  const _svcBtnC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;min-height:44px;';
+  const _svcGhostC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
   /* Secondary/ghost variant for OPTIONAL actions, so the pin button cannot compete with the
      primary "Hail now". Mirrors the seller console's _svcBtnGhost. */
   /* NO font-family here, deliberately. This string is interpolated into style="..." , so a quoted

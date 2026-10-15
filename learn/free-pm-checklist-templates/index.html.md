@@ -108,7 +108,7 @@ PM assignment should match the skill matrix. Routine PMs (cleaning, lubrication,
 
 ### What is PM compliance and what is a good target?
 
-PM compliance is the percentage of scheduled PMs completed on time (within the grace window). Industry benchmark is 90 percent or higher; world-class is 95 percent. A plant measuring PM compliance for the first time typically sits between 50 and 75 percent. Below 70 percent and PMs are not preventing failures; the team is doing surface-level work and missing the substance. Above 95 percent in a plant with reactive maintenance still common means PMs are too easy.
+PM compliance is the percentage of scheduled PMs completed on time (within the grace window). Industry benchmark is 90 percent or higher; the best-run plants hold 95 percent. A plant measuring PM compliance for the first time typically sits between 50 and 75 percent. Below 70 percent and PMs are not preventing failures; the team is doing surface-level work and missing the substance. Above 95 percent in a plant with reactive maintenance still common means PMs are too easy.
 
 ### Should PMs be paper or digital?
 
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 65ea05959e8715c3 -->
+<!-- md-twin source-sha: c9f84696082cf30e -->

@@ -118,11 +118,11 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 ## Sources
 
-- Werbach, K. and Hunter, D., **For the Win: How Game Thinking Can Revolutionize Your Business**, Wharton, 2012.
+- Werbach, K. and Hunter, D., **For the Win**, Wharton, 2012.
 - Society for Maintenance and Reliability Professionals (SMRP), **Workforce engagement KPIs**. Indicative benchmark data for engagement programs.
 - WorkHive platform positioning, "Four Gaps One Hive" with Achievements as the Skills-gap accelerator. [workhiveph.com](https://workhiveph.com/)
 - Related WorkHive guides: [Skill matrix](https://workhiveph.com/learn/skill-matrix-for-maintenance-technicians/) · [Digital logbook rollout](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1950ff4e830f315e -->
+<!-- md-twin source-sha: 65f270925909fd34 -->

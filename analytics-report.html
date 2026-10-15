@@ -39,9 +39,15 @@
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ★EACH MEDIUM STATES ITS OWN PAGE COLOUR (K, 2026-10-15). The dark page was a plain body rule and paper's white
+       an override inside the print block 600 lines below - one property fought over by source order. A reader that
+       does not separate media (the design detector) let the later, paper rule win and measured this dark shell's
+       light text against white: eight contrast 'failures' that never render. Paper's white now comes first and the
+       dark page is screen-only, so no medium depends on an override. */
+    @media print { body { background: #ffffff; } }
+    @media screen { body { background: #0f1923; } }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #0f1923;
       color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -57,7 +63,7 @@
     .doc-panel .ar-provenance .wh-source-chip,
     .doc-panel .ar-provenance summary,
     .doc-panel .ar-provenance li { color: #555 !important; }
-    .doc-panel .ar-provenance .wh-method summary { color: #7c3aed !important; }
+    .doc-panel .ar-provenance .wh-method summary { color: #0E5E8A !important; }
 
     /* This page LOADS short (a generator form) and GROWS tall when the report renders, so
        the scrollbar appears mid-flight -> the viewport narrows ~15px -> the fixed .aurora
@@ -131,7 +137,8 @@
       cursor: pointer; min-height: 44px; border: none;
       transition: transform .12s var(--wh-ease-out), box-shadow .15s ease, opacity .15s ease;
     }
-    .btn-generate { background: linear-gradient(135deg, var(--wh-violet), var(--wh-violet-text)); color: #1a1132; }
+    /* the primary action is amber (DESIGN.md), solid - not the violet gradient the system rules out (K, 2026-10-15) */
+    .btn-generate { background: var(--wh-orange); color: var(--wh-navy); }
     .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }   /* a shadow is cast by light, not emitted by the button (craft floor: a coloured halo is decoration) */
     .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
     .btn-pdf {
@@ -331,7 +338,7 @@
     /* SOW clause format (action plan) */
     .doc-panel .sow-clause { margin: 0.65rem 0; page-break-inside: avoid; }
     .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
-    .doc-panel .sow-clause-no { color: #7c3aed; min-width: 2.5rem; flex-shrink: 0; }
+    .doc-panel .sow-clause-no { color: #0E5E8A; min-width: 2.5rem; flex-shrink: 0; }
     .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
     .doc-panel .ai-plan-summary { margin: 0.2rem 0 0.5rem; color: #333; }
     /* the shared "was this right?" row (utils.js) is styled for the dark app; on this white paper its grey and its
@@ -444,7 +451,6 @@
     .doc-panel .sev-chip.amber  { background: #fef3c7; color: #92400e; border: 1px solid var(--wh-amber); }
     .doc-panel .sev-chip.green  { background: #d1fae5; color: #065f46; border: 1px solid var(--wh-green); }
     .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
-    .doc-panel .sev-chip.purple { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
 
     /* Asset cards — used in Findings (problem assets) and Predictive (risk assets) */
     .doc-panel .asset-card-grid {
@@ -489,7 +495,7 @@
          the dark-theme violet measured 2.47:1 on the #f3f4f6 track of this WHITE document, and the red 2.51:1.
          These are the darker steps of the same hues - the document's own ink, not the app shell's. */
       height: 100%; border-radius: 999px;
-      background: #6d28d9;
+      background: #0E5E8A;   /* the document's accent; the deep violet was the AI palette on paper (K) */
     }
     .doc-panel .hbar-fill.red   { background: #b91c1c; }
     .doc-panel .hbar-fill.amber { background: #b45309; }
@@ -634,7 +640,7 @@
       .doc-panel .appendix-note { font-size: 0.72rem; }
       .doc-panel .appendix-section table { font-size: 0.7rem; }
       .doc-panel .appendix-section th { font-size: 0.66rem; }
-      body { background: #ffffff; padding: 0; }
+      body { padding: 0; }   /* paper's white is set at the top of this sheet */
       body > *:not(#ar-print-wrapper) { display: none !important; }
       #ar-print-wrapper { display: block !important; }
       .doc-panel { box-shadow: none; border-radius: 0; padding: 1.5cm; }

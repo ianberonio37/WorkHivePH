@@ -718680,8 +718680,8 @@
     },
     {
       "id": "BRH201",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - analytics report · analytics-report.html :: ai-color-palette - fleet-supervisor",
       "pages": [
@@ -718740,12 +718740,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K analytics-report.html :: ai-color-palette - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: analytics-report.html :: ai-color-palette: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the saturated 'AI purple' (#7c3aed / #6d28d9) is gone: data bars and the report's clause numbers, method link and default bar take the cyan / document accent, the AI Action Plan card is a flat violet tint (violet stays the AI's own hue, DESIGN.md), and the violet-gradient primary buttons are solid amber. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Leandro Marquez: 0 element(s) and 0 live rule value(s) in the saturated violet. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH201.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH202",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - analytics report · analytics-report.html :: low-contrast - fleet-supervisor",
       "pages": [
@@ -718804,12 +718811,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K analytics-report.html :: low-contrast - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: analytics-report.html :: low-contrast: the design detector counted 8 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: a media-blind reading of the page's body colour: paper's white overrode the dark screen body by source order 600 lines below. The page now states each medium's colour once (paper first, the dark page screen-only), so no medium depends on an override - live, the dark-shell text measures 7.3-17.7:1. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Leandro Marquez: screen body rgb(15, 25, 35); .ar-header p 7.3:1, #hive-gate h2 16.4:1, #hive-gate p 17.7:1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH202.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH203",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - analytics · analytics.html :: ai-color-palette - fleet-supervisor",
       "pages": [
@@ -718870,12 +718884,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K analytics.html :: ai-color-palette - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: analytics.html :: ai-color-palette: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the saturated 'AI purple' (#7c3aed / #6d28d9) is gone: data bars and the report's clause numbers, method link and default bar take the cyan / document accent, the AI Action Plan card is a flat violet tint (violet stays the AI's own hue, DESIGN.md), and the violet-gradient primary buttons are solid amber. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Leandro Marquez: 0 element(s) and 0 live rule value(s) in the saturated violet. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH203.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH204",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - asset hub · asset-hub.html :: all-caps-body - a person",
       "pages": [
@@ -718934,12 +718955,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K asset-hub.html :: all-caps-body - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: asset-hub.html :: all-caps-body: the design detector counted 4 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the FMEA / RCM form labels - questions a person reads while filling the form - are sentence case; weight carries the label. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 element(s) setting more than 30 characters in capitals. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH204.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH205",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - asset hub · asset-hub.html :: design-system-font - a person",
       "pages": [
@@ -718998,12 +719026,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K asset-hub.html :: design-system-font - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: asset-hub.html :: design-system-font: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: every font declaration uses DESIGN.md's stack (Poppins, system-ui, -apple-system, sans-serif): the marketplace's JS-escaped 'Poppins' strings, and the reliability report's Liberation Sans print window, which now loads Poppins and prints only after its face has arrived. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 1 use(s) of DESIGN.md's stack, 0 escaped-quote and 0 Liberation Sans declaration(s); body Poppins, sans-serif. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH205.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH206",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - assistant · assistant.html :: pulsing-dot - a person",
       "pages": [
@@ -719062,12 +719097,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K assistant.html :: pulsing-dot - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: assistant.html :: pulsing-dot: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no tiny dot pulses forever: the typing / thinking indicators are the WORD ('Thinking...', visible, breathing on opacity only), the microphone and new-entry dots hold still, and the live states breathe in their labels (reduced motion: still). WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 tiny element(s) on an infinite animation; the live-words rule present. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH206.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH207",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - dayplanner · dayplanner.html :: clipped-overflow-container - a person",
       "pages": [
@@ -719126,12 +719168,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K dayplanner.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: dayplanner.html :: clipped-overflow-container: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 aurora beam(s), 0 child layer(s); html clip, body clip. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH207.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH208",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - engineering design · engineering-design.html :: clipped-overflow-container - solo-owner",
       "pages": [
@@ -719190,12 +719239,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K engineering-design.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: engineering-design.html :: clipped-overflow-container: the design detector counted 3 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Jun Salvador: 0 aurora beam(s), 0 child layer(s); html clip, body clip. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH208.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH209",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - hive · hive.html :: clipped-overflow-container - a person",
       "pages": [
@@ -719254,12 +719310,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K hive.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: hive.html :: clipped-overflow-container: the design detector counted 2 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 aurora beam(s), 0 child layer(s); html clip, body clip. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH209.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH210",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - hive · hive.html :: cramped-padding - a person",
       "pages": [
@@ -719318,12 +719381,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K hive.html :: cramped-padding - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: hive.html :: cramped-padding: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: content no longer meets its outline: the segmented controls (logbook status, index sign-in tabs) are tracks with a 4px inset and pill segments, the integrations tab rail is an inset line the active underline paints over, the OEE readout has its horizontal inset, and hive's unframed hero verdict no longer fights a border it never wears. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: hero verdict border 0px. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH210.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH211",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - hive · hive.html :: nested-cards - a person",
       "pages": [
@@ -719382,12 +719452,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K hive.html :: nested-cards - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: hive.html :: nested-cards: the design detector counted 3 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no box sits inside a box: integrations' wizard step 1 drops the frame around its option cards, and index's four sourced figures are set apart by a hairline instead of a tile in the card. On hive and inventory the count was the platform's modal contract (role=dialog on the full-bleed scrim, critique C7) read as a card: the ratchet now re-runs the detector with the scrims unpainted and counts only what remains (0), with a self-test that a dialog-panel's nested card still counts. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 5 painted role=dialog element(s), 5 of them full-bleed scrims (the C7 modal contract) - the ratchet's differential run attributes this page's nested-cards to them. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH211.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH212",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - index · index.html :: clipped-overflow-container - a person",
       "pages": [
@@ -719446,12 +719523,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K index.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: index.html :: clipped-overflow-container: the design detector counted 9 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia (signed out, as the visitor): 0 aurora beam(s), 0 child layer(s); html hidden, body clip; connector 10px at right -11px, gap 10px, cards visible. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH212.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH213",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - index · index.html :: cramped-padding - a person",
       "pages": [
@@ -719510,12 +719594,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K index.html :: cramped-padding - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: index.html :: cramped-padding: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: content no longer meets its outline: the segmented controls (logbook status, index sign-in tabs) are tracks with a 4px inset and pill segments, the integrations tab rail is an inset line the active underline paints over, the OEE readout has its horizontal inset, and hive's unframed hero verdict no longer fights a border it never wears. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia (signed out, as the visitor): sign-in track padding 4px. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH213.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH214",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - index · index.html :: dark-glow - a person",
       "pages": [
@@ -719574,12 +719665,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K index.html :: dark-glow - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: index.html :: dark-glow: the design detector counted 2 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no coloured glow: the cards and the primary button lift with neutral shadows at rest and under the pointer, and the hero CTA's infinite amber ring is one transform-only nudge after the hero settles. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia (signed out, as the visitor): 0 coloured-shadow rule(s) on the cards/primary button; hero CTA none x1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH214.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH215",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - index · index.html :: nested-cards - a person",
       "pages": [
@@ -719638,12 +719736,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K index.html :: nested-cards - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: index.html :: nested-cards: the design detector counted 8 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no box sits inside a box: integrations' wizard step 1 drops the frame around its option cards, and index's four sourced figures are set apart by a hairline instead of a tile in the card. On hive and inventory the count was the platform's modal contract (role=dialog on the full-bleed scrim, critique C7) read as a card: the ratchet now re-runs the detector with the scrims unpainted and counts only what remains (0), with a self-test that a dialog-panel's nested card still counts. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia (signed out, as the visitor): 4 gap figure(s), 0 still boxed. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH215.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH216",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - index · offline-banner.js :: layout-transition - a person",
       "pages": [
@@ -719702,12 +719807,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K offline-banner.js :: layout-transition - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: offline-banner.js :: layout-transition: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the offline banner slides on transform while the page and its fixed nav move in one step - transitioning margin-top re-laid out the whole page every frame. (This edit's own comment first closed the JS template literal the sheet lives in and broke the banner on every page; caught in the walk, fixed, and now held by the new scripts-parse gate). WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia (signed out, as the visitor): offline: banner up, transitions \"transform\"; body margin-top 38px; elements animating a layout property: none. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH216.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH217",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - integrations · integrations.html :: cramped-padding - solo-owner",
       "pages": [
@@ -719766,12 +719878,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K integrations.html :: cramped-padding - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: integrations.html :: cramped-padding: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: content no longer meets its outline: the segmented controls (logbook status, index sign-in tabs) are tracks with a 4px inset and pill segments, the integrations tab rail is an inset line the active underline paints over, the OEE readout has its horizontal inset, and hive's unframed hero verdict no longer fights a border it never wears. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Jun Salvador:  | Leandro Marquez: tab rail border 0px, inset line. Read twice: as the row's cast, Jun Salvador (an owner with no hive), integrations shows its gate (517 characters) and neither surface is drawn for him; as Leandro Marquez, the supervisor it admits, the fix holds at both widths. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH217.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH218",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - integrations · integrations.html :: nested-cards - solo-owner",
       "pages": [
@@ -719830,12 +719949,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K integrations.html :: nested-cards - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: integrations.html :: nested-cards: the design detector counted 8 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no box sits inside a box: integrations' wizard step 1 drops the frame around its option cards, and index's four sourced figures are set apart by a hairline instead of a tile in the card. On hive and inventory the count was the platform's modal contract (role=dialog on the full-bleed scrim, critique C7) read as a card: the ratchet now re-runs the detector with the scrims unpainted and counts only what remains (0), with a self-test that a dialog-panel's nested card still counts. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Jun Salvador: 1 painted role=dialog element(s), 1 of them full-bleed scrims (the C7 modal contract) - the ratchet's differential run attributes this page's nested-cards to them | Leandro Marquez: wizard step 1: border 0px, rgba(0, 0, 0, 0), class \"wiz-step-open\". Read twice: as the row's cast, Jun Salvador (an owner with no hive), integrations shows its gate (517 characters) and neither surface is drawn for him; as Leandro  Receipt .tmp/mcp_walks/BRH218.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH219",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - inventory · inventory.html :: broken-image - a person",
       "pages": [
@@ -719894,12 +720020,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K inventory.html :: broken-image - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: inventory.html :: broken-image: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the photo previews carry a transparent 1x1 until a photo arrives, so a preview is never a broken image. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 1 preview image(s): f-photo-thumb 1x1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH219.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH220",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - inventory · inventory.html :: clipped-overflow-container - a person",
       "pages": [
@@ -719958,12 +720091,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K inventory.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: inventory.html :: clipped-overflow-container: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 aurora beam(s), 0 child layer(s); html clip, body clip. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH220.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH221",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - inventory · inventory.html :: nested-cards - a person",
       "pages": [
@@ -720022,12 +720162,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K inventory.html :: nested-cards - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: inventory.html :: nested-cards: the design detector counted 3 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no box sits inside a box: integrations' wizard step 1 drops the frame around its option cards, and index's four sourced figures are set apart by a hairline instead of a tile in the card. On hive and inventory the count was the platform's modal contract (role=dialog on the full-bleed scrim, critique C7) read as a card: the ratchet now re-runs the detector with the scrims unpainted and counts only what remains (0), with a self-test that a dialog-panel's nested card still counts. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 5 painted role=dialog element(s), 5 of them full-bleed scrims (the C7 modal contract) - the ratchet's differential run attributes this page's nested-cards to them. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH221.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH222",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - ai companion hezekiah zaniah personas · learn/ai-companion-hezekiah-zaniah-personas/index.html :: ma - a person",
       "pages": [
@@ -720086,12 +720233,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/ai-companion-hezekiah-zaniah-personas/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/ai-companion-hezekiah-zaniah-personas/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 0 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH222.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH223",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - free pm checklist templates · learn/free-pm-checklist-templates/index.html :: marketing-bu - a person",
       "pages": [
@@ -720150,12 +720304,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/free-pm-checklist-templates/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/free-pm-checklist-templates/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 0 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH223.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH224",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - gamifying maintenance for engagement · learn/gamifying-maintenance-for-engagement/index.html :: mar - a person",
       "pages": [
@@ -720214,12 +720375,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/gamifying-maintenance-for-engagement/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/gamifying-maintenance-for-engagement/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 1 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH224.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH225",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - learn · learn/index.html :: marketing-buzzword - a person",
       "pages": [
@@ -720278,12 +720446,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 0 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH225.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH226",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - maintenance metrics reliability guide · learn/maintenance-metrics-reliability-guide/index.html :: ma - a person",
       "pages": [
@@ -720342,12 +720517,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/maintenance-metrics-reliability-guide/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/maintenance-metrics-reliability-guide/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 5 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH226.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH227",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - ph industrial benchmarks intelligence · learn/ph-industrial-benchmarks-intelligence/index.html :: ma - a person",
       "pages": [
@@ -720406,12 +720588,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/ph-industrial-benchmarks-intelligence/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/ph-industrial-benchmarks-intelligence/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 4 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH227.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH228",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - what is oee how to calculate · learn/what-is-oee-how-to-calculate/index.html :: marketing-b - a person",
       "pages": [
@@ -720470,12 +720659,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K learn/what-is-oee-how-to-calculate/index.html :: marketing-buzzword - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: learn/what-is-oee-how-to-calculate/index.html :: marketing-buzzword: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the copy says what the word stood for: 'the TPM benchmark' (Nakajima's 85% OEE), 'global' benchmarks in the article that argues for Philippine ones, a book cited by its main title. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 occurrence(s) of the phrases in the rendered page (body + structured data); 6 of the precise replacements. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH228.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH229",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - logbook · logbook.html :: broken-image - a person",
       "pages": [
@@ -720534,12 +720730,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K logbook.html :: broken-image - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: logbook.html :: broken-image: the design detector counted 2 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the photo previews carry a transparent 1x1 until a photo arrives, so a preview is never a broken image. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 2 preview image(s): vdc-preview-img 1x1, photo-thumb 1x1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH229.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH230",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - logbook · logbook.html :: clipped-overflow-container - a person",
       "pages": [
@@ -720598,12 +720801,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K logbook.html :: clipped-overflow-container - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: logbook.html :: clipped-overflow-container: the design detector counted 3 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the drifting three-beam aurora (80px-blurred blobs on an infinite loop, clipped by the layer) is the static two-glow pattern pm-scheduler already uses; index's body no longer overrides tokens.css's root clip with hidden, its stage cards no longer clip their own connector (which had been half-drawn, 4px short of the next card) - the connector is an ::after spanning the 10px gap; the root's axis guard on html/body (tokens.css R2) is recorded as the detector's misreading in the ratchet, with a self-test. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 aurora beam(s), 0 child layer(s); html clip, body clip. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH230.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH231",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - logbook · logbook.html :: cramped-padding - a person",
       "pages": [
@@ -720662,12 +720872,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K logbook.html :: cramped-padding - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: logbook.html :: cramped-padding: the design detector counted 2 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: content no longer meets its outline: the segmented controls (logbook status, index sign-in tabs) are tracks with a 4px inset and pill segments, the integrations tab rail is an inset line the active underline paints over, the OEE readout has its horizontal inset, and hive's unframed hero verdict no longer fights a border it never wears. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: status track padding 4px; quality readout inset 12px. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH231.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH232",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - logbook · logbook.html :: pulsing-dot - a person",
       "pages": [
@@ -720726,12 +720943,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K logbook.html :: pulsing-dot - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: logbook.html :: pulsing-dot: the design detector counted 2 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: no tiny dot pulses forever: the typing / thinking indicators are the WORD ('Thinking...', visible, breathing on opacity only), the microphone and new-entry dots hold still, and the live states breathe in their labels (reduced motion: still). WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 0 tiny element(s) on an infinite animation; the live-words rule present. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH232.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH233",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - marketplace seller · marketplace-seller.html :: broken-image - a person",
       "pages": [
@@ -720790,12 +721014,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K marketplace-seller.html :: broken-image - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: marketplace-seller.html :: broken-image: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the photo previews carry a transparent 1x1 until a photo arrives, so a preview is never a broken image. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 1 preview image(s): edit-image-preview-img 1x1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH233.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH234",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - marketplace seller · marketplace-seller.html :: design-system-font - a person",
       "pages": [
@@ -720854,12 +721085,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K marketplace-seller.html :: design-system-font - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: marketplace-seller.html :: design-system-font: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: every font declaration uses DESIGN.md's stack (Poppins, system-ui, -apple-system, sans-serif): the marketplace's JS-escaped 'Poppins' strings, and the reliability report's Liberation Sans print window, which now loads Poppins and prints only after its face has arrived. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 4 use(s) of DESIGN.md's stack, 0 escaped-quote and 0 Liberation Sans declaration(s); body Poppins, sans-serif. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH234.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH235",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - marketplace · marketplace.html :: broken-image - a person",
       "pages": [
@@ -720918,12 +721156,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K marketplace.html :: broken-image - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: marketplace.html :: broken-image: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the photo previews carry a transparent 1x1 until a photo arrives, so a preview is never a broken image. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 1 preview image(s): post-image-preview-img 1x1. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH235.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH236",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - marketplace · marketplace.html :: design-system-font - a person",
       "pages": [
@@ -720982,12 +721227,19 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as any through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K marketplace.html :: design-system-font - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: marketplace.html :: design-system-font: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: every font declaration uses DESIGN.md's stack (Poppins, system-ui, -apple-system, sans-serif): the marketplace's JS-escaped 'Poppins' strings, and the reliability report's Liberation Sans print window, which now loads Poppins and prints only after its face has arrived. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Bryan Garcia: 15 use(s) of DESIGN.md's stack, 0 escaped-quote and 0 Liberation Sans declaration(s); body Poppins, sans-serif. LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH236.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "BRH237",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-K",
       "title": "design slop the detector ratchet still holds - project report · project-report.html :: side-tab - fleet-supervisor",
       "pages": [
@@ -721046,6 +721298,13 @@
         "repro": "run `impeccable detect --json <file>`: the (file :: antipattern) pair reports the count the baseline holds",
         "fix": "fix every finding of that antipattern in that file by the craft floor and DESIGN.md, verify at 320/390/1280, then `prove_design_detector_ratchet.py --rebase` writes the lower count; the pair closes at zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-15] pct -> 60. WALKED LIVE 2026-10-15 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read in the LIVE render as the row's cast (the landing page signed out, as the visitor who meets it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline banner raised with the page's own offline event): BRH-K project-report.html :: side-tab - fixed in the page, walked in the live render, the ratchet's floor for it is 0. Witness: project-report.html :: side-tab: the design detector counted 1 finding(s) here (design_detector_baseline.json at HEAD); the ratchet now reads 0. FIXED: the report masthead rule is 2px in the document ink, set apart from the 2px accent rules under each heading by tone, not by a heavier coloured bar. WALKED through the MCP browser at 390 and 1280, in the live render, one probe on the computed styles / live stylesheets / rendered text: Leandro Marquez: border-bottom: 2px solid var(--ink). LOCK: design-detector-ratchet (every served page + the shared chrome; any (file, antipattern) count that rises fails; this pair's floor is now 0) and scripts-parse. Receipt .tmp/mcp_walks/BRH237.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse"
+        ]
       }
     },
     {
@@ -984464,5 +984723,5 @@
       }
     }
   ],
-  "next": "BRH J 3/3 (AL4, ENG1, PMK3 live and pinned; project-manager refresh keeps the person's place) -> BRH K (37 design-detector pairs the ratchet holds: design skills first - impeccable context + reference/craft-floor.md, emil review-animations STANDARDS, design-taste; fix each pair, run impeccable detect, ratchet the baseline down)"
+  "next": "BRH K 37/37 (design ratchet 82 -> 0; scripts-parse gate; ledger's W4 pin taught fewer-is-not-drift) -> BRH K+ (widen the design ratchet's shared-chrome scope to every style-injecting script - 11 missing, 35 findings: engineering-design.js report side-tabs/fonts 34, companion-launcher bounce 1 - plus a live probe for runtime pulsing dots on analytics 4, engineering-design 3, offline-fallback 1: seed as new K rows, fix with the design skills, walk) -> then the next roadmap wave per the scoreboard"
 }

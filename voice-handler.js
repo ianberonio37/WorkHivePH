@@ -239,14 +239,11 @@
     .wh-voice-rec-row {
       display: flex; align-items: center; gap: 0.65rem; margin: 0.6rem 0 0.85rem;
     }
+    /* the recording dot holds still and casts no glow (K, 2026-10-15): it pulsed forever with a zero-offset red
+       halo - the design floor's pulsing dot and glow at once. Recording stays unmistakable without it: the red
+       recording button and the mm:ss timer beside this dot, which moves every second, are the live signal. */
     .wh-voice-dot {
       width: 10px; height: 10px; border-radius: 50%; background: #EF5757;
-      box-shadow: 0 0 10px #EF5757;
-      animation: wh-voice-dot-pulse 1s ease-in-out infinite;
-    }
-    @keyframes wh-voice-dot-pulse {
-      0%, 100% { opacity: 0.4; transform: scale(1); }
-      50%      { opacity: 1;   transform: scale(1.25); }
     }
     .wh-voice-elapsed { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
 
@@ -328,18 +325,15 @@
       word-break: break-word;
       white-space: pre-wrap;
     }
-    /* Thinking dots while we wait for the model. */
-    .wh-voice-dots { display: inline-flex; gap: 4px; }
-    .wh-voice-dots i {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--wh-orange, #F7A21B); opacity: 0.4;
-      animation: wh-dot 1.2s ease-in-out infinite;
+    /* While we wait for the model: the WORD, not three bouncing dots (K, 2026-10-15) - the same change the
+       assistant's own indicator made. It breathes on opacity only (1 to 0.72) so a long wait still reads alive. */
+    .wh-voice-thinking {
+      color: rgba(255,255,255,0.82);
+      animation: wh-voice-breathe 1.6s ease-in-out infinite;
     }
-    .wh-voice-dots i:nth-child(2) { animation-delay: 0.15s; }
-    .wh-voice-dots i:nth-child(3) { animation-delay: 0.30s; }
-    @keyframes wh-dot {
-      0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
-      40%           { opacity: 1;   transform: scale(1.10); }
+    @keyframes wh-voice-breathe {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.72; }
     }
     .wh-voice-result {
       margin-top: 0.65rem; font-size: 0.82rem; line-height: 1.45;
@@ -372,9 +366,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       .wh-voice-btn.recording,
-      .wh-voice-dot,
       .wh-voice-bubble,
-      .wh-voice-dots i { animation: none !important; }
+      .wh-voice-thinking { animation: none !important; }
     }
   `;
 
@@ -8574,7 +8567,7 @@
       slot.innerHTML =
         '<div class="wh-voice-bubble wh-voice-bubble-assistant">' +
           avatarHTML +
-          '<span class="wh-voice-bubble-text"><span class="wh-voice-dots"><i></i><i></i><i></i></span></span>' +
+          '<span class="wh-voice-bubble-text"><span class="wh-voice-thinking">Thinking…</span></span>' +
         '</div>';
     } else {
       // Phase 4.33 (turn #29) AI QUALITY FEEDBACK — every assistant reply

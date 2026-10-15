@@ -126,19 +126,19 @@
     .bubble-assistant p { margin-bottom: 0.5rem; }
     .bubble-assistant p:last-child { margin-bottom: 0; }
 
-    /* Typing indicator */
-    .typing-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.4);
-      animation: typing-bounce 1.2s infinite ease-in-out;
+    /* Typing indicator. ★THE WORDS, NOT THREE DOTS (K, 2026-10-15). "Thinking…" was screen-reader-only; a sighted
+       person got three bouncing dots that look the same at second 2 and at second 58 - the generic chat costume, and
+       the detector's pulsing-dot. The words are now on screen, and they breathe (opacity only, 1 -> 0.72, so the
+       text never drops under its contrast) so a long wait still reads as alive. The stage notes beside them name
+       what is happening as it passes 8s, 20s and 40s. */
+    .typing-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.82);
+      animation: typing-breathe 1.6s ease-in-out infinite;
     }
-    .typing-dot:nth-child(1) { animation-delay: 0s; }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing-bounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-6px); opacity: 1; }
+    @keyframes typing-breathe {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.72; }
     }
 
     /* Send button */
@@ -277,13 +277,13 @@
     /* forwards fill ends at opacity 1 and the base rule declares no opacity of its own, so
        animation:none lands on the same visual result the animation was travelling toward. */
     /* ★THE ONLY REDUCE RULE COVERED THE ONE ANIMATION THAT ENDS (design lens critique round 3,
-       2026-09-15). .fade-up runs for 240ms; typing-bounce runs FOREVER, and it was the one exempted from
+       2026-09-15). .fade-up runs for 240ms; the typing indicator runs FOREVER, and it was the one exempted from
        nothing. A reader who asks the operating system for less motion is asking about the infinite one
        most of all. The indicator still says what it means - its text reads "Thinking...", and it carries
        aria-busy and role=status - so under reduce it holds still and the words do the work. */
     @media (prefers-reduced-motion: reduce) {
       .fade-up { animation: none; }
-      .typing-dot { animation: none; }
+      .typing-label { animation: none; }
     }
 
     /* API key toggle */
@@ -2255,11 +2255,8 @@ happens to know maintenance, not a manual.`;
       // what lets a stopped turn's late reply be discarded instead of painted into a thread that moved on.
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
-          <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
-            <span class="sr-only" id="typing-sr">Thinking…</span>
-            <div class="typing-dot" aria-hidden="true"></div>
-            <div class="typing-dot" aria-hidden="true"></div>
-            <div class="typing-dot" aria-hidden="true"></div>
+          <div class="bubble-assistant flex items-center py-3 px-4">
+            <span class="typing-label" id="typing-sr">Thinking…</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <span id="typing-note" role="status" aria-live="polite" style="font-size:0.75rem; color:rgba(255,255,255,0.75);"></span>
@@ -2270,8 +2267,8 @@ happens to know maintenance, not a manual.`;
           </div>
         </div>`;
       container.appendChild(wrap);
-      // The sr-only line is the ONLY thing a screen-reader user gets during a wait of up to a minute,
-      // and it was English on a bilingual page (design lens critique, 2026-09-15).
+      // The label is what everyone reads during a wait of up to a minute - on screen since 2026-10-15 (it was
+      // screen-reader-only behind three dots), and it was English on a bilingual page (design lens critique, 2026-09-15).
       const _sr = wrap.querySelector('#typing-sr');
       if (_sr) _sr.textContent = _t('Thinking…', 'Nag-iisip…');
       const _note = wrap.querySelector('#typing-note');

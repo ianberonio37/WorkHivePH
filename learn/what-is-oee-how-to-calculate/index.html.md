@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 10 min read
 
-**Short answer:** Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is `OEE = Availability × Performance × Quality`. World-class is 85 percent or higher, and a plant measuring honestly for the first time usually lands well below that: 40 to 60 percent is the ordinary starting point. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
+**Short answer:** Overall Equipment Effectiveness (OEE) measures three things in one number: how often equipment runs, how fast it produces, and how much of what it produces is good. The formula is `OEE = Availability × Performance × Quality`. The TPM benchmark is 85 percent or higher, and a plant measuring honestly for the first time usually lands well below that: 40 to 60 percent is the ordinary starting point. The number matters less than what you do with it: catch losses you could not see before, prioritize the right fix, and turn maintenance from a cost center into a measurable contribution.
 
 Who this is for
 
@@ -112,11 +112,11 @@ Every shift entry in the WorkHive Logbook: run time, unplanned downtime reasons,
 
 No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, takes 30 seconds).
 
-## World-class versus Philippine plant reality
+## The TPM benchmark versus Philippine plant reality
 
 | OEE Range | Tier | What it usually means |
 | --- | --- | --- |
-| 85%+ | World-class | Japanese TPM mature plants, top-quartile global automotive. Rare in PH. |
+| 85%+ | TPM benchmark | Japanese TPM mature plants, top-quartile global automotive. Rare in PH. |
 | 75-85% | Excellent | Mature TPM, sensor data, dedicated reliability team. Top-decile PH plants. |
 | 60-75% | Good | Disciplined PM, regular OEE reviews, capable workforce. Top-quartile PH. |
 | 40-60% | Typical PH | Functional plant, paper-based or first-year digital. Median Philippine reality. |
@@ -150,7 +150,7 @@ This sequence matches WorkHive's 4-stage path: Paper-to-Digital (months 1 to 3),
 
 ### What is a good OEE score?
 
-World-class OEE for discrete manufacturing is 85 percent or higher. Industry average is around 60 percent. A plant measuring OEE honestly for the first time typically lands between 40 and 60 percent. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.
+The TPM benchmark for discrete manufacturing (Nakajima's) is an OEE of 85 percent or higher. Industry average is around 60 percent. A plant measuring OEE honestly for the first time typically lands between 40 and 60 percent. Anything below 40 percent usually means measurement errors, not actual performance, because real plants do not survive at that level.
 
 ### What is the OEE formula?
 
@@ -182,4 +182,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 29be5b76a6d99e8d -->
+<!-- md-twin source-sha: 70bda6bf7c053e97 -->

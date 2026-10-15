@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1013-files
-source_sha: ba7bcb580e595e6c
+source_sha: 6560df513ca53879
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -27,7 +27,7 @@ Entries (name · type · sha):
 - `feedback_401_and_403_are_not_the_same_event` · feedback · 407a21a28d24a086
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · e6bf2d7684259756
 - `feedback_87pct_of_entries_could_not_be_edited_by_their_authors` · feedback · 0a7626785c7a31ff
-- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · 80df6452d1d147a5
+- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · 96ba6a32c5fb2779
 - `feedback_a_basis_must_describe_the_page_in_its_own_receipt` · feedback · 1fce6d5fc53aa694
 - `feedback_a_big_finding_set_is_a_signal_to_check_the_record` · feedback · 664e95e988ba2da8
 - `feedback_a_body_wide_keyword_match_reads_marketing_copy` · feedback · bb11b091b6d6feed
@@ -101,7 +101,7 @@ Entries (name · type · sha):
 - `feedback_a_lens_reported_a_test_it_never_ran` · feedback · c64fb719241deac8
 - `feedback_a_library_batch_is_not_an_mcp_walk` · feedback · cc6e1e1cce6be5ea
 - `feedback_a_listed_model_is_not_an_answering_model` · feedback · c0c54a4d5df6baea
-- `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 523e21d446d18205
+- `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 58707fa55aa4e9d0
 - `feedback_a_lock_nothing_runs_locks_nothing` · feedback · 1f7a7fdfe5431e69
 - `feedback_a_locked_trajectory_still_had_the_defect` · feedback · 5bab23356ce11814
 - `feedback_a_long_boards_fail_count_is_a_claim_about_the_run` · feedback · 7fdedefaa1edfcbf
@@ -113,7 +113,7 @@ Entries (name · type · sha):
 - `feedback_a_migration_must_carry_the_rules_that_targeted_the_old_element` · feedback · 4cbd474ba1f5b8e3
 - `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
-- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · d0f51ded92be8e21
+- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · aa93dc66df854e07
 - `feedback_a_name_is_not_an_identity` · feedback · 022ee9cd4f419389
 - `feedback_a_needs_ian_list_is_a_stop` · feedback · 3a6dcd7f24cc8af4
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7

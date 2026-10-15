@@ -66,7 +66,7 @@
           "name": "What is a good OEE for a Philippine plant?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "85% is considered world-class OEE. Most plants start at 40 to 60%, so there is usually a large, low-cost gap to close by attacking availability losses first (unplanned downtime and changeovers), then speed losses, then quality losses."
+            "text": "85% OEE is the TPM benchmark. Most plants start at 40 to 60%, so there is usually a large, low-cost gap to close by attacking availability losses first (unplanned downtime and changeovers), then speed losses, then quality losses."
           }
         },
         {
@@ -322,7 +322,7 @@
          fix_learn_freshness.py guarantees, lifted from each page's own dateModified. -->
     <p class="text-white/50 text-sm mb-8">By WorkHive Editorial Team · Published 2026-08-05 · 9 min read</p>
 
-    <div class="answer-first">The five metrics every Philippine plant should track are <strong>OEE</strong> (Overall Equipment Effectiveness = Availability &times; Performance &times; Quality; world-class is 85%), <strong>MTBF</strong> (Mean Time Between Failures = operating hours &divide; number of failures), <strong>MTTR</strong> (Mean Time To Repair = total repair time &divide; number of repairs), <strong>Availability</strong> (MTBF &divide; (MTBF + MTTR)), and <strong>PM compliance</strong> (PMs completed on time &divide; PMs scheduled; the SMRP benchmark is &ge;90%). Together they turn &ldquo;the line keeps breaking&rdquo; into a number you can act on.</div>
+    <div class="answer-first">The five metrics every Philippine plant should track are <strong>OEE</strong> (Overall Equipment Effectiveness = Availability &times; Performance &times; Quality; the TPM benchmark is 85%), <strong>MTBF</strong> (Mean Time Between Failures = operating hours &divide; number of failures), <strong>MTTR</strong> (Mean Time To Repair = total repair time &divide; number of repairs), <strong>Availability</strong> (MTBF &divide; (MTBF + MTTR)), and <strong>PM compliance</strong> (PMs completed on time &divide; PMs scheduled; the SMRP benchmark is &ge;90%). Together they turn &ldquo;the line keeps breaking&rdquo; into a number you can act on.</div>
 
     <div class="toc">
       <h2>On this page</h2>
@@ -345,7 +345,7 @@
       <p>Reliability metrics also standardise language across shifts and disciplines. When maintenance, production, and management all agree that availability means <code>MTBF &divide; (MTBF + MTTR)</code>, the morning meeting stops being an argument about whose fault the downtime was and starts being a decision about where to spend the next peso.</p>
 
       <h2 id="oee">OEE: Overall Equipment Effectiveness</h2>
-      <p><strong>OEE = Availability &times; Performance &times; Quality.</strong> It is the single number that captures how much saleable output a line actually produced versus its theoretical maximum. Worked example for a bottling line: available 90% of planned time, running at 95% of rated speed, producing 98% good bottles &rarr; OEE = 0.90 &times; 0.95 &times; 0.98 = <strong>83.8%</strong>. World-class is 85%; a typical plant sits at 40&ndash;60%, so the gap is usually enormous and cheap to close.</p>
+      <p><strong>OEE = Availability &times; Performance &times; Quality.</strong> It is the single number that captures how much saleable output a line actually produced versus its theoretical maximum. Worked example for a bottling line: available 90% of planned time, running at 95% of rated speed, producing 98% good bottles &rarr; OEE = 0.90 &times; 0.95 &times; 0.98 = <strong>83.8%</strong>. The TPM benchmark is 85%; a typical plant sits at 40&ndash;60%, so the gap is usually enormous and cheap to close.</p>
       <p>The trap is measuring only one factor. A line that looks 90% &ldquo;available&rdquo; but runs slow and scraps 5% of output is really at ~80% OEE. See the full method in <a href="/learn/what-is-oee-how-to-calculate/">What is OEE and how to calculate it</a>, and read the four maturity stages in <a href="/learn/four-phases-maintenance-analytics-philippine-plants/">the four phases of maintenance analytics</a>.</p>
 
       <h2 id="mtbf">MTBF and MTTR: the reliability pair</h2>
@@ -354,7 +354,7 @@
 
       <h2 id="availability">Availability and how the metrics chain together</h2>
       <p><strong>Availability = MTBF &divide; (MTBF + MTTR).</strong> Using the pump above: 800 &divide; (800 + 8) = <strong>99.0%</strong>. Notice that availability is what OEE&rsquo;s first factor comes from: the metrics are not separate scoreboards, they are one chain: reduce failures (MTBF &uarr;) and speed repairs (MTTR &darr;), and availability, then OEE, then output all rise together.</p>
-      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Metric</th><th>Formula</th><th>Good target</th></tr></thead><tbody><tr><td>OEE</td><td>Availability &times; Performance &times; Quality</td><td>&ge;85% (world-class)</td></tr><tr><td>MTBF</td><td>Operating hours &divide; failures</td><td>Rising trend</td></tr><tr><td>MTTR</td><td>Repair time &divide; repairs</td><td>Falling trend</td></tr><tr><td>Availability</td><td>MTBF &divide; (MTBF + MTTR)</td><td>&ge;95%</td></tr><tr><td>PM compliance</td><td>PMs on time &divide; PMs scheduled</td><td>&ge;90% (SMRP)</td></tr></tbody></table></div>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Metric</th><th>Formula</th><th>Good target</th></tr></thead><tbody><tr><td>OEE</td><td>Availability &times; Performance &times; Quality</td><td>&ge;85% (TPM benchmark)</td></tr><tr><td>MTBF</td><td>Operating hours &divide; failures</td><td>Rising trend</td></tr><tr><td>MTTR</td><td>Repair time &divide; repairs</td><td>Falling trend</td></tr><tr><td>Availability</td><td>MTBF &divide; (MTBF + MTTR)</td><td>&ge;95%</td></tr><tr><td>PM compliance</td><td>PMs on time &divide; PMs scheduled</td><td>&ge;90% (SMRP)</td></tr></tbody></table></div>
 
       <h2 id="pm-compliance">PM compliance: the leading indicator</h2>
       <p>OEE, MTBF, and MTTR are <em>lagging</em> indicators: they tell you what already broke. <strong>PM compliance</strong>: the percentage of preventive tasks done on schedule: is the <em>leading</em> indicator that predicts them. The SMRP benchmark is &ge;90% schedule compliance; plants that hold that line see MTBF climb within a quarter. Start with a real checklist, not a spreadsheet that nobody updates: <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a>.</p>
@@ -369,7 +369,7 @@
 
       <details class="faq-item">
         <summary>What is a good OEE for a Philippine plant?</summary>
-        <div class="faq-answer">85% is considered world-class OEE. Most plants start at 40 to 60%, so there is usually a large, low-cost gap to close by attacking availability losses first (unplanned downtime and changeovers), then speed losses, then quality losses.</div>
+        <div class="faq-answer">85% OEE is the TPM benchmark. Most plants start at 40 to 60%, so there is usually a large, low-cost gap to close by attacking availability losses first (unplanned downtime and changeovers), then speed losses, then quality losses.</div>
       </details>
       <details class="faq-item">
         <summary>What is the difference between MTBF and MTTR?</summary>

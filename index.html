@@ -437,16 +437,20 @@
       transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
     }
     .card-glow:hover {
-      box-shadow: 0 8px 40px -4px rgba(41, 182, 217, 0.25), 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 36px -6px rgba(0,0,0,0.50), 0 2px 8px rgba(0,0,0,0.22);
       transform: translateY(-4px);
     }
 
+    /* ★LIFTED, NOT LIT - AT REST AND UNDER THE POINTER (K, 2026-10-15). The 2026-09-16 pass made these neutral at
+       rest but kept a coloured tint on hover, and .card-orange kept an amber cast even at rest. A coloured shadow on
+       this navy page is a glow, not depth (DESIGN.md: no glows; the craft floor: shadows carry an offset and a soft
+       blur, in the shade of the surface). The hover still answers - the card rises 4px and its shadow deepens. */
     .card-orange {
-      box-shadow: 0 4px 24px -4px rgba(247, 162, 27, 0.15), 0 1px 4px rgba(0,0,0,0.18);
+      box-shadow: 0 4px 24px -4px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.18);
       transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
     }
     .card-orange:hover {
-      box-shadow: 0 8px 40px -4px rgba(247, 162, 27, 0.3), 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 36px -6px rgba(0,0,0,0.50), 0 2px 8px rgba(0,0,0,0.22);
       transform: translateY(-4px);
     }
 
@@ -475,7 +479,7 @@
     }
     .btn-primary:hover {
       transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 28px -2px rgba(247,162,27,0.55);
+      box-shadow: 0 8px 24px -4px rgba(0,0,0,0.60);
     }
     .btn-primary:active { transform: translateY(0) scale(0.98); }
     .btn-primary:focus-visible { outline: 3px solid var(--wh-orange); outline-offset: 3px; }
@@ -849,13 +853,16 @@
        rest under this row, hidden from the detector only because it was written inside a keyframe. It is
        neutral now, the same geometry, so the button is lifted rather than lit. This also fixes a split the
        old shape caused: line 856 turns this animation off on mobile, and because the resting shadow lived
-       only in the keyframe, the CTA had a shadow on desktop and none at all on a phone. */
-    @keyframes cta-pulse-ring {
-      0%   { box-shadow: 0 0 0 0   rgba(247,162,27,.55), 0 4px 18px -2px rgba(0,0,0,.55); }
-      70%  { box-shadow: 0 0 0 10px rgba(247,162,27,.0),  0 4px 18px -2px rgba(0,0,0,.55); }
-      100% { box-shadow: 0 0 0 0   rgba(247,162,27,.0),  0 4px 18px -2px rgba(0,0,0,.55); }
+       only in the keyframe, the CTA had a shadow on desktop and none at all on a phone.
+       ★AND THE RING ITSELF WAS THE LAST GLOW AND THE LAST LOOP (K, 2026-10-15): a zero-offset amber spread, every
+       2.4 seconds for as long as the page was open - DESIGN.md's "zero-offset glows" and "continuous decorative
+       animation" in one rule. A call to action asks for a look ONCE: one nudge (transform only, ease-out, 520ms)
+       after the hero has settled, then stillness. The amber of the button is what keeps marking it as primary. */
+    @keyframes cta-nudge {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40%      { transform: translateY(-2px) scale(1.04); }
     }
-    .cta-pulse { box-shadow: 0 4px 18px -2px rgba(0,0,0,.55); animation: cta-pulse-ring 2.4s ease-out infinite; }
+    .cta-pulse { box-shadow: 0 4px 18px -2px rgba(0,0,0,.55); animation: cta-nudge 520ms cubic-bezier(0.23, 1, 0.32, 1) 1.4s 1; }   /* fill none: a held end-frame would override the hover lift */
 
     /* ── Sticky mobile CTA bar ── */
     #sticky-mobile-cta {
@@ -977,7 +984,7 @@
     }
     .btn-primary:hover {
       transform: translateY(-3px) scale(1.02) !important;
-      box-shadow: 0 10px 28px -4px rgba(247,162,27,0.55);
+      box-shadow: 0 10px 26px -6px rgba(0,0,0,0.60);
     }
 
     .btn-secondary {
@@ -1214,7 +1221,7 @@
      modal stays, because switching accounts from there is a real thing to do. */
   html.wh-signed-in a[data-i="signup"]{display:none !important;}</style>
 </head>
-<body class="bg-navy-wh text-white antialiased overflow-x-hidden">
+<body class="bg-navy-wh text-white antialiased">
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 10px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 <main id="wh-main-content">
 
@@ -1789,8 +1796,13 @@
                    style, and the narrow rule is placed AFTER the base one - a media query adds no
                    specificity, so source order is what decides ([[feedback_a_media_query_adds_no_specificity]]). */
                 .stage-grid { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:10px; }
-                @media (max-width: 380px) { .stage-grid { grid-template-columns: minmax(0,1fr); } }
-                .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; overflow: clip; }
+                @media (max-width: 380px) { .stage-grid { grid-template-columns: minmax(0,1fr); } .stage-card.stage-links-next::after { display: none; } }
+                /* ★THE CARD NO LONGER CLIPS (K, 2026-10-15). overflow:clip was there to cut the hex watermark that
+                   bled off the corner - and it cut the stage connector too: 12px wide at right:-6px, so only the
+                   half inside the card was ever drawn, ending 4px short of the next card across the 10px gap. The
+                   watermark now draws the visible part of its hex inside the card (its own clip-path, the card's
+                   inner corner radius), and the connector spans exactly the gap. */
+                .stage-card { cursor:pointer; transition: transform .18s, box-shadow .18s; position: relative; }
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
                 .stage-card:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
@@ -1806,15 +1818,19 @@
                   display: flex; align-items: center; justify-content: center;
                   font-size: 12px; font-weight: 900; color: var(--wh-navy); margin-bottom: 8px;
                 }
+                /* the 90x104 hex placed 18px past the corner, cut to the 72x86 that showed: the same shape, no bleed */
                 .stage-hex-watermark {
-                  position: absolute; bottom: -18px; right: -18px;
-                  width: 90px; height: 104px; pointer-events: none;
-                  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+                  position: absolute; bottom: 0; right: 0;
+                  width: 72px; height: 86px; pointer-events: none;
+                  clip-path: polygon(62.5% 0%,100% 18.1%,100% 100%,19.2% 100%,0% 90.7%,0% 30.2%);
+                  border-bottom-right-radius: 13px;
                   opacity: 0.07;
                 }
-                .stage-connector-h {
-                  position: absolute; top: 50%; right: -6px;
-                  width: 12px; height: 1px;
+                /* from this card's outer edge to the next card's, across the grid's 10px gap (right:-11px = the 1px
+                   border + the gap); the one-column layout at <=380px has no card beside it, so no connector */
+                .stage-card.stage-links-next::after {
+                  content: ''; position: absolute; top: 50%; right: -11px;
+                  width: 10px; height: 1px;
                   border-top: 1px dashed rgba(255,255,255,0.2);
                   z-index: 2; pointer-events: none;
                 }
@@ -1838,7 +1854,7 @@
               <div class="stage-grid">
 
                 <!-- Card 1: Paper-to-Digital -->
-                <div class="stage-card" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card stage-links-next" onclick="openStagePopup(1)" style="border-radius:14px; border:1px solid rgba(74,159,212,0.25); border-top:1px solid var(--wh-blue); background:linear-gradient(150deg,rgba(74,159,212,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Get out of paper. Build the operating rhythm.</p>
@@ -1848,7 +1864,6 @@
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-blue);"></div>
-                  <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 2: Disciplined -->
@@ -1865,7 +1880,7 @@
                 </div>
 
                 <!-- Card 3: Predictive-Ready -->
-                <div class="stage-card" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:1px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
+                <div class="stage-card stage-links-next" onclick="openStagePopup(3)" style="border-radius:14px; border:1px solid rgba(155,89,232,0.25); border-top:1px solid var(--wh-violet); background:linear-gradient(150deg,rgba(155,89,232,0.13) 0%,rgba(22,32,50,0.95) 100%); padding:12px;">
                   <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
                   <p style="font-size: 12px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 12px;">Move from reacting to predicting.</p>
@@ -1875,7 +1890,6 @@
                     <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet-text);">Next</span><span>90+ days history OR sensors live</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-violet);"></div>
-                  <div class="stage-connector-h"></div>
                 </div>
 
                 <!-- Card 4: Industry Leader -->
@@ -2094,7 +2108,8 @@
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
+          <!-- ★ONE BOX, NOT TWO (K, 2026-10-15): the sourced figure sat in its own tinted, bordered tile inside the card - a card inside a card, four times. It stays, set apart from the paragraph by a hairline instead of a second box. -->
+          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
             <!-- SAME FIGURE, SECOND MEANING (2026-09-17). This tile said the range was a reduction in
                  downtime COSTS while the hero said it was a reduction in downtime - two different
                  quantities behind one number, on one page. Hours is what the guide measures; figure
@@ -2125,7 +2140,7 @@
           Right person, right job, every time. Competence replaces availability.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
+          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
             <p class="text-blue-wh font-bold text-xl stat-figure">Data</p>
             <p class="text-white/80 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
           </div>
@@ -2146,7 +2161,7 @@
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(41,182,217,0.07);">
+          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
             <p class="text-blue-wh font-bold text-xl stat-figure">∞</p>
             <p class="text-white/80 text-xs mt-0.5">Compounding Organizational Memory</p>
           </div>
@@ -2167,7 +2182,7 @@
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div class="rounded-xl px-4 py-3 border border-white/[0.06]" style="background: rgba(247,162,27,0.07);">
+          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
             <p class="text-orange-wh font-bold text-xl stat-figure">4 Pillars</p>
             <p class="text-white/80 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
           </div>
@@ -3260,16 +3275,16 @@
     </div>
 
     <!-- Tabs: Sign In / Sign Up -->
-    <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
+    <div class="flex gap-1 p-1 mb-5 rounded-xl" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
       <!-- ★TOUCH FLOOR. Both tabs measured 149.5x40 and 148.5x40 inside #signin-modal - under this
            platform's 44px rule, on the control that chooses between signing in and creating an account.
            Height-only fix (py-2.5 -> py-3 plus an explicit min-height): the width was already ample, so
            this cannot introduce the horizontal overflow the same prover checks in the same run. -->
       <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
-        class="flex-1 py-3 text-sm font-bold transition-colors"
-        style="min-height:44px; background:rgba(247,162,27,0.1); color:var(--wh-orange-text); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
+        class="flex-1 py-3 text-sm font-bold transition-colors rounded-lg"
+        style="min-height:44px; background:rgba(247,162,27,0.1); color:var(--wh-orange-text);" data-i="signin">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
-        class="flex-1 py-3 text-sm font-semibold transition-colors"
+        class="flex-1 py-3 text-sm font-semibold transition-colors rounded-lg"
         style="min-height:44px; color:rgba(255,255,255,0.80);" data-i="signup">Sign Up</button>
     </div>
 

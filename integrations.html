@@ -142,8 +142,12 @@
        is what makes it read as depth rather than grouping. The options' border cannot go: it is the selection
        affordance (role=button, aria-pressed, amber on hover). So the STEP container drops its fill and keeps
        its hairline, which is the same shape already accepted on engineering-design's wizard steps - a frame
-       around cards rather than a card around cards. Scoped to the step that holds them, not to .card. */
-    #step-1 { background: transparent; }
+       around cards rather than a card around cards. Scoped to the step that holds them, not to .card.
+       ★AND THE FRAME GOES TOO (K, 2026-10-15). A hairline-bordered rounded box around option cards still reads as
+       a card around cards (the design detector counted all eight tiles nested). The wizard shows one step at a
+       time, so the frame grouped nothing the step's own heading and spacing do not: the options now sit on the
+       page under their question, and the tiles are the only boxes. */
+    .wiz-step-open { margin-bottom: 16px; padding: 20px 0; }   /* the .card spacing, without the box */
 
     .source-card {
       background: var(--card); border: 2px solid rgba(255,255,255,0.07);
@@ -457,7 +461,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
   <!-- Mode tabs -->
-  <div style="display:flex; gap:8px; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0;">
+  <!-- the tab rail is an inset line the active tab's underline paints over, not a border the tabs sit pressed against (K, 2026-10-15) -->
+  <div style="display:flex; gap:8px; margin-bottom:1.5rem; box-shadow:inset 0 -1px 0 var(--border);">
     <button id="tab-import" type="button" class="wh-toggle int-tab active" onclick="switchTab('import')" style="border-bottom-color:var(--gold); color:var(--gold);" translate="no" data-i="importfile">Import File</button>
     <button id="tab-sync" type="button" class="wh-toggle int-tab" onclick="switchTab('sync')" style="color:rgba(255,255,255,0.80);" translate="no" data-i="livesync">Live Sync</button>
     <button id="tab-api" type="button" class="wh-toggle int-tab" onclick="switchTab('api')" style="color:rgba(255,255,255,0.80);" translate="no">API Keys</button>
@@ -535,7 +540,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 
     <!-- ── STEP 1: Choose source + entity type ── -->
-    <div id="step-1" class="card">
+    <div id="step-1" class="wiz-step-open">
       <h2 style="font-size:.75rem; font-weight:700; margin:0 0 12px;" data-i="whichcmms">Which CMMS are you importing from?</h2>
       <div class="source-grid">
         <div class="source-card" data-type="sap_pm" onclick="selectSource('sap_pm')" role="button" tabindex="0" aria-pressed="false" aria-label="Import from SAP PM" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">

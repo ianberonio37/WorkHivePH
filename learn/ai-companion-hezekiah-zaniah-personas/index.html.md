@@ -49,7 +49,7 @@ Zaniah is the maintenance strategist. She pulls from the strategic knowledge: OE
 
 - "We are reactive today. What is the highest-return next step?"
 - "Which two KPIs should I put on the plant dashboard first?"
-- "What is a world-class OEE target and how far are we from it?"
+- "What OEE should we target and how far are we from it?"
 - "How do I justify a predictive-maintenance investment to management?"
 
 She answers like a reliability manager who sequences the climb so you spend on the next rung, not two rungs up.
@@ -136,4 +136,4 @@ Yes. It accepts English, Filipino and Taglish and replies in the language you us
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 1cd34940518dcdab -->
+<!-- md-twin source-sha: 5a3a276d1d8f20cb -->

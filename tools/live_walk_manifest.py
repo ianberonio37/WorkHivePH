@@ -526,8 +526,13 @@ def _w4_missing(row: dict, receipts: dict) -> str:
                 _claimed = got.get("detectorDisproven") or {}
                 _seen = _C(f.get("antipattern") for f in primary)
                 _unclaimed = {k: v for k, v in _seen.items() if k not in _claimed}
+                # ★FEWER IS NOT DRIFT (2026-10-15). The w4-design gate learned on 2026-09-16 that `!=` fails a page
+                # for having been FIXED (asset-hub's six side-tabs went to 0 and took six rows down) and compares with
+                # `>`; this ledger kept `!=`. When the ratchet learned that tokens.css's root clip is not a clipped
+                # container, 24 index/logbook design rows read "disproven at 3, now 1" and left the ledger - a pin
+                # covering MORE than remains is stale, not open. Only a count that ROSE is a new finding.
                 _drift = {k: (c.get("count"), _seen.get(k, 0)) for k, c in _claimed.items()
-                          if _seen.get(k, 0) != c.get("count")}
+                          if _seen.get(k, 0) > (c.get("count") or 0)}
                 if _unclaimed or _drift:
                     _d = "; ".join(f"{k} x{v}" for k, v in sorted(_unclaimed.items()))
                     for k, (wnt, gt) in sorted(_drift.items()):

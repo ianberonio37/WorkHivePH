@@ -29,15 +29,17 @@
 
     /* Aurora background */
     .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-    .aurora-beam { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; will-change: transform; }
-    .beam-1 { width: 600px; height: 300px; background: var(--wh-orange); top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
-    .beam-2 { width: 500px; height: 250px; background: var(--wh-blue); top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
-    .beam-3 { width: 400px; height: 200px; background: var(--wh-orange); bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
-    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
-    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
-    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
-    @media (max-width: 767px) {
-      .beam-1, .beam-2, .beam-3 { animation: none; will-change: auto; }
+    /* ★THE AURORA HOLDS STILL (K, 2026-10-15). Three 80px-blurred blobs drifted behind this page forever - DESIGN.md's
+       "continuous decorative animation", blur as decoration, and the costliest paint on the low-end phones this
+       tool is used on. The same ambient light, static: two soft radial glows on the layer itself (the pattern
+       pm-scheduler and community already use) - no moving layers, nothing to clip. */
+    .aurora-bg::before {
+      content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.08) 0%, transparent 70%); filter: blur(60px);
+    }
+    .aurora-bg::after {
+      content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.06) 0%, transparent 70%); filter: blur(60px);
     }
 
     .hex-pattern {
@@ -373,9 +375,6 @@
 
 <!-- Aurora -->
 <div class="aurora-bg hex-pattern">
-  <div class="aurora-beam beam-1"></div>
-  <div class="aurora-beam beam-2"></div>
-  <div class="aurora-beam beam-3"></div>
 </div>
 
 <!-- App Layout -->

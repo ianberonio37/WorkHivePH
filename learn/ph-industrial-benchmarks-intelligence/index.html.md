@@ -14,7 +14,7 @@ Updated 24 Aug 2026
 ·
 7 min read
 
-**Short answer:** WorkHive PH Industrial Intelligence is a set of free quarterly benchmark reports built from anonymised data across participating Philippine plants. Plants see how their OEE, MTBF, MTTR, PM compliance, and downtime cost compare to the sector average (manufacturing, food and beverage, power generation, water utilities, electronics, petrochemicals, BMS). Reading it needs a hive of your own at Stair 3 (Predictive-Ready); aggregation is anonymous and has no separate consent step. This is the only Philippine-specific industrial benchmark dataset that exists. This is why context matters more than the number: a “world-class **85 percent OEE**” benchmark from a German automotive plant tells a Cabuyao food plant nothing about whether its own **62 percent** is good or bad.
+**Short answer:** WorkHive PH Industrial Intelligence is a set of free quarterly benchmark reports built from anonymised data across participating Philippine plants. Plants see how their OEE, MTBF, MTTR, PM compliance, and downtime cost compare to the sector average (manufacturing, food and beverage, power generation, water utilities, electronics, petrochemicals, BMS). Reading it needs a hive of your own at Stair 3 (Predictive-Ready); aggregation is anonymous and has no separate consent step. This is the only Philippine-specific industrial benchmark dataset that exists. This is why context matters more than the number: a borrowed **85 percent OEE** benchmark from a German automotive plant tells a Cabuyao food plant nothing about whether its own **62 percent** is good or bad.
 
 Who this is for
 
@@ -28,9 +28,9 @@ Who this is for
 
 ## Why PH plants need PH benchmarks
 
-Most industrial KPI benchmarks available to Philippine plants come from North American or European sources (SMRP, ARC, Plant Engineering surveys). The benchmarks are useful but the context is wrong: those plants run with different ambient temperatures, different labor cost structures, different supplier ecosystems, different regulatory regimes, and different power-quality conditions. A "world-class 85 percent OEE" benchmark from a German automotive plant tells a Cabuyao food plant nothing useful about whether their 62 percent is good.
+Most industrial KPI benchmarks available to Philippine plants come from North American or European sources (SMRP, ARC, Plant Engineering surveys). The benchmarks are useful but the context is wrong: those plants run with different ambient temperatures, different labor cost structures, different supplier ecosystems, different regulatory regimes, and different power-quality conditions. A borrowed "85 percent OEE" benchmark from a German automotive plant tells a Cabuyao food plant nothing useful about whether their 62 percent is good.
 
-PH-specific benchmarks fix this. When a Pampanga beverage plant sees that the median PH beverage-sector MTTR is 4.2 hours and their MTTR is 5.8 hours, the gap is actionable. When the same plant sees the world-class number is 1.5 hours, the gap is demoralising and unactionable.
+PH-specific benchmarks fix this. When a Pampanga beverage plant sees that the median PH beverage-sector MTTR is 4.2 hours and their MTTR is 5.8 hours, the gap is actionable. When the same plant sees the global best is 1.5 hours, the gap is demoralising and unactionable.
 
 ## What the reports cover
 
@@ -64,9 +64,9 @@ Two different rules are easy to confuse here, and only one of them is yours to s
 
 ## How plants use the reports
 
-1. **Capex justification.** "Our MTBF is 600 hours; the median for our sector is 1,400 hours. Closing half the gap to 1,000 hours saves PHP X per year in downtime." This argument lands with finance teams; "world-class is 8,000" does not.
+1. **Capex justification.** "Our MTBF is 600 hours; the median for our sector is 1,400 hours. Closing half the gap to 1,000 hours saves PHP X per year in downtime." This argument lands with finance teams; "the global best is 8,000" does not.
 2. **Vendor negotiation.** Showing a supplier that the sector median lead time is 21 days when they are quoting 45 days surfaces a real conversation.
-3. **Internal stretch targets.** Setting next year's PM compliance target at "75 percent (current sector P75)" is more credible than "85 percent (world-class)" and more motivating than the current 62 percent.
+3. **Internal stretch targets.** Setting next year's PM compliance target at "75 percent (current sector P75)" is more credible than "85 percent (global benchmark)" and more motivating than the current 62 percent.
 4. **Insurance and audit conversations.** Showing an insurer that the plant's MTTR is in the top quartile of the sector supports rate negotiation.
 
 ## Sector coverage roadmap
@@ -91,9 +91,9 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 ## Frequently asked questions
 
-### Why use PH-specific benchmarks instead of world-class?
+### Why use PH-specific benchmarks instead of global ones?
 
-World-class benchmarks (from SMRP, ARC, German auto industry, etc.) tell a Philippine plant where the global ceiling is. PH-specific benchmarks tell them where the actionable target is. A Cabuyao food plant comparing to a German automotive plant gets a demoralising 30-point gap; comparing to median Philippine food plants gives a 5-point gap they can close in a year. Both views are useful, but PH-specific drives the actual improvement work.
+Global benchmarks (from SMRP, ARC, German auto industry, etc.) tell a Philippine plant where the global ceiling is. PH-specific benchmarks tell them where the actionable target is. A Cabuyao food plant comparing to a German automotive plant gets a demoralising 30-point gap; comparing to median Philippine food plants gives a 5-point gap they can close in a year. Both views are useful, but PH-specific drives the actual improvement work.
 
 ### How is anonymity enforced?
 
@@ -125,4 +125,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3c978eedefee5a09 -->
+<!-- md-twin source-sha: c8cea82baaa40c6f -->

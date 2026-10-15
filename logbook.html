@@ -32,6 +32,16 @@
        if JS rewrites an element's style wholesale, nothing inline on that element is load-bearing. */
     #asset-tab-register, #asset-tab-manage { min-height: 44px; }
 
+    /* ★A LIVE STATE BREATHES IN ITS WORDS, NOT IN A PULSING DOT (K, 2026-10-15). "Listening..." (the microphone is
+       open) and "New team entry" each carried a tiny dot on Tailwind's infinite animate-pulse - motion on the
+       smallest element on the screen, read by nobody, and never stopped for a reader who asked for less motion.
+       The microphone state keeps a live signal where it is read: the label breathes (opacity 1 -> 0.72, so the
+       text stays above its contrast). The new-entry badge needs no motion at all - its arrival is the signal -
+       so its dot holds still. */
+    .wh-live-label { animation: wh-live-breathe 1.6s ease-in-out infinite; }
+    @keyframes wh-live-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
+    @media (prefers-reduced-motion: reduce) { .wh-live-label { animation: none; } }
+
     * { font-family: 'Poppins', sans-serif; }
     /* I1 CLS: the 2-col desktop layout + 760px reserve must apply BEFORE the async Tailwind CDN
        loads, or the grid reflows on CDN-ready (measured 0.33 CLS, the page's dominant shift). This
@@ -91,21 +101,17 @@
       pointer-events: none;
       overflow: hidden;
     }
-    .aurora-beam {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.18;
-      will-change: transform;
+    /* ★THE AURORA HOLDS STILL (K, 2026-10-15). Three 80px-blurred blobs drifted behind this page forever - DESIGN.md's
+       "continuous decorative animation", blur as decoration, and the costliest paint on the low-end phones this
+       tool is used on. The same ambient light, static: two soft radial glows on the layer itself (the pattern
+       pm-scheduler and community already use) - no moving layers, nothing to clip. */
+    .aurora-bg::before {
+      content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(247,162,27,0.08) 0%, transparent 70%); filter: blur(60px);
     }
-    .beam-1 { width: 600px; height: 300px; background: var(--wh-orange); top: -80px; left: -100px; animation: drift1 12s ease-in-out infinite; }
-    .beam-2 { width: 500px; height: 250px; background: var(--wh-blue); top: 20%; right: -80px; animation: drift2 15s ease-in-out infinite; }
-    .beam-3 { width: 400px; height: 200px; background: var(--wh-orange); bottom: 10%; left: 30%; animation: drift3 10s ease-in-out infinite; }
-    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
-    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
-    @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
-    @media (max-width: 767px) {
-      .beam-1, .beam-2, .beam-3 { animation: none; will-change: auto; }
+    .aurora-bg::after {
+      content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(41,182,217,0.06) 0%, transparent 70%); filter: blur(60px);
     }
 
     /* ── Step form navigation ── */
@@ -336,18 +342,20 @@
       border-radius: 999px;
     }
 
-    /* Status toggle */
+    /* Status toggle. ★A TRACK, NOT CELLS AGAINST THE OUTLINE (K, 2026-10-15): the two choices filled the bordered box
+       edge to edge, so the selected tint met the outline with no inset (the detector's cramped-padding). The box is now
+       a track with a 4px inset and the choices are pills inside it - the selected one reads as a thumb on the track.
+       Each pill keeps its 44px height. */
     .status-toggle {
-      display: flex;
+      display: flex; gap: 4px; padding: 4px;
       border-radius: 0.75rem;
-      overflow: hidden;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(22,32,50,0.8);
     }
     .status-toggle label {
       flex: 1;
       display: flex; align-items: center; justify-content: center;
-      min-height: 44px;
+      min-height: 44px; border-radius: 0.5rem;
       text-align: center;
       padding: 0.6rem 0;
       font-size: 0.75rem;
@@ -535,9 +543,6 @@
 
   <!-- Aurora -->
   <div class="aurora-bg">
-    <div class="aurora-beam beam-1"></div>
-    <div class="aurora-beam beam-2"></div>
-    <div class="aurora-beam beam-3"></div>
   </div>
 
   <!-- Hex pattern overlay -->
@@ -716,8 +721,8 @@
                 <!-- Recording state -->
                 <div id="vf-recording" style="display:none; margin-top:10px; padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px;">
                   <p style="font-size:.75rem; color:var(--wh-red); font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--wh-red); animation:pulse 1s infinite;"></span>
-                    Listening... describe the machine, what happened, and what was done.
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--wh-red);" aria-hidden="true"></span>
+                    <span class="wh-live-label">Listening... describe the machine, what happened, and what was done.</span>
                   </p>
                 </div>
                 <!-- Processing state -->
@@ -742,7 +747,8 @@
                 </div>
                 <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" capture="environment" style="display:none;" />
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
-                  <img id="vdc-preview-img" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
+                  <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
+                  <img id="vdc-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
                   <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
                     <button data-i="p_analyzewithai_8c55" id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 16px; background:rgba(74,222,128,0.18); color:var(--wh-green); border:1px solid rgba(74,222,128,0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
                     <button data-i="p_retake_1645" id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 16px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
@@ -1040,7 +1046,7 @@
                              oninput="updateQualityPct()" />
                     </div>
                   </div>
-                  <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 rounded-lg"
+                  <div id="quality-pct-display" class="hidden mt-2 text-center py-1.5 px-3 rounded-lg"
                        style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);">
                     <span data-i="p_oeequality_b7b1" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">OEE Quality: </span>
                     <span id="quality-pct-value" style="font-size:0.9rem;font-weight:800;color:var(--wh-green);"></span>
@@ -1062,7 +1068,7 @@
                          tabindex. So replacing an attached photo needed a pointer, and a screen-reader user
                          was told nothing about it at all. Named, focusable and operable from the keyboard;
                          the click listener already attached below does the work for all three. -->
-                    <img id="photo-thumb" class="photo-thumb cursor-pointer" role="button" tabindex="0"
+                    <img id="photo-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="photo-thumb cursor-pointer" role="button" tabindex="0"
                          title="Tap to replace photo" alt="Attached photo"
                          aria-label="Replace the attached photo"
                          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" />
@@ -1081,8 +1087,8 @@
                 <!-- Voice status -->
                 <div id="voice-status" class="hidden rounded-xl px-4 py-3 text-xs text-white/80 flex items-center gap-2"
                      style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
-                  <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
-                  <span data-i="p_listening_4fc2" id="voice-status-text">Listening...</span>
+                  <div class="w-2 h-2 rounded-full bg-red-400" aria-hidden="true"></div>
+                  <span data-i="p_listening_4fc2" id="voice-status-text" class="wh-live-label">Listening...</span>
                 </div>
 
               </div><!-- end extras-drawer -->
@@ -1234,7 +1240,7 @@
           class="hidden w-full mb-3 rounded-xl px-4 py-2.5 flex items-center gap-2.5 min-h-[44px] transition-colors"
           style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.35);cursor:pointer;"
           onmouseover="this.style.background='rgba(41,182,217,0.2)'" onmouseout="this.style.background='rgba(41,182,217,0.12)'">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse flex-shrink-0" style="background:var(--wh-blue);"></span>
+          <span class="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0" style="background:var(--wh-blue);" aria-hidden="true"></span>
           <span data-i="p_newteamentry_dea3" id="logbook-live-badge-text" class="text-xs font-semibold" style="color:var(--wh-blue-light);">New team entry</span>
           <span data-i="p_taptorefresh_5acb" class="ml-auto text-xs font-bold" style="color:rgba(41,182,217,0.8);">Tap to refresh ↻</span>
         </button>

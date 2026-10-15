@@ -132,7 +132,9 @@
   #ar-print-wrapper .wh-help > summary,
   #ar-print-wrapper .wh-help > p { color: var(--ink); }
 
-  .doc-cover { text-align: left; padding-bottom: 16px; border-bottom: 3px solid var(--accent); margin-bottom: 16px; }   /* 18px x2 was off-grid (W46008) */
+  /* the masthead rule is set apart from the 2px accent rules under each h2 by TONE (the document ink), not by a
+     heavier coloured bar - a 3px accent stripe is the side-tab the design floor refuses (K, 2026-10-15) */
+  .doc-cover { text-align: left; padding-bottom: 16px; border-bottom: 2px solid var(--ink); margin-bottom: 16px; }   /* 18px x2 was off-grid (W46008) */
   .doc-cover .pcode { font-size: 9.5pt; color: var(--muted); letter-spacing: 0.06em; font-weight: 700; }
   .doc-cover .ptitle { font-size: 22pt; font-weight: 700; margin: 6px 0; line-height: 1.1; }
   .doc-cover .pmeta { font-size: 9.5pt; color: var(--muted); margin-top: 8px; }

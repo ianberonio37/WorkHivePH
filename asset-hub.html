@@ -449,9 +449,12 @@
       max-height: 92vh; overflow-y: auto;
     }
     #fmea-modal h3, #rcm-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
+    /* sentence case (K, 2026-10-15): these labels are QUESTIONS a person reads while filling the form - "Effect
+       (what happens when it fails?)", "1. JA1011 decision (what task type does this failure deserve?)" - and set
+       in capitals with tracking they read as shouting and slow the read; weight carries the label instead */
     #fmea-modal label, #rcm-modal label {
-      display: block; font-size: 0.8rem; color: var(--muted);
-      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+      display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted);
+      margin-bottom: 4px;
     }
     #fmea-modal input, #fmea-modal select,
     #rcm-modal input, #rcm-modal select {
@@ -4187,9 +4190,13 @@
         w.document.open();
         w.document.write(html);
         w.document.close();
-        // Print after the popup has painted at least one frame.
+        // Print after the popup has painted at least one frame, and after its face has arrived: `load` waits for the
+        // Poppins stylesheet but not the font files, and a sheet printed before them prints in the fallback face.
         w.addEventListener('load', () => {
-          try { w.focus(); w.print(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+          const fontsReady = (w.document.fonts && w.document.fonts.ready) ? w.document.fonts.ready : Promise.resolve();
+          fontsReady.catch(() => {}).then(() => {
+            try { w.focus(); w.print(); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+          });
         });
       } catch (err) {
         showToast(whAiError(err, 'The report did not generate. Try again.'));
@@ -4294,6 +4301,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"/>
 <title>Reliability Report: ${esc(node.tag || node.name || 'asset')}</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* Phase R.7 print CSS — black-on-white, A4 layout, page-break-friendly */
   @page { size: A4; margin: 12mm 14mm; }
@@ -4302,7 +4310,7 @@
   body {
     padding: 14mm;
     color: #111; background: #fff;
-    font-family: 'Liberation Sans', Arial, Helvetica, sans-serif;
+    font-family: Poppins, system-ui, -apple-system, sans-serif;   /* DESIGN.md's face, loaded in this window's own head (K) */
     font-size: 10.5pt; line-height: 1.4;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }

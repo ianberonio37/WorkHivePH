@@ -98,7 +98,7 @@ The 3-step rollout that sticks past month two, why imported ERPs keep failing in
 [OEE
 10 min read · 17 May 2026
 What is OEE and how do I calculate it? (worked Philippine factory example)
-The OEE formula in plain language, a chocolate-bar-line worked example, the 6 big losses, world-class vs Philippine benchmarks, and a 12-18 month path from 50 to 75 percent.](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
+The OEE formula in plain language, a chocolate-bar-line worked example, the 6 big losses, global vs Philippine benchmarks, and a 12-18 month path from 50 to 75 percent.](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 [Reliability
 9 min read · 17 May 2026
 MTBF vs MTTR explained for plant supervisors
@@ -248,4 +248,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: f90c86df4578f1c9 -->
+<!-- md-twin source-sha: 70fd45d9176bce95 -->
