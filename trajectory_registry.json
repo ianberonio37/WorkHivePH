@@ -779615,8 +779615,8 @@
     },
     {
       "id": "SL798",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · achievements",
       "pages": [
@@ -779673,12 +779673,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on achievements.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as David Velasco (worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form. achievements.html read twice at 390 and at 1280 - the device remembering David Velasco, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (29 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL798.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL799",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · analytics report",
       "pages": [
@@ -779735,12 +779742,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on analytics-report.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. analytics-report.html read twice at 390 and at 1280 - the device remembering Oscar Ramos, then Miguel Santos (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (23 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL799.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL800",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · analytics",
       "pages": [
@@ -779799,12 +779813,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on analytics.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form. analytics.html read twice at 390 and at 1280 - the device remembering Gloria Tan, then Ben Ocampo (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (51 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL800.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL801",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · asset hub",
       "pages": [
@@ -779861,12 +779882,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on asset-hub.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form. asset-hub.html read twice at 390 and at 1280 - the device remembering Ben Ocampo, then Gloria Tan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (27 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL801.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL802",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · assistant",
       "pages": [
@@ -779923,12 +779951,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on assistant.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form. assistant.html read twice at 390 and at 1280 - the device remembering Ben Ocampo, then Gloria Tan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (16 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL802.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL803",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · community",
       "pages": [
@@ -779985,12 +780020,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on community.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. community.html read twice at 390 and at 1280 - the device remembering Oscar Ramos, then Miguel Santos (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (44 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL803.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL804",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · dayplanner",
       "pages": [
@@ -780047,12 +780089,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on dayplanner.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form. dayplanner.html read twice at 390 and at 1280 - the device remembering Gloria Tan, then Ben Ocampo (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (42 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL804.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL805",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · hive",
       "pages": [
@@ -780109,12 +780158,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on hive.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form. hive.html read twice at 390 and at 1280 - the device remembering Ben Ocampo, then Gloria Tan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (25 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL805.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL806",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · index",
       "pages": [
@@ -780171,12 +780227,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on index.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form. index.html read twice at 390 and at 1280 - the device remembering Ben Ocampo, then Gloria Tan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (33 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL806.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL807",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - solo-owner · integrations",
       "pages": [
@@ -780233,12 +780296,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on integrations.html as solo-owner: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. integrations.html read twice at 390 and at 1280 - the device remembering Oscar Ramos, then Miguel Santos (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (28 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL807.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL808",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · inventory",
       "pages": [
@@ -780295,12 +780365,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on inventory.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as David Velasco (worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form. inventory.html read twice at 390 and at 1280 - the device remembering David Velasco, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (26 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL808.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL809",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · logbook",
       "pages": [
@@ -780357,12 +780434,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on logbook.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Bryan Garcia (worker of Baguio Textile Mills) through the product's own sign-in form. logbook.html read twice at 390 and at 1280 - the device remembering Bryan Garcia, then Wilfredo Malabanan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (48 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL809.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL810",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - buyer · marketplace seller profile",
       "pages": [
@@ -780419,12 +780503,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on marketplace-seller-profile.html?worker=David%20Velasco as buyer: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Bryan Garcia (worker of Baguio Textile Mills) through the product's own sign-in form. marketplace-seller-profile.html?worker=David%20Velasco read twice at 390 and at 1280 - the device remembering Bryan Garcia, then Wilfredo Malabanan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (19 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL810.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL811",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - buyer · marketplace seller",
       "pages": [
@@ -780481,12 +780572,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on marketplace-seller.html as buyer: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Bryan Garcia (worker of Baguio Textile Mills) through the product's own sign-in form. marketplace-seller.html read twice at 390 and at 1280 - the device remembering Bryan Garcia, then Wilfredo Malabanan (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (29 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL811.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL812",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - buyer · marketplace",
       "pages": [
@@ -780543,12 +780641,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on marketplace.html as buyer: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Isidro Suarez (worker of Manila Electronics Assembly) through the product's own sign-in form. marketplace.html read twice at 390 and at 1280 - the device remembering Isidro Suarez, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (64 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL812.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL813",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - machine-client · plant connections",
       "pages": [
@@ -780605,12 +780710,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on plant-connections.html as machine-client: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Christine Dizon (supervisor of Baguio Textile Mills) through the product's own sign-in form. plant-connections.html read twice at 390 and at 1280 - the device remembering Christine Dizon, then David Velasco (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (16 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL813.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL814",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · pm scheduler",
       "pages": [
@@ -780667,12 +780779,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on pm-scheduler.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. pm-scheduler.html read twice at 390 and at 1280 - the device remembering Oscar Ramos, then Miguel Santos (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (29 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL814.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL815",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · project manager",
       "pages": [
@@ -780729,12 +780848,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on project-manager.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Christine Dizon (supervisor of Baguio Textile Mills) through the product's own sign-in form. project-manager.html read twice at 390 and at 1280 - the device remembering Christine Dizon, then David Velasco (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (28 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL815.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL816",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · resume",
       "pages": [
@@ -780791,12 +780917,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on resume.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Isidro Suarez (worker of Manila Electronics Assembly) through the product's own sign-in form. resume.html read twice at 390 and at 1280 - the device remembering Isidro Suarez, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (30 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL816.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL817",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · shift brain",
       "pages": [
@@ -780853,12 +780986,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on shift-brain.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. shift-brain.html read twice at 390 and at 1280 - the device remembering Oscar Ramos, then Miguel Santos (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (23 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL817.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL818",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - worker · skillmatrix",
       "pages": [
@@ -780915,6 +781055,13 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on skillmatrix.html as worker: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as David Velasco (worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form. skillmatrix.html read twice at 390 and at 1280 - the device remembering David Velasco, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (37 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL818.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
@@ -780976,8 +781123,8 @@
     },
     {
       "id": "SL820",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - fleet-supervisor · audit log",
       "pages": [
@@ -781034,12 +781181,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on audit-log.html as fleet-supervisor: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form. audit-log.html read twice at 390 and at 1280 - the device remembering Gloria Tan, then Ben Ocampo (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (24 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL820.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL821",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - oversight · founder console",
       "pages": [
@@ -781090,12 +781244,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on founder-console.html as oversight: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Leandro Marquez (platform admin (oversight)) through the product's own sign-in form. founder-console.html read twice at 390 and at 1280 - the device remembering Leandro Marquez, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (3 controls at 1280), and the page never showed the remembered name (it does not repaint the cache; masked text identical). The rows shown are the account's. Receipt .tmp/mcp_walks/SL821.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL822",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - oversight · marketplace admin",
       "pages": [
@@ -781146,12 +781307,19 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on marketplace-admin.html as oversight: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Leandro Marquez (platform admin (oversight)) through the product's own sign-in form. marketplace-admin.html read twice at 390 and at 1280 - the device remembering Leandro Marquez, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (20 controls at 1280), and the page corrected the cached name to the account. The rows shown are the account's. Receipt .tmp/mcp_walks/SL822.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
       "id": "SL823",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D2 · The platform must decide whose rows this page shows by the signed-in account, never by a display name - oversight · platform actions",
       "pages": [
@@ -781202,6 +781370,13 @@
         "engine": "chromium",
         "ask": "The platform must decide whose rows this page shows by the signed-in account, never by a display name",
         "closes": "the D2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-16] pct -> 60. WALKED LIVE 2026-10-16 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)): D2 on platform-actions.html as oversight: AU3's oracle (.tmp/slw/d2_walk_*.js from au_walk.js, reads bounded at 25 s); teeth on logbook.html at e8e02917^ (8 lines, 5 controls differ). Witness: playwright-mcp, signed in as Leandro Marquez (platform admin (oversight)) through the product's own sign-in form. platform-actions.html read twice at 390 and at 1280 - the device remembering Leandro Marquez, then Christine Dizon (another real person, written to wh_last_worker before the page loaded) - and compared with the names masked apart: every line of text and every control identical (39 controls at 1280), and the page never showed the remembered name (it does not repaint the cache; masked text identical). The rows shown are the account's. Receipt .tmp/mcp_walks/SL823.json.",
+      "artifacts": {
+        "gates": [
+          "bug-repro-ratchet",
+          "ownership-by-account"
+        ]
       }
     },
     {
@@ -1007028,5 +1007203,5 @@
       }
     }
   ],
-  "next": "SL wave: D1 (99) -> D2-D4 -> A1/A2/A4 -> AV2-AV4 -> C2 (155) / C3 (88) -> L2-L4 -> LB1-LB4 -> RL1-RL3 (22 open sub-layers, ~1,000 rows). Ian: old Vercel deployments, skills_table approval, VALIDATE logbook_id_is_a_token after a prod read; local commits 08cb9598.. not pushed"
+  "next": "SL wave: D3 (21) / D4 (6) -> A1/A2/A4 -> AV2-AV4 -> C2 (155) / C3 (88) -> L2-L4 -> LB1-LB4 -> RL1-RL3; D1 (99) waits on Ian's design choice (per-section chips vs per-figure reveal). Ian: old Vercel deployments, skills_table approval, VALIDATE logbook_id_is_a_token; local commits 08cb9598.. not pushed"
 }
