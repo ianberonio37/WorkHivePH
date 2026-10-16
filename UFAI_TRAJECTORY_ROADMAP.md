@@ -4279,6 +4279,14 @@ from?" reveal (`display_provenance.json`, 58 figures on 18 pages) never shipped.
 section, which goes against "silence is golden" status chrome, or a per-figure tap-to-reveal built from the
 provenance map.
 
+**Ian's decisions, 2026-10-16 (asked, answered):**
+- **D1: per-figure reveal.** The page stays quiet; tapping a figure (or a small info control) reveals its source and the
+  view it reads, built from `display_provenance.json`. Not a chip per section.
+- **D3: 30-day recoverable deletes.** A delete becomes a soft delete (`deleted_at`): the item disappears, an Undo toast
+  and a "Recently deleted" view restore it for 30 days, then it is purged. This matches the privacy policy's 30-day
+  purge. It covers the hard deletes on `inventory_items`, `schedule_items`, `asset_nodes`, `pm_assets`,
+  `project_links` and `project_roles`, and every read of those tables must exclude deleted rows.
+
 **Banked:** S3 154/154, CA2 155/155, H2 155/155, CI1 155/155, CI4 155/155, S4 36/36, S5 155/155, F5 155/155, CI3 155/155, F3 155/155, F2 155/155, H4 67/67, CI2 154/155 (the ventilation calculator's WebKit read pending), H1 155/155, AV1 155/155 (re-walked with the worker blocked), A3 31/31, F1 62/62, F4 155/155, C1 25/25, CA3 34/34, CA1 37/37, CA4 127/127, H3 93/93, D2 25/25 and BRH318–322 closed.
 
 ## §ENH · The ENHANCEMENT wave — what a page lacks that a person would feel, the solar power-station planner first (Ian, 2026-10-14)
