@@ -392,7 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
-    <p id="skillmatrix-source-chip" style="margin-top:4px;"></p>
+    <p id="skillmatrix-source-chip" hidden data-wh-sources-collapsed></p>
   </header>
 
   <!-- Onboarding (first-time setup) -->
@@ -483,27 +483,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="sm-action-text">Computing recommendation...</div>
       <a class="ac-cta" id="sm-action-btn" href="#discipline-cards" hidden></a>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
-      Show details
-    </button>
-    <div id="sm-summary-details" role="region" aria-label="Skill progress explainer"
-    data-rag-tile="skillmatrix:detail_panel"
-    data-rag-label="Skill matrix detail">
-      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
-        <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
-        <!-- T18 (2026-08-28): "all disciplines" was imprecise, and a real account shows why. Badges
-             exist outside this matrix - Community awards them too - and a worker holding one sees a
-             total that is one lower than the badges they know they have, with nothing on the page
-             accounting for the difference. Measured: Bryan Garcia holds 7 badges across 6
-             disciplines; this page correctly counts 6, because Community is not one of the five
-             SKILL disciplines. The number was right and only the sentence was loose. -->
-        <li><strong data-i="p_totalbadges_4ca2">Total badges</strong>: count of your badges across the five skill disciplines and their levels (max 5 levels × 5 disciplines = 25). Badges from elsewhere on WorkHive, such as Community, are not counted here.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
-      </ul>
-    </div>
+    <span data-wh-source-anchor="sm-summary-details" hidden></span>
 
     <!-- Radar Chart -->
     <section class="chart-section card" style="margin-bottom:1.5rem;">
@@ -532,7 +512,37 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     </section>
 
   </div><!-- /main-content -->
-
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="sm-summary-details" hidden>
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="sm-summary-details" role="region" aria-label="Skill progress explainer"
+    data-rag-tile="skillmatrix:detail_panel"
+    data-rag-label="Skill matrix detail">
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
+        <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
+        <!-- T18 (2026-08-28): "all disciplines" was imprecise, and a real account shows why. Badges
+             exist outside this matrix - Community awards them too - and a worker holding one sees a
+             total that is one lower than the badges they know they have, with nothing on the page
+             accounting for the difference. Measured: Bryan Garcia holds 7 badges across 6
+             disciplines; this page correctly counts 6, because Community is not one of the five
+             SKILL disciplines. The number was right and only the sentence was loose. -->
+        <li><strong data-i="p_totalbadges_4ca2">Total badges</strong>: count of your badges across the five skill disciplines and their levels (max 5 levels × 5 disciplines = 25). Badges from elsewhere on WorkHive, such as Community, are not counted here.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if primary discipline 2+ levels behind target; amber if any discipline behind; green when every discipline is on target.</li>
+      </ul>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <!-- ─── Lesson Modal ─────────────────────────────────────────────────────── -->
@@ -621,7 +631,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whStartupHive">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

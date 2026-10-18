@@ -383,12 +383,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="admin-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
     <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whPlatformAdminAnswer whReadError whStartupHive">
+<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whPlatformAdminAnswer whReadError whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

@@ -402,7 +402,7 @@
      announce, which is the platform's one-chip-announces rule (see renderSourceChip: three chips on
      hive queued 333 characters of provenance after every settle) - that rule was applied to the
      secondary chip and the PRIMARY one was left with nothing to apply it to. -->
-<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="min-height:62px;font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
+<span data-wh-source-anchor="assistant-scope-chip" hidden></span>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
@@ -672,7 +672,7 @@
 
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whStartupHive">
+<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3141,6 +3141,17 @@ happens to know maintenance, not a manual.`;
           class="text-xs text-slate-400 px-4 py-3 text-center border-t border-white/5">
     <p data-i="p_aigeneratedrepliesmaybeinacc_a5a7" style="margin:0;">AI-generated. Replies may be inaccurate, so verify against your records before acting. Advisory only, not a substitute for engineering judgment.</p>
   </footer>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="assistant-scope-chip" hidden>
+<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <script>

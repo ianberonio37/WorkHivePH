@@ -710,11 +710,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </details>
 
     <p data-i="p_partstrainingandservicesforp_9899">Parts, training and services for Philippine industrial plants</p>
-    <!-- The provenance chip renders after the section resolves; an EMPTY slot at first paint pushed
-         everything below it by 46px at 390 once the chip landed (CLS 0.038, measured signed-in 2026-09-05).
-         Reserve the chip's own height: 46px on phones (two lines), one line on wider screens. -->
-    <p id="marketplace-source-chip" style="margin-top:4px;min-height:32px;"></p>
-    <style>@media (max-width:767px){#marketplace-source-chip{min-height:46px}}    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
+    <!-- ENH-R (2026-10-19): the provenance line renders in the Sources area at the foot; this slot keeps no space. -->
+    <p id="marketplace-source-chip" hidden data-wh-sources-collapsed></p>
+    <style>    /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
     [aria-pressed], [aria-selected], [aria-checked], [role="tab"], [role="radio"], [role="switch"] { border-radius: 999px; }
 </style>
@@ -759,31 +757,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        replied, the buyer sees nothing and concludes the seller ignored them. Rendered only
        when replies exist (silence-is-golden, no empty tease). -->
   <div id="mk-my-replies" style="display:none;margin:0 0 0.75rem;"></div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details" data-i="showdetails">
-    Show details
-  </button>
-  <div id="mk-summary-details" role="region" aria-label="Marketplace explainer"
-    data-rag-tile="marketplace:detail_panel"
-    data-rag-label="Marketplace detail">
-    <strong data-i="p_howcountsarederived_0323" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
-    <ul style="margin:0;padding-left:20px;">
-      <li><strong data-i="p_listingsinview_236e">Listings in view</strong>: listings for the current section (parts / training / jobs) within your search + filter.</li>
-      <li><strong data-i="p_mylistings_2f09">My listings</strong>: listings where the seller name matches your name, across all sections.</li>
-      <li><strong data-i="p_currenttab_0941">Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
-      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
-      <!-- CREDITS BACK. Every priced card shows a "credits back" chip, and the chip explains itself
-           in a title and an aria-label - which a sighted person on a phone can reach through
-           neither. The bare words left on screen are "PHP6,898.05 credits back", and on a
-           PHP68,980.48 listing that reads like money coming back. It is not: credits are spend-only.
-           That is the single fact both the tooltip and the aria text omitted, and it is the one a
-           buyer would most reasonably get wrong. Stated here in visible body text, in the explainer
-           the page already has, rather than in a second explainer of its own. -->
-      <li><strong data-i="p_creditsback_ca5a">Credits back</strong>: priced listings show 10% of that listing's price as WorkHive
-        Credits, paid when the job is done. 1 credit is worth 1 peso and you spend them on your next
-        booking. Credits are not cash and cannot be withdrawn or transferred.</li>
-    </ul>
-    <p data-i="p_usethetrustbarbuttonswatchli_f202" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
-  </div>
+  <span data-wh-source-anchor="mk-summary-details" hidden></span>
 
   <!-- Section tabs -->
   <div class="section-tabs" role="tablist" aria-label="Marketplace sections">
@@ -929,6 +903,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="text-align:center;margin-top:1.5rem;">
     <button id="btn-load-more" style="display:none;" class="btn-load-more" data-i="loadmore">Load More</button>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="mk-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="mk-summary-details" data-i="showdetails">
+    Show details
+  </button>
+<div id="mk-summary-details" role="region" aria-label="Marketplace explainer"
+    data-rag-tile="marketplace:detail_panel"
+    data-rag-label="Marketplace detail">
+    <strong data-i="p_howcountsarederived_0323" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How counts are derived</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong data-i="p_listingsinview_236e">Listings in view</strong>: listings for the current section (parts / training / jobs) within your search + filter.</li>
+      <li><strong data-i="p_mylistings_2f09">My listings</strong>: listings where the seller name matches your name, across all sections.</li>
+      <li><strong data-i="p_currenttab_0941">Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
+      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
+      <!-- CREDITS BACK. Every priced card shows a "credits back" chip, and the chip explains itself
+           in a title and an aria-label - which a sighted person on a phone can reach through
+           neither. The bare words left on screen are "PHP6,898.05 credits back", and on a
+           PHP68,980.48 listing that reads like money coming back. It is not: credits are spend-only.
+           That is the single fact both the tooltip and the aria text omitted, and it is the one a
+           buyer would most reasonably get wrong. Stated here in visible body text, in the explainer
+           the page already has, rather than in a second explainer of its own. -->
+      <li><strong data-i="p_creditsback_ca5a">Credits back</strong>: priced listings show 10% of that listing's price as WorkHive
+        Credits, paid when the job is done. 1 credit is worth 1 peso and you spend them on your next
+        booking. Credits are not cash and cannot be withdrawn or transferred.</li>
+    </ul>
+    <p data-i="p_usethetrustbarbuttonswatchli_f202" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
+  </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <!-- FAB -->
@@ -1263,7 +1272,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whI18nApply whQueryTimeout whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whI18nApply whQueryTimeout whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

@@ -2,7 +2,7 @@
 name: page-alert-hub
 type: page
 source: file:alert-hub.html
-source_sha: 4e86827a6cfdf23b
+source_sha: 24328f5c4b643e12
 last_verified: 2026-07-13
 supersedes: null
 ---

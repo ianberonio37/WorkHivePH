@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whListError whListSkeleton whOhBadge whProgressStrip">
+<script data-wh-skew-heal="whAbbr whListError whListSkeleton whOhBadge whProgressStrip whSourcesSync">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -99,6 +99,14 @@
   </details>
 
   <div id="ds-root"><!-- classes render here --></div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+<!-- wh-sources-anchor -->
 </div>
 
 <script>
@@ -224,7 +232,8 @@
     FD1d() { return '<code style="font-size:.75rem;">whFmtDuration(6.4) → ' + e(whFmtDuration(6.4)) + ' · (1, "hours") → ' + e(whFmtDuration(1, 'hours')) + '</code>'; },
     FD1e() { return '<code style="font-size:.75rem;">whFmtAgo(90s ago) → ' + e(whFmtAgo(new Date(Date.now() - 90000))) + ' · (3d ago) → ' + e(whFmtAgo(new Date(Date.now() - 3 * 86400000))) + '</code>'; },
     FD2() { return (typeof renderKpiTile === 'function') ? renderKpiTile({ label: 'PM compliance', value: '92%', sub: 'SMRP 2.1.1 · this month', tone: 'ok' }) : '<em style="font-size: 0.75rem;">renderKpiTile not exposed</em>'; },
-    FD3() { return (typeof renderSourceChip === 'function') ? renderSourceChip({ source: 'v_pm_compliance_truth', freshness: 'as of ' + new Date().toISOString() }) : ''; },
+    // inPlace: this is the chip's SPECIMEN - it has to render where the catalogue shows it, not in the Sources area (ENH-R)
+    FD3() { return (typeof renderSourceChip === 'function') ? '<div data-wh-specimen>' + renderSourceChip({ source: 'v_pm_compliance_truth', freshness: 'as of ' + new Date().toISOString(), inPlace: true }) + '</div>' : ''; },
   };
 
   const order = [];

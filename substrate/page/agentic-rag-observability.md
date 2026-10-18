@@ -2,13 +2,13 @@
 name: page-agentic-rag-observability
 type: page
 source: file:agentic-rag-observability.html
-source_sha: 3391d4ae8b161f8a
+source_sha: 8e6491651231115f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `agentic-rag-observability.html` — Agentic RAG Observability | WorkHive
 
-Size: 38KB · 13 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 39KB · 13 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

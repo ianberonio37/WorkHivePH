@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 16 Oct 2026
 ·
 7 min read
 
-**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and keeps that history for 3 years by default (1,095 days), adjustable up to 10 years. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
+**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
 
 Who this is for
 
@@ -46,16 +46,16 @@ WorkHive Audit Log surfaces all three for any record the auditor requests. What 
 
 ## Retention rules per record type
 
-| Record type | DOLE OSHS minimum | ISO recommendation | Covered by the 3-year default? |
+| Record type | DOLE OSHS minimum | ISO recommendation | Kept by WorkHive? |
 | --- | --- | --- | --- |
-| Safety observations | 5 years | 3+ years | No: raise it |
-| Incident investigations | 10 years | 5+ years | No: needs the 10-year maximum |
-| PM completion records | 3 years | 3 years per cycle | Yes |
-| Logbook entries (general) | 3 years | 3 years | Yes |
-| Permit to work records | 3 years | 3 years | Yes |
-| Training records | For employment duration + 3 years | For employment duration + 3 years | Depends on tenure: check it |
+| Safety observations | 5 years | 3+ years | Yes: never purged |
+| Incident investigations | 10 years | 5+ years | Yes: never purged |
+| PM completion records | 3 years | 3 years per cycle | Yes: never purged |
+| Logbook entries (general) | 3 years | 3 years | Yes: never purged |
+| Permit to work records | 3 years | 3 years | Yes: never purged |
+| Training records | For employment duration + 3 years | For employment duration + 3 years | Yes: never purged |
 
-**Read that last column before you tell an auditor anything.** WorkHive keeps audit history for **1,095 days: three years: by default**, and the setting is one hive-wide window rather than a different rule per record type. You can raise it, and you should: the range is 90 days to **3,650 days, ten years**, which is the ceiling the system will accept. Two consequences worth acting on today. First, the three-year default does NOT meet the DOLE minimum for safety observations (5 years) or incident investigations (10 years), so a plant that leaves it alone will lose records it is required to hold. Second, because the window is hive-wide, you set it to the longest obligation you carry: in practice the ten-year incident requirement, and everything else is covered by the same setting. Storage is cheap and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes; the cost of a longer window is not the reason to keep it short.
+**Read that last column before you tell an auditor anything.** WorkHive does not purge maintenance records or their audit history: logbook entries, PM completions, permits and the audit log stay for as long as your hive exists, so every minimum in the table is met without changing a setting. The one exception is a record someone **deletes**. It waits in Recently deleted for the hive's window, **30 days** unless a supervisor keeps deleted items longer, and can be restored until then; after that it is removed for good, and the audit log keeps who deleted it and when, not what it said. So the working rule for an auditor-facing plant is simple: a record a regulation requires you to hold is corrected, never deleted. Storage is cheap, and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes.
 
 ## Export patterns auditors accept
 
@@ -93,11 +93,11 @@ Yes, when the digital record satisfies time-of-event recording, worker identific
 
 ### What are the immutability guarantees?
 
-Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state.
+Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when and what changed; there is no field for why, so put a required justification in the entry text). Auditors see the full history, not just the current state.
 
 ### How long should I retain records?
 
-DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped.
+DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive does not purge maintenance records or their audit history, so every one of these is met for as long as the record is not deleted. A deleted record waits in Recently deleted for 30 days (longer if a supervisor sets it), can be restored until then, and is then removed for good; correct a record a regulation requires you to hold, never delete it.
 
 ### What export does an ISO auditor want?
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a78ace3a0d9adc7a -->
+<!-- md-twin source-sha: e1694a2a054d759c -->

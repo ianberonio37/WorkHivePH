@@ -17,7 +17,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtDate whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whFmtDate whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -699,7 +699,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </details>
 
         <p data-i="arsub">Standards-grade. Print-ready. Save as PDF for client delivery.</p>
-        <p data-i="p_builtondemandfromthishiveslo_8457" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.9; margin:4px 0 0; max-width:70ch;">Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF</p><!-- G1+E3 (rubric 2026-09-05): the list view had no status region and no provenance chip -->
+        <span data-wh-source-anchor="source-line-1" hidden></span><!-- G1+E3 (rubric 2026-09-05): the list view had no status region and no provenance chip -->
         <!-- STREAMLINE F6: analytics-report + report-sender are ONE "Reports" surface
              (same supervisor audience: GENERATE an analytics report, then SEND/schedule
              it). project-report is deliberately NOT tabbed here — it is a PER-PROJECT
@@ -743,7 +743,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button type="button" class="btn-action btn-csv" id="csv-btn" onclick="saveAsCsv()" disabled
               title="Export the report's figures to CSV" aria-label="Export the report's figures to CSV" data-i-aria="ar_csv_aria"><span data-i="csv">CSV</span></button>
     </div>
-
   </main>
 
   <!-- ── Print wrapper (sibling of <main>, NOT nested inside it) ─────
@@ -764,6 +763,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
     </div>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="source-line-1">
+<p data-i="p_builtondemandfromthishiveslo_8457" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.9; margin:4px 0 0; max-width:70ch;">Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF</p>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+  <!-- wh-sources-anchor -->
 
   <!-- ═══════════════════════════════════════════════════
        Report logic — config + fetch + render + PDF
@@ -1138,30 +1149,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<h1>Maintenance Analytics Report</h1>' +
           '<p style="color:#555;margin-bottom:0.25rem;">A standards-grade view of what happened, why, what is coming, and what to do next.</p>' +
 
-          // E3 (trust/provenance): this document is HANDED TO A CLIENT, and it carried no
-          // statement of where its numbers came from -- the one artifact that leaves the
-          // platform was the one with no provenance. Reuse the canonical renderSourceChip()
-          // (utils.js, already loaded) so the wording matches every in-app surface; the
-          // safe fallback keeps the report rendering if utils ever fails to load.
-          // (2026-07-15, found by the A-R rubric lens: E3 0%.)
-          (typeof renderSourceChip === 'function'
-            ? '<div class="ar-provenance" style="margin:0.35rem 0 0.5rem;">' +
-                renderSourceChip({
-                  freshness: 'Recomputed when this report was generated',
-                  // CANONICAL TOKENS, NOT PROSE - the prose version rendered as the two words "Based on your" and
-                  // nothing else (2026-10-06, found by walking LXP199). renderSourceChip() takes a MACHINE source
-                  // string ('v_logbook_truth + v_risk_truth via Postgres RPCs') and translates each segment's leading
-                  // identifier through WH_SOURCE_LABELS; handed the sentence 'your hive logbook, PM records and asset
-                  // history' it matched the leading identifier 'your', found no label, humanised it to 'your', and
-                  // emitted the dangling possessive. On THE one artifact that leaves the platform and is handed to a
-                  // client, the provenance line named no source at all - the exact defect E3 was opened to fix.
-                  source:    'v_logbook_truth + pm_completions + v_asset_truth + v_risk_truth via Postgres RPCs', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
-                  window:    'Period: last ' + _period + ' days',
-                  method:    ['MTBF / MTTR per ISO 14224, OEE per ISO 22400-2 (Nakajima 3-factor), PM compliance per SMRP 2.1.1',
-                              'Risk and predictive figures come from the daily risk snapshot, refreshed on demand'],
-                }) +
-              '</div>'
-            : '') +
 
           // Hero finding — the one thing the reader sees first
           '<div class="' + heroCls + '">' +
@@ -2162,6 +2149,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             'SAE JA1011 (RCM evaluation) · ' +
             'ISO 55000:2014 (asset management priority).' +
           '</p>' +
+          // ENH-R (Ian, 2026-10-19): "all that provenance should be ... at the bottom most of the page" - so the
+          // report's own source line reads at its END, beside the compliance footnote, not under the cover's H1 where
+          // it took the reader's first look. In place (inPlace): this is the document that is handed over, and the
+          // page's Sources area is screen-only - print shows nothing but this report.
+          // E3 (trust/provenance): this document is HANDED TO A CLIENT, and it carried no
+          // statement of where its numbers came from -- the one artifact that leaves the
+          // platform was the one with no provenance. Reuse the canonical renderSourceChip()
+          // (utils.js, already loaded) so the wording matches every in-app surface; the
+          // safe fallback keeps the report rendering if utils ever fails to load.
+          // (2026-07-15, found by the A-R rubric lens: E3 0%.)
+          (typeof renderSourceChip === 'function'
+            ? '<div class="ar-provenance" style="margin:1.25rem 0 0;">' +
+                renderSourceChip({
+                  inPlace: true,
+                  freshness: 'Recomputed when this report was generated',
+                  // CANONICAL TOKENS, NOT PROSE - the prose version rendered as the two words "Based on your" and
+                  // nothing else (2026-10-06, found by walking LXP199). renderSourceChip() takes a MACHINE source
+                  // string ('v_logbook_truth + v_risk_truth via Postgres RPCs') and translates each segment's leading
+                  // identifier through WH_SOURCE_LABELS; handed the sentence 'your hive logbook, PM records and asset
+                  // history' it matched the leading identifier 'your', found no label, humanised it to 'your', and
+                  // emitted the dangling possessive. On THE one artifact that leaves the platform and is handed to a
+                  // client, the provenance line named no source at all - the exact defect E3 was opened to fix.
+                  source:    'v_logbook_truth + pm_completions + v_asset_truth + v_risk_truth via Postgres RPCs', // source-chip-allow: read via the analytics-orchestrator RPC path (same canonical source as analytics.html, per the header comment), not a direct .from() on this print-ready report
+                  window:    'Period: last ' + _period + ' days',
+                  method:    ['MTBF / MTTR per ISO 14224, OEE per ISO 22400-2 (Nakajima 3-factor), PM compliance per SMRP 2.1.1',
+                              'Risk and predictive figures come from the daily risk snapshot, refreshed on demand'],
+                }) +
+              '</div>'
+            : '') +
           '<p class="doc-fine" style="margin-top:0.6rem;text-align:center">' +
             'Generated by WorkHive Analytics Engine on ' + escHtml(generated) + ' · workhiveph.com' +
           '</p>' +

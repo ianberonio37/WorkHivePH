@@ -653,17 +653,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
   </div>
 
-  <!-- ★THE PINNED HEADER HELD 29% OF A PHONE SCREEN (critique W45915, 2026-10-13). This chip lived inside the sticky
-       header above, beside the tab group: at 390 the title column was squeezed to 139 px, the chip wrapped to 15 lines
-       (182 px) and the pinned header was 245 px of 844 while a person scrolled the calc list and filled inputs - with a
-       phone keyboard up, about 300 px were left for the form. At 1280 it was 224 px of 800, 92 px of it an unused
-       reserve. The header was pinned for its TAB BAR (see the note above it), so the title and tabs stay pinned and the
-       provenance chip reads here, in the flow, at its full width.
-       Arc L/L1 CLS: renderSourceChip() fills it in init() with deterministic text, so the reserve is what that text
-       renders at full width: 69 px at 390 and at 1280 (the chip's own max-width sets the wrap at both). -->
-  <div class="max-w-7xl mx-auto px-4" style="padding-top:0.5rem;">
-    <p id="eng-source-chip" style="margin:0;min-height:69px;"></p>
-  </div>
+  <!-- ENH-R (2026-10-19): the provenance line that read here - after it left the pinned header (critique W45915) - now
+       reads in the Sources area at the foot of the page. engineering-design.js still draws into this slot; it keeps no
+       space, so nothing above the calculator waits for it. -->
+  <p id="eng-source-chip" hidden data-wh-sources-collapsed></p>
 
   <!-- ══════════════════════ TAB: CALCULATOR ══════════════════════ -->
   <div class="max-w-7xl mx-auto px-4" style="padding-top:0.75rem;">
@@ -941,9 +934,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- Toast -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <!-- Nav -->
 <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
+<script data-wh-skew-heal="whSourcesSync">
+/* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
+   The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
+   some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
+   runs on the old script, fetch utils.js past the cache and reload - once per tab. A second miss is logged and the
+   page carries on; a clean load clears the guard so a later deploy can heal again. No utils.js at all (getDb
+   missing) is not skew: the page's own did-not-load notice answers that. */
+(function (s) {
+  if (typeof window.getDb !== 'function') return;
+  var need = ((s && s.getAttribute('data-wh-skew-heal')) || '').split(' '), missing = [], tried = true, i;
+  for (i = 0; i < need.length; i++) if (need[i] && typeof window[need[i]] !== 'function') missing.push(need[i]);
+  try { tried = sessionStorage.getItem('wh_utils_refetched') === '1'; } catch (e) { void e; }
+  if (!missing.length) { if (tried) { try { sessionStorage.removeItem('wh_utils_refetched'); } catch (e) { void e; } } return; }
+  if (tried) { try { console.error('[skew] utils.js still lacks ' + missing.join(', ') + ' after one refetch'); } catch (e) { void e; } return; }
+  try { sessionStorage.setItem('wh_utils_refetched', '1'); } catch (e) { return; }
+  try { window.stop(); } catch (e) { void e; }
+  fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
+})(document.currentScript);
+</script>
 <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoRememberFilters) whAutoRememberFilters('eng-search', ['calc-search']); });</script><!-- G5a: remember the calc search cross-session -->
 

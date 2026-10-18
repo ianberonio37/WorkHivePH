@@ -419,7 +419,7 @@
     </details>
 
       <p id="dash-subtitle" class="text-sm text-white/80 mt-0.5">Track all your equipment PM tasks in one place.</p>
-      <p id="pm-source-chip" style="margin-top:4px;"></p>
+      <p id="pm-source-chip" hidden data-wh-sources-collapsed></p>
     </div>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
@@ -474,26 +474,12 @@
       <a id="pm-action-btn" class="ac-cta" href="#filter-bar">Review the asset list &#8594;</a>
     </div>
 
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
-      Show details
-    </button>
+    <span data-wh-source-anchor="pm-summary-details" hidden></span>
     <!-- D3 (2026-10-16): a deleted PM asset, with its tasks and completion records, waits here for 30 days. -->
     <button id="pm-recently-deleted" type="button" class="details-toggle"
             onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'pm_assets', { hiveId: HIVE_ID || null, title: 'Recently deleted PM assets', onRestored: () => _pmReloadAfterRestore() })">
       Recently deleted
     </button>
-    <div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
-    data-rag-tile="pm-scheduler:detail_panel"
-    data-rag-label="PM detail breakdown">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How PM compliance is computed</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong>Overdue</strong>: scope items where today &gt; last completion + each task's own interval (Weekly=7, Monthly=30, Quarterly=90, Semi-annual=180, Annual=365 days).</li>
-        <li><strong>Due soon (14d)</strong>: scope items whose next due date falls within the next 14 days.</li>
-        <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
-        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct both from the "on track now" snapshot count and from the "done on time" figure below it, which measures each PM against its own interval rather than against the schedule.</li>
-      </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
-    </div>
 
     <!-- Filter chips -->
     <div id="filter-bar" class="flex gap-2 overflow-x-auto pb-1 mb-4" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
@@ -942,7 +928,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whStartupHive whTrash">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3576,6 +3562,31 @@ if (window.whModalA11y) {
     </div>
   </div>
 </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="pm-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
+    data-rag-tile="pm-scheduler:detail_panel"
+    data-rag-label="PM detail breakdown">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How PM compliance is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>Overdue</strong>: scope items where today &gt; last completion + each task's own interval (Weekly=7, Monthly=30, Quarterly=90, Semi-annual=180, Annual=365 days).</li>
+        <li><strong>Due soon (14d)</strong>: scope items whose next due date falls within the next 14 days.</li>
+        <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
+        <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct both from the "on track now" snapshot count and from the "done on time" figure below it, which measures each PM against its own interval rather than against the schedule.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script>
 // ── Phase B.2: Voice handler registration for pm.complete ─────────────────
 // Conservative: voice filters the registered-asset list to the spoken machine

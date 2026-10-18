@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFreshnessFooter whListSkeleton whRequireOnline whStartupHive whStatValue">
+<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFreshnessFooter whListSkeleton whRequireOnline whSourcesSync whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -254,7 +254,7 @@
       <div>
         <h1 class="page-title" style="margin:0;" translate="no">Shift Brain</h1>
         <div data-i="p_autonomousshiftplannerforyou_8331" class="page-sub" id="page-sub">Autonomous shift planner for your hive</div>
-        <p id="shift-source-chip" style="margin-top:4px;"></p>
+        <p id="shift-source-chip" hidden data-wh-sources-collapsed></p>
       </div>
     </div>
 
@@ -297,21 +297,7 @@
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
       <a data-i="p_takeaction_ee0b" id="sb-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details" data-i="showdetails">
-      Show details
-    </button>
-    <div id="sb-summary-details" role="region" aria-label="Shift plan explainer"
-    data-rag-tile="shift-brain:detail_panel"
-    data-rag-label="Shift brain detail">
-      <strong data-i="p_howthisshiftplanisbuilt_3632" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_topriskthisshift_6343">Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
-        <li><strong data-i="p_pmsdue_7b76">PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
-        <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
-        <li><strong data-i="p_partsprestage_397b">Parts pre-stage</strong>: parts at or below the reorder level that one of the prioritized jobs is likely to consume.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
-      </ul>
-    </div>
+    <span data-wh-source-anchor="sb-summary-details" hidden></span>
 
     <div id="briefing-card" class="briefing-card">
       <div class="briefing-meta">
@@ -378,6 +364,36 @@
 
   </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="sb-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sb-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="sb-summary-details" role="region" aria-label="Shift plan explainer"
+    data-rag-tile="shift-brain:detail_panel"
+    data-rag-label="Shift brain detail">
+      <strong data-i="p_howthisshiftplanisbuilt_3632" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_topriskthisshift_6343">Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
+        <li><strong data-i="p_pmsdue_7b76">PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
+        <li><strong>Carry-forward</strong>: breakdown / corrective entries left <code>Open</code> from the prior shift.</li>
+        <li><strong data-i="p_partsprestage_397b">Parts pre-stage</strong>: parts at or below the reorder level that one of the prioritized jobs is likely to consume.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ top-risk OR 5+ carry-forward; amber if PMs due or 1+ top-risk; green when all four lists are short.</li>
+      </ul>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
   <script src="nav-hub.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script>
@@ -1509,10 +1525,6 @@
 </main>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

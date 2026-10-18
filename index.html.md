@@ -237,8 +237,6 @@ Less Unplanned Downtime
 
 What mature predictive programmes reach. Most plants see 15-25% in their first 18 months.
 
-Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
-
 ## Every worker
 
 Whether you're on the floor or running the floor, the hive works for you.
@@ -411,4 +409,8 @@ Sign in →
 Sign In
 Sign Up
 
-<!-- md-twin source-sha: e34527e4785d834d -->
+## Where these figures come from
+
+Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
+
+<!-- md-twin source-sha: 1b99fa994d623a14 -->

@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton whStartupHive">
+<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -357,14 +357,21 @@
     }
     .domain-card:focus-visible, .back-btn:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     /* Reserve what the async blocks will occupy so the page does not move under a person's thumb (audit lens, 2026-09-15;
-       measured at 390: the source chip 22 -> 100px, the verdict 86 -> 69px, the action card 113 -> 132px; layout shift 0.157). */
-    #achievements-source-chip { min-height: 52px; }
+       measured at 390: the verdict 86 -> 69px, the action card 113 -> 132px; layout shift 0.157). The source line that
+       was reserved here too now lives in the Sources area at the foot (ENH-R, 2026-10-19). */
     @media (max-width: 480px) {
-      #achievements-source-chip { min-height: 100px; }
       #ac-verdict { min-height: 86px; box-sizing: border-box; }
       .action-card .ac-text { min-height: 80px; }
-      .simple-card .sc-sub { min-height: 2.8em; }   /* the tile sub-line: 'Loading...' (1 line) becomes 2 lines of the real sentence */
     }
+    /* the tile sub-line: 'Loading...' (1 line) becomes 2 lines of the real sentence - at 1280 too once Poppins renders
+       ("No XP earned in the past 7 days" wraps in a 208px tile), so the reserve is not a phone-only one: measured
+       2026-10-19, the three tiles grew 154 -> 167px when the data landed and moved everything below (layout shift 0.094) */
+    .simple-card .sc-sub { min-height: 2.8em; }
+    /* the domain sections render into an EMPTY #achievements-body about a second in (~960px at 1280): until then the
+       Recent XP card sat right under the hero, its top edge inside an 800px viewport, and the render threw it 975px
+       down (layout shift 0.089 at 1280, measured 2026-10-19). Holding room while the body is empty starts that card
+       below the fold, where its move is no one's to notice; the sections fill the room in place. */
+    #achievements-body:empty { min-height: 480px; }
 </style>
 </head>
 <body>
@@ -411,7 +418,7 @@
   </div>
   <!-- min-height reserves the chip's line before it renders: measured 2026-09-15 (design lens audit), the empty <p> growing
        into the chip moved the tiles, the action card and the verdict at 183 ms and 273 ms - a layout shift of 0.157. -->
-  <p id="achievements-source-chip" style="margin:0 0 8px;padding:0 1rem;"></p>  <!-- min-height lives in the style block: an inline value would beat the phone-width reservation -->
+  <p id="achievements-source-chip" hidden data-wh-sources-collapsed></p>  <!-- min-height lives in the style block: an inline value would beat the phone-width reservation -->
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderAchievementsSummary() from _achievements + _xpLog. -->
@@ -461,41 +468,7 @@
     <!-- the one CTA sits with the sentence that names the action (critique lens, 2026-09-15; was in the hero card, three screens down) -->
     <a data-i="p_earnxplogajob_c8f5" href="logbook.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:0.6rem;padding:6px 16px;border-radius:8px;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));color:var(--wh-navy);font-size:0.8rem;font-weight:700;text-decoration:none;">Earn XP: log a job &rarr;</a>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details" data-i="ach_howxp">
-    How XP and tiers work
-  </button>
-  <div id="ac-summary-details" role="region" aria-label="Achievements explainer"
-    data-rag-tile="achievements:detail_panel"
-    data-rag-label="Achievements detail">
-    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
-    <ul style="margin:0;padding-left:20px;">
-      <li><strong data-i="p_xpthisweek_c791">XP this week</strong>: XP entries from the past 7 days, summed.</li>
-      <li><strong data-i="p_activedomains_5840">Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
-      <li><strong data-i="p_totallevel_6260">Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
-      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
-    </ul>
-    <strong data-i="p_whateachactionearns_5be5" style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">What each action earns</strong>
-    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
-    <ul style="margin:0;padding-left:20px;font-size:0.8rem;">
-      <li><strong data-i="p_loganentry_6c8e">Log an entry</strong>: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters.</li>
-      <li><strong data-i="p_closeajob_71ce">Close a job</strong>: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours. Up to 120.</li>
-      <li><strong data-i="p_closeabreakdownwitharootcaus_6e41">Close a breakdown with a root cause</strong>: 100 XP (Failure Hunter).</li>
-      <li><strong data-i="p_safetycategoryentry_72e2">Safety-category entry</strong>: 60 XP (Safety Sentinel).</li>
-      <li><strong data-i="p_completeapm_2751">Complete a PM</strong>: 60 XP.</li>
-      <li><strong data-i="p_communitypost_0c07">Community post</strong>: 20 XP, plus 40 when it is a safety post.</li>
-      <li><strong data-i="p_earnaskillbadge_c0f7">Earn a skill badge</strong>: 250 XP, the largest single award.</li>
-      <li><strong data-i="p_runacalculator_8794">Run a calculator</strong>: 40 XP. <strong data-i="p_publishashiftplan_387d">Publish a shift plan</strong>: 40 XP. <strong data-i="p_addateammember_b06f">Add a team member</strong>: 50 XP.</li>
-    </ul>
-    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
-  <div id="tier-guide-card" style="margin-top:12px;">
-    <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
-      <span data-i="p_tierguide_1d2f">Tier Guide</span>
-      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.75rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
-    </div>
-    <div id="tier-showcase"></div>
-  </div>
-
-  </div>
+  <span data-wh-source-anchor="ac-summary-details" hidden></span>
 
   <!-- Hero -->
   <div class="hero-card">
@@ -537,6 +510,56 @@
   <div id="ac-provider-tier"></div>
 </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="ac-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ac-summary-details" data-i="ach_howxp">
+    How XP and tiers work
+  </button>
+<div id="ac-summary-details" role="region" aria-label="Achievements explainer"
+    data-rag-tile="achievements:detail_panel"
+    data-rag-label="Achievements detail">
+    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong data-i="p_xpthisweek_c791">XP this week</strong>: XP entries from the past 7 days, summed.</li>
+      <li><strong data-i="p_activedomains_5840">Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
+      <li><strong data-i="p_totallevel_6260">Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
+      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
+    </ul>
+    <strong data-i="p_whateachactionearns_5be5" style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">What each action earns</strong>
+    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
+    <ul style="margin:0;padding-left:20px;font-size:0.8rem;">
+      <li><strong data-i="p_loganentry_6c8e">Log an entry</strong>: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters.</li>
+      <li><strong data-i="p_closeajob_71ce">Close a job</strong>: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours. Up to 120.</li>
+      <li><strong data-i="p_closeabreakdownwitharootcaus_6e41">Close a breakdown with a root cause</strong>: 100 XP (Failure Hunter).</li>
+      <li><strong data-i="p_safetycategoryentry_72e2">Safety-category entry</strong>: 60 XP (Safety Sentinel).</li>
+      <li><strong data-i="p_completeapm_2751">Complete a PM</strong>: 60 XP.</li>
+      <li><strong data-i="p_communitypost_0c07">Community post</strong>: 20 XP, plus 40 when it is a safety post.</li>
+      <li><strong data-i="p_earnaskillbadge_c0f7">Earn a skill badge</strong>: 250 XP, the largest single award.</li>
+      <li><strong data-i="p_runacalculator_8794">Run a calculator</strong>: 40 XP. <strong data-i="p_publishashiftplan_387d">Publish a shift plan</strong>: 40 XP. <strong data-i="p_addateammember_b06f">Add a team member</strong>: 50 XP.</li>
+    </ul>
+    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
+  <div id="tier-guide-card" style="margin-top:12px;">
+    <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
+      <span data-i="p_tierguide_1d2f">Tier Guide</span>
+      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.75rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
+    </div>
+    <div id="tier-showcase"></div>
+  </div>
+
+  </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script>
   const SUPABASE_URL = 'https://hzyvnjtisfgbksicrouu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ePj-suLMwkMRVDH6eM6S8g_R0rZVbMZ'; // anon key: safe in frontend
@@ -1382,10 +1405,6 @@
 </main>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

@@ -21,7 +21,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whStartupHive">
+<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -625,9 +625,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <a role="tab" aria-selected="false" href="analytics-report.html" data-i="p_analyticsreport_tab" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;">&larr; Analytics report</a>
             <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4); flex-shrink:0; white-space:nowrap;">Send / schedule</span>
           </div>
-          <p id="report-sender-source-chip" style="margin-top:4px;"></p>
-          <style>/* I1 CLS (EX-PF F07, 2026-09-07): the chip is filled ~0.5 s after first paint and wraps to three lines at 390, pushing the install guide, the verdict and every card down 65px; reserve its phone height */
-            @media (max-width: 420px) { #report-sender-source-chip { min-height: 70px; } }</style>
+          <p id="report-sender-source-chip" hidden data-wh-sources-collapsed></p>
         </div>
         <button class="install-icon-btn" id="install-icon-btn" aria-label="Install app" data-i-aria="aria_install">
           <span class="ic ic-install" aria-hidden="true"></span>
@@ -682,21 +680,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_pickareportandarecipient_2d6c" class="ac-text" id="rs-action-text">Pick a report and a recipient.</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
-      Show details
-    </button>
-    <div data-ai-generated id="rs-summary-details" role="region" aria-label="Report sender explainer" data-i-aria="aria_explainer"
-    data-rag-tile="report-sender:detail_panel"
-    data-rag-label="Report sender detail">
-      <strong data-i="p_howsendingworks_8faa" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How sending works</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_reportsselected_5ee8">Reports selected</strong>: chips you've tapped to include (PM Overdue, Failure Digest, Shift Handover, Predictive, OEE, Weekly Analytics).</li>
-        <li><strong data-i="p_recipients_78cb">Recipients</strong>: saved contacts you've ticked + any one-time email typed below.</li>
-        <li><strong data-i="p_savedcontacts_963f">Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
-      </ul>
-      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
-    </div>
+    <span data-wh-source-anchor="rs-summary-details" hidden></span>
 
     <div class="card" id="main-card" data-state="idle">
 
@@ -835,6 +819,31 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
   </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="rs-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div data-ai-generated id="rs-summary-details" role="region" aria-label="Report sender explainer" data-i-aria="aria_explainer"
+    data-rag-tile="report-sender:detail_panel"
+    data-rag-label="Report sender detail">
+      <strong data-i="p_howsendingworks_8faa" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How sending works</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_reportsselected_5ee8">Reports selected</strong>: chips you've tapped to include (PM Overdue, Failure Digest, Shift Handover, Predictive, OEE, Weekly Analytics).</li>
+        <li><strong data-i="p_recipients_78cb">Recipients</strong>: saved contacts you've ticked + any one-time email typed below.</li>
+        <li><strong data-i="p_savedcontacts_963f">Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
+      </ul>
+      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
   <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle
     // ── PWA: install prompt ──────────────────────────────────────────────────────

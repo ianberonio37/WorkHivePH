@@ -389,17 +389,21 @@
    growing and pushing the content list below it DOWN. Reserving the MEASURED settled height
    holds the layout still (page-scoped only; shared card/ac-text reserves live in components.css). */
 #list-view > .row { min-height: 85px; }          /* h1 header row wraps to 2 lines on mobile (Print btn + hive-tag) → reserve settled 85 */
-/* 54→62 and 99→102, both measured live 2026-08-06 (PB-project-manager CLS walk). A reservation that
-   is SHORT is not a partial fix — it still shifts, and it shifts the whole page: the chip was 8px
-   short and the verdict 3px, and because every block below them moved together (verdict, stat row,
-   action card, tabs, filter row = ~95% of the viewport) a 7px nudge scored CLS 0.102 against the 0.1
-   budget. Impact fraction, not distance, is what makes a small miss expensive here. Read these two
-   numbers as MEASURED, not chosen — re-measure them when the chip text or verdict copy changes, and
-   note that `layout-shift.sources` names the blocks that MOVED, never the one that grew. */
-#pm-mgr-source-chip { min-height: 108px; }      /* empty <p> 0→108: the chip line (62px) + the "How we compute this" toggle (44px, its tap target), measured identical at 320/390/1280 (2026-10-13; 62px counted only the line, and the toggle's 46px moved everything below it, CLS 0.112) */
+/* 99→102, measured live 2026-08-06 (PB-project-manager CLS walk). A reservation that is SHORT is not a
+   partial fix — it still shifts, and it shifts the whole page: the verdict was 3px short, and because
+   every block below it moved together (stat row, action card, tabs, filter row = ~95% of the viewport) a
+   small nudge scored CLS 0.102 against the 0.1 budget. Impact fraction, not distance, is what makes a
+   small miss expensive here. Read the number as MEASURED, not chosen — re-measure it when the verdict
+   copy changes, and note that `layout-shift.sources` names the blocks that MOVED, never the one that
+   grew. (The source line reserved beside it, 108px, now lives in the Sources area at the foot - ENH-R.) */
 #pm-verdict.verdict { min-height: 102px; }       /* verdict box 84→102 (verdict-sub wraps to 2 lines) */
 #pm-verdict-sub { display:block; min-height: 47px; } /* sub 31→47 (placeholder 1-line → real 2-line wrap) */
 #hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
+/* On a phone the Print + hive-name group takes its own line from first paint. It sat beside the "How this page works"
+   disclosure while the tag was empty, then wrapped below it the moment the hive name filled in - the header grew
+   133 -> 187px and the verdict, the tiles and the action card all moved 54px (layout shift 0.16-0.18 at 390, measured
+   2026-10-19 on the committed page and this one alike). */
+@media (max-width: 560px) { #list-view > .row > div:last-child { flex-basis: 100%; } }
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
 #pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
 #pm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
@@ -459,7 +463,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       </div>
     </div>
     <div data-i="p_plantrackandcloseoutmaintena_6136" class="sub">Plan, track and close out maintenance projects. Handles work-order bundles, shutdowns, CAPEX, and contractor jobs.</div>
-    <p id="pm-mgr-source-chip" style="margin:4px 0 0;"></p>
+    <p id="pm-mgr-source-chip" hidden data-wh-sources-collapsed></p>
 
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderProjectsSummary() from _projects. -->
@@ -494,19 +498,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
       <div data-i="p_computingrecommendation_5948" class="ac-text" id="pm-action-text">Computing recommendation...</div>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
-      Show details
-    </button>
-    <div id="pm-summary-details" role="region" aria-label="Project health explainer">
-      <strong data-i="p_howprojecthealthiscomputed_27c2" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_activeprojects_f361">Active projects</strong>: active.</li>
-        <li><strong data-i="p_pastenddate_1d3a">Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
-        <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
-      </ul>
-      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
-    </div>
+    <span data-wh-source-anchor="pm-summary-details" hidden></span>
 
     <div class="recent-row" id="recent-strip"></div>
 
@@ -572,6 +564,29 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <div id="pane-changes"  class="detail-pane"></div>
     <div id="pane-signoff"  class="detail-pane"></div>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="pm-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="pm-summary-details" role="region" aria-label="Project health explainer">
+      <strong data-i="p_howprojecthealthiscomputed_27c2" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_activeprojects_f361">Active projects</strong>: active.</li>
+        <li><strong data-i="p_pastenddate_1d3a">Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
+        <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
+      </ul>
+      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <!-- ── Modals ─────────────────────────────────────────────── -->
@@ -932,7 +947,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whStartupHive whTrash">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTrash">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

@@ -517,7 +517,7 @@
          the reads resolved - CLS 0.112, above the 0.1 line, against 0.007 at desktop where the chip is
          one line shorter. The trace names div.simple-row and div.verdict-text as its sources; those are
          the VICTIMS. The reserve is now what the chip actually settles at. -->
-    <p id="dayplanner-source-chip" style="margin:0 0 8px; min-height:108px; max-width:70ch;"></p><!-- I1 CLS: reserve the source-chip height (grows 0→62-76px on load, shifting the KPI row = CLS 0.182) -->
+    <p id="dayplanner-source-chip" hidden data-wh-sources-collapsed></p><!-- I1 CLS: reserve the source-chip height (grows 0→62-76px on load, shifting the KPI row = CLS 0.182) -->
     <!-- Plain-Read summary (Layer D — UX Contract).
          Populated by renderDayplannerSummary() from scheduleItems. -->
     <div id="dp-verdict" class="verdict empty" style="min-height:90px;box-sizing:border-box"><!-- I1 CLS: reserve the verdict height (placeholder→real swap) so the KPI row below doesn't shift -->
@@ -555,26 +555,12 @@
               data-aria-allow="hidden until renderDayplannerSummary writes its label (Show the N overdue PMs) and un-hides it"
               data-icon-button-label-allow="empty only while hidden: renderDayplannerSummary writes its text label before un-hiding it"></button>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
-      Show details
-    </button>
+    <span data-wh-source-anchor="dp-summary-details" hidden></span>
     <!-- D3 (2026-10-16): a removed plan item waits here for 30 days. -->
     <button id="dp-recently-deleted" type="button" class="details-toggle"
             onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'schedule_items', { title: 'Recently deleted plan items', onRestored: () => loadSchedule() })">
       Recently deleted
     </button>
-    <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
-    data-rag-tile="dayplanner:detail_panel"
-    data-rag-label="Day planner detail">
-      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_today_2434">Today</strong>: tasks scheduled for today (Philippine time).</li>
-        <li><strong data-i="p_thisweek_7b72">This week</strong>: tasks in the current Monday-Sunday window.</li>
-        <li><strong data-i="p_overdue_0721">Overdue</strong>: tasks with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
-      </ul>
-      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:12px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
-    </div>
 
     <!-- Calendar content -->
     <!-- role="tabpanel": the Day / Week / Month / Year tabs all aria-control this box, and a tab must name a tabpanel for
@@ -3091,7 +3077,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whStartupHive whTrash whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3309,6 +3295,36 @@ document.addEventListener('keydown', e => {
   /* Keyboard focus ring for the clickable hour slots (a11y: WCAG 2.4.7) */
   .dp-slot:focus-visible { outline:2px solid var(--wh-orange); outline-offset:-2px; background:rgba(247,162,27,0.06); }
 </style>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="dp-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="dp-summary-details" role="region" aria-label="Day planner explainer"
+    data-rag-tile="dayplanner:detail_panel"
+    data-rag-label="Day planner detail">
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_today_2434">Today</strong>: tasks scheduled for today (Philippine time).</li>
+        <li><strong data-i="p_thisweek_7b72">This week</strong>: tasks in the current Monday-Sunday window.</li>
+        <li><strong data-i="p_overdue_0721">Overdue</strong>: tasks with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
+      </ul>
+      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:12px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
   <script src="offline-banner.js"></script>
   <!-- offline-queue.js moved above the init IIFE (Y1b load-order fix) — guarded IIFE, no double-run -->
 
@@ -3318,10 +3334,6 @@ document.addEventListener('keydown', e => {
 </main>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

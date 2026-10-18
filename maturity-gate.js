@@ -333,6 +333,21 @@
       ? 'Readiness · the daily snapshot of your hive’s records, computed ' + _snapAt + ' PHT · each window above ends then'
       : 'Readiness · the daily snapshot of your hive’s records';
     const _snapLine = T(_snapEn, _snapEn);
+    /* ENH-R (Ian, 2026-10-19: provenance out of the space a person reads first, to the foot of the page). Inside a
+       card, the line is handed to the page's own Sources area as a carrier (utils.js whSourcesArea shows it there
+       while this panel is on screen). When the panel REPLACES the page - ai-quality and ph-intelligence hand it
+       <main>, and the page's area goes with what it replaced - the panel ends with its own area, so the line is
+       still at the foot and nowhere above. */
+    const _pageArea = document.querySelector('[data-wh-sources]');
+    const _keepsPageArea = !!_pageArea && !el.contains(_pageArea);
+    const _srcLine = `<p class="wh-source-chip" style="font-size:12px;color:rgba(255,255,255,0.72);margin:0;line-height:1.4;">${esc(_snapLine)}</p>`;
+    const _srcInCard = _keepsPageArea ? `<template data-wh-source>${_srcLine}</template>` : '';
+    const _srcAtFoot = _keepsPageArea ? '' : `
+      <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title"
+               style="max-width:680px;margin:0 auto 24px;padding:16px 24px 0;border-top:1px solid rgba(255,255,255,0.08);">
+        <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">${T('Where these figures come from', 'Where these figures come from')}</h2>
+        <div data-wh-sources-list style="display:grid;gap:10px;"><div class="wh-sources-item">${_srcLine}</div></div>
+      </section>`;
 
     const altLine = opts.alternateSuggestion
       ? `<p style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:8px;line-height:1.55;max-width:68ch;">${T('In the meantime:', 'Sa ngayon:')} ${esc(opts.alternateSuggestion)}</p>`
@@ -395,9 +410,7 @@
                 'Bawat stair ay nakukuha sa totoong record. Kailangan ng Stair 1 ng tuloy-tuloy na logbook habit. Kailangan ng Stair 2 ng tuloy-tuloy na PM discipline. Kailangan ng Stair 3 ng sapat na kasaysayan para sa tumpak na analytics. Magpatuloy sa pag-log at kusang gagalaw ang snapshot.')}
           </p>
         </details>
-        <p class="wh-source-chip" style="font-size:12px;color:rgba(255,255,255,0.72);margin:8px 0 0;line-height:1.4;">
-          ${esc(_snapLine)}
-        </p>
+        ${_srcInCard}
         <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
           <a href="${esc(opts.linkBack || 'hive.html')}#maturity-stairway-card"
              style="display:inline-flex;align-items:center;min-height:44px;padding:12px 20px;border-radius:10px;
@@ -414,6 +427,7 @@
           </a>
         </div>
       </div>
+      ${_srcAtFoot}
     `;
   }
 

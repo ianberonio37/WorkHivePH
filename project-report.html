@@ -58,6 +58,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg-shell); color: var(--shell-text); font-family: 'Poppins', system-ui, sans-serif; }
   body { padding-top: 60px; min-height: 100vh; }
+  /* ENH-R: the Sources area sits on the shell, below the white report sheet - said here so that is true in every
+     reading of this page (the print sheet turns body white, and the area is hidden in print anyway). */
+  [data-wh-sources] { background: var(--bg-shell); padding-left: 16px; padding-right: 16px; }
 
   .toolbar {
     position: static; z-index: 50;   /* sticky from 768px only - see the @media below */
@@ -390,14 +393,22 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 </div>
 
   <!-- I1 CLS (EX-PF F07, 2026-09-07): the provenance chip used to be appended here after the data loaded, pushing every section down 16px; it now has its place from first paint -->
-  <div id="pr-source-chip" style="min-height:16px; max-width:980px; margin:0 auto 16px; padding:0 16px;"></div>   <!-- under the sheet, not at the viewport edge (W46013) -->
+  <div id="pr-source-chip" hidden data-wh-sources-collapsed></div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+<!-- under the sheet, not at the viewport edge (W46013) -->
   <script src="browser-floor.js"></script>
   <script>window.WH_FIL_PAGE={print:'I-print',saveaspdf:'I-save bilang PDF'};</script>
 </main>
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whStartupHive">
+<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

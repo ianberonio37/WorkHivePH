@@ -303,7 +303,7 @@
     </details>
 
           <p data-i="p_tracksparepartsstocklinkpart_7764" class="text-sm text-white/80 mt-1">Track spare parts stock, link parts to assets, and know before you run out.</p>
-          <p id="inventory-source-chip" style="margin-top:4px;"></p>
+          <p id="inventory-source-chip" hidden data-wh-sources-collapsed></p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <span class="stat-pill"><span id="stat-total" class="text-orange-wh font-bold">—</span> <span class="text-white/80">parts</span></span>
@@ -367,21 +367,7 @@
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
       <a data-i="p_takeaction_ee0b" id="inv-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
-      Show details
-    </button>
-    <div id="inv-summary-details" role="region" aria-label="Stock health explainer"
-    data-rag-tile="inventory:detail_panel"
-    data-rag-label="Inventory detail breakdown">
-      <strong data-i="p_howthesecountsarecomputed_0e15" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_outofstock_8b78">Out of stock</strong>: parts with none left on hand.</li>
-        <li><strong data-i="p_lowstock_a6e1">Low stock</strong>: parts at or below the reorder level (the threshold to reorder).</li>
-        <li><strong data-i="p_pendingparts_262d">Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
-      </ul>
-      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the search and category filter below for the part-by-part drill-down.</p>
-    </div>
+    <span data-wh-source-anchor="inv-summary-details" hidden></span>
 
     <!-- Low stock alert banner -->
     <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3 mb-6 flex items-center gap-3"
@@ -454,6 +440,31 @@
       <p data-i="p_nopartsmatchyoursearch_4034" class="text-sm text-white/80">No parts match your search.</p>
     </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="inv-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
+      Show details
+    </button>
+<div id="inv-summary-details" role="region" aria-label="Stock health explainer"
+    data-rag-tile="inventory:detail_panel"
+    data-rag-label="Inventory detail breakdown">
+      <strong data-i="p_howthesecountsarecomputed_0e15" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_outofstock_8b78">Out of stock</strong>: parts with none left on hand.</li>
+        <li><strong data-i="p_lowstock_a6e1">Low stock</strong>: parts at or below the reorder level (the threshold to reorder).</li>
+        <li><strong data-i="p_pendingparts_262d">Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
+      </ul>
+      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the search and category filter below for the part-by-part drill-down.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
   </main>
 
   <!-- TOAST -->
@@ -656,7 +667,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whStartupHive whStatUnknown whStatValue whTrash">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1405,7 +1416,7 @@ function renderParts() {
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
               <!-- 24px, the KPI tiles' step (critic DD1, 2026-10-13): at 30px each card's count outranked the summary above it -->
-              <span class="text-2xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
+              <span data-fig="qty" class="text-2xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
               <span class="text-xs text-white/80">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-xs text-white/80">Min: ${item.min_qty}</span>` : ''}
               ${getReservedQty(item.id) > 0 ? (() => {
@@ -2316,11 +2327,11 @@ function openDetailModal(id) {
 
     <div class="grid grid-cols-3 gap-3 mb-5">
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
+        <div data-fig="qty" class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} ${escHtml(_t('on hand', 'nasa kamay'))}</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
-        <div class="text-2xl font-black text-white/80">${item.min_qty || '-'}</div>
+        <div data-fig="min" class="text-2xl font-black text-white/80">${item.min_qty || '-'}</div>
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">${escHtml(_t('Min / Reorder', 'Min / Reorder'))}</div>
       </div>
       <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
@@ -3098,5 +3109,7 @@ async function validateHiveMembership() {
   } catch (_) { /* empty-catch-allow: best-effort chrome */ }
 })();
 </script>
+<!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
+<script type="application/json" id="wh-figure-sources">[{"sel":"#stat-total","shows":"parts in this inventory","basedOn":"every part you can see here, counted","reads":"v_inventory_items_truth"},{"sel":"#stat-low","shows":"parts at or below their minimum","basedOn":"approved parts whose stock is at or below the minimum set for them","reads":"v_inventory_items_truth"},{"sel":"#stat-out","shows":"parts out of stock","basedOn":"approved parts with nothing on hand","reads":"v_inventory_items_truth"},{"sel":"#inv-out-hero","shows":"parts out of stock","basedOn":"approved parts with nothing on hand","reads":"v_inventory_items_truth"},{"sel":"#inv-low-hero","shows":"parts running low","basedOn":"approved parts at or below their minimum, out-of-stock ones not counted twice","reads":"v_inventory_items_truth"},{"sel":"#inv-pending-hero","shows":"parts waiting for approval","basedOn":"parts submitted to the hive that a supervisor has not approved yet","reads":"v_inventory_items_truth"},{"sel":"#inv-progress [data-fig=progress]","shows":"parts at healthy stock","basedOn":"approved parts above their minimum, out of all approved parts","reads":"v_inventory_items_truth","whole":true},{"sel":"#parts-list [data-fig=qty]","shows":"on hand for this part","basedOn":"the part's current stock, kept by every issue and restock recorded against it","reads":"v_inventory_items_truth, v_inventory_transactions_truth"},{"sel":"#detail-modal [data-fig=qty]","shows":"on hand for this part","basedOn":"the part's current stock, kept by every issue and restock recorded against it","reads":"v_inventory_items_truth, v_inventory_transactions_truth"},{"sel":"#detail-modal [data-fig=min]","shows":"the reorder point set for this part","basedOn":"the minimum quantity entered when the part was added or edited","reads":"v_inventory_items_truth"},{"sel":"#inv-count-label","shows":"parts shown out of all that match","basedOn":"the parts that match your search and filters","reads":"v_inventory_items_truth","whole":true}]</script>
 </body>
 </html>

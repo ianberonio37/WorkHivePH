@@ -1502,7 +1502,7 @@
          components.css, so .wh-source-chip's 62px reserve does not apply here and an empty <p> filled late
          would push Quick Actions down. The outer opacity:.75 is gone with the move: it stacked on the chip's
          own muted colour, which every other page shows unstacked. -->
-    <p id="oh-source-chip" style="margin:-8px 0 16px; min-height:82px;"></p>
+    <p id="oh-source-chip" hidden data-wh-sources-collapsed></p>
 
     <!-- Two primary actions chosen by role; everything else lives in More. -->
     <!-- min-height reserves the 1 row of 2 .oh-action buttons (min-height:48px each)
@@ -2261,7 +2261,7 @@
                that guide calls widely reported rather than standard, and the chip says so: the critic's E3 asks every
                figure for its source and its age, and a stranger reading a number on a front door asks the same. Static
                markup in renderSourceChip's shape (utils.js), so it is there at first paint. -->
-          <p class="wh-source-chip" data-wh-fresh="1" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:12px 0 0;padding:4px 0 0;line-height:1.35;">Source: <a href="/learn/reduce-unplanned-downtime-guide/" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">our downtime guide</a>. A common industry range, not a fixed standard &middot; updated 24 Aug 2026</p>
+          <span data-wh-source-anchor="source-line-1" hidden></span>
         </div>
       </div>
 
@@ -3174,7 +3174,7 @@
 </script>
 
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whReconcileHiveRole whRequireOnline whSetDismissed whWorker whWriteError">
+<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3441,6 +3441,17 @@
   </div>
 </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="source-line-1">
+<p class="wh-source-chip" data-wh-fresh="1" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:12px 0 0;padding:4px 0 0;line-height:1.35;">Source: <a href="/learn/reduce-unplanned-downtime-guide/" style="color:inherit;text-decoration:underline;text-underline-offset:2px;">our downtime guide</a>. A common industry range, not a fixed standard &middot; updated 24 Aug 2026</p>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script>
   // ── WorkHive Auth (C1) ────────────────────────────────────────────────────
   // Supabase Auth with username + password.

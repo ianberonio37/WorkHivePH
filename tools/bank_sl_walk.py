@@ -148,6 +148,14 @@ CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the l
                       "it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one "
                       "probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline "
                       "banner raised with the page's own offline event")
+GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
+CONDITION["ENH-R"] = ("the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP "
+                      "cache cleared first so the walk read the current scripts: every visible source line, Show-details "
+                      "explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed "
+                      "slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes "
+                      "excluded (none), the area's own lines read, the explainer opened and closed with a real click, the "
+                      "area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift "
+                      "and every page error recorded")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
@@ -583,11 +591,17 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
     t = next((x for x in reg["trajectories"] if x["id"] == rid), None)
     # a BRH row (the bug-hunt wave) carries the same receipt contract - a named person at both viewports - and is
     # settled by the same walk as the SL sub-layer that met its defect class (BRH-F <- AU2, 2026-10-14)
-    if not t or not (t.get("sl") or t.get("brh")):
-        print(f"{rid}: not an SL or BRH row")
+    # ...and so does an ENH row (an enhancement built, then walked as the page's cast at both viewports): its key is
+    # its class, ENH-<cls>, with its own gates and condition below (ENH-R first, 2026-10-19)
+    if not t or not (t.get("sl") or t.get("brh") or t.get("enh")):
+        print(f"{rid}: not an SL, BRH or ENH row")
         return 1
-    s = t.get("sl") or t["brh"]
-    key = s.get("sublayer") if t.get("sl") else BRH_CLASS_SUBLAYER.get(s.get("cls"), "")
+    s = t.get("sl") or t.get("brh") or t["enh"]
+    key = (s.get("sublayer") if t.get("sl") else BRH_CLASS_SUBLAYER.get(s.get("cls"), "") if t.get("brh")
+           else "ENH-" + str(s.get("cls") or ""))
+    if t.get("enh") and key not in GATES:
+        print(f"{rid}: no walk is defined for enhancement class {s.get('cls')} - nothing banked")
+        return 1
     if t.get("brh") and not key:
         print(f"{rid}: no walk is defined for bug-hunt class {s.get('cls')} - nothing banked")
         return 1

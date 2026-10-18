@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whSignInWall whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -388,8 +388,20 @@
          30 days" but named no clock, so a founder could not tell whether a dated action was UTC or their own
          time. The window now names its timezone (Philippine Time), which is the clock every dated figure on
          this page belongs to. -->
-    <p class="wh-source-chip" id="usage-source" style="font-size: 0.75rem; opacity:.8; margin:.5rem 0 0;">Live · active hives, people seen, signed-out sessions, daily actives, page opens · rolled up over the last 30 days, refreshed with the queues · times in Philippine Time (PHT)</p>
+    <span data-wh-source-anchor="usage-source" hidden></span>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="usage-source" hidden>
+<p class="wh-source-chip" id="usage-source" style="font-size: 0.75rem; opacity:.8; margin:.5rem 0 0;">Live · active hives, people seen, signed-out sessions, daily actives, page opens · rolled up over the last 30 days, refreshed with the queues · times in Philippine Time (PHT)</p>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+  <!-- wh-sources-anchor -->
 
   <div id="fb-drawer-backdrop" class="fb-drawer-backdrop" hidden></div>
   <aside id="fb-drawer" class="fb-drawer" hidden role="dialog" aria-labelledby="fb-drawer-title" aria-modal="true">

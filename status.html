@@ -179,7 +179,7 @@
        renderSourceChip for E3 provenance, the locale floor, the freshness auto-stamp). This
        page had NO shared layer at all, which is why its chip could not render. -->
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whBuildVersion whFmtDate">
+<script data-wh-skew-heal="whBuildVersion whFmtDate whSourcesSync">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -300,6 +300,13 @@
     </table></div>
   </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
   <script>
     // Local-first: default to the local stack; prod overrides via window.WH_EDGE_BASE.
     var EDGE = (window.WH_EDGE_BASE || 'http://127.0.0.1:54321') + '/functions/v1';

@@ -187,8 +187,12 @@
         // on every layout the chip tries a few LIFTS clear of the page's own controls and takes the first that
         // occludes nothing; if none is clear it stands down, exactly as it does for a dialog. It cedes to the
         // page's controls because it is optional onboarding and the nav-hub still offers the guide.
+        // ...and the words of the page's Sources area (ENH-R, 2026-10-19). That area is the LAST thing on every page, so
+        // at the bottom of the scroll there is nowhere further to move it out from under this chip: walked at 390, the
+        // chip sat on logbook's and ph-intelligence's "Where these figures come from" and their first source line. They
+        // are not controls, but they are the one content a person cannot scroll clear of, so the chip cedes to them too.
         var CTRL = 'a[href],button,[role="button"],[role="tab"],[role="menuitem"],input:not([type="hidden"]),'
-          + 'select,textarea,summary,[tabindex]';
+          + 'select,textarea,summary,[tabindex],[data-wh-sources] h2,[data-wh-sources] .wh-source-chip';
         var CHROME = '#wh-hub,#wh-guide-link,.wh-conn-chip,.wh-conn-popover,.wh-fb-fab,#wh-ai-widget,'
           + '#wh-ai-launcher,#wh-feedback-fab,[id^="wh-hub-"],header,[role="banner"]';
         // ★ONE CONTROLS SCAN PER FRAME (Chrome DevTools MCP, ForcedReflow insight, 2026-09-15). This walks up
@@ -212,6 +216,12 @@
             // the style resolve, and only to catch visibility:hidden. Exactly the same set, far fewer style reads:
             // the rect overlap test stays exact, because this rule protects controls and has failed twice before.
             var r = e.getBoundingClientRect();
+            // the Sources area's words are measured by the TEXT, not the block: its heading's box runs the column's full
+            // width (880px on analytics-report at 1280), which the "a big container" filter below would skip, and the
+            // chip then sat on the heading at the bottom of the scroll (walked 2026-10-19)
+            if (e.closest && e.closest('[data-wh-sources]') && document.createRange) {
+              try { var rg = document.createRange(); rg.selectNodeContents(e); var tr = rg.getBoundingClientRect(); if (tr.width > 0) r = tr; } catch (_) { /* empty-catch-allow: the block rect stands */ }
+            }
             if (r.width < 4 || r.height < 4 || r.width > 520) continue;   // a control, not a big container
             if (r.bottom < 0 || r.top > innerHeight) continue;            // off-screen: cannot be under a fixed chip
             if (!visible(e)) continue;

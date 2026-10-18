@@ -128,21 +128,8 @@
        (#stair-blocker "Computing…", dim values "--", empty source chip) that
        all fill in. Reserve the card's MEASURED settled height (226px). */
     #maturity-stairway-card { min-height: 226px; }
-    /* The blocker line goes 1→2 lines and the source chip 0→1 line when they
-       resolve; reserve their settled single-block heights (measured 34/27). */
+    /* The blocker line goes 1→2 lines when it resolves; reserve its settled height (measured 34). */
     #stair-blocker { min-height: 34px; }
-    #stair-source-chip { min-height: 27px; }
-
-    /* Board KPI source chip — an empty <p> that fills with a multi-line
-       "reads from …" chip on initBoard(). MEASURED settled height 54px
-       (wraps to two lines at the 390px board width). */
-    #board-source-chip { min-height: 54px; }
-    /* ★A ONE-LINE CHIP IN A 62PX BOX (critique W45922, 2026-10-13). components.css reserves 62px on EVERY .wh-source-chip
-       (sized once for community's three-line chip), and this chip is one line, "Live data", over its method disclosure:
-       measured, 46px of empty air between the two at both widths, the container settling at 108px. The reserve belongs
-       to the container at what it renders - 20px of chip and the 44px disclosure, 66px at 390 and at 1280. */
-    #board-source-chip { min-height: 66px; }
-    #board-source-chip > .wh-source-chip { min-height: 0; }
 
     /* Reliability Coach panel — collapsed at paint (body display:none); only
        its toggle button is visible. Reserve the toggle's height so the panel
@@ -926,31 +913,7 @@
           <div class="ss-rd-track"><i id="ss-rd-fill" style="--rd:0%;"></i></div>
           <div class="ss-rd-weak" id="ss-rd-weak"></div>
         </div>
-        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details" data-i="showdetails">
-          Show details
-        </button>
-        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer"
-    data-rag-tile="hive:detail_panel"
-    data-rag-label="Hive supervisor detail">
-          <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-          <ul style="margin:0;padding-left:20px;">
-            <!-- ★ THE LEGEND NAMED FIVE DIMENSIONS THE PRODUCT DOES NOT USE. It read "Reliability /
-                 Operations / Safety / People / Cost"; the bars this card points at (#stair-dims,
-                 :864) are labelled Process, Data, Resilience, Leadership and Culture — five names, and
-                 not one of them matched. Measured live: Process 100 · Data 32 · Resilience 70 ·
-                 Leadership 50 · Culture 40, with Data 32 also being the weakest dimension the
-                 readiness glance names ("Clear Data (32/100) to reach Stair 2"), so the BARS agree
-                 with the score and only the prose disagreed with both.
-                 An explanation that names different inputs from the ones on screen is worse than no
-                 explanation: it is read as authoritative, and it sends someone looking for a Safety
-                 score that does not exist. The names now come from the same model the bars render. -->
-            <li><strong data-i="p_maturitystair_e00b">Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair: <strong data-i="p_process_12f4">Process</strong>, <strong data-i="p_data_e5e4">Data</strong>, <strong data-i="p_resilience_19d9">Resilience</strong>, <strong data-i="p_leadership_f542">Leadership</strong> and <strong data-i="p_culture_1db1">Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
-            <li><strong data-i="p_adoptionhealth_603c">Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
-            <li><strong data-i="p_openissues_aa01">Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
-            <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
-          </ul>
-          <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
-        </div>
+        <span data-wh-source-anchor="supervisor-summary-details" hidden></span>
         <!-- v4 foot reassurance (rubric F3 Peak-End) — the warm "you're on top of it" end-moment,
              shown ONLY when all-clear (needCount=0). Toggled in loadSupervisorSummary. -->
         <div class="ss-foot" id="ss-foot" hidden><span aria-hidden="true">&#10003;</span> <span data-i="foot">You're on top of the hive. Nothing else needs you right now.</span></div>
@@ -1042,7 +1005,7 @@
       <!-- Source/window chip for the Hive Board KPI strip (Open Work, PM Health,
            Inventory). Populated on initBoard() so it reflects the actual sources
            the stats are read from. -->
-      <p id="board-source-chip" style="margin-bottom:1rem;"></p>
+      <p id="board-source-chip" hidden data-wh-sources-collapsed></p>
 
       <!-- Hive Board PDDA density (U2/U7, 2026-07-10): the readiness DETAIL (Maturity
            Stairway 5-dim breakdown + Knowledge Freshness) is progressive-disclosed so the
@@ -1072,7 +1035,7 @@
              scores to v_hive_readiness_truth so supervisors can trace each
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
-        <p id="stair-source-chip" style="margin:0 16px 8px;"></p>
+        <p id="stair-source-chip" hidden data-wh-sources-collapsed></p>
         <p data-i="p_basedontheworkhivestairmodel_4c8f" style="font-size: 12px; color:rgba(255,255,255,0.80); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
@@ -1142,7 +1105,7 @@
             <p style="font-size: 12px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsKnow">Lessons captured</p>
           </div>
         </div>
-        <p id="vs-source-chip" style="margin:0 16px 8px;"></p>
+        <p id="vs-source-chip" hidden data-wh-sources-collapsed></p>
         <!-- X1 task-flow (rubric sweep 2026-09-05): the empty state DESCRIBED what would happen but gave a
              new hive nowhere to go — a dead end by the X1 rule, which takes each empty-state panel and
              requires a CTA INSIDE it (p.querySelector('a[href],button,…')). So the anchor is a CHILD of
@@ -1166,7 +1129,7 @@
           <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top: 12px;"></div>
           <!-- Source chip — anchors freshness ratios to
                v_knowledge_freshness_truth. Populated by loadKnowledgePipeline(). -->
-          <p id="kpipe-source-chip" style="margin:8px 0 0;"></p>
+          <p id="kpipe-source-chip" hidden data-wh-sources-collapsed></p>
         </div>
       </div>
         </div>
@@ -1248,7 +1211,7 @@
           <!-- Source chip — anchors risk score + champion + reasons to
                hive_adoption_score + compute_adoption_risk. Populated by
                loadAdoptionCard(). -->
-          <p id="adoption-source-chip" style="margin:8px 0 0;"></p>
+          <p id="adoption-source-chip" hidden data-wh-sources-collapsed></p>
           <p data-i="p_basedontheworkhiveadoptionri_3074" style="font-size: 12px; color:rgba(255,255,255,0.80); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
@@ -1530,7 +1493,7 @@
           <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(248,113,113,0.12);color:var(--wh-red-text);">AI</span>
         </div>
         <div class="wh-card p-4">
-          <p id="todays-brief-source-chip" style="margin:0 0 8px;"></p>
+          <p id="todays-brief-source-chip" hidden data-wh-sources-collapsed></p>
           <div id="todays-brief-content">
             <p data-i="p_loading_b04b" class="text-xs text-white/80">Loading...</p>
           </div>
@@ -1558,7 +1521,7 @@
           <!-- Source chip — anchors the coach's actions to the edge fn
                + data slices it reads, so the supervisor can audit the
                recommendations. Populated by askCoach() on each invocation. -->
-          <p id="coach-source-chip" style="margin:0 0 8px;"></p>
+          <p id="coach-source-chip" hidden data-wh-sources-collapsed></p>
           <div class="flex gap-2">
             <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
             <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet-text); border:1px solid rgba(167,139,250,0.4); border-radius:12px; font-family:inherit; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
@@ -1736,7 +1699,7 @@
         </summary>
         <div class="wh-disclose-body">
           <p class="text-xs text-white/80 mb-3" data-i="benchmark_intro">Anonymized: no individual hive is identified.</p>
-          <p id="benchmark-source-chip" style="margin:0 0 8px;"></p>
+          <p id="benchmark-source-chip" hidden data-wh-sources-collapsed></p>
           <div id="benchmark-content">
             <p data-i="p_loadingbenchmarks_0058" class="text-xs text-white/80">Loading benchmarks...</p>
           </div>
@@ -1756,7 +1719,7 @@
           </span>
         </summary>
         <div class="wh-disclose-body">
-          <p id="pattern-alerts-source-chip" style="margin:0 0 8px;"></p>
+          <p id="pattern-alerts-source-chip" hidden data-wh-sources-collapsed></p>
           <div id="pattern-alerts-content" data-ai-generated></div>
         </div>
       </details>
@@ -1795,7 +1758,7 @@
           <p role="heading" aria-level="2" data-i="p_shifthandover_e502" class="text-xs font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
         <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Completed jobs, open items, lock-out/tag-out (LOTO) alerts and the watch list, ready for the next team.</p>
-        <p id="handover-source-chip" style="margin:0 0 8px;"></p>
+        <p id="handover-source-chip" hidden data-wh-sources-collapsed></p>
         <!-- C-AH (2026-09-11): this whole panel was UNSTAMPED - heading, description and button all
              English on a page a Filipino worker reads, and INVISIBLE to every i18n measurement, which
              counts data-i stamps and therefore cannot see an element that has none. The extractor could
@@ -1867,7 +1830,7 @@
           <span id="pulse-pm-overdue" title="SMRP 2.1.1 partial: 30-day floor approximation">&#8212;</span>
           <span id="pulse-stock-issues">&#8212;</span>
         </div>
-        <p id="team-pulse-source-chip" style="margin:8px 0 0;"></p>
+        <p id="team-pulse-source-chip" hidden data-wh-sources-collapsed></p>
         <!-- T186 (week-one habit / drift): a worker drifting away must be VISIBLE to a supervisor
              while there is still time to help. The recency data exists (v_worker_assignment_truth);
              this surfaces it — filled by loadTeamPulse, hidden until it has something to say. -->
@@ -1922,6 +1885,46 @@
     <!-- ── END VIEW BOARD ── -->
 
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.875rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.875rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="supervisor-summary-details" hidden>
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details" data-i="showdetails">
+          Show details
+        </button>
+<div id="supervisor-summary-details" role="region" aria-label="Hive health explainer"
+    data-rag-tile="hive:detail_panel"
+    data-rag-label="Hive supervisor detail">
+          <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <ul style="margin:0;padding-left:20px;">
+            <!-- ★ THE LEGEND NAMED FIVE DIMENSIONS THE PRODUCT DOES NOT USE. It read "Reliability /
+                 Operations / Safety / People / Cost"; the bars this card points at (#stair-dims,
+                 :864) are labelled Process, Data, Resilience, Leadership and Culture — five names, and
+                 not one of them matched. Measured live: Process 100 · Data 32 · Resilience 70 ·
+                 Leadership 50 · Culture 40, with Data 32 also being the weakest dimension the
+                 readiness glance names ("Clear Data (32/100) to reach Stair 2"), so the BARS agree
+                 with the score and only the prose disagreed with both.
+                 An explanation that names different inputs from the ones on screen is worse than no
+                 explanation: it is read as authoritative, and it sends someone looking for a Safety
+                 score that does not exist. The names now come from the same model the bars render. -->
+            <li><strong data-i="p_maturitystair_e00b">Maturity stair</strong>: latest snapshot from your hive maturity data. Hive must clear 5 dimension gates per stair: <strong data-i="p_process_12f4">Process</strong>, <strong data-i="p_data_e5e4">Data</strong>, <strong data-i="p_resilience_19d9">Resilience</strong>, <strong data-i="p_leadership_f542">Leadership</strong> and <strong data-i="p_culture_1db1">Culture</strong>, each scored out of 100 and shown as the five bars in the Maturity Stairway below. The stair advances only when every gate clears, so the LOWEST dimension is the one holding you back.</li>
+            <li><strong data-i="p_adoptionhealth_603c">Adoption health</strong>: the adoption-risk calculation. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong data-i="p_openissues_aa01">Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
+            <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
+          </ul>
+          <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
+        </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 </main>
 
 <!-- Toast notification -->
@@ -1960,7 +1963,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -7661,10 +7664,6 @@ window.addEventListener('beforeunload', () => {
   <script src="worker-drawer.js"></script>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:0 auto 1rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.875rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.875rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

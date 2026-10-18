@@ -1,0 +1,16 @@
+{
+  "_doc": "SL D1 (2026-10-19): where each figure on a page comes from - written from the page's own code (which read fills that element), never guessed from a name. tools/render_figure_sources.py writes each page's entries into the page; utils.js whFigureSources makes the figure tappable. sel = the figure or the element its figures render into; whole = a label whose figures sit inside words; chrome = a number that is not data (why says what it is).",
+  "inventory.html": [
+    {"sel": "#stat-total", "shows": "parts in this inventory", "basedOn": "every part you can see here, counted", "reads": "v_inventory_items_truth"},
+    {"sel": "#stat-low", "shows": "parts at or below their minimum", "basedOn": "approved parts whose stock is at or below the minimum set for them", "reads": "v_inventory_items_truth"},
+    {"sel": "#stat-out", "shows": "parts out of stock", "basedOn": "approved parts with nothing on hand", "reads": "v_inventory_items_truth"},
+    {"sel": "#inv-out-hero", "shows": "parts out of stock", "basedOn": "approved parts with nothing on hand", "reads": "v_inventory_items_truth"},
+    {"sel": "#inv-low-hero", "shows": "parts running low", "basedOn": "approved parts at or below their minimum, out-of-stock ones not counted twice", "reads": "v_inventory_items_truth"},
+    {"sel": "#inv-pending-hero", "shows": "parts waiting for approval", "basedOn": "parts submitted to the hive that a supervisor has not approved yet", "reads": "v_inventory_items_truth"},
+    {"sel": "#inv-progress [data-fig=progress]", "whole": true, "shows": "parts at healthy stock", "basedOn": "approved parts above their minimum, out of all approved parts", "reads": "v_inventory_items_truth"},
+    {"sel": "#parts-list [data-fig=qty]", "shows": "on hand for this part", "basedOn": "the part's current stock, kept by every issue and restock recorded against it", "reads": "v_inventory_items_truth, v_inventory_transactions_truth"},
+    {"sel": "#detail-modal [data-fig=qty]", "shows": "on hand for this part", "basedOn": "the part's current stock, kept by every issue and restock recorded against it", "reads": "v_inventory_items_truth, v_inventory_transactions_truth"},
+    {"sel": "#detail-modal [data-fig=min]", "shows": "the reorder point set for this part", "basedOn": "the minimum quantity entered when the part was added or edited", "reads": "v_inventory_items_truth"},
+    {"sel": "#inv-count-label", "whole": true, "shows": "parts shown out of all that match", "basedOn": "the parts that match your search and filters", "reads": "v_inventory_items_truth"}
+  ]
+}

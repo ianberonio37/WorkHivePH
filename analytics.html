@@ -45,10 +45,6 @@
        right-hand group drop to its own line only when the space genuinely is not there; above the
        floor there is room and the layout is unchanged. */
     .page-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
-    /* The source chip is empty in markup and filled by renderSourceChip() after the
-       fetch, so its slot must be reserved or the whole page below it drops (I1/CLS).
-       62px = one caption line (16px) + the 44px "How this is computed" tap target. */
-    #wh-source-chip { min-height: 62px; margin: 0; }
     .page-header h1 { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1.2; } /* Arc-W focal: heading ≥2.3× body median (was 1.4rem/2.0×) */
     .page-header p { font-size: 0.75rem; color: #9aa6b3; margin-top: 4px; }
     .header-badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--wh-blue-text); border: 1px solid rgba(41,182,217,0.3); white-space: nowrap; margin-top: 0.25rem; }
@@ -595,7 +591,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Page-level controls: period selector + refresh.
        These are not role-specific so they live with the header, not inside
        each role view. -->
-  <p id="wh-source-chip"></p>
+  <p id="wh-source-chip" hidden data-wh-sources-collapsed></p>
   <div class="period-row">
     <button class="period-btn" aria-pressed="false" data-days="30" onclick="setPeriod(30, true)"><span data-i="d30">30 days</span></button>
     <button class="period-btn active" aria-pressed="true" data-days="90" onclick="setPeriod(90, true)"><span data-i="d90">90 days</span></button>
@@ -684,21 +680,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
       <a id="an-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
-      <span data-i="showdetails">Show details</span>
-    </button>
-    <div id="an-summary-details" role="region" aria-label="Analytics methodology"
-    data-rag-tile="analytics:detail_panel"
-    data-rag-label="Analytics detail breakdown">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these KPIs are computed</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong>OEE</strong>: average across the assets the descriptive phase returns, computed as Availability × Quality ONLY. Full OEE is Availability × Performance × Quality; Performance needs each asset's ideal cycle time, which this hive has not recorded, so the figure is an upper bound on true OEE and carries no benchmark.</li>
-        <li><strong>Worst MTBF</strong>: lowest MTBF in days across all assets with at least one corrective failure in the window. Mean Time Between Failures.</li>
-        <li><strong>PM compliance</strong>: scope items completed within frequency window / total scope items in the period.</li>
-        <li><strong>Verdict</strong>: red if OEE &lt; 60% OR worst MTBF &lt; 14 days OR compliance &lt; 50%; amber if any KPI under its healthy threshold; green when all three clear.</li>
-      </ul>
-      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
-    </div>
+    <span data-wh-source-anchor="an-summary-details" hidden></span>
   </div>
 
   <!-- Role selector — only Worker / Supervisor exist as actual hive_members.role values
@@ -802,8 +784,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <div id="toast" role="alert" aria-live="polite"></div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="an-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="an-summary-details">
+      <span data-i="showdetails">Show details</span>
+    </button>
+<div id="an-summary-details" role="region" aria-label="Analytics methodology"
+    data-rag-tile="analytics:detail_panel"
+    data-rag-label="Analytics detail breakdown">
+      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these KPIs are computed</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong>OEE</strong>: average across the assets the descriptive phase returns, computed as Availability × Quality ONLY. Full OEE is Availability × Performance × Quality; Performance needs each asset's ideal cycle time, which this hive has not recorded, so the figure is an upper bound on true OEE and carries no benchmark.</li>
+        <li><strong>Worst MTBF</strong>: lowest MTBF in days across all assets with at least one corrective failure in the window. Mean Time Between Failures.</li>
+        <li><strong>PM compliance</strong>: scope items completed within frequency window / total scope items in the period.</li>
+        <li><strong>Verdict</strong>: red if OEE &lt; 60% OR worst MTBF &lt; 14 days OR compliance &lt; 50%; amber if any KPI under its healthy threshold; green when all three clear.</li>
+      </ul>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">Use the phase tabs below (Descriptive / Diagnostic / Predictive / Prescriptive) for the full per-asset breakdown.</p>
+    </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

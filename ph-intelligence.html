@@ -160,7 +160,7 @@
      it emits. aria-live is included to match that contract exactly and the ten other static copies on
      the platform; this particular sentence is not rewritten by JS, so the live region is inert here
      rather than load-bearing - it costs nothing and keeps one rule for all fourteen chips. -->
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<span data-wh-source-anchor="source-line-1" hidden></span>
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
@@ -207,19 +207,7 @@
       <button type="button" id="ph-regenerate-btn" class="btn-gold" onclick="generateReport(this)"
               style="margin-top:10px;padding:8px 16px;min-height:44px;">Generate a fresh report</button>
     </div>
-    <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details" data-i="showdetails">Show details</button>
-    <div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer"
-    data-rag-tile="ph-intelligence:detail_panel"
-    data-rag-label="PH Intelligence detail">
-      <strong data-i="p_howthisreportisbuilt_b74d" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
-      <ul style="margin:0;padding-left:20px;">
-        <li><strong data-i="p_plantsinnetwork_cab7">Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
-        <li><strong data-i="p_topfailurecause_d8d3">Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
-        <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
-        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
-      </ul>
-      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
-    </div>
+    <span data-wh-source-anchor="ph-summary-details" hidden></span>
 
     <!-- Key stats -->
     <div class="stats-row" id="stats-row"></div>
@@ -304,8 +292,39 @@
 
 </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="ph-summary-details" hidden>
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ph-summary-details" data-i="showdetails">Show details</button>
+<div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer"
+    data-rag-tile="ph-intelligence:detail_panel"
+    data-rag-label="PH Intelligence detail">
+      <strong data-i="p_howthisreportisbuilt_b74d" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
+      <ul style="margin:0;padding-left:20px;">
+        <li><strong data-i="p_plantsinnetwork_cab7">Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
+        <li><strong data-i="p_topfailurecause_d8d3">Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
+        <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
+        <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
+      </ul>
+      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+    </div>
+</div>
+<div class="wh-sources-item" data-wh-source-key="source-line-1">
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whSignInWall whStartupHive">
+<script data-wh-skew-heal="whListError whListSkeleton whSignInWall whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -755,10 +774,6 @@
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
 
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 </main>
 <!-- Calm Dashboard Contract footer moved INSIDE main (A3: the lens roots at main/.page; a page-owned disclosure outside it was invisible to the ruler AND semantically outside the page's landmark) -->
 <script>

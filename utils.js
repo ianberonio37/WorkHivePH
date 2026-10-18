@@ -2634,13 +2634,18 @@ function whProgressStrip(label, done, total, opts) {
   var k = Math.max(0, Math.min(done || 0, total));
   var pct = Math.round((k / total) * 100);
   var fillCol = pct >= 100 ? '#86EFAC' : 'linear-gradient(90deg, var(--wh-orange), var(--wh-orange-light))';
-  return '<div class="wh-progress-strip" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + k + '"'
+  /* SL D1 (2026-10-19): the progressbar role moved from the whole strip to the TRACK. A progressbar's children are
+     presentational, so the strip's written value ("24 of 27") could never be a figure a person taps to see where it
+     came from - and the bar itself is what the role describes. The value span carries data-fig="progress" so a page's
+     figure_sources entry can name it. */
+  var _pbA = ' role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + k + '"'
+    + ' aria-label="' + e(_tt(label)) + ': ' + k + ' ' + _tt('of', 'sa') + ' ' + total + '"';
+  return '<div class="wh-progress-strip"'
     /* ★THE ACCESSIBLE NAME JOINED THE COUNT WITH AN ENGLISH WORD (design lens copy on dayplanner,
        2026-09-15): a bare ' of ' literal, never offered to the translator at all, on every strip the
        platform draws. And _tt(label) is a ONE-ARGUMENT call - _t(en, fil) returns en whenever fil is
        undefined, so it cannot translate anything; it is kept only because the CALLER passes a string it
        has already translated, which is where a strip's label should be decided. */
-    + ' aria-label="' + e(_tt(label)) + ': ' + k + ' ' + _tt('of', 'sa') + ' ' + total + '"'
     + ' style="margin:0 0 12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
     /* ★AT 10.88px THIS WAS THE SMALLEST TEXT ON EVERY PAGE THAT DRAWS A STRIP (design lens critique,
@@ -2648,9 +2653,9 @@ function whProgressStrip(label, done, total, opts) {
        thing that says what the number counts. The platform floor is 12px and the value beside it was
        .72rem (11.52px), so the whole component sat below its own floor on 30-odd surfaces. */
     +   '<span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.80);">' + e(_tt(label)) + '</span>'
-    +   '<span style="font-size:.75rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.80);">' + e(_tt('of', 'sa')) + ' ' + total + '</span></span>'
+    +   '<span data-fig="progress" style="font-size:.75rem;font-weight:800;color:var(--wh-cloud, #F4F6FA);font-variant-numeric:tabular-nums;">' + k + ' <span style="font-weight:600;color:rgba(255,255,255,0.80);">' + e(_tt('of', 'sa')) + ' ' + total + '</span></span>'
     + '</div>'
-    + '<div class="wh-progress-track" style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
+    + '<div class="wh-progress-track"' + _pbA + ' style="height:6px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;">'
     +   '<div class="wh-progress-fill" style="width:' + pct + '%;height:100%;border-radius:999px;background:' + fillCol + ';"></div>'   /* ★a 400ms transition on `width` that never runs: the width is
         written inline at insertion, so there is no starting value to animate from, and it is a layout
         property past the 300ms ceiling on every page that draws a progress bar - the `layout-transition`
@@ -2972,8 +2977,217 @@ function renderSourceChip(opts) {
         + '</details>';
     }
   }
+  /* ENH-R (Ian, 2026-10-19): "all that provenance should be all relocated somewhere that is not getting space on the
+     upper part where the user's attention the most ... at the bottom most of the page". On a page that carries its
+     Sources area (data-wh-sources, written at the foot of the page by tools/render_sources_area.py) the caller gets
+     an inert <template> CARRIER instead of the line: it takes no space where the caller puts it, and whSourcesArea
+     (below) shows its line in the area at the foot. A page without the area keeps today's behaviour, and a caller
+     that genuinely needs the line in place - the design system's own demo of it - says inPlace: true. */
+  var _area = (typeof document !== 'undefined' && document.querySelector) ? document.querySelector('[data-wh-sources]') : null;
+  if (_area && opts.inPlace !== true) return '<template data-wh-source>' + chipHtml + '</template>';
   return chipHtml;
 }
+
+/* whSourcesArea - ENH-R. The Sources area at the foot of a page shows the source line of every figure that is ON
+   SCREEN, in page order, once each. Each renderSourceChip() call leaves a carrier where its figures are; a carrier
+   whose place is not showing - a supervisor card a worker never sees, a closed disclosure, the list behind a detail
+   view - puts no line in the area, so the area never names figures the person cannot see. A source slot left holding
+   nothing but its carrier is collapsed (data-wh-sources-collapsed), so no space is kept at the top for a line that
+   now lives at the foot. Lines moved here as markup (a page's "Show details" explainer) carry data-wh-source-key and
+   follow a data-wh-source-anchor left where they used to be. The area itself is hidden whenever it would be empty. */
+(function () {
+  if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
+  var queued = false, last = null;
+  function onlyCarriers(el) {
+    if (!el || el.nodeType !== 1 || el === document.body || el.tagName === 'MAIN') return false;
+    if (el.hasAttribute('data-wh-sources') || (el.textContent || '').trim() !== '') return false;
+    var c = el.firstElementChild;
+    if (!c) return false;
+    for (; c; c = c.nextElementSibling) {
+      if (!(c.tagName === 'TEMPLATE' && c.hasAttribute('data-wh-source')) && !c.hasAttribute('data-wh-source-anchor')) return false;
+    }
+    return true;
+  }
+  // The element whose being on screen decides a carrier's line: its own slot is skipped while that slot holds
+  // nothing else, so collapsing the slot never hides the line.
+  function placeOf(node) {
+    var el = node.parentElement;
+    while (el && (onlyCarriers(el) || el.hasAttribute('data-wh-sources-collapsed'))) el = el.parentElement;
+    return el;
+  }
+  function onScreen(el) { return !!el && el.isConnected && el.getClientRects().length > 0; }
+  // The area is written at the end of <main>, and on most pages <main> is full width while the content sits in a
+  // narrower column inside it (.page-wrap, a max-w-2xl shell): left there, the lines would start at the window's edge on
+  // a phone and run the full width on a desktop. So the area takes the left and right edges of the content block just
+  // above it - measured before it is shown, so showing it moves nothing.
+  function align(area) {
+    var parent = area.parentElement;
+    if (!parent) return;
+    var prev = area.previousElementSibling;
+    for (; prev; prev = prev.previousElementSibling) {
+      if (/^(SCRIPT|TEMPLATE|STYLE|LINK|NOSCRIPT)$/.test(prev.tagName)) continue;
+      var pcs = getComputedStyle(prev);
+      if (pcs.display === 'none' || pcs.position === 'fixed' || pcs.position === 'absolute') continue;
+      if (prev.getBoundingClientRect().height > 0) break;
+    }
+    if (!prev) return;
+    var pr = parent.getBoundingClientRect(), r = prev.getBoundingClientRect();
+    var pcs2 = getComputedStyle(parent), cs = getComputedStyle(prev);
+    // the area's own side padding (a page that gives it a surface gives it padding too) is taken off, so its TEXT - not
+    // its box - lines up with the content's
+    var acs = getComputedStyle(area);
+    var left = Math.round(Math.max(0, r.left - pr.left - parseFloat(pcs2.paddingLeft || 0) + parseFloat(cs.paddingLeft || 0))
+                          - parseFloat(acs.paddingLeft || 0));
+    var right = Math.round(Math.max(0, pr.right - r.right - parseFloat(pcs2.paddingRight || 0) + parseFloat(cs.paddingRight || 0))
+                           - parseFloat(acs.paddingRight || 0));
+    if (area.style.marginLeft !== left + 'px') area.style.marginLeft = left + 'px';
+    if (area.style.marginRight !== right + 'px') area.style.marginRight = right + 'px';
+  }
+  // ...and room BELOW it. The area is the last thing on the page, so a floating control over its column at the bottom of
+  // the screen (logbook's guide link at 390, walked 2026-10-19) would cover its heading for good - at the very bottom
+  // there is no further scroll to bring the words out from under it. The fixed controls are found where they are, by
+  // sampling the bottom of the screen over the area's column, and the area takes just the room that clears the tallest.
+  var BASE_BOTTOM = 24;
+  function clearBottom(area) {
+    var de = document.documentElement, H = window.innerHeight;
+    var cur = parseFloat(area.style.marginBottom) || BASE_BOTTOM;
+    var ar = area.getBoundingClientRect();
+    if (!ar.width || de.scrollHeight <= H + 4) { if (cur !== BASE_BOTTOM) area.style.marginBottom = BASE_BOTTOM + 'px'; return; }
+    var need = 0, seen = [];
+    var xs = [ar.left + 12, ar.left + ar.width / 2, ar.right - 12];
+    for (var yi = 0; yi < 7; yi++) {
+      for (var xi = 0; xi < xs.length; xi++) {
+        var stack = document.elementsFromPoint(xs[xi], H - 10 - yi * 40) || [];
+        for (var s = 0; s < stack.length; s++) {
+          for (var el = stack[s]; el && el !== document.body; el = el.parentElement) {
+            if (seen.indexOf(el) >= 0) break;
+            if (area.contains(el)) break;
+            if (getComputedStyle(el).position === 'fixed') {
+              seen.push(el);
+              var r = el.getBoundingClientRect();
+              if (r.height > 0 && r.height < H * 0.5) need = Math.max(need, H - r.top + 8);
+              break;
+            }
+          }
+        }
+      }
+    }
+    var tail = de.scrollHeight - (ar.bottom + window.scrollY) - (cur - BASE_BOTTOM);
+    var want = BASE_BOTTOM + Math.max(0, Math.round(need - tail));
+    if (cur !== want) area.style.marginBottom = want + 'px';
+  }
+  // A slot that holds only carriers takes no space; one a page has since written other words into is shown again.
+  // Run from the observer itself as well as from sync(): an observer callback runs before the next paint, so a slot a
+  // page has just created never shows its padding for a frame before it is collapsed.
+  function collapse(area) {
+    var slots = document.querySelectorAll('template[data-wh-source]');
+    for (var i = 0; i < slots.length; i++) {
+      var s = slots[i].parentElement;
+      if (s && !area.contains(s) && onlyCarriers(s) && !s.hasAttribute('data-wh-sources-collapsed')) {
+        s.setAttribute('data-wh-sources-collapsed', '');
+        s.hidden = true;
+      }
+    }
+    var col = document.querySelectorAll('[data-wh-sources-collapsed]');
+    for (var j = 0; j < col.length; j++) {
+      var empty = !col[j].firstElementChild && (col[j].textContent || '').trim() === '';
+      var want = empty || onlyCarriers(col[j]);
+      if (col[j].hidden !== want) col[j].hidden = want;
+    }
+    return slots;
+  }
+  function sync() {
+    queued = false;
+    var area = document.querySelector('[data-wh-sources]');
+    if (!area) return;
+    var list = area.querySelector('[data-wh-sources-list]');
+    if (!list) return;
+    var slots = collapse(area);
+    // The mirrored lines: in page order, once each, only for figures on screen.
+    var seen = {}, lines = [];
+    for (var k = 0; k < slots.length; k++) {
+      var t = slots[k];
+      if (area.contains(t) || !onScreen(placeOf(t))) continue;
+      var h = t.innerHTML;
+      if (seen[h]) continue;
+      seen[h] = 1;
+      lines.push(h);
+    }
+    var live = list.querySelector('[data-wh-sources-live]');
+    if (!live) {
+      live = document.createElement('div');
+      live.setAttribute('data-wh-sources-live', '');
+      live.style.cssText = 'display:grid;gap:10px;';
+      list.insertBefore(live, list.firstChild);
+    }
+    var sig = lines.join('\u0001');
+    if (sig !== last) {
+      last = sig;
+      live.innerHTML = lines.map(function (x) { return '<div class="wh-sources-item">' + x + '</div>'; }).join('');
+    }
+    var any = lines.length > 0;
+    // Lines moved here as markup follow the place they came from, and a hidden toggle takes its explainer with it.
+    var anchors = document.querySelectorAll('[data-wh-source-anchor]');
+    for (var n = list.firstElementChild; n; n = n.nextElementSibling) {
+      if (n === live) continue;
+      var key = n.getAttribute('data-wh-source-key');
+      if (key === null) { if (!n.hidden) any = true; continue; }
+      var anchor = null;
+      for (var a = 0; a < anchors.length; a++) if (anchors[a].getAttribute('data-wh-source-anchor') === key) { anchor = anchors[a]; break; }
+      var tog = n.querySelector('.details-toggle');
+      // ...and an anchor the page has REMOVED means the place is gone (integrations strips its console, the explainer's
+      // anchor with it, for a person who is not a supervisor - the explainer went with the console before it moved), and
+      // a line a page has not written yet (a hand-filled one, before its read lands) is not a line
+      var vis = !!anchor && onScreen(placeOf(anchor)) && !(tog && tog.hidden) && (n.textContent || '').trim() !== '';
+      if (n.hidden === vis) n.hidden = !vis;
+      if (vis) any = true;
+    }
+    if (any) align(area);
+    if (area.hidden === any) area.hidden = !any;
+    if (any) clearBottom(area);      // measured with the area shown, in the same task, so it is never painted uncleared
+  }
+  // The visibility and alignment read layout, so they run when the page is idle rather than every few milliseconds of a
+  // long render: on alert-hub a sync on each burst of the feed's mutations forced a layout ~20 times while the feed was
+  // still building, and the alert-management card finished later and moved more (walked 2026-10-19). Collapsing a slot
+  // needs no layout and still happens at once, from the observer.
+  function queue() {
+    if (queued) return;
+    queued = true;
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(sync, { timeout: 700 });
+    else setTimeout(sync, 200);
+  }
+  function start() {
+    var area = document.querySelector('[data-wh-sources]');
+    if (!area) return;
+    // A line drawn while the page was still parsing, before its area existed, was drawn in place - into the slot this
+    // page had collapsed. Hand it to the area the way a later line would arrive: as a carrier.
+    var early = document.querySelectorAll('[data-wh-sources-collapsed] > .wh-source-chip');
+    for (var e = 0; e < early.length; e++) {
+      var slot = early[e].parentElement;
+      if (!slot || slot.__whAdopted || area.contains(slot)) continue;
+      slot.__whAdopted = true;
+      slot.innerHTML = '<template data-wh-source>' + slot.innerHTML + '</template>';
+    }
+    collapse(area);
+    queue();
+    new MutationObserver(function (muts) {
+      var outside = false, added = false;
+      for (var i = 0; i < muts.length; i++) {
+        if (area.contains(muts[i].target)) continue;
+        outside = true;
+        if (muts[i].type === 'childList') added = true;
+      }
+      if (added) collapse(area);
+      if (outside) queue();
+    }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'open'] });
+    window.addEventListener('resize', queue);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+  // its own line, `window.whX =` at the start: the skew-heal inventory reads utils.js's functions that way, and a page
+  // carrying a Sources area guards this one, so an older utils.js (which would leave the area hidden) heals itself
+  window.whSourcesSync = queue;
+})();
 
 // ─────────────────────────────────────────────
 // whListSkeleton / whListError — ONE shared loading + error state (STREAMLINE E2)
@@ -3528,7 +3742,10 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
     '.wh-method>summary::before{content:"\\24D8";font-weight:400;opacity:.75}' +
     '.wh-method>summary:hover,.wh-method[open]>summary{color:rgba(255,255,255,0.85)}' +
     '.wh-method>ul{margin:0 0 6px;padding:0 0 0 18px;color:rgba(255,255,255,0.80);line-height:1.5}' +
-    '.wh-method>ul>li{margin:2px 0}';
+    '.wh-method>ul>li{margin:2px 0}' +
+    // ENH-R: components.css reserves 62px on every .wh-source-chip so a line arriving late cannot push a page down.
+    // In the Sources area at the foot there is nothing below it to push, and the reserve is only empty air.
+    '.wh-sources .wh-source-chip{min-height:0;margin:0}';
   (document.head || document.documentElement).appendChild(whMethodCss);
 }
 
@@ -5227,6 +5444,12 @@ if (typeof window !== 'undefined') window.reflowIdDump = reflowIdDump;
 function wireDetailToggle() {
   if (typeof document === 'undefined') return;
   var btn = document.getElementById('details-toggle-btn');
+  // ENH-R: the explainer lives in the Sources area at the foot of the page, so a page script that runs while the page
+  // is still parsing can call this before the button exists - wire it once the document has been read
+  if (!btn && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { wireDetailToggle(); }, { once: true });
+    return;
+  }
   if (!btn || btn.__whDetailWired) return;
   var paneId = btn.getAttribute('aria-controls');
   var pane = paneId ? document.getElementById(paneId) : null;
@@ -6450,6 +6673,181 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     load();
     return { close: close, restored: function () { return restoredAny; } };
   };
+})();
+
+// ─────────────────────────────────────────────
+// whFigureSources — every figure says where it came from (SL D1, Ian 2026-10-16; trigger 2026-10-19)
+// ─────────────────────────────────────────────
+// Tap a figure - the number itself - and a small card says what it shows, what it is based on and the view it reads.
+// There is NO button: Ian removed the provenance "i" platform-wide on 2026-08-06 ("I just don't like it") and on
+// 2026-10-16 chose a per-figure reveal, so the figure is the control and the page stays quiet (a dotted underline
+// appears only on hover or keyboard focus). The sources are the page's own curated entries, written by
+// tools/render_figure_sources.py from figure_sources.json into <script type="application/json"
+// id="wh-figure-sources">: [{ sel, shows, basedOn, reads, whole?, chrome? }]. An entry's selector names a figure or the
+// container its figures render into; `whole` marks a label whose figures sit inside words ("Showing 9 of 27 parts");
+// `chrome` names numbers that are not data (a step dot) so nothing pretends they have a source. A figure inside a
+// control (a filter chip's count, a tile that is a link) is left to that control: tapping it must keep doing what it
+// says. Nothing is invented - a figure with no entry gets no card, and the D1 gate counts it.
+(function () {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  var FIG = /^[-+]?\s*(₱|PHP\s*|\$)?\s*\d[\d,]*(\.\d+)?\s*(%|pts?|h|hrs?|hours?|d|days?|km|kg|pcs|x|×|\/\s*\d+)?$/i;
+  var CTL = 'a[href], button, [role=button]:not(.wh-fig), summary, label, select, input, textarea, [onclick]';
+  var EASE = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  var map = null, card = null, cardFor = null, timer = null;
+
+  function reduced() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) { return false; } }
+  function readMap() {
+    var el = document.getElementById('wh-figure-sources');
+    if (!el) return null;
+    try { var m = JSON.parse(el.textContent || '[]'); return Array.isArray(m) ? m : null; } catch (_) { return null; }
+  }
+  function ownText(e) {
+    var s = '';
+    for (var i = 0; i < e.childNodes.length; i++) if (e.childNodes[i].nodeType === 3) s += e.childNodes[i].textContent;
+    return s.trim();
+  }
+  function style() {
+    if (document.getElementById('wh-fig-style')) return;
+    var s = document.createElement('style');
+    s.id = 'wh-fig-style';
+    // No layout properties: the class lands after the data renders, so it must not move a single box.
+    s.textContent =
+      '.wh-fig{cursor:pointer;border-radius:4px;-webkit-tap-highlight-color:transparent}' +
+      '.wh-fig:hover,.wh-fig:focus-visible{text-decoration:underline dotted;text-decoration-thickness:1px;text-underline-offset:0.2em}' +
+      '.wh-fig:focus-visible{outline:2px solid var(--wh-amber, #F7A21B);outline-offset:2px}' +
+      '.wh-fig-card code{font:600 0.8125rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--wh-cyan-light, #5FCCE8);overflow-wrap:anywhere}';
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  // The figure's own text stays its accessible NAME - it changes when the data lands (a tile reads 0 and then 3), and an
+  // aria-label written at marking time would keep saying 0. What it shows and the "where from" hint are a DESCRIPTION,
+  // one hidden node per entry, which does not go stale.
+  var descs = [];
+  function descFor(entry) {
+    var i = map.indexOf(entry);
+    if (descs[i]) return descs[i];
+    var host = document.getElementById('wh-fig-descs');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'wh-fig-descs';
+      host.hidden = true;
+      document.body.appendChild(host);
+    }
+    var d = document.createElement('span');
+    d.id = 'wh-fig-desc-' + i;
+    d.textContent = (entry.shows || 'This figure') + '. Press to see where it comes from.';
+    host.appendChild(d);
+    return (descs[i] = d.id);
+  }
+  function mark(el, entry) {
+    if (el.__whFig) return;
+    el.__whFig = entry;
+    el.classList.add('wh-fig');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-haspopup', 'dialog');
+    el.setAttribute('aria-expanded', 'false');
+    var prev = el.getAttribute('aria-describedby');
+    el.setAttribute('aria-describedby', (prev ? prev + ' ' : '') + descFor(entry));
+  }
+  function decorate() {
+    if (!map) return;
+    for (var i = 0; i < map.length; i++) {
+      var e = map[i];
+      if (!e || e.chrome || !e.sel) continue;
+      var hits;
+      try { hits = document.querySelectorAll(e.sel); } catch (_) { continue; }
+      for (var j = 0; j < hits.length; j++) {
+        var box = hits[j];
+        var cands = e.whole ? [box] : [box].concat(Array.prototype.slice.call(box.querySelectorAll('*')));
+        for (var k = 0; k < cands.length; k++) {
+          var c = cands[k];
+          if (c.__whFig || c.closest(CTL) || c.closest('.wh-fig-card')) continue;
+          var t = (c.innerText || '').trim();
+          if (!t || t.length > 48) continue;
+          if (e.whole ? !/\d/.test(t) : (c.children.length ? !FIG.test(ownText(c)) : !FIG.test(t))) continue;
+          if (!e.whole && c.children.length && !FIG.test(t)) continue;
+          mark(c, e);
+        }
+      }
+    }
+  }
+  function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(decorate, 250); }
+
+  function close(back) {
+    if (!card) return;
+    var el = card, fig = cardFor;
+    card = null; cardFor = null;
+    if (fig) fig.setAttribute('aria-expanded', 'false');
+    el.remove();
+    if (back && fig && fig.focus) { try { fig.focus({ preventScroll: true }); } catch (_) { fig.focus(); } }
+  }
+  function open(fig) {
+    var entry = fig.__whFig;
+    if (!entry) return;
+    if (cardFor === fig) { close(true); return; }
+    close(false);
+    var value = (fig.innerText || '').replace(/\s+/g, ' ').trim();
+    var reads = String(entry.reads || '').split(/\s*[,+]\s*/).filter(Boolean);
+    var el = document.createElement('div');
+    el.className = 'wh-fig-card';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Where ' + value + ' comes from');
+    el.tabIndex = -1;
+    el.style.cssText =
+      'position:absolute;z-index:10003;box-sizing:border-box;width:min(320px, calc(100vw - 24px));padding:12px 14px;' +
+      'background:var(--wh-navy-mid, #1F2E45);color:var(--wh-cloud, #F4F6FA);border:1px solid rgba(255,255,255,0.12);' +
+      'border-radius:12px;box-shadow:var(--wh-shadow-2, 0 4px 10px rgba(0,0,0,0.24), 0 8px 24px rgba(0,0,0,0.18));' +
+      'font-family:var(--wh-font, Poppins, sans-serif);text-align:left;' +
+      (reduced() ? '' : 'opacity:0;transform:translateY(4px);transition:opacity 160ms ' + EASE + ', transform 160ms ' + EASE + ';');
+    var row = function (k, v) {
+      return '<p style="margin:6px 0 0;font-size:0.875rem;line-height:1.45;"><span style="display:block;font-size:0.75rem;' +
+        'font-weight:600;color:rgba(244,246,250,0.78);">' + k + '</span>' + v + '</p>';
+    };
+    el.innerHTML =
+      '<p style="margin:0;font-size:0.95rem;font-weight:700;line-height:1.35;overflow-wrap:anywhere;">' +
+        escHtml(value) + ' <span style="font-weight:600;color:rgba(244,246,250,0.86);">' + escHtml(entry.shows || '') + '</span></p>' +
+      (entry.basedOn ? row('Based on', escHtml(entry.basedOn)) : '') +
+      (reads.length ? row('Reads', reads.map(function (r) { return '<code>' + escHtml(r) + '</code>'; }).join(', ')) : '');
+    document.body.appendChild(el);
+    var r = fig.getBoundingClientRect(), w = el.offsetWidth, hgt = el.offsetHeight;
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var left = Math.max(12, Math.min(r.left, vw - w - 12));
+    var below = r.bottom + 8 + hgt <= vh || r.top < hgt + 8;
+    var top = below ? r.bottom + 8 : r.top - hgt - 8;
+    el.style.left = (left + window.scrollX) + 'px';
+    el.style.top = (top + window.scrollY) + 'px';
+    card = el; cardFor = fig;
+    fig.setAttribute('aria-expanded', 'true');
+    if (!reduced()) requestAnimationFrame(function () { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+  }
+
+  document.addEventListener('click', function (ev) {
+    var fig = ev.target && ev.target.closest ? ev.target.closest('.wh-fig') : null;
+    // stopPropagation as well: a figure the registry marks is one whose tap means "where from?", so a card-level click
+    // handler underneath must not ALSO fire (the registry leaves figures inside clickable cards to the card).
+    if (fig && fig.__whFig) { ev.preventDefault(); ev.stopPropagation(); open(fig); return; }
+    if (card && !card.contains(ev.target)) close(false);
+  }, true);
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && card) { ev.stopPropagation(); close(true); return; }
+    var fig = ev.target && ev.target.classList && ev.target.classList.contains('wh-fig') ? ev.target : null;
+    if (fig && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); open(fig); }
+  }, true);
+  window.addEventListener('resize', function () { close(false); });
+
+  function init() {
+    map = readMap();
+    if (!map || !map.length) return;
+    style();
+    decorate();
+    try { new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true }); }
+    catch (_) { /* empty-catch-allow: without the observer the figures marked at load keep their card */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  window.whFigureSources = { refresh: decorate, entries: function () { return map; } };
 })();
 
 // ─────────────────────────────────────────────

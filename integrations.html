@@ -230,7 +230,6 @@
     #it-action-text { min-height: 80px; }                                /* "Computing recommendation…" → 3-line recommendation (measured h1 79px; shared .ac-text reserves only 60px) */
     #it-active-sub, #it-stale-sub, #it-disabled-sub { min-height: 47px; }/* "Loading…" 1-line → up to 3-line sub (measured worst h1 47px) — keeps every .simple-card stable at its 154px reserve */
     #it-active-hero, #it-stale-hero, #it-disabled-hero { min-height: 28px; }/* lock the KPI hero number (measured h1 28px) so a font-swap metric change can't reflow the card-internal stack */
-    #integrations-source-chip { min-height: 30px; }                      /* empty <p> → multi-line renderSourceChip() "Based on your …" chip under the header */
     #it-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #it-summary-details.open { display:block; }
   </style>
@@ -380,25 +379,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
     <div data-i="p_computingrecommendation_5948" class="ac-text" id="it-action-text">Computing recommendation...</div>
   </div>
-  <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details" data-i="showdetails">
-    Show details
-  </button>
-  <div id="it-summary-details" role="region" aria-label="Integrations explainer"
-    data-rag-tile="integrations:detail_panel"
-    data-rag-label="Integrations detail">
-    <strong data-i="p_howintegrationsarecategorise_1e6a" style="display:block;margin-bottom:8px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
-    <ul style="margin:0;padding-left:20px;">
-      <li><strong data-i="p_activeintegrations_0c94">Active integrations</strong>: integrations that are switched on and have synced in the last 7 days.</li>
-      <li><strong data-i="p_stalesyncs_3294">Stale syncs</strong>: enabled integrations whose last sync was more than 7 days ago: usually an auth or endpoint issue.</li>
-      <li><strong data-i="p_disabled_f4f4">Disabled</strong>: integrations turned off but still in the config table.</li>
-      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
-    </ul>
-    <p data-i="p_thetabsbelowimportfilelivesy_4996" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
-    <!-- Phase 4 (2026-06-10): interim cross-link — plant-connections is the supervisor
-         MONITOR surface for everything configured here (sync health, sensor bridge,
-         gateway audit); long-term these two pages merge into one. -->
-    <p style="margin-top:8px;font-size:0.75rem;"><a data-i="p_monitorsynchealthsensorfeeds_aa16" href="plant-connections.html" style="color:var(--blue, var(--wh-blue));">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
-  </div>
+  <span data-wh-source-anchor="it-summary-details" hidden></span>
 
   <!-- Getting Started workflow guide (dismissible) -->
   <div id="cmms-guide" style="margin-bottom:1.5rem; display:none;">
@@ -488,7 +469,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          survived because the inner one arrives through innerHTML rather than through the parser. The
          wrapper is now a plain <div> and owns no role: the shared chip is the status region, which is the
          same conclusion the v471 bump reached on hive.html when three chips each announced. -->
-    <div id="integrations-source-chip" style="margin-top:4px;"></div>
+    <div id="integrations-source-chip" hidden data-wh-sources-collapsed></div>
   </div>
 
   <!-- Supervisor gate message (shown if no HIVE_ID) -->
@@ -895,11 +876,40 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
   </div>
 
-</div><!-- /page -->
+</div><!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="it-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details" data-i="showdetails">
+    Show details
+  </button>
+<div id="it-summary-details" role="region" aria-label="Integrations explainer"
+    data-rag-tile="integrations:detail_panel"
+    data-rag-label="Integrations detail">
+    <strong data-i="p_howintegrationsarecategorise_1e6a" style="display:block;margin-bottom:8px;color:rgba(255,255,255,0.85);">How integrations are categorised</strong>
+    <ul style="margin:0;padding-left:20px;">
+      <li><strong data-i="p_activeintegrations_0c94">Active integrations</strong>: integrations that are switched on and have synced in the last 7 days.</li>
+      <li><strong data-i="p_stalesyncs_3294">Stale syncs</strong>: enabled integrations whose last sync was more than 7 days ago: usually an auth or endpoint issue.</li>
+      <li><strong data-i="p_disabled_f4f4">Disabled</strong>: integrations turned off but still in the config table.</li>
+      <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
+    </ul>
+    <p data-i="p_thetabsbelowimportfilelivesy_4996" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
+    <!-- Phase 4 (2026-06-10): interim cross-link — plant-connections is the supervisor
+         MONITOR surface for everything configured here (sync health, sensor bridge,
+         gateway audit); long-term these two pages merge into one. -->
+    <p style="margin-top:8px;font-size:0.75rem;"><a data-i="p_monitorsynchealthsensorfeeds_aa16" href="plant-connections.html" style="color:var(--blue, var(--wh-blue));">Monitor sync health, sensor feeds &amp; gateway activity in Plant Connections &rarr;</a></p>
+  </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+<!-- /page -->
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whStartupHive whWriteError">
+<script data-wh-skew-heal="whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

@@ -2,13 +2,13 @@
 name: page-index
 type: page
 source: file:index.html
-source_sha: cf31ece13b3d632f
+source_sha: 07268b1d8280055b
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `index.html` — WorkHive | Free Industrial Tools for Every Filipino Worker
 
-Size: 401KB · 62 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 402KB · 62 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (3): `early_access_emails.insert`, `worker_profiles.insert`, `worker_profiles.update`
 **RPC calls**: `check_username_available`, `deactivate_my_account`, `get_hive_dashboard`

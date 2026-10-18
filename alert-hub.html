@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whStartupHive">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -242,8 +242,6 @@
     .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
     .amc-readonly-note { font-size: 0.8rem; color: var(--muted); margin-left: auto; align-self: center; }
     .amc-status-msg { font-size: 0.8rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
-    #wh-source-chip { min-height: 52px; }   /* the source chip lands after the first read; its slot is reserved so the header does not push the page (CLS, design lens audit 2026-09-15) */
-    @media (min-width: 700px) { #wh-source-chip { min-height: 24px; } }
     @media (max-width: 480px) {
       .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .amc-card { padding: 16px; }
@@ -308,7 +306,7 @@
     <div>
       <h1 class="page-title" style="margin:0;" translate="no">Alert Hub</h1>
       <p style="font-size:.8rem; color:var(--muted); margin-top:2px; max-width:70ch;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
-      <p id="wh-source-chip"></p>
+      <p id="wh-source-chip" hidden data-wh-sources-collapsed></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
     <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:var(--wh-orange); color:var(--wh-navy); font-weight:600; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
@@ -365,20 +363,7 @@
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
         <a id="ah-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
       </div>
-      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" aria-label="Show how these numbers are computed" data-i="showdetails">
-        Show details
-      </button>
-      <div id="ah-summary-details" role="region" aria-label="Alert breakdown"
-    data-rag-tile="alert-hub:detail_panel"
-    data-rag-label="Alert detail breakdown">
-        <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-        <ul style="margin:0;padding-left:20px;">
-          <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
-          <li><strong>Anomaly signals</strong>: count of sensor anomalies in attention status (Stair 3+ hives only).</li>
-          <li><strong>AMC daily brief</strong>: today's brief status: pending / approved / rejected / none.</li>
-          <li><strong>Verdict</strong>: red if any critical alerts OR anomalies in attention; amber if AMC pending OR high alerts; green when clear.</li>
-        </ul>
-      </div>
+      <span data-wh-source-anchor="ah-summary-details" hidden></span>
     </div>
 
     <!-- Autonomous Maintenance Crew (AMC) daily brief — populated only when
@@ -475,6 +460,35 @@
 
 </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
+
+<div class="wh-sources-item" data-wh-source-key="ah-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" aria-label="Show how these numbers are computed" data-i="showdetails">
+        Show details
+      </button>
+<div id="ah-summary-details" role="region" aria-label="Alert breakdown"
+    data-rag-tile="alert-hub:detail_panel"
+    data-rag-label="Alert detail breakdown">
+        <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+        <ul style="margin:0;padding-left:20px;">
+          <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
+          <li><strong>Anomaly signals</strong>: count of sensor anomalies in attention status (Stair 3+ hives only).</li>
+          <li><strong>AMC daily brief</strong>: today's brief status: pending / approved / rejected / none.</li>
+          <li><strong>Verdict</strong>: red if any critical alerts OR anomalies in attention; amber if AMC pending OR high alerts; green when clear.</li>
+        </ul>
+      </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script src="nav-hub.js"></script>
 <script defer src="wh-help.js"></script>
 <script>
@@ -2517,10 +2531,6 @@
 </main>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

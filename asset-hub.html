@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whStartupHive whTraceIdOf">
+<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -78,12 +78,6 @@
 
     /* Header */
     .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    /* ★THE SOURCE CHIP IS EMPTY IN MARKUP AND FILLED AFTER LOAD (design lens audit, 2026-09-15). The
-       header measured 44px at first paint and 105px once renderSourceChip wrote into it, and every
-       element below moved 61px - the back button among them, which is why the CLS entry named it.
-       analytics.html reserves the same slot for the same reason; 62px is one caption line plus the 44px
-       "How this is computed" tap target the chip carries. */
-    #wh-page-source-chip { min-height: 62px; margin: 0; }
     /* ★THE SUMMARY TILES GREW WHEN THEIR DATA LANDED (design lens audit, 2026-09-15). Measured frame by
        frame at 390: every sub-line renders "Loading..." on one line at 18px, then the real sentence takes
        two lines on the total and pending tiles and THREE on the critical one ("1 critical asset: these..."),
@@ -529,7 +523,7 @@
       <div>
         <h1 class="page-title" id="page-title" translate="no">Asset Hub</h1>
         <div data-i="p_viewofanyequipmentinyourhive_9123" class="page-sub" id="page-sub">360 view of any equipment in your hive</div>
-        <p id="wh-page-source-chip"></p>
+        <p id="wh-page-source-chip" hidden data-wh-sources-collapsed></p>
       </div>
     </header>
 
@@ -569,25 +563,7 @@
         <!-- Arc P · Wave 1 (P3 / FUSION 3a): one primary button that DOES the next step. -->
         <a data-i="p_takeaction_ee0b" id="ah-action-btn" class="ac-cta hidden" href="#">Take action &#8594;</a>
       </div>
-      <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
-        Show details
-      </button>
-      <div id="ah-summary-details" role="region" aria-label="Asset fleet explainer"
-    data-rag-tile="asset-hub:detail_panel"
-    data-rag-label="Asset detail breakdown">
-        <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-        <ul style="margin:0;padding-left:20px;">
-          <li><strong data-i="p_totalassets_b82a">Total assets</strong>: approved assets in this hive.</li>
-          <li><strong data-i="p_criticalassets_97ff">Critical assets</strong>: subset where marked critical. These should have full PM coverage.</li>
-          <!-- These two lines each described something the code does not do (design lens critique,
-             2026-09-15): the tile counts status='pending' ONLY, not rejected, which is why it reads 4 while
-             the card header reads "4 pending - 1 rejected"; and the verdict's FIRST branch is predicted
-             risk, which the old text never mentioned although it is the branch on screen. -->
-        <li><strong data-i="p_pendingassets_b1aa">Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off. Rejected submissions stay in the queue below but are not counted here.</li>
-          <li><strong data-i="p_verdict_7f6e">Verdict</strong>: predicted risk leads when any asset is scored critical or high; then 5+ pending is red, any pending or no critical assets registered is amber, and a complete registry is green.</li>
-        </ul>
-        <p data-i="p_searchandtapanyassetcardbelo_af59" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.8rem;">Search and tap any asset card below for the 360° view.</p>
-      </div>
+      <span data-wh-source-anchor="ah-summary-details" hidden></span>
 
       <div class="search-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <input data-ia="a_search" aria-label="Search by tag, name, or location" id="asset-search" class="search-input" type="search" placeholder="Search by tag, name, or location" autocomplete="off" style="flex:1 1 180px; min-width:0;" />
@@ -728,7 +704,7 @@
              novice doesn't try to reconcile it against the FMEA / Weibull / P-F numbers
              in the Reliability Workbench (those are the engineering detail BEHIND this one). -->
         <p style="font-size:0.8rem; color:rgba(255,255,255,0.80); margin:2px 0 8px; line-height:1.45;">This is the asset's <b data-i="p_oneheadlinerisk_e514" style="color:rgba(255,255,255,0.8);font-weight:700;">one headline risk</b>: the score says how urgent, the factors say why. The Reliability Workbench below adds the engineering detail (FMEA / Weibull / P-F) behind it.</p>
-        <p id="risk-source-chip" style="margin:4px 0 10px;"></p>
+        <p id="risk-source-chip" hidden data-wh-sources-collapsed></p>
         <div id="risk-content" style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
@@ -1085,7 +1061,43 @@
       </div>
     </div>
   </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<details data-calm-disclosure="data-sources" style="margin:0;">
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+</details>
 
+<div class="wh-sources-item" data-wh-source-key="ah-summary-details">
+<button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="ah-summary-details" data-i="showdetails">
+        Show details
+      </button>
+<div id="ah-summary-details" role="region" aria-label="Asset fleet explainer"
+    data-rag-tile="asset-hub:detail_panel"
+    data-rag-label="Asset detail breakdown">
+        <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+        <ul style="margin:0;padding-left:20px;">
+          <li><strong data-i="p_totalassets_b82a">Total assets</strong>: approved assets in this hive.</li>
+          <li><strong data-i="p_criticalassets_97ff">Critical assets</strong>: subset where marked critical. These should have full PM coverage.</li>
+          <!-- These two lines each described something the code does not do (design lens critique,
+             2026-09-15): the tile counts status='pending' ONLY, not rejected, which is why it reads 4 while
+             the card header reads "4 pending - 1 rejected"; and the verdict's FIRST branch is predicted
+             risk, which the old text never mentioned although it is the branch on screen. -->
+        <li><strong data-i="p_pendingassets_b1aa">Pending assets</strong>: worker-submitted assets awaiting supervisor sign-off. Rejected submissions stay in the queue below but are not counted here.</li>
+          <li><strong data-i="p_verdict_7f6e">Verdict</strong>: predicted risk leads when any asset is scored critical or high; then 5+ pending is red, any pending or no critical assets registered is amber, and a complete registry is green.</li>
+        </ul>
+        <p data-i="p_searchandtapanyassetcardbelo_af59" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.8rem;">Search and tap any asset card below for the 360° view.</p>
+      </div>
+</div>
+</div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
+
+
+  <!-- wh-sources-anchor -->
   <script src="nav-hub.js"></script>
   <script src="qr-scanner.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
@@ -5239,10 +5251,6 @@
   <script defer src="device-fingerprint.js"></script>
 
 <!-- Calm Dashboard Contract footer: data-sources disclosure + hideZeroStat helper -->
-<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem; padding:0 1rem;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
-</details>
 <script>
   window.hideZeroStat = window.hideZeroStat || function(el, val) {
     if (!el) return;

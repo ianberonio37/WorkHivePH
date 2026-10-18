@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReconcileHiveRole whStartupHive">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -58,10 +58,6 @@
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
     .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-    /* measured at 390: the header goes 69px to 173px when renderSourceChip writes here, so the shared
-       62px floor is not enough on this page - the chip carries a longer provenance line over two rows
-       plus the disclosure. 104px is what it settles at (design lens audit, 2026-09-15). */
-    #audit-source-chip { min-height: 104px; }
     .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
 
     /* Filter bar */
@@ -318,7 +314,7 @@
     <div>
       <h1 class="page-title" style="margin:0;" data-i="al_title">Audit Log</h1>
       <p data-i="p_everysupervisorandworkeracti_1870" class="page-sub">Every supervisor and worker action in your hive, on the record. Use it for compliance checks and team transparency.</p>
-      <p id="audit-source-chip" style="margin-top:4px;"></p>
+      <p id="audit-source-chip" hidden data-wh-sources-collapsed></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
   </header>
@@ -411,6 +407,13 @@
 
 </div>
 
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;"></div>
+</section>
+<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- /wh-sources -->
 <script src="nav-hub.js"></script>
 <script>
   // listener-cleanup-allow: static HTML page — listeners die with page nav; render-scoped listeners attach to elements removed in the same render cycle

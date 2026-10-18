@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: d5f9b752eaaea615
+source_sha: 7479e084c7e7de97
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1397) — the 'what's already gated' brain
+## gate · registered validators (1398) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1026)
+### Platform (1027)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1106,6 +1106,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `project_authority` ⚡ [fail] — PJK3 - authority is enforced where the DATA is, not in the renderer. project-manager.html carried three claims only its renderer believed, each probed live as a
 - `project_tenancy` ⚡ [fail] — PJK4 - a project child row's PARENT must live in its own hive. EARNED BY PROBING, not assumed from the AHK4 analogy: reads were measured clean first (as a membe
 - `promo-poster-valid` [regression] — T489 (promo-poster generator produces a valid asset): promo-poster.html has the headline + all 5 product pillars, every local img src resolves to an existing fi
+- `provenance-at-foot` ⚡ [fail] — ENH-R (2026-10-19, Ian: provenance out of the space a person reads first): every page that carries a source line, a Show-details explainer or a how-it-is-comput
 - `prover-harness-selftest` ⚡ [fail] — Prover harness self-test: psql/psqlAs answer, PAGE_QUERY uses the page's own key, VIS_JS prefers checkVisibility
 - `prover-signin-key-teeth` ⚡ [fail] — Shared sign-in waits for the credential it uses (15 cases): prover_harness.signIn falls back to window.SUPABASE_KEY, which exists ONLY because shift-brain.html 
 - `provider-availability-driven` [regression] — T102 (service-provider availability honesty): availability is DRIVEN end-to-end - accept_service_request SETS service_providers.availability on job-take and syn

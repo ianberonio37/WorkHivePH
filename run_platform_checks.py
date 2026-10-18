@@ -4330,6 +4330,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "provenance-at-foot",
+        "script":  "tools/render_sources_area.py",
+        "args":    ["--check", "--only=root"],     # the 35 app pages; the public 62 (calculators, learn index, feedback) join when their areas land
+        "label":   "ENH-R (2026-10-19, Ian: provenance out of the space a person reads first): every page that carries a source line, a Show-details explainer or a how-it-is-computed note has ONE Sources area at the foot of its content, written in its markup (never inside a script), shipped hidden, placed above its trailing scripts; no static source line, explainer, how-it-is-computed note or data-sources disclosure sits outside it, and no slot a source line used to fill keeps space at the top",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "offline-is-not-no",
         "script":  "tools/validate_offline_is_not_no.py",
         "args":    [],
