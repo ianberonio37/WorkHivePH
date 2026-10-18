@@ -1031,10 +1031,12 @@ def check_realtime_live_badge(content, page):
     for token, reason in required.items():
         if token not in content:
             issues.append({"check": "realtime_live_badge", "page": page, "reason": reason})
-    # Must skip own inserts (no self-badging) — look for the WORKER_NAME guard
-    # inside the subscription handler.
+    # Must skip own inserts (no self-badging) — look for the own-row guard inside the subscription handler.
+    # 2026-10-19: the identity form `_isMine(payload.new)` (account first, the display name only for a row with no
+    # account) is the stronger guard the BRP wave moved this handler to; the old name compare is still accepted.
+    _rt_body = function_body(content, r"function\s+subscribeLogbookRealtime\s*\(") or content   # brace-matched, not a window
     if "subscribeLogbookRealtime" in content and not re.search(
-            r"worker_name\s*===\s*WORKER_NAME", content):
+            r"worker_name\s*===\s*WORKER_NAME|_isMine\(\s*payload\??\.new\s*\)", _rt_body):
         issues.append({"check": "realtime_live_badge", "page": page,
                        "reason": ("Realtime handler does not skip the user's own inserts "
                                   "(payload.new.worker_name === WORKER_NAME guard missing) — "

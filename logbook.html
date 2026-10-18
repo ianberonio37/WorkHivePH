@@ -2116,6 +2116,9 @@ async function searchTeam(append = false) {
     loto_applied: r.loto_applied || false,
     permit_reference: r.permit_reference || null,
     worker_name: r.worker_name,
+    // Selected and then dropped too (2026-10-19): _isMine() decides ownership by auth_uid when the row carries it and
+    // falls back to comparing display names only when it does not - so a cached row without it judged "mine" by name.
+    auth_uid: r.auth_uid || null,
     wo_state: r.wo_state || null,
     wo_assigned_to: r.wo_assigned_to || null,
   }));
@@ -2720,7 +2723,8 @@ async function loadEntries(append = false) {
         production_output: r.production_output || null,
         loto_applied: r.loto_applied || false,
         permit_reference: r.permit_reference || null,
-        worker_name: r.worker_name
+        worker_name: r.worker_name,
+        auth_uid: r.auth_uid || null    // _isMine() judges by account when this is present (see searchTeam's note)
       };
       if (updateMap[r.id]) return { ...mapped, ...updateMap[r.id], _pending_edit: true };
       return mapped;

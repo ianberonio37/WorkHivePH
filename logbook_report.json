@@ -1,24 +1,8 @@
 {
   "validator": "logbook",
   "total_checks": 36,
-  "passed": 34,
+  "passed": 36,
   "skipped": 0,
-  "failed": 2,
-  "issues": [
-    {
-      "check": "edit_cache_keeps_snapshot",
-      "page": "logbook.html",
-      "reason": "loadEntries() selects ['auth_uid'] but its row mapping into _allEntries drops them - an edit opened from it shows them empty and saves them back empty"
-    },
-    {
-      "check": "edit_cache_keeps_snapshot",
-      "page": "logbook.html",
-      "reason": "searchTeam() selects ['auth_uid'] but its row mapping into _teamEntries drops them - an edit opened from it shows them empty and saves them back empty"
-    },
-    {
-      "check": "realtime_live_badge",
-      "page": "logbook.html",
-      "reason": "Realtime handler does not skip the user's own inserts (payload.new.worker_name === WORKER_NAME guard missing) \u2014 the user would be badged for their own optimistic entry."
-    }
-  ]
+  "failed": 0,
+  "issues": []
 }
