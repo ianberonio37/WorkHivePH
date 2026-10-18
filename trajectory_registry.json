@@ -781381,8 +781381,8 @@
     },
     {
       "id": "SL824",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - worker · assistant",
       "pages": [
@@ -781439,12 +781439,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on assistant.html (exclude) as worker: .tmp/slw/d3_walk_SL824.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form as the probe's author; assistant.html read by the same person while the author deleted and restored the probe (wh_trash / wh_restore): its own count read ['v_logbook_truth 4'] -> ['v_logbook_truth 3'] -> ['v_logbook_truth 4'], at 390 and 1280. Receipt .tmp/mcp_walks/SL824.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL825",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - fleet-supervisor · community",
       "pages": [
@@ -781501,12 +781511,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on community.html (cycle) as fleet-supervisor: .tmp/slw/d3_walk_SL825.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor of Ramos Jeepney Line) through the product's own sign-in form. On community.html the page's own delete ran on a probe the cast owns, its confirm answered (''): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: community_posts: seen [1, 0, 1, 0, 1], toast 'Post deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P post 1280 SL825 general Deleted by you on Oct 19 · removed for good Nov 18 Restoring…'. Receipt .tmp/mcp_walks/SL825.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL826",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - fleet-supervisor · dayplanner",
       "pages": [
@@ -781563,12 +781583,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on dayplanner.html (cycle) as fleet-supervisor: .tmp/slw/d3_walk_SL826.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form. On dayplanner.html the page's own delete ran on a probe the cast owns, its confirm answered ('Remove this scheduled item? Keep Remove'): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: schedule_items: seen [1, 0, 1, 0, 1], toast 'D3P plan 1280 SL826 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P plan 1280 SL826 2026-10-19 · 09:00 Deleted by you on Oct 19 · removed for good Nov 18 '. Receipt .tmp/mcp_walks/SL826.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL827",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - worker · hive",
       "pages": [
@@ -781625,12 +781655,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on hive.html (exclude) as worker: .tmp/slw/d3_walk_SL827.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Ben Ocampo (worker of Tan Delivery Vans) through the product's own sign-in form as the probe's author; hive.html read by the same person while the author deleted and restored the probe (wh_trash / wh_restore): its responses carried the probe, then did not, then did, at 390 and 1280. Receipt .tmp/mcp_walks/SL827.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL828",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - worker · inventory",
       "pages": [
@@ -781687,12 +781727,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on inventory.html (cycle) as worker: .tmp/slw/d3_walk_SL828.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as David Velasco (worker of Lucena Pharmaceutical Mfg.) through the product's own sign-in form. On inventory.html the page's own delete ran on a probe the cast owns, its confirm answered ('Remove \"D3P part 1280 SL828\" (D3P-SL828-1280) from inventory? You can restore it from Recently deleted for at least 30 d'): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: inventory_items: seen [1, 0, 1, 0, 1], toast 'D3P part 1280 SL828 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P part 1280 SL828 D3P-SL828-1280 · Mechanical Deleted by you on Oct 19 · removed for goo'. Receipt .tmp/mcp_walks/SL828.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL829",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - worker · logbook",
       "pages": [
@@ -781749,12 +781799,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on logbook.html (cycle) as worker: .tmp/slw/d3_walk_SL829.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Bryan Garcia (worker of Baguio Textile Mills) through the product's own sign-in form. On logbook.html the page's own delete ran on a probe the cast owns, its confirm answered ('Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days. Cancel'): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: logbook: seen [1, 0, 1, 0, 1], toast 'Entry for D3P machine 1280 SL829 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P machine 1280 SL829 D3P probe problem Deleted by you on Oct 19 · removed for good Nov 1'; asset_nodes: seen [1, 0, 1, 0, 1], toast 'D3P-AS-1280 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P-AS-1280 D3P probe asset Deleted by you on Oct 19 · removed for good Nov 18 Restoring…'. Receipt .tmp/mcp_walks/SL829.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL830",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - machine-client · plant connections",
       "pages": [
@@ -781811,12 +781871,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on plant-connections.html (retention) as machine-client: .tmp/slw/d3_walk_SL830.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Christine Dizon (supervisor of Baguio Textile Mills) through the product's own sign-in form. plant-connections' Data retention card ('Data retention PDPA evidence · a daily cleanup at 12:00 PHT removes deleted items once their window ends Deleted items (restorable, then removed) 30 days Audit trail Kept in full (nothing purges it) A'): the supervisor set 45 days ({'status': 'Saved. Deleted items are now kept 45 days.', 'row': '45 days'}), a delete then reported a 45-day window ({'days': 45, 'restored': True}), 20 was refused ({'status': 'Keep deleted items for 30 to 3650 days.', 'row': '45 days'}), reset to 30 - at 390 and 1280. The card names only windows the platform enforces. Receipt .tmp/mcp_walks/SL830.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL831",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - worker · pm scheduler",
       "pages": [
@@ -781873,12 +781943,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on pm-scheduler.html (cycle) as worker: .tmp/slw/d3_walk_SL831.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Oscar Ramos (supervisor (the hive has no worker account) of Ramos Jeepney Line) through the product's own sign-in form. On pm-scheduler.html the page's own delete ran on a probe the cast owns, its confirm answered ('Delete \"D3P PM 1280 SL831\"? Its 0 PM tasks and 0 completion records go with it into Recently deleted, where you can rest'): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: pm_assets: seen [1, 0, 1, 0, 1], toast 'D3P PM 1280 SL831 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P PM 1280 SL831 Mechanical Deleted by you on Oct 19 · removed for good Nov 18 Restoring…'. Receipt .tmp/mcp_walks/SL831.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL832",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - fleet-supervisor · project manager",
       "pages": [
@@ -781935,12 +782015,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on project-manager.html (cycle) as fleet-supervisor: .tmp/slw/d3_walk_SL832.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Christine Dizon (supervisor of Baguio Textile Mills) through the product's own sign-in form. On project-manager.html the page's own delete ran on a probe the cast owns, its confirm answered ('Remove this link? Keep Remove'): the person's own reads lost the row, the toast's Undo brought it back, deleted again it was listed in the page's own Recently deleted and its Restore brought it back - at 390 and 1280. 1280: project_links: seen [1, 0, 1, 0, 1], toast 'D3P link 1280 SL832 deleted. Kept in Recently deleted until Nov 18. Undo', listed 'D3P link 1280 SL832 CAP-2026-001 · contractor Deleted by you on Oct 19 · removed for good '; project_roles: seen [1, 0, 1, 0, 1], toast 'Leandro Marquez · planner deleted. Kept in Recently deleted until Nov 18. Undo', listed 'Leandro Marquez · planner CAP-2026-001 Deleted by you on Oct 19 · removed for good Nov 18 '. Receipt .tmp/mcp_walks/SL832.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL833",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - fleet-supervisor · project report",
       "pages": [
@@ -781997,12 +782087,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on project-report.html (exclude) as fleet-supervisor: .tmp/slw/d3_walk_SL833.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form as the probe's author; project-report.html read by the same person while the author deleted and restored the probe (wh_trash / wh_restore): its responses carried the probe, then did not, then did, at 390 and 1280. Receipt .tmp/mcp_walks/SL833.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL834",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · public feed",
       "pages": [
@@ -782053,12 +782153,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on public-feed.html (exclude-anon) as anon: .tmp/slw/d3_walk_SL834.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Gloria Tan (supervisor of Tan Delivery Vans) through the product's own sign-in form as the probe's author; public-feed.html read by an anonymous visitor in a second context while the author deleted and restored the probe (wh_trash / wh_restore): its responses carried the probe, then did not, then did, at 390 and 1280. The anonymous API read of the deleted post returned {'n': 0, 'err': None} - before the hide policy it returned the post (teeth, rolled back on the local DB). Receipt .tmp/mcp_walks/SL834.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL835",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - oversight · founder console",
       "pages": [
@@ -782109,12 +782219,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on founder-console.html (controls) as oversight: .tmp/slw/d3_walk_SL835.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed in as Leandro Marquez (platform admin (oversight)) through the product's own sign-in form. founder-console.html as served is the retired console's notice (the metrics moved to Grafana, the actions to Platform Actions): 344 characters, no delete control, at 390 and 1280; the deletes-are-recoverable gate holds that no shipped page deletes a recoverable table outright. Receipt .tmp/mcp_walks/SL835.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL836",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · best free cmms software philippines",
       "pages": [
@@ -782165,12 +782285,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from best free cmms software philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/best-free-cmms-software-philippines/index.html (claims) as anon: .tmp/slw/d3_walk_SL836.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/best-free-cmms-software-philippines/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"The usual limits are the number of users, the number of assets or work orders, history retention, and whether reporting or PM automation is included at all.\"] hold - its one retention sentence is about other tools' limits ('history retention'); WorkHive purges no record. Receipt .tmp/mcp_walks/SL836.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL837",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · cmms vs excel spreadsheet maintenance",
       "pages": [
@@ -782221,12 +782351,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from cmms vs excel spreadsheet maintenance itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/cmms-vs-excel-spreadsheet-maintenance/index.html (claims) as anon: .tmp/slw/d3_walk_SL837.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/cmms-vs-excel-spreadsheet-maintenance/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"No audit trail.\", \"loor capture Phone notes, retyped later Direct capture (offline-first in WorkHive) Best for One person, few assets, short horizon Teams, PM discipline, audits, retained history Migrating from a spreadsheet to a CMMS Do not attempt a full-pl\"] hold - 'retained history' for a CMMS: WorkHive purges no record, only a deleted one after its window. Receipt .tmp/mcp_walks/SL837.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL838",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · dole iso audit trail from logbook",
       "pages": [
@@ -782277,12 +782417,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from dole iso audit trail from logbook itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/dole-iso-audit-trail-from-logbook/index.html (claims) as anon: .tmp/slw/d3_walk_SL838.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/dole-iso-audit-trail-from-logbook/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists.\", \"The 3 immutability guarantees Server-side timestamp.\", \"here is no field asking why, so if your procedure requires a documented justification, put it in the entry text itself, where it becomes part of the record the audit trail then protects.\"] hold - rewritten 2026-10-19 to what the platform does: no job purges hive_audit_log or the records (the only scheduled removal is a deleted record after the hive's window, 30 days or longer); its FAQ no longer says an edit records why; the 1,095-day / 3-year-purge claims are gone. Receipt .tmp/mcp_walks/SL838.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL839",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · gamifying maintenance for engagement",
       "pages": [
@@ -782333,12 +782483,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from gamifying maintenance for engagement itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/gamifying-maintenance-for-engagement/index.html (claims) as anon: .tmp/slw/d3_walk_SL839.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/gamifying-maintenance-for-engagement/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"This is the difference between gamification as employer retention tool (rare) and gamification as worker career insurance (the WorkHive design).\"] hold - 'retention' here means keeping employees, not data - no data claim. Receipt .tmp/mcp_walks/SL839.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL840",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · learn",
       "pages": [
@@ -782389,12 +782549,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from learn itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/index.html (claims) as anon: .tmp/slw/d3_walk_SL840.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"A digital audit trail proves it.\"] hold - 'A digital audit trail proves it' - the audit log is insert-and-read only (no update/delete policy). Receipt .tmp/mcp_walks/SL840.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL841",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · sensor cmms gateway operations",
       "pages": [
@@ -782445,12 +782615,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from sensor cmms gateway operations itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/sensor-cmms-gateway-operations/index.html (claims) as anon: .tmp/slw/d3_walk_SL841.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/sensor-cmms-gateway-operations/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"ailed or batteries dying), sensors reporting outside expected range (likely miscalibrated or environmental change), and sensors due for calibration in the next 30 days.\", \"ameter registry your gateway publishes against), a gateway audit for the last 7 days, external sync activity for the last 30, the CMMS integration list, a data-retention policy you can set, and an SSO status card.\"] hold - 'a data-retention policy you can set' - true since 2026-10-16: a supervisor sets the deleted-items window on plant-connections (set_hive_retention, walked in SL830). Receipt .tmp/mcp_walks/SL841.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL842",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · voice to text maintenance philippine plant floor",
       "pages": [
@@ -782501,12 +782681,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from voice to text maintenance philippine plant floor itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on learn/voice-to-text-maintenance-philippine-plant-floor/index.html (claims) as anon: .tmp/slw/d3_walk_SL842.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. learn/voice-to-text-maintenance-philippine-plant-floor/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"floor needs voice Filipino, English, and Taglish recognition Handling plant noise The 5 use cases that change the day Compliance and DOLE OSHS Privacy and data retention Rollout sequence Frequently asked questions Sources Why the plant floo\", \"d: every amendment is written to the DOLE/ISO audit log, and that log accepts inserts and reads only, so the history of a correction cannot itself be edited or deleted.\", \"Privacy and data retention WorkHive does not keep your audio.\"] hold - 'the audit log accepts inserts and reads only' - hive_audit_log has SELECT and INSERT policies only; 'audio is not written to WorkHive storage' - voice-transcribe writes no storage object. Receipt .tmp/mcp_walks/SL842.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL843",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · privacy policy",
       "pages": [
@@ -782557,12 +782747,22 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from privacy policy itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on privacy-policy/index.html (claims) as anon: .tmp/slw/d3_walk_SL843.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. privacy-policy/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"Delete your account and all associated personal data.\", \"Data retention Account and hive data are retained as long as your account is active.\", \"After account deletion, personal data is purged within 30 days; aggregated anonymous statistics may be retained indefinitely.\"] hold - 'personal data purged within 30 days after account deletion' - deactivate_my_account erases the display name and email at once; compliance records 'retained 10/15 years' - the audit trail is never purged. Receipt .tmp/mcp_walks/SL843.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
       "id": "SL844",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D3 · The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds - an anonymous visitor · septic tank calculator",
       "pages": [
@@ -782613,6 +782813,16 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page deletes recoverable for its retention window, and backfill what it adds",
         "closes": "the D3 ask is answered from septic tank calculator itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete function (the one its delete control calls) and its real confirm was answered; then the person's own client read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were captured; a public page was read as served and each retention claim held against what the platform does): D3 on tools/septic-tank-calculator/index.html (claims) as anon: .tmp/slw/d3_walk_SL844.js (template .tmp/slw/d3_walk_template.js, probes from .tmp/slw/d3_seed.py); gate deletes-are-recoverable (teeth: --self-test, and the static half caught integrations.html and two view-backed functions on its first run). Witness: playwright-mcp, signed out, as a visitor. tools/septic-tank-calculator/index.html read as served at 390 and 1280: no delete control; its retention sentences [\"Example: for a 50-person residential septic tank at 150 L/person/day, at 3 days retention, Liquid volume = 22500 L, Daily flow = 7500 L/day, Sludge storage = 6000 L (per Philippine Plumbing Code \\u00a7P-1101).\", \"Worked example (Plumbing & Pumps) Inputs: a 50-person residential septic tank at 150 L/person/day, at 3 days retention.\", \"It uses a 50-person residential septic tank at 150 L/person/day, at 3 days retention and shows every number in the method.\"] hold - '3 days retention' is the tank's hydraulic retention time, not data; the calculator deletes nothing. Receipt .tmp/mcp_walks/SL844.json.",
+      "artifacts": {
+        "gates": [
+          "cascade-confirm-parity",
+          "deletes-are-recoverable",
+          "offline_queue_confirm",
+          "skew-heal",
+          "success-is-checked"
+        ]
       }
     },
     {
@@ -1007203,5 +1007413,5 @@
       }
     }
   ],
-  "next": "SL wave: D3 (21) / D4 (6) -> A1/A2/A4 -> AV2-AV4 -> C2 (155) / C3 (88) -> L2-L4 -> LB1-LB4 -> RL1-RL3; D1 (99) waits on Ian's design choice (per-section chips vs per-figure reveal). Ian: old Vercel deployments, skills_table approval, VALIDATE logbook_id_is_a_token; local commits 08cb9598.. not pushed"
+  "next": "SL D1: per-figure source reveal from display_provenance.json (99 rows, Ian 2026-10-16), then D4 6, A1/A2/A4, AV2-4, C2/C3, L2-4, LB1-4, RL1-3; side unit: validate_logbook's 2 stale checks"
 }

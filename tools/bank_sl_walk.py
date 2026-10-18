@@ -67,6 +67,7 @@ GATES = {
     "CA4": ["kept-copy-says-so", "offline-is-not-no", "sw-offline", "sw-navigation-fallback", "sw-shell-membership"],
     "H3": ["pwa", "pwa-sw-central-register", "sw-install-survives-loss", "deploy-payload"],
     "D2": ["ownership-by-account", "bug-repro-ratchet"],
+    "D3": ["deletes-are-recoverable", "cascade-confirm-parity", "success-is-checked", "offline_queue_confirm", "skew-heal"],
     "L1": ["error-capture-everywhere", "production-errors-read", "error-capture"],
     "AU2": ["role-reconciled", "role-checks", "storage-keys"],
     "AU3": ["ownership-by-account", "bug-repro-ratchet"],
@@ -85,6 +86,12 @@ CONDITION = {
     "D2": ("the same signed-in account read each page twice per viewport - the device remembering its own display name, then another real person's (wh_last_worker written before the page loaded) - and the two reads compared, text and controls, with the names masked apart (<ME> / <OTHER>)"),
     "H3": ("on the local edge substitute (tools/serve_vercel_headers.py --local-stack: the production path layout and vercel.json's headers, the pages pointed at the local stack), the worker allowed and installed from the home page; Chromium's installability verdict read in the browser's persistent context as the row's cast"),
     "CA4": ("the service worker allowed and installed from the home page; kept: the page opened once online, then the network cut (context.setOffline) and the page opened again; fallback: a second device with the worker installed and the page never opened, the network cut, the page opened"),
+    "D3": ("a probe row the cast owns, seeded on the LOCAL stack per viewport. A page that deletes ran its own delete "
+           "function (the one its delete control calls) and its real confirm was answered; then the person's own client "
+           "read the row hidden, the toast's Undo was pressed and the row read back; deleted again, the page's own "
+           "Recently deleted button opened the list and its Restore was pressed. A page that only reads had the probe "
+           "deleted and restored by its author (wh_trash / wh_restore) while the page's own reads and counts were "
+           "captured; a public page was read as served and each retention claim held against what the platform does"),
     "CA3": ("utils.js served as the real file and as yesterday's copy (the page's own guarded functions undefined) until the page fetched it past the cache, in fresh contexts with the signed-in state restored"),
     "C1": ("a differential: the page opened twice at the same pinned instant (2026-10-16T02:00Z - Friday morning in Manila, Thursday night in New York) on a Manila device clock and a New York one, both answered consent alike and the skew check answered at that instant, both signed in and warmed before either was read"),
     "F4": ("as served - the page read from its live render (innerText, what a person reads) with every domain term checked for its gloss on the same page and every flagged figure read with its card, column header and the page's stated window"),
