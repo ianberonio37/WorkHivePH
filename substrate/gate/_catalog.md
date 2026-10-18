@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 7479e084c7e7de97
+source_sha: 22e38ee19aa959ad
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1398) — the 'what's already gated' brain
+## gate · registered validators (1399) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1027)
+### Platform (1028)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -757,6 +757,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
 - `fetch-retry-contract` ⚡ [fail] — FETCH RETRY CONTRACT - one retry for idempotent READS, never for writes. fetchWithTimeout (utils.js) retries ONCE on a transport failure, because two gates flak
 - `field_names_survive` [fail] — Field names survive the seam (every literal column name a page uses still exists on the relation it is used against, resolved against the live catalog)
+- `figure-sources-written` ⚡ [fail] — SL D1 (2026-10-19, Ian: per-figure reveal): every page in figure_sources.json carries its generated block, and every entry names what the figure shows and the v
 - `fil-dict-completeness` [fail] — Filipino dictionary completeness — every authored string in every page dict has a Filipino value (an empty value renders English); forward-only ratchet
 - `fil-parity` [fail] — T45: fil-parity lint — T45's translation-parity gate (2026-08-26). Scans every _t('en','fil') call site for IDENTICAL en/fil arguments — the signature of a stri
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()

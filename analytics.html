@@ -1895,9 +1895,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // `kpiCard` wrapper is kept so the analytics call sites don't need to
   // change. tileId carries the analytics-local _kpiCardId counter so
   // toggleKPI() still resolves to elements rendered earlier in the page.
-  function kpiCard({ title, standard, value, unit, sublabel, color, detail, legend }) {
+  function kpiCard({ title, standard, value, unit, sublabel, color, detail, legend, figure }) {
     return renderKpiTile({
-      title, standard, value, unit, sublabel, color, detail, legend,
+      title, standard, value, unit, sublabel, color, detail, legend, figure,
       tileId: `kpi-${_kpiCardId++}`,
     });
   }
@@ -1957,7 +1957,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </tr>`;
       }
     });
-    return `<div class="card">
+    // SL D1: the table's figures declare where they come from (utils.js whFigureSources reads these attributes)
+    return `<div class="card" data-wh-fig-shows="each machine's uptime, quality and OEE (A x Q)" data-wh-fig-based="the production output and downtime logged on each machine over the period" data-wh-fig-reads="get_oee_by_machine">
       <h2 class="card-title">OEE: Overall Equipment Effectiveness <span class="card-standard">ISO 22400-2:2014 · partial (A × Q) · ${d.assets_tracked} asset(s)</span></h2>
       ${table}
       <!-- B3: was 21 words, grade 11.1, three clauses deep, and it leaked an internal
@@ -1994,6 +1995,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'MTBF: Mean Time Between Failures', standard: 'ISO 14224:2016 §9.3',
+      figure: { shows: 'mean time between failures, per machine', basedOn: 'breakdown entries in your logbook for each machine over the period', reads: 'get_mtbf_by_machine' },   // SL D1: where this tile's figures come from
       // ★THIS IS THE MINIMUM, NOT AN AVERAGE (design lens critique, 2026-09-15): `worst` is withData[0]
       // on a list sorted lowest-first, and the tile above and the supervisor roll-up both call the same
       // number "worst". Every sibling card uses this slot as a SELECTOR - "slowest repair", "overall
@@ -2029,6 +2031,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'MTTR: Mean Time To Repair', standard: 'ISO 14224:2016 §9.4',
+      figure: { shows: 'mean time to repair, per machine', basedOn: "the downtime logged on each machine's repairs over the period", reads: 'get_mttr_by_machine' },   // SL D1: where this tile's figures come from
       value: worst.mttr_hours + 'h', unit: _t('slowest repair', 'pinakamabagal na pagkumpuni'), sublabel: `${worst.machine}: ${worst.repair_count} ${_t('repair(s)', 'na pagkumpuni')}`,
       color: heroColor,
       detail,
@@ -2069,6 +2072,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // "lowest asset" of 94.9% was contradicted by six rows printed above it (M-003 at 92.9%): they are
       // not the same measurement. Each is named by its method now.
       title: _t('Availability % (MTBF-based)', 'Availability % (batay sa MTBF)'), standard: 'ISO 14224:2016 §9.2',
+      figure: { shows: 'availability per machine, MTBF / (MTBF + MTTR)', basedOn: 'each machine\'s time between failures and its repair times over the period', reads: 'get_mtbf_by_machine, get_mttr_by_machine' },   // SL D1: where this tile's figures come from
       value: worst ? worst.availability_pct + '%' : '-', unit: _t('lowest of this set', 'pinakamababa sa set na ito'),
       sublabel: worst ? `${worst.machine}: MTBF/(MTBF+MTTR)` : 'No data',
       color: heroColor,
@@ -2111,6 +2115,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }).join('');
     return kpiCard({
       title: 'PM Compliance Rate', standard: 'SMRP Metric 2.1.1',
+      figure: { shows: 'PM occurrences completed on schedule', basedOn: 'PM tasks due in the period against those completed on time, SMRP 2.1.1', reads: 'get_pm_compliance_smrp' },   // SL D1: where this tile's figures come from
       value: overall + '%', unit: _t('overall hive', 'buong hive'),
       sublabel: failing.length ? `${failing.length} asset(s) below 85% target` : 'All assets on track',
       color: heroColor,
@@ -2141,6 +2146,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     });
     return kpiCard({
       title: 'Failure Frequency', standard: `ISO 14224:2016 · last ${d.period_days} days`,
+      figure: { shows: 'failures per machine', basedOn: 'breakdown entries in your logbook, counted per machine over the period', reads: 'get_failure_frequency' },   // SL D1: where this tile's figures come from
       value: total, unit: _t('total failures','kabuuang pagkasira'),
       sublabel: top ? `${top.machine}: most failures (${top.failure_count})` : '',
       color: heroColor,
@@ -2258,6 +2264,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'Downtime Pareto', standard: '80/20 Rule',
+      figure: { shows: 'downtime hours, by cause', basedOn: 'the downtime logged against each failure cause over the period', reads: 'get_downtime_pareto' },   // SL D1: where this tile's figures come from
       value: d.total_downtime_hours + 'h', unit: 'total downtime',
       sublabel: _concentrated
         ? _t(`${d.top_machine || '-'} = ${d.top_machine_pct || 0}% of all downtime`,
@@ -2323,7 +2330,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <td class="num"><span class="repeat-badge">${r.occurrences}×</span></td>
       </tr>`,
     });
-    return `<div class="card">
+    // SL D1: the counts declare where they come from (utils.js whFigureSources reads these attributes)
+    return `<div class="card" data-wh-fig-shows="times the same failure came back on a machine" data-wh-fig-based="breakdown entries in your logbook with the same machine and cause over the period" data-wh-fig-reads="get_repeat_failures">
       <h2 class="card-title">Repeat Failure Count <span class="card-standard">ISO 14224:2016 · ${d.repeat_pair_count} repeat pair(s) found</span></h2>
       ${list}
       <p style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
@@ -2593,6 +2601,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'Parts Consumption Spike',
+      figure: { shows: 'parts used, against their usual rate', basedOn: 'stock taken out of inventory over the period, compared with the weeks before', reads: 'v_inventory_transactions_truth' },   // SL D1: where this tile's figures come from
       standard: 'Rule-based, Predictive Analytics Stage 2',
       value: d.spike_count,
       unit: `part${d.spike_count !== 1 ? 's' : ''} with unusual consumption`,
@@ -2713,6 +2722,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'Equipment Health Score', standard: 'Predictive Analytics skill: 4-component formula',
+      figure: { shows: "each machine's health score (0-100)", basedOn: 'its failures, repair times and PM completions over the period, in the 4-component formula', reads: 'v_logbook_truth, pm_completions' },   // SL D1: where this tile's figures come from
       value: worst.health_score, unit: '/ 100 lowest',
       sublabel: `${worst.machine}: ${worst.status} · ${d.at_risk_count} at risk · ${d.watch_count} watch · ${d.healthy_count} healthy${d.insufficient_count ? ' · ' + d.insufficient_count + ' insufficient data' : ''}`,
       color: heroColor,
@@ -2759,6 +2769,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     return kpiCard({
       title: 'Next Failure Prediction',
+      figure: { shows: "days until each machine's next expected failure", basedOn: 'its time between failures and the date of its last breakdown', reads: 'v_logbook_truth, v_risk_truth' },   // SL D1: where this tile's figures come from
       standard: `ISO 13381-1:2015 · last failure + MTBF`,
       value: d.high_risk,
       unit: `machine${d.high_risk !== 1 ? 's' : ''} overdue`,
@@ -2840,6 +2851,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const sAssets = d.due_soon_asset_count ?? d.due_soon_count;
     return kpiCard({
       title: 'PM Due Calendar',
+      figure: { shows: 'PM tasks coming due', basedOn: "each PM task's interval counted from its last completion", reads: 'v_pm_scope_items_truth, pm_completions' },   // SL D1: where this tile's figures come from
       standard: `🔴 ${oAssets} asset(s) overdue · 🟡 ${sAssets} due soon · ${d.overdue_count + d.due_soon_count} tasks`,
       value: oAssets,
       unit: oAssets === 1 ? 'asset overdue' : 'assets overdue',
@@ -2940,6 +2952,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const totalFailures = d.trend.reduce((s, t) => s + t.count, 0);
     return kpiCard({
       title: 'Failure Trend', standard: `Linear trend · ${d.data_points} weeks`,
+      figure: { shows: 'failures per week', basedOn: 'breakdown entries in your logbook, counted week by week', reads: 'v_logbook_truth' },   // SL D1: where this tile's figures come from
       value: totalFailures, unit: _t('failures in period','pagkasira sa panahon'),
       sublabel: `${arrow}: ${escHtml(d.trend_label || '')}`,
       color: dirColor,
@@ -3710,5 +3723,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
+<script type="application/json" id="wh-figure-sources">[{"sel":"#an-mtbf-hero","shows":"the worst machine's mean time between failures","basedOn":"breakdown entries in your logbook, per machine, over the period","reads":"get_mtbf_by_machine"}]</script>
 </body>
 </html>

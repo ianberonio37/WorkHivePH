@@ -1,16 +1,598 @@
 {
-  "_doc": "SL D1 (2026-10-19): where each figure on a page comes from - written from the page's own code (which read fills that element), never guessed from a name. tools/render_figure_sources.py writes each page's entries into the page; utils.js whFigureSources makes the figure tappable. sel = the figure or the element its figures render into; whole = a label whose figures sit inside words; chrome = a number that is not data (why says what it is).",
-  "inventory.html": [
-    {"sel": "#stat-total", "shows": "parts in this inventory", "basedOn": "every part you can see here, counted", "reads": "v_inventory_items_truth"},
-    {"sel": "#stat-low", "shows": "parts at or below their minimum", "basedOn": "approved parts whose stock is at or below the minimum set for them", "reads": "v_inventory_items_truth"},
-    {"sel": "#stat-out", "shows": "parts out of stock", "basedOn": "approved parts with nothing on hand", "reads": "v_inventory_items_truth"},
-    {"sel": "#inv-out-hero", "shows": "parts out of stock", "basedOn": "approved parts with nothing on hand", "reads": "v_inventory_items_truth"},
-    {"sel": "#inv-low-hero", "shows": "parts running low", "basedOn": "approved parts at or below their minimum, out-of-stock ones not counted twice", "reads": "v_inventory_items_truth"},
-    {"sel": "#inv-pending-hero", "shows": "parts waiting for approval", "basedOn": "parts submitted to the hive that a supervisor has not approved yet", "reads": "v_inventory_items_truth"},
-    {"sel": "#inv-progress [data-fig=progress]", "whole": true, "shows": "parts at healthy stock", "basedOn": "approved parts above their minimum, out of all approved parts", "reads": "v_inventory_items_truth"},
-    {"sel": "#parts-list [data-fig=qty]", "shows": "on hand for this part", "basedOn": "the part's current stock, kept by every issue and restock recorded against it", "reads": "v_inventory_items_truth, v_inventory_transactions_truth"},
-    {"sel": "#detail-modal [data-fig=qty]", "shows": "on hand for this part", "basedOn": "the part's current stock, kept by every issue and restock recorded against it", "reads": "v_inventory_items_truth, v_inventory_transactions_truth"},
-    {"sel": "#detail-modal [data-fig=min]", "shows": "the reorder point set for this part", "basedOn": "the minimum quantity entered when the part was added or edited", "reads": "v_inventory_items_truth"},
-    {"sel": "#inv-count-label", "whole": true, "shows": "parts shown out of all that match", "basedOn": "the parts that match your search and filters", "reads": "v_inventory_items_truth"}
-  ]
+ "_doc": "SL D1 (2026-10-19): where each figure on a page comes from - written from the page's own code (which read fills that element), never guessed from a name. tools/render_figure_sources.py writes each page's entries into the page; utils.js whFigureSources makes the figure tappable. sel = the figure or the element its figures render into; whole = a label whose figures sit inside words; chrome = a number that is not data (why says what it is).",
+ "inventory.html": [
+  {
+   "sel": "#stat-total",
+   "shows": "parts in this inventory",
+   "basedOn": "every part you can see here, counted",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#stat-low",
+   "shows": "parts at or below their minimum",
+   "basedOn": "approved parts whose stock is at or below the minimum set for them",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#stat-out",
+   "shows": "parts out of stock",
+   "basedOn": "approved parts with nothing on hand",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#inv-out-hero",
+   "shows": "parts out of stock",
+   "basedOn": "approved parts with nothing on hand",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#inv-low-hero",
+   "shows": "parts running low",
+   "basedOn": "approved parts at or below their minimum, out-of-stock ones not counted twice",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#inv-pending-hero",
+   "shows": "parts waiting for approval",
+   "basedOn": "parts submitted to the hive that a supervisor has not approved yet",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#inv-progress [data-fig=progress]",
+   "whole": true,
+   "shows": "parts at healthy stock",
+   "basedOn": "approved parts above their minimum, out of all approved parts",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#parts-list [data-fig=qty]",
+   "shows": "on hand for this part",
+   "basedOn": "the part's current stock, kept by every issue and restock recorded against it",
+   "reads": "v_inventory_items_truth, v_inventory_transactions_truth"
+  },
+  {
+   "sel": "#detail-modal [data-fig=qty]",
+   "shows": "on hand for this part",
+   "basedOn": "the part's current stock, kept by every issue and restock recorded against it",
+   "reads": "v_inventory_items_truth, v_inventory_transactions_truth"
+  },
+  {
+   "sel": "#detail-modal [data-fig=min]",
+   "shows": "the reorder point set for this part",
+   "basedOn": "the minimum quantity entered when the part was added or edited",
+   "reads": "v_inventory_items_truth"
+  },
+  {
+   "sel": "#inv-count-label",
+   "whole": true,
+   "shows": "parts shown out of all that match",
+   "basedOn": "the parts that match your search and filters",
+   "reads": "v_inventory_items_truth"
+  }
+ ],
+ "hive.html": [
+  {
+   "sel": "#stat-open",
+   "shows": "open work orders in this hive",
+   "basedOn": "logbook entries in this hive not yet closed",
+   "reads": "get_hive_board_dashboard, v_logbook_truth"
+  },
+  {
+   "sel": "#stat-members",
+   "shows": "members of this hive",
+   "basedOn": "everyone in the hive except anyone removed",
+   "reads": "hive_members"
+  },
+  {
+   "sel": "#stair-composite",
+   "shows": "the hive's readiness score (0-100)",
+   "basedOn": "the latest readiness snapshot: process, data, resilience, leadership and culture, weighted",
+   "reads": "get_hive_readiness_current"
+  },
+  {
+   "sel": "#stair-dims",
+   "shows": "this part of the readiness score (0-100)",
+   "basedOn": "the latest readiness snapshot for the hive",
+   "reads": "get_hive_readiness_current"
+  },
+  {
+   "sel": "#vs-pms",
+   "shows": "preventive maintenance jobs done",
+   "basedOn": "PM completions this hive has recorded",
+   "reads": "v_hive_value_summary"
+  },
+  {
+   "sel": "#vs-faults",
+   "shows": "faults resolved",
+   "basedOn": "this hive's logbook entries that were closed",
+   "reads": "v_hive_value_summary"
+  },
+  {
+   "sel": "#vs-knowledge",
+   "shows": "lessons written down",
+   "basedOn": "fault knowledge drawn from this hive's logbook entries",
+   "reads": "v_hive_value_summary"
+  },
+  {
+   "sel": "#onboarding-card",
+   "shows": "of the hive's setup done",
+   "basedOn": "the setup steps completed: first asset, first logbook entry, a PM asset and completion, a reviewed audit log, an approved brief",
+   "reads": "asset_nodes, logbook, pm_assets, pm_completions, hive_audit_log, amc_briefings"
+  },
+  {
+   "sel": "#adoption-risk-score",
+   "shows": "how well your team is adopting the platform (0-100)",
+   "basedOn": "the team adoption check",
+   "reads": "get_adoption_risk_current"
+  },
+  {
+   "sel": "#welcome-log-count",
+   "shows": "logbook entries you have written",
+   "basedOn": "your entries in this hive",
+   "reads": "v_logbook_truth"
+  },
+  {
+   "sel": "#welcome-parts-count",
+   "shows": "of your entries closed",
+   "basedOn": "your closed logbook entries in this hive",
+   "reads": "v_logbook_truth"
+  },
+  {
+   "sel": "#roster-count",
+   "shows": "members listed",
+   "basedOn": "everyone in the hive except anyone removed",
+   "reads": "hive_members"
+  }
+ ],
+ "pm-scheduler.html": [
+  {
+   "sel": "#stat-overdue",
+   "shows": "PM tasks overdue",
+   "basedOn": "scope items past their next due date and not yet completed",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#stat-duesoon",
+   "shows": "PM tasks due soon",
+   "basedOn": "scope items due within the next seven days",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#stat-ontrack",
+   "shows": "PM tasks on track",
+   "basedOn": "scope items not yet due",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#pm-overdue-hero",
+   "shows": "PM tasks overdue",
+   "basedOn": "scope items past their next due date and not yet completed",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#pm-duesoon-hero",
+   "shows": "PM tasks due soon",
+   "basedOn": "scope items due within the next seven days",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#pm-ontrack-hero",
+   "shows": "PM tasks on track",
+   "basedOn": "scope items not yet due",
+   "reads": "v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#pm-progress [data-fig=progress]",
+   "whole": true,
+   "shows": "PM tasks on schedule",
+   "basedOn": "scope items not overdue, out of all scope items",
+   "reads": "v_pm_scope_items_truth"
+  }
+ ],
+ "shift-brain.html": [
+  {
+   "sel": "#sb-risk-hero",
+   "shows": "assets above the risk threshold this shift",
+   "basedOn": "the shift plan, from each asset's current risk score",
+   "reads": "shift_plans, v_risk_truth"
+  },
+  {
+   "sel": "#sb-pms-hero",
+   "shows": "PM tasks due this shift",
+   "basedOn": "the shift plan, from scope items overdue or due in the shift window",
+   "reads": "shift_plans, v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#sb-carry-hero",
+   "shows": "jobs carried over from before this shift",
+   "basedOn": "the shift plan, from logbook entries still open after eight hours",
+   "reads": "shift_plans, v_logbook_truth"
+  },
+  {
+   "sel": "#risk-count",
+   "shows": "assets at risk in this plan",
+   "basedOn": "the shift plan's top-risk list",
+   "reads": "shift_plans, v_risk_truth"
+  },
+  {
+   "sel": "#pms-count",
+   "shows": "PM tasks in this plan",
+   "basedOn": "the shift plan's PMs-due list",
+   "reads": "shift_plans, v_pm_scope_items_truth"
+  },
+  {
+   "sel": "#carry-count",
+   "shows": "carried-over jobs in this plan",
+   "basedOn": "the shift plan's carry-forward list",
+   "reads": "shift_plans, v_logbook_truth"
+  },
+  {
+   "sel": "#parts-count",
+   "shows": "parts to pre-stage in this plan",
+   "basedOn": "the shift plan's parts at or below their reorder point",
+   "reads": "shift_plans, v_inventory_items_truth"
+  }
+ ],
+ "asset-hub.html": [
+  {
+   "sel": "#ah-total-hero",
+   "shows": "approved assets",
+   "basedOn": "assets in this hive a supervisor has approved",
+   "reads": "asset_nodes"
+  },
+  {
+   "sel": "#ah-critical-hero",
+   "shows": "critical assets",
+   "basedOn": "approved assets rated critical",
+   "reads": "asset_nodes"
+  },
+  {
+   "sel": "#ah-pending-hero",
+   "shows": "assets waiting for approval",
+   "basedOn": "assets submitted to the hive that a supervisor has not approved yet",
+   "reads": "asset_nodes"
+  }
+ ],
+ "alert-hub.html": [
+  {
+   "sel": "#ah-critical-hero",
+   "shows": "critical and high alerts",
+   "basedOn": "alerts in this hive's feed rated critical or high, after the ones you handled or snoozed",
+   "reads": "v_alert_truth, v_pm_scope_items_truth, v_inventory_items_truth, v_risk_truth, alert_dismissals"
+  },
+  {
+   "sel": "#ah-anomaly-hero",
+   "shows": "anomaly signals",
+   "basedOn": "open anomaly signals the engine raised for this hive",
+   "reads": "anomaly_signals"
+  },
+  {
+   "sel": "#amc-stat-crew",
+   "shows": "crew in today's brief",
+   "basedOn": "the crew listed in today's AMC daily brief",
+   "reads": "amc_briefings"
+  },
+  {
+   "sel": "#amc-stat-assets",
+   "shows": "assets in today's brief",
+   "basedOn": "the assets listed in today's AMC daily brief",
+   "reads": "amc_briefings"
+  },
+  {
+   "sel": "#amc-stat-parts",
+   "shows": "parts in today's brief",
+   "basedOn": "the parts listed in today's AMC daily brief",
+   "reads": "amc_briefings"
+  },
+  {
+   "sel": "#amc-stat-pms",
+   "shows": "PM tasks due in today's brief",
+   "basedOn": "the PM tasks listed as due this shift in today's AMC daily brief",
+   "reads": "amc_briefings"
+  }
+ ],
+ "project-manager.html": [
+  {
+   "sel": "#pm-active-hero",
+   "shows": "active projects",
+   "basedOn": "this hive's projects marked active",
+   "reads": "projects"
+  },
+  {
+   "sel": "#pm-overdue-hero",
+   "shows": "projects past their end date",
+   "basedOn": "projects not complete, cancelled or archived whose end date has passed",
+   "reads": "projects"
+  },
+  {
+   "sel": "#pm-blocked-hero",
+   "shows": "projects on hold",
+   "basedOn": "this hive's projects marked on hold",
+   "reads": "projects"
+  }
+ ],
+ "report-sender.html": [
+  {
+   "sel": "#rs-reports-hero",
+   "chrome": true,
+   "why": "a count of the reports you picked on this page, not data read from the database"
+  },
+  {
+   "sel": "#rs-recipients-hero",
+   "chrome": true,
+   "why": "a count of the recipients you picked on this page, not data read from the database"
+  },
+  {
+   "sel": "#rs-contacts-hero",
+   "shows": "saved contacts",
+   "basedOn": "the contacts you have saved for sending reports",
+   "reads": "report_contacts"
+  }
+ ],
+ "dayplanner.html": [
+  {
+   "sel": "#dp-today-hero",
+   "shows": "plan items today",
+   "basedOn": "your plan items dated today (Philippine time)",
+   "reads": "schedule_items"
+  },
+  {
+   "sel": "#dp-week-hero",
+   "shows": "plan items this week",
+   "basedOn": "your plan items dated Monday to Sunday of this week",
+   "reads": "schedule_items"
+  },
+  {
+   "sel": "#dp-overdue-hero",
+   "shows": "overdue PM tasks not yet planned",
+   "basedOn": "the hive's overdue PM tasks that are not on your plan",
+   "reads": "v_pm_scope_items_truth, schedule_items"
+  },
+  {
+   "sel": "#dp-progress [data-fig=progress]",
+   "whole": true,
+   "shows": "plan items done",
+   "basedOn": "your plan items marked done, out of the items in view",
+   "reads": "schedule_items"
+  },
+  {
+   "sel": "#calendar-wrap [data-fig=capacity]",
+   "shows": "the day's planned time against an 8-hour day",
+   "basedOn": "the minutes of the day's planned items (an item with only a start counts one hour) over 480",
+   "reads": "schedule_items"
+  }
+ ],
+ "logbook.html": [
+  {
+   "sel": "#sdot-1, #sdot-2, #sdot-3",
+   "chrome": true,
+   "why": "the step numbers of the new-entry wizard"
+  }
+ ],
+ "achievements.html": [
+  {
+   "sel": "#ac-week-hero",
+   "shows": "XP earned in the past 7 days",
+   "basedOn": "your XP log over the last seven days, net of any taken back",
+   "reads": "achievement_xp_log"
+  },
+  {
+   "sel": "#ac-active-hero",
+   "shows": "achievements you have started",
+   "basedOn": "achievements with XP, out of all achievements",
+   "reads": "v_worker_achievements_truth"
+  },
+  {
+   "sel": "#ac-level-hero",
+   "shows": "your highest achievement level",
+   "basedOn": "the levels your XP has earned across achievements",
+   "reads": "v_worker_achievements_truth"
+  },
+  {
+   "sel": "#recent-list",
+   "shows": "XP from this action",
+   "basedOn": "one line of your XP log",
+   "reads": "achievement_xp_log"
+  }
+ ],
+ "skillmatrix.html": [
+  {
+   "sel": "#sm-ontrack-hero",
+   "shows": "disciplines at or above your target",
+   "basedOn": "your level in each discipline against the target set for it",
+   "reads": "skill_profiles, v_skill_badges_truth"
+  },
+  {
+   "sel": "#sm-quizzes-hero",
+   "shows": "skill exams passed",
+   "basedOn": "your exam attempts that passed",
+   "reads": "skill_exam_attempts"
+  },
+  {
+   "sel": "#sm-badges-hero",
+   "shows": "skill badges earned",
+   "basedOn": "the badges your passed exams awarded",
+   "reads": "v_skill_badges_truth"
+  },
+  {
+   "sel": "[id^=step-val-]",
+   "shows": "your level in this discipline",
+   "basedOn": "the highest badge level you hold in it",
+   "reads": "v_skill_badges_truth, skill_profiles"
+  }
+ ],
+ "community.html": [
+  {
+   "sel": "#profile-posts",
+   "shows": "posts you have written in this hive",
+   "basedOn": "your community posts in this hive, not counting deleted ones",
+   "reads": "community_posts"
+  },
+  {
+   "sel": "#profile-xp",
+   "shows": "your community XP in this hive",
+   "basedOn": "the XP your posts and the reactions to them have earned here",
+   "reads": "community_xp"
+  },
+  {
+   "sel": "#leaderboard-list",
+   "shows": "a member's community XP",
+   "basedOn": "the top ten members of this hive by community XP",
+   "reads": "community_xp"
+  },
+  {
+   "sel": "#leaderboard-card > p strong",
+   "chrome": true,
+   "why": "the XP each action earns - the platform's award rule printed above the board, not a figure read from data"
+  }
+ ],
+ "marketplace.html": [
+  {
+   "sel": "#mk-total-hero",
+   "shows": "listings in this section that match your filter",
+   "basedOn": "published listings in this section after your search and price filter, as loaded so far",
+   "reads": "v_marketplace_listings_public"
+  },
+  {
+   "sel": "#mk-mine-hero",
+   "shows": "your live listings, every section",
+   "basedOn": "the published listings you posted",
+   "reads": "v_marketplace_listings_public"
+  },
+  {
+   "sel": "#listings-info > span",
+   "shows": "listings shown below",
+   "basedOn": "the published listings loaded into the grid, newest first",
+   "reads": "v_marketplace_listings_public"
+  },
+  {
+   "sel": ".card-price-pill",
+   "shows": "the seller's asking price",
+   "basedOn": "the price the seller set on this listing",
+   "reads": "v_marketplace_listings_public"
+  }
+ ],
+ "marketplace-seller.html": [
+  {
+   "sel": "#ps-listings",
+   "shows": "your listings",
+   "basedOn": "the listings you have posted",
+   "reads": "v_marketplace_listings_truth"
+  },
+  {
+   "sel": "#ps-sales",
+   "shows": "sales you have completed",
+   "basedOn": "your seller record's completed sales",
+   "reads": "v_marketplace_sellers_truth"
+  },
+  {
+   "sel": "#ps-pending-inq",
+   "shows": "buyer inquiries waiting for your reply",
+   "basedOn": "inquiries sent to you that are still pending",
+   "reads": "v_marketplace_inquiries_truth"
+  },
+  {
+   "sel": "#cw-available",
+   "shows": "listing credit you can still use",
+   "basedOn": "your credit balance less what your live listings hold",
+   "reads": "seller_credit_balance"
+  },
+  {
+   "sel": "#cw-reserved",
+   "shows": "credit held by your live listings",
+   "basedOn": "the credit each live listing reserves",
+   "reads": "seller_credit_balance"
+  },
+  {
+   "sel": "#content-area .meta-chip.gold",
+   "shows": "your asking price",
+   "basedOn": "the price you set on this listing",
+   "reads": "v_marketplace_listings_truth"
+  }
+ ],
+ "marketplace-seller-profile.html": [
+  {
+   "sel": "#stat-listings",
+   "shows": "this seller's live listings",
+   "basedOn": "the seller's published listings",
+   "reads": "v_marketplace_listings_public"
+  },
+  {
+   "sel": "#stat-replies",
+   "shows": "buyer inquiries this seller has replied to",
+   "basedOn": "inquiries to this seller that carry a reply",
+   "reads": "v_marketplace_inquiries_truth"
+  },
+  {
+   "sel": "#community-rep",
+   "shows": "this seller's community standing: XP and public posts",
+   "basedOn": "the seller's community XP in their own hive and the posts they made public",
+   "reads": "get_seller_community_reputation"
+  }
+ ],
+ "platform-actions.html": [
+  {
+   "sel": "#cp-cover",
+   "shows": "liability cover: cash in against credits owed",
+   "basedOn": "verified top-ups and starter grants divided by the credits outstanding",
+   "reads": "v_service_credit_ledger_truth"
+  },
+  {
+   "sel": "#cp-content",
+   "shows": "the credit position: liability, cover and the treasury",
+   "basedOn": "the credit ledger, and the treasury's cap and credits issued",
+   "reads": "v_service_credit_ledger_truth, v_credit_posture"
+  },
+  {
+   "sel": "#svc-topups-count",
+   "shows": "top-ups waiting for verification (read up to 50)",
+   "basedOn": "service credit top-ups not yet verified",
+   "reads": "v_service_credit_topups_truth"
+  },
+  {
+   "sel": "#mkt-listings-count",
+   "shows": "listing drafts waiting for review (read up to 50)",
+   "basedOn": "marketplace listings still in draft",
+   "reads": "v_marketplace_listings_truth"
+  },
+  {
+   "sel": "#mkt-sellers-count",
+   "shows": "sellers waiting for review (read up to 50)",
+   "basedOn": "marketplace sellers not yet verified",
+   "reads": "v_marketplace_sellers_truth"
+  },
+  {
+   "sel": "#fb-count-badge",
+   "shows": "feedback waiting for triage",
+   "basedOn": "feedback marked new or not yet answered",
+   "reads": "platform_feedback"
+  },
+  {
+   "sel": "#usage-body",
+   "shows": "platform usage over the last 30 days",
+   "basedOn": "active hives, people seen, signed-out sessions and daily actives, rolled up per day",
+   "reads": "founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series"
+  }
+ ],
+ "analytics.html": [
+  {
+   "sel": "#an-mtbf-hero",
+   "shows": "the worst machine's mean time between failures",
+   "basedOn": "breakdown entries in your logbook, per machine, over the period",
+   "reads": "get_mtbf_by_machine"
+  }
+ ],
+ "design-system.html": [
+  {
+   "sel": "#ds-axes",
+   "shows": "the platform's centralization measures",
+   "basedOn": "the repository's component-purity, storage-key and rubric baselines, read when this page opens",
+   "reads": "component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json"
+  },
+  {
+   "sel": "#ds-root",
+   "chrome": true,
+   "why": "specimen numbers in the component catalogue - examples of how each component renders, not data"
+  }
+ ]
 }

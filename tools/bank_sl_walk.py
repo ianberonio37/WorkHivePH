@@ -149,6 +149,13 @@ CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the l
                       "probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline "
                       "banner raised with the page's own offline event")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
+GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
+CONDITION["D1"] = ("the page read as served, signed in as the row's cast, its start-up settled, caches cleared first: every "
+                   "visible figure of the page's content counted - a number inside a control left to that control, a "
+                   "number that is part of a picture (aria-hidden inside role=img) left to the picture, a registry chrome "
+                   "number not data - and each one left required to be tappable; a REAL tap on a figure required to open "
+                   "its card naming what it shows and what it reads, Escape to close it and give the focus back; the "
+                   "page's Sources area read for its page-level line; page errors recorded")
 CONDITION["ENH-R"] = ("the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP "
                       "cache cleared first so the walk read the current scripts: every visible source line, Show-details "
                       "explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed "

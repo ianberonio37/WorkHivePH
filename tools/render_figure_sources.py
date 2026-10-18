@@ -82,6 +82,13 @@ def run(apply: bool) -> int:
     problems, wrote = [], []
     for page, entries in sorted(reg.items()):
         problems += shape_problems(page, entries)
+    # a figure measured from a file the page fetches (design-system's centralization axes read four baselines) names
+    # the file: it must be a file the site actually serves, not a name nobody can open
+    for page, entries in reg.items():
+        for e in entries:
+            for n in re.split(r"\s*[,+]\s*", str(e.get("reads") or "")):
+                if n.endswith(".json") and not (ROOT / n).is_file():
+                    problems.append(f"{page} {e.get('sel')!r}: reads {n!r}, which is no file the site serves")
     names = db_names()
     if names is not None:
         for page, entries in reg.items():

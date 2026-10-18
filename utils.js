@@ -5613,7 +5613,12 @@ function renderKpiTile(opts) {
   // has nothing to fail on when there are no headings at all). An <h2> may not live
   // INSIDE a <button> (phrasing content only), so the heading WRAPS the button --
   // the ARIA Authoring Practices accordion pattern. Margins zeroed = pixel-identical.
-  return `<div class="card" style="border-left:1px solid ${c.border};margin-bottom:1rem;">
+  // SL D1: a caller that knows where the tile's numbers come from passes figure: { shows, basedOn, reads } and every
+  // figure in the tile's breakdown answers "where from?" with it (utils.js whFigureSources reads these attributes)
+  const _fg = opts.figure && opts.figure.reads
+    ? ` data-wh-fig-shows="${escHtml(opts.figure.shows || '')}" data-wh-fig-based="${escHtml(opts.figure.basedOn || '')}" data-wh-fig-reads="${escHtml(opts.figure.reads)}"`
+    : '';
+  return `<div class="card"${_fg} style="border-left:1px solid ${c.border};margin-bottom:1rem;">
     <h2 style="margin:0;font:inherit;color:inherit;">
     <button class="kpi-toggle" aria-expanded="${autoOpen ? 'true' : 'false'}" aria-controls="${id}" onclick="if(window.toggleKPI)toggleKPI('${escJsAttr(id)}')" style="background:${c.bg};border:1px solid ${c.border};color:inherit;min-height:${detail ? '72px' : '0'};">
       <div style="flex:1;text-align:left;">
@@ -6751,6 +6756,32 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     var prev = el.getAttribute('aria-describedby');
     el.setAttribute('aria-describedby', (prev ? prev + ' ' : '') + descFor(entry));
   }
+  // Parts of a picture are not figures of the page: an avatar's level badge is aria-hidden inside role="img", and the
+  // image's own name already says the level - a tappable button inside it would be a control no screen reader can reach.
+  var NOT_A_FIGURE = '[role="img"], [aria-hidden="true"], .wh-fig-card';
+  function markIn(box, e) {
+    var cands = e.whole ? [box] : [box].concat(Array.prototype.slice.call(box.querySelectorAll('*')));
+    for (var k = 0; k < cands.length; k++) {
+      var c = cands[k];
+      if (c.__whFig || c.closest(CTL) || c.closest(NOT_A_FIGURE)) continue;
+      var t = (c.innerText || '').trim();
+      if (!t || t.length > 48) continue;
+      if (e.whole ? !/\d/.test(t) : (c.children.length ? !FIG.test(ownText(c)) : !FIG.test(t))) continue;
+      if (!e.whole && c.children.length && !FIG.test(t)) continue;
+      mark(c, e);
+    }
+  }
+  // A renderer that knows where its numbers come from says so on the block it draws (renderKpiTile's `figure`
+  // option stamps data-wh-fig-shows / -based / -reads): every figure inside takes that source, so a tile drawn at
+  // runtime - analytics numbers its KPI tiles by render order - needs no selector in the page's registry.
+  var declared = [];
+  function declaredEntry(box) {
+    for (var i = 0; i < declared.length; i++) if (declared[i].box === box) return declared[i].entry;
+    var e = { shows: box.getAttribute('data-wh-fig-shows') || '', basedOn: box.getAttribute('data-wh-fig-based') || '',
+              reads: box.getAttribute('data-wh-fig-reads') || '' };
+    declared.push({ box: box, entry: e });
+    return e;
+  }
   function decorate() {
     if (!map) return;
     for (var i = 0; i < map.length; i++) {
@@ -6758,20 +6789,10 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       if (!e || e.chrome || !e.sel) continue;
       var hits;
       try { hits = document.querySelectorAll(e.sel); } catch (_) { continue; }
-      for (var j = 0; j < hits.length; j++) {
-        var box = hits[j];
-        var cands = e.whole ? [box] : [box].concat(Array.prototype.slice.call(box.querySelectorAll('*')));
-        for (var k = 0; k < cands.length; k++) {
-          var c = cands[k];
-          if (c.__whFig || c.closest(CTL) || c.closest('.wh-fig-card')) continue;
-          var t = (c.innerText || '').trim();
-          if (!t || t.length > 48) continue;
-          if (e.whole ? !/\d/.test(t) : (c.children.length ? !FIG.test(ownText(c)) : !FIG.test(t))) continue;
-          if (!e.whole && c.children.length && !FIG.test(t)) continue;
-          mark(c, e);
-        }
-      }
+      for (var j = 0; j < hits.length; j++) markIn(hits[j], e);
     }
+    var boxes = document.querySelectorAll('[data-wh-fig-reads]');
+    for (var b = 0; b < boxes.length; b++) markIn(boxes[b], declaredEntry(boxes[b]));
   }
   function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(decorate, 250); }
 
@@ -6839,7 +6860,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
 
   function init() {
     map = readMap();
-    if (!map || !map.length) return;
+    if (!map) return;                    // a page without a block has nothing registered and no renderer to trust
     style();
     decorate();
     try { new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true }); }

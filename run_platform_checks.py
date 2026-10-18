@@ -4330,6 +4330,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "figure-sources-written",
+        "script":  "tools/render_figure_sources.py",
+        "args":    ["--check"],
+        "label":   "SL D1 (2026-10-19, Ian: per-figure reveal): every page in figure_sources.json carries its generated block, and every entry names what the figure shows and the view, function or served file it reads - each database name checked in pg_class/pg_proc, each file checked on disk, every non-data number saying why",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "provenance-at-foot",
         "script":  "tools/render_sources_area.py",
         "args":    ["--check"],     # all 97: the 35 app pages and the 62 public ones (60 calculators, the learn index, feedback)
