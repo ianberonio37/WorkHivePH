@@ -2,7 +2,7 @@
 name: view-v_pm_compliance_truth
 type: view
 source: db:pg_get_viewdef:v_pm_compliance_truth
-source_sha: 10360489896bfab6
+source_sha: 2194a0ead07ea173
 last_verified: 2026-07-13
 supersedes: null
 ---

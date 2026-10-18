@@ -149,7 +149,7 @@ async function fetchDescriptiveData(
     // canonical-allow: solo mode — the canonical view is hive-scoped + has no
     // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
     const { data } = await db.from("pm_assets")
-      .select("id, asset_name, tag_id, category")
+      .select("id, asset_name, tag_id, category").is("deleted_at", null)
       .eq("worker_name", workerName);
     assets = (data || []) as Array<Record<string, string>>;
   }
@@ -396,7 +396,7 @@ async function fetchPrescriptiveData(
     // canonical-allow: solo mode — canonical view is hive-scoped + has no
     // worker_name column; base pm_assets is the only worker-scoped source. (PROJ-DRIFT triage)
     const q = db.from("pm_assets")
-      .select("id, asset_name, tag_id, category, criticality")
+      .select("id, asset_name, tag_id, category, criticality").is("deleted_at", null)
       .limit(500);
     if (workerName) q.eq("worker_name", workerName);
     const { data } = await q;

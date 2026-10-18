@@ -2,7 +2,7 @@
 name: table-rls-inventory_items
 type: table-rls
 source: db:pg_policies+pg_trigger:inventory_items
-source_sha: 95695bca30c3821f
+source_sha: 95fa3f80af8e0d34
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,10 +11,11 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids, lead_time_days, rejection_reason
+Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids, lead_time_days, rejection_reason, deleted_at, deleted_by
 
 Policies:
 - `inventory_items_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR ((auth_uid = auth.uid()) AND (hive_id ` CHECK=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR ((auth_uid = auth.uid()) AND (hive_id `
+- `inventory_items_hides_deleted` [SELECT · roles=public] USING=`((deleted_at IS NULL) OR ( SELECT wh_trash_scope() AS wh_trash_scope))` CHECK=`∅`
 - `inventory_items_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR (hive_id IN ( SELECT hm.hive_id FROM h` CHECK=`∅`
 
 Guard triggers: `tg_guard_approval`, `trg_bind_submitter_inventory_item`, `trg_daily_cap_inv_items`, `trg_text_caps_inv_items`

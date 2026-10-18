@@ -1208,6 +1208,12 @@
               <span class="ic ic-download" aria-hidden="true"></span>
               CSV
             </button>
+            <!-- D3 (2026-10-16): a deleted entry waits here for 30 days. -->
+            <button id="btn-recently-deleted" type="button"
+                    onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'logbook', { hiveId: HIVE_ID || null, title: 'Recently deleted entries', onRestored: () => renderEntries() })"
+                    style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.80); font-size:0.75rem; font-weight:600; cursor:pointer; white-space:nowrap;">
+              Recently deleted
+            </button>
           </div>
           <!-- Team-specific filters: visible only in team mode -->
           <div id="team-filter-row" class="hidden mt-3 flex flex-col sm:flex-row gap-3 items-center flex-wrap">
@@ -1448,6 +1454,11 @@
         <span class="ic ic-add" aria-hidden="true"></span>
         Register another asset
       </button>
+      <!-- D3 (2026-10-16): a removed asset - and its reliability history - waits here for 30 days. -->
+      <button id="asset-recently-deleted-btn" type="button" class="btn-secondary w-full text-xs mt-2"
+              onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'asset_nodes', { hiveId: HIVE_ID || null, title: 'Recently deleted assets', onRestored: () => initAssets() })">
+        Recently deleted assets
+      </button>
     </div>
   </div>
 </div>
@@ -1590,7 +1601,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRequireOnline whSafeSearchTerm whStartupHive whStatUnknown whStatValue whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whStartupHive whStatUnknown whStatValue whTrash whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2986,30 +2997,27 @@ async function embedFaultEntry(entry) {
 }
 
 async function deleteEntry(id) {
-  // T17 (2026-08-26): trg_logbook_xp_reverse takes back the entry's XP on delete - a real
-  // consequence the confirm and receipt both stayed silent about (reversal-on-glass).
-  if (!(await window.whConfirm('Delete this entry? This cannot be undone, and any XP it earned is taken back.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
-  const { data: deleted, error } = await db.from('logbook')
-    .delete()
-    // BRP-A: a WRITE guard is TIGHTENED to the identity, never unioned with the display name. The first
-    // pass swept this with the reads and gave it `.or(auth_uid…,worker_name…)`, which is the wrong
-    // direction for a delete - and validate_logbook's "deleteEntry scoped by worker_name" check caught
-    // it. RLS (logbook_delete) already enforces `auth_uid = auth.uid()`, so the name could never make
-    // this safer; it could only add a way to match nothing, and the no-rows branch below would then tell
-    // the person "you can only delete your own entries" about an entry that IS theirs. logbook is
-    // 31,241/31,241 bound after the 2026-10-04 backfill, held there by author-can-edit-own-work.
-    .eq('id', id)
-    .eq('auth_uid', _authUid)
-    .select('id');
-  if (error) { showToast(whWriteError(error, 'The delete did not go through. The entry is still there.')); return; }
-  if (!deleted || !deleted.length) {
-    showToast(_t('Could not delete: you can only delete your own entries.', 'Hindi ma-delete: sarili mong entry lang ang puwede mong i-delete.'));
-    return;
-  }
+  // T17 (2026-08-26): the entry's XP is taken back on delete - a real consequence the confirm and receipt both
+  // stayed silent about (reversal-on-glass). D3 (2026-10-16): and given back on restore (trg_logbook_xp_on_trash).
+  if (!(await window.whConfirm('Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  // D3 (2026-10-16): a delete is RECOVERABLE now. wh_trash stamps deleted_at under the person's own
+  // logbook_update permission (auth_uid = auth.uid() - the same identity rule logbook_delete enforced; the
+  // BRP-A lesson that a display-name filter can only make a write match nothing still holds, so there is none).
+  // The entry leaves every read and the AI's knowledge; Undo or Recently deleted brings both back.
+  // A refusal comes back as an error, worded by the server ("You cannot delete this one - only its owner or a
+  // supervisor can."), which replaces the old no-rows guess. An older utils.js without whTrash is healed by the
+  // skew-heal block; if it ever is not, refuse rather than delete for good.
+  const _e = (_allEntries || []).concat(_teamEntries || []).find(x => x && x.id === id) || null;
+  const _tr = typeof whTrash === 'function'
+    ? await whTrash(db, 'logbook', id, {
+        label: (_e && _e.machine) ? 'Entry for ' + _e.machine : 'Entry',
+        onRestored: () => renderEntries(),
+      })
+    : { ok: false, error: { code: 'P0001', message: 'Deleting needs this page reloaded first. Nothing was deleted.' } };
+  if (!_tr.ok) { showToast(whWriteError(_tr.error, 'The delete did not go through. The entry is still there.')); return; }
   // Close the modal and refresh
   document.getElementById('modal').classList.add('hidden');
   await renderEntries();
-  showToast('Entry deleted. Any XP it earned was reversed.');
 }
 
 // ────────────────────────────────────────────
@@ -3370,30 +3378,34 @@ async function deleteAsset(id) {
   // what dies and what survives, because "what survives" is the half that decides whether someone
   // proceeds. Radius read from pg_constraint, not guessed.
   if (!(await window.whConfirm(
-      'Remove this asset from the registry? Its reliability history goes with it: Weibull fits, '
-      + 'FMEA modes, P-F intervals, sensor readings and the asset graph are deleted. Logbook entries '
-      + 'and inspections are kept, but stop being linked to this asset. This cannot be undone.',
+      // D3 (2026-10-16): the asset is now deleted RECOVERABLY, so this says what happens in each window -
+      // nothing is destroyed for 30 days, then the cascade the T50 note above describes.
+      'Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes, '
+      + 'P-F intervals, sensor readings, the asset graph) stay in Recently deleted for at least 30 days, where '
+      + 'you can restore them. After that they are deleted for good; logbook entries and inspections '
+      + 'are kept but stop being linked to this asset.',
       { okLabel: 'Remove', cancelLabel: 'Cancel' }))) return;
 
   // LG9: same confirmation the edit path needs. The role/ownership checks above are CLIENT guards;
   // asset_nodes_write is the real one and keys on auth_uid, so they can disagree. A 0-row delete
   // returns error:null, and without this the page would write a delete_asset audit entry and drop
   // the asset from the visible list while the row survived, reappearing on the next reload.
-  const { data: deletedRows, error } = await db.from('asset_nodes').delete().eq('id', id).select('id');
-  if (error) { showToast(whWriteError(error, 'The asset was not removed. It is still registered.')); return; }
-  if (!deletedRows || deletedRows.length === 0) {
-    showToast('Could not remove that asset. It can only be removed by whoever registered it, or by a supervisor.', '⚠️');
-    return;
-  }
-
-  writeAuditLog('delete_asset', 'assets', id, asset.asset_id || id, {
-    name: asset.name, prev_status: asset.status, owner: asset.worker_name,
-  });
+  // D3 (2026-10-16): wh_trash stamps deleted_at under asset_nodes_write - the same rule the delete keyed on
+  // (owner, or the hive's supervisors) - and tg_guard_approval still refuses a worker removing an approved
+  // asset. A refusal is now an ERROR with the server's own sentence, where LG9's 0-row check used to guess.
+  // The database writes the audit row (delete_asset_node), so the page no longer writes its own copy.
+  // An older utils.js without whTrash is healed by the skew-heal block; if it ever is not, refuse.
+  const _tr = typeof whTrash === 'function'
+    ? await whTrash(db, 'asset_nodes', id, {
+        label: asset.asset_id || asset.name || 'Asset',
+        onRestored: async () => { try { await initAssets(); } catch (_) { /* empty-catch-allow: the asset is back; the next load shows it */ } },
+      })
+    : { ok: false, error: { code: 'P0001', message: 'Removing an asset needs this page reloaded first. Nothing was removed.' } };
+  if (!_tr.ok) { showToast(whWriteError(_tr.error, 'The asset was not removed. It is still registered.')); return; }
 
   _assets = _assets.filter(a => a.id !== id);
   renderAssetList();
   refreshAssetCountBadge();
-  showToast('Asset removed.');
 }
 
 function openEditAsset(id) {

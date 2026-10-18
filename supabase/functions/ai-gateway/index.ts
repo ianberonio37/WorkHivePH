@@ -675,7 +675,7 @@ async function buildOpsSnapshot(client: SupabaseClient, hiveId: string, message 
       // canonical-allow: the ops snapshot needs the raw registered-asset TAG list straight from
       // asset_nodes (the source of truth for "which tags exist in this hive"); v_asset_truth is a
       // derived/scoped view, not the canonical tag registry for the existence check.
-      client.from("asset_nodes").select("tag").eq("hive_id", hiveId).not("tag", "is", null),
+      client.from("asset_nodes").select("tag").is("deleted_at", null).eq("hive_id", hiveId).not("tag", "is", null),
     ]);
     const topRows = (alertsTopRes.data ?? []) as Array<{ machine?: string; severity?: string; title?: string }>;
     const activeAlerts = alertsCountRes.count ?? topRows.length;
@@ -1524,7 +1524,7 @@ serveObserved("ai-gateway", async (req) => {
         // tag registry, so the raw asset_nodes read is correct here.
         const { data: rows } = await adminClient
           .from("asset_nodes")
-          .select("id")
+          .select("id").is("deleted_at", null)
           .eq("hive_id", hive_id)
           .eq("tag", tag)
           .limit(1);

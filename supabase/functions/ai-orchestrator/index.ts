@@ -154,7 +154,7 @@ async function pmStatusAgent(db: SupabaseClient, hiveId: string | null, workerNa
     // rows carry no per-task frequency, so overdue cannot be frequency-aware here;
     // we report PM recency only (never the flat-30 overdue rule). (PROJ-DRIFT triage)
     const { data } = await db.from("pm_assets")
-      .select("id, asset_name, category, last_anchor_date")
+      .select("id, asset_name, category, last_anchor_date").is("deleted_at", null)
       .eq("worker_name", workerName);
     rows = (data || []).map((a: Record<string, string>) => ({
       pm_asset_id: a.id, asset_name: a.asset_name, asset_category: a.category,
@@ -666,7 +666,7 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
       if (askedCodes.length) {
         // canonical-allow: every status counts as registered - v_asset_truth keeps only approved assets, and an asset added
         // and still awaiting approval must never be answered as "no asset ... registered in this hive" (2026-10-13)
-        const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag")
+        const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag").is("deleted_at", null)
           .eq("hive_id", hiveId).not("tag", "is", null);
         if (!regErr) {
           const reg = new Set(((regs ?? []) as Array<{ tag: string }>).map((r) => normCode(r.tag)));

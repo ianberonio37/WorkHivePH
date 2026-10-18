@@ -231,6 +231,13 @@ def check_delete_scoped_by_worker(content, page):
     # theirs (which is how 27,420 logbook entries became un-deletable by their authors, and how the asset
     # picker came up empty for Ian on 2026-10-04). auth_uid is what RLS logbook_delete itself enforces.
     # Same shape as this file's own ocUpdate allowance below: a STRONGER mechanism satisfies the check.
+    # 2026-10-16 (SL D3): the delete is now RECOVERABLE - whTrash(db, 'logbook', id) calls wh_trash, which runs as
+    # the caller (SECURITY INVOKER, held by deletes-are-recoverable L2) and stamps deleted_at under logbook_update's
+    # `auth_uid = auth.uid()` - the same owner rule logbook_delete enforced, applied by the database rather than by a
+    # client filter. That is the stronger mechanism again, so it satisfies the check; a bare client .delete() still
+    # needs the explicit owner filter.
+    if re.search(r"whTrash\s*\(\s*db\s*,\s*['\"]logbook['\"]", body) and not re.search(r"\.delete\s*\(", body):
+        return []
     if not re.search(r"\.eq\s*\(['\"](?:auth_uid|worker_name)['\"],\s*(?:_authUid|WORKER_NAME)\s*\)", body):
         return [{"check": "delete_scoped_by_worker", "page": page,
                  "reason": "deleteEntry() does not scope the delete to the owner (expected .eq('auth_uid', "

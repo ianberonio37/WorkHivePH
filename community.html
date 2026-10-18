@@ -590,6 +590,14 @@
               <span data-i="c_loadmore">Load more posts</span>
             </button>
           </div>
+          <!-- D3 (2026-10-16): a deleted post waits here for 30 days - the Undo toast lasts ten seconds. -->
+          <div style="display:flex; justify-content:center; padding:0.25rem 0 0.75rem;">
+            <button id="btn-recently-deleted" type="button"
+              onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'community_posts', { hiveId: HIVE_ID, title: 'Recently deleted posts', onRestored: () => loadPosts() })"
+              style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.80); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+              Recently deleted posts
+            </button>
+          </div>
         </div>
 
         <!-- Global feed panel (D Phase 2 — public posts from all hives) -->
@@ -895,7 +903,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whReconcileHiveRole whRequireOnline whSafeSearchTerm whStartupHive whStatValue">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2413,15 +2421,20 @@ function _isMinePost(p) {
       showToast('Cannot delete another worker\'s post', 'error'); return;
     }
     const _wasMine = _isMinePost(post);   // read before the set forgets it, so an undo can restore it
-    // Soft-delete: stamp deleted_at, leave the row for 10s undo or supervisor recovery.
+    // Soft-delete: stamp deleted_at, leave the row for the 10s undo here and Recently deleted for 30 days.
+    // D3 (2026-10-16): through wh_trash, not a client UPDATE. community_posts now carries the hide policy
+    // (a deleted public post used to stay readable by ANYONE through the API, since the read policy lets
+    // everyone read public posts), and under it Postgres refuses a client UPDATE that hides its own row.
+    // wh_trash runs as the person, so community_posts_update (author, or the hive's supervisors) still decides.
     const deletedAt = new Date().toISOString();
-    const { error } = await db.from('community_posts')
-      .update({ deleted_at: deletedAt })
-      .eq('id', postId).eq('hive_id', HIVE_ID);
+    const { data: _trashed, error } = await db.rpc('wh_trash', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, 'The post was NOT deleted - it is still in the feed.'), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId);
+    // Tell teammates' open feeds to look again - the hidden row's UPDATE no longer reaches them (see post_hidden).
+    try { if (feedChannel) feedChannel.send({ type: 'broadcast', event: 'post_hidden', payload: { id: postId } }); }
+    catch (_) { /* empty-catch-allow: a missed hint only means a teammate sees the post until their next load */ }
 
-    // Local cache + DOM (treat as removed; realtime UPDATE will mirror this on other clients)
+    // Local cache + DOM (treat as removed; teammates' feeds re-check on the post_hidden hint)
     myPostIds.delete(postId);
     allPosts    = allPosts.filter(p => p.id !== postId);
     pinnedPosts = pinnedPosts.filter(p => p.id !== postId);
@@ -2430,13 +2443,20 @@ function _isMinePost(p) {
 
     // Snapshot the row for restore — include the original pinned flag so it lands back in place
     const snapshot = { ...post, deleted_at: deletedAt, _wasMine };
-    showUndoToast('Post deleted', () => restorePost(postId, snapshot));
+    // The purge date the server computed from the hive's retention setting - never a hard-coded "30 days".
+    let _until = '';
+    try {
+      if (_trashed && _trashed.purge_after) {
+        _until = new Date(_trashed.purge_after).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short' });
+      }
+    } catch (_) { /* empty-catch-allow: the sentence below falls back to no date */ }
+    showUndoToast(_until ? `Post deleted. Kept in Recently deleted until ${_until}.` : 'Post deleted. Kept in Recently deleted.',
+      () => restorePost(postId, snapshot));
   }
 
   async function restorePost(postId, snapshot) {
-    const { error } = await db.from('community_posts')
-      .update({ deleted_at: null })
-      .eq('id', postId).eq('hive_id', HIVE_ID);
+    // D3: wh_restore, under the same permission as the delete (see deletePost).
+    const { error } = await db.rpc('wh_restore', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, _t('The undo did NOT go through - the post is still deleted.', 'HINDI natuloy ang undo - deleted pa rin ang post.')), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
 
@@ -3277,6 +3297,22 @@ function _isMinePost(p) {
         allPosts    = allPosts.filter(p => p.id !== payload.old.id);
         pinnedPosts = pinnedPosts.filter(p => p.id !== payload.old.id);
         _removePostCard(payload.old.id);
+      })
+      // D3 (2026-10-16): a deleted post is now HIDDEN by policy, so Realtime no longer delivers its soft-delete
+      // UPDATE to anyone else (it sends a change only to subscribers who can read the new row) - the handler above
+      // that removes it would never run. The deleting page broadcasts a hint instead, and the hint is only a reason
+      // to LOOK: this page re-reads the post and removes the card only if the database no longer shows it, so a
+      // forged hint cannot hide a live post.
+      .on('broadcast', { event: 'post_hidden' }, async ({ payload }) => {
+        const id = payload && payload.id;
+        if (!id || ![...allPosts, ...pinnedPosts].some(p => p.id === id)) return;
+        const { data, error } = await db.from('community_posts').select('id').eq('id', id).is('deleted_at', null).maybeSingle();
+        if (error || data) return;
+        myPostIds.delete(id);
+        allPosts    = allPosts.filter(p => p.id !== id);
+        pinnedPosts = pinnedPosts.filter(p => p.id !== id);
+        _removePostCard(id);
+        if (activeThreadId === id) closeThread();
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'community_replies',

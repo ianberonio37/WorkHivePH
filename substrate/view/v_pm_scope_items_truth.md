@@ -2,7 +2,7 @@
 name: view-v_pm_scope_items_truth
 type: view
 source: db:pg_get_viewdef:v_pm_scope_items_truth
-source_sha: 8dc88a90db947f23
+source_sha: 8e8423405b3735b8
 last_verified: 2026-07-13
 supersedes: null
 ---

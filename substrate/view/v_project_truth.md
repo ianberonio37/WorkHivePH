@@ -2,7 +2,7 @@
 name: view-v_project_truth
 type: view
 source: db:pg_get_viewdef:v_project_truth
-source_sha: fdadbb0a8a48a19f
+source_sha: 891e3906b5d5dba2
 last_verified: 2026-07-13
 supersedes: null
 ---

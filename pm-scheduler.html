@@ -477,6 +477,11 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
       Show details
     </button>
+    <!-- D3 (2026-10-16): a deleted PM asset, with its tasks and completion records, waits here for 30 days. -->
+    <button id="pm-recently-deleted" type="button" class="details-toggle"
+            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'pm_assets', { hiveId: HIVE_ID || null, title: 'Recently deleted PM assets', onRestored: () => _pmReloadAfterRestore() })">
+      Recently deleted
+    </button>
     <div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
     data-rag-tile="pm-scheduler:detail_panel"
     data-rag-label="PM detail breakdown">
@@ -937,7 +942,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRequireOnline whStartupHive">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whStartupHive whTrash">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3372,45 +3377,38 @@ async function confirmDeleteAsset() {
       _blast = `${tRes.count} PM task${tRes.count === 1 ? '' : 's'} and ${cRes.count} completion record${cRes.count === 1 ? '' : 's'}`;
     }
   } catch (_) { /* empty-catch-allow: enumeration is best-effort; the confirm still guards */ }
-  if (!(await window.whConfirm(`Delete "${currentAsset.asset_name}"? This removes ${_blast}. This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  // D3 (2026-10-16): the delete is RECOVERABLE now - the counts above stay intact in Recently deleted for 30 days.
+  if (!(await window.whConfirm(`Delete "${currentAsset.asset_name}"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   await deleteAsset();
 }
 
+// D3: what Undo / Recently deleted runs once a PM asset is back - the same refresh a teammate's completion triggers.
+async function _pmReloadAfterRestore() {
+  try { await loadData(); renderDashboard(); } catch (_) { /* empty-catch-allow: the asset is back; the next load shows it */ }
+}
+
 async function deleteAsset() {
-  const deletedId   = currentAsset.id;
-  const deleteQuery = HIVE_ID
-    ? db.from('pm_assets').delete().eq('id', currentAsset.id).eq('hive_id', HIVE_ID)
-    : db.from('pm_assets').delete().eq('id', currentAsset.id)
-        // BRP-A: write guard keys on the IDENTITY. Safe only because 20261004000004
-        // backfilled pm_assets to 120/120 - tightening first would have made those 20
-        // rows undeletable by their own owners, the defect this wave is clearing.
-        .eq('auth_uid', _authUid);
-  // PM12 (PM deepwalk, 2026-07-28): confirm the row actually went. A PostgREST delete matching
-  // nothing returns error:null, so the old `if (error)` test read "deleted nowhere" as "deleted" —
-  // it toasted success, wrote an audit row for a deletion that never happened, and dropped the
-  // asset from the local arrays so it silently returned on the next load. That is now a REACHABLE
-  // path rather than a theoretical one: migration 20260728000006 gives pm_assets a restrictive
-  // DELETE policy (supervisor, or the asset's own author), matching the rule this page already
-  // states, so a member outside it gets exactly this zero-row answer.
-  const { data: deletedRows, error } = await deleteQuery.select('id');
-
-  if (error) { showToast(whWriteError(error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.'))); return; }
-  if (!Array.isArray(deletedRows) || deletedRows.length === 0) {
-    showToast('That asset was not deleted: only a supervisor, or whoever added it, can remove it.');
-    return;
-  }
-
-  // The audit row is written by trg_pm_asset_delete_audit, not here. The database records it even
-  // when the write never touches this page, and it counts the completions and scope items the
-  // cascade destroys — which is the part that cannot be reconstructed afterwards, and which a
-  // client-side row never knew.
+  const deletedId = currentAsset.id;
+  // D3 (2026-10-16): wh_trash stamps deleted_at under the person's own permission - pm_assets_write plus the
+  // restrictive pm_assets_update_guard, the same rule as the delete guard (supervisor, or the asset's own
+  // author) that PM12's 0-row check used to infer. A refusal now comes back as an error with the server's own
+  // sentence. Its PM tasks and completion records are untouched, so a restore brings the whole history back.
+  // The audit row is written by the database (trg_audit_trash_transition: delete_pm_asset; the purge 30 days
+  // later by trg_pm_asset_delete_audit, which counts what the cascade then destroys).
+  // An older utils.js without whTrash is healed by the skew-heal block; if it ever is not, refuse.
+  const _tr = typeof whTrash === 'function'
+    ? await whTrash(db, 'pm_assets', deletedId, {
+        label: currentAsset.asset_name || 'PM asset',
+        onRestored: () => _pmReloadAfterRestore(),
+      })
+    : { ok: false, error: { code: 'P0001', message: 'Deleting needs this page reloaded first. Nothing was deleted.' } };
+  if (!_tr.ok) { showToast(whWriteError(_tr.error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.'))); return; }
 
   assets      = assets.filter(a => a.id !== deletedId);
   scopeItems  = scopeItems.filter(i => i.asset_id !== deletedId);
   completions = completions.filter(c => c.asset_id !== deletedId);
   currentAsset = null;
 
-  showToast('Asset deleted.');
   showScreen('dashboard');
   renderDashboard();
 }

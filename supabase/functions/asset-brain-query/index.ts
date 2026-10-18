@@ -727,7 +727,7 @@ serveObserved("asset-brain-query", tracedReply("asset-brain-query", async (req, 
       // canonical-allow: matching tags the person MENTIONED against every tag registered in this hive; v_asset_truth is
       // approved-only, so a pending asset the person can see would read as "not registered" (the same trade-off recorded
       // for ai-orchestrator, 2026-10-13). Hive-scoped; returns tags only, never KPI values.
-      const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag")
+      const { data: regs, error: regErr } = await db.from("asset_nodes").select("tag").is("deleted_at", null)
         .eq("hive_id", hive_id).not("tag", "is", null);
       if (!regErr) {
         const reg = new Map(((regs ?? []) as Array<{ tag: string }>).map((r) => [normCode(r.tag), r.tag]));

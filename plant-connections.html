@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whStartupHive">
+<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -72,6 +72,16 @@
        so the page body never scrolls horizontally at 390px. */
     .pc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
+    /* D3 (2026-10-16): the retention editor - labels above inputs, one column at 320px, 44px targets. */
+    .pc-ret-form { display: grid; gap: 12px; margin: 16px 0 8px; }
+    .pc-ret-form label { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.86); }
+    .pc-ret-form input { min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+                         background: rgba(255,255,255,0.04); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
+    .pc-ret-form input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .pc-ret-form button { justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(247,162,27,0.55);
+                          background: rgba(247,162,27,0.14); color: var(--gold); font-weight: 700; font-size: 0.875rem; font-family: inherit; cursor: pointer; }
+    .pc-ret-form button:disabled { opacity: 0.6; cursor: progress; }
+    .pc-ret-hint { font-size: 0.75rem; color: var(--muted); margin: 0; }
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
     .pill-green { background: rgba(74,222,128,0.12); color: var(--green); }
     .pill-amber { background: rgba(247,162,27,0.12); color: var(--gold); }
@@ -391,7 +401,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (ssoStatus === 'pending_review') {
         comp = { hero: 'SSO pending', sub: hasRet ? 'Retention set · IT submitting SAML metadata' : 'Defaults only · IT submitting SAML metadata', tag: 'IN PROGRESS', tone: 'amber' };
       } else if (hasRet) {
-        comp = { hero: 'Retention set', sub: 'Custom retention windows · SSO not configured', tag: 'SET', tone: 'amber' };
+        comp = { hero: 'Retention set', sub: 'Custom deleted-items window · SSO not configured', tag: 'SET', tone: 'amber' };
       } else {
         comp = { hero: 'Defaults only', sub: 'Using platform defaults', tag: 'BASIC', tone: 'amber' };
       }
@@ -505,7 +515,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } else if (cards.comp.tone === 'amber' && s.sso && s.sso.status === 'pending_review') {
         text = 'SSO is pending IT review. Send your SAML certificate thumbprint to the platform admin to move it from pending_review to active.';
       } else if (cards.comp.tone === 'amber' && !s.retention) {
-        text = 'You are using the platform default retention windows (30 days before hidden records are cleared, 1095 days audit, 90 days AI telemetry). Custom retention windows for PDPA are provisioned during enterprise onboarding: contact your platform admin.';
+        // D3 (2026-10-16): this named an audit window (1095 days) and an AI window (90 days) nothing enforces, and sent
+        // supervisors to a platform admin for a setting they can now change themselves (set_hive_retention).
+        text = 'Deleted items wait in Recently deleted for the default 30 days, then the daily cleanup removes them. The audit trail is kept in full and AI cost records for 365 days. To keep deleted items restorable for longer, open Show details and set the window under Data retention.';
       } else if (cards.api.tone === 'amber') {
         text = 'API error rate is creeping up. Open Show details to see which routes are failing: voice-journal-agent and visual-defect-capture are the usual heavy hitters.';
       } else {
@@ -618,23 +630,57 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     function renderRetentionCard(r) {
-      const soft = r && r.soft_delete_retention_days != null ? r.soft_delete_retention_days + ' days' : 'platform default (30 days)';
-      const audit = r && r.audit_retention_days != null ? r.audit_retention_days + ' days' : '1095 days';
-      const ai = r && r.ai_telemetry_retention_days != null ? r.ai_telemetry_retention_days + ' days' : '90 days';
+      const soft = r && r.soft_delete_retention_days != null ? r.soft_delete_retention_days + ' days' : '30 days (the default)';
+      // D3 (2026-10-16): this card used to list an audit window (1095 days) and an AI window (90 days) under "daily cron
+      // purges past retention". Nothing reads either setting: the audit trail is never purged, and AI cost records are
+      // removed after 365 days for every hive. The card now states what the system does, and offers the one window a
+      // supervisor really controls.
       return `
         <div class="card">
           <h3 data-i="pc_data_retention">Data retention</h3>
-          <p class="meta">PDPA evidence · daily cron at 12:00 PHT purges past retention</p>
+          <p class="meta">PDPA evidence · a daily cleanup at 12:00 PHT removes deleted items once their window ends</p>
           <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
             <tbody>
-              <tr><td>Hidden rows (kept, not erased)</td><td class="num-right">${escHtml(soft)}</td></tr>
-              <tr><td>Audit trail</td><td class="num-right">${escHtml(audit)}</td></tr>
-              <tr><td>AI telemetry (cost / quality)</td><td class="num-right">${escHtml(ai)}</td></tr>
+              <tr><td>Deleted items (restorable, then removed)</td><td class="num-right" id="pc-ret-soft-now">${escHtml(soft)}</td></tr>
+              <tr><td>Audit trail</td><td class="num-right">Kept in full (nothing purges it)</td></tr>
+              <tr><td>AI cost and quality records</td><td class="num-right">365 days (every hive)</td></tr>
             </tbody>
           </table></div>
-          ${renderSourceChip({ source: 'hive_retention_config', freshness: 'Live data', notes: ['Adjustable by supervisor; defaults applied when row missing.'] })}
+          <!-- D3 (2026-10-16): "Adjustable by supervisor" was not true - no hive had a config row and creating one was
+               locked, so nothing could change it. set_hive_retention makes it true; never below 30 days, the platform's
+               recoverable-for-30-days promise. -->
+          <form class="pc-ret-form" onsubmit="return _pcSaveRetention(event)" novalidate>
+            <label>Keep deleted items for (days)
+              <input id="pc-ret-soft" type="number" inputmode="numeric" min="30" max="3650" step="1" required
+                     value="${escHtml(String(r && r.soft_delete_retention_days != null ? r.soft_delete_retention_days : 30))}"></label>
+            <p class="pc-ret-hint">At least 30 days, so anything deleted can be restored for that long. Longer keeps it restorable longer.</p>
+            <button type="submit" id="pc-ret-save">Save</button>
+            <p id="pc-ret-status" class="pc-ret-hint" role="status" aria-live="polite"></p>
+          </form>
+          ${renderSourceChip({ source: 'hive_retention_config', freshness: 'Live data', notes: ['Deleted-items window set by a supervisor of this hive; 30 days until one does.'] })}
         </div>
       `;
+    }
+
+    // D3 (2026-10-16): save the hive's deleted-items window through set_hive_retention (supervisors only, >= 30 days).
+    async function _pcSaveRetention(ev) {
+      if (ev) ev.preventDefault();
+      const btn = document.getElementById('pc-ret-save');
+      const status = document.getElementById('pc-ret-status');
+      const soft = Number((document.getElementById('pc-ret-soft') || {}).value);
+      if (!Number.isInteger(soft) || soft < 30 || soft > 3650) { status.textContent = 'Keep deleted items for 30 to 3650 days.'; return false; }
+      btn.disabled = true; btn.textContent = 'Saving…'; status.textContent = '';
+      const { error } = await db.rpc('set_hive_retention', { p_hive_id: HIVE_ID, p_soft_delete_days: soft });
+      btn.disabled = false; btn.textContent = 'Save';
+      if (error) {
+        status.textContent = typeof whWriteError === 'function'
+          ? whWriteError(error, 'The window was NOT saved. Nothing changed; try again.')
+          : 'The window was NOT saved. Nothing changed; try again.';
+        return false;
+      }
+      document.getElementById('pc-ret-soft-now').textContent = soft + ' days';
+      status.textContent = 'Saved. Deleted items are now kept ' + soft + ' days.';
+      return false;
     }
 
     function renderSsoCard(s) {

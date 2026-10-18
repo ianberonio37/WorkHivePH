@@ -41,7 +41,10 @@ ROOT = Path(__file__).resolve().parent.parent
 BASELINE = ROOT / "tools" / "cascade_confirm_baseline.json"
 
 FROM_RE = re.compile(r"\.from\(\s*['\"]([a-z_][a-z0-9_]*)['\"]\s*\)")
-DELETE_RE = re.compile(r"\.delete\s*\(")
+# A PostgREST delete is `.delete()` or `.delete({ count: ... })` - never a positional argument. `mySet.delete(id)` /
+# `map.delete(key)` are JavaScript collections, and community's post_hidden handler (2026-10-16) put one beside a
+# community_posts read, which this matched as a silent cascading delete.
+DELETE_RE = re.compile(r"\.delete\s*\(\s*(\{[^)]*\})?\s*\)")
 # Take the 400 chars FOLLOWING whConfirm( and search that for consequence vocabulary.
 # A negated-character-class capture broke on the platform's real confirms, which are backtick
 # templates containing double quotes (`Delete "${name}"? ...`): the class stopped at the first

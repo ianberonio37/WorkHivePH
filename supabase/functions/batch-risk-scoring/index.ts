@@ -438,7 +438,7 @@ async function scoreHive(
   // so the display view (v_asset_truth) is not the read path here - the same call the ASR vocabulary read
   // in voice-transcribe makes. Reading the truth view would additionally narrow the check to whatever
   // that view filters, which would make MORE names look unresolvable and drop MORE real scores.
-  const { data: _nodeRows } = await db.from("asset_nodes").select("name, tag").eq("hive_id", hiveId);
+  const { data: _nodeRows } = await db.from("asset_nodes").select("name, tag").is("deleted_at", null).eq("hive_id", hiveId);
   const _known = new Set((_nodeRows || []).flatMap((n: { name?: string; tag?: string }) =>
     [n.name, n.tag].filter(Boolean).map((s) => String(s).trim().toLowerCase())));
   let orphans = 0;

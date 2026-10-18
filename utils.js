@@ -3896,6 +3896,11 @@ function whWriteError(err, fallback) {
      ([[feedback_a_zero_that_was_never_a_fallback]] is the sibling lesson: do not dress a real
      condition as a generic one). Naming the cause and an action that CAN work beats both a Postgres
      string and a retry that is guaranteed to fail. */
+  /* D3 (2026-10-16): a uniqueness refusal our own trigger worded for a person - "Tag P-101 belongs to an asset in
+     Recently deleted. Restore it there, or use another tag." - names the cause AND the action that works, which is
+     exactly what the generic sentence below has to guess at. Postgres's own wording matches _WH_RAW_PG and still
+     gets the generic sentence. */
+  if (code === '23505' && msg && msg.length <= 300 && !_WH_RAW_PG.test(msg)) return msg;
   if (code === '23505' || /duplicate key value/i.test(msg)) {
     return T('Something here already uses that name or code, so nothing was saved. Change it to '
            + 'something different and save again.',
@@ -6227,6 +6232,224 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       document.head.appendChild(s);
     }
   } catch (_) { /* empty-catch-allow: best-effort style inject; modal still works without anim */ }
+})();
+
+// ─────────────────────────────────────────────
+// whTrash / whRecentlyDeleted — what a page deletes stays recoverable for 30 days (D3, Ian 2026-10-16)
+// ─────────────────────────────────────────────
+// A delete on logbook, inventory, the day planner, the PM scheduler and the project manager used to remove
+// the row outright ("This cannot be undone"), taking every reading, stock movement and PM completion under it.
+// Now the page calls whTrash(db, table, id, { label, onRestored }): the server stamps deleted_at under the
+// person's own permissions (wh_trash), the row disappears from every read, and a toast offers Undo for ten
+// seconds (the Y2 stress case: >= 8 s, so a rushed or gloved worker still reaches it). After that the row
+// waits in Recently deleted - whRecentlyDeleted(db, table, { hiveId, title, onRestored }) - until the daily
+// retention job removes it after 30 days.
+//
+// whTrash resolves { ok: true } or { ok: false, error }. On a refusal it shows NOTHING itself: each page
+// already words its own refusals (whWriteError plus a page sentence), and two toasts for one tap is noise.
+(function () {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  var EASE = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  var reduced = function () {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) { return false; }
+  };
+  var day = function (iso) {
+    try {
+      return new Date(iso).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short' });
+    } catch (_) { return String(iso || '').slice(0, 10); }
+  };
+
+  // ── The Undo toast: one at a time; a second delete replaces the first (its row stays in Recently deleted) ──
+  var toast = null, toastTimer = null;
+  function hideToast() {
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    if (!toast) return;
+    var el = toast; toast = null;
+    if (reduced()) { el.remove(); return; }
+    el.style.opacity = '0';
+    el.style.transform = 'translate(-50%, 8px)';
+    setTimeout(function () { el.remove(); }, 180);
+  }
+  function showToast(text, sub, action, ttlMs) {
+    hideToast();
+    var el = document.createElement('div');
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.setAttribute('data-wh-trash-toast', '');
+    el.style.cssText =
+      'position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10002;' +
+      'transform:translate(-50%, ' + (reduced() ? '0' : '8px') + ');opacity:' + (reduced() ? '1' : '0') + ';' +
+      'transition:opacity 200ms ' + EASE + ', transform 200ms ' + EASE + ';' +
+      'width:min(440px, calc(100vw - 24px));box-sizing:border-box;display:flex;align-items:center;gap:12px;' +
+      'padding:10px 10px 10px 16px;background:var(--wh-navy-mid, #1F2E45);color:var(--wh-cloud, #F4F6FA);' +
+      'border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:var(--wh-shadow-3, 0 12px 32px rgba(0,0,0,0.34), 0 4px 12px rgba(0,0,0,0.22));' +
+      'font-family:var(--wh-font, Poppins, sans-serif);';
+    el.innerHTML =
+      '<div style="flex:1;min-width:0;">' +
+        '<p style="margin:0;font-size:0.875rem;font-weight:600;line-height:1.35;overflow-wrap:anywhere;">' + escHtml(text) + '</p>' +
+        (sub ? '<p style="margin:2px 0 0;font-size:0.75rem;line-height:1.35;color:rgba(244,246,250,0.78);">' + escHtml(sub) + '</p>' : '') +
+      '</div>' +
+      (action ? '<button type="button" data-wh-trash-undo style="flex:none;min-height:44px;min-width:64px;padding:0 16px;' +
+        'border-radius:8px;border:1px solid rgba(247,162,27,0.55);background:rgba(247,162,27,0.14);' +
+        'color:var(--wh-amber-light, #FDB94A);font:700 0.875rem var(--wh-font, Poppins, sans-serif);cursor:pointer;">' +
+        escHtml(action.label) + '</button>' : '');
+    document.body.appendChild(el);
+    toast = el;
+    if (!reduced()) {
+      requestAnimationFrame(function () { el.style.opacity = '1'; el.style.transform = 'translate(-50%, 0)'; });
+    }
+    if (action) {
+      var btn = el.querySelector('[data-wh-trash-undo]');
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = 'Restoring…';
+        if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+        action.run();
+      });
+    }
+    toastTimer = setTimeout(hideToast, ttlMs || 10000);
+  }
+
+  async function restore(db, table, id, label, onRestored) {
+    var res = await db.rpc('wh_restore', { p_table: table, p_id: String(id) });
+    if (res.error) {
+      showToast(label ? label + ' was not restored.' : 'Nothing was restored.',
+        whWriteError(res.error, 'The restore did not go through. It is still in Recently deleted; try again there.'),
+        null, 8000);
+      return false;
+    }
+    showToast(label ? label + ' is back.' : 'Restored.', '', null, 4000);
+    try { if (typeof onRestored === 'function') await onRestored(id); } catch (e) { void e; /* the row IS back; a repaint failure must not undo that sentence */ }
+    return true;
+  }
+
+  window.whTrash = async function whTrash(db, table, id, opts) {
+    opts = opts || {};
+    var res = await db.rpc('wh_trash', { p_table: table, p_id: String(id) });
+    if (res.error) return { ok: false, error: res.error };
+    var label = opts.label ? String(opts.label) : '';
+    // The date the SERVER computed from the hive's own retention setting (30 days unless a supervisor kept it longer),
+    // never a number written here - a hive that keeps deleted items for 90 days must not be told 30.
+    var until = res.data && res.data.purge_after ? day(res.data.purge_after) : '';
+    showToast(label ? label + ' deleted.' : 'Deleted.',
+      until ? 'Kept in Recently deleted until ' + until + '.' : 'Kept in Recently deleted.',
+      { label: 'Undo', run: function () { restore(db, table, id, label, opts.onRestored); } },
+      opts.toastMs || 10000);
+    return { ok: true, data: res.data };
+  };
+
+  window.whRestore = function whRestore(db, table, id, opts) {
+    opts = opts || {};
+    return restore(db, table, id, opts.label || '', opts.onRestored);
+  };
+
+  // ── Recently deleted: a sheet over the page, newest first, one Restore per row ──
+  window.whRecentlyDeleted = function whRecentlyDeleted(db, table, opts) {
+    opts = opts || {};
+    var opener = document.activeElement;
+    var titleId = 'wh-rd-title-' + Math.random().toString(36).slice(2, 8);
+    var overlay = document.createElement('div');
+    overlay.setAttribute('data-wh-recently-deleted', '');
+    overlay.style.cssText =
+      'position:fixed;inset:0;z-index:10001;background:rgba(22,32,50,0.72);display:flex;align-items:flex-end;' +
+      'justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom, 0px));' +
+      'animation:wh-fade-in 0.15s ease-out;';
+    overlay.innerHTML =
+      '<section role="dialog" aria-modal="true" aria-labelledby="' + titleId + '" ' +
+        'style="width:min(520px, 100%);max-height:min(78vh, 640px);display:flex;flex-direction:column;box-sizing:border-box;' +
+        'background:var(--wh-navy, #162032);color:var(--wh-cloud, #F4F6FA);border:1px solid rgba(255,255,255,0.1);' +
+        'border-radius:16px;box-shadow:var(--wh-shadow-3, 0 12px 32px rgba(0,0,0,0.34), 0 4px 12px rgba(0,0,0,0.22));font-family:var(--wh-font, Poppins, sans-serif);">' +
+        '<header style="display:flex;align-items:flex-start;gap:12px;padding:18px 18px 10px;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<h2 id="' + titleId + '" style="margin:0;font-size:1.125rem;font-weight:700;line-height:1.3;">' +
+              escHtml(opts.title || 'Recently deleted') + '</h2>' +
+            '<p style="margin:4px 0 0;font-size:0.85rem;line-height:1.45;color:rgba(244,246,250,0.78);">' +
+              'Deleted items wait here until the date shown on each, then they are removed for good.</p>' +
+          '</div>' +
+          '<button type="button" data-wh-rd-close style="flex:none;min-height:44px;padding:0 14px;border-radius:8px;' +
+            'border:1px solid rgba(255,255,255,0.14);background:transparent;color:rgba(244,246,250,0.88);' +
+            'font:600 0.875rem var(--wh-font, Poppins, sans-serif);cursor:pointer;">Close</button>' +
+        '</header>' +
+        '<div data-wh-rd-body style="overflow:auto;padding:4px 18px 18px;" aria-busy="true">' +
+          '<p style="margin:12px 0;font-size:0.85rem;color:rgba(244,246,250,0.78);">Loading…</p>' +
+        '</div>' +
+      '</section>';
+    document.body.appendChild(overlay);
+    var body = overlay.querySelector('[data-wh-rd-body]');
+    var closeBtn = overlay.querySelector('[data-wh-rd-close]');
+    var restoredAny = false;
+
+    function close() {
+      document.removeEventListener('keydown', onKey, true);
+      overlay.remove();
+      try { if (opener && opener.focus) opener.focus(); } catch (_) { /* empty-catch-allow: opener gone */ }
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.stopPropagation(); close(); return; }
+      if (e.key !== 'Tab') return;
+      var f = overlay.querySelectorAll('button:not([disabled])');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    document.addEventListener('keydown', onKey, true);
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    setTimeout(function () { closeBtn.focus(); }, 0);
+
+    function say(html) { body.innerHTML = html; body.setAttribute('aria-busy', 'false'); }
+
+    async function load() {
+      body.setAttribute('aria-busy', 'true');
+      var res = await db.rpc('wh_recently_deleted', { p_table: table || null, p_hive: opts.hiveId || null });
+      if (res.error) {
+        say('<p style="margin:12px 0 10px;font-size:0.85rem;line-height:1.45;">' +
+              escHtml(typeof whReadError === 'function' ? whReadError(res.error, 'the Recently deleted list')
+                : 'The Recently deleted list could not be loaded. Check your connection and try again.') + '</p>' +
+            '<button type="button" data-wh-rd-retry style="min-height:44px;padding:0 16px;border-radius:8px;border:1px solid ' +
+              'rgba(255,255,255,0.16);background:transparent;color:var(--wh-cloud, #F4F6FA);font:600 0.875rem var(--wh-font, Poppins, sans-serif);' +
+              'cursor:pointer;">Try again</button>');
+        body.querySelector('[data-wh-rd-retry]').addEventListener('click', load);
+        return;
+      }
+      var rows = res.data || [];
+      if (!rows.length) {
+        say('<p style="margin:12px 0;font-size:0.85rem;line-height:1.45;color:rgba(244,246,250,0.82);">' +
+              'Nothing was deleted here in the last 30 days.</p>');
+        return;
+      }
+      say('<ul style="list-style:none;margin:0;padding:0;">' + rows.map(function (r, i) {
+        var who = r.deleted_by_me ? 'you' : (r.deleted_by_name || 'a teammate');
+        return '<li style="display:flex;align-items:center;gap:12px;padding:12px 0;' +
+                 (i ? 'border-top:1px solid rgba(255,255,255,0.08);' : '') + '">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<p style="margin:0;font-size:0.95rem;font-weight:600;line-height:1.35;overflow-wrap:anywhere;">' + escHtml(r.label || 'Item') + '</p>' +
+            (r.detail ? '<p style="margin:2px 0 0;font-size:0.85rem;line-height:1.4;color:rgba(244,246,250,0.8);overflow-wrap:anywhere;">' + escHtml(r.detail) + '</p>' : '') +
+            '<p style="margin:2px 0 0;font-size:0.75rem;line-height:1.4;color:rgba(244,246,250,0.72);">' +
+              'Deleted by ' + escHtml(who) + ' on ' + escHtml(day(r.deleted_at)) + ' · removed for good ' + escHtml(day(r.purge_after)) + '</p>' +
+          '</div>' +
+          '<button type="button" data-wh-rd-restore="' + i + '" style="flex:none;min-height:44px;padding:0 14px;border-radius:8px;' +
+            'border:1px solid rgba(247,162,27,0.55);background:rgba(247,162,27,0.12);color:var(--wh-amber-light, #FDB94A);' +
+            'font:700 0.875rem var(--wh-font, Poppins, sans-serif);cursor:pointer;">Restore</button>' +
+        '</li>';
+      }).join('') + '</ul>');
+      Array.prototype.forEach.call(body.querySelectorAll('[data-wh-rd-restore]'), function (btn) {
+        btn.addEventListener('click', async function () {
+          var r = rows[Number(btn.getAttribute('data-wh-rd-restore'))];
+          btn.disabled = true;
+          btn.textContent = 'Restoring…';
+          var ok = await restore(db, r.source_table, r.id, r.label, opts.onRestored);
+          if (ok) { restoredAny = true; await load(); }
+          else { btn.disabled = false; btn.textContent = 'Restore'; }
+        });
+      });
+    }
+    load();
+    return { close: close, restored: function () { return restoredAny; } };
+  };
 })();
 
 // ─────────────────────────────────────────────

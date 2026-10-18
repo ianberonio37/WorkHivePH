@@ -331,7 +331,7 @@ async function runProjectSuggestions(db: SupabaseClient, hiveId: string, voiceCo
   let coveredAssets: string[] = [];
   if (activeProjectIds.length) {
     const { data: links } = await db.from("project_links")
-      .select("label").in("project_id", activeProjectIds).eq("link_type", "asset");
+      .select("label").is("deleted_at", null).in("project_id", activeProjectIds).eq("link_type", "asset");
     coveredAssets = (links || []).map(l => (l as Record<string, string>).label || "").filter(Boolean);
   }
 

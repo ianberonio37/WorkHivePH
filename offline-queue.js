@@ -264,6 +264,14 @@
               const r = await q.select(cfg.confirmKey || 'id');
               error = r.error;
               if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
+            } else if (op === 'delete' && cfg.trash) {
+              // D3 (2026-10-16): a table whose deletes are recoverable drains through wh_trash, never a
+              // DELETE - an offline delete must land in Recently deleted exactly as an online one does.
+              // RLS inside wh_trash is the identity guard. P0001 means "already gone" or "already in
+              // Recently deleted": the end state the worker asked for already holds (a create-then-delete
+              // offline pair never reached the server), so the item drains.
+              const r = await supabase.rpc('wh_trash', { p_table: cfg.table, p_id: String((item.match || {}).id) });
+              error = r.error && String(r.error.code) === 'P0001' ? null : r.error;
             } else if (op === 'delete') {
               let q = supabase.from(cfg.table).delete();
               const match = item.match || {};

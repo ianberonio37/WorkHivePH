@@ -6512,8 +6512,23 @@ async function loadAuditLog() {
     member_leave_refused:     { icon: '⚠',  label: 'Tried to leave - membership kept' },
     amend_pm_completion:   { icon: '✎',  label: 'Amended PM completion' },
     amend_pm_schedule:     { icon: '⏱',  label: 'Changed PM schedule' },
-    delete_asset_node:     { icon: '⊘',  label: 'Deleted asset (and its reliability history)' },
+    delete_asset_node:     { icon: '⊘',  label: 'Deleted asset' },
     approved:              { icon: '✓',  label: 'Approved' },
+    // D3 (2026-10-16): deletes are recoverable for 30 days. The database writes delete_* when a person deletes,
+    // recover_* when one is restored, and purge_* when the retention job removes it for good - registered here in
+    // the same change, so the first rows never render as unlabelled dots. delete_* labels stay neutral: rows
+    // written before this change were deletes that could not be undone.
+    recover_asset_node:     { icon: '↺',  color: '#4ade80', label: 'Restored deleted asset' },
+    purge_asset_node:       { icon: '⊘',  color: '#f87171', label: 'Removed deleted asset for good (and its reliability history)' },
+    delete_logbook_entry:   { icon: '⊘',  color: '#f87171', label: 'Deleted logbook entry' },
+    recover_logbook_entry:  { icon: '↺',  color: '#4ade80', label: 'Restored deleted logbook entry' },
+    recover_inventory_item: { icon: '↺',  color: '#4ade80', label: 'Restored deleted inventory item' },
+    recover_pm_asset:       { icon: '↺',  color: '#4ade80', label: 'Restored deleted PM template' },
+    purge_pm_asset:         { icon: '⊘',  color: '#f87171', label: 'Removed deleted PM template for good (and its history)' },
+    delete_project_link:    { icon: '⊘',  label: 'Removed project link' },
+    recover_project_link:   { icon: '↺',  label: 'Restored project link' },
+    recover_project_role:   { icon: '↺',  label: 'Restored project role' },
+    set_retention:          { icon: '⏱',  label: 'Changed how long deleted items are kept' },
     // Inventory CRUD
     create_inventory_item: { icon: '＋', color: '#4ade80', label: 'Added inventory item' },
     edit_inventory_item:   { icon: '✎',  color: '#29B6D9', label: 'Edited inventory item' },

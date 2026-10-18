@@ -2,14 +2,14 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: 414ab5f971d907b8
+source_sha: 4e92f93de2cf77a4
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
 **pg_cron jobs (34)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
-- `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
+- `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM public.achievement_xp_log x      WHERE x.earned_at < now() - interva
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily-analytics` @ `33 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
 - `ai-eval-daily-asset-brain` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu

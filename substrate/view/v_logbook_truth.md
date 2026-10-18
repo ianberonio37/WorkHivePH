@@ -2,7 +2,7 @@
 name: view-v_logbook_truth
 type: view
 source: db:pg_get_viewdef:v_logbook_truth
-source_sha: cac8f9dd875943f8
+source_sha: f3478018e17604a1
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -1475,10 +1475,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try { const { error } = await q; if (error) failed.push(label); }
       catch (_) { failed.push(label); }
     };
-    if (c.parts.length) await step('parts',    db.from('inventory_items').delete().in('id', c.parts));
+    // D3 (2026-10-16): these stay HARD deletes on purpose. This is the wizard taking back rows it created moments
+    // ago (the Undo on its receipt, or the rollback of a half-finished create) - no work was ever recorded on them,
+    // and a soft-deleted copy would keep holding the vehicle's tag and part numbers, so running the wizard again
+    // would collide with its own leftovers. Every OTHER delete of these tables goes through whTrash.
+    if (c.parts.length) await step('parts',    db.from('inventory_items').delete().in('id', c.parts));   // d3-allow: wizard rollback of its own just-created rows
     if (c.scope.length) await step('schedule', db.from('pm_scope_items').delete().in('id', c.scope));
-    if (c.node)         await step('asset',    db.from('asset_nodes').delete().eq('id', c.node));
-    if (c.pm_asset)     await step('PM asset', db.from('pm_assets').delete().eq('id', c.pm_asset));
+    if (c.node)         await step('asset',    db.from('asset_nodes').delete().eq('id', c.node));        // d3-allow: wizard rollback of its own just-created rows
+    if (c.pm_asset)     await step('PM asset', db.from('pm_assets').delete().eq('id', c.pm_asset));     // d3-allow: wizard rollback of its own just-created rows
     return failed;
   }
 

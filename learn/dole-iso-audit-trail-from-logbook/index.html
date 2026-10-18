@@ -21,7 +21,7 @@
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="WorkHive" />
   <meta property="article:published_time" content="2026-05-17T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-08-24T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-10-16T00:00:00+08:00" />
   <meta property="article:author" content="WorkHive Editorial Team" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="DOLE OSHS and ISO Audit Trail from Your Logbook" />
@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-10-16",
       "mainEntityOfPage": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -70,7 +70,7 @@
           "name": "What are the immutability guarantees?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state."
+            "text": "Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when and what changed; there is no field for why, so put a required justification in the entry text). Auditors see the full history, not just the current state."
           }
         },
         {
@@ -78,7 +78,7 @@
           "name": "How long should I retain records?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped."
+            "text": "DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive does not purge maintenance records or their audit history, so every one of these is met for as long as the record is not deleted. A deleted record waits in Recently deleted for 30 days (longer if a supervisor sets it), can be restored until then, and is then removed for good; correct a record a regulation requires you to hold, never delete it."
           }
         },
         {
@@ -304,11 +304,11 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-10-16">16 Oct 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and keeps that history for 3 years by default (1,095 days), adjustable up to 10 years. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.</div>
+    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant safety officers</li>
@@ -335,15 +335,15 @@
       <h2 id="three-guarantees">The 3 immutability guarantees</h2>
       <ul><li><strong>Server-side timestamp.</strong> Every entry is stamped at the moment it hits the server, not the client. A worker cannot backdate by adjusting their phone clock.</li><li><strong>Authenticated authorship.</strong> Entries are tied to the worker's account (which the employer maps to a person on the payroll). No anonymous edits.</li><li><strong>Append-only edits.</strong> If an entry needs correction, the original stays in the audit log with the correction appended: who made it, when, and the before and after values of what they changed. Auditors see the full history, not just the current state. One thing it does NOT capture is a stated reason for the edit: there is no field asking why, so if your procedure requires a documented justification, put it in the entry text itself, where it becomes part of the record the audit trail then protects.</li></ul>
       <h2 id="retention">Retention rules per record type</h2>
-      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>Covered by the 3-year default?</th></tr></thead><tbody>
-      <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>No: raise it</td></tr>
-      <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>No: needs the 10-year maximum</td></tr>
-      <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>Yes</td></tr>
-      <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>Yes</td></tr>
-      <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>Yes</td></tr>
-      <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>Depends on tenure: check it</td></tr>
+      <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Record type</th><th>DOLE OSHS minimum</th><th>ISO recommendation</th><th>Kept by WorkHive?</th></tr></thead><tbody>
+      <tr><td>Safety observations</td><td>5 years</td><td>3+ years</td><td>Yes: never purged</td></tr>
+      <tr><td>Incident investigations</td><td>10 years</td><td>5+ years</td><td>Yes: never purged</td></tr>
+      <tr><td>PM completion records</td><td>3 years</td><td>3 years per cycle</td><td>Yes: never purged</td></tr>
+      <tr><td>Logbook entries (general)</td><td>3 years</td><td>3 years</td><td>Yes: never purged</td></tr>
+      <tr><td>Permit to work records</td><td>3 years</td><td>3 years</td><td>Yes: never purged</td></tr>
+      <tr><td>Training records</td><td>For employment duration + 3 years</td><td>For employment duration + 3 years</td><td>Yes: never purged</td></tr>
       </tbody></table></div>
-      <p><strong>Read that last column before you tell an auditor anything.</strong> WorkHive keeps audit history for <strong>1,095 days: three years: by default</strong>, and the setting is one hive-wide window rather than a different rule per record type. You can raise it, and you should: the range is 90 days to <strong>3,650 days, ten years</strong>, which is the ceiling the system will accept. Two consequences worth acting on today. First, the three-year default does NOT meet the DOLE minimum for safety observations (5 years) or incident investigations (10 years), so a plant that leaves it alone will lose records it is required to hold. Second, because the window is hive-wide, you set it to the longest obligation you carry: in practice the ten-year incident requirement, and everything else is covered by the same setting. Storage is cheap and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes; the cost of a longer window is not the reason to keep it short.</p>
+      <p><strong>Read that last column before you tell an auditor anything.</strong> WorkHive does not purge maintenance records or their audit history: logbook entries, PM completions, permits and the audit log stay for as long as your hive exists, so every minimum in the table is met without changing a setting. The one exception is a record someone <strong>deletes</strong>. It waits in Recently deleted for the hive's window, <strong>30 days</strong> unless a supervisor keeps deleted items longer, and can be restored until then; after that it is removed for good, and the audit log keeps who deleted it and when, not what it said. So the working rule for an auditor-facing plant is simple: a record a regulation requires you to hold is corrected, never deleted. Storage is cheap, and the worker may need the history years after leaving the plant, for OFW applications, promotion cases and regulatory disputes.</p>
       <h2 id="export">Export patterns auditors accept</h2>
       <p>Three patterns satisfy DOLE OSHS and ISO auditors. The Audit Log exports CSV, filterable by actor, action, target and date range; the print-ready PDF comes from the Analytics Report:</p>
       <ul><li><strong>Date range:</strong> all entries in a window (typically 30 days for a sample), exported from the Audit Log as CSV with timestamp, author, asset, category and entry text. Print it, or hand over the file - auditors accept either, and the file is the one they can search.</li><li><strong>Asset history:</strong> every entry for one asset over its lifecycle, filtered in the Audit Log by that asset. Used when the auditor is investigating a specific failure or compliance gap.</li><li><strong>Compliance mapping:</strong> entries grouped by ISO clause or DOLE rule, which is the view management review and surveillance audits ask for.</li></ul>
@@ -362,8 +362,8 @@
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>Does DOLE accept digital logbooks for OSHS Rule 1063?</summary><div class="faq-answer">Yes, when the digital record satisfies time-of-event recording, worker identification, and non-editability after submission. DOLE OSHS Rule 1063 on Safety and Health Records does not require paper; it requires a record an inspector can sample. WorkHive Audit Log satisfies all three properties and produces PDF exports inspectors accept.</div></details>
-      <details class="faq-item"><summary>What are the immutability guarantees?</summary><div class="faq-answer">Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when, what changed, and why). Auditors see the full history, not just the current state.</div></details>
-      <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive keeps audit history for three years by default (1,095 days), as one hive-wide window rather than a per-record-type rule, and it can be raised as far as ten years (3,650 days). Because the default does not cover the 5-year and 10-year DOLE minimums, set the window to the longest obligation you carry rather than leaving it as shipped.</div></details>
+      <details class="faq-item"><summary>What are the immutability guarantees?</summary><div class="faq-answer">Three: (1) server-side timestamp (worker cannot backdate by adjusting phone clock), (2) authenticated authorship (entry tied to the worker's account, not anonymous), (3) append-only edits (original stays in the audit log with corrections appended, including who, when and what changed; there is no field for why, so put a required justification in the entry text). Auditors see the full history, not just the current state.</div></details>
+      <details class="faq-item"><summary>How long should I retain records?</summary><div class="faq-answer">DOLE minimums vary by record type: 5 years for safety observations, 10 years for incident investigations, 3 years for PM and general logbook entries, employment duration plus 3 years for training. WorkHive does not purge maintenance records or their audit history, so every one of these is met for as long as the record is not deleted. A deleted record waits in Recently deleted for 30 days (longer if a supervisor sets it), can be restored until then, and is then removed for good; correct a record a regulation requires you to hold, never delete it.</div></details>
       <details class="faq-item"><summary>What export does an ISO auditor want?</summary><div class="faq-answer">Three patterns work: (1) a date range for sampling a window, typically 30 days, (2) one asset's whole history for investigating a specific failure, (3) entries grouped by ISO clause or DOLE rule for management review. The Audit Log exports all three as CSV; the print-ready PDF comes from the Analytics Report. Every row carries its WorkHive entry ID, so an auditor can ask to see any single entry live.</div></details>
       <details class="faq-item"><summary>Can a worker request their own audit log if they leave the plant?</summary><div class="faq-answer">Yes. WorkHive Audit Log lets a worker export their personal contribution history (entries they authored, PMs they completed, training records, achievements earned) for as long as they are a member of that hive. Export before a job change: the entries stay in the plant's records and stop being readable to a departed worker, which is what the app says when you leave. Skill badges and certifications are held against the worker and do travel. This is the portable career record that supports OFW applications and salary disputes. The plant's broader audit log stays scoped to the hive.</div></details>
       <details class="faq-item"><summary>How does this map to ISO 9001 / 14001 / 45001?</summary><div class="faq-answer">ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action tags. ISO 9001 Clause 7.1.5 monitoring resources: PM compliance dashboard. ISO 14001 Clause 9.1.1 environmental monitoring: logbook entries with environmental-aspect tags. ISO 45001 Clause 9.1.1 OH&S monitoring + Clause 10.2 incident investigation: safety observations and incident logs. WorkHive Audit Log exports group entries by these clauses for management review meetings.</div></details>
@@ -389,7 +389,7 @@
 </article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-16">16 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

@@ -558,6 +558,11 @@
     <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="dp-summary-details" data-i="showdetails">
       Show details
     </button>
+    <!-- D3 (2026-10-16): a removed plan item waits here for 30 days. -->
+    <button id="dp-recently-deleted" type="button" class="details-toggle"
+            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'schedule_items', { title: 'Recently deleted plan items', onRestored: () => loadSchedule() })">
+      Recently deleted
+    </button>
     <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
     data-rag-tile="dayplanner:detail_panel"
     data-rag-label="Day planner detail">
@@ -1042,6 +1047,7 @@ function _ensureDpQueue() {
     window._whDpQueue = window.whCreateQueue({
       db: 'wh_dayplanner_offline', table: 'schedule_items',
       identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      trash: true,   // D3: an offline delete drains into Recently deleted, not a DELETE
       postSync: () => { try { loadSchedule(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
     });
     window.whRegisterQueue('dayplanner', window._whDpQueue);
@@ -1270,7 +1276,19 @@ async function deleteItemFromSupabase(id, removed) {
     // BRP-A (2026-10-04): guard on the IDENTITY, not the display name - see the update path above.
     // The comment directly above is why this matters here especially: a worker_name mismatch and an RLS
     // refusal already read alike, so a name that has drifted deletes nothing and says nothing.
-    const { data: _deleted, error } = await db.from('schedule_items').delete().eq('id', id).eq('auth_uid', _authUid).select('id');
+    // D3 (2026-10-16): a delete is RECOVERABLE now. wh_trash stamps deleted_at under the person's own
+    // permission (schedule_items_write: auth_uid = auth.uid(), the identity guard this line used to carry),
+    // the item disappears from every read, and the toast's Undo - or Recently deleted, for 30 days - brings it
+    // back. A refusal still comes back as an error, so the rollback below is unchanged.
+    // An older utils.js without whTrash is healed by the skew-heal block before this runs; if it ever is not,
+    // refuse rather than fall back to the unrecoverable delete.
+    const _t3 = typeof whTrash === 'function'
+      ? await whTrash(db, 'schedule_items', id, {
+          label: (removed && removed.title) || 'Plan item',
+          onRestored: () => loadSchedule(),
+        })
+      : { ok: false, error: { code: 'P0001', message: 'Deleting needs this page reloaded first. Nothing was deleted.' } };
+    const { data: _deleted, error } = { data: _t3.ok ? [{ id }] : null, error: _t3.ok ? null : _t3.error };
     if (error) {
       console.warn('Schedule delete failed:', error.message);
       /* T176: same as the save path - a refusal, not a connection problem. And a failed delete
@@ -3073,7 +3091,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whStartupHive whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whStartupHive whTrash whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

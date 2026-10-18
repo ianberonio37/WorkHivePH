@@ -2,7 +2,7 @@
 name: view-v_hives_truth
 type: view
 source: db:pg_get_viewdef:v_hives_truth
-source_sha: 802b943378034051
+source_sha: 5b30be9a16c7e5a2
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -12,6 +12,6 @@ supersedes: null
 **Source tables:** `asset_nodes`, `hive_members`, `hives`
 **Trust/identity cols exposed:** (none)  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 
-**Definition (collapsed):**  SELECT id, name, invite_code, created_by, created_at, intent, preferred_persona, ( SELECT (count(*))::integer AS count FROM hive_members hm WHERE ((hm.hive_id = h.id) AND (hm.status = 'active'::text))) AS member_count, ( SELECT (count(*))::integer AS count FROM asset_nodes an WHERE ((an.hive_id = h.id) AND (an.status = 'approved'::text))) AS asset_count, ( SELECT min(hm.joined_at) AS min FROM hive_members hm WHERE ((hm.hive_id = h.id) AND (hm.status = 'active'::text))) AS first_member_joined_at, (intent = '{}'::jsonb) AS intent_not_captured, updated_at FROM hives h;
+**Definition (collapsed):**  SELECT id, name, invite_code, created_by, created_at, intent, preferred_persona, ( SELECT (count(*))::integer AS count FROM hive_members hm WHERE ((hm.hive_id = h.id) AND (hm.status = 'active'::text))) AS member_count, ( SELECT (count(*))::integer AS count FROM asset_nodes an WHERE ((an.hive_id = h.id) AND (an.status = 'approved'::text) AND (an.deleted_at IS NULL))) AS asset_count, ( SELECT min(hm.joined_at) AS min FROM hive_members hm WHERE ((hm.hive_id = h.id) AND (hm.status = 'active'::text))) AS first_member_joined_at, (intent = '{}'::jsonb) AS intent_not_captured, updated_at FROM hives h …
 
 Links: [[reference_xhive_view_read_leak_security_invoker]] [[reference_marketplace_listing_trust_forge]]

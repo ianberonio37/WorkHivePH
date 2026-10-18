@@ -413,7 +413,7 @@ serveObserved("hierarchical-summarizer", tracedReply("hierarchical-summarizer", 
       // no KPI semantics ride on this read, so truth-view filtering is irrelevant here.
       const { data: active } = await dbf
         .from("logbook")
-        .select("hive_id")
+        .select("hive_id").is("deleted_at", null)
         .gte("created_at", period.start)
         .lt("created_at", period.end)
         .not("hive_id", "is", null)

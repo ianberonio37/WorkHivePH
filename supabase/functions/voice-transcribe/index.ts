@@ -138,7 +138,7 @@ serveObserved("voice-transcribe", tracedReply("voice-transcribe", async (req, _t
         // the transcript, which is why the hive must be the caller's own - see above);
         // this is not a displayed metric, so v_asset_truth (the display view) is not the read path here.
         const { data: tagRows } = await _rlDb
-          .from("asset_nodes").select("tag").eq("hive_id", vocabHive).not("tag", "is", null).limit(200);
+          .from("asset_nodes").select("tag").is("deleted_at", null).eq("hive_id", vocabHive).not("tag", "is", null).limit(200);
         const tags = (tagRows || []).map((r: { tag: string | null }) => (r.tag || "").trim()).filter(Boolean);
         if (tags.length) vocab = tags;
       } catch (_) { /* best-effort: ASR priming/repair is optional */ }

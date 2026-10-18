@@ -319,6 +319,12 @@
                   style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-weight:600; white-space:nowrap;">
             <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
           </button>
+          <!-- D3 (2026-10-16): a removed part waits here for 30 days, with its stock ledger. -->
+          <button id="btn-recently-deleted" type="button" class="text-xs py-2 px-3"
+                  onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'inventory_items', { hiveId: HIVE_ID || null, title: 'Recently deleted parts', onRestored: () => initData() })"
+                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-weight:600; white-space:nowrap;">
+            Recently deleted
+          </button>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
             <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="addpart">Add Part</span>
@@ -650,7 +656,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRequireOnline whStartupHive whStatUnknown whStatValue">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whStartupHive whStatUnknown whStatValue whTrash">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2379,34 +2385,27 @@ async function confirmDeleteItem(id) {
     if (item.status !== 'rejected') { showToast('Supervisors only.', 'warn'); return; }
     if (!_ownsItem(item)) { showToast('You can only remove your own rejected parts.', 'warn'); return; }
   }
-  const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? This cannot be undone.`, { okLabel: 'Remove', cancelLabel: 'Keep' });
+  const proceed = await window.whConfirm(`Remove "${item.part_name}" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days.`, { okLabel: 'Remove', cancelLabel: 'Keep' });
   if (!proceed) return;
 
-  if (HIVE_ID) {
-    // Supervisor deletes by hive scope; worker deletes own rejected item by worker_name
-    let q = db.from('inventory_items').delete().eq('id', id).eq('hive_id', HIVE_ID);
-    // BRP-A: the ownership guard is the IDENTITY, not the display name. RLS (inventory_items_write)
-    // already enforces auth_uid, so a name filter could never make this safer - only add a way to
-    // match nothing, which PostgREST answers with no error. inventory_items is 102/102 bound and the
-    // author-can-edit-own-work ratchet holds it there.
-    if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
-    const { error } = await q;
-    if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.'), 'error'); return; }
-    _items = _items.filter(i => i.id !== id);
-  } else {
-    // BRP-A: identity, not display name - see the hive branch above.
-    const { error } = await db.from('inventory_items').delete()
-      .eq('id', id).eq('auth_uid', _authUid);
-    if (error) { showToast(whWriteError(error, 'The part was NOT removed. It is still in your inventory.'), 'error'); return; }
-    _items = _items.filter(i => i.id !== id);
-  }
-
-  writeAuditLog('delete_inventory_item', 'inventory_items', id, item.part_name,
-    { part_number: item.part_number, prev_qty: item.qty_on_hand, prev_status: item.status });
+  // D3 (2026-10-16): the part is deleted RECOVERABLY. wh_trash stamps deleted_at under the person's own
+  // inventory_items_write permission - the identity guard (auth_uid, or the hive's supervisors) that the two
+  // .delete() branches here carried by hand - and the signed-off-work guard still refuses a worker. The part,
+  // its stock ledger and its marketplace link all survive; Undo or Recently deleted brings them back within 30
+  // days. The audit row is written by the database (trg_audit_trash_transition, delete_inventory_item), so a
+  // delete from any path is recorded - the page no longer writes its own copy.
+  // An older utils.js without whTrash is healed by the skew-heal block; if it ever is not, refuse.
+  const _tr = typeof whTrash === 'function'
+    ? await whTrash(db, 'inventory_items', id, {
+        label: item.part_name || item.part_number || 'Part',
+        onRestored: async () => { try { await initData(); } catch (_) { /* empty-catch-allow: the part is back; the next load shows it */ } },
+      })
+    : { ok: false, error: { code: 'P0001', message: 'Removing a part needs this page reloaded first. Nothing was removed.' } };
+  if (!_tr.ok) { showToast(whWriteError(_tr.error, 'The part was NOT removed. It is still in your inventory.'), 'error'); return; }
+  _items = _items.filter(i => i.id !== id);
 
   closeDetailModal();
   renderParts();
-  showToast('Part removed from inventory.');
 }
 
 // ────────────────────────────────────────────

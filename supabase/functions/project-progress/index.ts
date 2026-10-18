@@ -157,7 +157,7 @@ serveObserved("project-progress", async (req: Request) => {
       .eq('hive_id', hive_id)
       .order('sort_order', { ascending: true }),
     db.from('project_links')
-      .select('id, link_type, link_id, label')
+      .select('id, link_type, link_id, label').is('deleted_at', null)
       .eq('project_id', project_id)
       .eq('hive_id', hive_id),
     db.from('v_project_progress_truth')
@@ -167,7 +167,7 @@ serveObserved("project-progress", async (req: Request) => {
       .order('log_date', { ascending: false })
       .limit(30),
     db.from('project_roles')
-      .select('id, worker_name, role, assigned_by, assigned_at')
+      .select('id, worker_name, role, assigned_by, assigned_at').is('deleted_at', null)
       .eq('project_id', project_id)
       .eq('hive_id', hive_id),
     db.from('project_change_orders')

@@ -60,7 +60,10 @@ def latest_runs():
     out = psql("""
       WITH latest AS (
         SELECT DISTINCT ON (jobid) jobid, status, coalesce(return_message,'') AS msg
-        FROM cron.job_run_details ORDER BY jobid, start_time DESC)
+        FROM cron.job_run_details ORDER BY jobid, start_time DESC NULLS LAST, runid DESC)
+        -- NULLS LAST (2026-10-19): when the database restarts mid-run, pg_cron leaves a stub - status failed,
+        -- message "server restarted", NO start_time. DESC puts NULLs first, so that stub stayed this job's "latest
+        -- run" for good and reddened the gate while the job succeeded every minute after the restart.
       SELECT j.jobid, coalesce(l.status,'(no runs)'), coalesce(l.msg,'')
       FROM cron.job j LEFT JOIN latest l ON l.jobid=j.jobid
       WHERE j.active ORDER BY j.jobid;""")

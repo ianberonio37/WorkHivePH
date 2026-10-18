@@ -278,7 +278,9 @@ def compose_and_target(source_table, row_id):
              where nullif(to_jsonb(l) ->> (elem->>'col'), '') is not null)
       from public.embedding_registry r
       join public.{source_table} l on l.id::text = {lit(row_id)}
-     where r.source_table = {lit(source_table)} and r.active;
+     where r.source_table = {lit(source_table)} and r.active
+       -- D3: a row deleted after it was queued has nothing to index; its knowledge was removed with it.
+       and nullif(to_jsonb(l) ->> 'deleted_at', '') is null;
     """
     rows, err = psql(sql)
     if rows is None or not rows:
@@ -385,7 +387,8 @@ def main(argv):
             # The reason is KEPT on the row: a job that vanishes silently looks like one that
             # succeeded, which is the ambiguity this relay exists to remove.
             still_there, _ = psql(
-                f"select 1 from public.{source_table} where id::text = {lit(row_id)} limit 1;")
+                f"select 1 from public.{source_table} l where l.id::text = {lit(row_id)} "
+                f"and nullif(to_jsonb(l) ->> 'deleted_at', '') is null limit 1;")
             if not still_there:
                 psql("update public.embedding_outbox set done_at = now(), last_error = "
                      + lit('source row deleted after enqueue - nothing left to embed')

@@ -1,18 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:668
-source_sha: a574a7b91b431fa7
+source: dir:supabase/migrations:671
+source_sha: cca8595af54d5c2e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (668 migrations)
+## migration · catalog (671 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000016_min_list_balance_becomes_the_accept_floor` — (misc DDL/DML)
-- `20260731000017_a_sale_needs_a_counterparty` — fns:guard_listing_sale_needs_counterparty,recompute_seller_sales_and_tier · triggers:trg_guard_listing_sale_needs_counterparty · tables:marketplace_inquiries,marketplace_listings
-- `20260731000018_dispute_adjustment_never_deletion` — fns:apply_dispute_adjustment
 - `20260731000019_accept_refusal_states_the_floor` — (misc DDL/DML)
 - `20260731000020_min_balance_is_cold_start_safe` — (misc DDL/DML)
 - `20260731000021_voucher_budget_cap` — fns:guard_voucher_within_budget · triggers:trg_guard_voucher_within_budget
@@ -210,6 +207,9 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261014000003_a_profile_claims_only_a_hive_it_belongs_to` — policies:mkt_sellers_insert,mkt_sellers_update,resume_documents_insert,resume_documents_update
 - `20261014000004_observability_reads_follow_the_page_gate` — policies:agentic_rag_traces_read,ai_cost_log_read,gateway_audit_read
 - `20261015000001_a_logbook_id_is_a_token` — tables:logbook
+- `20261016000001_d3_deletes_are_recoverable_for_30_days` — fns:_wh_trash_id_type,audit_asset_node_delete,audit_logbook_post_close_amendment,audit_pm_asset_delete,audit_trash_transition,enqueue_for_embedding · triggers:trg_audit_trash_transition,trg_logbook_knowledge_on_trash,trg_logbook_xp_on_trash,trg_name_held_by_deleted,trg_replace_deleted_pairing · tables:public
+- `20261016000002_d3_every_reader_skips_deleted_rows` — fns:compute_adoption_risk,compute_anomaly_signals,compute_hive_readiness,ensure_pm_asset_for_node,get_hive_board_dashboard,get_marketplace_parts_for_my_assets
+- `20261016000003_a_supervisor_sets_the_hives_retention` — fns:set_hive_retention · tables:hive_retention_config
 
 (showing last 200)
 

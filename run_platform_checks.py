@@ -4321,6 +4321,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "deletes-are-recoverable",
+        "script":  "tools/validate_deletes_are_recoverable.py",
+        "args":    [],
+        "label":   "SL D3 (2026-10-16, Ian: 30-day recoverable): what a page deletes stays recoverable for 30 days - a logbook entry, an asset with its reliability history, a part with its stock ledger, a plan item, a PM asset, a project link or role went for good on one tap. No page deletes those tables outright (whTrash + Undo + Recently deleted), every service-role read and definer function/view filters deleted rows, the offline queue drains into the trash, and the purge covers every table",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "offline-is-not-no",
         "script":  "tools/validate_offline_is_not_no.py",
         "args":    [],
