@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/pressure-vessel-calculator/
 
 Pressure Vessel Shell Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Pressure Vessel Shell Calculator finds the required shell thickness and MAWP for a cylindrical vessel per ASME. Example: for a 1000 mm ID cylindrical vessel at 10 bar / 150 °C in SA-516-70, with a 1.6 mm corrosion allowance, Shell thickness = 5.24 mm, MAWP = 12.08 bar, Outer diameter = 1012 mm (per ASME BPVC Sec. VIII Div.1, ASME Sec. II Part D and DOLE OSHS PD 856).**
 How it works
 The calculator follows ASME BPVC Sec. VIII Div.1, ASME Sec. II Part D and DOLE OSHS PD 856. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [V-Belt Drive Calculator](https://workhiveph.com/tools/v-belt-drive-calculator/)
 [Hydraulic Cylinder Calculator](https://workhiveph.com/tools/hydraulic-cylinder-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 7f5559c4fffe3f14 -->
+<!-- md-twin source-sha: 0bb7b5196aa7ccbd -->

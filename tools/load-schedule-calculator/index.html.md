@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/load-schedule-calculator/
 
 Electrical Load Schedule Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Load Schedule Calculator totals connected and demand load for a panel and sizes the feeder breaker. Example: for a 400 V 3-phase panel with 8 kW lighting and a 15 kW motor, Demand load = 26.75 kW, Demand = 30.95 kVA, Feeder breaker = 60 A (per PEC 2017, NEC 2020 Art.220 + 430 and IEEE 141).**
 How it works
 The calculator follows PEC 2017, NEC 2020 Art.220 + 430 and IEEE 141. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Short Circuit Calculator](https://workhiveph.com/tools/short-circuit-calculator/)
 [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 3ab734b53e8eda1c -->
+<!-- md-twin source-sha: 6da5b69f4fc025c7 -->

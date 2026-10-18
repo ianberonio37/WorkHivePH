@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/cable-tray-sizing-calculator/
 
 Cable Tray Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Cable Tray Sizing Calculator picks the tray width that keeps cable fill within the NEC/NEMA limit for a bundle of cables. Example: for a ladder tray carrying ten 25 mm and twenty 15 mm cables over a 3 m span, at a 40% fill limit, Selected tray width = 300 mm, Actual fill = 28.14 %, Load class = 8A (per NEMA VE 1-2017 and PEC 2017).**
 How it works
 The calculator follows NEMA VE 1-2017 and PEC 2017. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
 [Electrical Load Schedule Calculator](https://workhiveph.com/tools/load-schedule-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: e46d96a9c4edb755 -->
+<!-- md-twin source-sha: 47f146eba98f5a7d -->

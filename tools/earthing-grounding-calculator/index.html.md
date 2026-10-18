@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/earthing-grounding-calculator/
 
 Earthing / Grounding Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Earthing / Grounding Calculator finds the earth-electrode resistance and grounding-conductor size for a system, checked against the limit. Example: for four 3 m rods in 50 Ω·m soil for a TN-S system, Earth resistance = 3.73 Ω, Allowable limit = 10 Ω, Compliance = PASS (per PEC 2017 Art. 2.50 and IEC 60364-5-54).**
 How it works
 The calculator follows PEC 2017 Art. 2.50 and IEC 60364-5-54. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Lighting Design Calculator](https://workhiveph.com/tools/lighting-design-calculator/)
 [Voltage Drop Calculator](https://workhiveph.com/tools/voltage-drop-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 3116548a561af338 -->
+<!-- md-twin source-sha: 06f0ef67efdde84d -->

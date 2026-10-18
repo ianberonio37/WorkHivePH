@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/ups-sizing-calculator/
 
 UPS Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The UPS Sizing Calculator picks the UPS kVA rating and reports loading for a critical load and backup time. Example: for a 50 kW critical load on an online double-conversion UPS with 15 min backup, at 0.9 power factor with a 25% design margin, Recommended UPS = 100 kVA, Load = 55.56 kVA, Loading = 55.6 % (per IEEE 1184:2006, IEC 62040-3:2021, IEEE 446 and BICSI 002).**
 How it works
 The calculator follows IEEE 1184:2006, IEC 62040-3:2021, IEEE 446 and BICSI 002. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Earthing / Grounding Calculator](https://workhiveph.com/tools/earthing-grounding-calculator/)
 [Lighting Design Calculator](https://workhiveph.com/tools/lighting-design-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 6ec491ab7e13d27d -->
+<!-- md-twin source-sha: e6c47bfe0da466d8 -->

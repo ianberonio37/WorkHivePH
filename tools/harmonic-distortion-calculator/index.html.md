@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/harmonic-distortion-calculator/
 
 Harmonic Distortion (THD/TDD) Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Harmonic Distortion Calculator finds current THD and TDD and checks them against the IEEE 519 limit for the point of common coupling. Example: for a 200 A load with 30% / 20% / 10% 5th / 7th / 11th harmonics on a 400 V system, on an 8 kA short-circuit current, Current THD = 37.42 %, TDD = 37.42 %, TDD limit = 8 % (per IEEE 519-2022).**
 How it works
 The calculator follows IEEE 519-2022. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: b2526da1a6b42d03 -->
+<!-- md-twin source-sha: 1442c8ef2c513b91 -->

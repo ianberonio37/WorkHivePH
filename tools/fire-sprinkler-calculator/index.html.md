@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/fire-sprinkler-calculator/
 
 Fire Sprinkler Hydraulic Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Fire Sprinkler Hydraulic Calculator finds the design density, remote-area size, and required flow for a wet-pipe sprinkler system. Example: for an NFPA 13 wet-pipe sprinkler design at 3 m sprinkler spacing, to Ordinary Hazard Group 1, Hazard class = Ordinary Hazard Group 1, Design density = 6.12 mm/min, Remote area = 139 m², System flow = 881.3 L/min (per NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514).**
 How it works
 The calculator follows NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -32,5 +32,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Clean Agent Suppression Calculator](https://workhiveph.com/tools/clean-agent-suppression-calculator/)
 [Fire Pump Sizing Calculator](https://workhiveph.com/tools/fire-pump-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 9a1e6ad62320cfdb -->
+<!-- md-twin source-sha: 858beb5fdef234cc -->

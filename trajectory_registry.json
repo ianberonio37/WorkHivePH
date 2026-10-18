@@ -1008327,8 +1008327,8 @@
     },
     {
       "id": "ENH349",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · feedback",
       "pages": [
@@ -1008379,6 +1008379,15 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on feedback sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on feedback/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Community-submitted feedback · public items, sorted by votes then newe\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 936 chars, CLS 0.052, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Community-submitted feedback · public items, sorted by votes then newe\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 945 chars, CLS 0.007, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH349.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1008732,8 +1008741,8 @@
     },
     {
       "id": "ENH355",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · learn",
       "pages": [
@@ -1008784,6 +1008793,15 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on learn sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on learn/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · the Learn library index, rendered as of this page load · arti\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 3296 chars, CLS 0.038, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · the Learn library index, rendered as of this page load · arti\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 3305 chars, CLS 0.003, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH355.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1009971,8 +1009989,8 @@
     },
     {
       "id": "ENH373",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · ahu sizing calculator",
       "pages": [
@@ -1010023,12 +1010041,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on ahu sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/ahu-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2481 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2490 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH373.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH374",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · beam design calculator",
       "pages": [
@@ -1010079,12 +1010106,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on beam design calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/beam-design-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2331 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2340 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH374.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH375",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · bearing life calculator",
       "pages": [
@@ -1010135,12 +1010171,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on bearing life calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/bearing-life-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2234 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2243 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH375.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH376",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · boiler steam calculator",
       "pages": [
@@ -1010191,12 +1010236,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on boiler steam calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/boiler-steam-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2408 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2417 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH376.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH377",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · boiler system calculator",
       "pages": [
@@ -1010247,12 +1010301,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on boiler system calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/boiler-system-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2492 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2501 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH377.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH378",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · bolt torque calculator",
       "pages": [
@@ -1010303,12 +1010366,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on bolt torque calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/bolt-torque-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2323 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2332 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH378.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH379",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · cable tray sizing calculator",
       "pages": [
@@ -1010359,12 +1010431,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on cable tray sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/cable-tray-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2351 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2360 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH379.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH380",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · chiller sizing calculator",
       "pages": [
@@ -1010415,12 +1010496,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on chiller sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/chiller-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2467 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2476 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH380.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH381",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · clean agent suppression calculator",
       "pages": [
@@ -1010471,12 +1010561,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on clean agent suppression calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/clean-agent-suppression-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:38:34.717Z (.tmp/slw/results/enhr_pub1.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2477 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2486 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH381.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH382",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · compressed air calculator",
       "pages": [
@@ -1010527,12 +1010626,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on compressed air calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/compressed-air-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2519 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2528 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH382.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH383",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · cooling tower calculator",
       "pages": [
@@ -1010583,12 +1010691,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on cooling tower calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/cooling-tower-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2401 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2410 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH383.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH384",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · domestic water demand calculator",
       "pages": [
@@ -1010639,12 +1010756,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on domestic water demand calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/domestic-water-demand-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2496 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2505 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH384.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH385",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · drainage pipe sizing calculator",
       "pages": [
@@ -1010695,12 +1010821,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on drainage pipe sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/drainage-pipe-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2412 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2421 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH385.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH386",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · duct sizing calculator",
       "pages": [
@@ -1010751,12 +1010886,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on duct sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/duct-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2360 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2369 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH386.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH387",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · earthing grounding calculator",
       "pages": [
@@ -1010807,12 +1010951,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on earthing grounding calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/earthing-grounding-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2252 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2261 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH387.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH388",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · elevator traffic calculator",
       "pages": [
@@ -1010863,12 +1011016,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on elevator traffic calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/elevator-traffic-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2209 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2218 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH388.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH389",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · expansion tank calculator",
       "pages": [
@@ -1010919,12 +1011081,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on expansion tank calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/expansion-tank-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2402 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2411 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH389.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH390",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · fcu selection calculator",
       "pages": [
@@ -1010975,12 +1011146,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on fcu selection calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/fcu-selection-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2305 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2314 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH390.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH391",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · fire alarm battery calculator",
       "pages": [
@@ -1011031,12 +1011211,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on fire alarm battery calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/fire-alarm-battery-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2411 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2420 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH391.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH392",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · fire pump calculator",
       "pages": [
@@ -1011087,12 +1011276,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on fire pump calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/fire-pump-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:40:04.616Z (.tmp/slw/results/enhr_pub2.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2386 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2395 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH392.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH393",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · fire sprinkler calculator",
       "pages": [
@@ -1011143,12 +1011341,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on fire sprinkler calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/fire-sprinkler-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2552 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2561 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH393.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH394",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · generator sizing calculator",
       "pages": [
@@ -1011199,12 +1011406,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on generator sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/generator-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2398 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2407 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH394.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH395",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · grease trap calculator",
       "pages": [
@@ -1011255,12 +1011471,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on grease trap calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/grease-trap-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2426 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2435 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH395.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH396",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · harmonic distortion calculator",
       "pages": [
@@ -1011311,12 +1011536,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on harmonic distortion calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/harmonic-distortion-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2362 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2371 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH396.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH397",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · heat exchanger calculator",
       "pages": [
@@ -1011367,12 +1011601,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on heat exchanger calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/heat-exchanger-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2645 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2654 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH397.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH398",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · hoist capacity calculator",
       "pages": [
@@ -1011423,12 +1011666,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on hoist capacity calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/hoist-capacity-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2092 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2101 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH398.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH399",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · hot water demand calculator",
       "pages": [
@@ -1011479,12 +1011731,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on hot water demand calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/hot-water-demand-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2257 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2266 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH399.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH400",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · hvac cooling load calculator",
       "pages": [
@@ -1011535,12 +1011796,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on hvac cooling load calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/hvac-cooling-load-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2588 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2597 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH400.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH401",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · hydraulic cylinder calculator",
       "pages": [
@@ -1011591,12 +1011861,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on hydraulic cylinder calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/hydraulic-cylinder-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2569 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2578 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH401.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH402",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · lighting design calculator",
       "pages": [
@@ -1011647,12 +1011926,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on lighting design calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/lighting-design-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2535 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2544 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH402.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH403",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · lightning protection calculator",
       "pages": [
@@ -1011703,12 +1011991,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on lightning protection calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/lightning-protection-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:41:33.036Z (.tmp/slw/results/enhr_pub3.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2411 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2420 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH403.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH404",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · load estimation calculator",
       "pages": [
@@ -1011759,12 +1012056,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on load estimation calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/load-estimation-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2459 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2468 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH404.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH405",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · load schedule calculator",
       "pages": [
@@ -1011815,12 +1012121,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on load schedule calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/load-schedule-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2300 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2309 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH405.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH406",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · mtbf calculator",
       "pages": [
@@ -1011871,12 +1012186,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on mtbf calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/mtbf-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2486 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2495 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH406.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH407",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · noise acoustics calculator",
       "pages": [
@@ -1011927,12 +1012251,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on noise acoustics calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/noise-acoustics-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2449 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2458 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH407.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH408",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · oee calculator",
       "pages": [
@@ -1011983,12 +1012316,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on oee calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/oee-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2707 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2716 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH408.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH409",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · pipe sizing calculator",
       "pages": [
@@ -1012039,12 +1012381,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on pipe sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/pipe-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2234 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2243 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH409.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH410",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · power factor correction calculator",
       "pages": [
@@ -1012095,12 +1012446,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on power factor correction calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/power-factor-correction-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2327 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2336 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH410.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH411",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · pressure vessel calculator",
       "pages": [
@@ -1012151,12 +1012511,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on pressure vessel calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/pressure-vessel-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2526 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2535 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH411.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH412",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · pump tdh calculator",
       "pages": [
@@ -1012207,12 +1012576,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on pump tdh calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/pump-tdh-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2747 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2756 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH412.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH413",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · refrigerant pipe calculator",
       "pages": [
@@ -1012263,12 +1012641,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on refrigerant pipe calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/refrigerant-pipe-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2404 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2413 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH413.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH414",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · roof drain calculator",
       "pages": [
@@ -1012319,12 +1012706,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on roof drain calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/roof-drain-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:43:01.648Z (.tmp/slw/results/enhr_pub4.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2242 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2251 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH414.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH415",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · septic tank calculator",
       "pages": [
@@ -1012375,12 +1012771,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on septic tank calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/septic-tank-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2321 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2330 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH415.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH416",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · sewer drainage calculator",
       "pages": [
@@ -1012431,12 +1012836,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on sewer drainage calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/sewer-drainage-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2295 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2304 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH416.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH417",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · shaft design calculator",
       "pages": [
@@ -1012487,12 +1012901,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on shaft design calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/shaft-design-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2414 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2423 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH417.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH418",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · short circuit calculator",
       "pages": [
@@ -1012543,12 +1012966,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on short circuit calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/short-circuit-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2465 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2474 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH418.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH419",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1012599,12 +1013031,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on solar pv calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/solar-pv-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2321 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2330 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH419.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH420",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · stairwell pressurization calculator",
       "pages": [
@@ -1012655,12 +1013096,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on stairwell pressurization calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/stairwell-pressurization-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2253 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2262 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH420.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH421",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · storm drain calculator",
       "pages": [
@@ -1012711,12 +1013161,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on storm drain calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/storm-drain-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2236 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2245 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH421.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH422",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · transformer sizing calculator",
       "pages": [
@@ -1012767,12 +1013226,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on transformer sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/transformer-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2302 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2311 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH422.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH423",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · ups sizing calculator",
       "pages": [
@@ -1012823,12 +1013291,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on ups sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/ups-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2461 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2470 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH423.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH424",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · v belt drive calculator",
       "pages": [
@@ -1012879,12 +1013356,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on v belt drive calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/v-belt-drive-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2546 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2555 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH424.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH425",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · ventilation ach calculator",
       "pages": [
@@ -1012935,12 +1013421,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on ventilation ach calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/ventilation-ach-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:44:29.961Z (.tmp/slw/results/enhr_pub5.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2320 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2329 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH425.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH426",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · vibration isolation calculator",
       "pages": [
@@ -1012991,12 +1013486,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on vibration isolation calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/vibration-isolation-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2498 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2507 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH426.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH427",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · voltage drop calculator",
       "pages": [
@@ -1013047,12 +1013551,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on voltage drop calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/voltage-drop-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2270 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2279 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH427.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH428",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · wastewater stp calculator",
       "pages": [
@@ -1013103,12 +1013616,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on wastewater stp calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/wastewater-stp-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2290 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2299 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH428.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH429",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · water softener calculator",
       "pages": [
@@ -1013159,12 +1013681,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on water softener calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/water-softener-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2536 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2545 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH429.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH430",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · water supply pipe calculator",
       "pages": [
@@ -1013215,12 +1013746,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on water supply pipe calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/water-supply-pipe-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2630 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2639 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH430.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH431",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · water treatment calculator",
       "pages": [
@@ -1013271,12 +1013811,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on water treatment calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/water-treatment-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2570 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2579 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH431.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "ENH432",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-R",
       "title": "The platform must keep its source lines and its how-it-is-computed notes out of the space a person reads first, in one Sources area at the foot of the page (provenance at the foot) - an anonymous visitor · wire sizing calculator",
       "pages": [
@@ -1013327,8 +1013876,17 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "every source line and how-it-is-computed note on wire sizing calculator sits in its one Sources area at the foot of the page - none above the page's own content at phone-390 or desktop-1280, each still readable there as an anonymous visitor - and a gate fails on the page as it was"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, its start-up settled, the service worker and HTTP cache cleared first so the walk read the current scripts: every visible source line, Show-details explainer and how-it-is-computed note OUTSIDE the Sources area counted (must be none), every collapsed slot that still took space (none), every visible leaf of the content BELOW the area, clipped boxes excluded (none), the area's own lines read, the explainer opened and closed with a real click, the area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift and every page error recorded): ENH-R: every source line and how-it-is-computed note on tools/wire-sizing-calculator/index.html sits in its one Sources area at the foot of the page, none above the page's own content, at phone-390 and desktop-1280, readable there as anon; the gate provenance-at-foot fails on the page as committed. Witness: MCP walk 2026-10-18T22:45:28.783Z (.tmp/slw/results/enhr_pub6.json) as an anonymous visitor (signed out), phone-390: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2649 chars, CLS 0, 0 page errors | desktop-1280: area shown, 1 line(s) [\"Static · formula-only · worked example computed when this page was bui\"], explainer none, 0 source lines / explainers / how-computed notes outside it, 0 collapsed slots taking space, nothing visible below it, nothing over it at the bottom of the scroll, 2658 chars, CLS 0, 0 page errors. The gate provenance-at-foot on the page AS COMMITTED (HEAD): FAIL - 0 Sources areas (wants exactly one); on the page now: PASS. Receipt .tmp/mcp_walks/ENH432.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "provenance-at-foot",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     }
   ],
-  "next": "ENH-R public 62: the 60 calculators (build_calc_pages.py template + the same edit to the 60 committed pages, no rebuild), the learn index, feedback - then SL D1 per-figure reveal (99), D4 6, A1/A2/A4, AV2-4, C2/C3, L2-4, LB1-4, RL1-3. ENH-R app 35 CLOSED (walked 390+1280, banked); pre-existing load shifts seen and attributed: assistant 0.28@390, index 0.26@1280, project-report empty state 0.20@390 - own rows"
+  "next": "SL D1 per-figure reveal (99): merge .tmp/d1/batch1.json into figure_sources.json, trace the remaining app pages, render the blocks, register figure-sources-written + a live census gate, walk the 36 app pages, verify the 63 public rows; then D4 6, A1/A2/A4, AV2-4, C2/C3, L2-4, LB1-4, RL1-3. ENH-R 97/97 CLOSED (35 app + 62 public; gate provenance-at-foot over all 97). Pre-existing load shifts to row: assistant 0.28@390, index 0.26@1280, project-report empty state 0.20@390, alert-hub AMC trust row"
 }

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/power-factor-correction-calculator/
 
 Power Factor Correction Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Power Factor Correction Calculator sizes the capacitor bank (kVAR) needed to raise power factor from its present value to a target. Example: for a 100 kW load improving power factor from 0.80 to 0.95, three-phase, kVAR required = 42.13 kVAR, Selected bank = 50 kVAR, Per phase = 16.67 kVAR (per IEEE 18-2012 and IEEE 1036-2010).**
 How it works
 The calculator follows IEEE 18-2012 and IEEE 1036-2010. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Generator Sizing Calculator](https://workhiveph.com/tools/generator-sizing-calculator/)
 [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: c279831927b14bc7 -->
+<!-- md-twin source-sha: 4aca698ee2477f58 -->

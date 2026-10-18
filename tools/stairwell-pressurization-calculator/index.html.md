@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/stairwell-pressurization-calculator/
 
 Stairwell Pressurization Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Stairwell Pressurization Calculator finds the design pressure differential and total leakage area for a pressurised stairwell. Example: for two stairwells in a 10-floor office pressurised to code, Design pressure = 50 Pa, Leakage area per stairwell = 0.71 m², Doors per stairwell = 10 (per NFPA 92:2021).**
 How it works
 The calculator follows NFPA 92:2021. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Fire Sprinkler Hydraulic Calculator](https://workhiveph.com/tools/fire-sprinkler-calculator/)
 [Clean Agent Suppression Calculator](https://workhiveph.com/tools/clean-agent-suppression-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: d45ec7eadae203cc -->
+<!-- md-twin source-sha: d6e16e7891ddfe6e -->

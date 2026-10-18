@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/cooling-tower-calculator/
 
 Cooling Tower Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Cooling Tower Sizing Calculator finds the tower range, approach, and effectiveness for a heat-rejection duty at a design wet-bulb. Example: for a 500 kW heat-rejection duty at a 28 °C design wet-bulb, Heat rejection = 142.17 TR, Range = 5.5 °C, Approach = 1.5 °C, Effectiveness = 0.79 (per CTI STD-201, ASHRAE 2021 Ch.39, ASHRAE 90.1 and ASME PTC 23).**
 How it works
 The calculator follows CTI STD-201, ASHRAE 2021 Ch.39, ASHRAE 90.1 and ASME PTC 23. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -32,5 +32,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Compressed Air System Calculator](https://workhiveph.com/tools/compressed-air-calculator/)
 [AHU Sizing Calculator](https://workhiveph.com/tools/ahu-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 479bdb40b281f8ca -->
+<!-- md-twin source-sha: 28740b69140fd399 -->

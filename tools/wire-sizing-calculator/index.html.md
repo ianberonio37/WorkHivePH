@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/wire-sizing-calculator/
 
 Wire Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Wire Sizing Calculator picks the conductor size (mm²) for a load, applying continuous-load, temperature, and conduit-fill derating plus a voltage-drop check. Example: for a 50 kW 3-phase 400 V feeder, 40 m long, at 35 °C ambient, at 0.85 power factor, Design current = 84.9 A, Sizing current = 106.13 A, Conductor size = 30 mm², Derated ampacity = 108.1 A, Voltage drop = 0.94 %, Voltage-drop limit = 2 %, Breaker = 125 A (per PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228).**
 How it works
 The calculator follows PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -35,5 +35,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: c22af60cfd74d0f4 -->
+<!-- md-twin source-sha: f949138774f46705 -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/generator-sizing-calculator/
 
 Generator Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Generator Sizing Calculator finds the standby genset kVA for a load, accounting for the largest motor's starting kVA surge. Example: for a 100 kW load with a 20 HP DOL-started largest motor, Recommended genset = 250 kVA, Steady demand = 129.41 kVA, Peak during start = 215.16 kVA (per ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110).**
 How it works
 The calculator follows ISO 8528-1:2018, ISO 3046-1, IEEE 446, PEC 2017 and NFPA 110. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Cable Tray Sizing Calculator](https://workhiveph.com/tools/cable-tray-sizing-calculator/)
 [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: fdd86ee6e5788939 -->
+<!-- md-twin source-sha: dc4384a408012932 -->

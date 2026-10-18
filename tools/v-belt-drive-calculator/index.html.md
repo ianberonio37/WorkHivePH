@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/v-belt-drive-calculator/
 
 V-Belt Drive Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The V-Belt Drive Calculator finds the number of belts, pulley sizes, and belt length for a power-transmission duty. Example: for a 15 kW V-belt drive, 1450→725 rpm (2:1), SPB section, with a 1.2 service factor, on a 125 mm driver sheave, Number of belts = 4 belts, Driven pulley = 250 mm, Belt length = 1597 mm (per AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed).**
 How it works
 The calculator follows AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Hydraulic Cylinder Calculator](https://workhiveph.com/tools/hydraulic-cylinder-calculator/)
 [Bearing Life (L10) Calculator](https://workhiveph.com/tools/bearing-life-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 6031da07460547cf -->
+<!-- md-twin source-sha: ffca284c096785d1 -->

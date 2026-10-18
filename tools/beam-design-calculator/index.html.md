@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/beam-design-calculator/
 
 RC Beam Design Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The RC Beam Design Calculator checks a reinforced-concrete beam's moment capacity and demand-capacity ratio against NSCP/ACI. Example: for a 6 m RC beam under a 150 kN·m factored moment, Moment capacity φMn = 188.96 kN·m, Demand/capacity = 0.79, Steel area = 1256.6 mm² (per NSCP 2015 Vol.1, AISC 360-22, ACI 318-19 and ASCE 7-22).**
 How it works
 The calculator follows NSCP 2015 Vol.1, AISC 360-22, ACI 318-19 and ASCE 7-22. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Vibration Isolation Calculator](https://workhiveph.com/tools/vibration-isolation-calculator/)
 [Shaft Design Calculator](https://workhiveph.com/tools/shaft-design-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 628d779379ac7c8a -->
+<!-- md-twin source-sha: 6eb54b8423dde0c1 -->

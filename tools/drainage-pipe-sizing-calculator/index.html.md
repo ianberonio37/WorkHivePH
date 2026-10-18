@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/drainage-pipe-sizing-calculator/
 
 Drainage Pipe Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Drainage Pipe Sizing Calculator picks the drain pipe diameter from the total drainage fixture units (DFU) and slope. Example: for a building drain serving 10 water closets, 8 lavatories, and 5 urinals at 2% slope, in PVC, Total DFU = 68 DFU, Recommended diameter = 100 mm, Velocity = 1.34 m/s (per Philippine Plumbing Code and UPC Table 7-5).**
 How it works
 The calculator follows Philippine Plumbing Code and UPC Table 7-5. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Domestic Water Demand Calculator](https://workhiveph.com/tools/domestic-water-demand-calculator/)
 [Water Supply Pipe Sizing Calculator](https://workhiveph.com/tools/water-supply-pipe-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: eb7b3186965ac2d0 -->
+<!-- md-twin source-sha: 5100153e00b9b60a -->

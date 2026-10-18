@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/lightning-protection-calculator/
 
 Lightning Protection Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Lightning Protection Calculator finds the rolling-sphere radius, air-terminal mesh size, and protection level for a building. Example: for a 40 × 25 × 18 m building protected to LPL III in Manila, Rolling-sphere radius = 45 m, Mesh size = 15 m, Protection efficiency = 90 % (per IEC 62305-1/2/3/4:2010, NSCP 2015 Vol.3 and PEC 2017 Art.280).**
 How it works
 The calculator follows IEC 62305-1/2/3/4:2010, NSCP 2015 Vol.3 and PEC 2017 Art.280. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Electrical Load Schedule Calculator](https://workhiveph.com/tools/load-schedule-calculator/)
 [Short Circuit Calculator](https://workhiveph.com/tools/short-circuit-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 5d8a9b46447d5aeb -->
+<!-- md-twin source-sha: c5b2ed680209d4ab -->

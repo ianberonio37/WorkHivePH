@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1023-files
-source_sha: 1663c476fb066d2f
+source: memory-curated:1026-files
+source_sha: 21f37a83b93bc368
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1023 durable topic files)
+## memory · curated auto-memory (1026 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=633 · project=300 · reference=90
+**By type:** feedback=635 · project=301 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -28,6 +28,7 @@ Entries (name · type · sha):
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · e6bf2d7684259756
 - `feedback_87pct_of_entries_could_not_be_edited_by_their_authors` · feedback · 0a7626785c7a31ff
 - `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · 96ba6a32c5fb2779
+- `feedback_a_baseline_page_must_be_served_like_the_page` · feedback · 3da261006cc1b31c
 - `feedback_a_basis_must_describe_the_page_in_its_own_receipt` · feedback · 1fce6d5fc53aa694
 - `feedback_a_big_finding_set_is_a_signal_to_check_the_record` · feedback · 664e95e988ba2da8
 - `feedback_a_body_wide_keyword_match_reads_marketing_copy` · feedback · bb11b091b6d6feed
@@ -83,6 +84,7 @@ Entries (name · type · sha):
 - `feedback_a_gates_blind_spot_is_a_green_light` · feedback · d721288e71ccc08f
 - `feedback_a_gates_reach_is_part_of_its_rule` · feedback · 7d0c6269c3685f6d
 - `feedback_a_generated_catalog_hides_its_own_distribution_bug` · feedback · 641a70eab7a44d01
+- `feedback_a_generator_found_main_inside_a_script` · feedback · 58a51e5a203bd325
 - `feedback_a_generic_caller_must_classify_before_it_calls` · feedback · 07a1a9e4a870843c
 - `feedback_a_give_back_is_not_a_persons_back` · feedback · 7600fb61f94d12fe
 - `feedback_a_glob_is_a_claim_about_coverage` · feedback · 0e4b5b5dd37e2d7e
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
 - `feedback_skill_first_rule` · feedback · 53c4483d1b391308
 - `feedback_skill_improvement` · feedback · dca320aa84326d9c
-- `feedback_soft_judge_do_it_yourself` · feedback · 44ccf0873e6c5b0d
-- `feedback_spring_physics` · feedback · 8f6da95f2819876b
-- … +523 more (all included in the fingerprint)
+- … +526 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

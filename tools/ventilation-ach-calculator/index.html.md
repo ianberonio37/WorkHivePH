@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/ventilation-ach-calculator/
 
 Ventilation / ACH Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Ventilation / ACH Calculator finds the required air changes per hour and supply airflow for a room from its function, area, and occupancy. Example: for a 150 m² office with 25 people and a 3.5 m ceiling, Required ACH = 6 /h, Supply airflow = 3150 m³/h, Supply airflow (CFM) = 1854 CFM (per ASHRAE 62.1:2022 Ventilation Rate Procedure).**
 How it works
 The calculator follows ASHRAE 62.1:2022 Ventilation Rate Procedure. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Cooling Tower Sizing Calculator](https://workhiveph.com/tools/cooling-tower-calculator/)
 [Compressed Air System Calculator](https://workhiveph.com/tools/compressed-air-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 2e60b9b002908f1d -->
+<!-- md-twin source-sha: 3c1405d1fb333c2b -->

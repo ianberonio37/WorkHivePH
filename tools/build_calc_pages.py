@@ -1166,6 +1166,12 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 </body>
 </html>
 """
+    # ENH-R (Ian, 2026-10-19: provenance out of the space a person reads first): the "Static · formula-only" line the
+    # template writes under the H1 moves into the page's Sources area at the foot of <main>. The SAME transform the
+    # served pages got (tools/render_sources_area.py), applied here so a rebuild is born with it and promoting
+    # staging can never put the line back on top (prove_calc_staging_not_stale asks the tool).
+    from render_sources_area import apply_to as _sources_area  # noqa: E402
+    page = _sources_area(page)
     return page, missing
 
 

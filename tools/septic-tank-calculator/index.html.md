@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/septic-tank-calculator/
 
 Septic Tank Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Septic Tank Sizing Calculator finds the liquid volume and total tank size from occupancy, wastewater rate, and desludging interval. Example: for a 50-person residential septic tank at 150 L/person/day, at 3 days retention, Liquid volume = 22500 L, Daily flow = 7500 L/day, Sludge storage = 6000 L (per Philippine Plumbing Code §P-1101).**
 How it works
 The calculator follows Philippine Plumbing Code §P-1101. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Sanitary Drainage Calculator](https://workhiveph.com/tools/sewer-drainage-calculator/)
 [Pump TDH Calculator](https://workhiveph.com/tools/pump-tdh-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: dd530395b38f6343 -->
+<!-- md-twin source-sha: d6df513c2aa6910e -->

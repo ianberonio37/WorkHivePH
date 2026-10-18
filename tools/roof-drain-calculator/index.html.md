@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/roof-drain-calculator/
 
 Roof Drain Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Roof Drain Sizing Calculator picks the drain and leader size for a roof area at a design rainfall intensity. Example: for a 300 m² roof with 3 drains at 150 mm/h design rainfall, Drain size = 200 mm, Total flow = 12.5 L/s, Leader size = 200 mm (per IPC 2021 and Philippine Plumbing Code).**
 How it works
 The calculator follows IPC 2021 and Philippine Plumbing Code. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Water Softener Sizing Calculator](https://workhiveph.com/tools/water-softener-calculator/)
 [Drainage Pipe Sizing Calculator](https://workhiveph.com/tools/drainage-pipe-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 19c4b39ee1d5b5e1 -->
+<!-- md-twin source-sha: 938cde4e178279df -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/hot-water-demand-calculator/
 
 Hot Water Demand Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Hot Water Demand Calculator finds daily hot-water demand, peak-hour load, and storage tank size for a building. Example: for 50 office workers plus 100 restaurant meals per day, Daily demand = 1650 L/day, Storage tank = 750 L, Heat energy = 61.3 kWh (per ASHRAE HVAC Applications Handbook Ch.50).**
 How it works
 The calculator follows ASHRAE HVAC Applications Handbook Ch.50. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Grease Trap Sizing Calculator](https://workhiveph.com/tools/grease-trap-calculator/)
 [Wastewater Treatment (STP) Calculator](https://workhiveph.com/tools/wastewater-stp-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: f3621d0552701e81 -->
+<!-- md-twin source-sha: aa9e8110ad13d77d -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/hydraulic-cylinder-calculator/
 
 Hydraulic Cylinder Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Hydraulic Cylinder Calculator finds the extend force, speed, and cycle time for a hydraulic cylinder from its bore, rod, pressure, and flow. Example: for an 80 mm bore / 45 mm rod cylinder at 160 bar with 30 L/min flow, over a 400 mm stroke, Extend force = 80.42 kN, Extend speed = 0.1 m/s, Extend time = 4.02 s (per ISO 4413:2010, NFPA T2.12.10, Bosch Rexroth Hydraulic Trainer and Parker Hydraulics).**
 How it works
 The calculator follows ISO 4413:2010, NFPA T2.12.10, Bosch Rexroth Hydraulic Trainer and Parker Hydraulics. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Bearing Life (L10) Calculator](https://workhiveph.com/tools/bearing-life-calculator/)
 [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 3b95fcceac7d5377 -->
+<!-- md-twin source-sha: eaa021df1e5bab2b -->

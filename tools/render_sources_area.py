@@ -64,19 +64,31 @@ COLLAPSED = "data-wh-sources-collapsed"
 RESERVE_PROPS = {"min-height", "height", "margin", "margin-top", "margin-bottom", "padding", "max-width", "box-sizing"}
 
 
-def shell(items: str = "", hidden: bool | None = None) -> str:
-    # ★THE AREA SHIPS HIDDEN, ALWAYS (walked 2026-10-19 on shift-brain: layout shift 1.0). A page that keeps its content
+UTILS_TAG_RX = re.compile(r'<script\b[^>]*\bsrc="(?:\./|/)?utils\.js(?:\?[^"]*)?"')
+
+
+def _live(src: str) -> bool:
+    """A page that loads utils.js has its area revealed at runtime (whSourcesArea). A STATIC page - the calculators, the
+    learn index, feedback: none of them loads utils.js - has nothing that could ever reveal it, so its area ships
+    shown, holding its static lines, and carries no nudge."""
+    spans = _code_spans(src)
+    return any(not any(a < m.start() < b for a, b in spans) for m in UTILS_TAG_RX.finditer(src))
+
+
+def shell(items: str = "", hidden: bool | None = None, live: bool = True) -> str:
+    # ★A LIVE PAGE'S AREA SHIPS HIDDEN (walked 2026-10-19 on shift-brain: layout shift 1.0). A page that keeps its content
     # hidden until its start-up finishes (shift-brain's page-wrap ships display:none) painted the area FIRST - at the top
     # of an empty page - and then its content arrived above it and threw it down the screen. whSourcesArea reveals the
-    # area only once a line it lists is on screen, so it can never be the first thing a page paints.
-    hidden = True
+    # area only once a line it lists is on screen, so it can never be the first thing a page paints. A static page's
+    # content is all there at first paint, so its area is too.
+    hidden = live
     return (OPEN_MARK + "\n"
             '<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title"' + (" hidden" if hidden else "") + ' '
             'style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">\n'
             '<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;'
             'color:rgba(255,255,255,0.80);">Where these figures come from</h2>\n'
             '<div data-wh-sources-list style="display:grid;gap:10px;">' + items + '</div>\n'
-            "</section>\n" + NUDGE + "\n" + CLOSE_MARK)
+            "</section>\n" + (NUDGE + "\n" if live else "") + CLOSE_MARK)
 
 
 def population() -> list[str]:
@@ -324,6 +336,8 @@ def relocate(src: str) -> str:
     block = a.group(0)
     k = block.index(">", block.index("<div data-wh-sources-list")) + 1
     block = block[:k] + "\n" + "\n".join(u for u, _ in moved) + "\n" + block[k:]
+    if not _live(src) and any(not h for _, h in moved):          # a static page: nothing would ever reveal it
+        block = block.replace(_OPEN_TAG + "hidden style=", _OPEN_TAG + "style=", 1)
     out = src[:a.start()] + block + src[a.end():]
     return relocate(out) if EXPLAINER_BTN_RX.search(outside(out)) and out != src else out
 
@@ -379,10 +393,13 @@ def problems_of(page: str, src: str) -> list[str]:
         bad.append(f"{page}: its 'About this dashboard's data sources' disclosure sits outside the Sources area")
     if NOTE_RX.search(rest):
         bad.append(f"{page}: a how-it-is-computed note sits outside the Sources area: {NOTE_RX.search(rest).group(0)!r}")
-    if NUDGE not in m.group(0):
-        bad.append(f"{page}: its Sources area lacks the whSourcesSync nudge - an older utils.js would leave it hidden")
-    if _OPEN_TAG + 'hidden ' not in m.group(0):
-        bad.append(f"{page}: its Sources area does not ship hidden - it can paint before the page's content")
+    if _live(src):
+        if NUDGE not in m.group(0):
+            bad.append(f"{page}: its Sources area lacks the whSourcesSync nudge - an older utils.js would leave it hidden")
+        if _OPEN_TAG + 'hidden ' not in m.group(0):
+            bad.append(f"{page}: its Sources area does not ship hidden - it can paint before the page's content")
+    elif _OPEN_TAG + 'hidden ' in m.group(0) and 'class="wh-sources-item"' in m.group(0):
+        bad.append(f"{page}: a static page's Sources area ships hidden - nothing on the page would ever show its lines")
     for sid in slot_ids(src):
         t = _static_tag(src, sid)
         if t and COLLAPSED not in t.group(0):
@@ -393,11 +410,66 @@ def problems_of(page: str, src: str) -> list[str]:
 _OPEN_TAG = '<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" '
 
 
+COLUMN_TOKEN = re.compile(r"^(?:(?:sm|md|lg|xl):)?(?:max-w-\S+|mx-auto|px-\S+)$")
+
+
+class _ClassStack(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in VOID:
+            self.stack.append((tag, dict(attrs).get("class") or ""))
+
+    def handle_endtag(self, tag):
+        if tag in VOID:
+            return
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                break
+
+
+def _column_for(src: str, pos: int) -> str:
+    """The content column a STATIC page's area should sit in, as the page's own Tailwind classes - '' when the area is
+    already inside one (a calculator's <main> lives in its max-w-3xl column). ★A static page has no runtime to align
+    the area (whSourcesArea is in utils.js, which these pages do not load): on the learn index and feedback the area
+    sat in full-width <main> and its words touched the left edge of a phone (walked 2026-10-19)."""
+    p = _ClassStack()
+    p.feed(SCRIPT_RX.sub("", src[:pos]))
+    if any("max-w-" in c for _, c in p.stack):
+        return ""
+    masked = _mask(src[:pos])
+    last = None
+    for m in re.finditer(r'\bclass="([^"]*\bmax-w-[^"]*)"', masked):
+        if "mx-auto" in m.group(1):
+            last = m.group(1)
+    return " ".join(t for t in (last or "").split() if COLUMN_TOKEN.match(t))
+
+
+def _columned(src: str) -> str:
+    """A static page's area, its heading and list wrapped in the page's content column (see _column_for)."""
+    m = AREA_RX.search(src)
+    if not m or 'data-wh-sources-column' in m.group(0):
+        return src
+    col = _column_for(src, m.start())
+    if not col:
+        return src
+    blk = m.group(0)
+    h = blk.index('<h2 id="wh-sources-title"')
+    end = blk.index("</section>")
+    blk = blk[:h] + '<div class="' + col + '" data-wh-sources-column>\n' + blk[h:end] + "</div>\n" + blk[end:]
+    return src[:m.start()] + blk + src[m.end():]
+
+
 def _tidy(src: str) -> str:
     """The first version inserted the area after the </main> line's indent, leaving that indent on a line of its own;
     and every area ships hidden (see shell) - one written before that rule is brought under it."""
     src = re.sub(r"\n([ \t]+)\n(" + re.escape(OPEN_MARK) + r"[\s\S]*?" + re.escape(CLOSE_MARK) + r")\n</main>",
                  lambda m: "\n" + m.group(2) + "\n" + m.group(1) + "</main>", src)
+    if not _live(src):
+        return _columned(src)                # a static page's area is shown, has no runtime to nudge or align it
     src = src.replace(_OPEN_TAG + 'style=', _OPEN_TAG + 'hidden style=')
     m = AREA_RX.search(src)
     if m and NUDGE not in m.group(0):        # an area written before the nudge existed is brought under it
@@ -437,12 +509,13 @@ def apply_to(src: str) -> str:
         if i < 0:
             raise ValueError("no </main> and no wh-sources anchor in the page's markup")
         at = _line_start(src, _foot_index(src, i))
+        live = _live(src)
         if at == _line_start(src, i):            # nothing but whitespace before the anchor: keep its indent below the area
             head = src[:i]
             indent = re.search(r"[ \t]*$", head).group(0)
-            src = head[:len(head) - len(indent)].rstrip("\n") + "\n" + shell() + "\n" + indent + src[i:]
+            src = head[:len(head) - len(indent)].rstrip("\n") + "\n" + shell(live=live) + "\n" + indent + src[i:]
         else:
-            src = src[:at] + ("" if at == 0 or src[at - 1] == "\n" else "\n") + shell() + "\n" + src[at:]
+            src = src[:at] + ("" if at == 0 or src[at - 1] == "\n" else "\n") + shell(live=live) + "\n" + src[at:]
     return _tidy(_reposition(collapse_slots(relocate(src))))
 
 
@@ -481,7 +554,7 @@ def run(apply: bool) -> int:
 
 
 def self_test() -> int:
-    page = ('<main><h1>T</h1>\n<p class="wh-source-chip" role="status">Static · formula-only</p>\n<p>work</p>\n'
+    page = ('<head><script src="utils.js"></script></head>' + '<main><h1>T</h1>\n<p class="wh-source-chip" role="status">Static · formula-only</p>\n<p>work</p>\n'
             '</main><script>renderSourceChip({})</script>')
     out = apply_to(page)
     cases = [
@@ -496,7 +569,7 @@ def self_test() -> int:
         ("an area without the skew-heal nudge is caught", bool(problems_of("t", out.replace(NUDGE, ""))), True),
         ("applying twice changes nothing", apply_to(out) == out, True),
     ]
-    pg2 = ('<main><h1>T</h1>\n<div id="card" class="hidden">\n  <button id="details-toggle-btn" type="button" '
+    pg2 = ('<head><script src="utils.js"></script></head>' + '<main><h1>T</h1>\n<div id="card" class="hidden">\n  <button id="details-toggle-btn" type="button" '
            'aria-controls="x-summary-details">Show details</button>\n  <button id="keep">Recently deleted</button>\n'
            '  <div id="x-summary-details" role="region"><div><strong>How this is computed</strong></div></div>\n</div>\n'
            '<p id="slot" class="wh-source-chip" style="margin-top:4px;"></p><p>work</p></main>\n'
@@ -516,7 +589,7 @@ def self_test() -> int:
         ("an uncollapsed slot is caught", bool(problems_of("t", out2.replace(" hidden data-wh-sources-collapsed", ""))), True),
         ("applying twice changes nothing (explainer page)", apply_to(out2) == out2, True),
     ]
-    pg3 = '<main><h1>T</h1><p>work</p>\n  <script>wireDetailToggle()</script>\n  <!-- a note -->\n</main>'
+    pg3 = '<head><script src="utils.js"></script></head><main><h1>T</h1><p>work</p>\n  <script>wireDetailToggle()</script>\n  <!-- a note -->\n</main>'
     out3 = apply_to(pg3)
     late = pg3.replace("\n</main>", "\n" + shell() + "\n</main>")
     cases += [
@@ -525,7 +598,7 @@ def self_test() -> int:
         ("an area left after a script is caught", bool(problems_of("t", late)), True),
         ("an area left after a script is moved above it", apply_to(late).index(OPEN_MARK) < apply_to(late).index("<script>"), True),
     ]
-    pg4 = ('<main><h1>T</h1><p>work</p>\n<script>const report = `<main><footer>printed</footer></main>`;</script>\n'
+    pg4 = ('<head><script src="utils.js"></script></head><main><h1>T</h1><p>work</p>\n<script>const report = `<main><footer>printed</footer></main>`;</script>\n'
            '<!-- a note that mentions <script> -->\n</main>')
     out4 = apply_to(pg4)
     cases += [
@@ -534,7 +607,7 @@ def self_test() -> int:
         ("that placement passes", bool(problems_of("t", out4)), False),
         ("an area written into a script is caught", bool(problems_of("t", pg4.replace("</footer></main>", "</footer>" + shell() + "</main>"))), True),
     ]
-    pg5 = ('<main><h1>T</h1><p>work</p>\n</main>\n<script>x()</script>\n'
+    pg5 = ('<head><script src="utils.js"></script></head>' + '<main><h1>T</h1><p>work</p>\n</main>\n<script>x()</script>\n'
            '<details data-calm-disclosure="data-sources" style="max-width:680px; margin:1rem auto 2rem;">'
            '<summary>About this dashboard\'s data sources</summary><p>Numbers come from your live data.</p></details>\n')
     out5 = apply_to(pg5)
@@ -543,6 +616,27 @@ def self_test() -> int:
         ("...with its own column layout dropped", 'max-width:680px' in out5, False),
         ("one left outside is caught", bool(problems_of("t", pg5.replace("</main>", shell() + "</main>"))), True),
         ("folding twice changes nothing", apply_to(out5) == out5, True),
+    ]
+    # a STATIC page (no utils.js - the calculators): the area ships shown with its line and needs no nudge
+    pg6 = ('<main><nav>crumbs</nav><h1>OEE Calculator</h1>\n<p class="wh-source-chip" role="status">Static · formula-only'
+           ' · no live data</p>\n<p>answer</p>\n<section><h2>Related</h2></section>\n</main>\n<footer>f</footer>')
+    out6 = apply_to(pg6)
+    area6 = AREA_RX.search(out6).group(0)
+    cases += [
+        ("a static page's area ships shown, holding its line", 'title" hidden ' not in area6 and "Static · formula-only" in area6, True),
+        ("...and carries no nudge (no utils.js to run it)", NUDGE in area6, False),
+        ("...and passes the gate", bool(problems_of("t", out6)), False),
+        ("a static page's area left hidden is caught", bool(problems_of("t", out6.replace(_OPEN_TAG + "style=", _OPEN_TAG + "hidden style=", 1))), True),
+        ("applying twice changes nothing (static page)", apply_to(out6) == out6, True),
+    ]
+    pg7 = ('<main><section><div class="max-w-4xl mx-auto px-5 sm:px-8 text-center"><h1>Learn</h1>\n'
+           '<p class="wh-source-chip">Static · the library index</p></div></section>\n</main>')
+    out7 = apply_to(pg7)
+    pg8 = '<div class="max-w-3xl mx-auto px-5"><main><h1>T</h1>\n<p class="wh-source-chip">Static · formula-only</p>\n</main></div>'
+    cases += [
+        ("a static area in full-width <main> takes the page's column", 'class="max-w-4xl mx-auto px-5 sm:px-8" data-wh-sources-column' in out7, True),
+        ("...one already inside a column does not", "data-wh-sources-column" in apply_to(pg8), False),
+        ("columning twice changes nothing", apply_to(out7) == out7, True),
     ]
     ok = True
     for label, got, want in cases:

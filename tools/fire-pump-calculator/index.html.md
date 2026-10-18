@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/fire-pump-calculator/
 
 Fire Pump Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Fire Pump Sizing Calculator picks the rated flow and pressure for a fire-protection duty per NFPA 20 pump-selection rules. Example: for a 500 GPM / 100 psi fire-protection demand, with a 10% design margin, Recommended flow = 2840 L/min, Rated pressure = 7.58 bar, Motor = 55.74 kW (per NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514).**
 How it works
 The calculator follows NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Fire Alarm Battery Calculator](https://workhiveph.com/tools/fire-alarm-battery-calculator/)
 [Stairwell Pressurization Calculator](https://workhiveph.com/tools/stairwell-pressurization-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 5fdaab46d17e3faa -->
+<!-- md-twin source-sha: f919d80166c18050 -->

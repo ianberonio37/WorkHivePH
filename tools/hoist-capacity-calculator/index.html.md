@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/hoist-capacity-calculator/
 
 Hoist Capacity Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Hoist Capacity Calculator finds the gross load, motor power, and safety margin for a lifting duty. Example: for a 2000 kg lift at 8 m/min on a 2-part rope line, with a 30 kg hook, Gross load = 2045 kg, Motor = 7.5 HP, Motor power = 5.59 kW (per ASME B30.2).**
 How it works
 The calculator follows ASME B30.2. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -30,5 +30,9 @@ Run it on your own numbers
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Elevator Traffic Calculator](https://workhiveph.com/tools/elevator-traffic-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 79950259ee97e58a -->
+<!-- md-twin source-sha: 7754300a0ddaee30 -->

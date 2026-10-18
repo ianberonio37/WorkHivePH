@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/transformer-sizing-calculator/
 
 Transformer Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Transformer Sizing Calculator picks the standard kVA rating for a load with spare capacity and reports the resulting loading. Example: for a 100 kVA load on a 13.8 kV / 400 V 3-phase supply with 25% spare, Rated size = 150 kVA, Required capacity = 125 kVA, Loading = 66.7 % (per PEC 2017 Art. 4.50 and IEC 60076-1:2011).**
 How it works
 The calculator follows PEC 2017 Art. 4.50 and IEC 60076-1:2011. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
 [Generator Sizing Calculator](https://workhiveph.com/tools/generator-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: fce87b70516b233b -->
+<!-- md-twin source-sha: e5cf4184a040faf8 -->

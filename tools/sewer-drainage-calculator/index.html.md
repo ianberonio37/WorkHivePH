@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/sewer-drainage-calculator/
 
 Sanitary Drainage Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Sanitary Drainage Calculator sizes the sanitary stack from the total drainage fixture units and design flow. Example: for a 3-floor building sanitary stack serving 10 water closets, Total DFU = 40 DFU, Stack size = 100 mm, Design flow = 5.42 L/s (per NSCP Vol.2, PSME Code, ASPE Vol.2 and IPC (as adopted by NSCP)).**
 How it works
 The calculator follows NSCP Vol.2, PSME Code, ASPE Vol.2 and IPC (as adopted by NSCP). Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Pump TDH Calculator](https://workhiveph.com/tools/pump-tdh-calculator/)
 [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 945ee02b437c239d -->
+<!-- md-twin source-sha: 2ae3ebde37342580 -->

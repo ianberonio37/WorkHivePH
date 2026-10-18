@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/domestic-water-demand-calculator/
 
 Domestic Water Demand Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Domestic Water Demand Calculator finds peak water flow, tank size, and booster need from a building's water-supply fixture units. Example: for a 3-floor building (50 persons) with 10 flush-valve WCs, 8 lavatories, and 4 showers, an office occupancy, Water fixture units = 124 WSFU, Peak flow = 275.9 L/min, Storage tank = 1 m³ (per PSME Code, ASPE Vol.2, PNS 65 and ASHRAE 2021 Ch.50).**
 How it works
 The calculator follows PSME Code, ASPE Vol.2, PNS 65 and ASHRAE 2021 Ch.50. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Water Supply Pipe Sizing Calculator](https://workhiveph.com/tools/water-supply-pipe-calculator/)
 [Hot Water Demand Calculator](https://workhiveph.com/tools/hot-water-demand-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: de54a1113d6afb3a -->
+<!-- md-twin source-sha: 918c98b9df633502 -->

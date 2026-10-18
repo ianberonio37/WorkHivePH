@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/fcu-selection-calculator/
 
 FCU Selection Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The FCU Selection Calculator picks fan-coil units and chilled-water pipe size for a set of rooms from their cooling loads. Example: for four office rooms at 5 kW cooling each on 7/12 °C chilled water, Selected FCU = FCU-800, Unit capacity = 5.6 kW, Total connected capacity = 6.37 TR (per ARI 440, ASHRAE 62.1, ASHRAE 90.1 and PSME).**
 How it works
 The calculator follows ARI 440, ASHRAE 62.1, ASHRAE 90.1 and PSME. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Expansion Tank Sizing Calculator](https://workhiveph.com/tools/expansion-tank-calculator/)
 [Duct Sizing Calculator](https://workhiveph.com/tools/duct-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 1e06f1249188098e -->
+<!-- md-twin source-sha: f0db0e937c0f5914 -->

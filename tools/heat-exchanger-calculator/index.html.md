@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/heat-exchanger-calculator/
 
 Heat Exchanger LMTD Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Heat Exchanger Calculator finds the corrected LMTD, effectiveness, and NTU for a shell-and-tube exchanger duty. Example: for a 500 kW counterflow duty cooling water 90→60 °C against 30→50 °C water, at 3.99 kg/s hot and 5.98 kg/s cold flow, Corrected LMTD = 31.63 K, Effectiveness = 0.5, Correction factor F = 0.91 (per TEMA 10th Ed., ASME Sec. VIII Div.1, Kern Process Heat Transfer and VDI Heat Atlas).**
 How it works
 The calculator follows TEMA 10th Ed., ASME Sec. VIII Div.1, Kern Process Heat Transfer and VDI Heat Atlas. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [RC Beam Design Calculator](https://workhiveph.com/tools/beam-design-calculator/)
 [Vibration Isolation Calculator](https://workhiveph.com/tools/vibration-isolation-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 76a4844ebd19b90e -->
+<!-- md-twin source-sha: 1a716a30a6da79a9 -->

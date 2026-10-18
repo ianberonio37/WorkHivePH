@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/boiler-steam-calculator/
 
 Boiler / Steam Duty Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Boiler / Steam Duty Calculator finds the boiler heat duty (kW and boiler HP) from steam pressure, flow, and feedwater temperature. Example: for 1 kg/s of saturated steam at 10 bar from 80 °C feedwater, Boiler duty = 2441.32 kW, Boiler HP = 248.9 BHP, Saturation temp = 179.9 °C (per ASME BPVC Sec.I/IV, ASME B31.1, ASME PTC 4, IAPWS-IF97 and RA 8407 (PH)).**
 How it works
 The calculator follows ASME BPVC Sec.I/IV, ASME B31.1, ASME PTC 4, IAPWS-IF97 and RA 8407 (PH). Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -30,5 +30,9 @@ Run it on your own numbers
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Boiler System Sizing Calculator](https://workhiveph.com/tools/boiler-system-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 09cefaeec23c1c7c -->
+<!-- md-twin source-sha: 7545a665f07c474b -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/boiler-system-calculator/
 
 Boiler System Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Boiler System Sizing Calculator finds the boiler capacity (kW/BHP) and fuel consumption from steam demand, pressure, and feedwater temperature. Example: for a steam boiler delivering 500 kg/h at 7 barg from 80 °C feedwater on diesel, at 85% boiler efficiency with a 1.25 design safety factor, Boiler capacity = 422.5 kW, Boiler HP = 43.1 BHP, Fuel use = 49.9 L/h (per ASME BPVC Sec.I/IV and ASME B31.1).**
 How it works
 The calculator follows ASME BPVC Sec.I/IV and ASME B31.1. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -30,5 +30,9 @@ Run it on your own numbers
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Boiler / Steam Duty Calculator](https://workhiveph.com/tools/boiler-steam-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 86f59c8f8a9af180 -->
+<!-- md-twin source-sha: cf5f0096b02ccf44 -->

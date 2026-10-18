@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/water-softener-calculator/
 
 Water Softener Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Water Softener Sizing Calculator finds the resin volume, tank size, and regeneration interval for a hardness-removal duty. Example: for a 50-person building (6 m³/day) softening water from 250 to 50 mg/L hardness, regenerating every 3 days, Resin required = 96 L, Tank resin charge = 120 L, Tank diameter = 356 mm, Tank height = 1651 mm, Regen interval = 3 days (per WQA, NSF/ANSI 44 and PNS 1998).**
 How it works
 The calculator follows WQA, NSF/ANSI 44 and PNS 1998. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -33,5 +33,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Drainage Pipe Sizing Calculator](https://workhiveph.com/tools/drainage-pipe-sizing-calculator/)
 [Domestic Water Demand Calculator](https://workhiveph.com/tools/domestic-water-demand-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 74438c98b8733b1c -->
+<!-- md-twin source-sha: 95fd4034c01b94f9 -->

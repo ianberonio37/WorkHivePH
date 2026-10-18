@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/solar-pv-calculator/
 
 Solar PV System Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Solar PV System Calculator finds the panel count, array size, and roof area for a target PV capacity, with string sizing. Example: for a 100 kWp grid-tie solar array in Manila, Total panels = 304 panels, Array size = 121.6 kWp, Roof area = 758.8 m² (per IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA).**
 How it works
 The calculator follows IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/)
 [Earthing / Grounding Calculator](https://workhiveph.com/tools/earthing-grounding-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 7f510a2588281c9c -->
+<!-- md-twin source-sha: 97ae10bc66b8d68d -->

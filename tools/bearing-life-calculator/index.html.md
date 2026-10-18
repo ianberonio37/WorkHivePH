@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/bearing-life-calculator/
 
 Bearing Life (L10) Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Bearing Life (L10) Calculator estimates rated fatigue life in hours from the bearing's dynamic capacity, load, and speed. Example: for a ball bearing (C = 50 kN) at 1500 rpm under a 5 kN radial + 1 kN axial load, L10 life = 11111 h, Dynamic equivalent load = 5 kN, C/P ratio = 10 (per ISO 281:2007).**
 How it works
 The calculator follows ISO 281:2007. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Bolt Torque Calculator](https://workhiveph.com/tools/bolt-torque-calculator/)
 [Noise / Acoustics Calculator](https://workhiveph.com/tools/noise-acoustics-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: a6655bb7be1c1752 -->
+<!-- md-twin source-sha: 25f95b3664b9903a -->

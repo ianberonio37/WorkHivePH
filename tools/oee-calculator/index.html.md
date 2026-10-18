@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/oee-calculator/
 
 OEE Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The OEE Calculator computes Overall Equipment Effectiveness as Availability x Performance x Quality, the single number for how much saleable output a line actually produced versus its maximum. Example: for a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles, OEE = 83.8 %, Availability = 90 %, Performance = 95 %, Quality = 98 %, TPM benchmark = 85 % (per Nakajima TPM and ISO 22400-2).**
 How it works
 OEE = Availability x Performance x Quality. Availability = run time / planned production time; Performance = (ideal cycle time x total count) / run time; Quality = good count / total count. For the example: 0.90 x 0.95 x 0.98 = 0.838, i.e. 83.8%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -34,5 +34,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [MTBF & MTTR Calculator](https://workhiveph.com/tools/mtbf-calculator/)
 [What is OEE and how to calculate it](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: b1d58b1965f8ff90 -->
+<!-- md-twin source-sha: 6afd859d17a76c8b -->

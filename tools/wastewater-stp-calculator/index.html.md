@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/wastewater-stp-calculator/
 
 Wastewater Treatment (STP) Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Wastewater Treatment (STP) Calculator finds the design flow, BOD load, and aeration tank volume for a sewage treatment plant. Example: for a 500-person facility at 120 L/person/day, BOD 250→30 mg/L, Design flow = 60 m³/day, BOD load = 15 kg/day, BOD removal = 88 %, Aeration volume = 17.9 m³ (per DENR DAO 2016-08).**
 How it works
 The calculator follows DENR DAO 2016-08. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -32,5 +32,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Water Treatment Sizing Calculator](https://workhiveph.com/tools/water-treatment-calculator/)
 [Storm Drain Calculator](https://workhiveph.com/tools/storm-drain-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 65b0e86b6520c5eb -->
+<!-- md-twin source-sha: 1420061d20996631 -->

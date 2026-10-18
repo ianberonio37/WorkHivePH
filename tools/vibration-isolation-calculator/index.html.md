@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/vibration-isolation-calculator/
 
 Vibration Isolation Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Vibration Isolation Calculator finds the natural frequency, frequency ratio, and resonance margin for a machine on isolators. Example: for a 500 kg machine at 1500 rpm on spring isolators, Natural frequency = 3.18 Hz, Frequency ratio = 7.85, Resonance margin = 685.4 % (per ISO 10816-3, ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed).**
 How it works
 The calculator follows ISO 10816-3, ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Shaft Design Calculator](https://workhiveph.com/tools/shaft-design-calculator/)
 [Pressure Vessel Shell Calculator](https://workhiveph.com/tools/pressure-vessel-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 9cebd90166b9d231 -->
+<!-- md-twin source-sha: 8fb55e6acc0e751c -->

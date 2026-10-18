@@ -74,7 +74,14 @@ def _regressions(text: str):
     if r: n["retired calculator CTA"] = r
     j = text.count(MD.OLD)
     if j: n["joined method note"] = j
-
+    # ENH-R (2026-10-19): the source line at the top of the page instead of in its Sources area at the foot. The tool that
+    # moves it is asked, as with every construct above, so the gate and the fix read the same rule.
+    try:
+        import render_sources_area as RSA
+        if RSA.problems_of("staged", text):
+            n["source line above the content"] = 1
+    except Exception:                                                   # noqa: BLE001
+        pass
 
     return n
 

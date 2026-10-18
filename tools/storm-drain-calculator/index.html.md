@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/storm-drain-calculator/
 
 Storm Drain Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Storm Drain Calculator uses the Rational Method to find the design stormwater flow for a catchment. Example: for a 1 ha catchment (C = 0.7) at 150 mm/h, 10-year return, Design flow = 291.7 L/s, Runoff coefficient = 0.7, Time of concentration = 6.8 min (per DPWH Blue Book | Rational Method).**
 How it works
 Computed from your inputs per DPWH Blue Book | Rational Method. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Septic Tank Sizing Calculator](https://workhiveph.com/tools/septic-tank-calculator/)
 [Sanitary Drainage Calculator](https://workhiveph.com/tools/sewer-drainage-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 65b49b3f57562b1e -->
+<!-- md-twin source-sha: c3934fb59a36ecbb -->

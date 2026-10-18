@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/ahu-sizing-calculator/
 
 AHU Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The AHU Sizing Calculator finds the supply airflow, coil capacity, and fan motor for an air-handling unit from its cooling load. Example: for a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air, Supply airflow = 8325.1 CFM, Coil capacity = 30.39 TR, Fan motor = 11 kW (per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA).**
 How it works
 The calculator follows ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Chiller Sizing Calculator](https://workhiveph.com/tools/chiller-sizing-calculator/)
 [FCU Selection Calculator](https://workhiveph.com/tools/fcu-selection-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 7819c0f26e890aed -->
+<!-- md-twin source-sha: f2f97202d805a9d8 -->

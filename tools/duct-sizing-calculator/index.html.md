@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/duct-sizing-calculator/
 
 Duct Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Duct Sizing Calculator uses the equal-friction method to size supply ductwork and find the critical-path pressure drop. Example: for a supply-air main carrying 2 m³/s (7200 m³/h) at 0.8 Pa/m friction over 20 m, Airflow = 7200 m³/h, Critical-path drop = 12.2 Pa, Friction rate (design target) = 0.8 Pa/m (per ASHRAE 2021 Ch.21, SMACNA and ASHRAE 62.1).**
 How it works
 The calculator follows ASHRAE 2021 Ch.21, SMACNA and ASHRAE 62.1. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Refrigerant Pipe Sizing Calculator](https://workhiveph.com/tools/refrigerant-pipe-calculator/)
 [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 454c223712489a66 -->
+<!-- md-twin source-sha: f791f13348272984 -->

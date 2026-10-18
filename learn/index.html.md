@@ -6,8 +6,6 @@ Philippine plant floor
 
 Source: https://workhiveph.com/learn/
 
-Static · the Learn library index, rendered as of this page load · articles link to their own sources
-
 C5: /70 sat at Lc 64/75 at 18px (2026-09-05) 
  Practical writing on industrial maintenance, reliability, and operations. Built for every industrial worker, from field to management. Technicians, engineers, supervisors, planners and plant managers.
 
@@ -248,4 +246,8 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: 03bc0e76362add8d -->
+## Where these figures come from
+
+Static · the Learn library index, rendered as of this page load · articles link to their own sources
+
+<!-- md-twin source-sha: aa5d5d432cfd5d8a -->

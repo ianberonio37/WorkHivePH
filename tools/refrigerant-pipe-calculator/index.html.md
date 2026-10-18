@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/refrigerant-pipe-calculator/
 
 Refrigerant Pipe Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Refrigerant Pipe Sizing Calculator picks the suction, liquid, and discharge line sizes for a refrigeration circuit. Example: for a 30 kW R410A air-conditioning circuit (7 / 45 °C), Suction line OD = 34.93 mm, Liquid line OD = 15.88 mm, Discharge line OD = 15.88 mm (per ASHRAE 2022 Refrig. Hbk Ch.1, ASTM B280, ASHRAE 90.1 and PSME).**
 How it works
 The calculator follows ASHRAE 2022 Refrig. Hbk Ch.1, ASTM B280, ASHRAE 90.1 and PSME. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
 [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 296e8e4c720b36c0 -->
+<!-- md-twin source-sha: a34c19fdf937e05f -->

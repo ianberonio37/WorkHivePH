@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/noise-acoustics-calculator/
 
 Noise / Acoustics Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Noise / Acoustics Calculator finds the sound pressure level at a distance from a source and checks it against the room's noise-criteria limit. Example: for a 95 dB machine in a 400 m² factory, measured 5 m away, Sound pressure = 73.04 dB, NC limit = 40 NC, Source power = 95 dB (per ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1).**
 How it works
 The calculator follows ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Heat Exchanger LMTD Calculator](https://workhiveph.com/tools/heat-exchanger-calculator/)
 [RC Beam Design Calculator](https://workhiveph.com/tools/beam-design-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: fd0d57679eda3bd4 -->
+<!-- md-twin source-sha: 8800e3b8cac46bd9 -->

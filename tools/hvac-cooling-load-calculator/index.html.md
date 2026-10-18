@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/hvac-cooling-load-calculator/
 
 HVAC Cooling Load Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The HVAC Cooling Load Calculator estimates the cooling load (kW and tons of refrigeration) for a space from area, occupancy, equipment, and climate. Example: for a 150 m² space with 25 people, 15 kW of equipment, at 35 °C outdoor / 24 °C indoor, with a 10% design margin, 3.5 m ceiling height, Cooling load = 38.66 kW, Tons = 10.99 TR, Recommended unit = 14.22 TR (per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 55 and ASHRAE 2021 Ch.18).**
 How it works
 The calculator follows ASHRAE 62.1, ASHRAE 90.1, ASHRAE 55 and ASHRAE 2021 Ch.18. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
 [Cooling Tower Sizing Calculator](https://workhiveph.com/tools/cooling-tower-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: e7ebed695ea61233 -->
+<!-- md-twin source-sha: 6ca4ce922ff1f480 -->

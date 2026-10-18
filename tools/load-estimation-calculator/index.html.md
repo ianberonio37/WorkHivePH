@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/load-estimation-calculator/
 
 Electrical Load Estimation Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Electrical Load Estimation Calculator totals connected and demand load for a facility and sizes the main breaker. Example: for a facility with 8 kW lighting, a 15 kW motor, and two 5 kW aircon units, on a 3-phase 4-wire 400/230 V supply, Demand load = 36.75 kW, Demand = 42.06 kVA, Main breaker = 80 A (per PEC 2017 Art. 2.10 / 2.20 and IEC 60364).**
 How it works
 The calculator follows PEC 2017 Art. 2.10 / 2.20 and IEC 60364. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Harmonic Distortion (THD/TDD) Calculator](https://workhiveph.com/tools/harmonic-distortion-calculator/)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: d0d1f592b487ca73 -->
+<!-- md-twin source-sha: 21df05dd1a0401d1 -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/short-circuit-calculator/
 
 Short Circuit Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Short Circuit Calculator finds the prospective fault current (kA) and peak at a board from the transformer and cable impedance. Example: for a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source, 3-phase fault = 21.05 kA, Peak = 39.22 kA, Fault level = 14.58 MVA (per IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242).**
 How it works
 The calculator follows IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/)
 [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 1ee88a0529cb3be7 -->
+<!-- md-twin source-sha: 64974bb9e296d213 -->

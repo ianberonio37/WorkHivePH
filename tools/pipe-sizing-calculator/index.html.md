@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/pipe-sizing-calculator/
 
 Pipe Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Pipe Sizing Calculator picks the smallest standard pipe that keeps velocity in the safe economical range for a given flow. Example: for 300 L/min of water through 50 m of PVC pipe, Recommended nominal size = 50 mm, Velocity = 2.31 m/s, Flow = 18 m³/h (per ASHRAE 2021 Ch.22, PSME Code and PNS ISO 4427).**
 How it works
 The calculator follows ASHRAE 2021 Ch.22, PSME Code and PNS ISO 4427. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/)
 [Water Softener Sizing Calculator](https://workhiveph.com/tools/water-softener-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: d05cade69adcbb20 -->
+<!-- md-twin source-sha: 03ad66d89d6a7f1f -->

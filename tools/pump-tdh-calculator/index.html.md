@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/pump-tdh-calculator/
 
 Pump TDH Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Example: for a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, at 30 °C fluid temperature, at 90% motor efficiency, Total Dynamic Head = 18.12 m, Pipe velocity = 1.54 m/s, Recommended motor = 1.1 kW, NPSH available = 9.44 m (per ISO 9906, PSME Code and ASHRAE 2021 Ch.22).**
 How it works
 TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties at the operating temperature. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -34,5 +34,9 @@ Related calculators
 [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/)
 [Roof Drain Sizing Calculator](https://workhiveph.com/tools/roof-drain-calculator/)
 [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 251f520ccb3b1755 -->
+<!-- md-twin source-sha: b0173a931ed2d9e4 -->

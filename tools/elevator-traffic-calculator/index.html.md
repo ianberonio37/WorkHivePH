@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/elevator-traffic-calculator/
 
 Elevator Traffic Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Elevator Traffic Calculator finds the round-trip time, interval, and 5-minute handling capacity for a lift group. Example: for a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s, Interval = 48.2 s, Handling capacity = 20.7 %, Round-trip time = 96.5 s (per CIBSE Guide D:2015).**
 How it works
 The calculator follows CIBSE Guide D:2015. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -30,5 +30,9 @@ Run it on your own numbers
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Hoist Capacity Calculator](https://workhiveph.com/tools/hoist-capacity-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: ac8d197d7dc03963 -->
+<!-- md-twin source-sha: 7195a6513b02d325 -->

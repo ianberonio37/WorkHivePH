@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/compressed-air-calculator/
 
 Compressed Air System Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Compressed Air System Calculator sizes the compressor (kW/HP) and air receiver for a plant's demand, pressure, and duty cycle. Example: for a 10 m³/min plant demand at 7 barg and 60% duty, with a 1.25 design safety factor, at 88% compressor efficiency, Recommended compressor = 132 kW, Recommended compressor (HP) = 177 HP, Air receiver = 20.27 m³ (per ISO 1217, ISO 8573-1, ASME B31.3 and CAGI).**
 How it works
 The calculator follows ISO 1217, ISO 8573-1, ASME B31.3 and CAGI. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [AHU Sizing Calculator](https://workhiveph.com/tools/ahu-sizing-calculator/)
 [Chiller Sizing Calculator](https://workhiveph.com/tools/chiller-sizing-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 2cf24b170d7eab0e -->
+<!-- md-twin source-sha: 1904ba835615035c -->

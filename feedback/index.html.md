@@ -18,8 +18,10 @@ All
 ⭐ Review
 💛 Praise
 
-Community-submitted feedback · public items, sorted by votes then newest · top 200 · loaded when you open this page
-
 Loading roadmap…
 
-<!-- md-twin source-sha: 29562b2005ca9ae9 -->
+## Where these figures come from
+
+Community-submitted feedback · public items, sorted by votes then newest · top 200 · loaded when you open this page
+
+<!-- md-twin source-sha: 1da9de319f609efc -->

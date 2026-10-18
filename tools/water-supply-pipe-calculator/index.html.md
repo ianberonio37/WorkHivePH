@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/water-supply-pipe-calculator/
 
 Water Supply Pipe Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Water Supply Pipe Sizing Calculator turns the water fixture units (WFU) into a peak flow, sizes the pipe on velocity, then checks the pressure left at the far fixture. Example: for a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, on a 350 kPa supply, Total WFU = 108, Peak flow = 76.1 L/min, Recommended diameter = 32 mm, Velocity = 1.58 m/s, Residual pressure = 311.5 kPa, Minimum residual = 70 kPa (per Philippine Plumbing Code Table A-2/A-3).**
 How it works
 The calculator follows Philippine Plumbing Code Table A-2/A-3. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -34,5 +34,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Hot Water Demand Calculator](https://workhiveph.com/tools/hot-water-demand-calculator/)
 [Grease Trap Sizing Calculator](https://workhiveph.com/tools/grease-trap-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 96d802c591ca1510 -->
+<!-- md-twin source-sha: d96b2b0d4ffee05b -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/chiller-sizing-calculator/
 
 Chiller Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Chiller Sizing Calculator picks the chiller capacity (TR/kW) and efficiency for a cooling load with a design margin. Example: for a 300 kW cooling load on a water-cooled chiller (COP 5.5), with a 1.15 design safety factor, Recommended capacity = 100.1 TR, Capacity = 352 kW, Efficiency = 0.64 kW/TR (per ASHRAE 90.1-2019 Table 6.8.1, AHRI 550/590 and ASHRAE 2021 Ch.2).**
 How it works
 The calculator follows ASHRAE 90.1-2019 Table 6.8.1, AHRI 550/590 and ASHRAE 2021 Ch.2. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [FCU Selection Calculator](https://workhiveph.com/tools/fcu-selection-calculator/)
 [Expansion Tank Sizing Calculator](https://workhiveph.com/tools/expansion-tank-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: b912054ad80a8c2f -->
+<!-- md-twin source-sha: 642fd74cb94be6b5 -->

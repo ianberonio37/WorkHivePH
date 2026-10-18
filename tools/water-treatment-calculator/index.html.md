@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/water-treatment-calculator/
 
 Water Treatment Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Water Treatment Sizing Calculator finds the design flow, the treatment the raw water needs (turbidity, iron, disinfection), and the filter size that delivers it. Example: for 200 people on deep-well water at 10 NTU turbidity and 0.5 mg/L iron, at 120 L/person/day, Daily demand = 24 m³/day, Peak flow = 1.5 m³/h, Turbidity class = Slightly Turbid, Treated iron = 0.03 mg/L, Disinfection = UV + Chlorination, Filter diameter = 500 mm (per PNS 1998 / PNSDW).**
 How it works
 The calculator follows PNS 1998 / PNSDW. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -34,5 +34,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Storm Drain Calculator](https://workhiveph.com/tools/storm-drain-calculator/)
 [Septic Tank Sizing Calculator](https://workhiveph.com/tools/septic-tank-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: f3f95c681aa7d393 -->
+<!-- md-twin source-sha: 8f34a17135b05fd1 -->

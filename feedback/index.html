@@ -229,11 +229,24 @@
 <div class="max-w-4xl mx-auto px-5 sm:px-8 my-8 mb-20">
   <!-- D-layer provenance (Wave-4, W4 layer-D): the list below is domain data (platform_feedback), so the reader
        is told where it came from and how it is ordered - the platform's wh-source-chip idiom (see assistant.html). -->
-  <p data-i="p_communitysubmittedfeedbackpu_9181" class="wh-source-chip" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0 0 16px;line-height:1.4;">Community-submitted feedback &middot; public items, sorted by votes then newest &middot; top 200 &middot; loaded when you open this page</p>
+  <span data-wh-source-anchor="source-line-1" hidden></span>
   <div id="fb-roadmap-list" class="space-y-4" aria-live="polite">
     <div data-i="p_loadingroadmap_6eda" class="text-center text-white/50 text-sm py-16">Loading roadmap…</div>
   </div>
 </div>
+<!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<div class="max-w-4xl mx-auto px-5 sm:px-8" data-wh-sources-column>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<div data-wh-sources-list style="display:grid;gap:10px;">
+<div class="wh-sources-item" data-wh-source-key="source-line-1">
+<p data-i="p_communitysubmittedfeedbackpu_9181" class="wh-source-chip" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0 0 16px;line-height:1.4;">Community-submitted feedback &middot; public items, sorted by votes then newest &middot; top 200 &middot; loaded when you open this page</p>
+</div>
+</div>
+</div>
+</section>
+<!-- /wh-sources -->
+
 </main>
 
 <!-- Footer -->

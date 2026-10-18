@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/bolt-torque-calculator/
 
 Bolt Torque Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Bolt Torque Calculator finds the tightening torque and clamp preload for a bolt from its size, grade, and target preload. Example: for eight M16 grade-8.8 bolts torqued to 75% proof load under a 40 kN external load, Tightening torque = 218.6 N·m, Preload per bolt = 68.3 kN, Stress utilisation = 75 % (per ISO 898-1:2013 and VDI 2230).**
 How it works
 The calculator follows ISO 898-1:2013 and VDI 2230. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Noise / Acoustics Calculator](https://workhiveph.com/tools/noise-acoustics-calculator/)
 [Heat Exchanger LMTD Calculator](https://workhiveph.com/tools/heat-exchanger-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 0ef94acbbe85a7e5 -->
+<!-- md-twin source-sha: 6b63bf6e638a758e -->

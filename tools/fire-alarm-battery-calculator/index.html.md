@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/fire-alarm-battery-calculator/
 
 Fire Alarm Battery Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Fire Alarm Battery Calculator sizes the standby battery (Ah) for a fire alarm panel from its device load, standby hours, and alarm time. Example: for a 24 V panel with 40 smoke + 10 heat detectors, 6 pull stations, 12 horn/strobes, and 24 h standby, with 5 minutes in alarm, Selected battery = 4.5 Ah, Required capacity = 3.67 Ah, Standby period = 24 h (per NFPA 72:2022).**
 How it works
 The calculator follows NFPA 72:2022. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Stairwell Pressurization Calculator](https://workhiveph.com/tools/stairwell-pressurization-calculator/)
 [Fire Sprinkler Hydraulic Calculator](https://workhiveph.com/tools/fire-sprinkler-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 00c1914a2cfcc9e1 -->
+<!-- md-twin source-sha: b526c2adef30d2df -->

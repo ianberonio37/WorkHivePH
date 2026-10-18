@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/voltage-drop-calculator/
 
 Voltage Drop Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Voltage Drop Calculator finds the percentage voltage drop on a cable run and checks it against the PEC/NEC limit. Example: for a 60 A 3-phase feeder over 45 m of 25 mm² copper cable at 400 V, Voltage drop (%) = 0.98 %, Voltage drop (V) = 3.92 V, Allowable limit = 3 % (per PEC 2017 Art. 2.10.19 and NEC 210.19).**
 How it works
 The calculator follows PEC 2017 Art. 2.10.19 and NEC 210.19. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Electrical Load Estimation Calculator](https://workhiveph.com/tools/load-estimation-calculator/)
 [Harmonic Distortion (THD/TDD) Calculator](https://workhiveph.com/tools/harmonic-distortion-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: a7fddf6c7c6039f6 -->
+<!-- md-twin source-sha: d3b594664aba9a25 -->

@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/expansion-tank-calculator/
 
 Expansion Tank Sizing Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Expansion Tank Sizing Calculator finds the required tank volume for a hydronic system from its water volume and temperature swing. Example: for a 300 kW chilled-water system (≈2400 L) over a 7→35 °C swing, at 15 m static head, Required tank = 30.21 L, Water expansion = 14.16 L, Max pressure = 400 kPa (per ASHRAE 2023 HVAC Systems & Equipment Ch.12).**
 How it works
 The calculator follows ASHRAE 2023 HVAC Systems & Equipment Ch.12. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Duct Sizing Calculator](https://workhiveph.com/tools/duct-sizing-calculator/)
 [Refrigerant Pipe Sizing Calculator](https://workhiveph.com/tools/refrigerant-pipe-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 1bbb6e32790d165d -->
+<!-- md-twin source-sha: 395ffe6d5c21b2b9 -->

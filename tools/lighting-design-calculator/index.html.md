@@ -5,7 +5,7 @@
 Source: https://workhiveph.com/tools/lighting-design-calculator/
 
 Lighting Design Calculator
-Static · formula-only · worked example computed when this page was built · no live data G1+E3 
+ G1+E3 
 **The Lighting Design Calculator uses the lumen method to find the number of luminaires needed to hit a target illuminance. Example: for a 10 × 8 m office targeting 500 lux with 40 W LED panels, at a 0.8 m work plane, in a 3 m high room, Fixtures needed = 25 fixtures, Coefficient of utilisation = 0.6, Room cavity ratio = 2.48 (per IESNA 10th Ed., IES RP-1/7/28, ASHRAE 90.1-2019, PEC 2017 and DOLE D.O. 13).**
 How it works
 The calculator follows IESNA 10th Ed., IES RP-1/7/28, ASHRAE 90.1-2019, PEC 2017 and DOLE D.O. 13. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
@@ -31,5 +31,9 @@ Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Voltage Drop Calculator](https://workhiveph.com/tools/voltage-drop-calculator/)
 [Electrical Load Estimation Calculator](https://workhiveph.com/tools/load-estimation-calculator/)
+ wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
+Where these figures come from
+Static · formula-only · worked example computed when this page was built · no live data
+ /wh-sources
 
-<!-- md-twin source-sha: 2c9289f7019cd626 -->
+<!-- md-twin source-sha: ac60428fc93310e7 -->
