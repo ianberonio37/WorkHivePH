@@ -286,13 +286,21 @@ if "_brp" in dir():
 # ...then the layer floor (LXC-*) and the LLM layer (LM-*), seeded after BRP in that order (2026-10-06), and the
 # bug-hunt wave (BRH-*), seeded after LM (2026-10-14) - a wave this order does not name has no block to match.
 # ...and the sub-layer (SL-*), enhancement (ENH-*) and operator-console (OPC-*) waves, seeded after BRH in that order.
+# ...and ENH-R (Ian, 2026-10-19: provenance out of the top), seeded in the ENH id space (ENH336..) AFTER the OPC rows -
+# so its block follows OPC in the registry, the order it was written, while its ids continue ENH's own count.
+_ENH_SEEDED_AFTER_OPC = ("ENH-R",)
 for _set_name in ("_lxc", "_lm", "_brh", "_sl", "_enh", "_opc"):
     if _set_name in dir():
         _seen_new = []
         for _r in globals()[_set_name]:
+            if _set_name == "_enh" and _r["wave"] in _ENH_SEEDED_AFTER_OPC:
+                continue
             if _r["wave"] not in _seen_new:
                 _seen_new.append(_r["wave"])
         NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_new
+if "_enh" in dir():
+    NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + [w for w in _ENH_SEEDED_AFTER_OPC
+                                           if any(_r["wave"] == w for _r in _enh)]
 
 
 def wave_of(n: int) -> str:

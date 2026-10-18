@@ -1616,6 +1616,11 @@ def enhancement_rows(existing: list[dict], replay: bool = False) -> list[dict]:
                       if prover else LX_INSTRUMENT)
         closes = (f"a live journey for {_short(page)} exists, passes in Chromium and WebKit, and the live-page-journeys "
                   f"gate holds it" if prover else
+                  # ENH-R (Ian, 2026-10-19): provenance leaves the space a person reads first
+                  f"every source line and how-it-is-computed note on {_short(page)} sits in its one Sources area at the "
+                  f"foot of the page - none above the page's own content at phone-390 or desktop-1280, each still "
+                  f"readable there as {who} - and a gate fails on the page as it was"
+                  if s["cls"] == "R" else
                   f"the capability is BUILT on {_short(page)} itself (not described), used end to end as {who} at "
                   f"phone-390 AND desktop-1280, and a gate fails on the page as it was before the build")
         rows.append({

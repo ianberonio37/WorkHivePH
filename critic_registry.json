@@ -2281754,6 +2281754,1449 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "ENH336",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH337",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "agentic-rag-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH338",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "ai-quality.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH339",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH340",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH341",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH342",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH343",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH344",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "audit-log.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH345",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH346",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH347",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "design-system.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH348",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH349",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "feedback/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH350",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH351",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH352",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH353",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH354",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH355",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH356",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH357",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH358",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "cell": "wide-1920|buyer|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH359",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|buyer|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH360",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|buyer|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH361",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "ph-intelligence.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH362",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "plant-connections.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|machine-client|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH363",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "platform-actions.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH364",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH365",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH366",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH367",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "public-feed.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH368",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|fleet-supervisor|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH369",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH370",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH371",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH372",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "status.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH373",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/ahu-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH374",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/beam-design-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH375",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/bearing-life-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH376",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/boiler-steam-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH377",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/boiler-system-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH378",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/bolt-torque-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH379",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/cable-tray-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH380",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/chiller-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH381",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/clean-agent-suppression-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH382",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/compressed-air-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH383",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/cooling-tower-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH384",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/domestic-water-demand-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH385",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/drainage-pipe-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH386",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/duct-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH387",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/earthing-grounding-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH388",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/elevator-traffic-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH389",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/expansion-tank-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH390",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/fcu-selection-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH391",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/fire-alarm-battery-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH392",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/fire-pump-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH393",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/fire-sprinkler-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH394",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/generator-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH395",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/grease-trap-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH396",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/harmonic-distortion-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH397",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/heat-exchanger-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH398",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/hoist-capacity-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH399",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/hot-water-demand-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH400",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/hvac-cooling-load-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH401",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/hydraulic-cylinder-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH402",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/lighting-design-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH403",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/lightning-protection-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH404",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/load-estimation-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH405",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/load-schedule-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH406",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/mtbf-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH407",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/noise-acoustics-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH408",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/oee-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH409",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/pipe-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH410",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/power-factor-correction-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH411",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/pressure-vessel-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH412",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/pump-tdh-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH413",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/refrigerant-pipe-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH414",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/roof-drain-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH415",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/septic-tank-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH416",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/sewer-drainage-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH417",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/shaft-design-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH418",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/short-circuit-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH419",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/solar-pv-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH420",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/stairwell-pressurization-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH421",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/storm-drain-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH422",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/transformer-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH423",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/ups-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH424",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/v-belt-drive-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH425",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/ventilation-ach-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH426",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/vibration-isolation-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH427",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/voltage-drop-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH428",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/wastewater-stp-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH429",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/water-softener-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH430",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/water-supply-pipe-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH431",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/water-treatment-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ENH432",
+      "wave": "ENH-R",
+      "status": "pending",
+      "pages": [
+        "tools/wire-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }

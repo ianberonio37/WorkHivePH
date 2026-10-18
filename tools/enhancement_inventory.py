@@ -22,6 +22,13 @@ never typed: every cell is a capability a page's own source does not contain, me
   J  a production page with no live journey  live_page_journeys_results.json has no entry for the page
   C  an open critic cell, signed in    a (production page, rubric dim) a signed-in critic walk left critiqued with
                                        a finding (critic_registry.json), N1 excluded
+  R  provenance out of the top         (Ian, 2026-10-19: "all that provenance should be all relocated somewhere that is
+                                       not getting space on the upper part where the user's attention the most ... at
+                                       the bottom most of the page") - a production, founder or public page whose
+                                       source carries provenance (a source chip: renderSourceChip / .wh-source-chip, or
+                                       a "How we compute this" disclosure) and no bottom Sources area (data-wh-sources).
+                                       A learn ARTICLE's dated byline is its header, not a data source, and its sources
+                                       already sit at its foot - articles are not measured; the learn index is (a chip).
 
 Deterministic: page sources + committed artifacts. J and C read artifacts that move as work lands, which is why the
 seeder's replay is ANCHORED to the registry (the BRP/BRH rule): a cell that closes never renumbers a row.
@@ -53,6 +60,7 @@ CLASSES = OrderedDict([
     ("L", ("a learn guide sends its reader to the tool", "F")),
     ("J", ("a production page with no live journey", "CI")),
     ("C", ("an open critic cell on a production page, signed in", "F")),
+    ("R", ("provenance moves out of the top, to a Sources area at the foot", "F")),
 ])
 # capability: (regex, the ask's verb phrase). Order is the planner's own order, appliance list first.
 SOLAR_CAPS = OrderedDict([
@@ -92,6 +100,10 @@ CALC_FEATURES = OrderedDict([
 SOLAR_CALC = "solar-pv-calculator"
 SOLAR_COVERS = frozenset(("recommendation", "export/print", "share/save"))   # carried by the S planner rows
 LEARN_CTA = r'href="/tools/|learn-link'
+# R: what counts as provenance in a page's source, and the marker of the bottom Sources area that ends the cell
+PROVENANCE = re.compile(r'renderSourceChip\(|class="wh-source-chip"|How (we compute|this is computed|it.s computed|we calculate)',
+                        re.I)
+SOURCES_AREA = 'data-wh-sources'
 CRITIC_DIM = re.compile(r"^(?P<page>[\w./-]+?)(?:\.html)?:\s*(?P<dim>[A-Z]{1,2}\d)\s+\d+%")
 
 
@@ -198,9 +210,30 @@ def _critic(prod: list[str]) -> list[dict]:
             for (pg, dim), ids in sorted(cells.items())]
 
 
+def _provenance(sources: dict | None) -> list[dict]:
+    """R: one cell per page (production, founder or public, learn articles excepted) whose source carries provenance
+    and no bottom Sources area. The cell ends when the page's provenance moves into its data-wh-sources area."""
+    if sources is not None:
+        pages = sorted(p for p in sources if p.endswith(".html") and not (p.startswith("learn/") and p != "learn/index.html"))
+    else:
+        from sublayer_inventory import page_classes
+        pages = sorted(p for v in page_classes().values() for p in v
+                       if not (p.startswith("learn/") and p != "learn/index.html"))
+    out = []
+    for p in pages:
+        s = sources[p] if sources is not None else _read(p)
+        if PROVENANCE.search(s) and SOURCES_AREA not in s:
+            out.append({"cls": "R", "page": p, "key": "provenance at the foot",
+                        "ask": ("keep its source lines and its how-it-is-computed notes out of the space a person reads "
+                                "first, in one Sources area at the foot of the page"),
+                        "detail": f"{p} shows its provenance where a person's attention is, and has no Sources area at "
+                                  f"its foot"})
+    return out
+
+
 def collect(sources: dict | None = None) -> list[dict]:
     """Every measured cell, class-major in CLASSES order, then page, then key (the planner's own order for S)."""
-    sites = _solar(sources) + _calculators(sources) + _guides(sources)
+    sites = _solar(sources) + _calculators(sources) + _guides(sources) + _provenance(sources)
     if sources is None:
         prod = production_pages()
         sites += _journeys(prod) + _critic(prod)
@@ -222,6 +255,8 @@ def self_test() -> int:
         "tools/fan-calculator/index.html": "<p>We recommend a 2 kW fan. Print this.</p>",
         "learn/a/index.html": '<a href="/tools/fan-calculator/">Try it</a>',
         "learn/b/index.html": "<p>no link</p>",
+        "inventory.html": "<p id=\"x\"></p><script>x.innerHTML = renderSourceChip({source:'v'})</script>",
+        "hive.html": "<section data-wh-sources><p class=\"wh-source-chip\">Based on</p></section>",
     }
     got = collect(sources)
     by = Counter(s["cls"] for s in got)
@@ -232,7 +267,8 @@ def self_test() -> int:
     ok = ("array Wp & panel count" not in solar_calc and "cost estimate ₱" not in solar_calc and len(solar_calc) == 10
           and "inverter sizing" not in ed and "appliance list builder" in ed
           and p_solar == {"scenario compare"} and p_fan == {"share/save", "scenario compare"}
-          and by["L"] == 1)
+          and by["L"] == 1
+          and {s["page"] for s in got if s["cls"] == "R"} == {"inventory.html"})
     print(("PASS" if ok else "FAIL") + f" enhancement inventory self-test - {dict(by)}")
     return 0 if ok else 1
 
