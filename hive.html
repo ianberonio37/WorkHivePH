@@ -3145,7 +3145,19 @@ document.getElementById('btn-export-hive')?.addEventListener('click', async (ev)
 });
 
 // ── LEAVE HIVE ──
+// ★A SECOND LEAVE COULD START WHILE THE FIRST WAS IN FLIGHT (SL A2 walk, 2026-10-19). A leave is an awaited audit insert
+// and then the delete; on a slow line the menu's Leave Hive stayed live, so a second tap (and its confirm) ran
+// performLeave again - a second member_left row, a second delete that removes nothing, and a "you have NOT left" toast
+// over a leave that worked. One leave at a time: the item says Leaving..., and a press while one runs is absorbed.
+let _hvLeaving = false;
+function _hvLeaveBusy(on) {
+  const b = document.getElementById('btn-leave-hive');
+  if (!b) return;
+  if (on) { b.dataset.idleLabel = b.textContent; b.textContent = 'Leaving…'; b.setAttribute('aria-busy', 'true'); b.setAttribute('aria-disabled', 'true'); }
+  else { if (b.dataset.idleLabel) b.textContent = b.dataset.idleLabel; b.removeAttribute('aria-busy'); b.removeAttribute('aria-disabled'); }
+}
 document.getElementById('btn-leave-hive').addEventListener('click', async () => {
+  if (_hvLeaving) { showToast('Already leaving this hive - one moment.'); return; }
   if (HIVE_ROLE === 'supervisor') {
     // T56 (critic walk, 2026-09-02): the hand-over modal's premise — "You run this hive...
     // without a supervisor, no one can manage" — is FALSE when a CO-SUPERVISOR remains
@@ -3214,6 +3226,12 @@ document.getElementById('btn-sup-leave-cancel').addEventListener('click', () => 
 });
 
 async function performLeave() {
+  if (_hvLeaving) return;   // one leave at a time (see _hvLeaving)
+  _hvLeaving = true; _hvLeaveBusy(true);
+  try { return await _performLeaveOnce(); }
+  finally { _hvLeaving = false; _hvLeaveBusy(false); }
+}
+async function _performLeaveOnce() {
   // ★LEAVING IS A DELETE PLUS AN AUDIT ROW, IN THAT ORDER, AND ORDER IS LOAD-BEARING HERE: the audit
   // insert must land BEFORE the member row is deleted, because afterwards RLS on hive_audit_log rejects
   // it (auth.uid() no longer matches an active hive_members row). Offline that sequence cannot even

@@ -98,6 +98,16 @@ def main() -> int:
         bad = scan_page(p)
         for name in bad:
             fails.append((p.name, name))
+    # ★GUARDS THE BINDING SCAN CANNOT SEE (SL A2 walk, 2026-10-19). A handler that asks a confirmation first and then calls
+    # the write is bound as an inline arrow, so the scan above never names it - and hive's Leave Hive was exactly that:
+    # after the first confirmed leave, a second tap (and its confirmation) ran performLeave again, measured as a second
+    # member_left write with the guard off. Each anchor here is a single-flight guard such a handler keeps.
+    ANCHORS = [("hive.html", r"if \(_hvLeaving\) \{ showToast\(", "Leave Hive absorbs a press while a leave is in flight"),
+               ("hive.html", r"async function performLeave\(\) \{\s*if \(_hvLeaving\) return;", "performLeave runs one leave at a time")]
+    for page, rx, why in ANCHORS:
+        f = REPO / page
+        if f.exists() and not re.search(rx, f.read_text(encoding="utf-8")):
+            fails.append((page, "(" + why + ")"))
     for page, name in fails:
         print(f"  {R}FAIL{X}  {page}: click->{name}() is a bare write binding with no single-flight lock "
               f"(wrap `withButtonLock(this, {name})` or disable the button before the await) — double-tap = double write.")

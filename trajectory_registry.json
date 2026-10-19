@@ -786426,8 +786426,8 @@
     },
     {
       "id": "SL883",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · alert hub",
       "pages": [
@@ -786484,12 +786484,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: alert-hub.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:49:44.254Z (.tmp/slw/results/a2w_3.json) as Ben Ocampo (driverben), every mutating request held in the page (nothing landed): phone-390: alert-hub-dismiss: \"✓ Handled\" pressed, then pressed again in flight - 1 -> 1 write(s) (alert_dismissals), busy shown (control removed) || desktop-1280: alert-hub-dismiss: \"✓ Handled\" pressed, then pressed again in flight - 1 -> 1 write(s) (alert_dismissals), busy shown (control removed). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL883.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL884",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · asset hub",
       "pages": [
@@ -786546,12 +786556,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: asset-hub.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:49:44.254Z (.tmp/slw/results/a2w_3.json) as Ben Ocampo (driverben), every mutating request held in the page (nothing landed): phone-390: asset-hub: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (rcm_fmea_modes), busy shown (disabled; reads \"Save\") | asset-hub-weibull: ungraded - probe error: setup step failed: page.evaluate: Error: #weibull-fit-btn not reachable after opening the Weibull tab\n    a || desktop-1280: asset-hub: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (rcm_fmea_modes), busy shown (disabled; reads \"Save\") | asset-hub-weibull: ungraded - probe error: setup step failed: page.evaluate: Error: #weibull-fit-btn not reachable after opening the Weibull tab\n    a. The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL884.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL885",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · assistant",
       "pages": [
@@ -786608,12 +786628,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: assistant.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:49:44.254Z (.tmp/slw/results/a2w_3.json) as Ben Ocampo (driverben), every mutating request held in the page (nothing landed): phone-390: assistant: \"#send-btn\" pressed, then pressed again in flight - 1 -> 1 write(s) (ai-gateway), busy shown (disabled, dimmed, saysWorking) || desktop-1280: assistant: \"#send-btn\" pressed, then pressed again in flight - 1 -> 1 write(s) (ai-gateway), busy shown (disabled, dimmed, saysWorking). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL885.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL886",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - fleet-supervisor · community",
       "pages": [
@@ -786670,12 +786700,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: community.html writes once when fleet-supervisor taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:00:25.464Z (.tmp/slw/results/a2w_5.json) as Oscar Ramos (jeepneyoscarph), every mutating request held in the page (nothing landed): phone-390: community: \"Post to Hive\" pressed, then pressed again in flight - 1 -> 1 write(s) (community_posts), busy shown (disabled, dimmed, saysWorking; reads \"Posting…\") | community-thread: \"Reply\" pressed, then pressed again in flight - 1 -> 1 write(s) (community_replies), busy shown (disabled, dimmed, saysWorking; reads \"Posting…\") || desktop-1280: community: \"Post to Hive\" pressed, then pressed again in flight - 1 -> 1 write(s) (community_posts), busy shown (disabled, dimmed, saysWorking; reads \"Posting…\") | community-thread: \"Reply\" pressed, then pressed again in flight - 1 -> 1 write(s) (community_replies), busy shown (disabled, dimmed, saysWorking; reads \"Posting…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_doubl Receipt .tmp/mcp_walks/SL886.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL887",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - fleet-supervisor · dayplanner",
       "pages": [
@@ -786732,12 +786772,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: dayplanner.html writes once when fleet-supervisor taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:04:10.404Z (.tmp/slw/results/a2w_7.json) as Gloria Tan (vanfleetgloriaph), every mutating request held in the page (nothing landed): phone-390: dayplanner: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (schedule_items), busy shown (hidden; reads \"Save\") | dayplanner-week: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (schedule_items), busy shown (hidden; reads \"Save\") || desktop-1280: dayplanner: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (schedule_items), busy shown (hidden; reads \"Save\") | dayplanner-week: \"Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (schedule_items), busy shown (hidden; reads \"Save\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL887.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL888",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · hive",
       "pages": [
@@ -786794,12 +786844,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: hive.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:10:48.164Z (.tmp/slw/results/a2w_4.json) as Ben Ocampo (driverben), every mutating request held in the page (nothing landed): phone-390: hive-intent: ungraded - probe error: setup step failed: page.evaluate: Error: the intent modal never opened within 9s\n    at eval (eval at evalu | hive-leave: \"Leaving…\" pressed, then pressed again in flight - 1 -> 1 write(s) (hive_audit_log), busy shown (disabled, busy, saysWorking, hidden; reads \"Leaving…\") || desktop-1280: hive-intent: ungraded - probe error: setup step failed: page.evaluate: Error: the intent modal never opened within 9s\n    at eval (eval at evalu | hive-leave: \"Leaving…\" pressed, then pressed again in flight - 1 -> 1 write(s) (hive_audit_log), busy shown (disabled, busy, saysWorking, hidden; reads \"Leaving…\"). Teeth (hive): with the new one-leave-at-a-time guard a re-press opened no second confirmation and the writes stayed 1; with the guard switched off in the page (the code as it was) the re-press opened a second confirmation and answering it fired a second member_left write (1 -> 2). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform Receipt .tmp/mcp_walks/SL888.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL889",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · index",
       "pages": [
@@ -786856,12 +786916,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: index.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:10:48.164Z (.tmp/slw/results/a2w_4.json) as Ben Ocampo (driverben), every mutating request held in the page (nothing landed): phone-390: index-updates: ungraded - probe error: setup step failed: page.evaluate: Error: the updates form is not shown to this person\n    at eval (eval at  || desktop-1280: index-updates: ungraded - probe error: setup step failed: page.evaluate: Error: the updates form is not shown to this person\n    at eval (eval at . The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL889.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL890",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - solo-owner · integrations",
       "pages": [
@@ -786918,12 +786988,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: integrations.html writes once when solo-owner taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:02:16.905Z (.tmp/slw/results/a2w_6.json) as Jun Salvador (junvanowner), every mutating request held in the page (nothing landed): phone-390: integrations-vehicle: \"Create my vehicle\" pressed, then pressed again in flight - 1 -> 1 write(s) (pm_assets), busy shown (disabled, dimmed, saysWorking; reads \"Creating…\") || desktop-1280: integrations-vehicle: \"Create my vehicle\" pressed, then pressed again in flight - 1 -> 1 write(s) (pm_assets), busy shown (disabled, dimmed, saysWorking; reads \"Creating…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL890.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL891",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · inventory",
       "pages": [
@@ -786980,12 +787060,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: inventory.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:47:30.952Z (.tmp/slw/results/a2w_2.json) as David Velasco (davidvelasco), every mutating request held in the page (nothing landed): phone-390: inventory: \"Save Part\" pressed, then pressed again in flight - 1 -> 1 write(s) (inventory_items), busy shown (disabled, busy, saysWorking; reads \"Save Part\") | inventory-use: \"Confirm Use\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/inventory_deduct), busy shown (disabled, busy, saysWorking; reads \"Confirm Use\") || desktop-1280: inventory: \"Save Part\" pressed, then pressed again in flight - 1 -> 1 write(s) (inventory_items), busy shown (disabled, busy, saysWorking; reads \"Save Part\") | inventory-use: \"Confirm Use\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/inventory_deduct), busy shown (disabled, busy, saysWorking; reads \"Confirm Use\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb Receipt .tmp/mcp_walks/SL891.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL892",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · logbook",
       "pages": [
@@ -787042,12 +787132,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: logbook.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:08:45.120Z (.tmp/slw/results/a2w_1.json) as Bryan Garcia (bryangarcia), every mutating request held in the page (nothing landed): phone-390: logbook: ungraded - probe error: page.click: Element is not visible\nCall log:\n\u001b[2m  - waiting for locator('[data-wh-df=\"1\"]')\u001b[22m\n\u001b[2m    - | logbook-capture: \"Save Entry\" pressed, then pressed again in flight - 1 -> 1 write(s) (logbook), busy shown (disabled, saysWorking; reads \"Saving…\") || desktop-1280: logbook: ungraded - probe error: page.click: Element is not visible\nCall log:\n\u001b[2m  - waiting for locator('[data-wh-df=\"1\"]')\u001b[22m\n\u001b[2m    - | logbook-capture: \"Save Entry\" pressed, then pressed again in flight - 1 -> 1 write(s) (logbook), busy shown (disabled, saysWorking; reads \"Saving…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL892.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL893",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - buyer · marketplace seller",
       "pages": [
@@ -787104,12 +787204,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: marketplace-seller.html writes once when buyer taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:08:45.120Z (.tmp/slw/results/a2w_1.json) as Bryan Garcia (bryangarcia), every mutating request held in the page (nothing landed): phone-390: marketplace-seller-edit: \"Save Changes\" pressed, then pressed again in flight - 1 -> 1 write(s) (T09%3A54%3A45.299919%2B00%3A00&select=id), busy shown (disabled, busy, dimmed, saysWorking; reads \"Saving…\") || desktop-1280: marketplace-seller-edit: \"Save Changes\" pressed, then pressed again in flight - 1 -> 1 write(s) (T09%3A54%3A45.299919%2B00%3A00&select=id), busy shown (disabled, busy, dimmed, saysWorking; reads \"Saving…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL893.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL894",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - buyer · marketplace",
       "pages": [
@@ -787166,12 +787276,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: marketplace.html writes once when buyer taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:10:48.164Z (.tmp/slw/results/a2w_4.json) as Isidro Suarez (isidrosuarez), every mutating request held in the page (nothing landed): phone-390: marketplace-post: \"Post Listing\" pressed, then pressed again in flight - 1 -> 1 write(s) (ry_item_id%22%2C%22ai_assisted_fields%22), busy shown (disabled, busy, dimmed, saysWorking; reads \"Posting…\") || desktop-1280: marketplace-post: \"Post Listing\" pressed, then pressed again in flight - 1 -> 1 write(s) (ry_item_id%22%2C%22ai_assisted_fields%22), busy shown (disabled, busy, dimmed, saysWorking; reads \"Posting…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL894.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL895",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · pm scheduler",
       "pages": [
@@ -787228,12 +787348,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: pm-scheduler.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:00:25.464Z (.tmp/slw/results/a2w_5.json) as Oscar Ramos (jeepneyoscarph), every mutating request held in the page (nothing landed): phone-390: pm-scheduler: \"Save Asset\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/create_pm_asset_with_tasks), busy shown (disabled, dimmed, saysWorking; reads \"Saving...\") | pm-scheduler-complete: \"Save + Log in Logbook\" pressed, then pressed again in flight - 1 -> 1 write(s) (pm_completions), busy shown (disabled, dimmed, saysWorking; reads \"Saving...\") | pm-scheduler-edit: \"Save Changes\" pressed, then pressed again in flight - 1 -> 1 write(s) (T01%3A09%3A13.912116%2B00%3A00&select=id), busy shown (disabled, dimmed, saysWorking; reads \"Saving...\") || desktop-1280: pm-scheduler: \"Save Asset\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/create_pm_asset_with_tasks), busy shown (disabled, dimmed, saysWorking; reads \"Saving...\") | pm-scheduler-complete: \"Save + Log in Logbook\" pressed, then pressed again in flight - 1 -> 1 write(s) (pm_completions), busy shown (disabled, dimmed, saysWorking; reads \"Saving...\") | pm-scheduler-edit: \"Save Changes\" pressed, then pressed again in flight - 1 -> 1 write(s) Receipt .tmp/mcp_walks/SL895.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL896",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - fleet-supervisor · project manager",
       "pages": [
@@ -787290,12 +787420,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: project-manager.html writes once when fleet-supervisor taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:08:45.120Z (.tmp/slw/results/a2w_1.json) as Christine Dizon (christinedizon), every mutating request held in the page (nothing landed): phone-390: project-manager-co: \"Submit for approval\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/generate_change_order_number), busy shown (disabled, busy, dimmed, saysWorking; reads \"Submitting…\") || desktop-1280: project-manager-co: \"Submit for approval\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/generate_change_order_number), busy shown (disabled, busy, dimmed, saysWorking; reads \"Submitting…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL896.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL897",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - fleet-supervisor · report sender",
       "pages": [
@@ -787352,12 +787492,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: report-sender.html writes once when fleet-supervisor taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:47:30.952Z (.tmp/slw/results/a2w_2.json) as Christine Dizon (christinedizon), every mutating request held in the page (nothing landed): phone-390: report-sender: \"Send Reports\" pressed, then pressed again in flight - 1 -> 1 write(s) (scheduled-agents), busy shown (disabled, busy, dimmed, saysWorking, hidden; reads \"Sending…\") | report-sender-contacts: \"Save Contact\" pressed, then pressed again in flight - 1 -> 1 write(s) (report_contacts), busy shown (disabled; reads \"Save Contact\") || desktop-1280: report-sender: \"Send Reports\" pressed, then pressed again in flight - 1 -> 1 write(s) (scheduled-agents), busy shown (disabled, busy, dimmed, saysWorking, hidden; reads \"Sending…\") | report-sender-contacts: \"Save Contact\" pressed, then pressed again in flight - 1 -> 1 write(s) (report_contacts), busy shown (disabled; reads \"Save Contact\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), re Receipt .tmp/mcp_walks/SL897.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL898",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · resume",
       "pages": [
@@ -787414,12 +787564,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: resume.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:00:25.464Z (.tmp/slw/results/a2w_5.json) as Isidro Suarez (isidrosuarez), every mutating request held in the page (nothing landed): phone-390: resume-save: \"💾 Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (resume_documents), busy shown (disabled, dimmed, saysWorking; reads \"Saving…\") || desktop-1280: resume-save: \"💾 Save\" pressed, then pressed again in flight - 1 -> 1 write(s) (resume_documents), busy shown (disabled, dimmed, saysWorking; reads \"Saving…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL898.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL899",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · shift brain",
       "pages": [
@@ -787476,12 +787636,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: shift-brain.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:02:16.905Z (.tmp/slw/results/a2w_6.json) as Oscar Ramos (jeepneyoscarph), every mutating request held in the page (nothing landed): phone-390: shift-brain-generate: \"Re-run plan\" pressed, then pressed again in flight - 1 -> 1 write(s) (shift-planner-orchestrator), busy shown (disabled, dimmed, saysWorking; reads \"Running...\") | shift-brain-publish: ungraded - pressing \"Publish to crew\" produced no mutating request || desktop-1280: shift-brain-generate: \"Re-run plan\" pressed, then pressed again in flight - 1 -> 1 write(s) (shift-planner-orchestrator), busy shown (disabled, dimmed, saysWorking; reads \"Running...\") | shift-brain-publish: ungraded - pressing \"Publish to crew\" produced no mutating request. The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL899.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL900",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - worker · skillmatrix",
       "pages": [
@@ -787538,12 +787708,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: skillmatrix.html writes once when worker taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T03:47:30.952Z (.tmp/slw/results/a2w_2.json) as David Velasco (davidvelasco), every mutating request held in the page (nothing landed): phone-390: skillmatrix-exam: \"Submit exam\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/grade_skill_exam), busy shown (disabled, busy, dimmed, saysWorking; reads \"Grading…\") || desktop-1280: skillmatrix-exam: \"Submit exam\" pressed, then pressed again in flight - 1 -> 1 write(s) (rpc/grade_skill_exam), busy shown (disabled, busy, dimmed, saysWorking; reads \"Grading…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL900.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL901",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - oversight · founder console",
       "pages": [
@@ -787594,12 +787774,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: founder-console.html writes once when oversight taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:05:43.523Z (.tmp/slw/results/a2w_retired.json) as Leandro Marquez (leandromarquez), every mutating request held in the page (nothing landed): phone-390: (verb scan): ungraded - retired page - 📊 The Founder Console has moved to Grafana Every metric (platform health, usage, growth, AI cost, marketp || desktop-1280: (verb scan): ungraded - retired page - 📊 The Founder Console has moved to Grafana Every metric (platform health, usage, growth, AI cost, marketp. The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL901.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL902",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - oversight · marketplace admin",
       "pages": [
@@ -787650,12 +787840,22 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: marketplace-admin.html writes once when oversight taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:05:43.523Z (.tmp/slw/results/a2w_retired.json) as Leandro Marquez (leandromarquez), every mutating request held in the page (nothing landed): phone-390: marketplace-admin-approve: ungraded - retired page - 📊 Marketplace Admin has moved Listing / seller / dispute VOLUMES are now live Grafana panels; approve / v || desktop-1280: marketplace-admin-approve: ungraded - retired page - 📊 Marketplace Admin has moved Listing / seller / dispute VOLUMES are now live Grafana panels; approve / v. The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL902.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL903",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A2 · The platform must write once when a person taps twice or the network retries, on every write this page makes - oversight · platform actions",
       "pages": [
@@ -787706,6 +787906,16 @@
         "engine": "chromium",
         "ask": "The platform must write once when a person taps twice or the network retries, on every write this page makes",
         "closes": "the A2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write was in flight - graded on whether the second press fired a further write and whether the surface showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's retry after a lost reply is held by refresh-retry-dedup)): A2: platform-actions.html writes once when oversight taps twice, and the platform never re-sends a write - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T04:04:10.404Z (.tmp/slw/results/a2w_7.json) as Leandro Marquez (leandromarquez), every mutating request held in the page (nothing landed): phone-390: platform-actions-triage: \"Save changes\" pressed, then pressed again in flight - 1 -> 1 write(s) (1.16457%2B00%3A00&select=id%2Cupdated_at), busy shown (disabled, dimmed, saysWorking; reads \"Saving…\") || desktop-1280: platform-actions-triage: \"Save changes\" pressed, then pressed again in flight - 1 -> 1 write(s) (1.16457%2B00%3A00&select=id%2Cupdated_at), busy shown (disabled, dimmed, saysWorking; reads \"Saving…\"). The retry half: utils.js re-sends only GET (its single transport retry is scoped to idempotent reads), so the platform never repeats a write; a person's retry after a lost reply is held by refresh-retry-dedup (whRecentDuplicate on the non-idempotent inserts and stock RPCs). Gates double-submit-lock (+ the hive leave anchors), refresh-retry-dedup and cb_double_fire hold it. Receipt .tmp/mcp_walks/SL903.json.",
+      "artifacts": {
+        "gates": [
+          "cb_double_fire",
+          "double-submit-lock",
+          "refresh-retry-dedup",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1015153,5 +1015363,5 @@
       }
     }
   ],
-  "next": "SL A2 no double submit, idempotent writes (21), A4 slow reads: skeleton, timeout, freshness (30); then AV2-4, C2/C3, L2-4, LB1-4, RL1-3. SL A1 32/32 CLOSED (refusal-has-a-sentence: visitor vs member sentences, notice Sign in only for a visitor, admin check 'could not check' on any error, refusals no longer called outages, no empty state over a failed read, refused live refreshes said) and D4 6/6 CLOSED. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL A4 slow reads: skeleton, timeout, freshness (30); then AV2 offline queue and sync (33), AV3 degraded poll (14), AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL A2 21/21 CLOSED (every write held at one on a double press; hive's Leave guarded one-at-a-time; prover flows +7) with A1 32/32 and D4 6/6. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

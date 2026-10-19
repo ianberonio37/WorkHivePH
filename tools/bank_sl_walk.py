@@ -152,6 +152,16 @@ GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-de
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
+GATES["A2"] = ["double-submit-lock", "refresh-retry-dedup", "cb_double_fire", "skew-heal", "scripts-parse"]
+CONDITION["A2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
+                   "cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every "
+                   "mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so "
+                   "nothing landed; each of the page's write flows reached the way a person reaches it (the prover's own "
+                   "FLOWS, read RPCs named and let through), its submit pressed, then pressed again while the first write "
+                   "was in flight - graded on whether the second press fired a further write and whether the surface "
+                   "showed it was busy; a flow whose press fired no write, or a page that offers this cast no write, "
+                   "ungraded and said so; the retry half named on each receipt (utils.js re-sends GET only; a person's "
+                   "retry after a lost reply is held by refresh-retry-dedup)")
 CONDITION["A1"] = ("the page read as served in its own browser context (service workers blocked, so no worker could answer a "
                    "read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own "
                    "data reads failed from the first byte by an init script patching fetch before any page script - 500 "

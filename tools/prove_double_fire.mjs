@@ -141,6 +141,11 @@ const FLOWS = {
       // the probe clicked a dead control and reported "produced no mutating request" — a false UNGRADED
       // about the one action that most needed grading.
       { fill: '#email-input', value: 'probe@example.com', why: 'a recipient is required to enable the send' },
+      // ★THE SEND NOW ASKS FIRST (SL A2 walk, 2026-10-19): doSend() calls confirmOutsiders() for an address outside the
+      // hive, so the press opened that dialog and fired nothing - the flow read UNGRADED on the one action that most
+      // needs grading. The dialog is answered yes, as the person sending to that address would; the double press is
+      // still the subject.
+      { eval: "window.whConfirm = async () => true", why: 'answer the outside-recipient confirmation the way the sender would' },
     ],
     submit: 'button:has-text("Send Reports")',
     note: 'irreversible outward send — the highest-stakes double-fire on the platform',
@@ -461,6 +466,93 @@ const FLOWS = {
     submit: '#fmea-save',
     note: 'rcm_fmea_modes insert — a QUEUED write feeding RPN, so a duplicate skews the risk ranking',
   },
+  // ── SL A2 (2026-10-19): the six pages the roster above never reached. Each is reached the way a person reaches it;
+  // every write stays held in the page, so nothing is created, listed, approved or triaged.
+  // integrations' VEHICLE WIZARD (solo owner): three steps, then one create that seeds four tables - a doubled create
+  // is two vehicles, two PM schedules and two parts lists. The Ranger preset fills make/model/year/odometer.
+  'integrations-vehicle': { page: 'integrations',
+    steps: [{ wait: 2500 },
+            { click: '#veh-open', why: 'open the vehicle wizard' },
+            { wait: 600 },
+            { click: '#veh-preset-ranger', why: 'the preset fills make, model, year and odometer' },
+            { fill: '#veh-plate', value: 'PRB 1234', why: 'a plate identifies the vehicle' },
+            { eval: "(() => { const b = [...document.querySelectorAll('button')].find((e) => /next:\\s*service schedule/i.test(e.innerText || '') && e.offsetParent !== null); if (!b) throw new Error('no Next: service schedule'); b.click(); })()" },
+            { wait: 900 },
+            { eval: "(() => { const b = [...document.querySelectorAll('button')].find((e) => /next:\\s*starter parts/i.test(e.innerText || '') && e.offsetParent !== null); if (!b) throw new Error('no Next: starter parts'); b.click(); })()" },
+            { wait: 900 }],
+    submit: '#veh-create',
+    note: 'vehicle create - pm_assets + asset_nodes + pm_scope_items + inventory_items in one press' },
+  // index's GET UPDATES form - the landing page's one submit-shaped write (early_access_emails); the persona chip is a
+  // toggle (excluded, as community's reactions are) and the sign-up insert belongs to the sign-up flow.
+  'index-updates': { page: 'index',
+    steps: [{ wait: 3000 },
+            { eval: "(() => { const i = document.getElementById('join-email'); if (!i) throw new Error('no #join-email on this page'); i.scrollIntoView({ block: 'center' }); if (!(i.checkVisibility ? i.checkVisibility() : i.offsetParent)) throw new Error('the updates form is not shown to this person'); })()" },
+            { wait: 400 },
+            { fill: '#join-email', value: 'wh.df.probe@example.com' }],
+    pressVia: 'dom',
+    submit: '#joinForm button[type=submit]',
+    note: 'early_access_emails insert - unique on the email, and the button disables on the first press' },
+  // hive's LEAVE (a worker's write on this page - everything else here is a supervisor's): the menu item, the real
+  // confirmation answered "Leave", and the leave's first write (the member_left audit row) held in flight by the steps -
+  // so the subject is a RE-press while that leave runs, which must be absorbed (countFromSteps, as voice-journal).
+  'hive-leave': { page: 'hive',
+    steps: [{ wait: 4000 },
+            { click: '#btn-hive-menu', why: 'open the hive menu' },
+            { wait: 500 },
+            { click: '#btn-leave-hive', why: 'Leave Hive asks first' },
+            { wait: 700 },
+            { eval: "(() => { const b = [...document.querySelectorAll('[role=dialog] button, [role=alertdialog] button')].find((e) => (e.innerText || '').trim() === 'Leave' && e.offsetParent !== null); if (!b) throw new Error('no Leave confirmation'); b.click(); })()", why: 'answer the confirmation as the person leaving would' },
+            { wait: 700 }],
+    // the board's READ RPCs arrive as POSTs; let them through so the count is the leave's own writes alone
+    letThrough: ['rpc/get_', 'rpc/my_', 'rpc/is_', 'rpc/note_device'],
+    countFromSteps: true,
+    pressVia: 'dom',
+    submit: '#btn-leave-hive',
+    note: 'hive_members delete after a member_left audit row - a second leave writes a second trail and a false "not left"' },
+  // marketplace's POST sheet: one press, one listing (handlePostSubmit asks whRecentDuplicate first - a read, let
+  // through by its GET - then inserts, which is held).
+  'marketplace-post': { page: 'marketplace',
+    steps: [{ wait: 3500 },
+            { click: '#fab-post', why: 'open the post sheet' },
+            { wait: 800 },
+            { fill: '#post-title', value: 'double-fire probe listing' },
+            { select: '#post-category', index: 1, why: 'a category is required' },
+            { fill: '#post-desc', value: 'double-fire probe: a listing that is never sent' },
+            { fill: '#post-price', value: '1500' }],
+    // the page's READ RPCs arrive as POSTs, and holding them starved the page (530 characters rendered, no listings,
+    // no reputation, no price hint); name them so only the action is held. The submit sits at the foot of a
+    // scrolling sheet, so the press is dispatched in-page (a coordinate click reported it outside the viewport).
+    letThrough: ['rpc/get_', 'rpc/my_', 'rpc/listing_reservation_amount', 'rpc/service_knob', 'rpc/service_request_price'],
+    pressVia: 'dom',
+    submit: '#btn-submit-post',
+    note: 'marketplace_listings insert - a duplicate listing is visible to every buyer' },
+  // marketplace-seller's EDIT sheet: an optimistic-lock update. The read RPCs the hold check makes arrive as POSTs, so
+  // they are named and let through, or the sheet waits on a hold it can never compute.
+  'marketplace-seller-edit': { page: 'marketplace-seller',
+    steps: [{ wait: 4000 },
+            { eval: "(() => { const b = document.querySelector('[data-action=\"edit\"]'); if (!b) throw new Error('no listing to edit'); b.click(); })()" },
+            { wait: 900 },
+            { eval: "(() => { const t = document.getElementById('edit-title'); if (!t) throw new Error('no #edit-title'); t.value = (t.value || 'listing') + ' (probe)'; t.dispatchEvent(new Event('input', { bubbles: true })); })()" },
+            { wait: 600 }],
+    letThrough: ['rpc/get_', 'rpc/my_', 'rpc/listing_', 'rpc/service_knob'],
+    submit: '#btn-save-edit',
+    note: 'marketplace_listings update - a doubled save re-submits for review twice' },
+  // marketplace-admin's MODERATION queue: Approve is the write that puts a listing in front of every buyer.
+  'marketplace-admin-approve': { page: 'marketplace-admin',
+    steps: [{ wait: 4500 },
+            { eval: "(() => { const b = [...document.querySelectorAll('button[data-action=\"approve\"]')].find((e) => e.offsetParent !== null); if (!b) throw new Error('no listing awaiting approval'); b.setAttribute('data-wh-probe', 'approve'); })()" }],
+    letThrough: ['rpc/get_', 'rpc/is_'],
+    submit: '[data-wh-probe=approve]',
+    note: 'listing approval - an update that publishes; a doubled approve writes two audit rows' },
+  // Platform Actions' FEEDBACK triage: open an item, add a note, save (optimistic-lock PATCH).
+  'platform-actions-triage': { page: 'platform-actions',
+    steps: [{ wait: 5000 },
+            { eval: "(() => { const c = document.querySelector('button[data-fb-id]'); if (!c) throw new Error('no feedback item to triage'); c.click(); })()" },
+            { wait: 900 },
+            { fill: '#fb-d-note', value: 'double-fire probe note' }],
+    letThrough: ['rpc/founder_', 'rpc/get_', 'rpc/is_'],
+    submit: '#fb-d-save',
+    note: 'platform_feedback update - a doubled triage writes the same change twice' },
 };
 
 const FIND_CONTROL = (verbSrc) => {
