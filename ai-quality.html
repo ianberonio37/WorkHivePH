@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive whViewerAdmits">
+<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whViewerAdmits">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -312,11 +312,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (typeof whListError === 'function') {
           // 2026-10-06 (ai-quality x assistive-tech, PostgREST stopped): this said "Check your connection" to a reader
           // whose navigator.onLine was TRUE while the SERVICE was down. Split on the only input that can tell them apart.
-          whListError(host, (navigator.onLine === false)
+        // ★A REFUSAL WAS ANSWERED "WORKHIVE DID NOT ANSWER" (SL A1 walk, 2026-10-19): this sentence was written for one
+        // cause and shown for every cause, so a refused read (403/42501) told the person to wait and try again for a
+        // "no". whReadError reads the error - refusal, dead session, rate limit, offline, a silent service - and says that.
+          whListError(host, (typeof whReadError === 'function') ? whReadError(err, 'your AI quality data') : (navigator.onLine === false)
             ? _t("You are offline, so your AI quality data could not be read. It will load when your connection is back.", "Offline ka, kaya hindi mabasa ang AI quality data mo. Maglo-load ito kapag bumalik ang koneksyon mo.")
             : _t("Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang AI quality data mo - hindi sumagot ang WorkHive. Subukan muli maya-maya."), () => render());
         }
-        if (typeof showToast === 'function') showToast(_t('AI quality failed to load. Tap Retry.', 'Hindi na-load ang AI quality. Pindutin ang Retry.'), 'warn');
+        // a refusal is not retried into a yes: no "Tap Retry" toast beside the sentence that says so
+        if (typeof showToast === 'function' && !(typeof whIsAccessDenied === 'function' && whIsAccessDenied(err))) showToast(_t('AI quality failed to load. Tap Retry.', 'Hindi na-load ang AI quality. Pindutin ang Retry.'), 'warn');
         return;
       }
       const summary = aggregate(costRows, feedbackRows);

@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -834,7 +834,8 @@
         if (!(_liveBrief.key === _key && _liveBrief.inflight)) {
           _liveBrief = { key: _key, at: 0, ap: null, trace: null, inflight: db.functions.invoke('analytics-orchestrator', {
             body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'today' },
-          }).then(({ data }) => {
+          }).then(({ data, error }) => {
+            if (error && _liveBrief.key === _key) _liveBrief.err = error;   // kept, so a refusal can be said (SL A1)
             // an EMPTY plan (no model answered) is no plan: the stored brief - or the honest "no brief" text - stays
             const _planRaw = data && data.action_plan;
             const plan = (typeof whActionPlanHasContent === 'function' ? whActionPlanHasContent(_planRaw) : !!_planRaw) ? _planRaw : null;
@@ -843,6 +844,21 @@
           }).finally(() => { if (_liveBrief.key === _key) _liveBrief.inflight = null; }) };
         }
         ap = await _liveBrief.inflight;
+        /* ★A REFUSED LIVE REFRESH WENT SILENT (SL A1 walk, 2026-10-19). With the orchestrator answering 429 the
+           "Refreshing this brief with live data..." line simply vanished: the stored brief stayed (true) and nothing
+           said the refresh had not happened or why, so a supervisor could read this morning's brief as refreshed.
+           The function's own sentence says why and when (the rate limiter writes "Try again in about N minutes"). */
+        if (!ap && _liveBrief.err) {
+          let _why = '';
+          try { _why = (typeof whFnError === 'function') ? await whFnError(_liveBrief.err, '') : ''; } catch (_) { _why = ''; }
+          const _note = document.createElement('div');
+          _note.className = 'ah-brief-refreshing';
+          _note.setAttribute('role', 'status');
+          _note.style.cssText = _refreshHint.style.cssText;
+          _note.textContent = 'The live refresh did not run' + (_why ? ': ' + _why : '.')
+            + ((opts && opts.stored === false) ? '' : ' The brief below is the stored one.');
+          try { summaryEl.parentNode && summaryEl.parentNode.insertBefore(_note, summaryEl); } catch (_) { /* empty-catch-allow: a note must never break the brief */ }
+        }
       }
       // a plan built from the records (no model answered - analytics-orchestrator deterministicActionPlan) fills an EMPTY
       // slot - the night shift's, before the 06:00 brief exists - but never displaces a model-written stored brief that

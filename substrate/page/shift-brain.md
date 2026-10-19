@@ -2,13 +2,13 @@
 name: page-shift-brain
 type: page
 source: file:shift-brain.html
-source_sha: fb9e6ad771cd94e6
+source_sha: 5fdd5b95ee2b784c
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `shift-brain.html` — Shift Brain | WorkHive
 
-Size: 110KB · 30 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 112KB · 30 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `shift_plans.update`
 **RPC calls**: (none)

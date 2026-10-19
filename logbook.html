@@ -2575,10 +2575,19 @@ function _canWriteEntry(entry) {
 //
 // One resolver, used by BOTH the online save and the offline-queue drain, so the two paths cannot
 // drift into telling the worker different stories about the same failure.
+// ★"CHECK YOUR CONNECTION" FOR EVERY CAUSE (SL A1, 2026-10-19): when the follow-up read failed too, the worker was sent to
+// a connection that was usually fine - the save had already reached the server and been refused or not matched. The
+// cause is named when there is one (offline, an expired session, a refusal, a limit); otherwise the sentence says only
+// what is true: nothing was saved, and why could not be found out.
+function _lbSaveUnexplained(err) {
+  if (navigator.onLine === false) return 'Could not save - you are offline. Nothing was saved; try again when you are back online.';
+  const _why = 'This entry was not saved, and WorkHive could not say why. Nothing changed; try again in a moment.';
+  return (typeof whWriteError === 'function' && err) ? whWriteError(err, _why) : _why;
+}
 async function explainZeroRowWrite(id) {
   try {
     const { data, error } = await db.from('logbook').select('id, auth_uid, updated_at').eq('id', id).maybeSingle();
-    if (error) return _t('Could not save. Check your connection and try again.', 'Hindi ma-save. Suriin ang koneksyon at subukan muli.');
+    if (error) return _lbSaveUnexplained(error);
     if (!data)  return 'That entry no longer exists. It was deleted.';
     if (_authUid && data.auth_uid && data.auth_uid !== _authUid) {
       return 'This entry belongs to someone else, so it cannot be edited from your account.';
@@ -2587,8 +2596,8 @@ async function explainZeroRowWrite(id) {
       return 'This entry has no recorded owner, so it cannot be edited. Ask your supervisor to have it re-attributed.';
     }
     return 'Entry was modified by someone else, reload to see the latest version.';
-  } catch (_) {
-    return _t('Could not save. Check your connection and try again.', 'Hindi ma-save. Suriin ang koneksyon at subukan muli.');
+  } catch (_e) {
+    return _lbSaveUnexplained(_e);
   }
 }
 

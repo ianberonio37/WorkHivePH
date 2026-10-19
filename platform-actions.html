@@ -1650,7 +1650,12 @@
       const _offlineGate = () => {
         const cg = document.getElementById('checking-gate');
         cg.setAttribute('role', 'status');
-        cg.textContent = "You're offline. Platform Actions needs a connection to check your access and load its queues - it will try again as soon as you are back online.";
+        // SL A1 (2026-10-19): 'unreachable' now also means a check the server failed or refused while ONLINE, so the
+        // sentence asks the browser which it is - "you're offline" to a connected founder is the wrong cause and the
+        // wrong wait (the reload-on-reconnect below never fires for them).
+        cg.textContent = (navigator.onLine === false)
+          ? "You're offline. Platform Actions needs a connection to check your access and load its queues - it will try again as soon as you are back online."
+          : 'Platform Actions could not check your access just now, so its queues stay closed. Reload the page to try again.';
         window.addEventListener('online', () => location.reload(), { once: true });
       };
       if (navigator.onLine === false) { _offlineGate(); return; }

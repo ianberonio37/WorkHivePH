@@ -3705,12 +3705,18 @@ function renderMaturityStairway(row) {
 
   const stair = row && typeof row.current_stair === 'number' ? row.current_stair : 0;
   const palette = STAIR_PALETTE[stair] || STAIR_PALETTE[0];
+  // ★A FAILED READ SAID "NO READINESS SNAPSHOT YET. SIGN IN AND ADD YOUR FIRST ASSET" (SL A1 walk, 2026-10-19). With
+  // every read refused or failing, row arrives null and this card drew the BRAND-NEW-HIVE answer: Stair 0, and an
+  // instruction to sign in (to a person who is signed in) and register a first asset (to a hive with a register).
+  // loadMaturityStairway already records the failure in window._readinessErr; the card now says what it knows -
+  // the readiness is unknown, not zero - and the next step that can work.
+  const _rdFailed = !row && window._readinessErr === true;
 
   const badge = document.getElementById('stair-badge');
   if (badge) {
-    badge.textContent = `Stair ${stair} · ${palette.label}`;
-    badge.style.background = palette.bg;
-    badge.style.color = palette.fg;
+    badge.textContent = _rdFailed ? 'Readiness unknown' : `Stair ${stair} · ${palette.label}`;
+    badge.style.background = _rdFailed ? 'rgba(255,255,255,0.08)' : palette.bg;
+    badge.style.color = _rdFailed ? 'var(--wh-cloud, #F4F6FA)' : palette.fg;
   }
 
   const composite = document.getElementById('stair-composite');
@@ -3720,7 +3726,9 @@ function renderMaturityStairway(row) {
   if (blocker) {
     blocker.textContent = row && row.blocker_summary
       ? row.blocker_summary
-      : 'No readiness snapshot yet. Sign in and add your first asset to begin.';
+      : _rdFailed
+        ? 'Your readiness could not be read just now, so the stair and scores are unknown, not zero. Reload the page to try again.'
+        : 'No readiness snapshot yet. Add your first asset to begin.';   // this page is signed-in only: never "sign in"
   }
 
   // Dimension bars

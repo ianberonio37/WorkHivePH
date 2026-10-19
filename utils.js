@@ -1264,7 +1264,15 @@ function _whShowNotice(id, msg, bottomPx) {
   // and then offers nothing to press. Telling someone to sign in with no way to do it from where they
   // are stand leaves reloading as the only exit, which is the one action that throws the work away. The
   // return path carries the page they were on, so signing in brings them back to it.
-  var _isSession = /session|sign in again|log in again|expired/i.test(String(msg || ''));
+  // ★A REFUSED MEMBER WAS OFFERED "SIGN IN" (SL A1 walk, 2026-10-19). This matched /session/ in the notice's own
+  // text, and the permission notice says "Your session is FINE" - so a signed-in person refused access read "your
+  // session is fine" beside a Sign in button, the one remedy that sentence exists to rule out. The notice's identity
+  // decides now: the auth notice signs in; the access notice signs in only a visitor (who has no session to be fine)
+  // and otherwise offers no retry at all, because re-reading cannot turn a "no" into a "yes" - its sentence carries
+  // the step (ask a supervisor).
+  var _isAccess = (id === 'wh-access-denied-notice');
+  var _isSession = _isAccess ? _whSignedOut()
+    : (id === 'wh-auth-expired-notice' || /sign in again|log in again|session (has )?expired/i.test(String(msg || '')));
   // the notice speaks the page's language (design lens copy on ai-quality, 2026-09-15: Reload / Dismiss were English on a Filipino page)
   var _tN = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   _rb.textContent = _isSession ? _tN('Sign in', 'Mag-sign in') : ((typeof window.whPageRetry === 'function') ? _tN('Retry', 'Subukan ulit') : _tN('Reload', 'I-reload'));
@@ -1289,7 +1297,7 @@ function _whShowNotice(id, msg, bottomPx) {
       location.reload();
     }
   });
-  el.appendChild(_rb);
+  if (!(_isAccess && !_isSession)) el.appendChild(_rb);   // a refused member: no Reload that cannot help (see _isAccess)
   // ★A NOTICE WITH NO WAY TO CLEAR IT SAT ON THE SIGN-IN BUTTON (2026-09-14, W4 narrow-320 walk, confusion
   // C15, gate notice-dismissible). Measured at 320x720 on the front-door sign-in form with a read failed: this
   // fixed bar (z 2147483000) landed exactly on "Enterprise SSO" - elementFromPoint at that button's centre
@@ -1590,8 +1598,10 @@ function _whNoteAuthFailure(res) {
     var msg = dead
       ? 'Your session expired, so this page could not be loaded, and nothing you did was saved.'
         + ' Sign in again to continue.'
-      : 'Some of this page could not be shown: your account does not have access to it. Your session is'
-        + ' fine. Ask a supervisor if you need it.';
+      : (_whSignedOut()   // a visitor has no account, no session and no supervisor (SL A1, see _whSignedOut)
+        ? 'Some of this page is shown only to signed-in members. Sign in to see all of it.'
+        : 'Some of this page could not be shown: your account does not have access to it. Your session is'
+          + ' fine. Ask a supervisor if you need it.');
     var noticeId = dead ? 'wh-auth-expired-notice' : 'wh-access-denied-notice';
     // A SESSION notice may ride a transient toast; a PERMISSION notice may not. The refusal is a standing
     // fact about this page load, not a momentary event — a toast that fades leaves the person looking at
@@ -4070,6 +4080,21 @@ function whIsAccessDenied(err) {
 }
 if (typeof window !== 'undefined') window.whIsAccessDenied = whIsAccessDenied;
 
+// ★A VISITOR WAS TOLD "WITH THIS ACCOUNT... YOUR SESSION IS FINE... ASK A SUPERVISOR" (SL A1 walk, 2026-10-19). The
+// refusal sentences below were written for a signed-in member, and they were the only ones: the public feed, read by
+// a visitor with no account, answered a refused read with three statements that are each false for that reader - no
+// account, no session, no supervisor. A signed-out reader's next step is the one thing the member sentence rules out:
+// signing in. Read synchronously from the session supabase-js persists; when it cannot be read, the member sentence
+// stands (a wrong "sign in" to a member is the older, worse mistake - feedback_42501_told_a_signed_in_buyer_to_sign_in).
+function _whSignedOut() {
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      if (/^sb-.*-auth-token$/.test(localStorage.key(i) || '')) return false;
+    }
+    return true;
+  } catch (_) { return false; }   // cannot tell: keep the member sentence
+}
+
 // Raw Postgres shapes. These name a constraint or a table and mean nothing to the person reading them, so
 // they stay behind the caller's friendlier fallback.
 var _WH_RAW_PG = /violates .*constraint|duplicate key|syntax error|does not exist|out of range|invalid input value/i;
@@ -4088,6 +4113,7 @@ function whWriteError(err, fallback) {
   // 403 with no human sentence behind it lands on this line.
   if (whIsAccessDenied(err) && !(err && err.message && String(err.message).length <= 300
                                  && !_WH_RAW_PG.test(String(err.message)))) {
+    if (_whSignedOut()) return T('You need to be signed in to do that, so nothing was saved. Sign in, then try again.');
     return T('You are not allowed to do that with this account, so nothing was saved. Your session is '
            + 'fine. Ask a supervisor if you need this.',
              'Hindi pinapayagan ang account mo na gawin iyon, kaya walang na-save. Ayos ang session '
@@ -4281,6 +4307,7 @@ function whReadError(err, what) {
   // Authenticated, and refused. Naming the boundary is the whole point: "not visible with this
   // session" is a different fact from "nothing here", and neither of them is "sign in again".
   if (whIsAccessDenied(err)) {
+    if (_whSignedOut()) return T('WorkHive does not show ' + thing + ' to visitors who are not signed in. Sign in to see it.');
     return T('You do not have access to ' + thing + ' with this account. Your session is fine. Ask a '
            + 'supervisor if you need it.',
              'Walang access ang account mo sa ' + thingFil + '. Ayos ang session mo. Magtanong sa '
@@ -7184,13 +7211,6 @@ function rtConn(onState, ms) {
    session is not a missing grant". whPlatformAdminAnswer() keeps the three answers apart: 'yes', 'no' (the server said
    so, or there is no session) and 'unreachable' (the reads never got an answer). isPlatformAdmin() is `=== 'yes'`, so
    every gate stays fail-closed; a gate that wants to say WHY it is closed asks for the answer itself. */
-function _whCouldNotAsk(res) {
-  if (!res || !res.error) return false;
-  try { if (typeof navigator !== 'undefined' && navigator.onLine === false) return true; } catch (_) { /* empty-catch-allow: assume online */ }
-  var e = res.error, msg = String(e.message || ''), code = String(e.code || '');
-  if (res.status === 0) return true;
-  return !code && (!msg || /fetch|network|load failed|timed? ?out|abort/i.test(msg));
-}
 async function whPlatformAdminAnswer(db) {
   if (!db) return 'no';
   try {
@@ -7207,11 +7227,17 @@ async function whPlatformAdminAnswer(db) {
        localhost bypass hid it locally. Ask whether ANY identity this person holds is on the allowlist,
        rather than insisting they hold exactly one. Same class as the multi-hive sign-in bounce. */
     const r1 = await db.from('v_worker_truth').select('worker_name').eq('auth_uid', session.user.id).limit(50);
-    if (r1.error) return _whCouldNotAsk(r1) ? 'unreachable' : 'no';
+    /* ★COULD NOT ASK IS NOT "NO" - ON THE SERVER AXIS TOO (SL A1 walk, 2026-10-19). CA4 kept a dropped connection
+       apart, but a check the SERVER failed (500) or refused (403 - a missing grant, not this person's role) still came
+       back 'no', and every admin page told a platform admin it was not for them: walked with the reads answering 500
+       and 42501, the founder console and Marketplace Admin both showed their no-access gate to the founder. Only a
+       read that ANSWERED - rows or no rows - is a yes or a no. Every caller stays fail-closed: 'unreachable' keeps the
+       page shut and says why. */
+    if (r1.error) return 'unreachable';
     const names = [...new Set((r1.data || []).map(p => p && p.worker_name).filter(Boolean))];
     if (!names.length) return 'no';
     const r2 = await db.from('marketplace_platform_admins').select('worker_name').in('worker_name', names).limit(1);
-    if (r2.error) return _whCouldNotAsk(r2) ? 'unreachable' : 'no';
+    if (r2.error) return 'unreachable';
     const yes = !!(r2.data && r2.data.length);
     // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
     // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself. Only an answer
@@ -7220,14 +7246,17 @@ async function whPlatformAdminAnswer(db) {
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return yes ? 'yes' : 'no';
   } catch (_) {
-    try { if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'unreachable'; } catch (e2) { /* empty-catch-allow: assume online */ }
-    return 'no';
+    return 'unreachable';   // it threw before an answer arrived: it could not ask (still closed)
   }
 }
-// the sentence an admin gate shows when it could not ask the server: the page stays closed, and this says why
+// the sentence an admin gate shows when it could not ask the server: the page stays closed, and this says why. (Named
+// for its first cause; since SL A1 it is also the sentence for a check the server failed or refused while online.)
 function whAdminCheckOfflineText(what) {
-  return "You're offline. " + (what || 'This page') + ' needs a connection to check your access - it will try again '
+  var w = what || 'This page', off = false;
+  try { off = (typeof navigator !== 'undefined' && navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+  if (off) return "You're offline. " + w + ' needs a connection to check your access - it will try again '
     + 'as soon as you are back online.';
+  return w + ' could not check your access just now, so it stays closed. Reload the page to try again.';
 }
 async function isPlatformAdmin(db) {
   return (await whPlatformAdminAnswer(db)) === 'yes';

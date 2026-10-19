@@ -784144,8 +784144,8 @@
     },
     {
       "id": "SL851",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · achievements",
       "pages": [
@@ -784202,12 +784202,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: achievements.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:05:35.008Z (.tmp/slw/results/a1w_3.json) as David Velasco (davidvelasco), in its own context with service workers blocked: phone-390 (2168 chars healthy, 17 reads): r500 (every read answered 500, 16 intercepted): \"Achievements failed to load. Tap Retry.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 16 intercepted): \"Achievements failed to load. Tap Retry.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2168 chars healthy, 17 reads): r500 (every read answered 500, 16 intercepted): \"Achievements failed to load. Tap Retry.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 16 intercepted): \"Achievements failed to load. Tap Retry.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every pa Receipt .tmp/mcp_walks/SL851.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL852",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · alert hub",
       "pages": [
@@ -784264,12 +784274,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: alert-hub.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:10:14.645Z (.tmp/slw/results/a1w_4.json) as Ben Ocampo (driverben), in its own context with service workers blocked: phone-390 (5034 chars healthy, 21 reads): r500 (every read answered 500, 26 intercepted): \"Could not load your alerts\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 26 intercepted): \"Could not load your alerts\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429 (the start-up edge call answered the platform's real 429, 1 intercepted): \"The live refresh did not run: AI call limit reached for this hive. Try again in about 2 minutes. The brief below is the stored one.\"; no machine text, no empty state over the failure, no wrong cause || desktop-1280 (5034 chars healthy, 20 reads): r500 (every read answered 500, 26 intercepted): \"Could not load your alerts\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 26 intercepted): \"Could not load your alerts\" - names the refusal, a new Retry; no machine text, no empty state over Receipt .tmp/mcp_walks/SL852.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL853",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · analytics report",
       "pages": [
@@ -784326,12 +784346,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: analytics-report.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T03:14:49.371Z (.tmp/slw/results/a1w_5.json) as Oscar Ramos (jeepneyoscarph), in its own context with service workers blocked: phone-390 (562 chars healthy, 10 reads): r500 (every read answered 500, 13 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:13:56 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. ✕ ref 11:14:07 P\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (524 chars healthy, 9 reads): r500 (every read answered 500, 13 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:14:26 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's sto Receipt .tmp/mcp_walks/SL853.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL854",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · analytics",
       "pages": [
@@ -784390,12 +784420,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: analytics.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T02:52:27.560Z (.tmp/slw/results/a1w_8.json) as Gloria Tan (vanfleetgloriaph), in its own context with service workers blocked: phone-390 (4117 chars healthy, 12 reads): r500 (every read answered 500, 18 intercepted): \"Read failed · showing the last data loaded · saved copy could not be read, so some sections are missing · Based on your logbook · last 90 days (rollin\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 18 intercepted): \"Recomputed just now · saved copy could not be read, so some sections are missing · Based on your logbook · last 90 days (rolling, ending now)\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (4128 chars healthy, 11 reads): r500 (every read answered 500, 18 intercepted): \"Read failed · showing the last data loaded · saved copy could not be read, so some sections are missing · Based on your logbook · last 90 days (rollin\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with Po Receipt .tmp/mcp_walks/SL854.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL855",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · asset hub",
       "pages": [
@@ -784452,12 +784492,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: asset-hub.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:10:14.645Z (.tmp/slw/results/a1w_4.json) as Ben Ocampo (driverben), in its own context with service workers blocked: phone-390 (1621 chars healthy, 16 reads): r500 (every read answered 500, 16 intercepted): \"Could not load your asset fleet\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 16 intercepted): \"Could not load your asset fleet\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1621 chars healthy, 16 reads): r500 (every read answered 500, 16 intercepted): \"Could not load your asset fleet\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 16 intercepted): \"Could not load your asset fleet\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every page fix the walk made. Receipt .tmp/mcp_walks/SL855.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL856",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · assistant",
       "pages": [
@@ -784514,12 +784564,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: assistant.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:10:14.645Z (.tmp/slw/results/a1w_4.json) as Ben Ocampo (driverben), in its own context with service workers blocked: phone-390 (731 chars healthy, 12 reads): r500 (every read answered 500, 16 intercepted): \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I couldn't reach your job records just now, so I may not have them to hand. That does not mean they a\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 16 intercepted): \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I couldn't reach your job records just now, so I may not have them to hand. That does not mean they a\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (769 chars healthy, 12 reads): r500 (every read answered 500, 16 intercepted): \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I couldn't reach your job records just now, so I may not have them to hand. That does not mean they a\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with Po Receipt .tmp/mcp_walks/SL856.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL857",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · community",
       "pages": [
@@ -784576,12 +784636,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: community.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T03:19:33.559Z (.tmp/slw/results/a1w_6.json) as Oscar Ramos (jeepneyoscarph), in its own context with service workers blocked: phone-390 (1563 chars healthy, 22 reads): r500 (every read answered 500, 20 intercepted): \"Couldn’t load the community feed - WorkHive did not answer. Try again in a moment.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 20 intercepted): \"This account does not have access to the community feed. Your session is fine, so signing in again will not change it. Ask a supervisor if you need ac\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1563 chars healthy, 22 reads): r500 (every read answered 500, 20 intercepted): \"Couldn’t load the community feed - WorkHive did not answer. Try again in a moment.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 20 intercepted): \"This account does not have access to the community feed. Your session is f Receipt .tmp/mcp_walks/SL857.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL858",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · dayplanner",
       "pages": [
@@ -784638,12 +784708,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: dayplanner.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T02:52:27.560Z (.tmp/slw/results/a1w_8.json) as Gloria Tan (vanfleetgloriaph), in its own context with service workers blocked: phone-390 (1036 chars healthy, 12 reads): r500 (every read answered 500, 15 intercepted): \"Could not load your plan. This is a loading problem, not an empty day: your items are still there.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted): \"Could not load your plan. This is a loading problem, not an empty day: your items are still there.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1145 chars healthy, 12 reads): r500 (every read answered 500, 15 intercepted): \"Could not load your plan. This is a loading problem, not an empty day: your items are still there.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted): \"Could not load your plan. This is a loading problem, not an empty day: your items are still t Receipt .tmp/mcp_walks/SL858.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL859",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - solo-owner · engineering design",
       "pages": [
@@ -784700,12 +784780,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from engineering design itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: engineering-design.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as solo-owner. Witness: MCP walk 2026-10-19T03:19:33.559Z (.tmp/slw/results/a1w_6.json) as Jun Salvador (junvanowner), in its own context with service workers blocked: phone-390 (1821 chars healthy, 2 reads): r500 (every read answered 500, 2 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:18:40 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 2 intercepted): \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. ✕ ref 11:18:52 P\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1821 chars healthy, 1 reads): r500 (every read answered 500, 2 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:19:11 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 4 Receipt .tmp/mcp_walks/SL859.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL860",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · hive",
       "pages": [
@@ -784762,12 +784852,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: hive.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:10:14.645Z (.tmp/slw/results/a1w_4.json) as Ben Ocampo (driverben), in its own context with service workers blocked: phone-390 (2307 chars healthy, 21 reads): r500 (every read answered 500, 36 intercepted): \"Couldn't load your jobs\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 36 intercepted): \"Couldn't load your jobs\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2345 chars healthy, 21 reads): r500 (every read answered 500, 36 intercepted): \"Couldn't load your jobs\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 36 intercepted): \"Couldn't load your jobs\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every page fix the walk made. Receipt .tmp/mcp_walks/SL860.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL861",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · index",
       "pages": [
@@ -784824,12 +784924,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: index.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:14:49.371Z (.tmp/slw/results/a1w_5.json) as Ben Ocampo (driverben), in its own context with service workers blocked: phone-390 (845 chars healthy, 12 reads): r500 (every read answered 500, 23 intercepted): \"Couldn’t load your latest hive data - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHiv\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 23 intercepted): \"You do not have access to your latest hive data with this account. Your session is fine. Ask a supervisor if you need it. These numbers are unknown ri\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (915 chars healthy, 11 reads): r500 (every read answered 500, 23 intercepted): \"Couldn’t load your latest hive data - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHiv\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read re Receipt .tmp/mcp_walks/SL861.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL862",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - solo-owner · integrations",
       "pages": [
@@ -784886,12 +784996,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: integrations.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as solo-owner. Witness: MCP walk 2026-10-19T02:42:18.449Z (.tmp/slw/results/a1w_7.json) as Jun Salvador (junvanowner), in its own context with service workers blocked: phone-390 (517 chars healthy, 2 reads): r500 (every read answered 500, 3 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 10:38:19 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 3 intercepted): \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. ✕ ref 10:38:31 P\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (517 chars healthy, 2 reads): r500 (every read answered 500, 3 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 10:38:50 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 425 Receipt .tmp/mcp_walks/SL862.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL863",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · inventory",
       "pages": [
@@ -784948,12 +785068,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: inventory.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:05:35.008Z (.tmp/slw/results/a1w_3.json) as David Velasco (davidvelasco), in its own context with service workers blocked: phone-390 (2059 chars healthy, 15 reads): r500 (every read answered 500, 18 intercepted): \"Could not load your inventory\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 18 intercepted): \"Could not load your inventory\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2059 chars healthy, 15 reads): r500 (every read answered 500, 18 intercepted): \"Could not load your inventory\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 18 intercepted): \"Could not load your inventory\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every page fix the walk made. Receipt .tmp/mcp_walks/SL863.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL864",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · logbook",
       "pages": [
@@ -785010,12 +785140,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: logbook.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T02:56:49.269Z (.tmp/slw/results/a1w_1.json) as Bryan Garcia (bryangarcia), in its own context with service workers blocked: phone-390 (4437 chars healthy, 21 reads): r500 (every read answered 500, 21 intercepted): \"Could not load your logbook.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 21 intercepted): \"Could not load your logbook.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (4399 chars healthy, 20 reads): r500 (every read answered 500, 21 intercepted): \"Could not load your logbook.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 21 intercepted): \"Could not load your logbook.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every page fix the walk made. Receipt .tmp/mcp_walks/SL864.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL865",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - buyer · marketplace seller profile",
       "pages": [
@@ -785072,12 +785212,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: marketplace-seller-profile.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as buyer. Witness: MCP walk 2026-10-19T02:56:49.269Z (.tmp/slw/results/a1w_1.json) as Bryan Garcia (bryangarcia), in its own context with service workers blocked: phone-390 (1610 chars healthy, 15 reads): r500 (every read answered 500, 14 intercepted): \"Couldn’t load the profile of \\\"David Velasco\\\" - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whethe\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"You do not have access to the profile of \\\"David Velasco\\\" with this account. Your session is fine. Ask a supervisor if you need it.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1610 chars healthy, 15 reads): r500 (every read answered 500, 14 intercepted): \"Couldn’t load the profile of \\\"David Velasco\\\" - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whethe\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused wi Receipt .tmp/mcp_walks/SL865.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL866",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - buyer · marketplace seller",
       "pages": [
@@ -785134,12 +785284,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: marketplace-seller.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as buyer. Witness: MCP walk 2026-10-19T02:56:49.269Z (.tmp/slw/results/a1w_1.json) as Bryan Garcia (bryangarcia), in its own context with service workers blocked: phone-390 (2170 chars healthy, 19 reads): r500 (every read answered 500, 20 intercepted): \"Couldn't load these numbers, so they're showing as a dash rather than as zero.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 20 intercepted): \"Couldn't load these numbers, so they're showing as a dash rather than as zero. This account does not have access to that. Your session is fine. Retry\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2170 chars healthy, 19 reads): r500 (every read answered 500, 20 intercepted): \"Couldn't load these numbers, so they're showing as a dash rather than as zero.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 20 intercepted): \"Couldn't load these numbers, so they're showing as a dash rather than as zero. This a Receipt .tmp/mcp_walks/SL866.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL867",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - buyer · marketplace",
       "pages": [
@@ -785196,12 +785356,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: marketplace.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as buyer. Witness: MCP walk 2026-10-19T03:14:49.371Z (.tmp/slw/results/a1w_5.json) as Isidro Suarez (isidrosuarez), in its own context with service workers blocked: phone-390 (2640 chars healthy, 30 reads): r500 (every read answered 500, 32 intercepted): \"Couldn't load the marketplace\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 32 intercepted): \"These are not counts: the listings could not be read, so nothing here is known yet.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2680 chars healthy, 30 reads): r500 (every read answered 500, 32 intercepted): \"Couldn't load the marketplace\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 32 intercepted): \"These are not counts: the listings could not be read, so nothing here is known yet.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Receipt .tmp/mcp_walks/SL867.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL868",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · ph intelligence",
       "pages": [
@@ -785258,12 +785428,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: ph-intelligence.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T03:01:10.003Z (.tmp/slw/results/a1w_2.json) as Christine Dizon (christinedizon), in its own context with service workers blocked: phone-390 (1159 chars healthy, 10 reads): r500 (every read answered 500, 15 intercepted): \"Couldn’t load the PH Intelligence report - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether Wo\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted): \"You do not have access to the PH Intelligence report with this account. Your session is fine. Ask a supervisor if you need it.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1197 chars healthy, 10 reads): r500 (every read answered 500, 15 intercepted): \"Couldn’t load the PH Intelligence report - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether Wo\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with P Receipt .tmp/mcp_walks/SL868.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL869",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - machine-client · plant connections",
       "pages": [
@@ -785320,12 +785500,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: plant-connections.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as machine-client. Witness: MCP walk 2026-10-19T03:01:10.003Z (.tmp/slw/results/a1w_2.json) as Bryan Garcia (bryangarcia), in its own context with service workers blocked: phone-390 (642 chars healthy, 10 reads): r500 (every read answered 500, 12 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 10:57:12 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 12 intercepted): \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. ✕ ref 10:57:24 P\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (642 chars healthy, 9 reads): r500 (every read answered 500, 12 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 10:57:43 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock Receipt .tmp/mcp_walks/SL869.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL870",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · pm scheduler",
       "pages": [
@@ -785382,12 +785572,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: pm-scheduler.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:19:33.559Z (.tmp/slw/results/a1w_6.json) as Oscar Ramos (jeepneyoscarph), in its own context with service workers blocked: phone-390 (1821 chars healthy, 14 reads): r500 (every read answered 500, 13 intercepted): \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still there.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still there.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1859 chars healthy, 14 reads): r500 (every read answered 500, 13 intercepted): \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still there.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"Could not load your PM assets. This is a lo Receipt .tmp/mcp_walks/SL870.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL871",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · project manager",
       "pages": [
@@ -785444,12 +785644,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: project-manager.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T03:01:10.003Z (.tmp/slw/results/a1w_2.json) as Christine Dizon (christinedizon), in its own context with service workers blocked: phone-390 (1637 chars healthy, 13 reads): r500 (every read answered 500, 14 intercepted): \"Could not load your projects\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"Could not load your projects\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1675 chars healthy, 13 reads): r500 (every read answered 500, 14 intercepted): \"Could not load your projects\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"Could not load your projects\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up). Gate refusal-has-a-sentence holds the shared sentences and every page fix the walk made. Receipt .tmp/mcp_walks/SL871.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL872",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · project report",
       "pages": [
@@ -785506,12 +785716,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: project-report.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T02:52:27.560Z (.tmp/slw/results/a1w_8.json) as Gloria Tan (vanfleetgloriaph), in its own context with service workers blocked: phone-390 (358 chars healthy, 10 reads): r500 (every read answered 500, 14 intercepted): \"Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (358 chars healthy, 10 reads): r500 (every read answered 500, 14 intercepted): \"Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"Could not load your projects, so  Receipt .tmp/mcp_walks/SL872.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL873",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - an anonymous visitor · public feed",
       "pages": [
@@ -785562,12 +785782,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: public-feed.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as anon. Witness: MCP walk 2026-10-19T02:56:49.269Z (.tmp/slw/results/a1w_1.json) as an anonymous visitor (signed out), in its own context with service workers blocked: phone-390 (2557 chars healthy, 1 reads): r500 (every read answered 500, 1 intercepted): \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive itse\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 1 intercepted): \"⚠️ WorkHive does not show the public feed to visitors who are not signed in. Sign in to see it. Retry Is it just you? Check the platform status page\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2557 chars healthy, 1 reads): r500 (every read answered 500, 1 intercepted): \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive itse\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every r Receipt .tmp/mcp_walks/SL873.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL874",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · report sender",
       "pages": [
@@ -785624,12 +785854,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: report-sender.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T03:05:35.008Z (.tmp/slw/results/a1w_3.json) as Christine Dizon (christinedizon), in its own context with service workers blocked: phone-390 (2039 chars healthy, 14 reads): r500 (every read answered 500, 18 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:01:35 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 18 intercepted): \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a supervisor if you need it. ✕ ref 11:01:46 P\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2039 chars healthy, 13 reads): r500 (every read answered 500, 18 intercepted): \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a moment.Reload ✕ ref 11:02:05 PHT\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgRES Receipt .tmp/mcp_walks/SL874.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL875",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · resume",
       "pages": [
@@ -785686,12 +785926,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: resume.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:14:49.371Z (.tmp/slw/results/a1w_5.json) as Isidro Suarez (isidrosuarez), in its own context with service workers blocked: phone-390 (2009 chars healthy, 11 reads): r500 (every read answered 500, 15 intercepted): \"This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted): \"This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (2009 chars healthy, 11 reads): r500 (every read answered 500, 15 intercepted): \"This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted Receipt .tmp/mcp_walks/SL875.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL876",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · shift brain",
       "pages": [
@@ -785748,12 +785998,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: shift-brain.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:19:33.559Z (.tmp/slw/results/a1w_6.json) as Oscar Ramos (jeepneyoscarph), in its own context with service workers blocked: phone-390 (1876 chars healthy, 10 reads): r500 (every read answered 500, 13 intercepted): \"Could not load your shift plan\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"Could not load your shift plan\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429 (the start-up edge call answered the platform's real 429, 1 intercepted): \"The live refresh did not run: AI call limit reached for this hive. Try again in about 2 minutes. The briefing below is the stored one.\"; no machine text, no empty state over the failure, no wrong cause || desktop-1280 (1914 chars healthy, 10 reads): r500 (every read answered 500, 13 intercepted): \"Could not load your shift plan\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"Could not load your shift plan\" - names the refusal, a new Retry; no machine  Receipt .tmp/mcp_walks/SL876.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL877",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - worker · skillmatrix",
       "pages": [
@@ -785810,12 +786070,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: skillmatrix.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T03:05:35.008Z (.tmp/slw/results/a1w_3.json) as David Velasco (davidvelasco), in its own context with service workers blocked: phone-390 (1692 chars healthy, 10 reads): r500 (every read answered 500, 13 intercepted): \"⚠️ Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline; your profile is saved. Retry Is it ju\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"⚠️ Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline; your profile is saved. Retry Is it ju\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1730 chars healthy, 10 reads): r500 (every read answered 500, 13 intercepted): \"⚠️ Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline; your profile is saved. Retry Is it ju\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every Receipt .tmp/mcp_walks/SL877.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL878",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - supervisor · ai quality",
       "pages": [
@@ -785872,12 +786142,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: ai-quality.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as supervisor. Witness: MCP walk 2026-10-19T03:01:10.003Z (.tmp/slw/results/a1w_2.json) as Christine Dizon (christinedizon), in its own context with service workers blocked: phone-390 (1051 chars healthy, 10 reads): r500 (every read answered 500, 15 intercepted): \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 15 intercepted): \"You do not have access to your AI quality data with this account. Your session is fine. Ask a supervisor if you need it.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (1089 chars healthy, 10 reads): r500 (every read answered 500, 15 intercepted): \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgRE Receipt .tmp/mcp_walks/SL878.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL879",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - fleet-supervisor · audit log",
       "pages": [
@@ -785934,12 +786214,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: audit-log.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as fleet-supervisor. Witness: MCP walk 2026-10-19T02:52:27.560Z (.tmp/slw/results/a1w_8.json) as Gloria Tan (vanfleetgloriaph), in its own context with service workers blocked: phone-390 (3434 chars healthy, 14 reads): r500 (every read answered 500, 13 intercepted): \"Couldn’t load the audit log - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive itself\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 13 intercepted): \"You do not have access to the audit log with this account. Your session is fine. Ask a supervisor if you need it.\" - names the refusal, a new Retry; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (3434 chars healthy, 14 reads): r500 (every read answered 500, 13 intercepted): \"Couldn’t load the audit log - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page below shows whether WorkHive itself\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock Receipt .tmp/mcp_walks/SL879.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL880",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - oversight · founder console",
       "pages": [
@@ -785990,12 +786280,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: founder-console.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as oversight. Witness: MCP walk 2026-10-19T02:42:18.449Z (.tmp/slw/results/a1w_7.json) as Leandro Marquez (leandromarquez), in its own context with service workers blocked: phone-390 (344 chars healthy, 3 reads): r500 (every read answered 500, 2 intercepted): \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\"; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 2 intercepted): \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (344 chars healthy, 3 reads): r500 (every read answered 500, 2 intercepted): \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\"; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 2 intercepted): \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\" - n Receipt .tmp/mcp_walks/SL880.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL881",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - oversight · marketplace admin",
       "pages": [
@@ -786046,12 +786346,22 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: marketplace-admin.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as oversight. Witness: MCP walk 2026-10-19T02:42:18.449Z (.tmp/slw/results/a1w_7.json) as Leandro Marquez (leandromarquez), in its own context with service workers blocked: phone-390 (744 chars healthy, 11 reads): r500 (every read answered 500, 14 intercepted): \"Your access cannot be checked right now Marketplace Admin could not check your access just now, so it stays closed. Reload the page to try again. Back\"; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 14 intercepted): \"Your access cannot be checked right now Marketplace Admin could not check your access just now, so it stays closed. Reload the page to try again. Back\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (744 chars healthy, 11 reads): r500 (every read answered 500, 14 intercepted): \"Your access cannot be checked right now Marketplace Admin could not check your access just now, so it stays closed. Reload the page to try again. Back\"; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42 Receipt .tmp/mcp_walks/SL881.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
       "id": "SL882",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A1 · The platform must answer every refused or failed request on this page with a sentence a person can act on - oversight · platform actions",
       "pages": [
@@ -786102,6 +786412,16 @@
         "engine": "chromium",
         "ask": "The platform must answer every refused or failed request on this page with a sentence a person can act on",
         "closes": "the A1 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so no worker could answer a read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own data reads failed from the first byte by an init script patching fetch before any page script - 500 internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal named as a refusal and an outage never blamed on permission or on the device's connection, a visitor never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge calls carried x-wh-walk-no-model): A1: platform-actions.html answers a refused or failed request with a sentence a person can act on - the cause it was, to the reader it is - at phone-390 and desktop-1280 as oversight. Witness: MCP walk 2026-10-19T02:42:18.449Z (.tmp/slw/results/a1w_7.json) as Leandro Marquez (leandromarquez), in its own context with service workers blocked: phone-390 (4485 chars healthy, 16 reads): r500 (every read answered 500, 3 intercepted): \"Platform Actions could not check your access just now, so its queues stay closed. Reload the page to try again.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 3 intercepted): \"Platform Actions could not check your access just now, so its queues stay closed. Reload the page to try again.\" - names the refusal; no machine text, no empty state over the failure, no wrong cause | f429: ungraded (the page calls no edge function at start-up) || desktop-1280 (4485 chars healthy, 16 reads): r500 (every read answered 500, 3 intercepted): \"Platform Actions could not check your access just now, so its queues stay closed. Reload the page to try again.\" - a new Retry; no machine text, no empty state over the failure, no wrong cause | r403 (every read refused with PostgREST's stock 42501, 3 intercepted): \"Platform Actions could not check your access just now, so its queues Receipt .tmp/mcp_walks/SL882.json.",
+      "artifacts": {
+        "gates": [
+          "offline-is-not-no",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal",
+          "write-failure-speaks"
+        ]
       }
     },
     {
@@ -1014833,5 +1015153,5 @@
       }
     }
   ],
-  "next": "SL A1 a refusal has a sentence (32), A2 no double submit (21), A4 slow reads (30); then AV2-4, C2/C3, L2-4, LB1-4, RL1-3. SL D4 6/6 CLOSED (file-storage-owned: 12 file inputs on 6 pages, each walked at 390+1280 - marketplace uploads held until a save names them and deleted on Remove/replace/unsaved close/leaving, Remove raised above the overlay input, inventory Remove really removes, the defect photo stays with its logbook entry, every read-only intake says it keeps nothing; live: no unnamed object in the public bucket). ENH-R 97/97 and SL D1 99/99 CLOSED. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL A2 no double submit, idempotent writes (21), A4 slow reads: skeleton, timeout, freshness (30); then AV2-4, C2/C3, L2-4, LB1-4, RL1-3. SL A1 32/32 CLOSED (refusal-has-a-sentence: visitor vs member sentences, notice Sign in only for a visitor, admin check 'could not check' on any error, refusals no longer called outages, no empty state over a failed read, refused live refreshes said) and D4 6/6 CLOSED. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

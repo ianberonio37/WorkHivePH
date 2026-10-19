@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1026-files
-source_sha: 59c6b44b8421f03f
+source: memory-curated:1027-files
+source_sha: e0a324743563948f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1026 durable topic files)
+## memory · curated auto-memory (1027 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=635 · project=301 · reference=90
+**By type:** feedback=636 · project=301 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -211,6 +211,7 @@ Entries (name · type · sha):
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
 - `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 001495ac3d6067c7
+- `feedback_an_upload_before_its_save_needs_an_exit` · feedback · 84729b1a6da34e20
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_ancestor_padding_cannot_move_a_viewport_pinned_box` · feedback · d7fb7cff282a0b8a
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_short_denominator_is_a_false_100` · feedback · bbe8983dd599c8f5
 - `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
 - `feedback_skill_first_rule` · feedback · 53c4483d1b391308
-- `feedback_skill_improvement` · feedback · dca320aa84326d9c
-- … +526 more (all included in the fingerprint)
+- … +527 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

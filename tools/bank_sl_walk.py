@@ -151,6 +151,17 @@ CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the l
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
+GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
+CONDITION["A1"] = ("the page read as served in its own browser context (service workers blocked, so no worker could answer a "
+                   "read the injection meant to fail), signed in as the row's cast: a healthy read, then the page's own "
+                   "data reads failed from the first byte by an init script patching fetch before any page script - 500 "
+                   "internal server error, then PostgREST's stock 42501 permission denied, then (on a page that calls one "
+                   "at start-up) every edge call answered with the platform's real 429 body; each settled 11 s and every "
+                   "live region the page showed recorded; graded on the sentences the page NEWLY said: failure- or "
+                   "refusal-shaped with a next step, no machine text, no new empty state over a failed read, the refusal "
+                   "named as a refusal and an outage never blamed on permission or on the device's connection, a visitor "
+                   "never addressed as a member, the page not bounced; a condition the page never reached ungraded; edge "
+                   "calls carried x-wh-walk-no-model")
 CONDITION["D4"] = ("the page read as served, signed in as the row's cast, the file handed to the page's OWN control "
                    "(setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), "
                    "edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, "

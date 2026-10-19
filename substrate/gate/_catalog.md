@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 6f9cc65ec98ce428
+source_sha: 581aa8d924f1fc9a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1400) — the 'what's already gated' brain
+## gate · registered validators (1401) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1029)
+### Platform (1030)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1168,6 +1168,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `reference-repaint-focus` [fail] — Repaint keeps focus + draft: filter inputs (validator-catalog, logbook, marketplace, marketplace-admin, platform-actions) and poll/realtime repaints (hive coach
 - `reference-shared-ripple` [fail] — Reference pages still paint their own content (or say so) with the shared scripts aborted (validator-catalog, design-system, symbol-gallery, llm-observability, 
 - `refresh-retry-dedup` ⚡ [fail] — DEEPWALK D2 gate (static teeth) — a NON-idempotent client write (a fresh-id INSERT or a decrement/increment RPC) has no idempotency key, so a refresh-mid-submit
+- `refusal-has-a-sentence` ⚡ [fail] — SL A1 (2026-10-19): every refused or failed request gets a sentence a person can act on, naming the cause it was, to the reader it is - the shared refusal sente
 - `refusal-kindness` [fail] — Refusal kindness (a rate-limit refusal says WHEN to return and WHOSE limit was spent, and retrying does not lengthen it)
 - `rejection-reaches-the-submitter` [fail] — T20: a refusal must reach the person who was refused (2026-08-26). A supervisor clearing the approval queue rejects an asset, a part, a change order; the item l
 - `release-safety` [fail] — Release safety (a release announces itself, screens are in step with the schema, work in progress survives)

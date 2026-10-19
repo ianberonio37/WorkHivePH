@@ -404,7 +404,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whListError whListSkeleton whLoadRewardKnobs whQueryTimeout whSourcesSync">
+<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whIsAccessDenied whListError whListSkeleton whLoadRewardKnobs whQueryTimeout whReadError whSourcesSync">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -582,6 +582,7 @@
     // listings. "Not found" is a claim that a read SUCCEEDED and came back empty; when neither read succeeded the honest
     // state is "could not load", with a way to try again.
     let _readFailed = false, _rpcFailed = false;
+    let _readErr = null, _rpcErr = null;   // kept: a refusal and an outage are different sentences (SL A1)
     try {
       // Canonical: marketplace_sellers_truth — bridges in active_listings_count
       // and is_verified_public so the hero card avoids a follow-up query.
@@ -590,9 +591,9 @@
         .select('worker_name, hive_id, tier, kyb_verified, kyb_verified_at, cert_verified, cert_verified_at, certifications, total_sales, rating_avg, rating_count, messenger_username, created_at, active_listings_count, is_verified_public, last_listed_at')
         .eq('worker_name', WORKER_VIEW)
         .maybeSingle();
-      if (_sErr) _readFailed = true;
+      if (_sErr) { _readFailed = true; _readErr = _sErr; }
       _seller = data;
-    } catch (_) { _seller = null; _readFailed = true; }
+    } catch (_e) { _seller = null; _readFailed = true; _readErr = _e; }
 
     // J19/MK7 (deepwalk 2026-07-24): ANON fallback. marketplace_sellers RLS is authenticated-only
     // (mkt_sellers_read USING auth.uid() IS NOT NULL) and the truth view is security_invoker, so the
@@ -604,9 +605,9 @@
     if (!_seller) {
       try {
         const { data: pub, error: _pErr } = await db.rpc('get_marketplace_seller_public', { p_worker_name: WORKER_VIEW });
-        if (_pErr) _rpcFailed = true;
+        if (_pErr) { _rpcFailed = true; _rpcErr = _pErr; }
         _seller = (pub && pub[0]) || null;
-      } catch (_) { _rpcFailed = true; /* the unread state below renders instead of "not found" */ }
+      } catch (_e) { _rpcFailed = true; _rpcErr = _e; /* the unread state below renders instead of "not found" */ }
     }
 
     // X-axis bridge (Community PDDA 7th): pull this seller's PORTABLE community reputation
@@ -649,6 +650,7 @@
         if (_readFailed && _rpcFailed) {
           window.__mspState = 'failed';
           const _off = (navigator.onLine === false);
+          const _mspErr = _rpcErr || _readErr;
           pageEl.innerHTML = `
       <a href="marketplace.html" class="back-link">
         <span class="ic ic-back" aria-hidden="true"></span>
@@ -660,8 +662,15 @@
         <p>${escHtml(_off
           ? _t(`You are offline, so the profile of "${WORKER_VIEW}" could not be read. It will load when your connection is back.`,
                `Offline ka, kaya hindi mabasa ang profile ni "${WORKER_VIEW}". Maglo-load ito kapag bumalik ang koneksyon mo.`)
-          : _t(`WorkHive did not answer, so the profile of "${WORKER_VIEW}" could not be read. This does not mean the seller is gone.`,
-               `Hindi sumagot ang WorkHive, kaya hindi mabasa ang profile ni "${WORKER_VIEW}". Hindi ibig sabihin na wala na ang seller.`))}</p>
+          /* ★A REFUSAL WAS ANSWERED "WORKHIVE DID NOT ANSWER" (SL A1 walk, 2026-10-19). Both reads failing always said
+             the service was down, so a REFUSED read (403/42501) told the person to wait and Retry - the one thing that
+             cannot help - and named the wrong cause: WorkHive had answered, with a no. whReadError tells a refusal, a
+             dead session, a rate limit and a silent service apart (and speaks to a signed-out visitor as one); the
+             reassurance stays on the outage, where it is true. */
+          : (_mspErr && typeof whReadError === 'function'
+              ? whReadError(_mspErr, `the profile of "${WORKER_VIEW}"`) + ((typeof whIsAccessDenied === 'function' && whIsAccessDenied(_mspErr)) ? '' : ' ' + _t('This does not mean the seller is gone.', 'Hindi ibig sabihin na wala na ang seller.'))
+              : _t(`WorkHive did not answer, so the profile of "${WORKER_VIEW}" could not be read. This does not mean the seller is gone.`,
+                   `Hindi sumagot ang WorkHive, kaya hindi mabasa ang profile ni "${WORKER_VIEW}". Hindi ibig sabihin na wala na ang seller.`)))}</p>
         <button type="button" id="msp-seller-retry" style="min-height:44px;margin-top:0.75rem;padding:0 1.25rem;border-radius:8px;font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);">${escHtml(_t('Retry', 'Subukan ulit'))}</button>
       </div>`;
           document.getElementById('msp-seller-retry')?.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });

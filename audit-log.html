@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -753,7 +753,10 @@
       // E2 consistent states: inline error + Retry (shared whListError) plus the
       // platform toast, never a blank panel or a stuck skeleton.
       if (typeof whListError === 'function') {
-        whListError(feedEl, _t("Couldn’t load the audit log. Check your connection and try again.", "Hindi ma-load ang audit log. Suriin ang koneksyon at subukan muli."), () => loadEntries());
+        // ★EVERY CAUSE WAS "CHECK YOUR CONNECTION" (SL A1 walk, 2026-10-19): a refused read (403) and a service that did not
+        // answer (500) were both told to go and check a connection that was fine. whReadError names the cause it was.
+        whListError(feedEl, (typeof whReadError === 'function') ? whReadError(error, 'the audit log')
+          : _t("Couldn’t load the audit log. Check your connection and try again.", "Hindi ma-load ang audit log. Suriin ang koneksyon at subukan muli."), () => loadEntries());
       } else {
         feedEl.innerHTML =
           '<div class="loading" style="color:var(--red);">' + _t("Failed to load: ", "Hindi na-load: ") + '' + escHtml(error.message || error) + '</div>';

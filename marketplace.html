@@ -1273,7 +1273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1338,7 +1338,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _rateLimited   = null;   // when the failure was a 429, the human-readable wait ("60 seconds") — null otherwise
   let _authExpired   = false;  // ...and when it was a 401, the remedy is signing in, not retrying
   let _accessDenied  = false;  // ...while a 403 is a REFUSED ROW with a perfectly good session, and
+  let _loadErrObj    = null;   // the refusal itself, so whReadError can word it for a member OR a visitor (SL A1)
                                // signing in again cannot fix it — a different fact needing different words
+
+  /* ★A REFUSAL WAS ANSWERED "WORKHIVE DID NOT ANSWER" (SL A1 walk, 2026-10-19). _accessDenied was computed and read
+     only by the toast; the verdict line and the listings grid kept to rate-limit / session / offline / no-answer, so a
+     refused read told the person WorkHive had not answered and to try again - the wrong cause and a remedy that cannot
+     work. One sentence for the refusal, worded by whReadError so a signed-out visitor is told to sign in, not that
+     "this account" lacks access. */
+  function _mkDeniedSaid(what) {
+    return (typeof whReadError === 'function' && _loadErrObj) ? whReadError(_loadErrObj, what)
+      : 'This account does not have access to ' + what + '. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.';
+  }
 
   /* PostgREST/most gateways answer a rate limit with Retry-After, in seconds or as an HTTP date.
      Without it there is still an honest thing to say ("a moment"), which beats a bare error. */
@@ -2441,7 +2452,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const vIconE = document.getElementById('mk-verdict-icon'); if (vIconE) vIconE.textContent = '⚠';
       const vLblE = document.getElementById('mk-verdict-label');
       if (vLblE) vLblE.textContent = _rateLimited ? 'Too many requests just now'
-        : _authExpired ? 'Your session expired' : _t("Couldn't load the marketplace", "Hindi ma-load ang marketplace");
+        : _authExpired ? 'Your session expired' : _accessDenied ? 'The listings were not shown to you' : _t("Couldn't load the marketplace", "Hindi ma-load ang marketplace");
       const vSbE  = document.getElementById('mk-verdict-sub');
       if (vSbE) vSbE.textContent = _t('These are not counts: the listings could not be read, so nothing here is known yet.', 'Hindi ito mga bilang: hindi mabasa ang mga listing, kaya wala pang alam dito.');
       const actE = document.getElementById('mk-action-text');
@@ -2451,6 +2462,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         ? `The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
         : _authExpired
         ? 'Your sign-in is no longer valid, so the figures above are unknown rather than zero, not an empty marketplace. Sign in again using the button below. Nothing you did was lost.'
+        : _accessDenied
+        ? _mkDeniedSaid('the marketplace listings') + ' The figures above are unknown rather than zero.'
         : (navigator.onLine === false)
         ? _t('You are offline, so the figures above are unknown rather than zero, not an empty marketplace. They will load when your connection is back.', 'Offline ka, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.')
         // 2026-10-06 (marketplace x assistive-tech, PostgREST stopped): "if it keeps failing, check your connection" was
@@ -2639,11 +2652,13 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         grid/* xss-allow: _rateLimited is built by _retryAfterSeconds from a numeric parse, never raw input */ .innerHTML = `
         <div class="empty-state">
           <span class="ic ic-warning ic-xl" aria-hidden="true"></span>
-          <h3>${_rateLimited ? 'Too many requests' : _authExpired ? 'Your session expired' : _t("Couldn't load listings", "Hindi ma-load ang mga listing")}</h3>
+          <h3>${_rateLimited ? 'Too many requests' : _authExpired ? 'Your session expired' : _accessDenied ? 'The listings were not shown to you' : _t("Couldn't load listings", "Hindi ma-load ang mga listing")}</h3>
           <p style="max-width:420px;margin:0 auto 0.9rem;">${_rateLimited
             ? `The marketplace is limiting how often it can be read right now. Your connection is fine: wait about ${_rateLimited}, then retry.`
             : _authExpired
             ? 'The marketplace could not be read because your sign-in is no longer valid. Retrying will not help until you sign in again. Nothing you did was lost.'
+            : _accessDenied
+            ? escHtml(_mkDeniedSaid('the marketplace listings'))
             : (navigator.onLine === false)
             ? _t('You are offline, so the marketplace could not be read. Retry when your connection is back.', 'Offline ka, kaya hindi mabasa ang marketplace. Subukan muli kapag bumalik ang koneksyon mo.')
             : _t('WorkHive did not answer, so the listings could not be read. This is not an empty marketplace. Try again in a moment.', 'Hindi sumagot ang WorkHive, kaya hindi mabasa ang mga listing. Hindi ito walang-laman na marketplace. Subukan muli maya-maya.')}</p>
@@ -2900,13 +2915,14 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
                                  (_err._httpStatus == null && String(_err.code) === '42501')));
       _accessDenied = !_authExpired && !!(_err && (_err._httpStatus === 403 ||
                                  (_err._httpStatus === 403 && String(_err.code) === '42501')));
+      _loadErrObj = _err;
       if (typeof showToast === 'function') {
         showToast(_rateLimited
           ? `Too many requests. The marketplace is limiting how often it can be read. Try again in ${_rateLimited}.`
           : _authExpired
           ? _t('Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.', 'Nag-expire ang session mo, kaya hindi mabasa ang marketplace. Mag-sign in muli para magpatuloy. Walang nawala sa ginawa mo.')
           : _accessDenied
-          ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.'
+          ? _mkDeniedSaid('the marketplace listings')
           : (navigator.onLine === false)
           ? _t("You are offline, so the listings could not be loaded.", "Offline ka, kaya hindi ma-load ang mga listing.")
           : _t("Couldn't load listings - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang mga listing - hindi sumagot ang WorkHive. Subukan muli maya-maya."), 'error');

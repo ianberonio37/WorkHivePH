@@ -68,7 +68,11 @@ def main() -> int:
             guard = re.search(r"if\s*\(\s*!\s*error\s*\)\s*\{", after)
             if not guard:
                 continue                       # no !error branch: not this shape
-            tail = after[guard.end():guard.end() + 700]
+            # ★THE TAIL WAS CUT FROM THE WINDOW, NOT THE SOURCE (SL A1, 2026-10-19): community's un-react guard sits 775
+            # characters into the 900-character window, behind a long comment in the delete chain, so its `} else` fell
+            # outside what was read and a write that DOES speak was reported silent. Read the tail from the source.
+            gpos = m.end() + guard.end()
+            tail = src[gpos:gpos + 700]
             has_else = re.search(r"\}\s*else\b", tail)
             speaks = SPEAKS.search(after[:guard.start()]) or (has_else and SPEAKS.search(tail))
             if not has_else and not speaks:

@@ -1844,6 +1844,21 @@
       const list = document.getElementById('asset-list');
       const empty = document.getElementById('list-empty');
       if (!list || !empty) return;
+      // ★A FAILED READ DREW "NO APPROVED ASSETS IN THIS HIVE YET" (SL A1 walk, 2026-10-19). The summary above already
+      // says "Could not load your asset fleet ... not zero", but this list ran on the empty _allNodes a failed read
+      // leaves and drew the empty state under it - "there are none, go and add some" beside "they are still there".
+      // A read that failed has no list to filter: the failure card owns this region (painted here if the summary has
+      // not reached it yet), and the empty state is only ever the answer of a read that succeeded.
+      if (_ahReadFailed) {
+        empty.style.display = 'none';
+        const _lm = document.getElementById('asset-load-more-wrap');
+        if (_lm) _lm.classList.add('hidden');
+        if (!list.querySelector('.wh-list-error') && typeof whListError === 'function') {
+          whListError(list, 'Could not load your asset fleet. Critical-asset and pending counts are '
+            + 'unknown right now, not zero. Your assets are still there.', () => location.reload());
+        }
+        return;
+      }
 
       const q = whFold((document.getElementById('asset-search')?.value || '').trim());
       // ★THE VERDICT'S INSTRUCTION NEEDED A CONTROL (design lens critique, 2026-09-15). "Show the flagged

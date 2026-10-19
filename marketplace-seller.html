@@ -1383,11 +1383,14 @@
       }
       const _nn = document.getElementById('cw-negative-note');
       if (_nn) {
-        _nn.textContent = (navigator.onLine === false)
-          ? _t('You are offline, so your credit balance could not be read. It is not zero; it will show when your connection is back.',
-               'Offline ka, kaya hindi mabasa ang credit balance mo. Hindi ito zero; lalabas ito kapag bumalik ang koneksyon mo.')
-          : _t('Your credit balance could not be read - WorkHive did not answer. It is not zero; it will show when the page reloads.',
-               'Hindi mabasa ang credit balance mo - hindi sumagot ang WorkHive. Hindi ito zero; lalabas ito pag nag-reload ang page.');
+        /* ★THE WALLET BLAMED THE SERVICE FOR A REFUSAL (SL A1 walk, 2026-10-19): this note had one cause written into
+           it, so a refused read told the seller WorkHive "did not answer" - beside _failCopy's own line on the same
+           panel saying the account has no access. _failCopy, this page's classifier, names the cause; the "not zero"
+           half stays, because it is true whatever the cause. */
+        const _keepReason = _lastFailReason;   // _failCopy resets it; the stats' gap note still owns its own reason
+        _nn.textContent = _failCopy(_e, { en: 'your credit balance', fil: 'credit balance mo' }) + ' '
+          + _t('It is not zero.', 'Hindi ito zero.');
+        _lastFailReason = _keepReason || _lastFailReason;
         _nn.style.display = '';
       }
     }

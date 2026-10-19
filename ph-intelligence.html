@@ -324,7 +324,7 @@
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whSignInWall whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whSignInWall whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -477,7 +477,13 @@
     // found nothing shows the empty state.
     const _tPh = (en, fil) => (typeof window._t === 'function') ? window._t(en, fil) : en;
     if (error) {
-      const _msg = (navigator.onLine === false)
+      // ★A REFUSAL WAS ANSWERED "WORKHIVE DID NOT ANSWER" (SL A1 walk, 2026-10-19): this sentence was written for one
+      // cause and shown for every cause, so a refused read (403/42501) told the person to wait and try again for a
+      // "no". whReadError reads the error - refusal, dead session, rate limit, offline, a silent service - and says that.
+      const _refused = typeof whIsAccessDenied === 'function' && whIsAccessDenied(error);
+      const _msg = (typeof whReadError === 'function')
+        ? whReadError(error, 'the PH Intelligence report') + (_refused ? '' : ' ' + _tPh('This does not mean there is no report.', 'Hindi ibig sabihin na walang report.'))
+        : (navigator.onLine === false)
         ? _tPh('You are offline, so the PH Intelligence report could not be read. It will load when your connection is back.',
              'Offline ka, kaya hindi mabasa ang PH Intelligence report. Maglo-load ito kapag bumalik ang koneksyon mo.')
         : _tPh('Couldn’t load the PH Intelligence report - WorkHive did not answer. This does not mean there is no report.',

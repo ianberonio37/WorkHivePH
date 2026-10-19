@@ -4330,6 +4330,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "refusal-has-a-sentence",
+        "script":  "tools/validate_refusal_sentences.py",
+        "args":    [],
+        "label":   "SL A1 (2026-10-19): every refused or failed request gets a sentence a person can act on, naming the cause it was, to the reader it is - the shared refusal sentences and the page-wide notice speak to a signed-out visitor as one (no 'this account' / 'ask a supervisor'), the notice offers Sign in only to a visitor, an admin check the server failed or refused is 'could not check' (never 'not an admin'), 13 page fixes hold (refusals not called outages, no empty state over a failed read, refused live refreshes said), and hard-coded 'did not answer' sentences never rise",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "file-storage-owned",
         "script":  "tools/validate_file_storage.py",
         "args":    [],

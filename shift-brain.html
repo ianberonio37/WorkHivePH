@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFreshnessFooter whListSkeleton whRequireOnline whSourcesSync whStartupHive whStatValue">
+<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFnError whFreshnessFooter whListSkeleton whRequireOnline whSourcesSync whStartupHive whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -703,13 +703,18 @@
 
       if (!_activePlan) {
         card.style.display = 'none';
-        empty.style.display = 'block';
+        // ★A FAILED READ OFFERED "NO PLAN EXISTS FOR THIS SHIFT YET - GENERATE NOW" (SL A1 walk, 2026-10-19). The verdict
+        // below already says the plan could not be read and "a plan may already be published" - and this card, shown
+        // whatever the read did, said the opposite and put Generate now under a supervisor's thumb: a duplicate plan
+        // for a shift whose plan may exist. "No plan exists" is the answer of a read that succeeded; a failed one gets
+        // the verdict's sentence and its Retry, and nothing to generate.
+        empty.style.display = _sbReadFailed ? 'none' : 'block';
         actions.style.display = 'none';
         document.querySelectorAll('.section-card').forEach(c => {
           if (c.id !== 'empty-state') c.style.display = 'none';
         });
-        document.getElementById('empty-supervisor').style.display = HIVE_ROLE === 'supervisor' ? 'block' : 'none';
-        document.getElementById('empty-worker').style.display     = HIVE_ROLE !== 'supervisor' ? 'block' : 'none';
+        document.getElementById('empty-supervisor').style.display = (!_sbReadFailed && HIVE_ROLE === 'supervisor') ? 'block' : 'none';
+        document.getElementById('empty-worker').style.display     = (!_sbReadFailed && HIVE_ROLE !== 'supervisor') ? 'block' : 'none';
 
         const vLbl  = document.getElementById('sb-verdict-label');
         const vSub  = document.getElementById('sb-verdict-sub');
@@ -877,9 +882,23 @@
         const bt = document.getElementById('brief-text');
         if (!bt || !HIVE_ID || typeof renderActionBrief !== 'function') return;
         try {
-          const { data } = await db.functions.invoke('analytics-orchestrator', {
+          const { data, error: _bfErr } = await db.functions.invoke('analytics-orchestrator', {
             body: { phase: 'prescriptive', hive_id: HIVE_ID, horizon: 'shift' },
           });
+          /* ★A REFUSED LIVE REFRESH WENT SILENT (SL A1 walk, 2026-10-19), alert-hub's twin: with the orchestrator answering
+             429 the stored briefing stayed (true) and nothing said the live upgrade had not happened or when it can. The
+             function's own sentence says why and when; one note, replaced on the next render. */
+          document.querySelectorAll('.sb-brief-refresh-note').forEach((x) => x.remove());
+          if (_bfErr) {
+            let _why = '';
+            try { _why = (typeof whFnError === 'function') ? await whFnError(_bfErr, '') : ''; } catch (_) { _why = ''; }
+            const _note = document.createElement('div');
+            _note.className = 'sb-brief-refresh-note';
+            _note.setAttribute('role', 'status');
+            _note.style.cssText = 'font-size:0.8rem;color:var(--muted,rgba(255,255,255,0.8));margin:4px 0 8px;';
+            _note.textContent = 'The live refresh did not run' + (_why ? ': ' + _why : '.') + ' The briefing below is the stored one.';
+            try { bt.parentNode && bt.parentNode.insertBefore(_note, bt); } catch (_) { /* empty-catch-allow: a note must never break the briefing */ }
+          }
           // an EMPTY plan (no model answered) must not replace the stored briefing on screen (utils.js whActionPlanHasContent)
           const _apRaw = data && data.action_plan;
           let ap = (typeof whActionPlanHasContent === 'function' ? whActionPlanHasContent(_apRaw) : !!_apRaw) ? _apRaw : null;
