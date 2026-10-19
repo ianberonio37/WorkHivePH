@@ -7578,6 +7578,51 @@ async function whCompressImage(input, opts) {
 }
 if (typeof window !== 'undefined') { window.whCompressImage = whCompressImage; }
 
+// ★A PHOTO PICKED AND THEN DROPPED STAYED IN THE PUBLIC BUCKET (SL D4, 2026-10-19). The marketplace pickers upload the
+// moment a photo is chosen, so a slow upload runs while the seller is still typing - and nothing ever took an upload
+// back. Remove, picking a second photo, closing the edit sheet unsaved or leaving the page each left the object in
+// marketplace-listings, a PUBLIC bucket, served by its URL to anyone holding it, after the person had taken it off
+// their screen. T134 already deletes a deleted listing's photo and the one a SAVED edit replaces; this owns the upload
+// no row ever named. hold(key) keeps the upload a form has not saved, release() deletes it, commit() hands it to the
+// row that now names it. A page that is going away cannot wait for the client's own call, so leaving with one held
+// sends the delete as a keepalive request, with the session the client persisted. Best-effort throughout: a cleanup
+// must never cost the person their form. opts.onLeave runs after a leave-time delete, so a page restored from the
+// back-forward cache does not show a photo whose object is gone.
+function whHeldUpload(db, bucket, opts) {
+  opts = opts || {};
+  let held = null;
+  const drop = (key) => {
+    if (!key) return;
+    try { db.storage.from(bucket).remove([key]).then(() => {}, () => {}); }
+    catch (_) { /* empty-catch-allow: a cleanup must never cost the person their form */ }
+  };
+  window.addEventListener('pagehide', () => {
+    const key = held;
+    held = null;
+    if (!key) return;
+    try {
+      let tok = '';
+      try {
+        const s = JSON.parse(localStorage.getItem(db.auth.storageKey) || 'null');
+        tok = (s && (s.access_token || (s.currentSession && s.currentSession.access_token))) || '';
+      } catch (_) { /* empty-catch-allow: no stored session -> the request goes unauthenticated and is refused */ }
+      fetch(String(db.storageUrl).replace(/\/$/, '') + '/object/' + encodeURIComponent(bucket), { // fetch-error-allow: a leaving page has no one to tell
+        method: 'DELETE', keepalive: true,
+        headers: { apikey: db.supabaseKey, Authorization: 'Bearer ' + (tok || db.supabaseKey), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prefixes: [key] }),
+      }).catch(() => {});
+    } catch (_) { /* empty-catch-allow: best-effort, as above */ }
+    try { if (typeof opts.onLeave === 'function') opts.onLeave(); } catch (_) { /* empty-catch-allow: the page is leaving */ }
+  });
+  return {
+    hold(key) { if (held && held !== key) drop(held); held = key || null; },
+    release() { const k = held; held = null; drop(k); },
+    commit() { held = null; },
+    get key() { return held; },
+  };
+}
+if (typeof window !== 'undefined') { window.whHeldUpload = whHeldUpload; }
+
 // ── whPoll — Arc L scale-out (2026-06-23): visibility-aware polling fallback ──
 // The 1M realtime decision (Ian: "reduce + poll-fallback, no new infra"): Supabase
 // Realtime caps ~10K concurrent channels, so at 20K peak-concurrent users a per-user

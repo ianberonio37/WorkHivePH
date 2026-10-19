@@ -1054,7 +1054,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
           <img id="post-image-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="post-image-status" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <!-- ★REMOVE PHOTO COULD NOT BE TAPPED (SL D4 walk, 2026-10-19). The file input above covers the whole zone (position:absolute; inset:0) so a tap anywhere picks a photo - and this button, painted in flow beneath that positioned input, was covered too: a tap on Remove opened the photo picker, so a photo could be replaced but never taken off. Raised above the input (position:relative; z-index:1) and a 44px target. -->
+          <button type="button" id="post-image-remove" style="position:relative;z-index:1;min-height:44px;margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="post-image-url" value="" />
@@ -1272,7 +1273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whI18nApply whQueryTimeout whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3816,7 +3817,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     });
   }
 
-  /* Upload a Blob to Supabase Storage and return its public URL */
+  /* Upload a Blob to Supabase Storage. Returns its public URL and its object key - the key is what a later delete names */
   async function uploadImageBlob(blob) {
     const filename = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now()) + '.jpg';
     const { error } = await db.storage.from(STORAGE_BUCKET).upload(filename, blob, {
@@ -3826,8 +3827,15 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     });
     if (error) throw error;
     const { data } = db.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
-    return data?.publicUrl || '';
+    return { url: data?.publicUrl || '', key: filename };
   }
+
+  /* ★THE PHOTO THIS FORM UPLOADED AND NEVER POSTED (SL D4, 2026-10-19). The upload runs the moment a photo is picked,
+     so a slow line uploads while the seller types. Remove, a second pick and leaving the page all used to leave that
+     upload in this PUBLIC bucket; whHeldUpload (utils.js) now holds it until the listing names it, and deletes it on
+     any of those. Closing the sheet keeps it, because the form keeps it: reopening shows the same photo, still posted
+     with the listing. */
+  let _postHeld = null;
 
   /* Wire the post-form image picker (preview + compress + upload + remove) */
   function wirePostImagePicker() {
@@ -3839,10 +3847,14 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     const removeBtn   = document.getElementById('post-image-remove');
     const urlInput    = document.getElementById('post-image-url');
     if (!fileInput) return;
+    if (typeof whHeldUpload === 'function') _postHeld = whHeldUpload(db, STORAGE_BUCKET, { onLeave: resetPostImagePicker });
 
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files?.[0];
       if (!file) return;
+      /* a new pick replaces the photo on screen, so the one uploaded before it is no longer the listing's */
+      if (_postHeld) _postHeld.release();
+      if (urlInput) urlInput.value = '';
 
       /* Show local preview while compressing/uploading */
       const localUrl = URL.createObjectURL(file);
@@ -3854,8 +3866,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       try {
         const blob = await compressImageFile(file);
         if (statusEl) statusEl.textContent = 'Uploading… (' + Math.round(blob.size / 1024) + ' KB)';
-        const publicUrl = await uploadImageBlob(blob);
-        if (urlInput) urlInput.value = publicUrl;
+        const up = await uploadImageBlob(blob);
+        if (_postHeld) _postHeld.hold(up.key);
+        if (urlInput) urlInput.value = up.url;
         if (statusEl) {
           statusEl.style.color = '#4ade80';
           statusEl.textContent = '✓ Photo ready (' + Math.round(blob.size / 1024) + ' KB)';
@@ -3878,6 +3891,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     const previewView = document.getElementById('post-image-preview');
     const statusEl    = document.getElementById('post-image-status');
     const urlInput    = document.getElementById('post-image-url');
+    if (_postHeld)  _postHeld.release();   // nothing after a post: the post commits it first
     if (fileInput)  fileInput.value  = '';
     if (urlInput)   urlInput.value   = '';
     if (emptyView)   emptyView.style.display   = 'block';
@@ -4105,6 +4119,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           { seller_name: WORKER_NAME || 'Anonymous', title: title, section: section, status: 'draft' },
           { windowMs: 30000, tsColumn: 'created_at' });
         if (_dupId) {
+          // the listing that landed may name this very photo (its reply was lost, not its write), so keep it
+          if (_postHeld) _postHeld.commit();
           showToast('That listing was just posted; no duplicate created.', 'success');
           closeSheet('post');
           return;
@@ -4135,6 +4151,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           .map(([k]) => k)
       }]);
       if (error) throw error;
+      if (_postHeld) _postHeld.commit();   // the listing names the photo now; the reset below must not delete it
 
       writeAuditLog('create_listing', 'marketplace_listings', null, title,
         { section, category, price, status: 'draft' });
@@ -4918,6 +4935,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           '<input id="svc-pay-img-' + id + '" type="file" accept="image/*" ' +
           'onchange="svcReadPayReceipt(\'' + id + '\', this)" ' +
           'aria-label="Upload a screenshot of your GCash receipt" style="display:none;">' +
+          /* SL D4 (2026-10-19): where the screenshot goes. gcash-receipt-ocr reads it and stores nothing; only the
+             amount and reference the buyer files are kept - so the page says so, the way resume.html does. */
+          '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.25rem;">The screenshot is read for the amount and reference, then discarded.</div>' +
         '</div>' +
         /* THE SPEND HALF OF THE SWITCH. Filled in asynchronously and left empty when the buyer holds no
            credits, so a wallet at zero never shows a field that can only refuse. The sheet itself stays

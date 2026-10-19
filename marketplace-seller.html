@@ -632,7 +632,8 @@
           <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
           <img id="edit-image-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
           <div id="edit-image-status" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
-          <button type="button" id="edit-image-remove" style="margin-top:0.5rem;padding:0.375rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
+          <!-- ★REMOVE PHOTO COULD NOT BE TAPPED (SL D4 walk, 2026-10-19). The file input above covers the whole zone (position:absolute; inset:0) so a tap anywhere picks a photo - and this button, painted in flow beneath that positioned input, was covered too: a tap on Remove opened the photo picker, so a photo could be replaced but never taken off. Raised above the input (position:relative; z-index:1) and a 44px target. -->
+          <button type="button" id="edit-image-remove" style="position:relative;z-index:1;min-height:44px;margin-top:0.5rem;padding:0.375rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red-text);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size: 0.75rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
       <input type="hidden" id="edit-image-url" value="" />
@@ -645,7 +646,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHiveId whListError whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1733,7 +1734,19 @@
     });
     if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
     const { data } = db.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
-    return data?.publicUrl || '';
+    return { url: data?.publicUrl || '', key: filename };
+  }
+
+  /* ★THE PHOTO THIS SHEET UPLOADED AND NEVER SAVED (SL D4, 2026-10-19). T134 deletes the photo a SAVED edit replaces and
+     a deleted listing's photo; the upload a seller picked and then removed, replaced with another, or walked away from
+     (sheet closed, page left) stayed in this PUBLIC bucket. whHeldUpload (utils.js) holds it until the save names it.
+     The listing's saved photo is never the held one, so closing the sheet leaves it exactly as it was. */
+  let _editHeld = null;
+  function closeEditSheet() {
+    if (_editHeld) _editHeld.release();
+    document.getElementById('overlay-edit')?.classList.remove('open');
+    document.getElementById('sheet-edit')?.classList.remove('open');
+    document.body.style.overflow = '';
   }
 
   function wireEditImagePicker() {
@@ -1745,10 +1758,15 @@
     const removeBtn   = document.getElementById('edit-image-remove');
     const urlInput    = document.getElementById('edit-image-url');
     if (!fileInput) return;
+    if (typeof whHeldUpload === 'function') {
+      // a page restored from the back-forward cache shows the listing's saved photo, not the deleted upload
+      _editHeld = whHeldUpload(db, STORAGE_BUCKET, { onLeave: () => { if (_editItem) preloadEditImageFromExisting(_editItem); } });
+    }
 
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files?.[0];
       if (!file) return;
+      if (_editHeld) _editHeld.release();   // a second pick: the photo uploaded before it is no longer the one shown
       const localUrl = URL.createObjectURL(file);
       if (previewImg)  previewImg.src = localUrl;
       if (emptyView)   emptyView.style.display   = 'none';
@@ -1757,8 +1775,9 @@
       try {
         const blob = await compressImageFile(file);
         if (statusEl) statusEl.textContent = 'Uploading… (' + Math.round(blob.size / 1024) + ' KB)';
-        const publicUrl = await uploadImageBlob(blob);
-        if (urlInput) urlInput.value = publicUrl;
+        const up = await uploadImageBlob(blob);
+        if (_editHeld) _editHeld.hold(up.key);
+        if (urlInput) urlInput.value = up.url;
         if (statusEl) {
           statusEl.style.color = 'var(--wh-green)';
           statusEl.textContent = '✓ Photo ready (' + Math.round(blob.size / 1024) + ' KB)';
@@ -1777,6 +1796,7 @@
     const previewView = document.getElementById('edit-image-preview');
     const statusEl    = document.getElementById('edit-image-status');
     const urlInput    = document.getElementById('edit-image-url');
+    if (_editHeld)   _editHeld.release();   // Remove: an unsaved upload goes; the saved photo goes only on Save (T134)
     if (fileInput)   fileInput.value   = '';
     if (urlInput)    urlInput.value    = '';
     if (emptyView)   emptyView.style.display   = 'block';
@@ -1805,6 +1825,7 @@
   function openEditSheet(id) {
     const item = _listings.find(l => l.id === id);
     if (!item) return;
+    if (_editHeld) _editHeld.release();   // a sheet opened on another listing: nothing unsaved survives into it
     _editItem = item;
 
     const titleEl    = document.getElementById('title-sheet-edit');
@@ -2032,6 +2053,7 @@
         if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save changes'; }
         return;
       }
+      if (_editHeld) _editHeld.commit();   // the row names the new photo now; closing the sheet must not delete it
 
       /* T134 (2026-08-26): REPLACING an image orphaned the old one, exactly as deleting a listing
          did - same public bucket, same permanent URL, and this path runs far more often than a
@@ -2661,6 +2683,8 @@
       '<input id="svc-topup-img-' + e(provId) + '" type="file" accept="image/*" ' +
       'onchange="svcReadTopupReceipt(\'' + e(provId) + '\', this)" ' +
       'aria-label="Upload a screenshot of your GCash receipt" style="display:none;">' +
+      /* SL D4 (2026-10-19): gcash-receipt-ocr reads the screenshot and stores nothing; the page says so. */
+      '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.25rem;">The screenshot is read for the amount and reference, then discarded.</div>' +
       /* HOW MUCH? The form asked for an amount and gave no way to arrive at one -- a provider had to
          work out 10% of listings they have not made yet. State the rule in the units they think in. */
       '<div style="font-size: 0.75rem;opacity:0.78;margin-top:0.5rem;line-height:1.45;">' +
@@ -3637,15 +3661,11 @@
     document.getElementById('btn-load-more-seller')?.addEventListener('click', loadMoreSeller);
 
 
-    document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
-    document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
+    document.getElementById('overlay-edit')?.addEventListener('click', closeEditSheet);
+    document.getElementById('btn-close-edit')?.addEventListener('click', closeEditSheet);
     // a11y (deep-walk dim 8, 2026-07-06): Escape closes the edit sheet (it had role/aria but no Escape).
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.getElementById('overlay-edit')?.classList.contains('open')) {
-        document.getElementById('overlay-edit')?.classList.remove('open');
-        document.getElementById('sheet-edit')?.classList.remove('open');
-        document.body.style.overflow = '';
-      }
+      if (e.key === 'Escape' && document.getElementById('overlay-edit')?.classList.contains('open')) closeEditSheet();
     });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
     wireEditImagePicker();

@@ -1372,7 +1372,7 @@
               <span data-i="p_scannameplate_b453">Scan nameplate</span>
             </button>
             <div class="text-xs flex-1 leading-snug" style="color:rgba(255,255,255,0.80);">
-              Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below.
+              Photograph the equipment nameplate. We will auto-fill manufacturer, model, and serial below. The photo itself is not kept.
               <!-- role=status (2026-10-12): "Scanning...", the fields filled and the failure were never announced -->
               <span id="a-scan-status" class="block mt-0.5" role="status" aria-live="polite" style="color:var(--wh-orange);"></span>
             </div>
@@ -6269,6 +6269,9 @@ function clearForm() {
   preview.classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
   currentPhotoData    = null;
+  // and the defect capture above the form: a saved or cancelled entry's photo is not the next entry's photo, and
+  // "Analyze with AI" must not draft a new entry from the last one's picture
+  vdcReset();
   _pendingAssetRefId  = null;
   window._lbAiFilled  = {};   // LM-V (LM422): a fresh entry has no AI-drafted fields yet
   _pmItemsForAsset    = [];
@@ -6310,12 +6313,13 @@ function clearForm() {
 // ────────────────────────────────────────────
 // PHOTO ATTACH
 // ────────────────────────────────────────────
-document.getElementById('f-photo').addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(ev) {
+// The entry's one photo, at the entry's budget. Q0 free-tier guard: ≤1 photo/entry (single `photo` column) + a post-
+// compression size assert. 800px/0.7 yields ~50-150 KB normally; if a pathological image still exceeds ~700 KB,
+// re-encode harder once, then reject rather than inline a huge base64 blob into the row (DB budget). Both ways a photo
+// reaches the entry - Attach Photo and the defect capture above it - go through here, so they cannot drift apart.
+// Resolves { data } or { error: 'size' | 'decode' }.
+function lbEncodeEntryPhoto(src) {
+  return new Promise((resolve) => {
     const img = new Image();
     img.onload = function() {
       const MAX = 800;
@@ -6324,27 +6328,45 @@ document.getElementById('f-photo').addEventListener('change', function() {
       canvas.width  = Math.round(img.width  * scale);
       canvas.height = Math.round(img.height * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
-      // Q0 free-tier guard: ≤1 photo/entry (single `photo` column) + a post-
-      // compression size assert. 800px/0.7 yields ~50-150 KB normally; if a
-      // pathological image still exceeds ~700 KB, re-encode harder once, then
-      // reject rather than inline a huge base64 blob into the row (DB budget).
       const _b64bytes = (s) => Math.ceil((s.length - (s.indexOf(',') + 1)) * 0.75);
-      if (_b64bytes(currentPhotoData) > 700_000) {
-        currentPhotoData = canvas.toDataURL('image/jpeg', 0.5);
-      }
-      if (_b64bytes(currentPhotoData) > 700_000) {
-        currentPhotoData = null;
-        showToast('Photo is too large even after compression. Try a smaller or simpler image.');
-        document.getElementById('f-photo').value = '';
-        return;
-      }
-      document.getElementById('photo-thumb').src = currentPhotoData;
-      document.getElementById('photo-dropzone').classList.add('hidden');
-      const preview = document.getElementById('photo-preview');
-      preview.classList.remove('hidden');
+      let out = canvas.toDataURL('image/jpeg', 0.7);
+      if (_b64bytes(out) > 700_000) out = canvas.toDataURL('image/jpeg', 0.5);
+      resolve(_b64bytes(out) > 700_000 ? { error: 'size' } : { data: out });
     };
-    img.src = ev.target.result;
+    img.onerror = function() { resolve({ error: 'decode' }); };
+    img.src = src;
+  });
+}
+function lbShowEntryPhoto(dataUrl) {
+  currentPhotoData = dataUrl;
+  document.getElementById('photo-thumb').src = dataUrl;
+  document.getElementById('photo-dropzone').classList.add('hidden');
+  document.getElementById('photo-preview').classList.remove('hidden');
+}
+function lbClearEntryPhoto() {
+  currentPhotoData = null;
+  document.getElementById('f-photo').value = '';
+  document.getElementById('photo-preview').classList.add('hidden');
+  document.getElementById('photo-dropzone').classList.remove('hidden');
+}
+
+document.getElementById('f-photo').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    const got = await lbEncodeEntryPhoto(ev.target.result);
+    if (!got.data) {
+      // the photo already attached (if any) stays exactly as it was: it is still the one on screen
+      showToast(got.error === 'size'
+        ? 'Photo is too large even after compression. Try a smaller or simpler image.'
+        : 'That photo could not be read. Nothing was attached; try another photo.');
+      document.getElementById('f-photo').value = '';
+      return;
+    }
+    _vdcAttached = null;   // the person chose this one: a retaken defect photo must not take it off
+    lbShowEntryPhoto(got.data);
   };
   reader.readAsDataURL(file);
 });
@@ -6358,10 +6380,8 @@ document.getElementById('photo-thumb').addEventListener('click', function() {
 // X button to remove
 document.getElementById('photo-remove-btn').addEventListener('click', function(e) {
   e.stopPropagation();
-  currentPhotoData = null;
-  document.getElementById('f-photo').value = '';
-  document.getElementById('photo-preview').classList.add('hidden');
-  document.getElementById('photo-dropzone').classList.remove('hidden');
+  _vdcAttached = null;
+  lbClearEntryPhoto();
 });
 
 // ── SMART VOICE FILL (Phase 2.2) ─────────────────────────────────────────────
@@ -6534,8 +6554,18 @@ function applySmartVoiceFill(e, transcript, reply) {
 const VDC_MAX_DIM_PX  = 1280;     // long edge cap — vision models do not benefit beyond this
 const VDC_JPEG_QUALITY = 0.82;
 let _vdcDataUrl = null;           // most recently captured image (compressed)
+// ★THE DEFECT PHOTO WAS SENT TO THE AI AND THEN THROWN AWAY (SL D4, 2026-10-19). "Snap a photo of the defect" took the
+// picture, the AI drafted the entry from it, and the entry was saved WITHOUT it: the photo lived only in this card, so
+// the record of a leak or a crack kept the AI's words about the picture and lost the picture. The failure toast even
+// promised "your entry and the photo are untouched; save it now" - and saving kept no photo. The capture now becomes the
+// entry's photo when the entry has none (never over one the person attached), at the entry's own budget, shown under
+// Attach Photo where it can be removed before saving. This holds what the capture put there, so a Retake or a second
+// capture replaces it and nothing else.
+let _vdcAttached = null;
 
 function vdcReset() {
+  if (_vdcAttached && currentPhotoData === _vdcAttached) lbClearEntryPhoto();
+  _vdcAttached = null;
   _vdcDataUrl = null;
   const fileInput   = document.getElementById('vdc-file-input');
   const previewWrap = document.getElementById('vdc-preview');
@@ -6610,6 +6640,15 @@ function vdcWireOnce() {
       const previewWrap = document.getElementById('vdc-preview');
       if (previewWrap) previewWrap.style.display = 'block';
       vdcShowStatus('');
+      // the entry keeps the defect photo (see _vdcAttached) - unless the person attached a photo of their own
+      if (!currentPhotoData || currentPhotoData === _vdcAttached) {
+        const got = await lbEncodeEntryPhoto(compressed);
+        if (got.data && (!currentPhotoData || currentPhotoData === _vdcAttached)) {
+          lbShowEntryPhoto(got.data);
+          _vdcAttached = got.data;
+          vdcShowStatus('This photo is saved with the entry. To leave it off, remove it under Add details.');
+        }
+      }
     } catch (err) {
       _vdcDataUrl = null;
       vdcShowStatus('');

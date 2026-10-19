@@ -1775,7 +1775,12 @@ async function submitPart() {
     const idx  = items.findIndex(i => i.id === editingItemId);
     if (idx === -1) return;
     const prev = items[idx];
-    const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };
+    // ★REMOVE PHOTO COULD NOT REMOVE A PHOTO (SL D4, 2026-10-19). This read `currentPhotoData || prev.photo`, so the X a
+    // person tapped set currentPhotoData to null and the save put the old photo straight back - the form closed with
+    // "updated" and the part kept the picture they had just taken off it. The fallback guarded nothing: openAddModal
+    // loads currentPhotoData from this same cached row (the list reads every column of v_inventory_items_truth), so an
+    // untouched photo is already in currentPhotoData. null here means the person removed it.
+    const updated = { ...prev, ...payload, photo: currentPhotoData || null };
     // ★AN EDITED COUNT MOVED THE STOCK AND THE LEDGER NEVER HEARD (2026-10-08, UI-write recipes): qty_on_hand rode
     // inside the part UPDATE, so the balance moved with no inventory_transactions row - an untraceable movement and a
     // reconciliation break (restock/deduct write both in one transaction). A changed count now goes through

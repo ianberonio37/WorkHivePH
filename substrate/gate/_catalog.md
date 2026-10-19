@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 22e38ee19aa959ad
+source_sha: 6f9cc65ec98ce428
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1399) — the 'what's already gated' brain
+## gate · registered validators (1400) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1028)
+### Platform (1029)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -760,6 +760,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `figure-sources-written` ⚡ [fail] — SL D1 (2026-10-19, Ian: per-figure reveal): every page in figure_sources.json carries its generated block, and every entry names what the figure shows and the v
 - `fil-dict-completeness` [fail] — Filipino dictionary completeness — every authored string in every page dict has a Filipino value (an empty value renders English); forward-only ratchet
 - `fil-parity` [fail] — T45: fil-parity lint — T45's translation-parity gate (2026-08-26). Scans every _t('en','fil') call site for IDENTICAL en/fil arguments — the signature of a stri
+- `file-storage-owned` ⚡ [fail] — SL D4 (2026-10-19): every file input on every served page has a walked disposition - a bucket picker holds its upload until a save names it and deletes it on Re
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
 - `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
 - `filter-vocabulary-is-complete` [fail] — T64: the filter vocabulary is complete — audit-log's compliance oracle (2026-08-26). The feed reads the newest 500 rows, which is right for a scrolling feed. Th

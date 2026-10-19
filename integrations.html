@@ -311,6 +311,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 8px;">Have the manual? Upload just the <strong>maintenance-schedule</strong> or <strong>parts-list</strong> pages (PDF, Word, Excel, or text) and the schedule below fills itself from your own book - every row stays editable.</p>
         <input type="file" id="veh-doc-file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt" style="font-size:0.75rem; max-width:100%;" onchange="vehHandleDocFile(this)" aria-label="Upload maintenance schedule or parts list pages" />
         <p id="veh-doc-status" role="status" style="min-height:1em; font-size:0.75rem; color:rgba(255,255,255,0.75); margin:8px 0 0;"></p>
+        <!-- SL D4 (2026-10-19): where the file goes. It never leaves the browser - vehExtractText reads it here and only
+             its text reaches vehicle-doc-extract, which stores nothing - so the person is told it is not kept, the way
+             resume.html says it of its files, rather than left expecting to find it later. -->
+        <p style="font-size:0.75rem; color:rgba(255,255,255,0.75); margin:4px 0 0;">The file stays on your device. Only its text is sent to be read, and only the rows you keep are saved.</p>
       </div>
       <p id="veh-step1-err" role="alert" style="min-height:1em; font-size:0.75rem; color:var(--wh-red, #f87171); margin:8px 0 0;"></p>
       <div style="display:flex; gap:8px; margin-top:12px;">
@@ -581,7 +585,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- ── STEP 2: Upload file ── -->
     <div id="step-2" class="card hidden">
       <h2 data-i="p_uploadyourcmmsexportfile_3d1b" style="font-size:.75rem; font-weight:700; margin:0 0 12px;">Upload your CMMS export file</h2>
-      <p data-i="p_acceptscsvorexcelxlsxexporty_1355" style="font-size:0.75rem; color:var(--muted); margin-bottom:16px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
+      <p data-i="p_acceptscsvorexcelxlsxexporty_1355" style="font-size:0.75rem; color:var(--muted); margin-bottom:4px;">Accepts CSV or Excel (.xlsx). Export your work orders from SAP (via SE16 or SM30) or any CMMS report.</p>
+      <!-- SL D4 (2026-10-19): the export is parsed in this browser and never uploaded; the rows imported are what is
+           kept (with each row's source values in external_sync, for the next sync's matching), never the file. -->
+      <p style="font-size:0.75rem; color:var(--muted); margin-bottom:16px;">The file is read in your browser and not uploaded. The rows you import are saved, not the file.</p>
 
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" tabindex="0" aria-label="Upload CMMS export file (CSV or Excel): drop a file here or activate to browse" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <input type="file" id="file-input" aria-label="Upload CMMS export file (CSV or Excel)" accept=".csv,.xlsx,.xls" style="display:none;" />

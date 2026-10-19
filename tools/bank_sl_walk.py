@@ -150,6 +150,14 @@ CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the l
                       "banner raised with the page's own offline event")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
+GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
+CONDITION["D4"] = ("the page read as served, signed in as the row's cast, the file handed to the page's OWN control "
+                   "(setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), "
+                   "edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, "
+                   "an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL "
+                   "(no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo "
+                   "saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and "
+                   "its marker searched for in every text and json column and in storage; probe rows removed after")
 CONDITION["D1"] = ("the page read as served, signed in as the row's cast, its start-up settled, caches cleared first: every "
                    "visible figure of the page's content counted - a number inside a control left to that control, a "
                    "number that is part of a picture (aria-hidden inside role=img) left to the picture, a registry chrome "

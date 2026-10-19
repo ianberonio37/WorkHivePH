@@ -4330,6 +4330,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "file-storage-owned",
+        "script":  "tools/validate_file_storage.py",
+        "args":    [],
+        "label":   "SL D4 (2026-10-19): every file input on every served page has a walked disposition - a bucket picker holds its upload until a save names it and deletes it on Remove / a second pick / an unsaved close / leaving the page, Remove sits above the zone's file input, an inline photo saves and removes in its row under a server cap, a read keeps nothing and the page says so; live: no unnamed object older than an hour in the public bucket",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "figure-sources-written",
         "script":  "tools/render_figure_sources.py",
         "args":    ["--check"],

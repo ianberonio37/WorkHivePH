@@ -157,8 +157,18 @@ def check_delete_scoped(content, page):
             return [{"check": "delete_scoped", "page": page,
                      "reason": "confirmDeleteItem / deleteItem not found — cannot verify delete scope"}]
         return []
-    # Use up to 2000 chars — function body with confirm dialog can be long
-    body = content[m.start():m.start() + 2000]
+    # Use up to 2000 chars — function body with confirm dialog can be long (3500 since D3's comment block)
+    body = content[m.start():m.start() + 3500]
+    # D3 (2026-10-16) made the delete RECOVERABLE: whTrash -> wh_trash(p_table, p_id), a SECURITY INVOKER function
+    # whose UPDATE runs under the caller's own RLS (inventory_items_write) - the scope lives in the database, so the
+    # hand-written .eq('hive_id') / .eq('worker_name') filters this check looked for are gone BY DESIGN. That path
+    # passes only while no unscoped hard delete sits beside it (SL D4 walk, 2026-10-19: this check had read "FAIL"
+    # since the D3 commit, a gate misreading the newer, safer code).
+    # comments stripped first: D3's own comment names "the two .delete() branches" it replaced, and a grep that reads
+    # comments would call that prose a hard delete
+    code = re.sub(r"/\*[\s\S]*?\*/", "", re.sub(r"(?m)^\s*//.*$", "", body))
+    if re.search(r"whTrash\s*\(\s*db\s*,\s*['\"]inventory_items['\"]", code) and not re.search(r"\.delete\(\)", code):
+        return []
     has_hive   = bool(re.search(r"\.eq\s*\(['\"]hive_id['\"]", body))
     has_worker = bool(re.search(r"\.eq\s*\(['\"]worker_name['\"]", body))
     if not has_hive and not has_worker:

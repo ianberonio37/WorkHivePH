@@ -783718,8 +783718,8 @@
     },
     {
       "id": "SL845",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - solo-owner · integrations",
       "pages": [
@@ -783776,12 +783776,21 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: integrations.html keeps no copy of the vehicle manual a person uploads - only its text is read - and says so - at phone-390 and desktop-1280 as solo-owner. Witness: MCP walk 2026-10-19T00:49:20.468Z (.tmp/slw/results) as Jun Salvador (junvanowner): phone-390: Add my vehicle showed the manual upload and its line ('The file stays on your device. Only its text is sent to be r'); a text schedule carrying a marker was read in the page and its text alone sent to vehicle-doc-extract (1 POST, application/json, kind text, 329 B); 0 storage calls, 0 multipart, the marker in no other request; the page answered 'Found 2 schedule rows and 1 part in your document - review them in the next steps. The AI '; cancelled, nothing kept; 0 page errors | desktop-1280: Add my vehicle showed the manual upload and its line ('The file stays on your device. Only its text is sent to be r'); a text schedule carrying a marker was read in the page and its text alone sent to vehicle-doc-extract (1 POST, application/json, kind text, 330 B); 0 storage calls, 0 multipart, the marker in no other request; the page answered 'Found 2 schedule rows and 1 part in your document - review them in the next steps. The AI '; cancelled, nothing kept; 0 page errors | postgres witness: both markers in none of 786 text and json columns and in no storage object; the storage tap saw no object app Receipt .tmp/mcp_walks/SL845.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL846",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - worker · inventory",
       "pages": [
@@ -783838,12 +783847,21 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: inventory.html keeps a part's photo in its own row under the person's account, serves it back on the card, and Remove now removes it - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T00:45:12.723Z (.tmp/slw/results) as David Velasco (davidvelasco): phone-390: Add Part with a photo (compressed in the page to 11,979 chars of JPEG data); after a reload the part's row read back with its photo and the card drew it (600x400, complete); the edit form showed it; Remove + Save ('Part updated.') and after another reload the row carried no photo and the card drew none; 0 page errors | desktop-1280: Add Part with a photo (compressed in the page to 12,763 chars of JPEG data); after a reload the part's row read back with its photo and the card drew it (600x400, complete); the edit form showed it; Remove + Save ('Part updated.') and after another reload the row carried no photo and the card drew none; 0 page errors | postgres witness: both probe parts owned by auth_uid 19aa376d = davidvelasco in hive 4eec150e (Lucena Pharmaceutical Mfg.), status pending, photo NULL after the Remove (before the fix the save wrote `currentPhotoData || prev.photo` and the photo came straight back); inventory_items.photo is capped server-side by trg_inline_image_size_inventory; probe parts, their ledger rows and audit rows removed after. Gate file-storage-owned holds it (roste Receipt .tmp/mcp_walks/SL846.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL847",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - worker · logbook",
       "pages": [
@@ -783900,12 +783918,21 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: logbook.html keeps the photo of a defect with the entry it was taken for, in the entry's row under the person's account, and serves it back - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T00:48:31.869Z (.tmp/slw/results) as Bryan Garcia (bryangarcia): phone-390: a photo handed to 'Snap a photo of the defect' became the entry's photo ('This photo is saved with the entry. To leave it off, remove it under Add details.'); Retake took it off; a second capture (18,935 chars) showed under Add details; the save met the page's own duplicate guard ('✓ Logged: updated Analytics fault history · +20 XP') and, submitted again as it asks, saved (''); the next entry started with no photo and no capture; a photo attached by hand survived a capture and a Retake; after a reload the entry drew its photo (800x533, complete); 0 page errors | desktop-1280: a photo handed to 'Snap a photo of the defect' became the entry's photo ('This photo is saved with the entry. To leave it off, remove it under Add details.'); Retake took it off; a second capture (20,175 chars) showed under Add details; the save met the page's own duplicate guard ('⚠️ BE-001 already logged today. Submit again to save anyway.') and, submitted again as it asks, saved ('✓ Logged: updated Analytics fault history · +20 XP'); the next entry started with no photo and no capture; a photo attached by hand sur Receipt .tmp/mcp_walks/SL847.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL848",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - buyer · marketplace seller",
       "pages": [
@@ -783962,12 +783989,21 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: marketplace-seller.html keeps an edited listing's photo in the public bucket under the seller's account and serves it back, and deletes every upload the sheet never saved - at phone-390 and desktop-1280 as buyer. Witness: MCP walk 2026-10-19T00:43:59.769Z (.tmp/slw/results) as Bryan Garcia (bryangarcia): phone-390: on a probe listing's edit sheet a picked photo was deleted by a second pick (c2a8bccd 400), the second by Remove (eed92914 400), a third by closing the sheet unsaved (74028547 400); a saved photo was served 200 and drawn on its card (900x600); a saved replace deleted it (400) and kept the new one (200); deleting the listing deleted that photo too (400); 0 page errors | desktop-1280: on a probe listing's edit sheet a picked photo was deleted by a second pick (c07861b9 400), the second by Remove (4402674b 400), a third by closing the sheet unsaved (2c5432f1 400); a saved photo was served 200 and drawn on its card (900x600); a saved replace deleted it (400) and kept the new one (200); deleting the listing deleted that photo too (400); 0 page errors | storage tap (2026-10-19T13:42:37, 130s): 7 objects seen, every one owner bryangarcia (91e0d1eb), image/jpeg; none still there at the end; bryangarcia is not a marketplace admin, so the owner-or-admin DELETE policy could only have let him delete his own. Gate file-storage-owned holds it (roster of every file input, held uploads, Remove above the  Receipt .tmp/mcp_walks/SL848.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL849",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - buyer · marketplace",
       "pages": [
@@ -784024,12 +784060,21 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: marketplace.html keeps a listing photo in the public marketplace-listings bucket under the uploader's account and serves it back, and takes back every upload the form never posted - at phone-390 and desktop-1280 as buyer. Witness: MCP walk 2026-10-19T00:41:22.367Z (.tmp/slw/results) as Isidro Suarez (isidrosuarez): phone-390: on the post form a photo picked uploaded (457da88c.jpg served 200); a second pick deleted it (400); Remove took the second off the screen and out of the bucket (366b0996 400); the posted photo (9ca36466, 23736 B image/jpeg) was served 200 and drawn on the seller dashboard card (900x600, complete); a photo picked and then left behind by leaving the page was deleted on the way out (9b8f39ee 400); 0 page errors | desktop-1280: on the post form a photo picked uploaded (4d246ff7.jpg served 200); a second pick deleted it (400); Remove took the second off the screen and out of the bucket (f93f2bb3 400); the posted photo (ce331223, 25007 B image/jpeg) was served 200 and drawn on the seller dashboard card (900x600, complete); a photo picked and then left behind by leaving the page was deleted on the way out (f2f36a85 400); 0 page errors | storage tap (2026-10-19T13:40:18): 5 objects seen, every one owner isidrosuarez (58d71041), the two posted photos among them (9ca36466 23736 B, ce331223 25007 B) and named by his own draft listings; none still there at the end. The seller deleted both listings  Receipt .tmp/mcp_walks/SL849.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL850",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-D",
       "title": "D4 · The platform must store the files this page takes in the right bucket under the right owner, and serve them back - worker · resume",
       "pages": [
@@ -784086,6 +784131,15 @@
         "engine": "chromium",
         "ask": "The platform must store the files this page takes in the right bucket under the right owner, and serve them back",
         "closes": "the D4 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, the file handed to the page's OWN control (setInputFiles on its input: a JPEG drawn in the page, or a text file carrying a unique marker), edge calls carrying x-wh-walk-no-model: a bucket picker driven through pick, a second pick, Remove, an unsaved close or leaving the page, and a save - each upload asked of the bucket by its public URL (no-store) and a storage tap recording every object, its owner and how long it lived; an inline photo saved, re-read after a reload, removed and re-read; a read-only intake's every request recorded and its marker searched for in every text and json column and in storage; probe rows removed after): D4 files and storage buckets: resume.html reads a person's files only to fill the resume and keeps none of them, as it says - at phone-390 and desktop-1280 as worker. Witness: MCP walk 2026-10-19T00:50:04.474Z (.tmp/slw/results) as Isidro Suarez (isidrosuarez): phone-390: the page says 'Your files are read just to fill in your resume, then discarded. Nothing gets added until you ta'; a text resume carrying a marker went to resume-extract as JSON (463 B); the reader was held off by x-wh-walk-no-model and the page said so ('The resume reader is not answering just now, so your file was not read'); 0 storage calls, 0 multipart, 0 database writes; 0 page errors | desktop-1280: the page says 'Your files are read just to fill in your resume, then discarded. Nothing gets added until you ta'; a text resume carrying a marker went to resume-extract as JSON (464 B); the reader was held off by x-wh-walk-no-model and the page said so ('The resume reader is not answering just now, so your file was not read'); 0 storage calls, 0 multipart, 0 database writes; 0 page errors | postgres witness: both markers in none of 786 text and json columns and in no storage object; resume-extract has no storage call and no insert (the gate reads its source); nothing is added until Confirm. Gate file-storage-owned holds it (roster of every file input, held uploads, Remove above the inpu Receipt .tmp/mcp_walks/SL850.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "media-fails-alone",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1014779,5 +1014833,5 @@
       }
     }
   ],
-  "next": "SL D4 files and storage buckets (6: integrations, inventory, logbook, marketplace-seller, marketplace, resume) - each page's uploads land in the right bucket under the right owner and are served back, walked at 390+1280 with the storage container up; then A1/A2/A4, AV2-4, C2/C3, L2-4, LB1-4, RL1-3. ENH-R 97/97 and SL D1 99/99 CLOSED (per-figure reveal: 19 registry pages, 88 sources + renderer-declared tiles). Pre-existing load shifts to row: assistant 0.28@390, index 0.26@1280, project-report empty 0.20@390, alert-hub AMC trust row"
+  "next": "SL A1 a refusal has a sentence (32), A2 no double submit (21), A4 slow reads (30); then AV2-4, C2/C3, L2-4, LB1-4, RL1-3. SL D4 6/6 CLOSED (file-storage-owned: 12 file inputs on 6 pages, each walked at 390+1280 - marketplace uploads held until a save names them and deleted on Remove/replace/unsaved close/leaving, Remove raised above the overlay input, inventory Remove really removes, the defect photo stays with its logbook entry, every read-only intake says it keeps nothing; live: no unnamed object in the public bucket). ENH-R 97/97 and SL D1 99/99 CLOSED. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }
