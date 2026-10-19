@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 3342fc1ad5dec1d5
+source_sha: 182a7cd6a10c6b0f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1402) — the 'what's already gated' brain
+## gate · registered validators (1403) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1031)
+### Platform (1032)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1018,6 +1018,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `offline-is-not-no` ⚡ [fail] — SL CA4 (2026-10-16): a check that could not reach the server is never read as no - offline, Shift Brain sent a signed-in supervisor to sign in (getUser's AuthRe
 - `offline-queued` [fail] — T14: offline_queued family gate — T14's lock spoke (2026-08-25). Runs tools/prove_offline_queued.mjs across ALL 8 queue-page cases (the complete whCreateQueue r
 - `offline-resilience` ⚡ [fail] — Offline Resilience (Phase 6: snapshot caching, response queue)
+- `offline-sync-in-order` ⚡ [fail] — SL AV2 (2026-10-20): what a page writes offline is queued and then synced once, in the order made, with everything that belongs to it - or refused before anythi
 - `offline-write-guard` ⚡ [fail] — OFFLINE WRITE GUARD — a user-triggered write must REFUSE before it fires, not after. Found 2026-07-29 while building the test bank's S2-pwa cell: marketplace.ht
 - `offline_queue_confirm` ⚡ [fail] — LG3 · offline-queue drain confirmation — a queued write that changed 0 ROWS must never be reported as synced. A PostgREST update/delete matching nothing is not 
 - `old-draft-says-its-age` [fail] — T57: an old draft says its age — the dormant-return oracle (2026-08-26). whAutoSaveDraft is X2 interruption resilience, and it is careful work: it refuses a dra

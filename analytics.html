@@ -810,7 +810,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1047,6 +1047,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const btn = document.getElementById('recompute-risk-btn');
     const lbl = document.getElementById('recompute-risk-label');
     if (btn && btn.disabled) return;
+    // ★OFFLINE, THE RECOMPUTE WENT TO A DEAD NETWORK AND BLAMED THE SERVER (SL AV2 walk, 2026-10-19): it fired
+    // batch-risk-scoring and answered "Recompute failed. Try again shortly." - a cause that was not the cause, to a
+    // person whose connection was the problem. Refused before sending, in the platform's own sentence.
+    if (typeof whRequireOnline === 'function' && !whRequireOnline('Recomputing risk scores', (m) => showToast(m, 'error'))) return;
     const orig = lbl ? lbl.textContent : 'Recompute risk';
     if (btn) btn.disabled = true;
     if (lbl) lbl.textContent = 'Recomputing…';

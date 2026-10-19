@@ -80,6 +80,10 @@
     } catch (_) { return null; }
   }
 
+  // a strictly increasing stamp for the queue order: Date.now(), nudged forward when two enqueues share a millisecond
+  let _lastSeq = 0;
+  function _nextSeq() { const t = Date.now(); _lastSeq = t > _lastSeq ? t : _lastSeq + 1; return _lastSeq; }
+
   function whCreateQueue(opts) {
     const cfg = Object.assign({
       db:           'wh_offline',
@@ -91,6 +95,9 @@
       // PM18: opt in ONLY when the table's unique index is a true idempotency key for the same
       // logical write, so a 23505 on retry means "already saved" rather than "did not land".
       insertDedupIndexed: false,
+      // The database functions an item of this queue may call (op: 'rpc'). Empty by default: a queue that does not name
+      // a function drains none, so an item carrying another name is an error, never a call.
+      rpcs:         [],
       onSyncedRow:  null,
       postSync:     null,
     }, opts || {});
@@ -149,6 +156,16 @@
 
     async function enqueue(item) {
       if (!item || !item.id) throw new Error('enqueue: item.id required');
+      // ★THE ORDER IT WAS MADE IN (SL AV2 walk, 2026-10-19). The store is keyed by item.id - usually the row's random UUID
+      // - and drain() reads getAll(), which IndexedDB returns in KEY order: two posts written offline went out in
+      // whatever order their UUIDs sorted (measured: made 1 then 2, synced 2 then 1), and a server-stamped created_at
+      // then showed them swapped. Each item carries the moment it was first queued; a re-queue of the same row (an
+      // offline create then edit, put() on one key) keeps its place.
+      if (item.queued_at == null) {
+        let prev = null;
+        try { prev = await _run('readonly', (s) => s.get(item.id)); } catch (_) { prev = null; /* empty-catch-allow: a fresh place in the order */ }
+        item = Object.assign({}, item, { queued_at: (prev && prev.queued_at) || _nextSeq() });
+      }
       await _run('readwrite', (s) => s.put(item));
       try { channel && channel.postMessage({ type: 'enqueue' }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: cross-tab broadcast best-effort
       return item;
@@ -173,7 +190,9 @@
       _draining = true;
       let drained = 0, errors = 0;
       try {
-        const pending = await getPending();
+        // in the order the items were made (queued_at, see enqueue) - an item from before that stamp sorts first, in key
+        // order as before (Array.prototype.sort is stable)
+        const pending = (await getPending()).slice().sort((a, b) => ((a && a.queued_at) || 0) - ((b && b.queued_at) || 0));
         if (!pending.length) return { drained: 0, errors: 0 };
 
         for (const item of pending) {
@@ -196,6 +215,10 @@
             if (captured && current && captured !== current) continue;
           }
           const op = item.op || 'insert';
+          // ★A WRITE AND ITS COMPANIONS GO TOGETHER (SL AV2 walk, 2026-10-19): an item may name its own table, so a
+          // page can queue the rows that belong to one action (a part, its opening stock entry, its audit row) in
+          // the queue that holds the action, where queued_at drains them in the order they were made.
+          const tbl = item.table || cfg.table;
           let error = null;
           // LB7 (2026-07-28): a PostgREST update/delete that matches ZERO rows is NOT an error —
           // it returns { error: null, status: 204 }. Branching on `error` alone therefore treated
@@ -216,7 +239,7 @@
           let alreadyApplied = false;
           try {
             if (op === 'insert') {
-              const r = await supabase.from(cfg.table).insert(item.payload);
+              const r = await supabase.from(tbl).insert(item.payload);
               error = r.error;
               // PM18 (PM deepwalk, 2026-07-28): a retry after a LOST RESPONSE is not a failure.
               // If the write landed and the reply never arrived, the item is still queued and the
@@ -236,7 +259,8 @@
               // write genuinely did not land. Of the queue's tables only pm_completions,
               // inventory_items, rcm_fmea_modes and skill_profiles carry a business unique index at
               // all, so defaulting this on would change semantics for surfaces nobody has walked.
-              if (cfg.insertDedupIndexed && error
+              // item.dedupOk: the row's own client-minted primary key, so a 23505 can only be this item's retry
+              if ((cfg.insertDedupIndexed || item.dedupOk) && error
                   && (error.code === '23505' || /duplicate key value/i.test(error.message || ''))) {
                 error = null;
                 alreadyApplied = true;
@@ -251,11 +275,11 @@
               // 23505-duplicates the unique row. Resolve item-level first, then cfg-level.
               const _oc = item.onConflict || cfg.onConflict;
               const r = _oc
-                ? await supabase.from(cfg.table).upsert(item.payload, { onConflict: _oc })
-                : await supabase.from(cfg.table).upsert(item.payload);
+                ? await supabase.from(tbl).upsert(item.payload, { onConflict: _oc })
+                : await supabase.from(tbl).upsert(item.payload);
               error = r.error;
             } else if (op === 'update') {
-              let q = supabase.from(cfg.table).update(item.payload);
+              let q = supabase.from(tbl).update(item.payload);
               const match = item.match || {};
               for (const [k, v] of Object.entries(match)) q = q.eq(k, v);
               if (cfg.identityKey && cfg.identityFn) {
@@ -264,16 +288,43 @@
               const r = await q.select(cfg.confirmKey || 'id');
               error = r.error;
               if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
+            } else if (op === 'rpc') {
+              // ★AN ATOMIC WRITE QUEUES AS ITSELF (SL AV2 walk, 2026-10-19): inventory's Use and Restock are server functions
+              // that lock the row and write the ledger in one statement - the online path uses them because absolute
+              // client writes lost updates. Offline they used to fall back to exactly those absolute writes, fired at a dead
+              // network and lost. The function call is what waits in the queue; only a function this queue names may run.
+              if (!Array.isArray(cfg.rpcs) || cfg.rpcs.indexOf(item.fn) < 0) {
+                error = { message: 'offline-queue: ' + String(item.fn) + ' is not a function this queue may call' };
+              } else {
+                const r = await supabase.rpc(item.fn, item.args || {});
+                error = r.error;
+                // item.dedupOk: the call carries its own client-minted id for the row it writes, so a 23505 means an
+                // earlier attempt committed (the function is one transaction - a failed replay changed nothing)
+                if (item.dedupOk && error && (error.code === '23505' || /duplicate key value/i.test(error.message || ''))) {
+                  error = null;
+                  alreadyApplied = true;
+                }
+                // item.check {table, id}: ANY refusal of a replay is asked whether the row this call writes already
+                // exists. Measured on a part with stock staged for a predicted failure: the staged-stock guard refused
+                // the replay before the unique check could, so a deduct that had landed (reply lost) would have
+                // retried into the dead-letter as "stuck" - the PM18 mirror. The ledger row by its id is the truth.
+                if (error && item.check && item.check.table && item.check.id != null) {
+                  try {
+                    const v = await supabase.from(item.check.table).select('id').eq('id', item.check.id).limit(1);
+                    if (!v.error && Array.isArray(v.data) && v.data.length) { error = null; alreadyApplied = true; }
+                  } catch (_) { /* empty-catch-allow: the original error stands */ }
+                }
+              }
             } else if (op === 'delete' && cfg.trash) {
               // D3 (2026-10-16): a table whose deletes are recoverable drains through wh_trash, never a
               // DELETE - an offline delete must land in Recently deleted exactly as an online one does.
               // RLS inside wh_trash is the identity guard. P0001 means "already gone" or "already in
               // Recently deleted": the end state the worker asked for already holds (a create-then-delete
               // offline pair never reached the server), so the item drains.
-              const r = await supabase.rpc('wh_trash', { p_table: cfg.table, p_id: String((item.match || {}).id) });
+              const r = await supabase.rpc('wh_trash', { p_table: tbl, p_id: String((item.match || {}).id) });
               error = r.error && String(r.error.code) === 'P0001' ? null : r.error;
             } else if (op === 'delete') {
-              let q = supabase.from(cfg.table).delete();
+              let q = supabase.from(tbl).delete();
               const match = item.match || {};
               for (const [k, v] of Object.entries(match)) q = q.eq(k, v);
               if (cfg.identityKey && cfg.identityFn) {
@@ -295,7 +346,7 @@
               // refused, keep it and let the backoff surface it. (If a policy hides the row from this
               // identity entirely, absence is also what the worker sees, so draining matches reality.)
               if (!error && Array.isArray(r.data) && r.data.length === 0) {
-                let vq = supabase.from(cfg.table).select(cfg.confirmKey || 'id');
+                let vq = supabase.from(tbl).select(cfg.confirmKey || 'id');
                 for (const [k, v] of Object.entries(match)) vq = vq.eq(k, v);
                 if (cfg.identityKey && cfg.identityFn) {
                   vq = vq.eq(cfg.identityKey, cfg.identityFn());
@@ -314,7 +365,7 @@
             await remove(item.id);
             drained += 1;
             if (alreadyApplied && typeof console !== 'undefined' && console.info) {
-              console.info('[offline-queue] ' + cfg.table + ': a retry found the row already saved '
+              console.info('[offline-queue] ' + tbl + ': a retry found the row already saved '
                 + '(dedup index); draining it rather than reporting the work as stuck.');
             }
             if (typeof cfg.onSyncedRow === 'function') {

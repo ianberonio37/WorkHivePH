@@ -2219,8 +2219,19 @@ async function openOfflineDB() {
     req.onerror   = e => reject(e.target.error);
   });
 }
+// ★THE ORDER IT WAS LOGGED IN (SL AV2 walk, 2026-10-19). The store is keyed by the entry's random UUID and the drain read
+// getAll(), which is KEY order - two entries logged offline went to the server in whatever order their ids sorted, and
+// the server stamped created_at as they landed (measured on the shared queue: made 1 then 2, synced 2 then 1). Each item
+// carries when it was first queued (_queued_at - the drain strips "_" keys); a re-queue of the same entry keeps its place.
+let _lbQueueSeq = 0;
 async function queueEntryOffline(payload) {
   const idb = await openOfflineDB();
+  if (payload && payload._queued_at == null && payload.id != null) {
+    let prev = null;
+    try { prev = (await getPendingEntries()).find(q => q.id === payload.id) || null; } catch (_) { prev = null; /* empty-catch-allow: a fresh place in the order */ }
+    const t = Date.now(); _lbQueueSeq = t > _lbQueueSeq ? t : _lbQueueSeq + 1;
+    payload = { ...payload, _queued_at: (prev && prev._queued_at) || _lbQueueSeq };
+  }
   return new Promise((resolve, reject) => {
     const tx = idb.transaction('pending', 'readwrite');
     tx.objectStore('pending').put(payload);
@@ -2437,6 +2448,8 @@ async function _drainOfflineQueue() {
     return;
   }
   if (!pending.length) return;
+  // in the order logged (see queueEntryOffline); an item from before the stamp sorts first, in key order as before
+  pending = pending.slice().sort((a, b) => ((a && a._queued_at) || 0) - ((b && b._queued_at) || 0));
   let synced = 0, unapplied = 0, refused = 0, stallReason = '', refusedReason = '';
   for (const p of pending) {
     if (p._stalled) continue;   // dead-lettered: retrying can't help, and it must not read as pending work

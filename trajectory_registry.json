@@ -832314,8 +832314,8 @@
     },
     {
       "id": "SL1574",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · achievements",
       "pages": [
@@ -832373,12 +832373,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, achievements.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:47:46.562Z (.tmp/slw/results/av2w_4.json) as David Velasco (davidvelasco), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. achievements only reads (one read RPC, no DB writes). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1574.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1575",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · alert hub",
       "pages": [
@@ -832436,12 +832448,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, alert-hub.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:42:27.422Z (.tmp/slw/results/av2w_5.json) as Ben Ocampo (driverben), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:dismiss REFUSED - \"You are offline. Snoozing this alert needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:alert-hub-dismiss REFUSED - \"You are offline. Dismissing this alert needs a connection - nothing was sent, so nothing is half-do…\", nothing sent on return || desktop-1280: r:dismiss REFUSED - \"You are offline. Snoozing this alert needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:alert-hub-dismiss REFUSED - \"You are offline. Dismissing this alert needs a connection - nothing was sent, so nothing is half-do…\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1575.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1576",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · analytics report",
       "pages": [
@@ -832499,12 +832523,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, analytics-report.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:14:01.049Z (.tmp/slw/results/av2w_7.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan REFUSED - \"Network problem: check your connection and try again.Retry\" (1 request met the dead network first), nothing sent on return || desktop-1280: v:scan REFUSED - \"Network problem: check your connection and try again.Retry\" (1 request met the dead network first), nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1576.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1577",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · analytics",
       "pages": [
@@ -832564,12 +832600,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, analytics.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:27:19.042Z (.tmp/slw/results/av2w_10.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:analytics-recompute REFUSED - \"You are offline. Recomputing risk scores needs a connection - nothing was sent, so nothing is half-…\", nothing sent on return || desktop-1280: f:analytics-recompute REFUSED - \"You are offline. Recomputing risk scores needs a connection - nothing was sent, so nothing is half-…\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1577.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1578",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · asset hub",
       "pages": [
@@ -832627,12 +832675,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, asset-hub.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:42:27.422Z (.tmp/slw/results/av2w_5.json) as Ben Ocampo (driverben), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:assethub-fmea HELD - queued 1 offline, told \"Saved offline. This FMEA mode will sync and appear when you reconnect.\", sent once on return (POST rest/rcm_fmea_modes) | r:strategy not reached - this cast's assets offer no failure mode to open the strategy editor from; the same save was walked as a supervisor (Christine Dizon, .tmp/slw/results/av2w_probe_ahsup.json) and REFUSED at both widths | f:asset-hub HELD - queued 1 offline, told \"Saved offline. This FMEA mode will sync and appear when you reconnect.\", sent once on return (POST rest/rcm_fmea_modes) | f:asset-hub-weibull REFUSED - \"You are offline. Computing this Weibull fit needs a connection - nothing was sent, so nothing is ha…\", nothing sent on return | order: two items through _whAhFmeaQueue>rcm_fmea_modes, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:assethub-fmea HELD - queued 1 offline, told \"Save Receipt .tmp/mcp_walks/SL1578.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1579",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · assistant",
       "pages": [
@@ -832690,12 +832750,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, assistant.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:42:27.422Z (.tmp/slw/results/av2w_5.json) as Ben Ocampo (driverben), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:assistant REFUSED - \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I can see your job records and will reference them…\", nothing sent on return || desktop-1280: f:assistant REFUSED - \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I can see your job records and will reference them…\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1579.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1580",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · community",
       "pages": [
@@ -832753,12 +832825,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, community.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:14:01.049Z (.tmp/slw/results/av2w_7.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:community-post HELD - queued 1 offline, told \"Saved offline. Will post to the hive when you reconnect.\", sent once on return (POST rest/community_posts) | r:reaction REFUSED - \"✕ You are offline. Reacting to this post needs a connection - nothing was sent, so nothing is half-…\", nothing sent on return | r:reply REFUSED - \"✕ You are offline. Posting this reply needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return | f:community HELD - queued 1 offline, told \"Saved offline. Will post to the hive when you reconnect.\", sent once on return (POST rest/community_posts) | f:community-thread REFUSED - \"✕ You are offline. Posting this reply needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return | order: two items through _whCommQueue>community_posts, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:c Receipt .tmp/mcp_walks/SL1580.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1581",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · dayplanner",
       "pages": [
@@ -832816,12 +832900,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, dayplanner.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:30:22.789Z (.tmp/slw/results/av2w_11.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:dayplanner-item HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/schedule_items) | f:dayplanner HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/schedule_items) | f:dayplanner-week HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/schedule_items) | order: two items through _whDpQueue>schedule_items, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:dayplanner-item HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/schedule_items) | f:dayplanner HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/schedule_items) | f:dayplanner-week HELD - queued 1 offline, told \"Save Receipt .tmp/mcp_walks/SL1581.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1582",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - solo-owner · engineering design",
       "pages": [
@@ -832879,12 +832975,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from engineering design itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, engineering-design.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:22:04.361Z (.tmp/slw/results/av2w_8.json) as Jun Salvador (junvanowner), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:calc REFUSED - \"You are offline. Saving this calculation needs a connection - nothing was sent, so nothing is half-…\", nothing sent on return || desktop-1280: r:calc REFUSED - \"You are offline. Saving this calculation needs a connection - nothing was sent, so nothing is half-…\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1582.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1583",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · hive",
       "pages": [
@@ -832942,12 +833050,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, hive.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:07:40.068Z (.tmp/slw/results/av2w_6.json) as Ben Ocampo (driverben), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:kick not reached - removing a member is a supervisor action; this cast is a worker | r:join REFUSED - \"You are offline. Joining this hive needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:hive-intent not reached - the hive's focus is a supervisor setting - its chip is not offered to a worker; the save was walked as a supervisor (Dela Cruz fleet, .tmp/slw/results/av2w_probe_hivesup.json) and REFUSED at both widths || desktop-1280: r:kick not reached - removing a member is a supervisor action; this cast is a worker | r:join REFUSED - \"You are offline. Joining this hive needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:hive-intent not reached - the hive's focus is a supervisor setting - its chip is not offered to a worker; the save was walked as a supervisor (Dela Cruz fleet, .tmp/slw/results/av2w_probe_hivesup.jso Receipt .tmp/mcp_walks/SL1583.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1584",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · index",
       "pages": [
@@ -833005,12 +833125,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, index.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:07:40.068Z (.tmp/slw/results/av2w_6.json) as Ben Ocampo (driverben), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:signup skipped - a signed-out flow; this cast is signed in | r:persona REFUSED - \"You are offline. Saving your preference needs a connection - nothing was sent, so nothing is half-d…\", nothing sent on return | f:index-updates not reached - the updates form is shown only to signed-out visitors || desktop-1280: r:signup skipped - a signed-out flow; this cast is signed in | r:persona REFUSED - \"You are offline. Saving your preference needs a connection - nothing was sent, so nothing is half-d…\", nothing sent on return | f:index-updates not reached - the updates form is shown only to signed-out visitors. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1584.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1585",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - solo-owner · integrations",
       "pages": [
@@ -833068,12 +833200,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, integrations.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:24:26.768Z (.tmp/slw/results/av2w_9.json) as Jun Salvador (junvanowner), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:integrations-vehicle REFUSED - \"You are offline. Creating a vehicle needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return || desktop-1280: f:integrations-vehicle REFUSED - \"You are offline. Creating a vehicle needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1585.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1586",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · inventory",
       "pages": [
@@ -833131,12 +833275,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, inventory.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:47:46.562Z (.tmp/slw/results/av2w_4.json) as David Velasco (davidvelasco), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:inventory-part HELD - queued 3 offline, told \"Saved offline, will sync when you reconnect.\", sent once on return (POST rest/inventory_items, POST rest/inventory_transactions, POST rest/hive_audit_log) | r:partdelete not reached - Remove from inventory renders only for a solo owner, a supervisor or the owner of a rejected part (inventory.html, the delete button's condition) - this cast holds none of those | f:inventory HELD - queued 3 offline, told \"Saved offline, will sync when you reconnect.\", sent once on return (POST rest/inventory_items, POST rest/inventory_transactions, POST rest/hive_audit_log) | f:inventory-use HELD - queued 1 offline, told \"Saved offline. Using 1 tubes of LOCT-567 will be recorded when you reconnect.\", sent once on return (POST rest/rpc/inventory_deduct) | order: two items through _whInvQueue>inventory_items, the first with the later key, synced 1 then 2 - in the or Receipt .tmp/mcp_walks/SL1586.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1587",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · logbook",
       "pages": [
@@ -833194,12 +833350,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, logbook.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:20:52.564Z (.tmp/slw/results/av2w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:logbook-entry HELD - queued 1 offline, told \"Saved offline, will sync when connected.\", sent once on return (POST rest/logbook) | r:logbook not reached - asset registration is not offered to a worker - its control is not shown (f:logbook graded NONE) | f:logbook not offered - the control is not shown for this cast - no write offered | f:logbook-capture HELD - queued 1 offline, told \"Saved offline, will sync when connected.\", sent once on return (POST rest/logbook) | order: two items through the page queue, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:logbook-entry HELD - queued 1 offline, told \"Saved offline, will sync when connected.\", sent once on return (POST rest/logbook) | r:logbook not reached - asset registration is not offered to a worker - its control is not shown (f:logbook graded NONE) | f:logbook not offered - the control is not shown for th Receipt .tmp/mcp_walks/SL1587.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1588",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - buyer · marketplace seller profile",
       "pages": [
@@ -833257,12 +833425,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, marketplace-seller-profile.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:20:52.564Z (.tmp/slw/results/av2w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the seller profile only reads (two read RPCs, no DB writes). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1588.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1589",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - buyer · marketplace seller",
       "pages": [
@@ -833320,12 +833500,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, marketplace-seller.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:23:16.582Z (.tmp/slw/results/av2w_2.json) as Bryan Garcia (bryangarcia), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:marketplace-seller-edit REFUSED - \"You are offline. Saving this listing needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return || desktop-1280: f:marketplace-seller-edit REFUSED - \"You are offline. Saving this listing needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1589.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1590",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - buyer · marketplace",
       "pages": [
@@ -833383,12 +833575,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, marketplace.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:07:40.068Z (.tmp/slw/results/av2w_6.json) as Isidro Suarez (isidrosuarez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:hail REFUSED - \"You are offline. Hailing a provider needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:marketplace-post REFUSED - \"You are offline. Posting your listing needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return || desktop-1280: r:hail REFUSED - \"You are offline. Hailing a provider needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:marketplace-post REFUSED - \"You are offline. Posting your listing needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1590.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1591",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · ph intelligence",
       "pages": [
@@ -833446,12 +833650,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, ph-intelligence.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:41:55.649Z (.tmp/slw/results/av2w_3.json) as Christine Dizon (christinedizon), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. PH Intelligence reads reports through its functions; it commits nothing. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1591.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1592",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - machine-client · plant connections",
       "pages": [
@@ -833509,12 +833725,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, plant-connections.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:23:16.582Z (.tmp/slw/results/av2w_2.json) as Bryan Garcia (bryangarcia), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. a worker is walled from the connections console; its one write (set_hive_retention) is a supervisor's. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1592.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1593",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · pm scheduler",
       "pages": [
@@ -833572,12 +833800,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, pm-scheduler.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:22:04.361Z (.tmp/slw/results/av2w_8.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:pm-completion HELD - queued 1 offline, told \"Saved offline, will sync when you reconnect.\", sent once on return (POST rest/pm_completions) | r:newtask REFUSED - \"You are offline. Adding this task needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:pm-scheduler REFUSED - \"You are offline. Saving this asset needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:pm-scheduler-complete HELD - queued 1 offline, told \"Saved offline, will sync when you reconnect.\", sent once on return (POST rest/pm_completions) | f:pm-scheduler-edit REFUSED - \"You are offline. Saving this asset needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | order: two items through _whPmQueue>pm_completions, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:pm-completion HELD  Receipt .tmp/mcp_walks/SL1593.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1594",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · project manager",
       "pages": [
@@ -833635,12 +833875,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, project-manager.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:41:55.649Z (.tmp/slw/results/av2w_3.json) as Christine Dizon (christinedizon), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:projectmanager-progress HELD - queued 1 offline, told \"Saved on this device. Your report will be filed when you reconnect.\", sent once on return (POST rest/project_progress_logs) | r:newproject REFUSED - \"You are offline. Creating this project needs a connection - nothing was sent, so nothing is half-do…\", nothing sent on return | r:delproject REFUSED - \"You are offline. Deleting this project needs a connection - nothing was sent, so nothing is half-do…\", nothing sent on return | r:scopestatus REFUSED - \"You are offline. Updating this item needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | r:lessons REFUSED - \"You are offline. Saving these lessons needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return | f:project-manager-co REFUSED - \"You are offline. Submitting this change order needs a connection - nothing was se Receipt .tmp/mcp_walks/SL1594.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1595",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · project report",
       "pages": [
@@ -833698,12 +833950,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, project-report.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:30:22.789Z (.tmp/slw/results/av2w_11.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the report reads and composes; its only call is the narrative function, and this page offers no control that commits anything to this cast. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1595.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1596",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - an anonymous visitor · public feed",
       "pages": [
@@ -833755,12 +834019,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, public-feed.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:20:52.564Z (.tmp/slw/results/av2w_1.json) as an anonymous visitor (signed out), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the public feed writes nothing (no DB writes, no write RPCs - substrate/page/public-feed.md). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1596.json. || [2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, public-feed.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:20:52.564Z (.tmp/slw/results/av2w_1.json) as an anonymous visitor (signed out), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the public feed writes nothing (no DB writes, no write RPCs - substrate/page/public-feed.md). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1596.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1597",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · report sender",
       "pages": [
@@ -833818,12 +834094,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, report-sender.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:41:55.649Z (.tmp/slw/results/av2w_3.json) as Christine Dizon (christinedizon), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:contact REFUSED - \"You are offline. Adding a contact needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | r:send REFUSED - \"You are offline. Sending this report needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:report-sender REFUSED - \"You are offline. Sending this report needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | f:report-sender-contacts REFUSED - \"You are offline. Adding a contact needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return || desktop-1280: r:contact REFUSED - \"You are offline. Adding a contact needs a connection - nothing was sent, so nothing is half-done.\", nothing sent on return | r:send REFUSED - \"You are offline. Sending this report needs a connection - nothing was sent, so nothing is half-done.\", nothing sen Receipt .tmp/mcp_walks/SL1597.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1598",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · resume",
       "pages": [
@@ -833881,12 +834169,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, resume.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:14:01.049Z (.tmp/slw/results/av2w_7.json) as Isidro Suarez (isidrosuarez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:resume HELD - queued 0 offline, told \"Offline: saved on this device. It will back up to your account when your connec…\", sent once on return (POST rest/resume_documents) | f:resume-save HELD - queued 0 offline, told \"Offline: saved on this device. It will back up to your account when your connec…\", sent once on return (POST rest/resume_documents) || desktop-1280: r:resume HELD - queued 0 offline, told \"Offline: saved on this device. It will back up to your account when your connec…\", sent once on return (POST rest/resume_documents) | f:resume-save HELD - queued 0 offline, told \"Offline: saved on this device. It will back up to your account when your connec…\", sent once on return (POST rest/resume_documents). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, q Receipt .tmp/mcp_walks/SL1598.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1599",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · shift brain",
       "pages": [
@@ -833944,12 +834244,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, shift-brain.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:22:04.361Z (.tmp/slw/results/av2w_8.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: r:publish REFUSED - \"You are offline. Publishing this plan needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return | f:shift-brain-generate REFUSED - \"You are offline. Re-running this shift plan needs a connection - nothing was sent, so nothing is ha…\", nothing sent on return | f:shift-brain-publish REFUSED - \"You are offline. Publishing this plan needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return || desktop-1280: r:publish REFUSED - \"You are offline. Publishing this plan needs a connection - nothing was sent, so nothing is half-don…\", nothing sent on return | f:shift-brain-generate REFUSED - \"You are offline. Re-running this shift plan needs a connection - nothing was sent, so nothing is ha…\", nothing sent on return | f:shift-brain-publish REFUSED - \"You are offline. Publishing this plan needs a connection - nothing was sen Receipt .tmp/mcp_walks/SL1599.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1600",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - worker · skillmatrix",
       "pages": [
@@ -834007,12 +834319,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, skillmatrix.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:47:46.562Z (.tmp/slw/results/av2w_4.json) as David Velasco (davidvelasco), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: q:skillmatrix-targets HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/skill_profiles) | r:exam not reached - the refusal prover's reach could not open the exam here; the same submit was graded by f:skillmatrix-exam (REFUSED) | f:skillmatrix-exam REFUSED - \"✗ You are offline. Submitting your exam needs a connection - nothing was sent, so nothing is half-d…\", nothing sent on return | order: two items through _whSmQueue>skill_profiles, the first with the later key, synced 1 then 2 - in the order made || desktop-1280: q:skillmatrix-targets HELD - queued 1 offline, told \"Saved offline. Will sync when you reconnect.\", sent once on return (POST rest/skill_profiles) | r:exam not reached - the refusal prover's reach could not open the exam here; the same submit was graded by f:skillmatrix-exam (REFUSED) | f:skillmatrix-exam REFUSED - \"✗ You  Receipt .tmp/mcp_walks/SL1600.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1601",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - supervisor · ai quality",
       "pages": [
@@ -834070,12 +834394,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, ai-quality.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T19:23:16.582Z (.tmp/slw/results/av2w_2.json) as Christine Dizon (christinedizon), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. AI quality only reads (no DB writes, no RPCs). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1601.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1602",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - fleet-supervisor · audit log",
       "pages": [
@@ -834133,12 +834469,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, audit-log.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:30:22.789Z (.tmp/slw/results/av2w_11.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the audit log only reads (one read RPC). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1602.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1603",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - oversight · founder console",
       "pages": [
@@ -834190,12 +834538,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, founder-console.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:24:26.768Z (.tmp/slw/results/av2w_9.json) as Leandro Marquez (leandromarquez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - retired page - 📊 The Founder Console has moved to Grafana Every metric (platform health, usage, gro… || desktop-1280: v:scan not offered - retired page - 📊 The Founder Console has moved to Grafana Every metric (platform health, usage, gro…. retired - the page shows its pointer to the Founder Ops dashboard and does no work. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1603.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1604",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - oversight · marketplace admin",
       "pages": [
@@ -834247,12 +834607,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, marketplace-admin.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:24:26.768Z (.tmp/slw/results/av2w_9.json) as Leandro Marquez (leandromarquez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:marketplace-admin-approve not offered - retired page - 📊 Marketplace Admin has moved Listing / seller / dispute VOLUMES are now live Grafan… || desktop-1280: f:marketplace-admin-approve not offered - retired page - 📊 Marketplace Admin has moved Listing / seller / dispute VOLUMES are now live Grafan…. retired - the page shows its pointer and does no work (its approvals moved to Platform Actions). Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1604.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1605",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - oversight · platform actions",
       "pages": [
@@ -834304,12 +834676,24 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, platform-actions.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:27:19.042Z (.tmp/slw/results/av2w_10.json) as Leandro Marquez (leandromarquez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: f:platform-actions-triage REFUSED - \"You appear to be offline. Nothing was sent: reconnect and save again.\", nothing sent on return || desktop-1280: f:platform-actions-triage REFUSED - \"You appear to be offline. Nothing was sent: reconnect and save again.\", nothing sent on return. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1605.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1606",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV2 · The platform must queue what this page writes while offline and sync it once, in order, when the network returns - oversight · status",
       "pages": [
@@ -834361,6 +834745,18 @@
         "engine": "chromium",
         "ask": "The platform must queue what this page writes while offline and sync it once, in order, when the network returns",
         "closes": "the AV2 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write the queue sent on return was answered in the page, so nothing landed. Then two items put through each queue the page registered, the first with the LATER key: they must sync in the order made): AV2: offline, status.html queues what it may and syncs it once, in the order made, when the network returns - and refuses up front what must wait for a connection - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T20:27:19.042Z (.tmp/slw/results/av2w_10.json) as Leandro Marquez (leandromarquez), service workers blocked, the network cut (context offline + navigator.onLine false + the offline event) then restored, every write the queue sent answered in the page so nothing landed: phone-390: v:scan not offered - this page offers this cast no control that commits anything || desktop-1280: v:scan not offered - this page offers this cast no control that commits anything. the status page only reads. Gate offline-sync-in-order holds the fixes (queue order, companion rows and atomic calls in the queue, landed-replay check, resume's sync, the up-front refusals), with offline-queued, queue-drain, offline-write-guard and offline_queue_confirm. Receipt .tmp/mcp_walks/SL1606.json.",
+      "artifacts": {
+        "gates": [
+          "offline-queued",
+          "offline-sync-in-order",
+          "offline-write-guard",
+          "offline_queue_confirm",
+          "queue-drain",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1015693,5 +1016089,5 @@
       }
     }
   ],
-  "next": "SL AV2 offline queue and sync (33); then AV3 degraded poll (14), AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL A4 30/30 CLOSED (a timed-out read fails once - the client had asked each one four times; every skeleton spelling settles; wait states before gating reads; could-not-ask said at two more walls) with A2 21/21, A1 32/32 and D4 6/6. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL AV3 degraded mode: poll when live is off (14) - 13 of 14 pages subscribe with rtConn() and no fallback (whRealtimeSubscribe, the shared live-or-poll helper, has no adopters): measure frozen vs polling + 'not live' said, then centralise; then AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL AV2 33/33 CLOSED (queues drain in the order made; inventory's ledger entry, audit row and Use/Restock queue; resume keeps its sync promise; five online-only actions refuse up front) with A4 30/30. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

@@ -143,7 +143,19 @@ def check_txn_syncs_to_supabase(content, page):
     if not m:
         return [{"check": "txn_syncs_to_supabase", "page": page,
                  "reason": "saveTransactions() not found — cannot verify Supabase sync"}]
-    body = content[m.start():m.start() + 400]
+    # the WHOLE function, comments stripped - a fixed 400-character window read a comment (SL AV2, 2026-10-20: the
+    # offline-queue branch's note pushed the insert past it and the check failed a function that still syncs)
+    i = content.find("{", m.end())
+    depth, j = 0, i
+    while 0 <= j < len(content):
+        if content[j] == "{":
+            depth += 1
+        elif content[j] == "}":
+            depth -= 1
+            if depth == 0:
+                break
+        j += 1
+    body = re.sub(r"(?m)//[^\n]*$", "", re.sub(r"/\*[\s\S]*?\*/", "", content[m.start():j + 1]))
     if "inventory_transactions" not in body or ".insert(" not in body:
         return [{"check": "txn_syncs_to_supabase", "page": page,
                  "reason": "saveTransactions() does not call db.from('inventory_transactions').insert — transactions stay in localStorage only"}]

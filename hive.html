@@ -4861,6 +4861,11 @@ function _openIntentModal(preset) {
       const checked = document.querySelector('input[name="intent-primary"]:checked');
       const goal = checked ? checked.value : null;
       if (!goal) { showToast(_t('Pick one to save, or tap Later.', 'Pumili ng isa para i-save, o pindutin ang Later.')); return; }
+      // ★THE HIVE'S FOCUS WAS THE ONE SETTINGS WRITE HERE WITHOUT THE ONLINE GUARD (SL AV2 walk, 2026-10-19): offline it
+      // fired hives.update at a dead network and answered with a generic "Could not save". Join, the role writes and
+      // the other hive settings refuse up front and say it needs a connection; this does the same, and the modal stays
+      // open with the choice still made.
+      if (typeof whRequireOnline === 'function' && !whRequireOnline("Saving your hive's focus", (m) => showToast(m))) return;
       // ★DOUBLE-SUBMIT GUARD + BUSY STATE. Measured: this button was never disabled and never changed
       // label, so for the whole duration of the update there was NO feedback of any kind — and a second tap
       // fired a SECOND hives.update (write count 1 -> 2). On a plant network a second tap while nothing

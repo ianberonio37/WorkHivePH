@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1029-files
-source_sha: ad7be055a7337b99
+source: memory-curated:1031-files
+source_sha: 0cc990b9053afee3
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1029 durable topic files)
+## memory · curated auto-memory (1031 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=638 · project=301 · reference=90
+**By type:** feedback=640 · project=301 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -176,7 +176,7 @@ Entries (name · type · sha):
 - `feedback_a_stored_role_is_a_cache_of_a_server_fact` · feedback · ea5bd458dda7a433
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_strangers_read_dies_on_a_column_it_never_asked_for` · feedback · 5b16bfb850947922
-- `feedback_a_stuck_skeleton_is_invisible_to_every_gate` · feedback · 8cd98c83294ba95e
+- `feedback_a_stuck_skeleton_is_invisible_to_every_gate` · feedback · fe176b0edb786d29
 - `feedback_a_symptom_gate_passes_when_the_race_is_winning` · feedback · 874ff553e754a2a5
 - `feedback_a_tailwind_class_the_purged_build_never_generated_is_inert` · feedback · 8dff42c840456b96
 - `feedback_a_tap_target_floor_only_applies_to_a_tappable_element` · feedback · 9236e1d813395f01
@@ -211,6 +211,7 @@ Entries (name · type · sha):
 - `feedback_an_impossibly_good_result_is_the_defect` · feedback · b5c69946621283f0
 - `feedback_an_inducer_must_reach_every_read` · feedback · 6a1a7365e245cf12
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
+- `feedback_an_offline_write_keeps_its_order_its_companions_and_its_promise` · feedback · 174294ed2b7bfd92
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
 - `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 001495ac3d6067c7
 - `feedback_an_upload_before_its_save_needs_an_exit` · feedback · 84729b1a6da34e20
@@ -270,7 +271,7 @@ Entries (name · type · sha):
 - `feedback_content_that_waits_behind_identity` · feedback · 689997ed32019a08
 - `feedback_context_saturation_stop_disguise` · feedback · 4a17cb41b6c0a5c9
 - `feedback_contrast_is_not_computable_from_cssom_here` · feedback · 44c80db6b50ad7e4
-- `feedback_could_not_ask_is_not_no` · feedback · 5983cc7d84ac1614
+- `feedback_could_not_ask_is_not_no` · feedback · 5548c7b41fc476c1
 - `feedback_count_before_and_after_with_the_same_eyes` · feedback · 903b9cf5e491a41e
 - `feedback_coverage_improved_by_deleting_obligations` · feedback · dd378d4ba395ad6c
 - `feedback_cpi_on_labour_only_is_a_category_error` · feedback · e09a412cfa84642d
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_shallow_journey_carry_the_full_lens` · feedback · 322f7e0007a19d17
 - `feedback_shared_chrome_is_graded_once_and_styled_before_paint` · feedback · 328b3f4505865a85
 - `feedback_shared_chrome_was_outside_every_i18n_gate` · feedback · d21dc08cb8514def
-- `feedback_short_denominator_is_a_false_100` · feedback · bbe8983dd599c8f5
-- … +529 more (all included in the fingerprint)
+- … +531 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

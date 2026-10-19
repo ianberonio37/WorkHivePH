@@ -808,7 +808,7 @@ function _buildAssetNodeMaps() {
 // (worker_name + type + qty + qty_after + ref + timestamp per row).
 function writeAuditLog(action, targetType, targetId, targetName, meta) {
   if (!HIVE_ID) return;
-  db.from('hive_audit_log').insert({
+  const _row = {
     hive_id:     HIVE_ID,
     actor:       WORKER_NAME,
     action,
@@ -816,7 +816,14 @@ function writeAuditLog(action, targetType, targetId, targetName, meta) {
     target_id:   targetId,
     target_name: targetName,
     meta:        meta || {},
-  }).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
+  };
+  // offline, the audit row of an action that queued waits with it rather than failing silently (SL AV2)
+  if (!navigator.onLine && typeof _ensureInvQueue === 'function' && _ensureInvQueue()) {
+    window._whInvQueue.enqueue({ id: 'audit-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+      op: 'insert', table: 'hive_audit_log', payload: _row }).catch((e) => console.warn('audit queue:', e && e.message));
+    return;
+  }
+  db.from('hive_audit_log').insert(_row).then(res => { if (res.error) console.warn('audit log:', res.error.message); });
 }
 
 let _invDisplayCount = 8;  // Arc P Wave 2 (P2 list-discipline): glance-first slice — the list sorts out/low-first, so the 8 shown are the "needs me" parts; Load More reveals the rest (+12).
@@ -877,6 +884,15 @@ function saveInventory(arr) {
 function saveTransactions(arr) {
   _txns = arr;
   const last = arr[arr.length - 1];
+  // ★OFFLINE, THE OPENING STOCK ENTRY WAS FIRED AT A DEAD NETWORK AND LOST (SL AV2 walk, 2026-10-19). A part added
+  // offline queued its row, and this insert - the ledger entry its stock is mirrored from - failed and was gone, while
+  // the toast promised the count was ahead "until it syncs". It waits in the part's queue now, behind the part (the
+  // queue drains in the order made, and the entry needs the part to exist).
+  if (last && !navigator.onLine && _ensureInvQueue()) {
+    window._whInvQueue.enqueue({ id: String(last.id), op: 'insert', table: 'inventory_transactions', payload: last, dedupOk: true })
+      .catch((e) => console.error('txn queue:', e && e.message));
+    return;
+  }
   if (last) {
     db.from('inventory_transactions').insert(last) /* attribution-allow: `last` = element of the txns array built by addTransaction(), which sets auth_uid (verified live 2026-07-06) */
       .then(({ error }) => { if (error) { console.error('txn sync:', error.message); showToast(whWriteError(error, 'The stock movement did not save to the hive. The count on this device is ahead of the hive until it syncs.'), 'error'); } });
@@ -1700,6 +1716,8 @@ function _ensureInvQueue() {
     window._whInvQueue = window.whCreateQueue({
       db: 'wh_inventory_offline', table: 'inventory_items',
       identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      // offline Use and Restock queue the atomic functions themselves (SL AV2) - never an absolute qty write
+      rpcs: ['inventory_deduct', 'inventory_restock'],
       postSync: () => { try { initData(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
     });
     window.whRegisterQueue('inventory', window._whInvQueue);
@@ -2113,6 +2131,25 @@ async function submitUse() {
     // smaller (or zero) qty_change; recording -qty here would put a movement in this page's own
     // transaction list that the database never made.
     addTransaction(activeItemId, 'use', -movedQty, newQty, '', jobRef, { serverWritten: true });    // RPC wrote the txn; cache-only
+  } else if (!navigator.onLine && _ensureInvQueue()) {
+    // ★OFFLINE, THE USE WAS FIRED AT A DEAD NETWORK (SL AV2 walk, 2026-10-19). This page's offline path was the solo
+    // read-modify-write: an ABSOLUTE qty upsert and a ledger insert, both failing offline and neither kept, under
+    // "This part did not save to the hive... try again" - the person was asked to repeat a use the shelf already gave.
+    // The atomic deduct waits in the queue instead, with the ledger id it will write (a replay then 23505s inside one
+    // transaction, so it can never deduct twice); this device shows the use now, the server applies it on reconnect.
+    const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'txn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    await window._whInvQueue.enqueue({ id: txnId, op: 'rpc', fn: 'inventory_deduct', dedupOk: true, check: { table: 'inventory_transactions', id: txnId }, payload: { worker_name: WORKER_NAME },   // payload: the queue's identity guard - a shared tablet never drains one worker's use under another's session
+     
+      args: { p_item_id: activeItemId, p_qty: qty, p_type: 'use', p_job_ref: jobRef || null, p_txn_id: txnId } });
+    items[idx].qty_on_hand = Math.max(0, items[idx].qty_on_hand - qty);
+    items[idx].updated_at  = new Date().toISOString();
+    _items = items;                                                   // this device's view; the queued deduct is the write
+    addTransaction(activeItemId, 'use', -qty, items[idx].qty_on_hand, '', jobRef, { serverWritten: true });
+    closeUseModal();
+    renderParts();
+    showToast(`Saved offline. Using ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} will be recorded when you reconnect.`);
+    return;
   } else {
     // Solo (localStorage only) OR offline (single-user — no concurrency race): client read-modify-write.
     items[idx].qty_on_hand -= qty;
@@ -2205,6 +2242,21 @@ async function submitRestock() {
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                            // cache; RPC persisted qty+txn to DB
     addTransaction(activeItemId, 'restock', qty, newQty, note, null, { serverWritten: true }); // RPC wrote the txn; cache-only
+  } else if (!navigator.onLine && _ensureInvQueue()) {
+    // offline: the atomic restock waits in the queue with its ledger id, as Use does (SL AV2) - never an absolute write
+    const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'txn-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    await window._whInvQueue.enqueue({ id: txnId, op: 'rpc', fn: 'inventory_restock', dedupOk: true, check: { table: 'inventory_transactions', id: txnId }, payload: { worker_name: WORKER_NAME },   // payload: the queue's identity guard - a shared tablet never drains one worker's use under another's session
+     
+      args: { p_item_id: activeItemId, p_qty: qty, p_note: note || null, p_txn_id: txnId } });
+    items[idx].qty_on_hand += qty;
+    items[idx].updated_at   = new Date().toISOString();
+    _items = items;
+    addTransaction(activeItemId, 'restock', qty, items[idx].qty_on_hand, note, null, { serverWritten: true });
+    closeRestockModal();
+    renderParts();
+    showToast(`Saved offline. Restocking ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} will be recorded when you reconnect.`);
+    return;
   } else {
     // Solo (localStorage only) OR offline (single-user — no race): client read-modify-write.
     items[idx].qty_on_hand += qty;

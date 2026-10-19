@@ -3931,6 +3931,9 @@
 
     async function computeWeibullFit(nodeId) {
       if (!nodeId) { showToast('No asset selected.'); return; }
+      // offline, a fit cannot run anywhere: refused before the call, in the platform's own sentence, as every other
+      // compute on these pages now is (SL AV2, 2026-10-19 - the risk recompute and the shift-plan re-run)
+      if (typeof whRequireOnline === 'function' && !whRequireOnline('Computing this Weibull fit', (m) => showToast(m))) return;
       const btn    = document.getElementById('weibull-fit-btn');
       const status = document.getElementById('weibull-status');
       if (btn) { btn.disabled = true; btn.textContent = 'Fitting (lifelines)...'; }

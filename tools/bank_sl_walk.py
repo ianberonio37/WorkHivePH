@@ -154,6 +154,16 @@ GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
 GATES["A2"] = ["double-submit-lock", "refresh-retry-dedup", "cb_double_fire", "skew-heal", "scripts-parse"]
 GATES["A4"] = ["slow-read-honest", "skeleton-labelled", "waiting-is-spoken", "skeleton_resolves", "skew-heal", "scripts-parse"]
+GATES["AV2"] = ["offline-sync-in-order", "offline-queued", "queue-drain", "offline-write-guard", "offline_queue_confirm", "skew-heal", "scripts-parse"]
+CONDITION["AV2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
+                    "cast; every write flow of tools/prove_offline_queued.mjs, tools/prove_offline_refusal.mjs and "
+                    "tools/prove_double_fire.mjs for this page (or, for a page none covers, the first control whose words "
+                    "commit something) reached ONLINE, then the network cut - the context offline, navigator.onLine false "
+                    "and the offline event - and the control pressed: graded HELD (queued, told it will sync, and on the "
+                    "network's return sent once per queued item with the queue emptied), REFUSED (nothing queued, told it "
+                    "needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write "
+                    "the queue sent on return was answered in the page, so nothing landed. Then two items put through each "
+                    "queue the page registered, the first with the LATER key: they must sync in the order made")
 CONDITION["A4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
                    "cast, an init script patching fetch before any page script: first every data read answered 5 s late "
                    "(then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed "

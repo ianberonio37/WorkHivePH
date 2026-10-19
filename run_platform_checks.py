@@ -4348,6 +4348,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "offline-sync-in-order",
+        "script":  "tools/validate_offline_sync_in_order.py",
+        "args":    [],
+        "label":   "SL AV2 (2026-10-20): what a page writes offline is queued and then synced once, in the order made, with everything that belongs to it - or refused before anything is sent. The shared queue and logbook's drained IndexedDB KEY order (random UUIDs: made 1 then 2, synced 2 then 1) and now drain by queued_at; an item may name its own table and a listed atomic function; a refused replay is checked against the row it writes before it is retried. Inventory's opening stock entry, audit row, Use and Restock wait in the queue (they were fired at a dead network and lost); resume keeps its 'will back up' promise and prefers the offline copy on load; five online-only actions refuse up front (change order, risk recompute, shift-plan re-run, hive focus, Weibull fit) and no developer command reaches a person",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "slow-read-honest",
         "script":  "tools/validate_slow_read_honest.py",
         "args":    [],

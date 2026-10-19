@@ -962,7 +962,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     const scheduleLocalSave = debounce(saveLocal, 700);
     // the draft names the ACCOUNT it belongs to, so a restore can tell whose it is (2026-10-12, see loadResumeIntoView)
-    async function saveLocal() { await idbPut('current', { resume, _resumeId, worker: WORKER_NAME, auth_uid: _authUid || null, ts: Date.now() }); }
+    // ★"WILL SYNC LATER" WAS A PROMISE NOTHING KEPT (SL AV2 walk, 2026-10-19). Offline, Save wrote this device's copy and
+    // said it would sync - and on reconnect only the offline banner changed. Worse, the next load preferred the CLOUD copy
+    // whenever one existed (the device copy was used only when the cloud had none), and the next keystroke's local save
+    // then overwrote the device copy with that older version: the offline work was gone. _pendingCloudSync marks a device
+    // copy that is ahead of the account; it survives every local save, is cleared only by a cloud save that landed, is
+    // synced the moment the network returns, and wins over the cloud copy on the next load.
+    let _pendingCloudSync = false;
+    async function saveLocal() { await idbPut('current', { resume, _resumeId, worker: WORKER_NAME, auth_uid: _authUid || null, ts: Date.now(), _pendingSync: _pendingCloudSync }); }
+    async function syncPendingDraft() {
+      if (!_pendingCloudSync || !_authUid || !navigator.onLine) return;
+      await saveCloud(true);
+      if (!_pendingCloudSync) toast('Your offline changes are now backed up to your account.');
+    }
 
     // ── Cloud save / load (owner-scoped resume_documents) ────────────────────
     async function snapshotVersion(note) {
@@ -979,7 +991,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     async function saveCloud(silent) {
       if (!_authUid) { if (!silent) toast('Saved on this device. Sign in to back up to the cloud.'); await saveLocal(); return; }
-      if (!navigator.onLine) { if (!silent) toast('Offline: saved on this device, will sync later.'); await saveLocal(); return; }
+      if (!navigator.onLine) { _pendingCloudSync = true; if (!silent) toast('Offline: saved on this device. It will back up to your account when your connection is back.'); await saveLocal(); return; }
       const btn = document.getElementById('btn-save');
       const lbl = btn.textContent;
       if (!silent) { btn.disabled = true; btn.textContent = 'Saving…'; }
@@ -1006,6 +1018,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           if (error) throw error;
           _resumeId = data.id;
         }
+        _pendingCloudSync = false;   // the account has it now
         await saveLocal();
         // NAMES WHERE IT WENT AND WHAT WAS KEPT. '✓ Resume saved.' states that something happened but
         // not what a person can rely on afterwards - and on this page that matters more than most,
@@ -1022,9 +1035,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const _m = String((err && err.message) || '');
         const _st = Number((err && (err.status || err._httpStatus)) || 0);
         const _transport = (_st >= 500 && _st <= 504) || /name resolution|service unavailable|bad gateway|timed? ?out|failed to fetch|network/i.test(_m);
-        toast(_transport
+        _pendingCloudSync = true;   // this device's copy is ahead of the account until a cloud save lands
+        if (!silent) toast(_transport
           ? ((navigator.onLine === false)
-              ? 'You are offline, so this was not backed up to your account. It is saved on this device; save again when your connection is back.'
+              ? 'You are offline, so this was not backed up to your account. It is saved on this device and will back up when your connection is back.'
               : 'Not backed up to your account - WorkHive did not answer. It is saved on this device; save again in a moment.')
           : 'Could not save to cloud: ' + (_m || 'error') + '. Saved on device.');
         await saveLocal();
@@ -1070,7 +1084,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // tablet to open, and to save as their own. A draft is restored only for the account that wrote it (an older
         // draft without an account falls back to the worker name it carries); anyone else starts from their own.
         if (draft && !(draft.auth_uid ? draft.auth_uid === _authUid : (draft.worker && draft.worker === WORKER_NAME))) draft = null;
-        if (draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
+        // a device copy saved while the account could not be reached is AHEAD of the cloud copy: it wins, and is backed
+        // up as soon as this page can reach the account (see _pendingCloudSync)
+        if (draft && draft._pendingSync && draft.resume && draft.resume.basics) {
+          resume = mergeDefaults(draft.resume); _resumeId = draft._resumeId || null;
+          _pendingCloudSync = true; loaded = true;
+          setTimeout(() => { syncPendingDraft(); }, 0);
+        }
+        if (!loaded && draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
         if (!loaded) loaded = await loadCloud();
       } catch (err) {
         _cloudLoadFailed = true;
@@ -2642,7 +2663,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const selected = _reviewItems.filter(it => it.checked);
         const cb = _reviewConfirm; closeReview(); if (cb) cb(selected);
       });
-      window.addEventListener('online', updateOfflineUI);
+      window.addEventListener('online', () => { updateOfflineUI(); syncPendingDraft(); });   // the offline save's promise, kept
       window.addEventListener('offline', updateOfflineUI);
     });
 

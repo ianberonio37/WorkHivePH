@@ -1278,8 +1278,14 @@
         <a href="${e(_addUrl)}" onclick="event.stopPropagation()" aria-label="Add this open job to my Day Planner" style="display:inline-flex; align-items:center; gap:4px; margin-top:2px; min-height:44px; font-size: 0.75rem; font-weight:700; color:var(--wh-blue); text-decoration:none;">+ Add to my day &#8594;</a>
       </div>`;
     }
+    // ★A DEVELOPER COMMAND IN FRONT OF A PLANT SUPERVISOR (SL AV2 walk, 2026-10-19). Whenever the planner could not be
+    // reached - offline included - Re-run told the person to 'Run npx supabase functions serve'. Offline it now refuses
+    // before sending, as Publish does; a planner that was unreachable or failed gets a sentence a supervisor can act on.
+    // (The console warning below still names the local cause for a developer.)
+    const _SB_PLANNER_UNREACHED = 'The shift planner did not finish, so the plan was not re-generated. The plan on screen is unchanged; try again in a moment.';
     async function rerunPlan() {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
+      if (typeof whRequireOnline === 'function' && !whRequireOnline('Re-running this shift plan', (m) => showToast(m))) return;
       const btn = document.getElementById('rerun-btn');
       const gen = document.getElementById('generate-btn');
       // T76 (2026-08-25): disable BOTH entry points, not `btn || gen`. When both buttons
@@ -1315,7 +1321,7 @@
           const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
           if (isUnreachable) {
             console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
-            showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
+            showToast(_SB_PLANNER_UNREACHED);
           } else {
             showToast(whAiError(error, _t('Re-run failed: ', 'Hindi natuloy ang re-run: ') + (msg || 'unknown')));
           }
@@ -1345,7 +1351,7 @@
         const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
         if (isUnreachable) {
           console.warn('shift-planner-orchestrator unreachable:', msg);
-          showToast('Shift planner is offline locally. Run "npx supabase functions serve" (the cron was retired 2026-06-10; plans generate on first open).');
+          showToast(_SB_PLANNER_UNREACHED);
         } else {
           showToast('Re-run error: ' + msg);
         }

@@ -3225,6 +3225,12 @@ async function saveChangeOrder() {
   const title = $('co-title').value.trim();
   const scope = $('co-scope').value.trim();
   if (!title || !scope) { showToast('Title and scope change are required'); return; }
+  // ★THE ONE WRITE HERE WITHOUT THE ONLINE GUARD (SL AV2 walk, 2026-10-19). Offline, the submit fired
+  // generate_change_order_number at a dead network and then said "The change-order number could not be generated" - a
+  // cause nobody can act on - while every sibling write on this page (approve, reject, cancel, the project itself)
+  // refuses up front and says it needs a connection. A change order is financial and approval-bearing: online-only.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Submitting this change order', (m) => showToast(m, 'error'))) return;
   // ★DOUBLE-SUBMIT GUARD ON A FINANCIAL, APPROVAL-BEARING WRITE. Measured live (writes intercepted so nothing
   // landed): this handler had NO guard, and a second press 120ms after the first ran the whole path again —
   // write count 1 -> 2. That is not a cosmetic duplicate: each pass calls generate_change_order_number and
