@@ -285,10 +285,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     })();
 
     function renderDenied() {
+      // ★A WALL HAS NO FIGURES TO SOURCE (SL A4 walk, 2026-10-19): the load-time line ("Live · refreshed on load ·
+      // integration_configs + gateway_audit_log + ...") named reads this state never made, and once a read failed the
+      // shell turned it into "Read failed · showing the last data loaded" - to a worker shown no data at all. Taken back,
+      // project-report's prMarkUnloaded rule; the load handler below skips it.
+      window.__pcWalled = true;
+      const _pcChip = document.getElementById('pc-source-chip');
+      if (_pcChip) _pcChip.innerHTML = '';
+      // ★AND WHEN THE ROLE COULD NOT BE ASKED, THE WALL SAYS WHOSE ANSWER IT IS (CA4's rule: fail closed, never with the
+      // wrong reason). The device's last-seen role still decides; the person is told that is what decided it.
+      const _unread = window._whRoleUnread === true;
       document.getElementById('content').innerHTML = `
         <div class="denied" data-wh-gate="supervisor-only">
           <h2 data-i="pc_sup_only">Supervisor access only</h2>
           <p>${escHtml(_t('Supervisors manage CMMS integrations, sensor topics and gateway audits here. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
+          ${_unread ? `<p role="status" style="margin-top:0.75rem;">Your role could not be checked just now, so this is based on the role this device last saw. Reload the page to check again.</p>
+          <button type="button" onclick="location.reload()" style="margin-top:0.75rem; min-height:44px; padding:0.5rem 1rem; border-radius:8px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); font:inherit; font-weight:700; cursor:pointer;">Reload</button>` : ''}
         </div>
       `;
     }
@@ -908,6 +920,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {
+    if (window.__pcWalled) return;   // a wall shows no figures - see renderDenied()
     var el = document.getElementById('pc-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'pc-source-chip'; var host = document.querySelector('.page') || document.querySelector('main') || document.body; host.appendChild(el); }
     // W45981 audit: this wrapper used to set role=status + aria-live=polite ITSELF, and renderSourceChip() emits a <p class="wh-source-chip" role="status" aria-live="polite"> into it - so the page carried a live region INSIDE a live region and announced the same provenance sentence twice on arrival. The G1 reasoning was right (this chip IS the page's status region) and is now satisfied by the chip itself, which is where the role belongs: one element, one announcement.

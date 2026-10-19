@@ -45,7 +45,8 @@
        Same class, same page family, opposite verdicts: the rule is not "avoid the hero variant", it is
        "spend it on a figure". */
 
-    .wh-nonsup main .page > :not(#vehicle-add):not(#toast):not(#veh-sup-wall):not(#it-page-title) { display: none; }   /* the page title stays for everyone (W45936) */
+    .wh-nonsup main .page > :not(#vehicle-add):not(#toast):not(#veh-sup-wall):not(#it-page-title):not(#it-access-pending) { display: none; }   /* the page title stays for everyone (W45936) */
+    html:not(.wh-nonsup) #it-access-pending { display: none; }   /* a cached supervisor sees the console itself, not this line */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was #1d2e44, one unit from --wh-navy-mid (critique W45936) */
@@ -352,6 +353,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
   </div>
 </section>
+
+<!-- ★THE CONSOLE'S PLACE WAS SILENT WHILE ITS ACCESS WAS ASKED (SL A4 walk, 2026-10-19, reads 5 s late): with no supervisor
+     role on this device the console is hidden before paint, and the wall that replaces it arrives only after the hive and
+     role reads answer - so nothing said more was coming. Shown only while that console is hidden (.wh-nonsup); the gate
+     removes it when it decides. -->
+<p id="it-access-pending" role="status" style="max-width:900px; margin:0 auto 1.5rem; font-size:.75rem; color:rgba(255,255,255,0.72); text-align:center;">Checking your access to the connections console…</p>
 
   <!-- Plain-Read summary (Layer D — UX Contract).
        Populated by renderIntegrationsSummary() from the live integration_configs fetch. -->
@@ -916,7 +923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -969,7 +976,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data: { session } } = await db.auth.getSession();
       if (!session) { whSignInWall(); return; }
     } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
-    await _hiveSeated;   // BRH-H: the hive (and the role it brings) as the account holds them, before the gates below
+    const _seat = await _hiveSeated;   // BRH-H: the hive (and the role it brings) as the account holds them, before the gates below
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's
@@ -999,14 +1006,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const _wall = document.createElement('div');
         _wall.id = 'veh-sup-wall';   // exempt from the pre-paint .wh-nonsup hide
         _wall.className = 'card';
+        _wall.style.cssText = 'text-align:center; padding:32px; max-width:560px; margin:24px auto;';
+        // ★COULD NOT ASK IS NOT "NO" (SL A4 walk, 2026-10-19, reads hung): with no hive on this device and the lookup for
+        // one unanswered, nothing here knows this person's role - the "Supervisor access only" wall gave a reason it had
+        // never checked (true for a solo owner by luck, false for a supervisor whose device lost its hive). The console
+        // still stays closed; the wall says why, and Reload asks again.
+        if (!HIVE_ID && _seat && _seat.unread) {
+          _wall.setAttribute('data-wh-gate', 'access-unchecked');
+          _wall.setAttribute('role', 'status');
+          _wall.innerHTML = '<h2 style="margin:0 0 12px;">Your access could not be checked</h2>'
+            + '<p style="color:rgba(255,255,255,0.83); margin:0 0 16px;"></p>'
+            + '<button type="button" class="btn btn-ghost">Reload</button>';
+          _wall.querySelector('p').textContent = ((typeof whAdminCheckOfflineText === 'function')
+            ? whAdminCheckOfflineText('The connections console')
+            : 'The connections console could not check your access just now, so it stays closed. Reload the page to try again.')
+            + ' The vehicle wizard above is yours to use.';
+          _wall.querySelector('button').addEventListener('click', () => location.reload());
+          _pg.appendChild(_wall);
+          return;
+        }
         // a declared wall (critic batch E3, 2026-10-13): the console is withheld from this reader, so there is no data
         // here to source; the vehicle wizard above is a form, not a figure
         _wall.setAttribute('data-wh-gate', 'supervisor-only');
-        _wall.style.cssText = 'text-align:center; padding:32px; max-width:560px; margin:24px auto;';
         _wall.innerHTML = '<h2 style="margin:0 0 12px;">Supervisor access only</h2>'
           + '<p style="color:rgba(255,255,255,0.83); margin:0;">Supervisors connect WorkHive to SAP PM, Maximo, '
           + 'sensors and webhooks here. Ask your hive supervisor if you need a connection set up. The vehicle '
-          + 'wizard above is yours to use.</p>';
+          + 'wizard above is yours to use.</p>'
+          // the role could not be asked just now: the wall is the device's last-seen role, and says so (see whReconcileHiveRole)
+          + (window._whRoleUnread === true
+            ? '<p role="status" style="color:rgba(255,255,255,0.83); margin:12px 0 0;">Your role could not be checked just '
+              + 'now, so this is based on the role this device last saw. Reload the page to check again.</p>'
+              + '<button type="button" class="btn btn-ghost" style="margin-top:12px;" onclick="location.reload()">Reload</button>'
+            : '');
         _pg.appendChild(_wall);
       }
       return;

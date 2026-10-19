@@ -88,8 +88,12 @@ export const REFUSAL_SRC =
 // was speaking clearly. Its note is the rule this file exists to enforce — "an oracle that only recognises
 // its author's phrasing measures vocabulary, not behaviour." A third copy is how two provers end up
 // disagreeing about the same page, which is what created this module.
+// ★THE APOSTROPHE LESSON REFUSAL_SRC LEARNED, NEVER APPLIED HERE (SL A4 walk, 2026-10-19). `couldn'?t` matched only the
+// straight form, and the platform's own shared sentence is curly - whReadError's "Couldn’t load ... - WorkHive did not
+// answer", and skillmatrix's "Couldn’t load your skill matrix. Your levels are unknown right now, not zero." - so a page
+// that said it plainly was graded SILENT unless "try again" happened to sit beside it. Same explicit set as above.
 export const FAILURE_SRC =
-  "couldn'?t (load|read|be)|could not (load|read|be)|failed to (load|read)|unable to (load|read)"
+  "couldn['’]?t (load|read|be)|could not (load|read|be)|failed to (load|read)|unable to (load|read)"
   + '|went wrong|try again|retry|session expired|expired,? so|not allowed to|does not have access'
   + '|no access to';
 

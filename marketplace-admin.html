@@ -478,6 +478,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('main-content').style.display = 'none';
     window.addEventListener('online', () => location.reload(), { once: true });
   }
+  // ★THE OLD PAGE STOOD IN FOR THE ANSWER (SL A4 walk, 2026-10-19, reads 5 s late): while the admin check ran, the page
+  // showed its moderation tiles as bare dashes - to an admin and to anyone else alike - with nothing saying a check was
+  // under way (and on the retired page those tiles never load at all). The page is held back until the answer, and one
+  // line says what is happening.
+  function _mpaPending(on) {
+    const mc = document.getElementById('main-content');
+    let pl = document.getElementById('mpa-access-pending');
+    if (on) {
+      if (mc) mc.style.display = 'none';
+      if (!pl && mc && mc.parentNode) {
+        pl = document.createElement('p');
+        pl.id = 'mpa-access-pending';
+        pl.setAttribute('role', 'status');
+        pl.style.cssText = 'text-align:center; padding:48px 16px; font-size:.85rem; color:rgba(255,255,255,0.72);';
+        pl.textContent = 'Checking your access…';
+        mc.parentNode.insertBefore(pl, mc);
+      }
+      return;
+    }
+    if (pl) pl.remove();
+    if (mc) mc.style.display = '';
+  }
   async function verifyPlatformAdmin() {
     if (typeof isPlatformAdmin === 'function') return isPlatformAdmin(db);
     if (!WORKER_NAME) return false;   // an older cached utils.js without the shared gate: the previous check
@@ -1218,6 +1240,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data: { session } } = await db.auth.getSession();
       if (!session) { whSignInWall(); return; }
     } catch (_) { /* empty-catch-allow: the admin check below still fails closed */ }
+    _mpaPending(true);
     const _retiredOv = document.getElementById('wh-retired-overlay');
     if (_retiredOv) {
       // ★A RETIRED ADMIN PAGE IS STILL AN ADMIN PAGE (2026-10-13, Ian: "it seems that founder/admins function button or
@@ -1225,6 +1248,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // hidden and opens only for a platform admin; anyone else gets Platform Admins Only. The moderation load stays
       // skipped either way.
       const _aR = await adminAnswer();
+      _mpaPending(false);
       if (_aR === 'unreachable') { showCannotAsk(); return; }
       if (_aR === 'yes') {
         _retiredOv.style.display = 'flex';
@@ -1239,6 +1263,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        Re-enabled 2026-05-17 (Layer 2 role runner found admin surfaces accessible
        to all roles when gate was commented out). */
     const _a = await adminAnswer();
+    _mpaPending(false);
     if (_a === 'unreachable') { showCannotAsk(); return; }
     _isPlatformAdmin = _a === 'yes';
     if (!_isPlatformAdmin) {

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 581aa8d924f1fc9a
+source_sha: 3342fc1ad5dec1d5
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1401) — the 'what's already gated' brain
+## gate · registered validators (1402) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1030)
+### Platform (1031)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1268,6 +1268,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `skill-rule-mining` [fail] — Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)
 - `skillmatrix` ⚡ [fail] — Skill Matrix Validator
 - `slo-budget` [fail] — C15 (SERVICE_HAILING_ROADMAP §4b) the arc's north-star metrics are MEASURED, not adjectives. D9 named allocation rate / time-to-accept / completion rate and nev
+- `slow-read-honest` ⚡ [fail] — SL A4 (2026-10-19): a slow read is said, a hung one fails ONCE and is said - a REST timeout reaches supabase-js as an AbortError (it silently re-asked every tim
 - `soft-delete` ⚡ [fail] — Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)
 - `soft-delete-not-aggregated` [regression] — T432 (soft-delete leaks into aggregate): every view that counts/sums a soft-deletable table (community_posts, projects) filters deleted_at IS NULL - a deleted r
 - `someone-to-you` [fail] — T108: someone->you event coverage gate — T108's registry discipline (2026-08-25). The registry (substrate/reference/someone_to_you_event_registry.json) enumerat

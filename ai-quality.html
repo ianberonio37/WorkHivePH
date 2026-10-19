@@ -212,6 +212,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (typeof whStartupHive === 'function') window.WH_SEATS_HIVE_ITSELF = true;
 
     (async function init() {
+      /* ★THE CONTENT REGION WAS BLANK FOR OVER A MINUTE ON A DEAD LINE (SL A4 walk, 2026-10-19). Before this page draws
+         anything it awaits identity, the hive, the server's role and the admin check, one after another - and with the
+         reads hanging each waited for the client's timeout and its one re-send, so #content sat empty under the header
+         with nothing saying it was working, and the page-wide notice had expired before the page could say why. The
+         skeleton goes up FIRST; every branch below replaces it (the gate card, the honest empty, render), and if the
+         reads never land the shared settle pass turns it into "Not loaded - the service did not answer" with a Retry. */
+      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('content'), 4, 'your AI quality figures');
       if (!WORKER_NAME) WORKER_NAME = await restoreIdentityFromSession(db);
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       if (!WORKER_NAME) { whSignInWall(); return; }

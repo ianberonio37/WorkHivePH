@@ -2,13 +2,13 @@
 name: page-ai-quality
 type: page
 source: file:ai-quality.html
-source_sha: edd182bc09799827
+source_sha: af347662607ee102
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `ai-quality.html` — AI Quality + ROI | WorkHive
 
-Size: 58KB · 16 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 59KB · 16 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

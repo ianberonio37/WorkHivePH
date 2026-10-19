@@ -153,6 +153,14 @@ GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scr
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
 GATES["A2"] = ["double-submit-lock", "refresh-retry-dedup", "cb_double_fire", "skew-heal", "scripts-parse"]
+GATES["A4"] = ["slow-read-honest", "skeleton-labelled", "waiting-is-spoken", "skeleton_resolves", "skew-heal", "scripts-parse"]
+CONDITION["A4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
+                   "cast, an init script patching fetch before any page script: first every data read answered 5 s late "
+                   "(then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed "
+                   "quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set "
+                   "to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five "
+                   "samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the "
+                   "failed reads")
 CONDITION["A2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
                    "cast, with tools/prove_double_fire.mjs's write-holding shim installed before any page script: every "
                    "mutating request (POST/PATCH/PUT/DELETE to rest, rpc or functions) counted and HELD in the page, so "

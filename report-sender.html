@@ -1220,7 +1220,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // saved" or "we could not find out", and those are opposite instructions to someone about to
       // send a report. Measured under a 500: this card read "Saved contacts 0 · No contacts saved yet,
       // add one above · START".
-      if (!_rsContactsSettled) {
+      if (!_rsContactsSettled && _rsTransportFailed) {
+        // still unanswered, and the platform has seen the service stop answering: unknown, not checking (see _rsTransportFailed)
+        setCard('contacts', '—', 'Your saved contacts could not be loaded just now, so their number is unknown.', 'UNKNOWN', 'grey');
+      } else if (!_rsContactsSettled) {
         // STILL ASKING. Not zero, not failed — not yet known. The em-dash matches the card's own
         // authored default (:576) rather than inventing a placeholder, so the pending state looks
         // like the page before it spoke rather than like an answer.
@@ -1263,7 +1266,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // assistive-tech, PostgREST stopped). The contacts card already tells pending / unread / saved-copy / real
         // apart (see above); this sub-line read `saved` raw, so the verdict announced a count of zero before the read
         // had answered, and a saved-copy count as if it were the server's. It now says the same thing the card says.
-        sub  = !_rsContactsSettled
+        sub  = (!_rsContactsSettled && _rsTransportFailed)
+          ? `${SELECTABLE_REPORTS} reports available · your saved contacts could not be loaded just now, so their number is unknown.`
+          : !_rsContactsSettled
           ? _t(`${SELECTABLE_REPORTS} reports available · still checking your saved contacts.`,
                `${SELECTABLE_REPORTS} report ang available · tinitingnan pa ang mga naka-save mong contact.`)
           : (_rsReadFailed && !_contacts.length)
@@ -1587,6 +1592,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // outward and IRREVERSIBLE, the two mistakes it invites — adding a duplicate contact, or concluding
     // a finished report has nowhere to go — are the same two the fallback fix was written to prevent.
     let _rsContactsSettled = false; // the contacts read has answered — either way
+    // ★"STILL CHECKING" FOR MINUTES BESIDE A CARD THAT SAID "NOT LOADED" (SL A4 walk, 2026-10-19). The contacts read waits
+    // on identity, then the hive, then itself - each waiting out the client's timeout - so on a dead backend this page
+    // kept saying it was still checking long after utils.js had settled its card to "Not loaded". When the platform has
+    // seen reads fail (wh:reads-failed) the contacts are said to be unknown; the read's own answer still wins when it lands.
+    let _rsTransportFailed = false;
+    window.addEventListener('wh:reads-failed', () => {
+      if (_rsContactsSettled || _rsTransportFailed) return;
+      _rsTransportFailed = true;
+      try { if (typeof _rsSummaryAfterContacts === 'function') _rsSummaryAfterContacts(); } catch (_) { /* empty-catch-allow: the next render says it */ }
+    });
 
     async function loadContacts() {
       // ★ THE LIST HAD NO WAIT STATE EITHER. The summary CARD was fixed earlier this pass to say

@@ -521,6 +521,7 @@ function getPhase(it) {
     // EX-PX returner (2026-09-07): a person coming back to this page from history arrives with no ?project_id and
     // met "No project specified" and a back link - a cold start on a page they had used. The report is FOR a
     // project, so the honest warm return is the hive's recent projects, each one a link to its own report.
+    let _chooserRead = false;   // the recent-projects list answered (rows or none) - it then owns a source line, below
     try {
       const T = (typeof _t === 'function') ? _t : (en) => en;
       const e = (typeof escHtml === 'function') ? escHtml : (x) => String(x);
@@ -549,6 +550,7 @@ function getPhase(it) {
           .eq('hive_id', HIVE_ID)
           .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
         box.removeAttribute('aria-busy');
+        _chooserRead = !recentErr;
         if (recent && recent.length) {
           // ★THE CHOOSER BROKE AT 390 (critique W46013, 2026-10-13). Each link is inline-flex (for its 44px height), which
           // made the name's text and the status <span> two flex ITEMS: the space between them collapsed ("Overhaul· active"),
@@ -584,6 +586,17 @@ function getPhase(it) {
       if (_b) { _b.removeAttribute('aria-busy'); _b.textContent = 'Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try again in a moment.'; }
     }
     prMarkUnloaded();
+    // ★THE CHOOSER'S LIST HAD NO SOURCE LINE (SL A4 walk, 2026-10-19, reads 5 s late): prMarkUnloaded rightly takes back the
+    // REPORT's line - it names reads this state never made - and with it went any word on the list that WAS read: project
+    // names and statuses with nothing saying where they came from or as of when. The list gets its own line.
+    if (_chooserRead && typeof renderSourceChip === 'function') {
+      const _c = document.getElementById('pr-source-chip');
+      if (_c) _c.innerHTML = renderSourceChip({
+        freshness: 'Live · read when this page opened',
+        source: 'v_project_truth',
+        notes: ["Your hive's most recently updated projects"],
+      });
+    }
     return;
   }
   await loadAndRender(projectId);

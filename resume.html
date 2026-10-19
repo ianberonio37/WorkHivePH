@@ -881,7 +881,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div class="card">
         <div class="sec-head"><div><h2 class="sec-title" role="heading" aria-level="2" data-i="rs-sec-${sec.key}">${escHtml(sec.title)}</h2>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
-        ${body || `<p style="font-size:0.75rem;color:var(--wh-steel-bright);">Nothing here yet.</p>`}
+        ${body || `<p style="font-size:0.75rem;color:var(--wh-steel-bright);">${_cloudLoadFailed
+          // ★"NOTHING HERE YET" UNDER "NOT AN EMPTY RESUME" (SL A4 walk, 2026-10-19, reads hung): the card above says the
+          // saved resume could not be read, and every empty section below went on saying it was empty - the sentence that
+          // sends someone to re-type their work history. An unread section is not an empty one.
+          ? 'Not loaded - your saved resume could not be read, so this section may not be empty.'
+          : 'Nothing here yet.'}</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button" data-i="rs-add-${sec.key}">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
     }
@@ -2525,6 +2530,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ── Init ─────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
       logPageView(db);
+      // ★THE FORM'S WAIT STATE COMES FIRST (SL A4 walk, 2026-10-19). loadResumeIntoView paints this skeleton, but only after
+      // the account's name and role are asked - and with the service slow those reads held the form region blank: nothing
+      // at 1.8 s with reads 5 s late, nothing for 63 s with every read hung, only a page-wide banner naming no part of the
+      // page. Painted here, the region says what it is waiting for from the first frame, and the shared settle pass turns
+      // it into "could not load this section" the moment a read fails. loadResumeIntoView repaints it, harmlessly.
+      const _sec0 = document.getElementById('sections');
+      if (_sec0 && !_sec0.children.length && typeof whListSkeleton === 'function') whListSkeleton(_sec0, 4, 'your resume');
       // ★THE CV'S NAME IS THE ACCOUNT'S (SL AU3, 2026-10-14): a new resume is prefilled with WORKER_NAME and every save
       // labels its row with it - from a cache another member's name can sit in. Asked of the account before the first render.
       WORKER_NAME = (typeof restoreIdentityFromSession === 'function' ? await restoreIdentityFromSession(db) : '') || WORKER_NAME;

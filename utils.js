@@ -218,7 +218,9 @@
       var shown = window.getComputedStyle(ov).display !== 'none';
       for (var i = 0; i < kids.length; i++) {
         var sib = kids[i];
-        if (sib === ov || sib.tagName === 'SCRIPT' || sib.tagName === 'STYLE' || sib.tagName === 'LINK') continue;
+        // an admin gate's pending line (data-wh-gate-pending) speaks for the gate while the whole page is hidden - the overlay
+        // is not on screen yet, so nothing it covers is beside it (SL A4, 2026-10-19)
+        if (sib === ov || sib.tagName === 'SCRIPT' || sib.tagName === 'STYLE' || sib.tagName === 'LINK' || sib.hasAttribute('data-wh-gate-pending')) continue;
         if (!shown) {
           if (sib.getAttribute('data-wh-retired-inert') === '1') {
             sib.removeAttribute('inert');
@@ -1709,6 +1711,13 @@ function _whSettleStuckLoaders() {
   // span and its 'Live data' chips are visible by checkVisibility yet have NO offsetParent, so every pass skipped them.
   var vis = function (el) { return !!el && (typeof el.checkVisibility === 'function' ? el.checkVisibility() : el.offsetParent !== null); };
   window._whSettled = (window._whSettled || 0);
+  // ★A PAGE'S OWN PENDING STATE CANNOT HEAR THIS PASS (SL A4 walk, 2026-10-19). This pass rewrites the stuck lines it can
+  // recognise, but a page that models "still asking" itself (report-sender's contacts: CHECKING, "still checking your
+  // saved contacts") keeps saying so until its read finally answers - minutes, behind a chain of reads each waiting out
+  // the client's timeout - while the card this pass rewrote says "Not loaded". One event, so such a page can say what
+  // the platform already knows: the service stopped answering.
+  try { window.__whReadsFailedAt = Date.now(); window.dispatchEvent(new CustomEvent('wh:reads-failed')); }
+  catch (_) { /* empty-catch-allow: a listener's failure must not stop the settle */ }
   try {
     var chips = Array.prototype.slice.call(document.querySelectorAll('.wh-source-chip'));
     /* ★C-AK (walked 2026-09-11, Wilfredo Malabanan, worker in Baguio Textile Mills, wh_lang=fil).
@@ -1764,13 +1773,19 @@ function _whSettleStuckLoaders() {
              assert freshness; anything else still falls through untouched rather than being guessed at. */
           _fn.nodeValue = _fn.nodeValue.replace(/^\s*(?:Live|Recomputed|Refreshed|Updated)\b[^·]*(?:·\s*[^·]*refresh[^·]*)?\s*·\s*/i,
             _tRF('showing the last data loaded · ', 'ipinapakita ang huling na-load na data · '));
+          // ★"READ FAILED · CHECKING" (SL A4 walk, 2026-10-19, shift-brain with reads hung): a chip painted before its read
+          // carries a provisional "Checking" clause, and the read it promised never answered - one line saying the read
+          // failed and that it is still being checked. The prefix says what happened; the clause claiming a check goes.
+          _fn.nodeValue = _fn.nodeValue.replace(/^\s*Checking\b\s*·\s*/, '');
         }
       }
     }
     window._whSettled++;
   } catch (e) { /* empty-catch-allow: chip pass is best-effort */ }
   try {
-    var PROG = /^(Computing|Loading|Counting|Reading|Rolling up|Fetching|Building)\b[^.]{0,90}(\.\.\.|…)\s*$/;
+    // SL A4 walk (2026-10-19): "Checking..." is a loader too - report-sender's "Checking your saved contacts..." was still on
+    // screen 40 s into a dead backend, the one stuck line this pass did not recognise
+    var PROG = /^(Computing|Loading|Counting|Reading|Rolling up|Fetching|Building|Checking)\b[^.]{0,90}(\.\.\.|…)\s*$/;
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     var node, hits = [];
     while ((node = walker.nextNode())) { var t = (node.textContent || '').trim(); if (t && PROG.test(t) && node.parentElement && vis(node.parentElement)) hits.push(node); }
@@ -1808,6 +1823,13 @@ function _whSettleStuckLoaders() {
       var _pe = hits[j].parentElement;
       hits[j].textContent = _failMsg;
       _pe.setAttribute('data-wh-read-failed', '1');
+      // ★THE LINE SAID "NOT LOADED" AND THE SHAPES BESIDE IT KEPT SHIMMERING (SL A4 walk, 2026-10-19): skill-matrix draws its
+      // own skeleton (.skeleton.skel-chart / .skel-card) under its loading line, and this pass rewrote the line while the
+      // grey circle and cards went on saying the page was still loading. A settled line settles its own container's shapes.
+      try {
+        var _box = _pe.closest('section, [role="status"], .card');
+        if (_box) Array.prototype.forEach.call(_box.querySelectorAll('.skeleton, [class*="skel-"]'), function (x) { x.style.display = 'none'; });
+      } catch (_) { /* empty-catch-allow: the sentence above is the part that must land */ }
       if (_offline) continue;   // offline: the sentence says it will load on its own; a Retry cannot help
       try {
         var _peCs = getComputedStyle(_pe);
@@ -1872,6 +1894,33 @@ function _whSettleStuckLoaders() {
       var host = sk.parentElement; if (!host || host.querySelector('.wh-list-error')) continue;
       if (typeof whListError === 'function') whListError(host, _skelMsg, function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
       else host.innerHTML = '<div class="wh-list-error" role="alert">' + _skelMsg.replace(/[<>&]/g, '') + '</div>';
+    }
+    // ★THE PLATFORM'S OTHER SKELETON SPELLING (SL A4 walk, 2026-10-19). The loop above knows .wh-skeleton, the shared
+    // helper's. A page's PRE-JS reserve is plain shapes in markup - community's feed (3 x .skeleton) and its leaderboard,
+    // public-feed's .skeleton-card, voice-journal's .skeleton-row - and measured with every read hung, community's went on
+    // shimmering under "part of this page could not be loaded" for the whole 75 s: the page swaps them for its own wait
+    // state only when its chain of reads reaches them. A container holding NOTHING but empty shapes is the same claim of
+    // waiting, so it gets the same card. Only while a service is still failing (a page painting a fresh wait after a
+    // recovery keeps it), never a shape nested in a composite skeleton (marketplace's fallback card is shapes in shapes),
+    // and never a shape with an id a page could look up.
+    if (Object.keys(window._whConnFailedSvcs || {}).length) {
+      var _SHAPE = /(^|\s)(skeleton|skeleton-[a-z]+|skel|skel-[a-z]+)(\s|$)/;
+      var _isShape = function (el) { return _SHAPE.test(String(el.className || '')) && !el.children.length && !el.id && !(el.textContent || '').trim(); };
+      var _inShape = function (el) { for (var a = el; a && a !== document.body; a = a.parentElement) { if (_SHAPE.test(String(a.className || '')) || (a.classList && a.classList.contains('wh-skeleton'))) return true; } return false; };
+      var _shapes = Array.prototype.slice.call(document.querySelectorAll('[class*="skel"]'));
+      var _hosts = [];
+      for (var q = 0; q < _shapes.length; q++) {
+        var _sh = _shapes[q];
+        if (!_isShape(_sh) || !vis(_sh)) continue;
+        var _ho = _sh.parentElement;
+        if (!_ho || /^(BODY|MAIN|HTML)$/.test(_ho.tagName) || _hosts.indexOf(_ho) >= 0 || _inShape(_ho)) continue;
+        if (_ho.querySelector('.wh-list-error') || (_ho.textContent || '').trim()) continue;
+        if (Array.prototype.every.call(_ho.children, _isShape)) _hosts.push(_ho);
+      }
+      for (var hq = 0; hq < _hosts.length; hq++) {
+        if (typeof whListError === 'function') whListError(_hosts[hq], _skelMsg, function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
+        else _hosts[hq].innerHTML = '<div class="wh-list-error" role="alert">' + _skelMsg.replace(/[<>&]/g, '') + '</div>';
+      }
     }
     window._whSettled++;
   } catch (e) { /* empty-catch-allow: skeleton pass is best-effort */ }
@@ -2121,7 +2170,21 @@ window.getDb = function(url, key) {
       // THIS NOTICES AND RE-THROWS — it does not swallow. The note above forbids a .catch that eats the
       // error the client must surface, and that remains true: `throw err` keeps every caller's
       // {data, error} exactly as it was.
-      .catch(err => { _whNoteTransportFailure(err, _whSvcOf((input && input.url) || input)); throw err; })
+      .catch(err => {
+        const _svc = _whSvcOf((input && input.url) || input);
+        _whNoteTransportFailure(err, _svc);
+        // ★THE CLIENT ASKED A TIMED-OUT READ FOUR TIMES (SL A4 walk, 2026-10-19). supabase-js 2.110's query builder
+        // retries a REJECTED GET/HEAD three more times (1 s, 2 s, 4 s apart) unless the rejection is named AbortError,
+        // and this timeout's reason is a TimeoutError - so a dead backend held every read for 4 x 45 s + 7 s = 3 min 7 s
+        // before any page could say it failed, and a page whose reads chain waited that long per link. Measured with
+        // reads hung and the 6 s knob: v_hives_truth asked at 0.3, 7.3, 15.3 and 25.3 s on three pages. A timeout is a
+        // budget spent, not a blip (fetchWithTimeout's own rule, below): the builder is handed an AbortError carrying the
+        // same WH_DB_TIMEOUT message, so it stops, and every timeout test that reads the message still matches. A refused
+        // connection (a TypeError, in milliseconds) keeps its retries. REST only: auth, storage and functions do not retry
+        // this way, and their callers read the TimeoutError.
+        if (_svc === 'rest' && err && err.name === 'TimeoutError') throw new DOMException(String(err.message || 'WH_DB_TIMEOUT'), 'AbortError');
+        throw err;
+      })
       .finally(() => { clearTimeout(t); _clearSlow(); });
   };
   window._whSupabaseClient = window.supabase.createClient(url, key, {
@@ -4802,10 +4865,22 @@ function whHiveId() {
 // Same rules as the home's resolver: seated by IDENTITY (auth_uid), never by name; kicked memberships excluded;
 // several hives -> the first by name, as the home does. An unreadable answer is not "no hive": on any error
 // nothing is written and the page keeps whatever it had. Returns the hive id it seated, or null.
+// ★ONE ADOPTER OF THE STORED ROLE IN THIS FILE (role_adoption_centralized, found red on the SL A4 close, 2026-10-19):
+// seating a hive (whEnsureHiveContext) and correcting a role (whReconcileHiveRole) each wrote wh_hive_role themselves,
+// two doors onto one value with invariants attached. Both write it here; null removes it.
+function _whAdoptStoredRole(role) {
+  try { if (role) localStorage.setItem('wh_hive_role', role); else localStorage.removeItem('wh_hive_role'); }
+  catch (_) { /* empty-catch-allow: storage may be blocked (private mode); the caller still holds the live role */ }
+}
 async function whEnsureHiveContext(db) {
   var cur = whHiveId();
   if (cur) return cur;
   if (!db || !db.auth || typeof db.from !== 'function') return null;
+  // ★NULL MEANT "NO HIVE" AND "COULD NOT ASK" (SL A4 walk, 2026-10-19, reads hung). integrations walled a solo owner with
+  // "Supervisor access only" off a lookup that never answered - the right wall by luck, and the wrong one for a
+  // supervisor whose device had lost its hive. The return stays a hive id or null (every caller tests its truth);
+  // window._whHiveSeatUnread carries the third answer for a caller that must say WHY it closed (whStartupHive's .unread).
+  window._whHiveSeatUnread = false;
   try {
     var sess = (await db.auth.getSession()).data.session;
     var uid = sess && sess.user ? sess.user.id : null;
@@ -4813,23 +4888,26 @@ async function whEnsureHiveContext(db) {
     var mem = await db.from('v_worker_truth').select('hive_id, role')
       .eq('auth_uid', uid).neq('hive_status', 'kicked')
       .limit(500);   // one person's memberships are bounded-by-nature; insurance cap
-    if (mem.error || !mem.data || !mem.data.length) return null;
+    if (mem.error) { window._whHiveSeatUnread = true; return null; }
+    if (!mem.data || !mem.data.length) return null;
     var ids = mem.data.map(function (m) { return m.hive_id; });
     var hv = await db.from('v_hives_truth').select('id, name').in('id', ids)
       .order('name', { ascending: true }).order('id', { ascending: true })
       .limit(500);   // bounded by the memberships above
-    if (hv.error || !hv.data || !hv.data.length) return null;
+    if (hv.error) { window._whHiveSeatUnread = true; return null; }
+    if (!hv.data || !hv.data.length) return null;
     var roleOf = function (id) { var m = mem.data.find(function (x) { return x.hive_id === id; }); return m ? m.role : 'worker'; };
     var first = hv.data[0];
     localStorage.setItem('wh_active_hive_id', first.id);
     localStorage.setItem('wh_hive_id', first.id);
     localStorage.setItem('wh_hive_name', first.name || '');
-    localStorage.setItem('wh_hive_role', roleOf(first.id));
+    _whAdoptStoredRole(roleOf(first.id));
     try {
       localStorage.setItem('wh_hives', JSON.stringify(hv.data.map(function (h) { return { id: h.id, name: h.name, role: roleOf(h.id), code: '' }; })));
     } catch (_) { /* empty-catch-allow: quota on iOS Safari; the active hive above is what the page needs */ }
     return first.id;
   } catch (_) {
+    window._whHiveSeatUnread = true;
     return null;   // offline or storage blocked: change nothing, the page runs as it would have
   }
 }
@@ -4924,9 +5002,11 @@ if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveN
 // the device already held, which is what the page would have shown anyway.
 async function whStartupHive(db) {
   if (typeof window !== 'undefined') window.WH_SEATS_HIVE_ITSELF = true;
-  var out = { id: null, name: '', role: '' };
+  var out = { id: null, name: '', role: '', unread: false };
   try {
     out.id = whHiveId() || await whEnsureHiveContext(db) || null;
+    // no hive because the account holds none, or because the lookup never answered (see whEnsureHiveContext)
+    out.unread = !out.id && window._whHiveSeatUnread === true;
     if (out.id) await whReconcileHiveName(db);
     out.name = localStorage.getItem('wh_hive_name') || '';
     out.role = localStorage.getItem('wh_hive_role') || '';
@@ -4956,6 +5036,10 @@ if (typeof window !== 'undefined') window.whStartupHive = whStartupHive;
 // returns { was, now } when they differed (now = null when the person is no longer an active member), else null.
 // A page that gates on the role awaits this BEFORE its first gated render and uses `now`.
 async function whReconcileHiveRole(db, hiveId) {
+  // ★NULL MEANT "UNCHANGED" AND "COULD NOT ASK" (SL A4 walk, 2026-10-19, reads hung): a gate that then walls on the stored
+  // role says "Supervisor access only" as if the server had just said so. The cache is still the right fallback (the last
+  // server fact); window._whRoleUnread lets that gate say the answer is the device's, not a fresh one.
+  window._whRoleUnread = false;
   try {
     if (typeof db !== 'object' || !db || !db.auth) return null;
     var id = hiveId || whHiveId();                            // a page that resolved its hive another way passes it
@@ -4969,7 +5053,7 @@ async function whReconcileHiveRole(db, hiveId) {
     if (id) {
       // canonical-allow: auth-check probe on the membership row (by auth_uid); this is the access gate, not a display read
       var res = await db.from('hive_members').select('role, status').eq('hive_id', id).eq('auth_uid', uid).maybeSingle();
-      if (!res || res.error) return null;                     // an unreadable answer is not a demotion; keep the cache
+      if (!res || res.error) { window._whRoleUnread = true; return null; }   // an unreadable answer is not a demotion; keep the cache
       live = (res.data && res.data.status === 'active') ? res.data.role : null;
     } else {
       // ★A ROLE WITH NO HIVE IS A LEFTOVER (SL AU2, solo cast, 2026-10-14) - when the account holds no membership at
@@ -4978,11 +5062,12 @@ async function whReconcileHiveRole(db, hiveId) {
       // is whEnsureHiveContext's job, and it writes the role it seats.
       // canonical-allow: auth-check probe - does this account hold any active membership (by auth_uid)
       var any = await db.from('hive_members').select('hive_id').eq('auth_uid', uid).eq('status', 'active').limit(1);
-      if (!any || any.error || (any.data && any.data.length)) return null;
+      if (!any || any.error) { window._whRoleUnread = true; return null; }
+      if (any.data && any.data.length) return null;
     }
     if (live === cached) return null;
     try {
-      if (live) localStorage.setItem('wh_hive_role', live); else localStorage.removeItem('wh_hive_role');
+      _whAdoptStoredRole(live);
       // ★THE SAME STALE FACT, ONE KEY OVER (re-walk, 2026-10-14). nav-hub DERIVES a display mode from this role
       // (wh_nav_mode with src 'derived'/'guess') unless the person CHOSE one, and it derives it before this read
       // returns - so after a demotion the home still led with the supervisor actions, reading the derived mode raw.
@@ -5001,7 +5086,7 @@ async function whReconcileHiveRole(db, hiveId) {
     // a control to a supervisors-only page follows the corrected role (BRH-L): withheld on demotion, back on promotion
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return { was: cached, now: live };
-  } catch (_) { return null; /* a role check must never break a page */ }
+  } catch (_) { window._whRoleUnread = true; return null; /* a role check must never break a page */ }
 }
 if (typeof window !== 'undefined') window.whReconcileHiveRole = whReconcileHiveRole;
 

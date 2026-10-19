@@ -4348,6 +4348,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "slow-read-honest",
+        "script":  "tools/validate_slow_read_honest.py",
+        "args":    [],
+        "label":   "SL A4 (2026-10-19): a slow read is said, a hung one fails ONCE and is said - a REST timeout reaches supabase-js as an AbortError (it silently re-asked every timed-out GET three more times: 3 min 7 s at the 45 s timeout), the settle pass settles every skeleton spelling while a service is still failing, knows 'Checking', tells pages the reads failed and drops a chip's 'Checking'; the hive lookup and role check carry 'could not ask'; 22 page fixes hold (wait states before gating reads, no empty or figures line over a failed or walled read, admin gates say they are checking); the shared failure vocabulary reads curly apostrophes",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "figure-sources-written",
         "script":  "tools/render_figure_sources.py",
         "args":    ["--check"],

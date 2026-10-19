@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1028-files
-source_sha: 434aff923140b923
+source: memory-curated:1029-files
+source_sha: ad7be055a7337b99
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1028 durable topic files)
+## memory · curated auto-memory (1029 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=637 · project=301 · reference=90
+**By type:** feedback=638 · project=301 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -47,6 +47,7 @@ Entries (name · type · sha):
 - `feedback_a_comment_asking_the_next_editor_to_remember_is_not_a_contract` · feedback · 1c47001407b0579e
 - `feedback_a_compliance_export_inherited_the_feeds_row_cap` · feedback · 07fc281105ddc9e0
 - `feedback_a_config_change_froze_the_marketplace` · feedback · c121cc5285824442
+- `feedback_a_confirm_dialog_can_pass_a_double_tap_test` · feedback · e6fe81cb20f5d50d
 - `feedback_a_contrast_reading_needs_the_canvas_the_page_paints` · feedback · 9c6d99afad924b13
 - `feedback_a_control_is_reached_the_way_its_person_reaches_it` · feedback · 6240ff288d3b3868
 - `feedback_a_count_of_small_targets_is_not_a_count_of_defects` · feedback · 2c87f0c547a163dc
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_shared_chrome_is_graded_once_and_styled_before_paint` · feedback · 328b3f4505865a85
 - `feedback_shared_chrome_was_outside_every_i18n_gate` · feedback · d21dc08cb8514def
 - `feedback_short_denominator_is_a_false_100` · feedback · bbe8983dd599c8f5
-- `feedback_silence_is_golden_status_chrome` · feedback · 47bcb3e305aeff12
-- … +528 more (all included in the fingerprint)
+- … +529 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

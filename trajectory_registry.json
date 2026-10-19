@@ -790037,8 +790037,8 @@
     },
     {
       "id": "SL935",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · achievements",
       "pages": [
@@ -790095,12 +790095,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: achievements.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:41:01.282Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Computing XP progress..., text: Loading…); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:35 PHT · Based on your achievements, XP history & your profile · XP this …\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Achievements failed to load. Tap Retry.\" (judged at 22 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Computing XP progress..., text: Loading…); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:36 PHT · Based on your achievements, XP history & your profile · XP this …\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Achievements failed to load. Tap Retry.\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken  Receipt .tmp/mcp_walks/SL935.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: achievements.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:19:35.765Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Computing XP progress..., text: Loading…); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:14 PHT · Based on your achievements, XP history & your profile · XP this …\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Achievements failed to load. Tap Retry.\" (judged at 22 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Computing XP progress..., text: Loading…); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:15 PHT · Based on your achievements, XP history & your profile · XP this …\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Achievements failed to load. Tap Retry.\" (judged at 23 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken  Receipt .tmp/mcp_walks/SL935.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL936",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · alert hub",
       "pages": [
@@ -790157,12 +790168,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: alert-hub.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:28:36.383Z (.tmp/slw/results/a4w_4.json) as Ben Ocampo (driverben), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Reading alert state..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live data · as of 16:19 PHT · Based on your risk scores · PM overdue: counted once per asset, matches PM Sche…\" | hang - 26 reads hung, given up by the client's own timeout, then said: \"Could not load your alerts\" (judged at 39 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Reading alert state..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live data · as of 16:21 PHT · Based on your risk scores · PM overdue: counted once per asset, matches PM Sche…\" | hang - 26 reads hung, given up by the client's own timeout, then said: \"Could not load your alerts\" (judged at 40 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL936.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL937",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · analytics",
       "pages": [
@@ -790221,12 +790243,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: analytics.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:51:58.218Z (.tmp/slw/results/a4w_7.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (spinner, text: Reading your logbook for this period.); settled after 18 s with nothing still loading; freshness said: \"Saved snapshot, computed 1h ago · Refresh to recompute · Based on your logbook · last 90 days (rolling, endin…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"Read failed · showing the last data loaded · saved copy could not be read, so some sections are missing · Bas…\" (judged at 28 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (spinner, text: Reading your logbook for this period.); settled after 18 s with nothing still loading; freshness said: \"Saved snapshot, computed 0 min ago · Refresh to recompute · Based on your logbook · last 90 days (rolling, en…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"Read failed · showing the last data loaded · saved copy could not be read, so some sections are missing · Bas…\" (judged at 27 s), nothing left loading.  Receipt .tmp/mcp_walks/SL937.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL938",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · asset hub",
       "pages": [
@@ -790283,12 +790316,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: asset-hub.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:28:36.383Z (.tmp/slw/results/a4w_4.json) as Ben Ocampo (driverben), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading asset fleet..., text: Loading...); settled after 38 s with nothing still loading; freshness said: \"Live + daily snapshot · as of 16:22 PHT · Based on your asset records, risk scores, logbook, failure analysis…\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Could not load your asset fleet\" (judged at 33 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading asset fleet..., text: Loading...); settled after 38 s with nothing still loading; freshness said: \"Live + daily snapshot · as of 16:23 PHT · Based on your asset records, risk scores, logbook, failure analysis…\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Could not load your asset fleet\" (judged at 33 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL938.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL939",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · assistant",
       "pages": [
@@ -790345,12 +790389,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: assistant.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:28:36.383Z (.tmp/slw/results/a4w_4.json) as Ben Ocampo (driverben), service workers blocked, fetch patched before any page script: phone-390: slow (10 reads 5 s late) - waiting said at 1.8 s (flex justify-start fade-up, text: Reading your job records…); settled after 14 s with nothing still loading; freshness said: \"Dela Cruz Delivery Fleet · Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts sto…\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I couldn't reach your job records just now, so I may not hav…\" (judged at 22 s), nothing left loading || desktop-1280: slow (10 reads 5 s late) - waiting said at 1.8 s (flex justify-start fade-up, text: Reading your job records…); settled after 14 s with nothing still loading; freshness said: \"Dela Cruz Delivery Fleet · Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts sto…\" | hang - 16 reads hung, given up by the client's own timeout, then said: \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. I couldn't reach your job records just now, so I may not hav…\" (judged at 22 s), nothing left  Receipt .tmp/mcp_walks/SL939.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL940",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · community",
       "pages": [
@@ -790407,12 +790462,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: community.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:38:19.651Z (.tmp/slw/results/a4w_5.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, fetch patched before any page script: phone-390: slow (4 reads 5 s late) - waiting said at 1.8 s (skeleton); settled after 43 s with nothing still loading; freshness said: \"Live · updates automatically · as of 16:35 PHT · Based on your community posts, replies, reactions, leaderboa…\" | hang - 20 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the community feed - WorkHive did not answer. Try again in a moment.\" (judged at 39 s), nothing left loading || desktop-1280: slow (4 reads 5 s late) - waiting said at 1.8 s (skeleton); settled after 43 s with nothing still loading; freshness said: \"Live · updates automatically · as of 16:37 PHT · Based on your community posts, replies, reactions, leaderboa…\" | hang - 20 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the community feed - WorkHive did not answer. Try again in a moment.\" (judged at 39 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting- Receipt .tmp/mcp_walks/SL940.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL941",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · dayplanner",
       "pages": [
@@ -790469,12 +790535,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: dayplanner.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:55:14.289Z (.tmp/slw/results/a4w_8.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading day plan..., text: Loading...); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on each view switch · as of 16:52 PHT · Based on your schedule & logbookHow we compute your …\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Could not load your plan. This is a loading problem, not an empty day: your items are still there.\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading..., text: Loading logbook...); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on each view switch · as of 16:53 PHT · Based on your schedule & logbookHow we compute your …\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Could not load your plan. This is a loading problem, not an empty day: your items are still there.\" (judged at 23 s), nothing left loading. Gate slow-read-honest holds the fixes (the  Receipt .tmp/mcp_walks/SL941.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL942",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · hive",
       "pages": [
@@ -790531,12 +790608,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: hive.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:28:36.383Z (.tmp/slw/results/a4w_4.json) as Ben Ocampo (driverben), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton); settled after 28 s with nothing still loading; freshness said: \"Live data · as of 16:26 PHT · Based on your logbook, PM schedule & inventoryHow we compute the open-items sum…\" | hang - 39 reads hung, given up by the client's own timeout, then said: \"Couldn't load your jobs\" (judged at 33 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton); settled after 28 s with nothing still loading; freshness said: \"Live data · as of 16:27 PHT · Based on your logbook, PM schedule & inventoryHow we compute the open-items sum…\" | hang - 39 reads hung, given up by the client's own timeout, then said: \"Couldn't load your jobs\" (judged at 33 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL942.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL943",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · index",
       "pages": [
@@ -790593,12 +790681,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: index.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:38:19.651Z (.tmp/slw/results/a4w_5.json) as Ben Ocampo (driverben), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (wh-skeleton-label, text: Loading today’s counts…); settled after 18 s with nothing still loading; freshness said: \"Live data · as of 16:29 PHT · Based on your logbook, risk scores & inventory · Risk: daily snapshot at 13:00 …\" | hang - 23 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your latest hive data - WorkHive did not answer. Try again in a moment. If it keeps failing, th…\" (judged at 24 s), nothing left loading || desktop-1280: slow (7 reads 5 s late) - waiting said at 1.8 s (wh-skeleton-label, text: Loading today’s counts…); settled after 15 s with nothing still loading; freshness said: \"Live data · as of 16:30 PHT · Based on your logbook, risk scores & inventory · Risk: daily snapshot at 13:00 …\" | hang - 23 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your latest hive data - WorkHive did not answer. Try again in a moment. If it keeps failing, th…\" (judged at 24 s), nothing left loading. Gate slow-read- Receipt .tmp/mcp_walks/SL943.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL944",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - solo-owner · integrations",
       "pages": [
@@ -790655,12 +790754,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: integrations.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:46:54.448Z (.tmp/slw/results/a4w_6.json) as Jun Salvador (junvanowner), service workers blocked, fetch patched before any page script: phone-390: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access to the connections con…); settled after 8 s with nothing still loading; walled - no figures shown | hang - 3 reads hung, given up by the client's own timeout, then said: \"Your access could not be checked\" (judged at 16 s), nothing left loading || desktop-1280: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access to the connections con…); settled after 8 s with nothing still loading; walled - no figures shown | hang - 3 reads hung, given up by the client's own timeout, then said: \"Your access could not be checked\" (judged at 16 s), nothing left loading. Jun is a solo owner with no hive: the console is walled and the vehicle wizard is a form, so no figures line is owed. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL944.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: integrations.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:45:20.039Z (.tmp/slw/results/a4w_6.json) as Jun Salvador (junvanowner), service workers blocked, fetch patched before any page script: phone-390: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access to the connections con…); settled after 9 s with nothing still loading; walled - no figures shown | hang - 3 reads hung, given up by the client's own timeout, then said: \"Your access could not be checked\" (judged at 16 s), nothing left loading || desktop-1280: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access to the connections con…); settled after 9 s with nothing still loading; walled - no figures shown | hang - 3 reads hung, given up by the client's own timeout, then said: \"Your access could not be checked\" (judged at 16 s), nothing left loading. Jun is a solo owner with no hive: the console is walled and the vehicle wizard is a form, so no figures line is owed. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL944.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL945",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · inventory",
       "pages": [
@@ -790717,12 +790827,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: inventory.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:41:01.282Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing stock health..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:37 PHT · Based on your inventory & stock movementsHow we compute thisLow …\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"parts: unknown, not loaded\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing stock health..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:38 PHT · Based on your inventory & stock movementsHow we compute thisLow …\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"parts: unknown, not loaded\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolve Receipt .tmp/mcp_walks/SL945.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: inventory.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:19:35.765Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing stock health..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:16 PHT · Based on your inventory & stock movementsHow we compute thisLow …\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"parts: unknown, not loaded\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing stock health..., text: Loading...); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:17 PHT · Based on your inventory & stock movementsHow we compute thisLow …\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"parts: unknown, not loaded\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolve Receipt .tmp/mcp_walks/SL945.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL946",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · logbook",
       "pages": [
@@ -790779,12 +790900,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: logbook.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:03:35.210Z (.tmp/slw/results/a4w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:58 PHT · Based on your logbook, asset nodes & inventory\" | hang - 21 reads hung, given up by the client's own timeout, then said: \"Could not load your logbook.\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton); settled after 23 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:59 PHT · Based on your logbook, asset nodes & inventory\" | hang - 21 reads hung, given up by the client's own timeout, then said: \"Could not load your logbook.\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL946.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL947",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - buyer · marketplace seller profile",
       "pages": [
@@ -790841,12 +790973,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: marketplace-seller-profile.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:03:35.210Z (.tmp/slw/results/a4w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, fetch patched before any page script: phone-390: slow (7 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:00 PHT · Based on this seller's listings, replies and verified-purchase r…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Couldn’t load this seller\" (judged at 22 s), nothing left loading || desktop-1280: slow (7 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:01 PHT · Based on this seller's listings, replies and verified-purchase r…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Couldn’t load this seller\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL947.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL948",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - buyer · marketplace seller",
       "pages": [
@@ -790903,12 +791046,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: marketplace-seller.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:03:35.210Z (.tmp/slw/results/a4w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, fetch patched before any page script: phone-390: slow (10 reads 5 s late) - waiting said at 1.8 s (wh-skeleton-label, text: Loading your listings…); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:02 PHT · Based on your marketplace inquiries, marketplace listings & mark…\" | hang - 20 reads hung, given up by the client's own timeout, then said: \"Listings: unknown, not loaded\" (judged at 22 s), nothing left loading || desktop-1280: slow (10 reads 5 s late) - waiting said at 1.8 s (wh-skeleton-label, text: Loading your listings…); settled after 18 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:02 PHT · Based on your marketplace inquiries, marketplace listings & mark…\" | hang - 20 reads hung, given up by the client's own timeout, then said: \"Listings: unknown, not loaded\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resol Receipt .tmp/mcp_walks/SL948.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL949",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - buyer · marketplace",
       "pages": [
@@ -790965,12 +791119,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: marketplace.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:38:19.651Z (.tmp/slw/results/a4w_5.json) as Isidro Suarez (isidrosuarez), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading marketplace..., text: Loading...); settled after 38 s with nothing still loading; freshness said: \"Live · refreshed on each tab switch · as of 16:31 PHT · Based on listings from sellers across WorkHive · Tabs…\" | hang - 32 reads hung, given up by the client's own timeout, then said: \"Couldn't load the marketplace\" (judged at 39 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading marketplace..., text: Loading...); settled after 38 s with nothing still loading; freshness said: \"Live · refreshed on each tab switch · as of 16:32 PHT · Based on listings from sellers across WorkHive · Tabs…\" | hang - 32 reads hung, given up by the client's own timeout, then said: \"Couldn't load the marketplace\" (judged at 39 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolve Receipt .tmp/mcp_walks/SL949.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL950",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · ph intelligence",
       "pages": [
@@ -791027,12 +791192,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: ph-intelligence.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:33:15.340Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading..., text: Loading latest report...); settled after 14 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Not loaded - the service did not answer.\" (judged at 23 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading..., text: Loading latest report...); settled after 14 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Not loaded - the service did not answer.\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting- Receipt .tmp/mcp_walks/SL950.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: ph-intelligence.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:10:47.385Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading..., text: Loading latest report...); settled after 14 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Not loaded - the service did not answer.\" (judged at 22 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading..., text: Loading latest report...); settled after 14 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Not loaded - the service did not answer.\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting- Receipt .tmp/mcp_walks/SL950.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL951",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - machine-client · plant connections",
       "pages": [
@@ -791089,12 +791265,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: plant-connections.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:33:15.340Z (.tmp/slw/results/a4w_2.json) as Bryan Garcia (bryangarcia), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading plant connections...); settled after 14 s with nothing still loading; walled - no figures shown | hang - 12 reads hung, given up by the client's own timeout, then said: \"Your role could not be checked just now, so this is based on the role this device last saw. Reload the page t…\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading plant connections...); settled after 14 s with nothing still loading; walled - no figures shown | hang - 12 reads hung, given up by the client's own timeout, then said: \"Your role could not be checked just now, so this is based on the role this device last saw. Reload the page t…\" (judged at 22 s), nothing left loading. Bryan is a worker, walled from plant-connections: the wall shows no figures, so no figures line is owed (the page no longer paints one over the wall). Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles Receipt .tmp/mcp_walks/SL951.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: plant-connections.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:10:47.385Z (.tmp/slw/results/a4w_2.json) as Bryan Garcia (bryangarcia), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading plant connections...); settled after 14 s with nothing still loading; walled - no figures shown | hang - 12 reads hung, given up by the client's own timeout, then said: \"WorkHive did not answer when this page checked your role, so this is based on the role this device last saw. …\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading plant connections...); settled after 14 s with nothing still loading; walled - no figures shown | hang - 12 reads hung, given up by the client's own timeout, then said: \"WorkHive did not answer when this page checked your role, so this is based on the role this device last saw. …\" (judged at 22 s), nothing left loading. Bryan is a worker, walled from plant-connections: the wall shows no figures, so no figures line is owed (the page no longer paints one over the wall). Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles Receipt .tmp/mcp_walks/SL951.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL952",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · pm scheduler",
       "pages": [
@@ -791151,12 +791338,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: pm-scheduler.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:46:54.448Z (.tmp/slw/results/a4w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing PM compliance..., text: Computing recommendation...); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:41 PHT · Based on your PM assets, PM tasks & PM completionsHow we compute…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still …\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing PM compliance..., text: Computing recommendation...); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:42 PHT · Based on your PM assets, PM tasks & PM completionsHow we compute…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still …\" (judged at  Receipt .tmp/mcp_walks/SL952.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: pm-scheduler.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:45:20.039Z (.tmp/slw/results/a4w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing PM compliance..., text: Computing recommendation...); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:39 PHT · Based on your PM assets, PM tasks & PM completionsHow we compute…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still …\" (judged at 23 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing PM compliance..., text: Computing recommendation...); settled after 28 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:40 PHT · Based on your PM assets, PM tasks & PM completionsHow we compute…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your PM assets. This is a loading problem, not an empty asset register. Your assets are still …\" (judged at  Receipt .tmp/mcp_walks/SL952.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL953",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · project manager",
       "pages": [
@@ -791213,12 +791411,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: project-manager.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:33:15.340Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing project health..., text: Loading...); settled after 33 s with nothing still loading; freshness said: \"Live · refreshed on load · updates automatically · as of 17:31 PHT · Based on your projects & project tasksHo…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing project health..., text: Loading...); settled after 33 s with nothing still loading; freshness said: \"Live · refreshed on load · updates automatically · as of 17:32 PHT · Based on your projects & project tasksHo…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skel Receipt .tmp/mcp_walks/SL953.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: project-manager.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:10:47.385Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing project health..., text: Loading...); settled after 33 s with nothing still loading; freshness said: \"Live · refreshed on load · updates automatically · as of 17:08 PHT · Based on your projects & project tasksHo…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Computing project health..., text: Loading...); settled after 33 s with nothing still loading; freshness said: \"Live · refreshed on load · updates automatically · as of 17:09 PHT · Based on your projects & project tasksHo…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skel Receipt .tmp/mcp_walks/SL953.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL954",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · project report",
       "pages": [
@@ -791275,12 +791484,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: project-report.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:55:14.289Z (.tmp/slw/results/a4w_8.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading project…); settled after 14 s with nothing still loading; freshness said: \"Live · read when this page opened · as of 16:54 PHT · Based on your project · Your hive's most recently updat…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try agai…\" (judged at 22 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Loading project…); settled after 14 s with nothing still loading; freshness said: \"Live · read when this page opened · as of 16:54 PHT · Based on your project · Your hive's most recently updat…\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Could not load your projects, so this list is not showing them - it does not mean the hive has none. Try agai…\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails onc Receipt .tmp/mcp_walks/SL954.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL955",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - an anonymous visitor · public feed",
       "pages": [
@@ -791331,12 +791551,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: public-feed.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:03:35.210Z (.tmp/slw/results/a4w_1.json) as an anonymous visitor (signed out), service workers blocked, fetch patched before any page script: phone-390: slow (1 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 8 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:57 PHT · Based on public posts from WorkHive hives\" | hang - 1 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Stat…\" (judged at 9 s), nothing left loading || desktop-1280: slow (1 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 8 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:58 PHT · Based on public posts from WorkHive hives\" | hang - 1 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Stat…\" (judged at 9 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles Receipt .tmp/mcp_walks/SL955.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: public-feed.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:03:35.210Z (.tmp/slw/results/a4w_1.json) as an anonymous visitor (signed out), service workers blocked, fetch patched before any page script: phone-390: slow (1 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 8 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:57 PHT · Based on public posts from WorkHive hives\" | hang - 1 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Stat…\" (judged at 9 s), nothing left loading || desktop-1280: slow (1 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 8 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:58 PHT · Based on public posts from WorkHive hives\" | hang - 1 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Stat…\" (judged at 9 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles Receipt .tmp/mcp_walks/SL955.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL956",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · report sender",
       "pages": [
@@ -791393,12 +791624,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: report-sender.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:41:01.282Z (.tmp/slw/results/a4w_3.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Checking your saved contacts…); settled after 18 s with nothing still loading; freshness said: \"Live · contacts refreshed on load, history on load · as of 17:33 PHT · Based on your AI reports & report cont…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"4 reports available · 1 saved contact from your saved copy (the server did not answer).\" (judged at 27 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Checking your saved contacts…); settled after 18 s with nothing still loading; freshness said: \"Live · contacts refreshed on load, history on load · as of 17:34 PHT · Based on your AI reports & report cont…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"4 reports available · 1 saved contact from your saved copy (the server did not answer).\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton Receipt .tmp/mcp_walks/SL956.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: report-sender.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:19:35.765Z (.tmp/slw/results/a4w_3.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Checking your saved contacts…); settled after 18 s with nothing still loading; freshness said: \"Live · contacts refreshed on load, history on load · as of 16:12 PHT · Based on your AI reports & report cont…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"4 reports available · 1 saved contact from your saved copy (the server did not answer).\" (judged at 27 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (text: Checking your saved contacts…); settled after 18 s with nothing still loading; freshness said: \"Live · contacts refreshed on load, history on load · as of 16:13 PHT · Based on your AI reports & report cont…\" | hang - 18 reads hung, given up by the client's own timeout, then said: \"4 reports available · 1 saved contact from your saved copy (the server did not answer).\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton Receipt .tmp/mcp_walks/SL956.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL957",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · resume",
       "pages": [
@@ -791455,12 +791697,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: resume.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:38:19.651Z (.tmp/slw/results/a4w_5.json) as Isidro Suarez (isidrosuarez), service workers blocked, fetch patched before any page script: phone-390: slow (6 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Your resume · your own words, plus anything you auto-fill from your logbook and skill badges · saved on this …\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before t…\" (judged at 22 s), nothing left loading || desktop-1280: slow (6 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Your resume · your own words, plus anything you auto-fill from your logbook and skill badges · saved on this …\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before t…\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the ti Receipt .tmp/mcp_walks/SL957.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL958",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · shift brain",
       "pages": [
@@ -791517,12 +791770,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: shift-brain.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:46:54.448Z (.tmp/slw/results/a4w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading shift readiness..., text: Loading...); settled after 18 s with nothing still loading; freshness said: \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 17:43 PHT · Based on your …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your shift plan\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading shift readiness..., text: Loading...); settled after 18 s with nothing still loading; freshness said: \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 17:44 PHT · Based on your …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your shift plan\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skelet Receipt .tmp/mcp_walks/SL958.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: shift-brain.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:45:20.039Z (.tmp/slw/results/a4w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading shift readiness..., text: Loading...); settled after 18 s with nothing still loading; freshness said: \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 16:41 PHT · Based on your …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your shift plan\" (judged at 23 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading shift readiness..., text: Loading...); settled after 18 s with nothing still loading; freshness said: \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 16:42 PHT · Based on your …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Could not load your shift plan\" (judged at 23 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skelet Receipt .tmp/mcp_walks/SL958.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL959",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - worker · skillmatrix",
       "pages": [
@@ -791579,12 +791843,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: skillmatrix.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:41:01.282Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton-label); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:39 PHT · Based on your skills & skill badgesHow we compute thisDiscipline…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline;…\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton-label); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:40 PHT · Based on your skills & skill badgesHow we compute thisDiscipline…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline;…\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails on Receipt .tmp/mcp_walks/SL959.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: skillmatrix.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:19:35.765Z (.tmp/slw/results/a4w_3.json) as David Velasco (davidvelasco), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton-label); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:18 PHT · Based on your skills & skill badgesHow we compute thisDiscipline…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline;…\" (judged at 23 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (true, wh-skeleton-label); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:18 PHT · Based on your skills & skill badgesHow we compute thisDiscipline…\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your skill matrix. Your levels are unknown right now, not zero. Do not re-pick your discipline;…\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails on Receipt .tmp/mcp_walks/SL959.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL960",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - oversight · agentic rag observability",
       "pages": [
@@ -791635,12 +791910,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: agentic-rag-observability.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:46:54.448Z (.tmp/slw/results/a4w_6.json) as Leandro Marquez (leandromarquez), service workers blocked, fetch patched before any page script: phone-390: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 13 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:45 PHT · Based on your agentic rag traces\" | hang - 2 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now This internal page could not check your access just now, so it stays …\" (judged at 10 s), nothing left loading || desktop-1280: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 13 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 17:46 PHT · Based on your agentic rag traces\" | hang - 2 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now This internal page could not check your access just now, so it stays …\" (judged at 10 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), wi Receipt .tmp/mcp_walks/SL960.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: agentic-rag-observability.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:45:20.039Z (.tmp/slw/results/a4w_6.json) as Leandro Marquez (leandromarquez), service workers blocked, fetch patched before any page script: phone-390: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 13 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:44 PHT · Based on your agentic rag traces\" | hang - 2 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now This internal page could not check your access just now, so it stays …\" (judged at 10 s), nothing left loading || desktop-1280: slow (2 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 13 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:44 PHT · Based on your agentic rag traces\" | hang - 2 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now This internal page could not check your access just now, so it stays …\" (judged at 10 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), wi Receipt .tmp/mcp_walks/SL960.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL961",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - supervisor · ai quality",
       "pages": [
@@ -791697,12 +791983,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: ai-quality.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:33:15.340Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the…\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the…\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (th Receipt .tmp/mcp_walks/SL961.json. || [2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: ai-quality.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T09:10:47.385Z (.tmp/slw/results/a4w_2.json) as Christine Dizon (christinedizon), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the…\" (judged at 27 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (wh-skeleton, wh-skeleton-label); settled after 18 s with nothing still loading; freshness said: \"Readiness · the daily snapshot of your hive’s records, computed 15 Oct, 08:15 PHT · each window above ends th…\" | hang - 15 reads hung, given up by the client's own timeout, then said: \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the…\" (judged at 27 s), nothing left loading. Gate slow-read-honest holds the fixes (th Receipt .tmp/mcp_walks/SL961.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL962",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - fleet-supervisor · audit log",
       "pages": [
@@ -791759,12 +792056,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: audit-log.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:51:58.218Z (.tmp/slw/results/a4w_7.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, fetch patched before any page script: phone-390: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading audit log...); settled after 38 s with nothing still loading; freshness said: \"Live · updates automatically · as of 16:49 PHT · Based on your activity log & ai audit log · Supervisor-only …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the audit log - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status…\" (judged at 22 s), nothing left loading || desktop-1280: slow (5 reads 5 s late) - waiting said at 1.8 s (text: Loading audit log...); settled after 38 s with nothing still loading; freshness said: \"Live · updates automatically · as of 16:51 PHT · Based on your activity log & ai audit log · Supervisor-only …\" | hang - 13 reads hung, given up by the client's own timeout, then said: \"Couldn’t load the audit log - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status…\" (judged at 22 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout f Receipt .tmp/mcp_walks/SL962.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL963",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - oversight · design system",
       "pages": [
@@ -791815,12 +792123,23 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from design system itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: design-system.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:51:58.218Z (.tmp/slw/results/a4w_7.json) as Leandro Marquez (leandromarquez), service workers blocked, fetch patched before any page script: phone-390: slow (0 reads 5 s late) - no data reads to wait on; settled after 3 s with nothing still loading; freshness said: \"as of 2026-10-19T08:45:57.347Z · Based on your PM compliance\" | hang - no reads to hang || desktop-1280: slow (0 reads 5 s late) - no data reads to wait on; settled after 3 s with nothing still loading; freshness said: \"as of 2026-10-19T08:46:12.959Z · Based on your PM compliance\" | hang - no reads to hang. design-system makes no data reads (its registry is a static file), so there is no slow read to wait on or time out; its skeleton is a SPECIMEN - role=img, labelled 'Loading skeleton (specimen)', aria-busy cleared. Gate slow-read-honest holds the fixes (the timeout fails once; every skeleton spelling settles; the page fixes), with skeleton-labelled, waiting-is-spoken and skeleton_resolves. Receipt .tmp/mcp_walks/SL963.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
       "id": "SL964",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-A",
       "title": "A4 · The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow - oversight · marketplace admin",
       "pages": [
@@ -791871,6 +792190,17 @@
         "engine": "chromium",
         "ask": "The platform must show a skeleton, time out, and say how fresh the data is when this page's reads are slow",
         "closes": "the A4 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-19] pct -> 60. WALKED LIVE 2026-10-19 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, an init script patching fetch before any page script: first every data read answered 5 s late (then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed quiet; then every data read hung, with the platform's own client-timeout knob (WH_DB_TIMEOUT_MS) set to 6 s - judged once every hung read had been given up and the page had 3 s to speak, over five samples in five seconds: a failure sentence, nothing still claiming to load, no empty state over the failed reads): A4: marketplace-admin.html says it is waiting while its reads are slow, says how fresh it is once they land, and says the read failed once its client timeout gives up - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T08:51:58.218Z (.tmp/slw/results/a4w_7.json) as Leandro Marquez (leandromarquez), service workers blocked, fetch patched before any page script: phone-390: slow (7 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:46 PHT · Based on your marketplace listings, seller ratings & disputes\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now Marketplace Admin could not check your access just now, so it stays c…\" (judged at 22 s), nothing left loading || desktop-1280: slow (7 reads 5 s late) - waiting said at 1.8 s (text: Checking your access…); settled after 14 s with nothing still loading; freshness said: \"Live · refreshed on load · as of 16:47 PHT · Based on your marketplace listings, seller ratings & disputes\" | hang - 14 reads hung, given up by the client's own timeout, then said: \"Your access cannot be checked right now Marketplace Admin could not check your access just now, so it stays c…\" (judged at 23 s), nothing left loading. Gate slow-read-honest holds the fixes (the timeout fail Receipt .tmp/mcp_walks/SL964.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skeleton-labelled",
+          "skeleton_resolves",
+          "skew-heal",
+          "slow-read-honest",
+          "waiting-is-spoken"
+        ]
       }
     },
     {
@@ -1015363,5 +1015693,5 @@
       }
     }
   ],
-  "next": "SL A4 slow reads: skeleton, timeout, freshness (30); then AV2 offline queue and sync (33), AV3 degraded poll (14), AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL A2 21/21 CLOSED (every write held at one on a double press; hive's Leave guarded one-at-a-time; prover flows +7) with A1 32/32 and D4 6/6. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL AV2 offline queue and sync (33); then AV3 degraded poll (14), AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL A4 30/30 CLOSED (a timed-out read fails once - the client had asked each one four times; every skeleton spelling settles; wait states before gating reads; could-not-ask said at two more walls) with A2 21/21, A1 32/32 and D4 6/6. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

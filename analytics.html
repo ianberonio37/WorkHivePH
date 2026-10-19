@@ -2082,7 +2082,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   function renderPMCompliance(d) {
-    if (!d || !d.compliance_by_asset?.length) return cardEmpty('PM Compliance Rate', 'SMRP Metric 2.1.1', 'No PM assets or scope items found.');
+    // ★"NO PM ASSETS" TO A HIVE WITH EIGHT (SL A4 walk, 2026-10-19, Tan Delivery Vans: 8 pm_assets, 0 pm_scope_items).
+    // Compliance is counted per scope item due in the period, so the list is empty when no item was due - with or without
+    // PM assets. Say the thing that is true in every one of those cases, and where scope items are added.
+    if (!d || !d.compliance_by_asset?.length) return cardEmpty('PM Compliance Rate', 'SMRP Metric 2.1.1', 'No PM scope items were due in this period, so there is nothing to measure compliance against yet. Scope items are added to each asset in PM Scheduler.');
     const overall = d.overall_pct;
     const heroColor = overall < 70 ? 'red' : overall < 85 ? 'yellow' : 'green';
     const failing = d.compliance_by_asset.filter(r => r.compliance_pct < 85);
