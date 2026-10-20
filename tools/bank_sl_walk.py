@@ -183,6 +183,14 @@ CONDITION["C2"] = ("the page read as served in its own browser context (service 
                    "byline) read: each figure states its period, window or moment near it or in its reveal, or is a "
                    "worked example, a benchmark, a sample, a record's own value or a count of what exists now that the "
                    "page's as-of answers - a running total or a windowed figure with no window fails")
+GATES["C3"] = ["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
+CONDITION["C3"] = ("the page read as served in its own browser context (service workers blocked, downloads accepted), signed in "
+                   "as the row's cast, settled, and prepared as a person would where its printable thing must first exist "
+                   "(an asset opened, a report generated); printed the way the browser prints (beforeprint, then the print "
+                   "media query) and the text that would reach paper read; then every Export / Download / CSV / Save as "
+                   "PDF / Print control pressed (window.print stubbed so no dialog holds the walk) and its file, popup or "
+                   "printout read, one level into a dialog it opens and onto a report page it opens: each output must "
+                   "carry a date-and-time and what it covers - or be named with why it needs neither")
 GATES["AV4"] = ["reload-once", "auto-read-retry", "skew-heal", "skew-heal-live", "sw-navigation-fallback", "scripts-parse"]
 CONDITION["AV4"] = ("the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in "
                     "storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation "

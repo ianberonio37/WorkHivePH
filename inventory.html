@@ -2608,7 +2608,7 @@ document.getElementById('btn-export-inventory').addEventListener('click', () => 
       || (HIVE_ID ? 'id ' + HIVE_ID : 'this hive')),
     'Parts: ' + items.length,
     'Needing attention: ' + alerts,
-    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
   ].map(esc).join('\r\n');
   const csv = meta + '\r\n\r\n' + cols.map(esc).join(',') + '\r\n' + rows.join('\r\n');
   // the escape, not a literal byte-order mark in the source: a real U+FEFF sitting mid-file is at the

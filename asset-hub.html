@@ -4401,7 +4401,8 @@
     <div><strong>ISO 14224 class:</strong> ${esc(node.iso_class || '--')}</div>
     <div><strong>Criticality:</strong> ${esc(node.criticality || '--')}</div>
     <div><strong>Location:</strong> ${esc(node.location || '--')}</div>
-    <div><strong>Generated:</strong> ${esc(today.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' }))}</div>
+    <div><strong>Generated:</strong> ${esc(today.toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }))} PHT</div>
+    <div><strong>Covers:</strong> corrective events of the last 365 days; the FMEA, RCM, Weibull and P-F records as they stand at generation</div>
     <div><strong>Engineer:</strong> ${esc(engineer)}</div>
     <div><strong>Hive:</strong> ${esc(hiveTag)}</div>
   </div>
@@ -5120,7 +5121,7 @@
               || (HIVE_ID ? 'id ' + HIVE_ID : 'this hive')),
             'Assets: ' + _allNodes.length,
             'Critical: ' + critical,
-            'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+            'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
           ].map(esc).join('\r\n');
           const csv = meta + '\r\n\r\n' + cols.map(esc).join(',') + '\r\n' + rows.join('\r\n');
           const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });

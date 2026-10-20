@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1031-files
-source_sha: 3592b240dd72ecdb
+source_sha: fe8ba70bcf3183e9
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -407,7 +407,7 @@ Entries (name · type · sha):
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_membership_resolved_by_auth_uid` · feedback · ba5e55000349dafd
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
-- `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · a61aa0e7e49e4fc4
+- `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · 509ecc45d3aee27c
 - `feedback_mobile_fit_rubric_gap_and_two_bugs` · feedback · e101498c62dd7da7
 - `feedback_momentum_stop_guard` · feedback · 8dfb6c6ba25c45f0
 - `feedback_my_design_is_slop_the_skills_are_the_instrument` · feedback · 156619c9879586e0

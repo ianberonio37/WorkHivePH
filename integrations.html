@@ -2579,7 +2579,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         || (HIVE_ID ? 'id ' + HIVE_ID : 'this hive')),
       'Connections: ' + _integrationConfigs.length + ' (' + enabled + ' enabled)',
       'Credentials: NOT included - auth tokens never leave this page',
-      'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+      'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
     ].map(esc).join(CRLF);
     const csv = meta + CRLF + CRLF + cols.map(esc).join(',') + CRLF + rows.join(CRLF);
     const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8' });

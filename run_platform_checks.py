@@ -4366,6 +4366,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "print-export-stamped",
+        "script":  "tools/validate_print_export_stamped.py",
+        "args":    [],
+        "label":   "SL C3 (2026-10-20): what a page prints or exports carries the time it was made and the period it covers. Walked 88 pages printing the way the browser prints and pressing every export and print control: a page printed with Ctrl+P carried no time and no period (logbook and audit-log stamped the LOAD time as 'Printed:'), the CSVs named no clock, two exports named no period, and the analytics and reliability reports printed a day, never the moment. One stamp now, in utils.js and wh-feedback-fab.js, written at the moment of printing (time in PHT, and what the printout covers: a guide's latest dated byline, a calculator's inputs, or when the page's figures were last read); the exports say PHT and their period; the reports print their generation time. Static, 9x2 + 11 anchors and every served page loads a stamp script; self-test: 9 mutations each redden it.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "period-stated",
         "script":  "tools/validate_period_stated.py",
         "args":    [],

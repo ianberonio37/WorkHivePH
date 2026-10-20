@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: a33907ccb2ea4f76
+source_sha: 5b8f59f2d3fe7344
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1406) — the 'what's already gated' brain
+## gate · registered validators (1407) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1035)
+### Platform (1036)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1099,6 +1099,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `power-user-accelerator` [regression] — T194 (the power user ceiling): the one real accelerator - a Ctrl/Cmd+K global-search palette - genuinely exists and is reachable platform-wide (nav-hub.js binds
 - `predictive` ⚡ [fail] — Predictive Analytics Data Quality Validator
 - `presence-unavailable-is-not-absent` [fail] — T141 (2026-08-28): a fact about the NETWORK must not be rendered as a claim about PEOPLE. hive.html's presence bar answers 'who is here right now'; when the rea
+- `print-export-stamped` ⚡ [fail] — SL C3 (2026-10-20): what a page prints or exports carries the time it was made and the period it covers. Walked 88 pages printing the way the browser prints and
 - `print-is-readable-on-paper` [fail] — T124: the printed page must not be the dark theme (2026-08-26). Plants run on paper - a PM schedule goes on the noticeboard, an audit trail into a folder for DO
 - `printed-truncation-is-disclosed` [fail] — CF: a printed artifact that shortens free text must SAY so (T49, 2026-08-27). export-reads-its-own-set holds the ROW axis - a CSV must not inherit the render bu
 - `private-memory-isolation` [fail] — Private-memory isolation (LIVE: the per-worker AI-companion conversation tables [agent_memory/voice_journal_entries/dialog_state] must have OWNER-only SELECT po

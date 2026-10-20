@@ -3561,6 +3561,7 @@ if (typeof window !== 'undefined') window.whCapRows = whCapRows;
       if (/\/rest\/v1\/|\/functions\/v1\/|supabase/.test(url)) {
         p.then(function (res) {
           if (res && res.ok) {
+            window.__whLastReadAt = Date.now();   // SL C3: the moment the page's figures were last read, for the print stamp
             clearTimeout(t);
             t = setTimeout(function () {
               try { whFreshnessFooter(); } catch (_) { /* empty-catch-allow: stamp is best-effort chrome */ }
@@ -8407,6 +8408,78 @@ function whSignInWall() {
   window.location.href = 'index.html?signin=1&return=' + encodeURIComponent(here);
 }
 if (typeof window !== 'undefined') window.whSignInWall = whSignInWall;
+
+// ★A PRINTED PAGE SAID NOTHING ABOUT WHEN (SL C3, 2026-10-20). Printed with Ctrl+P (or Share, then Print, on a phone),
+// a page left the platform carrying no time and no period: the screen's "as of" line sits in the collapsed Sources area,
+// and the two pages that had a print stamp (logbook, audit-log) wrote "Printed:" with the time the page LOADED - print
+// it after lunch and it named the morning. One stamp, written at the moment of printing: what was printed, for which
+// hive and by whom (when signed in), when, and the period it covers - a guide's dated byline, a calculator's inputs, or
+// the moment the page's figures were last read (each figure's own window is printed beside it, SL C2). A print layout
+// that carries its own header (a formal report) marks it [data-wh-print-own] and keeps it. This block lives in BOTH
+// utils.js (app pages) and wh-feedback-fab.js (public pages); window.__whPrintStamp keeps it to one per page.
+(function whPrintStamp() {
+  if (typeof window === 'undefined' || typeof document === 'undefined' || window.__whPrintStamp) return;
+  window.__whPrintStamp = true;
+  var PHT = function (d) {
+    try {
+      return d.toLocaleString('en-GB', { timeZone: 'Asia/Manila', day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false }) + ' PHT';
+    } catch (_) { return d.toISOString(); }
+  };
+  var covers = function () {
+    var t = (document.body && document.body.innerText) || '';
+    // a revised guide prints the revision it is: 'Updated' / 'Last updated' / 'Last reviewed' before 'Published'
+    var DATE = '(\\d{1,2}\\s+[A-Z][a-z]+\\s+20\\d\\d|20\\d\\d-\\d\\d-\\d\\d)';
+    var by = t.match(new RegExp('\\b(Last updated|Last reviewed|Updated)\\b[^\\n]{0,40}?' + DATE))
+      || t.match(new RegExp('\\bPublished\\b[^\\n]{0,40}?' + DATE));
+    if (by) return by[0].replace(/\s+/g, ' ').trim();
+    if (/\/tools\/|engineering-design/.test(location.pathname)) return 'a calculation from the inputs shown, with no time window';
+    var at = window.__whLastReadAt;
+    return at ? 'figures as of ' + PHT(new Date(at)) + '; each figure\'s own window is printed beside it' : '';
+  };
+  var write = function () {
+    try {
+      var own = document.querySelector('[data-wh-print-own]');
+      if (own && (own.textContent || '').trim()) return;
+      var el = document.getElementById('wh-print-stamp');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'wh-print-stamp';
+        el.style.display = 'none';
+        document.body.insertBefore(el, document.body.firstChild);
+      }
+      var hive = '', who = '';
+      try {
+        hive = localStorage.getItem('wh_hive_name') || '';  /* storage-key-allow: print stamp reads identity only */
+        who = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || '';  /* storage-key-allow: print stamp */
+      } catch (_) { /* empty-catch-allow: storage blocked - the stamp prints without the identity lines */ }
+      var bits = [String(document.title || location.pathname).replace(/\s+/g, ' ').trim()];
+      if (hive) bits.push('Hive: ' + hive);
+      if (who) bits.push('Printed by: ' + who);
+      bits.push('Printed: ' + PHT(new Date()));
+      var c = covers();
+      if (c) bits.push('Covers: ' + c);
+      el.textContent = bits.join('  ·  ');
+      if (!document.getElementById('wh-print-stamp-css')) {
+        var st = document.createElement('style');
+        st.id = 'wh-print-stamp-css';
+        st.textContent = '@media print { #wh-print-stamp { display:block !important; '
+          + 'font: 11px/1.4 system-ui, Arial, sans-serif; color:#111 !important; '
+          + 'border-bottom:1px solid #bbb; padding:0 0 6px; margin:0 0 10px; } }';
+        document.head.appendChild(st);
+      }
+    } catch (_) { /* empty-catch-allow: the stamp is print decoration; never block printing */ }
+  };
+  window.addEventListener('beforeprint', write);
+  try {
+    var mq = window.matchMedia && window.matchMedia('print');
+    if (mq) {
+      var onPrint = function (m) { if (m.matches) write(); };
+      if (mq.addEventListener) mq.addEventListener('change', onPrint); else if (mq.addListener) mq.addListener(onPrint);
+    }
+  } catch (_) { /* empty-catch-allow: matchMedia unsupported - beforeprint still writes it */ }
+  window.whPrintStamp = write;
+})();
 
 // ★ONE VISIT, ONE BUILD (SL H4, 2026-10-15). sw.js takes over open pages the moment a new version activates (skipWaiting +
 // clients.claim), so a page that loaded under the OLD worker keeps the old precached scripts while everything it fetches

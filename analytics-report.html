@@ -882,6 +882,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try { return new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila',year:'numeric', month:'short', day:'numeric'}); }
       catch(_) { return String(d || ''); }
     }
+    // SL C3 (2026-10-20): the printed report said "Report Date: Oct 20, 2026" - the day, never the moment it was computed;
+    // two reports printed the same day could not be told apart. The cover and the sign-off carry the time now, PHT.
+    function fmtDateTime(d){
+      try { return new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) + ' PHT'; }
+      catch(_) { return String(d || ''); }
+    }
     function todayISO(){ return whManilaYmd(); }
     function periodStartISO(days){
       // the Manila date N days ago (it was UTC's date of a device-local shift - device-clock-day ratchet)
@@ -1140,6 +1146,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '</div>' +
           '<div class="doc-meta" style="text-align:right;">' +
             '<div><b>Report Date:</b> ' + escHtml(fmtDate(endISO)) + '</div>' +
+            '<div><b>Generated:</b> ' + escHtml(fmtDateTime((data && data.generated_at) || new Date().toISOString())) + '</div>' +
             '<div><b>Period:</b> ' + escHtml(fmtDate(startISO)) + ' – ' + escHtml(fmtDate(endISO)) + ' (' + _period + 'd)</div>' +
             '<div><b>Audience:</b> ' + (_role === 'worker' /* role-check-allow: report-audience data field ('worker'/'supervisor' label), not the ambient storage role */ ? 'Worker' : 'Supervisor') + '</div>' +
           '</div>' +
@@ -2117,7 +2124,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ─── AR-FOOTER ───────────────────────────────────────
     function renderFooter(data){
-      var generated = (data && data.generated_at) ? fmtDate(data.generated_at) : fmtDate(todayISO());
+      var generated = (data && data.generated_at) ? fmtDateTime(data.generated_at) : fmtDateTime(new Date().toISOString());
       return '' +
         '<section id="ar-footer">' +
           '<h2>5. Sign-off</h2>' +
@@ -2241,7 +2248,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         'Hive: ' + (_hiveName || 'this hive'),
         'Period: last ' + _period + ' days',
         'Figures: ' + rows.length,
-        'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+        'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
       ].map(esc).join('\r\n');
       var csv = meta + '\r\n\r\n' + ['Phase', 'Figure', 'Value'].map(esc).join(',') + '\r\n' + rows.join('\r\n');
       var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });

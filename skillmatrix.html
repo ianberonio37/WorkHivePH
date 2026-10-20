@@ -1559,7 +1559,9 @@ document.getElementById('btn-export-skills').addEventListener('click', () => {
     'Primary discipline: ' + (_profile.primary_skill || 'not set'),
     'Disciplines on target: ' + onTarget + ' of ' + DISCIPLINES.length,
     'Level rule: highest CONSECUTIVE level earned from 1 (a gap stops the count)',
-    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+    // SL C3: what the file covers - levels and targets are a snapshot, the badges every one earned so far
+    'Covers: levels and targets as they stand at the export time; badges earned all time',
+    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
   ].map(esc).join('\r\n');
   const csv = meta + '\r\n\r\n' + cols.map(esc).join(',') + '\r\n' + rows.join('\r\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });

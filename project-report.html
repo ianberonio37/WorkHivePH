@@ -338,7 +338,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
          headings per the N1 disposition); only this toolbar is translatable UI chrome. -->
   </div>
 <div id="ar-print-wrapper" role="region" aria-label="Project report">
-  <div class="doc-cover">
+  <div class="doc-cover" data-wh-print-own>   <!-- SL C3: the cover prints its own Period and Generated; the shared print stamp steps aside -->
     <span class="pcode" id="cov-code">PROJECT</span>
     <h1 data-i="p_projectreport_2e35" class="ptitle" id="cov-title" translate="no">Project Report</h1>
 <details class="wh-help">
@@ -1187,10 +1187,13 @@ function saveAsCsv() {
   const meta = [
     'WorkHive project report export',
     'Project: ' + (p.name || p.id || 'unnamed'),
+    // SL C3: the period the file covers - the project's own dates, as the printed cover states them
+    'Period: ' + (p.start_date && p.end_date ? p.start_date + ' to ' + p.end_date
+      : p.start_date ? 'from ' + p.start_date + ' (no end date set)' : 'no dates set on this project'),
     'Scope items: ' + ((_projectCache.items || []).length),
     'Progress logs: ' + ((_projectCache.logs || []).length),
     'Figures: ' + rows.length,
-    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) : new Date().toISOString()),
+    'Exported: ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date().toISOString(), { time: true }) + ' PHT' : new Date().toISOString()),
   ].map(esc).join('\r\n');
   const csv = meta + '\r\n\r\n' + ['Section', 'Field', 'Value'].map(esc).join(',') + '\r\n' + rows.join('\r\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });

@@ -2,20 +2,19 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: a006d8616f750836
+source_sha: 672a6bef3f7cb88f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## fk · relational-integrity graph (211 foreign keys)
 
-**UNINDEXED FK columns (39)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (35)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `ai_cost_log`.`auth_uid` -> `auth.users`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
 - `asset_edges`.`auth_uid` -> `auth.users`
 - `auth_session_events`.`auth_uid` -> `auth.users`
 - `auth_session_events`.`hive_id` -> `hives`
-- `automation_log`.`hive_id` -> `hives`
 - `community_post_xp_awards`.`hive_id` -> `hives`
 - `community_reaction_xp_awards`.`hive_id` -> `hives`
 - `community_reactions`.`hive_id` -> `hives`
@@ -31,13 +30,11 @@ supersedes: null
 - `marketplace_inquiries`.`hive_id` -> `hives`
 - `marketplace_listings`.`sold_to_inquiry_id` -> `marketplace_inquiries`
 - `marketplace_orders`.`hive_id` -> `hives`
-- `marketplace_sellers`.`hive_id` -> `hives`
 - `offline_snapshot_cache`.`hive_id` -> `hives`
 - `pf_intervals`.`fmea_mode_id` -> `rcm_fmea_modes`
 - `platform_feedback`.`auth_uid` -> `auth.users`
 - `platform_knowledge_graph_facts`.`superseded_by` -> `platform_knowledge_graph_facts`
 - `pm_knowledge`.`asset_id` -> `asset_nodes`
-- `pm_scope_items`.`hive_id` -> `hives`
 - `project_change_orders`.`hive_id` -> `hives`
 - `rcm_strategies`.`written_to_pm_scope_item_id` -> `pm_scope_items`
 - `resume_documents`.`hive_id` -> `hives`
@@ -46,7 +43,6 @@ supersedes: null
 - `service_requests`.`catalog_item_id` -> `service_catalog`
 - `service_voucher_redemptions`.`consumer_auth_uid` -> `auth.users`
 - `service_voucher_redemptions`.`request_id` -> `service_requests`
-- `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
 **ON DELETE CASCADE FKs (138)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):

@@ -518,27 +518,8 @@
        evidence, it is paper. Print-only (display:none on screen), filled from the identity the
        page already holds - no read, so it cannot fail or lie about freshness. -->
   <div id="wh-print-stamp" style="display:none;"></div>
-  <script>
-    (function () {
-      try {
-        var el = document.getElementById('wh-print-stamp');
-        if (!el) return;
-        var hive = localStorage.getItem('wh_hive_name') || '';  /* storage-key-allow: print stamp reads identity only */
-        var who  = localStorage.getItem('wh_last_worker') || localStorage.getItem('wh_worker_name') || '';  /* storage-key-allow: print stamp */
-        var when = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
-        var bits = [];
-        if (hive) bits.push('Hive: ' + hive);
-        if (who) bits.push('Printed by: ' + who);
-        bits.push('Printed: ' + when);
-        el.textContent = bits.join('  ·  ');
-        var st = document.createElement('style');
-        st.textContent = '@media print { #wh-print-stamp { display:block !important; '
-          + 'font: 11px/1.4 system-ui, Arial, sans-serif; color:#111 !important; '
-          + 'border-bottom:1px solid #bbb; padding:0 0 6px; margin:0 0 10px; } }';
-        document.head.appendChild(st);
-      } catch (_) { /* empty-catch-allow: the stamp is print decoration; never block the page */ }
-    })();
-  </script>
+  <!-- SL C3 (2026-10-20): filled by utils.js whPrintStamp at the moment of printing (this page's own script wrote the
+       LOAD time as 'Printed:'), with the period the printout covers -->
 
 
   <!-- Aurora -->
@@ -7187,7 +7168,7 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
       : 'all personal entries'}`,
     `Entries: ${entries.length}`,
     `Date range: ${_span}`,
-    `Exported: ${whFmtDate(new Date().toISOString(), { time: true })}`,
+    `Exported: ${whFmtDate(new Date().toISOString(), { time: true })} PHT`,
   ].map(l => esc(l)).join('\r\n');
 
   const csv  = [meta, '', cols.map(esc).join(','), ...rows].join('\r\n');
