@@ -95,7 +95,8 @@ def discover() -> dict | None:
 select 'FN', p.proname, pg_get_function_identity_arguments(p.oid)
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace join pg_language l on l.oid = p.prolang
  where n.nspname not in ('pg_catalog', 'information_schema') and l.lanname in ('sql', 'plpgsql')
-   and p.prosrc ~ '{DIST_OPS}';
+   -- comments stripped first: the soft-delete triggers' "-- only live <-> deleted" read as a distance operator (2026-10-21)
+   and regexp_replace(regexp_replace(p.prosrc, '--[^\\n]*', '', 'g'), '/\\*.*?\\*/', '', 'g') ~ '{DIST_OPS}';
 select 'VW', schemaname || '.' || viewname from pg_views
  where schemaname not in ('pg_catalog', 'information_schema') and definition ~ '{DIST_OPS}';
 select 'VW', schemaname || '.' || matviewname from pg_matviews where definition ~ '{DIST_OPS}';

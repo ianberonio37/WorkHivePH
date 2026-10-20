@@ -4893,6 +4893,11 @@ VALIDATORS = [
     # BRH-X (2026-10-21): Supabase stops granting new public tables automatically on 2026-10-30 - for new tables and for
     # every replay of the schema. 238 of 247 tables and views held API access no migration wrote; the backfill
     # 20261015800000 writes production's grants down, and this holds every grant explicit from here on.
+    # BRH-W (2026-10-21): Supabase's leaked-password protection is a Pro-plan setting and this project is on Free, so the
+    # sign-up and the reset link refuse a breached password themselves (Pwned Passwords range API, 5-character prefix).
+    {"id":"breached-password-check","script":os.path.join("tools", "validate_breached_password_check.py"),"args":[],
+     "label":"Breached-password check (BRH-W): index.html asks the Pwned Passwords range API (a 5-character SHA-1 prefix only) before sign-up and before a reset link sets a password; sw.js never intercepts it (its own CSP would refuse it and the check would fail open); the sign-in page's CSP reaches it (--self-test: 5 mutants)",
+     "group":"Platform","skip_if_fast":False},
     {"id":"api-grants-explicit","script":os.path.join("tools", "validate_api_grants_explicit.py"),"args":[],
      "label":"API grants explicit (BRH-X): a migration that creates a public table, view or sequence grants it (or closes it to anon and authenticated outright); every API privilege the local database holds is written in a migration; a replay under the no-automatic-grant default (simulated in a rolled-back transaction) restores every object production serves (--self-test: static, live and replay mutants)",
      "group":"Platform","skip_if_fast":False},

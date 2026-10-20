@@ -735997,12 +735997,13 @@
         "repro": "the advisor's extension_in_public names it: its functions and types sit beside the API's own objects in the schema PostgREST exposes",
         "fix": "move it to the extensions schema (ALTER EXTENSION ... SET SCHEMA extensions) with every reference to its types updated, proven on a replay of the schema - or record why it must stay",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "basis": "[2026-10-21] NOT FIXABLE FROM A MIGRATION - an account action for Ian. pg_net is not relocatable (it can only be dropped and re-created in another schema), it is owned by supabase_admin, and the role every migration runs as (postgres) is not a superuser and cannot drop it (read in production: pg_net_owner supabase_admin, migration_role_can_drop false). The Supabase dashboard can: Database -> Extensions -> pg_net -> disable, then enable choosing the 'extensions' schema. Read 2026-10-21: 0 requests queued; its callers (the webhook sender supabase_functions.http_request, drain_service_outbox, 16 cron jobs) call net.* by name and work again once it is re-enabled; the grants on the net schema are the extension's own and come back with it. Risk: HTTP calls in the minute between disable and enable fail - choose a quiet moment. "
     },
     {
       "id": "BRH446",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-U",
       "title": "an extension installed in the public schema - index · vector - oversight",
       "pages": [
@@ -736062,6 +736063,12 @@
         "repro": "the advisor's extension_in_public names it: its functions and types sit beside the API's own objects in the schema PostgREST exposes",
         "fix": "move it to the extensions schema (ALTER EXTENSION ... SET SCHEMA extensions) with every reference to its types updated, proven on a replay of the schema - or record why it must stay",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (extension_in_public) named the vector extension, installed in public - the schema the API exposes. pgvector is relocatable, so it moved: its type, operators and operator classes go with it, and every vector column, index and vector-taking RPC keeps working (they hold the type's identity, not its schema). What could break was a function using a vector operator under a search_path without extensions: nine did locally (the semantic_search_* family, match_procedural_memories, search_skill_knowledge, search_voice_journal_entries and two trash triggers), and each got extensions appended to the path it already set, chosen in each database at apply time. Local, with real data: vector-search-recall V1/V2/V3 pass - every vector search returns its scope's true top-10 under generic AND custom plans, the way PostgREST runs it (its own instrument fix on the way: it read '<->' inside a comment, 'live <-> deleted', as a distance operator); pgvector-consistency, persona-knowledge-wiring and ai-retrieval-isolation pass. 20261015995000_brh_u_vector_out_of_public, pushed to production alone; production read back: vector in extensions, 0 vector-using functions without extensions on their path, the standards and persona searches run (0 rows - production's knowledge tables hold no embeddings yet). Gate that reddens on revert: vector-search-recall (a vector search that cannot resolve its operators fails its live probe under PostgREST's plans; its --self-test's old function versions now fail exactly that way).",
+      "artifacts": {
+        "gates": [
+          "vector-search-recall"
+        ]
       }
     },
     {
@@ -736138,8 +736145,8 @@
     },
     {
       "id": "BRH448",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-W",
       "title": "sign-up and password change accept passwords known to be leaked - index · leaked-password protection - oversight",
       "pages": [
@@ -736199,6 +736206,12 @@
         "repro": "the advisor's auth_leaked_password_protection: Supabase Auth's check against breached-password lists is off, so a password from a public breach is accepted at sign-up and on a password change",
         "fix": "turn on leaked-password protection in Supabase Auth's password settings (Ian's dashboard) and re-read the advisor",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, MITIGATED IN THE PRODUCT, GATED - the server-side setting needs the Pro plan. Production's advisor (auth_leaked_password_protection): Supabase Auth's check against breached-password lists is off, so a password from a public breach is accepted at sign-up and on a password change. The setting is a Supabase Pro-plan feature, and the organisation reads 'free' (tier_free, read through the connector) - so it cannot be switched on from code. The product refuses it instead, at the only two places a person sets a password (index.html: sign-up, and the new password a reset link asks for): _passwordBreached() asks the Pwned Passwords range API the k-anonymity way - only the first 5 hex characters of the password's SHA-1 leave the browser, padded responses hide which range was asked, the match is made locally, and an unreachable API lets the person through (it protects, it never locks out). Walked through the MCP browser at phone-390 and desktop-1280 on the local site: 'password123' is refused with 'That password has appeared in a public data breach: choose a different one.' and no sign-up request is sent; the same logic asked in the page answers password123 -> breached, a random password -> clean. sw.js passes the API through (intercepted, its own CSP would refuse it and the check would fail open - the fonts lesson), and the CSP universe plus the sign-in page's two rules reach it (csp-exact-profiles regenerated and green). Reaches production with Ian's push; switching on the Supabase setting (Pro plan) would add the server-side refusal - Ian's decision. Gate that reddens on revert: breached-password-check (W1 the call precedes both password setters; W2 only the 5-character prefix leaves; W3 the worker does not intercept the API; W4 the sign-in CSP reaches it; --self-test: 5 mutants).",
+      "artifacts": {
+        "gates": [
+          "breached-password-check"
+        ]
       }
     },
     {

@@ -3476,6 +3476,32 @@
   function _syntheticEmail(username) {
     return username.toLowerCase().replace(/[^a-z0-9_]/g, '') + _AUTH_DOMAIN;
   }
+  // ★A PASSWORD FROM A PUBLIC BREACH LIST IS REFUSED HERE, BECAUSE THE SERVER CANNOT (BRH-W, 2026-10-21). Supabase's
+  // advisor (auth_leaked_password_protection) found sign-up and password change accepting passwords known to be
+  // leaked; the server-side check is a Pro-plan feature and this project is on Free. So the two places a person sets
+  // a password ask the Pwned Passwords range API the k-anonymity way: only the first 5 hex characters of the
+  // password's SHA-1 leave the browser, padded responses hide which range was asked, and the match happens here.
+  // Asking can fail (offline, blocked, slow): then the person is let through - this protects, it never locks out.
+  async function _passwordBreached(pw) {
+    try {
+      if (!pw || !(window.crypto && crypto.subtle && window.TextEncoder)) return false;
+      const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(pw));
+      const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+      const timer = ctl ? setTimeout(() => ctl.abort(), 4000) : null;
+      const res = await fetch('https://api.pwnedpasswords.com/range/' + hex.slice(0, 5),
+        { headers: { 'Add-Padding': 'true' }, signal: ctl ? ctl.signal : undefined, cache: 'no-store' });
+      if (timer) clearTimeout(timer);
+      if (!res.ok) return false;
+      const suffix = hex.slice(5);
+      return (await res.text()).split('\n').some(line => {
+        const parts = line.trim().split(':');
+        return parts[0] === suffix && Number(parts[1]) > 0;   // padding entries carry a count of 0
+      });
+    } catch (_) {
+      return false;   // empty-catch-allow: a breach check that cannot be asked never blocks a sign-up
+    }
+  }
   // ★C24 (wave-4, 2026-09-14): the normalisation above is silent - "jeepney.oscarph" signs in as jeepneyoscarph and,
   // when no such account exists, the person reads "Wrong username or password" for a handle they never typed. When
   // the handle the wall will send differs from what was typed, say so under the field (both languages).
@@ -3526,6 +3552,11 @@
         { inputLabel: 'New password', inputType: 'password', okLabel: 'Update password' });
       if (!np || np.length < 8) {
         await window.whConfirm(_t('Password must be at least 8 characters. Reopen the reset link to try again.', 'Dapat hindi bababa sa 8 character ang password. Buksan muli ang reset link para subukan ulit.'), { okLabel: 'OK', cancelLabel: '' });
+        return;
+      }
+      if (await _passwordBreached(np)) {   // BRH-W: a password from a public breach list
+        await window.whConfirm('That password has appeared in a public data breach. Reopen the reset link and choose a different one.',
+          { okLabel: 'OK', cancelLabel: '' });
         return;
       }
       const { error } = await _getDb().auth.updateUser({ password: np });
@@ -3988,6 +4019,10 @@
     }
     if (password !== confirm) {
       errEl.textContent = 'Passwords do not match: please re-enter.';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (await _passwordBreached(password)) {   // BRH-W: a password from a public breach list
+      errEl.textContent = 'That password has appeared in a public data breach: choose a different one.';
       errEl.classList.remove('hidden'); return;
     }
     if (!displayName) {
