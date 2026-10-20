@@ -2549,7 +2549,9 @@
     const e = escHtml;
     let bal = null, held = null, lines = [], personTotal = null;
     try {
-      const { data } = await db.rpc('provider_credit_balance', { p_provider_id: provId });
+      // BRH-S (2026-10-21): provider_credit_balance answered for ANY provider id; this read answers only for a provider
+      // the caller owns or serves (migration 20261015950000)
+      const { data } = await db.rpc('my_provider_credit_balance', { p_provider_id: provId });
       bal = (data == null) ? null : Number(data);
       /* T94 (2026-08-27): what is HELD, which the balance above does not subtract. Listing credits
          are reserved against live listings (credit_reservations) and are not spendable - this page

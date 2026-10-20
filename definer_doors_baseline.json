@@ -1,24 +1,5 @@
 {
  "note": "BRH S and Y rows still to walk (2026-10-21) - may only shrink",
- "S2_open": [
-  "get_marketplace_price_comps",
-  "get_marketplace_seller_public",
-  "get_marketplace_trust_badges",
-  "listing_reservation_amount",
-  "marketplace_platform_response_hours",
-  "photo_attach_stats",
-  "provider_credit_balance",
-  "redeem_service_voucher",
-  "rerank_kb_chunks",
-  "seller_has_published_listing",
-  "semantic_search_industry_standards",
-  "semantic_search_platform_kg_facts",
-  "service_agreed_base",
-  "service_knob",
-  "service_knob_pct",
-  "service_objection_deadline",
-  "service_request_price",
-  "sync_pm_asset_identity"
- ],
+ "S2_open": [],
  "Y1_open": []
 }

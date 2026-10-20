@@ -5075,7 +5075,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         // provider — so it offered a maximum of zero and rendered nothing at all. The guard had the
         // identical bug for the identical reason; one of them capping nothing and the other offering
         // nothing is what a duplicated rule looks like from two sides.
-        db.rpc('service_request_price', { p_request: requestId }),
+        db.rpc('my_service_request_price', { p_request: requestId }),   // BRH-S: only a request the caller is a party to (service_request_price answered for any id)
         db.rpc('service_knob_pct', { p_hive: null, p_key: 'reward_spend_cap_pct' })
       ]);
       if (led.error || price.error) return;

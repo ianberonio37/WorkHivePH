@@ -44,12 +44,27 @@ MIG = ROOT / "supabase" / "migrations"
 BASELINE = ROOT / "definer_doors_baseline.json"
 # every caller is the service role (edge functions' service-role clients) or another SECURITY DEFINER function
 SERVER_ONLY = ("enqueue_user_push", "consume_ai_global_budget", "ai_cache_bump", "ai_cache_sweep_expired",
-               "prune_embedding_cache", "record_ai_chain_depth")
-# signed-out entry points: a page a visitor opens calls them, and each returns only facts the platform shows the public
+               "prune_embedding_cache", "record_ai_chain_depth",
+               # BRH-S (20261015950000, 20261021000005): no page or edge function calls these, or the page now reads an
+               # owner-checked twin (my_provider_credit_balance, my_service_request_price); every SQL caller is definer
+               "redeem_service_voucher", "rerank_kb_chunks", "service_agreed_base", "service_objection_deadline",
+               "sync_pm_asset_identity", "photo_attach_stats", "provider_credit_balance", "service_request_price")
+# signed-out entry points: a page a visitor opens calls them (or a policy anon is evaluated against does), and each
+# returns only facts the platform shows the public. A declaration no page or policy uses any more fails as stale (S3).
 SIGNED_OUT = {
     "check_username_available": "sign-up asks whether a username is free before an account exists",
     "increment_listing_view": "a visitor opening a public listing counts one view",
+    "get_marketplace_price_comps": "the public marketplace shows price comparisons from published and sold listings",
+    "get_marketplace_seller_public": "the public seller profile - a projection that names no contact, hive or account",
+    "get_marketplace_trust_badges": "the public listing cards show each seller's trust tier",
+    "listing_reservation_amount": "the public marketplace states a listing's reservation: arithmetic on its price",
+    "service_knob": "the marketplace's published service terms (offer and quote windows, broadcast radius)",
+    "service_knob_pct": "the marketplace's published percentages (commission, listing fee, cashback)",
+    "semantic_search_industry_standards": "the voice companion's public reference: published industry standards",
+    "semantic_search_platform_kg_facts": "the voice companion's public reference: the published knowledge graph",
+    "seller_has_published_listing": "an anon row policy on marketplace_sellers and the public sellers view ask it",
 }
+POLICY_ONLY_SIGNED_OUT = {"seller_has_published_listing"}
 # functions anon must keep: a row policy or security_invoker view anon is evaluated against calls them, so without anon's
 # EXECUTE a signed-out read of those tables fails with permission denied instead of returning nothing. Each answers false
 # or empty for a caller with no account (read through the local API as a visitor, 2026-10-21). A declaration that no
@@ -148,7 +163,10 @@ def judge(fns: list[dict], revoked: set[str], base: dict) -> tuple[list[str], di
             issues.append(f"S2 public.{n}() is SECURITY DEFINER, anon may execute it, and its body checks no caller - "
                           "close it to anon, make it ask who is calling, or declare it a signed-out entry point "
                           "with its reason")
-    y1_open = sorted({f["name"] for f in fns if f["anon"] and f["name"] in revoked and f["name"] not in POLICY_HELPERS})
+    # a function DECLARED for anon (a signed-out entry point or a policy helper) is anon's on purpose, whatever an older
+    # migration once revoked (seller_has_published_listing: revoked in one migration, opened to visitors in a later one)
+    y1_open = sorted({f["name"] for f in fns if f["anon"] and f["name"] in revoked and f["name"] not in POLICY_HELPERS
+                      and f["name"] not in SIGNED_OUT})
     for n in y1_open:
         if n not in set(base.get("Y1_open", [])) and n not in set(s2_open):
             issues.append(f"Y1 public.{n}() was closed to anon by a migration and anon can execute it again - a revoke "
@@ -175,8 +193,21 @@ def check_helpers() -> list[str]:
     uses = helper_uses()
     if isinstance(uses, str):
         return [f"Y3 LIVE {uses}"]
-    return [f"Y3 {n} is declared a policy helper anon must keep, and no anon-evaluated policy or anon-readable invoker "
-            f"view calls it any more - close it to anon (the declaration is stale)" for n in POLICY_HELPERS if not uses.get(n)]
+    issues = [f"Y3 {n} is declared a policy helper anon must keep, and no anon-evaluated policy or anon-readable invoker "
+              f"view calls it any more - close it to anon (the declaration is stale)" for n in POLICY_HELPERS if not uses.get(n)]
+    # S3: a declared signed-out entry point some page (or, for the policy-backed one, a policy) still calls
+    front = "\n".join(p.read_text(encoding="utf-8", errors="replace")
+                      for p in list(ROOT.glob("*.html")) + list(ROOT.glob("*.js")) + list(ROOT.glob("*/index.html")))
+    for n in SIGNED_OUT:
+        if n in POLICY_ONLY_SIGNED_OUT:
+            code, out, _ = psql(f"select count(*) from pg_policies where schemaname = 'public' and "
+                                f"(coalesce(qual, '') || coalesce(with_check, '')) ~ '\\m{n}\\s*\\(';")
+            if code == 0 and out.strip() == "0":
+                issues.append(f"S3 {n} is declared a signed-out entry point for a policy, and no policy calls it any more")
+        elif not re.search(r"""rpc\(\s*['"]%s['"]""" % re.escape(n), front):
+            issues.append(f"S3 {n} is declared a signed-out entry point, and no page or shared script calls it any more - "
+                          "close it to anon (the declaration is stale)")
+    return issues
 
 
 def check_revokes(migs: list[tuple[str, str]] | None = None) -> list[str]:

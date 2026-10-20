@@ -729369,8 +729369,8 @@
     },
     {
       "id": "BRH353",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · check_username_available - oversight",
       "pages": [
@@ -729430,6 +729430,12 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.check_username_available() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: sign-up asks whether a username is free before an account exists - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: true for a free username. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
@@ -729576,8 +729582,8 @@
     },
     {
       "id": "BRH356",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · get_marketplace_price_comps - oversight",
       "pages": [
@@ -729637,12 +729643,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.get_marketplace_price_comps() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the public marketplace shows price comparisons from published and sold listings - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: n, min, median and max price of published and sold listings. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH357",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · get_marketplace_seller_public - oversight",
       "pages": [
@@ -729702,12 +729714,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.get_marketplace_seller_public() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the public seller profile - a projection that names no contact, hive or account - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: name, tier, verification flags and certifications - no contact, hive or account. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH358",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · get_marketplace_trust_badges - oversight",
       "pages": [
@@ -729767,12 +729785,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.get_marketplace_trust_badges() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the public listing cards show each seller's trust tier - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: each named seller's trust tier. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH359",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · increment_listing_view - oversight",
       "pages": [
@@ -729832,12 +729856,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.increment_listing_view() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: a visitor opening a public listing counts one view - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: nothing - it adds one view to a published listing (not called by the probe; it writes). Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH360",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · listing_reservation_amount - oversight",
       "pages": [
@@ -729897,12 +729927,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.listing_reservation_amount() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the public marketplace states a listing's reservation: arithmetic on its price - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: 100.00 for a 1,000 listing (10%). Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH361",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · marketplace_platform_response_hours - oversight",
       "pages": [
@@ -729962,12 +729998,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.marketplace_platform_response_hours() as SECURITY DEFINER, executable by anon, with no caller check; its one caller is the seller dashboard (marketplace-seller.html), signed in. 20261015950000 revoked anon (PUBLIC too) and granted back what authenticated and service_role had. Production read back: anon false, authenticated true, service_role true. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH362",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · photo_attach_stats - oversight",
       "pages": [
@@ -730027,12 +730069,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.photo_attach_stats() as SECURITY DEFINER, executable by anon, with no caller check - photo counts across every hive's logbook. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH363",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · provider_credit_balance - oversight",
       "pages": [
@@ -730092,6 +730140,12 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED (anon in production; authenticated with Ian's push), GATED. Production's advisor listed public.provider_credit_balance() as SECURITY DEFINER, executable by anon, with no caller check - and it answered for ANY id, so any signed-in person could read another's by naming it. 20261015950000 (production) closed it to anon and added my_provider_credit_balance, which answers only for the caller's own; marketplace-seller.html now reads through my_provider_credit_balance; 20261021000005 closes the original to authenticated and ships with that page change in Ian's push (so production's current page never loses its read). Local API, after both: as Bryan Garcia: his own provider -> 500.00, another provider -> null, the original -> 42501; anon -> 42501. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
@@ -730238,8 +730292,8 @@
     },
     {
       "id": "BRH366",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · redeem_service_voucher - oversight",
       "pages": [
@@ -730299,12 +730353,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.redeem_service_voucher() as SECURITY DEFINER, executable by anon, with no caller check - it only says vouchers are retired. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH367",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · rerank_kb_chunks - oversight",
       "pages": [
@@ -730364,12 +730424,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.rerank_kb_chunks() as SECURITY DEFINER, executable by anon, with no caller check - a placeholder that echoes scores. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH368",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · seller_has_published_listing - oversight",
       "pages": [
@@ -730429,12 +730495,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.seller_has_published_listing() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: an anon row policy on marketplace_sellers and the public sellers view ask it - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: true or false. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH369",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · semantic_search_industry_standards - oversight",
       "pages": [
@@ -730494,12 +730566,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.semantic_search_industry_standards() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the voice companion's public reference: published industry standards - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: chunks of the published industry standards (the body reads industry_standards_chunks only). Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH370",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · semantic_search_platform_kg_facts - oversight",
       "pages": [
@@ -730559,12 +730637,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.semantic_search_platform_kg_facts() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the voice companion's public reference: the published knowledge graph - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: facts of the published platform knowledge graph (the body reads platform_knowledge_graph_facts only). Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH371",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · service_agreed_base - oversight",
       "pages": [
@@ -730624,12 +730708,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.service_agreed_base() as SECURITY DEFINER, executable by anon, with no caller check - an internal price helper. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH372",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · service_knob - oversight",
       "pages": [
@@ -730689,12 +730779,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.service_knob() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the marketplace's published service terms (offer and quote windows, broadcast radius) - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: 86400 for the quote window. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH373",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · service_knob_pct - oversight",
       "pages": [
@@ -730754,12 +730850,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. Production's advisor listed public.service_knob_pct() as SECURITY DEFINER, executable by anon, with no caller check in its body. Read against its callers: the marketplace's published percentages (commission, listing fee, cashback) - so anon keeps it on purpose. What a visitor gets, through the local API with only the public key: the published percentage. Declared in definer-doors' SIGNED_OUT with that reason; S3 fails the day no page (or, for a policy-backed one, no policy) calls it any more. Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH374",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · service_objection_deadline - oversight",
       "pages": [
@@ -730819,12 +730921,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.service_objection_deadline() as SECURITY DEFINER, executable by anon, with no caller check - an internal deadline helper. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH375",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · service_request_price - oversight",
       "pages": [
@@ -730884,12 +730992,18 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED (anon in production; authenticated with Ian's push), GATED. Production's advisor listed public.service_request_price() as SECURITY DEFINER, executable by anon, with no caller check - and it answered for ANY id, so any signed-in person could read another's by naming it. 20261015950000 (production) closed it to anon and added my_service_request_price, which answers only for the caller's own; marketplace.html now reads through my_service_request_price; 20261021000005 closes the original to authenticated and ships with that page change in Ian's push (so production's current page never loses its read). Local API, after both: as David Velasco: his own request -> 25000.00, another's request -> null, the original -> 42501. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH376",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-S",
       "title": "a SECURITY DEFINER function anyone may execute, whose body checks no caller - index · sync_pm_asset_identity - oversight",
       "pages": [
@@ -730949,6 +731063,12 @@
         "repro": "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller it never asks about (enqueue_user_push queued a Web Push to any account with any link; consume_ai_global_budget spent the platform's daily AI budget)",
         "fix": "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every anon-executable definer function to a declared reason",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor listed public.sync_pm_asset_identity() as SECURITY DEFINER, executable by anon, with no caller check - a wrapper over sync_asset_identity, which writes. No page or edge function calls it and every SQL caller is SECURITY DEFINER, so 20261015950000_brh_s_definer_doors_closed revoked EXECUTE from PUBLIC, anon and authenticated (service_role kept). Production read back: anon false, authenticated false, service_role true. In definer-doors' SERVER_ONLY (S1). Gate that reddens on revert: definer-doors (S1 the server-only set refuses anon and authenticated; S2 an undeclared anon-executable definer function with no caller check fails - baseline 18 -> 0, may only shrink; S3 a declared signed-out entry point no page or policy uses fails as stale; --self-test creates an undeclared one in a rolled-back transaction and re-grants a server-only writer, and both are caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
