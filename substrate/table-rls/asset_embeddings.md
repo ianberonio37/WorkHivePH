@@ -2,7 +2,7 @@
 name: table-rls-asset_embeddings
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_embeddings
-source_sha: 3254edce7be0812a
+source_sha: 7b32363dfceb1f35
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): node_id*, hive_id*, summary, embedding, refreshed_at*
 
 Policies:
 - `asset_embeddings_write` [ALL · roles=public] USING=`false` CHECK=`false`
-- `asset_embeddings_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `asset_embeddings_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

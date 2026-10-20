@@ -2,7 +2,7 @@
 name: table-rls-resume_versions
 type: table-rls
 source: db:pg_policies+pg_trigger:resume_versions
-source_sha: 1293b83fa7afe31a
+source_sha: 37fca05cdf49e1b7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,9 +14,9 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: True
 Columns (*=NOT NULL): id*, resume_id*, auth_uid*, doc*, note, created_at*
 
 Policies:
-- `resume_versions_delete` [DELETE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`∅`
-- `resume_versions_insert` [INSERT · roles=public] USING=`∅` CHECK=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))`
-- `resume_versions_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth.uid() = auth_uid))` CHECK=`∅`
+- `resume_versions_delete` [DELETE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (( SELECT auth.uid() AS uid) = auth_uid))` CHECK=`∅`
+- `resume_versions_insert` [INSERT · roles=public] USING=`∅` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (( SELECT auth.uid() AS uid) = auth_uid))`
+- `resume_versions_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (( SELECT auth.uid() AS uid) = auth_uid))` CHECK=`∅`
 
 Guard triggers: `trg_daily_cap_resume_versions`, `trg_text_caps_resume_versions`
 

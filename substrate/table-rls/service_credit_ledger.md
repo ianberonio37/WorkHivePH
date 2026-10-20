@@ -2,7 +2,7 @@
 name: table-rls-service_credit_ledger
 type: table-rls
 source: db:pg_policies+pg_trigger:service_credit_ledger
-source_sha: 9725a32508f6e28f
+source_sha: 21f81b1e09cd78b7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: False
 Columns (*=NOT NULL): id*, account_type*, account_id*, entry_type*, amount*, ref_kind, ref_id, note, created_at*
 
 Policies:
-- `service_credit_ledger_own_read` [SELECT · roles=authenticated] USING=`(((account_type = 'consumer'::text) AND (account_id = auth.uid())) OR ((account_type = 'provider'::text) AND (account_id` CHECK=`∅`
+- `service_credit_ledger_own_read` [SELECT · roles=authenticated] USING=`(((account_type = 'consumer'::text) AND (account_id = ( SELECT auth.uid() AS uid))) OR ((account_type = 'provider'::text` CHECK=`∅`
 
 Guard triggers: `trg_guard_voucher_within_budget`, `trg_reward_spend_cap`
 

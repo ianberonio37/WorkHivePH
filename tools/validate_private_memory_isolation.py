@@ -56,7 +56,9 @@ def load_policies():
     for ln in out.splitlines():
         parts = ln.split("\t")
         if len(parts) >= 3:
-            pol.setdefault(parts[0].strip(), []).append((parts[1].strip(), parts[2].strip()))
+            # ( SELECT auth.uid() AS uid) is auth.uid() asked once per statement (20261020000003)
+            pol.setdefault(parts[0].strip(), []).append((parts[1].strip(),
+                                                         parts[2].strip().replace("( SELECT auth.uid() AS uid)", "auth.uid()")))
     return pol
 
 

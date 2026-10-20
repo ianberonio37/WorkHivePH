@@ -2,7 +2,7 @@
 name: table-rls-hive_route_quotas
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_route_quotas
-source_sha: 8b2bd8545b8e3a10
+source_sha: f73612a06d0e054b
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): hive_id*, route*, hourly_cap*, enforce*, notes, created_at
 
 Policies:
 - `hive_route_quotas_write` [ALL · roles=public] USING=`false` CHECK=`false`
-- `hive_route_quotas_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_route_quotas.hive_id) AN` CHECK=`∅`
+- `hive_route_quotas_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_route_q` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

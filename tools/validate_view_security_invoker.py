@@ -97,12 +97,29 @@ DELIBERATE_DEFINER = {
     "v_service_open_broadcasts":
         "keyed to the caller's own provider id via my_service_provider_ids(); "
         "TB-L4-service-views-party-scope asserts a stranger reads 0",
+    # The two public marketplace views (20260907000004 / ...006) run as their owner ON PURPOSE: a stranger may read
+    # PUBLISHED listings and the sellers behind them, but has no SELECT on the base tables' contact/owner columns, so
+    # an invoker view naming those columns was permission-denied for exactly the visitor the page exists to persuade.
+    # Each carries its own row filter instead - and its own masking of the signed-in-only columns.
+    "v_marketplace_listings_public":
+        "rows are published listings or the caller's own (status = 'published' OR auth_uid = auth.uid()); "
+        "LB2's equivalence proof read it as every account, anon and a stranger",
+    "v_marketplace_sellers_public":
+        "rows are sellers with a published listing, or any seller for a signed-in caller; messenger, certifications "
+        "and KYB time are masked for a stranger",
+}
+# the row filter each named view must still carry (a rewrite that drops it would re-open the table to every caller)
+DELIBERATE_PREDICATE = {
+    "v_marketplace_listings_public": ["status = 'published'", "auth.uid()"],
+    "v_marketplace_sellers_public": ["seller_has_published_listing(", "auth.uid()"],
 }
 
 
 def predicate_intact(view: str) -> bool:
     """The exemption's teeth: the view must still scope itself to the caller."""
     out = psql(f"select pg_get_viewdef('public.{view}'::regclass, true);")
+    if view in DELIBERATE_PREDICATE:
+        return bool(out) and all(f in out for f in DELIBERATE_PREDICATE[view])
     return bool(out) and ("auth.uid()" in out or "my_service_provider_ids" in out)
 
 

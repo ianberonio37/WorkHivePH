@@ -2,7 +2,7 @@
 name: table-rls-marketplace_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_orders
-source_sha: 1ea061198d99cb58
+source_sha: f419b911b589a5f5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,10 +15,10 @@ Columns (*=NOT NULL): id*, listing_id, hive_id, buyer_name*, seller_name*, price
 
 Policies:
 - `mkt_orders_delete` [DELETE · roles=public] USING=`is_marketplace_admin()` CHECK=`∅`
-- `mkt_orders_insert` [INSERT · roles=public] USING=`∅` CHECK=`((buyer_auth_uid = auth.uid()) AND (buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)))`
+- `mkt_orders_insert` [INSERT · roles=public] USING=`∅` CHECK=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) AND (buyer_name IN ( SELECT auth_worker_names() AS auth_worker_names)))`
 - `marketplace_orders_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `mkt_orders_read` [SELECT · roles=public] USING=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`∅`
-- `mkt_orders_update` [UPDATE · roles=public] USING=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`((buyer_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR is_marketplace_admin())`
+- `mkt_orders_read` [SELECT · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`∅`
+- `mkt_orders_update` [UPDATE · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())`
 
 Guard triggers: `trg_bind_order_buyer`, `trg_guard_marketplace_order_status`
 

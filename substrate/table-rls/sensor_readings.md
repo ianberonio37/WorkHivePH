@@ -2,7 +2,7 @@
 name: table-rls-sensor_readings
 type: table-rls
 source: db:pg_policies+pg_trigger:sensor_readings
-source_sha: 6e2b08097d157701
+source_sha: 3565d9cf6f3931ce
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, hive_id*, asset_id*, parameter*, unit, quality_flag, 
 Policies:
 - `sensor_readings_no_delete` [DELETE · roles=public] USING=`false` CHECK=`∅`
 - `sensor_readings_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `sensor_readings_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `sensor_readings_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 - `sensor_readings_no_update` [UPDATE · roles=public] USING=`false` CHECK=`false`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

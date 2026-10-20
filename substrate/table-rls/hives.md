@@ -2,7 +2,7 @@
 name: table-rls-hives
 type: table-rls
 source: db:pg_policies+pg_trigger:hives
-source_sha: fe1743c335a2c87c
+source_sha: faefd590526d6e88
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,11 +14,11 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: False
 Columns (*=NOT NULL): id*, name*, invite_code*, created_by*, created_at, intent*, federated_benchmark_opted_in*, federated_opt_in_at, federated_opt_in_by, preferred_persona*, updated_at*, ai_monthly_cost_cap_usd*
 
 Policies:
-- `hives_delete` [DELETE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_members.auth_uid = aut` CHECK=`∅`
-- `hives_insert` [INSERT · roles=public] USING=`∅` CHECK=`(auth.uid() IS NOT NULL)`
+- `hives_delete` [DELETE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_membe` CHECK=`∅`
+- `hives_insert` [INSERT · roles=public] USING=`∅` CHECK=`(( SELECT auth.uid() AS uid) IS NOT NULL)`
 - `hives_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `hives_read_member` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`∅`
-- `hives_update` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_members.auth_uid = aut` CHECK=`∅`
+- `hives_read_member` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`∅`
+- `hives_update` [UPDATE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_membe` CHECK=`∅`
 
 Guard triggers: `trg_text_caps_hives`
 

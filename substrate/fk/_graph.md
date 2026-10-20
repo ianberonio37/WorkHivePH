@@ -2,13 +2,13 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: 672a6bef3f7cb88f
+source_sha: c027cf14b5e0fd3c
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## fk · relational-integrity graph (211 foreign keys)
 
-**UNINDEXED FK columns (35)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (34)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `ai_cost_log`.`auth_uid` -> `auth.users`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
@@ -39,7 +39,6 @@ supersedes: null
 - `rcm_strategies`.`written_to_pm_scope_item_id` -> `pm_scope_items`
 - `resume_documents`.`hive_id` -> `hives`
 - `service_credit_topups`.`payer_auth_uid` -> `auth.users`
-- `service_providers`.`auth_uid` -> `auth.users`
 - `service_requests`.`catalog_item_id` -> `service_catalog`
 - `service_voucher_redemptions`.`consumer_auth_uid` -> `auth.users`
 - `service_voucher_redemptions`.`request_id` -> `service_requests`

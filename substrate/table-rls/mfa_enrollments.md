@@ -2,7 +2,7 @@
 name: table-rls-mfa_enrollments
 type: table-rls
 source: db:pg_policies+pg_trigger:mfa_enrollments
-source_sha: 33aa21466ef7dd7c
+source_sha: 15183f3ba261480d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, auth_uid*, worker_name, last_verified_at, notes
 
 Policies:
 - `mfa_enrollments_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `mfa_enrollments_read` [SELECT · roles=public] USING=`(auth.uid() = auth_uid)` CHECK=`∅`
+- `mfa_enrollments_read` [SELECT · roles=public] USING=`(( SELECT auth.uid() AS uid) = auth_uid)` CHECK=`∅`
 - `mfa_enrollments_update_locked` [UPDATE · roles=public] USING=`false` CHECK=`false`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

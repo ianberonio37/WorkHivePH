@@ -2,7 +2,7 @@
 name: table-rls-skill_badges
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_badges
-source_sha: fdca62cc47bf3c9b
+source_sha: d1abdfbe86907a6c
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: True
 Columns (*=NOT NULL): id*, worker_name*, discipline*, level*, earned_at, exam_score*, auth_uid, badge_key
 
 Policies:
-- `skill_badges_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`
+- `skill_badges_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
 
 Guard triggers: `trg_daily_cap_skill_badges`
 

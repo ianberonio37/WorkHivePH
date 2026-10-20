@@ -2,7 +2,7 @@
 name: table-rls-hive_quotas
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_quotas
-source_sha: d4ebbbec8559cc0c
+source_sha: e5842e5215f5d47a
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): hive_id*, max_rows_pm_comp, max_rows_community, max_rows_a
 
 Policies:
 - `hive_quotas_write` [ALL · roles=public] USING=`false` CHECK=`false`
-- `hive_quotas_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_quotas.hive_id) AND (hm.` CHECK=`∅`
+- `hive_quotas_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_quotas.` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

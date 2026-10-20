@@ -2,7 +2,7 @@
 name: table-rls-parts_staged_reservations
 type: table-rls
 source: db:pg_policies+pg_trigger:parts_staged_reservations
-source_sha: 92ed89ac7cf77866
+source_sha: 10a4d173e0bacb3c
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id, asset_name*, item_id*, qty_reserved*, reserved_by, consumed_at, released_at, recommendation_id, notes
 
 Policies:
-- `parts_staged_reservations_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `parts_staged_reservations_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
 
 Guard triggers: `trg_text_caps_parts_staged`
 

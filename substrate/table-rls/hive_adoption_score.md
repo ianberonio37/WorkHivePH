@@ -2,7 +2,7 @@
 name: table-rls-hive_adoption_score
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_adoption_score
-source_sha: 1e5a850fd095533d
+source_sha: a7281ffc9b8ad778
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, hive_id*, snapshot_date*, risk_score*, risk_tier*, ac
 Policies:
 - `hive_adoption_score_delete_locked` [DELETE · roles=public] USING=`false` CHECK=`∅`
 - `hive_adoption_score_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `hive_adoption_score_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `hive_adoption_score_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 - `hive_adoption_score_update_locked` [UPDATE · roles=public] USING=`false` CHECK=`false`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

@@ -2,7 +2,7 @@
 name: table-rls-sso_configs
 type: table-rls
 source: db:pg_policies+pg_trigger:sso_configs
-source_sha: b1cb0b8913681998
+source_sha: d1a0c57351a7142b
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, hive_id*, provider*, status*, idp_entity_id, enforced
 
 Policies:
 - `sso_configs_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `sso_configs_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = sso_configs.hive_id) AND (hm.` CHECK=`∅`
+- `sso_configs_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = sso_configs.` CHECK=`∅`
 - `sso_configs_update_locked` [UPDATE · roles=public] USING=`false` CHECK=`false`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

@@ -88,7 +88,7 @@ def main() -> int:
 
     if probe.returncode == 0 and (probe.stdout or "").strip():
         pol = probe.stdout.strip()
-        if "auth_uid = auth.uid()" not in pol.replace("( ", "(").replace(" )", ")"):
+        if "auth_uid = auth.uid()" not in pol.replace("( SELECT auth.uid() AS uid)", "auth.uid()").replace("( ", "(").replace(" )", ")"):
             failures.append(f"worker_profiles SELECT is no longer scoped to auth_uid = auth.uid() "
                             f"({pol.strip()[:120]}) - the exact widening that made name-based "
                             f"seating dangerous. The page is now safe by construction, but any "

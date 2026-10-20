@@ -2,7 +2,7 @@
 name: table-rls-unified_events
 type: table-rls
 source: db:pg_policies+pg_trigger:unified_events
-source_sha: 1670523fff254096
+source_sha: 1854248a8b46dde5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, hive_id*, asset_tag, source*, source_id*, event_type*
 
 Policies:
 - `ue_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `ue_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = uni` CHECK=`∅`
+- `ue_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE (` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

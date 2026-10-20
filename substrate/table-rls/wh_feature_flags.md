@@ -2,7 +2,7 @@
 name: table-rls-wh_feature_flags
 type: table-rls
 source: db:pg_policies+pg_trigger:wh_feature_flags
-source_sha: e93f14f80a085601
+source_sha: 6e3db5d570a653ea
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): hive_id*, name*, enabled*, config, updated_at
 
 Policies:
-- `wh_feature_flags_hive_select` [SELECT · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))` CHECK=`∅`
+- `wh_feature_flags_hive_select` [SELECT · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

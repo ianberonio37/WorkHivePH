@@ -185,7 +185,9 @@ const READ = () => {
     // to see the audit log", "Join or create a hive to plan and track projects". ph-intelligence answers a
     // stranger in 379 characters that say exactly what it is and how to get in - a legible refusal, which
     // this lens is meant to accept - and none of my phrases appeared in it.
-    gated: /members only|supervisors? only|founder|admin only|internal use|join (?:or create )?a hive to/i.test(text),
+    // (2026-10-21) And "admin only" did not match platform-actions' "for platform admins only": the plural of the
+    // phrase this lens already accepted read as an ungated page, so a legible 389-character refusal was graded BAD.
+    gated: /members only|supervisors? only|founder|admins? only|internal use|join (?:or create )?a hive to/i.test(text),
     empty: /nothing|no .{0,24}(yet|found|due|recorded)|none |0 /i.test(text),
     tagalog: /\b(ang|ng|sa|mga|walang|wala|hindi|para|iyong)\b/i.test(text),
   };

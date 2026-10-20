@@ -2,7 +2,7 @@
 name: table-rls-knowledge_graph_facts
 type: table-rls
 source: db:pg_policies+pg_trigger:knowledge_graph_facts
-source_sha: 6d34218077cf1bb3
+source_sha: 9f958bf0cf77327e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, hive_id*, subject_type*, subject_ref*, predicate*, ob
 Policies:
 - `kgf_delete_locked` [DELETE · roles=public] USING=`false` CHECK=`∅`
 - `kgf_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `kgf_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `kgf_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 - `kgf_update_locked` [UPDATE · roles=public] USING=`false` CHECK=`false`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

@@ -120,7 +120,12 @@ const na = (id, line) => console.log(`  n/a ${id.padEnd(22)} ${line} - unmeasure
   // policy in isolation, in the wrong vocabulary, produced a false finding on a sound trust chain.
   const boundToAuthor = psql("select count(*) from pg_policy where polrelid='public.marketplace_reviews'::regclass and polcmd in ('a','w') and coalesce(pg_get_expr(polwithcheck, polrelid), '') ~ '(auth\.uid|auth_worker_names|is_marketplace_admin)'");
   const backstop = psql("select count(*) from pg_trigger t join pg_proc p on p.oid = t.tgfoid where t.tgrelid='public.marketplace_reviews'::regclass and not t.tgisinternal and p.prosrc ilike '%unknown service request%'");
-  const ownListingBlocked = psql("select count(*) from pg_policy where polrelid='public.marketplace_reviews'::regclass and polcmd = 'a' and coalesce(pg_get_expr(polwithcheck, polrelid), '') ilike '%seller_name%'");
+  // ★AND THE SELLER IS AN ACCOUNT NOW, NOT A NAME (2026-10-21). 20261008000062 moved the marketplace onto accounts: the
+  // insert policy forbids your own listing with `NOT listing_is_mine(listing_id)` (the listing's auth_uid is you) and no
+  // longer mentions seller_name at all. This lens still looked for the old word, so from that migration on it reported
+  // "a seller can write their own reputation" about a policy that forbids it - the same wrong-vocabulary false finding
+  // the comment above records, one migration later. Either binding counts; a policy that names neither does not.
+  const ownListingBlocked = psql("select count(*) from pg_policy where polrelid='public.marketplace_reviews'::regclass and polcmd = 'a' and coalesce(pg_get_expr(polwithcheck, polrelid), '') ~* '(seller_name|not\\s+(public\\.)?listing_is_mine\\s*\\()'");
   const verified = psql("select count(*) from marketplace_reviews where verified_purchase");
   const total = psql("select count(*) from marketplace_reviews");
   say(Number(selfReviews || 0) === 0 && !!maintainer && Number(boundToAuthor || 0) > 0 && Number(ownListingBlocked || 0) > 0 && Number(backstop || 0) > 0, 'E4 reputation is earned',

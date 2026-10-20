@@ -2,7 +2,7 @@
 name: table-rls-parts_records
 type: table-rls
 source: db:pg_policies+pg_trigger:parts_records
-source_sha: b31f7bc6c2c847b9
+source_sha: 820d254cefe2de01
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, worker_name*, job_ref, job_type, date, duration, parts, created_at, hive_id, asset_ref_id
 
 Policies:
-- `parts_records_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `parts_records_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
 
 Guard triggers: `trg_bind_submitter_parts_record`
 

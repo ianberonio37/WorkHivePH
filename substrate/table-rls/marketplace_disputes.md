@@ -2,7 +2,7 @@
 name: table-rls-marketplace_disputes
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_disputes
-source_sha: 3d23fe6a0fde38a0
+source_sha: 193d5bf0354e81f4
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,10 +15,10 @@ Columns (*=NOT NULL): id*, order_id, listing_id, opened_by*, seller_name*, reaso
 
 Policies:
 - `mkt_disp_delete` [DELETE · roles=public] USING=`is_marketplace_admin()` CHECK=`∅`
-- `mkt_disp_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((opened_by_auth_uid = auth.uid()) AND (opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)) AND ((EXISTS ( `
+- `mkt_disp_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) AND (opened_by IN ( SELECT auth_worker_names() AS auth_worker_names)`
 - `marketplace_disputes_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `mkt_disp_read` [SELECT · roles=public] USING=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)` CHECK=`∅`
-- `mkt_disp_update` [UPDATE · roles=public] USING=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)` CHECK=`((opened_by_auth_uid = auth.uid()) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_is_mine(order_id)`
+- `mkt_disp_read` [SELECT · roles=public] USING=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_` CHECK=`∅`
+- `mkt_disp_update` [UPDATE · roles=public] USING=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_` CHECK=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_`
 
 Guard triggers: `trg_bind_dispute_opener`
 

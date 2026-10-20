@@ -2,7 +2,7 @@
 name: table-rls-ai_knowledge_gap
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_knowledge_gap
-source_sha: 27b5c8841d80a1a2
+source_sha: ff95baef60a3716b
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id, worker_name, question*, reason, topic, created_at
 
 Policies:
-- `ai_knowledge_gap_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))`
+- `ai_knowledge_gap_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

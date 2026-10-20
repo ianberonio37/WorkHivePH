@@ -931848,8 +931848,8 @@
     },
     {
       "id": "SL3083",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · achievements",
       "pages": [
@@ -931906,12 +931906,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read achievements.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:24:25.330Z (.tmp/slw/results/lb2w_s1.json) as David Velasco (davidvelasco), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 19 requests - 17 reads on an index at grown size (12 distinct; fixed by a UNION of its two arms + idx_service_providers_auth_uid (20261020000003_lb2_read_shapes.sql); each of the reader's names, its own newest rows on idx_xp_log_worker (20261020000003_lb2_read_shapes.sql); idx_xp_log_earned; v_service_provider_truth counts each provider's jobs and reviews per provider, LATERAL (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 18 requests - 17 reads on an index at grown size (12 distinct; fixed by a UNION of its two arms + idx_service_providers_auth_uid (20261020000003_lb2_read_shapes.sql); each of the reader's names, its own newest rows on idx_xp_log_worker (20261020000003_lb2_read_shapes.sql); idx_xp_log_earned; v_service_provider_truth counts each provider's jobs and reviews per provider, LATER Receipt .tmp/mcp_walks/SL3083.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3084",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · alert hub",
       "pages": [
@@ -931968,12 +931976,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read alert-hub.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:26:16.805Z (.tmp/slw/results/lb2w_s2.json) as Ben Ocampo (driverben), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 22 requests - 20 reads on an index at grown size (15 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql); idx_automation_log_hive_triggered), 2 writes recorded || desktop-1280: 21 requests - 20 reads on an index at grown size (15 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql); idx_automation_log_hive_triggered), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_sha Receipt .tmp/mcp_walks/SL3084.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3085",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · analytics report",
       "pages": [
@@ -932030,12 +932046,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read analytics-report.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:58:39.864Z (.tmp/slw/results/lb2w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 11 requests - 9 reads on an index at grown size (5 distinct), 2 writes recorded || desktop-1280: 10 requests - 9 reads on an index at grown size (5 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3085.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3086",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · analytics",
       "pages": [
@@ -932094,12 +932118,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read analytics.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:02:48.285Z (.tmp/slw/results/lb2w_8.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 12 requests - 11 reads on an index at grown size (8 distinct), 1 writes recorded || desktop-1280: 12 requests - 11 reads on an index at grown size (8 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3086.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3087",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · asset hub",
       "pages": [
@@ -932156,12 +932188,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read asset-hub.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:54:34.144Z (.tmp/slw/results/lb2w_4.json) as Ben Ocampo (driverben), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 17 requests - 16 reads on an index at grown size (10 distinct), 1 writes recorded || desktop-1280: 17 requests - 16 reads on an index at grown size (10 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3087.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3088",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · assistant",
       "pages": [
@@ -932218,12 +932258,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read assistant.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:54:34.144Z (.tmp/slw/results/lb2w_4.json) as Ben Ocampo (driverben), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 13 requests - 12 reads on an index at grown size (8 distinct), 1 writes recorded || desktop-1280: 13 requests - 12 reads on an index at grown size (8 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3088.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3089",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · community",
       "pages": [
@@ -932280,12 +932328,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read community.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:26:16.805Z (.tmp/slw/results/lb2w_s2.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 24 requests - 22 reads on an index at grown size (15 distinct; fixed by lvl narrowed to the hive's active members, on idx_skill_badges_auth_uid (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 23 requests - 22 reads on an index at grown size (15 distinct; fixed by lvl narrowed to the hive's active members, on idx_skill_badges_auth_uid (20261020000003_lb2_read_shapes.sql)), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_shapes.sql (every policy asks auth.uid() once; the reader's own ids and hives asked as one array; per-provider counts; the kept credit totals) (PASS query-indexes (static) - 20 indexes declared as measured, 31 page-read anchors hold; Receipt .tmp/mcp_walks/SL3089.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3090",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · dayplanner",
       "pages": [
@@ -932342,12 +932398,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read dayplanner.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:28:02.814Z (.tmp/slw/results/lb2w_s3.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 14 requests - 12 reads on an index at grown size (9 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 13 requests - 12 reads on an index at grown size (9 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_shapes.sql (every policy asks auth.uid() once; the reader's own ids  Receipt .tmp/mcp_walks/SL3090.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3091",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · hive",
       "pages": [
@@ -932404,12 +932468,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read hive.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:56:46.436Z (.tmp/slw/results/lb2w_5.json) as Ben Ocampo (driverben), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 23 requests - 21 reads on an index at grown size (15 distinct; fixed by idx_logbook_worker_created), 2 writes recorded || desktop-1280: 22 requests - 21 reads on an index at grown size (15 distinct; fixed by idx_logbook_worker_created), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3091.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3092",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · index",
       "pages": [
@@ -932466,12 +932538,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read index.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:56:46.436Z (.tmp/slw/results/lb2w_5.json) as Ben Ocampo (driverben), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 12 requests - 11 reads on an index at grown size (8 distinct), 1 writes recorded || desktop-1280: 12 requests - 11 reads on an index at grown size (8 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3092.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3093",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - solo-owner · integrations",
       "pages": [
@@ -932528,12 +932608,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read integrations.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:00:39.217Z (.tmp/slw/results/lb2w_7.json) as Jun Salvador (junvanowner), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 3 requests - 2 reads on an index at grown size (2 distinct), 1 writes recorded || desktop-1280: 3 requests - 2 reads on an index at grown size (2 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3093.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3094",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · inventory",
       "pages": [
@@ -932590,12 +932678,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read inventory.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:24:25.330Z (.tmp/slw/results/lb2w_s1.json) as David Velasco (davidvelasco), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 16 requests - 15 reads on an index at grown size (12 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; inventory_items' policies and inventory_transactions_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 1 writes recorded || desktop-1280: 16 requests - 15 reads on an index at grown size (12 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; inventory_items' policies and inventory_transactions_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_shapes.sql (every policy asks auth.uid( Receipt .tmp/mcp_walks/SL3094.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3095",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · logbook",
       "pages": [
@@ -932652,12 +932748,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read logbook.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:48:25.917Z (.tmp/slw/results/lb2w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 22 requests - 20 reads on an index at grown size (16 distinct; fixed by idx_logbook_hive_status), 2 writes recorded || desktop-1280: 21 requests - 20 reads on an index at grown size (16 distinct; fixed by idx_logbook_hive_status), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3095.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3096",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - buyer · marketplace seller profile",
       "pages": [
@@ -932714,12 +932818,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read marketplace-seller-profile.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:48:25.917Z (.tmp/slw/results/lb2w_1.json) as Bryan Garcia (bryangarcia), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 16 requests - 15 reads on an index at grown size (12 distinct), 1 writes recorded || desktop-1280: 16 requests - 15 reads on an index at grown size (12 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3096.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3097",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - buyer · marketplace seller",
       "pages": [
@@ -932776,12 +932888,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read marketplace-seller.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:24:25.330Z (.tmp/slw/results/lb2w_s1.json) as Bryan Garcia (bryangarcia), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 21 requests - 19 reads on an index at grown size (11 distinct; fixed by idx_marketplace_sellers_auth_uid; is_mine = id = ANY(my_listing_ids()), one InitPlan on the primary key (20261020000003_lb2_read_shapes.sql); person_credit_balance's provider join on idx_service_providers_auth_uid (20261020000003_lb2_read_shapes.sql); to_me = listing_id = ANY(my_listing_ids()), on marketplace_inquiries_listing_id (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 20 requests - 19 reads on an index at grown size (11 distinct; fixed by idx_marketplace_sellers_auth_uid; is_mine = id = ANY(my_listing_ids()), one InitPlan on the primary key (20261020000003_lb2_read_shapes.sql); person_credit_balance's provider join on idx_service_providers_auth_uid (20261020000003_lb2_read_shapes.sql); to_me = listing_id = ANY(my_lis Receipt .tmp/mcp_walks/SL3097.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3098",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - buyer · marketplace",
       "pages": [
@@ -932838,12 +932958,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read marketplace.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:26:16.805Z (.tmp/slw/results/lb2w_s2.json) as Isidro Suarez (isidrosuarez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 32 requests - 30 reads on an index at grown size (18 distinct; fixed by from_me = id = ANY(my_inquiry_ids()), on the primary key (20261020000003_lb2_read_shapes.sql); the owner view compares auth_uid itself - on idx_marketplace_listings_auth_uid (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 31 requests - 30 reads on an index at grown size (18 distinct; fixed by from_me = id = ANY(my_inquiry_ids()), on the primary key (20261020000003_lb2_read_shapes.sql); the owner view compares auth_uid itself - on idx_marketplace_listings_auth_uid (20261020000003_lb2_read_shapes.sql)), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_shapes.sql (every policy asks Receipt .tmp/mcp_walks/SL3098.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3099",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · ph intelligence",
       "pages": [
@@ -932900,12 +933028,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read ph-intelligence.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:50:35.437Z (.tmp/slw/results/lb2w_2.json) as Christine Dizon (christinedizon), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 11 requests - 10 reads on an index at grown size (6 distinct), 1 writes recorded || desktop-1280: 11 requests - 10 reads on an index at grown size (6 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3099.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3100",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - machine-client · plant connections",
       "pages": [
@@ -932962,12 +933098,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read plant-connections.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:50:35.437Z (.tmp/slw/results/lb2w_2.json) as Bryan Garcia (bryangarcia), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 10 requests - 9 reads on an index at grown size (6 distinct), 1 writes recorded || desktop-1280: 10 requests - 9 reads on an index at grown size (6 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3100.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3101",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · pm scheduler",
       "pages": [
@@ -933024,12 +933168,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read pm-scheduler.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:28:02.814Z (.tmp/slw/results/lb2w_s3.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 16 requests - 14 reads on an index at grown size (11 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 2 writes recorded || desktop-1280: 15 requests - 14 reads on an index at grown size (11 distinct; fixed by every policy asks auth.uid() once, so hive_members is read on its index; pm_assets' policies and pm_scope_items_write take the reader's hives as one array (20261020000003_lb2_read_shapes.sql)), 1 writes recorded. Gate query-indexes holds the indexes of 20261020000001_lb2_query_indexes.sql as measured, the reads they serve in their measured shape, and the shapes of 20261020000003_lb2_read_shapes.sql (every policy asks auth.uid() once; the reader's own ids Receipt .tmp/mcp_walks/SL3101.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3102",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · project manager",
       "pages": [
@@ -933086,12 +933238,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read project-manager.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:52:35.953Z (.tmp/slw/results/lb2w_3.json) as Christine Dizon (christinedizon), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 15 requests - 13 reads on an index at grown size (10 distinct), 2 writes recorded || desktop-1280: 14 requests - 13 reads on an index at grown size (10 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3102.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3103",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · project report",
       "pages": [
@@ -933148,12 +933308,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read project-report.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:03:55.608Z (.tmp/slw/results/lb2w_9.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 15 requests - 14 reads on an index at grown size (10 distinct), 1 writes recorded || desktop-1280: 15 requests - 14 reads on an index at grown size (10 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3103.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3104",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - an anonymous visitor · public feed",
       "pages": [
@@ -933204,12 +933372,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read public-feed.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:48:25.917Z (.tmp/slw/results/lb2w_1.json) as an anonymous visitor (signed out), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 2 requests - 1 reads on an index at grown size (1 distinct; fixed by idx_community_posts_public_feed), 1 writes recorded || desktop-1280: 2 requests - 1 reads on an index at grown size (1 distinct; fixed by idx_community_posts_public_feed), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3104.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3105",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · report sender",
       "pages": [
@@ -933266,12 +933442,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read report-sender.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:52:35.953Z (.tmp/slw/results/lb2w_3.json) as Christine Dizon (christinedizon), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 14 requests - 13 reads on an index at grown size (9 distinct), 1 writes recorded || desktop-1280: 14 requests - 13 reads on an index at grown size (9 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3105.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3106",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · resume",
       "pages": [
@@ -933328,12 +933512,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read resume.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:56:46.436Z (.tmp/slw/results/lb2w_5.json) as Isidro Suarez (isidrosuarez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 12 requests - 11 reads on an index at grown size (7 distinct), 1 writes recorded || desktop-1280: 12 requests - 11 reads on an index at grown size (7 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3106.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3107",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · shift brain",
       "pages": [
@@ -933390,12 +933582,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read shift-brain.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:58:39.864Z (.tmp/slw/results/lb2w_6.json) as Oscar Ramos (jeepneyoscarph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 11 requests - 10 reads on an index at grown size (7 distinct), 1 writes recorded || desktop-1280: 11 requests - 10 reads on an index at grown size (7 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3107.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3108",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - worker · skillmatrix",
       "pages": [
@@ -933452,12 +933652,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read skillmatrix.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:54:34.144Z (.tmp/slw/results/lb2w_4.json) as David Velasco (davidvelasco), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 12 requests - 10 reads on an index at grown size (7 distinct), 2 writes recorded || desktop-1280: 11 requests - 10 reads on an index at grown size (7 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3108.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3109",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - oversight · agentic rag observability",
       "pages": [
@@ -933508,12 +933716,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: agentic-rag-observability.html is retired - the only reads it still makes are the shell's start-up lookups, each on an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:00:39.217Z (.tmp/slw/results/lb2w_7.json) as Leandro Marquez (leandromarquez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; the page is RETIRED (it shows where its work moved) and reads none of its own data any more - the only requests it still makes are the shell's start-up lookups; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 3 requests - 3 reads on an index at grown size (3 distinct), 0 writes recorded || desktop-1280: 3 requests - 3 reads on an index at grown size (3 distinct), 0 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3109.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3110",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - supervisor · ai quality",
       "pages": [
@@ -933570,12 +933786,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read ai-quality.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:50:35.437Z (.tmp/slw/results/lb2w_2.json) as Christine Dizon (christinedizon), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 11 requests - 10 reads on an index at grown size (7 distinct), 1 writes recorded || desktop-1280: 11 requests - 10 reads on an index at grown size (7 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3110.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3111",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - fleet-supervisor · audit log",
       "pages": [
@@ -933632,12 +933856,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read audit-log.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:02:48.285Z (.tmp/slw/results/lb2w_8.json) as Gloria Tan (vanfleetgloriaph), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 15 requests - 14 reads on an index at grown size (9 distinct), 1 writes recorded || desktop-1280: 15 requests - 14 reads on an index at grown size (9 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3111.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3112",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - oversight · founder console",
       "pages": [
@@ -933688,12 +933920,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: founder-console.html is retired - the only reads it still makes are the shell's start-up lookups, each on an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:00:39.217Z (.tmp/slw/results/lb2w_7.json) as Leandro Marquez (leandromarquez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; the page is RETIRED (it shows where its work moved) and reads none of its own data any more - the only requests it still makes are the shell's start-up lookups; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 5 requests - 3 reads on an index at grown size (3 distinct), 2 writes recorded || desktop-1280: 4 requests - 3 reads on an index at grown size (3 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3112.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3113",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - oversight · llm observability",
       "pages": [
@@ -933744,12 +933984,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: llm-observability.html is retired - the only reads it still makes are the shell's start-up lookups, each on an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:00:39.217Z (.tmp/slw/results/lb2w_7.json) as Leandro Marquez (leandromarquez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; the page is RETIRED (it shows where its work moved) and reads none of its own data any more - the only requests it still makes are the shell's start-up lookups; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 3 requests - 3 reads on an index at grown size (3 distinct), 0 writes recorded || desktop-1280: 3 requests - 3 reads on an index at grown size (3 distinct), 0 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3113.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3114",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - oversight · marketplace admin",
       "pages": [
@@ -933800,12 +934048,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: marketplace-admin.html is retired - the only reads it still makes are the shell's start-up lookups, each on an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T09:02:48.285Z (.tmp/slw/results/lb2w_8.json) as Leandro Marquez (leandromarquez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; the page is RETIRED (it shows where its work moved) and reads none of its own data any more - the only requests it still makes are the shell's start-up lookups; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 13 requests - 11 reads on an index at grown size (6 distinct), 2 writes recorded || desktop-1280: 12 requests - 11 reads on an index at grown size (6 distinct), 1 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3114.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3115",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - oversight · platform actions",
       "pages": [
@@ -933856,6 +934112,14 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read platform-actions.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T10:28:02.814Z (.tmp/slw/results/lb2w_s3.json) as Leandro Marquez (leandromarquez), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 17 requests - 16 reads on an index at grown size (15 distinct; fixed by an admin reads the totals the ledger keeps as it is written; anyone else their own accounts (20261020000003_lb2_read_shapes.sql); analytics_events_select_admin asks is_platform_admin() once per statement (20261020000003_lb2_read_shapes.sql); idx_marketplace_sellers_created; idx_mkt_listings_status_created; idx_platform_feedback_created), 1 writes recorded || desktop-1280: 17 requests - 16 reads on an index at grown size (15 distinct; fixed by an admin reads the totals the ledger keeps as it is written; anyone else their own accounts (20261020000003_lb2_read_shapes.sql); analytics_events_select_admin asks is_platform_admin() once per statement (20261020000003_lb2_read_shapes.sql); idx_marketplace_sellers_created; idx_mkt_listings_status_created;  Receipt .tmp/mcp_walks/SL3115.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -933917,8 +934181,8 @@
     },
     {
       "id": "SL3117",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB2 · The platform must keep this page's queries on an index as its tables grow - an anonymous visitor · feedback",
       "pages": [
@@ -933969,6 +934233,14 @@
         "engine": "chromium",
         "ask": "The platform must keep this page's queries on an index as its tables grow",
         "closes": "the LB2 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every read left through the page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every <details> opened; an init script recorded every REST and RPC request the page made (relation, filters, order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an index at that size): LB2: every read feedback/index.html makes keeps to an index as its tables grow - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T08:48:25.917Z (.tmp/slw/results/lb2w_1.json) as an anonymous visitor (signed out), service workers blocked, settled 12 s, scrolled to the last element, every <details> opened; every REST and RPC request the page made recorded and matched to the LB2 inventory read EXPLAIN ANALYZEd as the same cast at grown size (.tmp/slw/lb2_evidence.json): phone-390: 2 requests - 2 reads on an index at grown size (2 distinct; fixed by idx_platform_feedback_votes_token), 0 writes recorded || desktop-1280: 2 requests - 2 reads on an index at grown size (2 distinct; fixed by idx_platform_feedback_votes_token), 0 writes recorded. Gate query-indexes holds the 19 indexes of 20261020000001_lb2_query_indexes.sql as measured and the reads they serve in their measured shape (PASS query-indexes (static) - 19 indexes declared as measured, 30 page-read anchors hold; live half not run). Receipt .tmp/mcp_walks/SL3117.json.",
+      "artifacts": {
+        "gates": [
+          "query-indexes",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1019046,5 +1019318,5 @@
       }
     }
   ],
-  "next": "SL LB2 query cost and indexes (34) - the helper's groundwork is in: migration 20261020000001_lb2_query_indexes.sql (19 indexes, applied locally only), tools/validate_query_indexes.py (register it), .tmp/slw/gen_lb2w.py + lb2_walk_template.js + bank_lb2.py + lb2_evidence.json; apply its 5 page-query changes (founder-console/platform-actions ledger sums -> a server aggregate, founder-console listing counts, marketplace-admin estimated count, community ilike), run the LB2 walk, bank the rows whose every read is on an index; the ~13 rows held by view/policy/function shapes are the next slice; then L2-4, LB1, LB3, LB4, RL1-3. SL C3 88/88 CLOSED (one print stamp at the moment of printing, exports name PHT and their period, reports print their time). Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3 and 20261020000001; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL L2 audit trail (21) - the platform must leave a readable trail of who changed what on each page: walk each row's cast at phone-390 and desktop-1280, make the change the page lets them make, then read the trail it left (hive_audit_log and the page's own history) for who, what and when, in words a person can read; fix pages whose writes leave no trail or a trail nobody can read; then L3-4, LB1, LB3, LB4, RL1-3. SL LB2 34/34 CLOSED (20261020000003: every policy asks auth.uid() once - 225 policies, hive_members on its index; the reader's own listings/inquiries/hives asked as one array; provider ids a UNION; per-provider counts; trade peers narrowed; credit totals kept by a trigger; my_recent_xp). LB-family follow-ups the walks never hit: service-request/broadcast views (marketplace 4311, seller 2264-2265), area presence 5304, community keyword search 3110, report-sender fallback 1364. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3 and 20261020000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

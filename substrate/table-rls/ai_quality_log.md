@@ -2,7 +2,7 @@
 name: table-rls-ai_quality_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_quality_log
-source_sha: 6c9cf2f26a72dde5
+source_sha: e28b356b737dbf1d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, agent_id*, question_id*, question_text, expected_keyw
 
 Policies:
 - `ai_quality_log_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `ai_quality_log_read` [SELECT · roles=public] USING=`(auth.uid() IS NOT NULL)` CHECK=`∅`
+- `ai_quality_log_read` [SELECT · roles=public] USING=`(( SELECT auth.uid() AS uid) IS NOT NULL)` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

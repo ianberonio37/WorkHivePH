@@ -2,7 +2,7 @@
 name: table-rls-skill_profiles
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_profiles
-source_sha: 89595e0b39f1493b
+source_sha: c2d717d4ca0c31b3
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,8 +14,8 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: True
 Columns (*=NOT NULL): id*, worker_name*, primary_skill*, targets*, updated_at, auth_uid
 
 Policies:
-- `skill_profiles_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))`
-- `skill_profiles_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`
+- `skill_profiles_write` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))`
+- `skill_profiles_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
 
 Guard triggers: `trg_text_caps_skill_profiles`
 

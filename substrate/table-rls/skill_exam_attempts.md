@@ -2,7 +2,7 @@
 name: table-rls-skill_exam_attempts
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_exam_attempts
-source_sha: 022f2e41d5ed7ef9
+source_sha: f45237097884211c
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: True
 Columns (*=NOT NULL): id*, worker_name*, discipline*, level*, score*, passed*, answers, attempted_at, auth_uid
 
 Policies:
-- `skill_exam_attempts_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`
+- `skill_exam_attempts_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
 
 Guard triggers: `trg_daily_cap_skill_exams`
 

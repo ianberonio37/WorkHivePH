@@ -2,7 +2,7 @@
 name: table-rls-service_offers
 type: table-rls
 source: db:pg_policies+pg_trigger:service_offers
-source_sha: 19d30b1f91b32b9e
+source_sha: a6ac563d398ea894
 last_verified: 2026-07-13
 supersedes: null
 ---

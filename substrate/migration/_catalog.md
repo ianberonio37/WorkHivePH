@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:672
-source_sha: deee71368be99423
+source: dir:supabase/migrations:674
+source_sha: f9a9dc1d97e91e2b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (672 migrations)
+## migration · catalog (674 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000020_min_balance_is_cold_start_safe` — (misc DDL/DML)
-- `20260731000021_voucher_budget_cap` — fns:guard_voucher_within_budget · triggers:trg_guard_voucher_within_budget
 - `20260731000022_restore_daily_cap_uuid_cast` — fns:check_daily_row_cap
 - `20260731000023_anchor_the_four_new_tables` — (misc DDL/DML)
 - `20260731000024_understatement_needs_a_reason` — fns:guard_payment_variance_explained,service_agreed_base · triggers:trg_guard_payment_variance_explained · tables:service_payments
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261016000002_d3_every_reader_skips_deleted_rows` — fns:compute_adoption_risk,compute_anomaly_signals,compute_hive_readiness,ensure_pm_asset_for_node,get_hive_board_dashboard,get_marketplace_parts_for_my_assets
 - `20261016000003_a_supervisor_sets_the_hives_retention` — fns:set_hive_retention · tables:hive_retention_config
 - `20261020000001_lb2_query_indexes` — (misc DDL/DML)
+- `20261020000002_credit_ledger_totals` — fns:get_credit_ledger_totals
+- `20261020000003_lb2_read_shapes` — policies:aem_read,agent_memory_delete,agent_memory_insert,agent_memory_insert_own,agent_memory_read,agent_memory_update · fns:get_credit_ledger_totals,get_hive_trade_peers,keep_service_credit_ledger_totals,my_inquiry_ids,my_listing_ids,my_recent_xp · triggers:trg_keep_ledger_totals,trg_keep_ledger_totals_truncate · tables:service_credit_ledger_totals
 
 (showing last 200)
 

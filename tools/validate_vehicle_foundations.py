@@ -83,8 +83,10 @@ def check(probe: dict) -> list[str]:
 
 
 def gather():
+    # 20261020000003 wrote every policy's auth.uid() as ( SELECT auth.uid() AS uid) - the same value, asked once per
+    # statement so the policy's subqueries can use an index; the checks read it back as the call it is
     q = {
-        "solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND qual LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='asset_nodes' AND policyname='asset_nodes_read'",
+        "solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND replace(qual, '( SELECT auth.uid() AS uid)', 'auth.uid()') LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='asset_nodes' AND policyname='asset_nodes_read'",
         "solo_write": "SELECT (qual LIKE '%hive_id IS NULL%') FROM pg_policies WHERE tablename='asset_nodes' AND policyname='asset_nodes_write'",
         "vehicle_meta": "SELECT count(*)=1 FROM information_schema.columns WHERE table_name='asset_nodes' AND column_name='vehicle_meta'",
         "interval_km": "SELECT count(*)=1 FROM information_schema.columns WHERE table_name='pm_scope_items' AND column_name='interval_km'",
@@ -93,8 +95,8 @@ def gather():
         "reading_rows": "SELECT count(*) FROM equipment_reading_templates WHERE category='Vehicle' AND reading_key IN ('odometer_km','fuel_l')",
         "trigger": "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE c.relname='logbook' AND t.tgname='trg_roll_vehicle_odometer'",
         "view_invoker": "SELECT COALESCE(c.reloptions::text,'') LIKE '%security_invoker=true%' FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='v_pm_scope_items_truth'",
-        "scope_solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND qual LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='pm_scope_items' AND policyname='pm_scope_items_read'",
-        "inv_solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND qual LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='inventory_items' AND policyname='inventory_items_read'",
+        "scope_solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND replace(qual, '( SELECT auth.uid() AS uid)', 'auth.uid()') LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='pm_scope_items' AND policyname='pm_scope_items_read'",
+        "inv_solo_read": "SELECT (qual LIKE '%hive_id IS NULL%' AND replace(qual, '( SELECT auth.uid() AS uid)', 'auth.uid()') LIKE '%auth_uid = auth.uid()%') FROM pg_policies WHERE tablename='inventory_items' AND policyname='inventory_items_read'",
         "audit_solo_safe": "SELECT count(*)=5 FROM pg_proc WHERE (proname IN ('audit_asset_node_delete','audit_pm_asset_delete') AND prosrc LIKE '%IF OLD.hive_id IS NULL%') OR (proname IN ('audit_pm_scope_item_schedule_change','audit_logbook_post_close_amendment','audit_asset_approval_decision') AND prosrc LIKE '%IF NEW.hive_id IS NULL%')",
         "contract_vehicle": "SELECT (contract_schema#>>'{properties,category,enum}') LIKE '%Vehicle%' AND fields::text LIKE '%Vehicle%' FROM canonical_capture_contracts WHERE capture_id='logbook_add_entry_v1'",
         "asset_truth_nullsafe": "SELECT pg_get_viewdef('public.v_asset_truth'::regclass) LIKE '%IS DISTINCT FROM%' AND COALESCE((SELECT reloptions::text FROM pg_class WHERE relname='v_asset_truth'),'') LIKE '%security_invoker=true%'",

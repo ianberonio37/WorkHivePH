@@ -2,7 +2,7 @@
 name: table-rls-hive_readiness_audit
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_readiness_audit
-source_sha: 77320cb501339662
+source_sha: ae0766ca8fcdf6a1
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, hive_id*, reason, changed_at*, previous_stair, new_st
 
 Policies:
 - `hive_readiness_audit_write_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `hive_readiness_audit_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `hive_readiness_audit_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

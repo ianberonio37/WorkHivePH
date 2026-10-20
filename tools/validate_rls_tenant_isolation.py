@@ -61,15 +61,25 @@ BEGIN
     -- hive_id is uuid on most tables but text on a few (rate-limit/trace keys); cast to text so the
     -- discovery is type-agnostic (a type mismatch used to surface as a false "discover-error" skip).
     BEGIN
+      -- U_A must be an ORDINARY member: a platform admin reads every hive by design (the observability policies
+      -- say so), and a member of H_B reads H_B by right - either one reports a designed read as a leak. 2026-10-20:
+      -- gateway_audit_log "leaked 32 rows" because LIMIT 1 picked a platform admin. Prefer the member in the fewest hives.
       EXECUTE format($q$
         SELECT hm.hive_id::text, hm.auth_uid FROM public.hive_members hm
         WHERE hm.auth_uid IS NOT NULL AND hm.status='active'
-          AND EXISTS (SELECT 1 FROM public.%I t WHERE t.hive_id::text = hm.hive_id::text) LIMIT 1$q$, r.tbl)
+          AND EXISTS (SELECT 1 FROM public.%I t WHERE t.hive_id::text = hm.hive_id::text)
+          AND NOT EXISTS (SELECT 1 FROM public.marketplace_platform_admins pa WHERE pa.auth_uid = hm.auth_uid)
+        ORDER BY (SELECT count(*) FROM public.hive_members m2 WHERE m2.auth_uid = hm.auth_uid AND m2.status = 'active'),
+                 hm.hive_id::text
+        LIMIT 1$q$, r.tbl)
         INTO v_ha, v_uid;
     EXCEPTION WHEN others THEN RAISE NOTICE 'SKIP|%|discover-error', r.tbl; CONTINUE; END;
     IF v_ha IS NULL THEN RAISE NOTICE 'SKIP|%|no-member-with-data', r.tbl; CONTINUE; END IF;
-    EXECUTE format($q$SELECT t.hive_id::text FROM public.%I t WHERE t.hive_id::text <> %L AND t.hive_id IS NOT NULL LIMIT 1$q$,
-                   r.tbl, v_ha) INTO v_hb;
+    -- H_B: a hive with rows that U_A is NOT an active member of
+    EXECUTE format($q$SELECT t.hive_id::text FROM public.%I t WHERE t.hive_id::text <> %L AND t.hive_id IS NOT NULL
+                      AND NOT EXISTS (SELECT 1 FROM public.hive_members m WHERE m.hive_id::text = t.hive_id::text
+                                       AND m.auth_uid = %L AND m.status = 'active') LIMIT 1$q$,
+                   r.tbl, v_ha, v_uid) INTO v_hb;
     IF v_hb IS NULL THEN RAISE NOTICE 'SKIP|%|single-hive', r.tbl; CONTINUE; END IF;
     -- act as the member of H_A; RLS must hide H_B's rows
     SET LOCAL role authenticated;

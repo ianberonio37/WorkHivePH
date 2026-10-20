@@ -2,7 +2,7 @@
 name: table-rls-voice_response_queue
 type: table-rls
 source: db:pg_policies+pg_trigger:voice_response_queue
-source_sha: cca9602c57a5d3f9
+source_sha: 211cadf6985b8ce7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: False
 Columns (*=NOT NULL): id*, worker_id*, session_id, transcript*, response, status, created_at, sent_at
 
 Policies:
-- `voice_queue_own_rows` [SELECT · roles=authenticated] USING=`(worker_id = auth.uid())` CHECK=`∅`
+- `voice_queue_own_rows` [SELECT · roles=authenticated] USING=`(worker_id = ( SELECT auth.uid() AS uid))` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

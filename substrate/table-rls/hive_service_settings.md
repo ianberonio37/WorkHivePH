@@ -2,7 +2,7 @@
 name: table-rls-hive_service_settings
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_service_settings
-source_sha: af927c7fcfec3bf1
+source_sha: 1185c02874db065b
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,8 +14,8 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): hive_id*, instant_ttl_seconds*, quote_ttl_seconds*, broadcast_radius_start_m*, broadcast_radius_max_m*, broadcast_widen_rounds*, tier_silver_sales*, tier_gold_sales*, updated_at*, created_at*, commission_pct*, listing_fee_pct*, cashback_pct*, min_list_balance*, reward_pct, reward_spend_cap_pct, holding_fee_pct, reward_max_per_listing, reward_min_per_listing, starter_grant, first_listings_before_sale*, completion_window_days*, min_listing_price*
 
 Policies:
-- `hive_service_settings_write` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND (hm.status = 'active'::text) ` CHECK=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND (hm.status = 'active'::text) `
-- `hive_service_settings_read` [SELECT · roles=authenticated] USING=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND (hm.status = 'active'::text))` CHECK=`∅`
+- `hive_service_settings_write` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = ( SELECT auth.uid() AS uid)) AND (hm.status =` CHECK=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = ( SELECT auth.uid() AS uid)) AND (hm.status =`
+- `hive_service_settings_read` [SELECT · roles=authenticated] USING=`(hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = ( SELECT auth.uid() AS uid)) AND (hm.status =` CHECK=`∅`
 
 **Verdict:** FLAGS: client-writable TRUST/VALUE column(s) ['tier_silver_sales', 'tier_gold_sales', 'min_list_balance'] + no guard trigger — VALUE-INTEGRITY suspect (self-forgeable unless a BEFORE-trigger guards it or the display sources from a canonical table).
 

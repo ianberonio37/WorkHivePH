@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 5b8f59f2d3fe7344
+source_sha: c752d60fb2f3a432
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1407) — the 'what's already gated' brain
+## gate · registered validators (1408) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1036)
+### Platform (1037)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1135,6 +1135,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `python-tool-pattern-mining` [fail] — Python Tool Pattern Miner (L-1 Convention Mining -- informational)
 - `qty-input-contract` ⚡ [fail] — DEEPWALK D5 gate (static teeth) — the 'number input's declared min/step/bounds are NOT enforced on the write path' class, across TWO central parsers. (a) QTY: a
 - `query-column-existence` ⚡ [fail] — Query Column Existence (every .select/.eq/.in column must exist on the table; forward-only ratchet)
+- `query-indexes` [fail] — SL LB2 (2026-10-20): every page's queries stay on an index as their tables grow. Every read of the 34 LB2 pages (424 reads + 111 RPC calls) was EXPLAIN ANALYZEd
 - `queue-drain` [fail] — T14's OTHER HALF (LIVE Playwright + psql): the offline-queued family proves a write is HELD and announced; this proves it DRAINS. Offline (navigator.onLine over
 - `queue-survives-restart` [fail] — T14's THIRD HALF (LIVE Playwright + psql): the offline family proves a write is HELD, the drain gate proves it leaves EXACTLY ONCE — and both stay inside ONE pa
 - `quota-board` ⚡ [fail] — Q5 Unified Quota Board (aggregates all quota dimensions into one measured board; FAILs if any bound is red)

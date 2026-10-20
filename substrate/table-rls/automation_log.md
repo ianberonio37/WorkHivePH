@@ -2,7 +2,7 @@
 name: table-rls-automation_log
 type: table-rls
 source: db:pg_policies+pg_trigger:automation_log
-source_sha: d2bad0a879969c0e
+source_sha: 574902b665a28607
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, job_name*, hive_id, triggered_at, status, detail
 
 Policies:
-- `automation_log_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_members.auth_uid ` CHECK=`∅`
+- `automation_log_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE ((hive_` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

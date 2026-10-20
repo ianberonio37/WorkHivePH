@@ -2,7 +2,7 @@
 name: table-rls-hive_retention_config
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_retention_config
-source_sha: d12ec4bf6c49a79f
+source_sha: c83976224a8ae7b9
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,8 +15,8 @@ Columns (*=NOT NULL): hive_id*, soft_delete_retention_days, audit_retention_days
 
 Policies:
 - `hive_retention_config_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `hive_retention_config_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retention_config.hive_id` CHECK=`∅`
-- `hive_retention_config_write` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retention_config.hive_id` CHECK=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retention_config.hive_id`
+- `hive_retention_config_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retenti` CHECK=`∅`
+- `hive_retention_config_write` [UPDATE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retenti` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = hive_retenti`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

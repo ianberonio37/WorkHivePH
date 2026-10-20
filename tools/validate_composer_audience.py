@@ -71,12 +71,17 @@ def owner_scoped(table: str) -> bool:
     r = subprocess.run(
         ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
          "-t", "-A", "-c",
+         # PERMISSIVE policies only: they are OR-ed, so any one without the owner restriction widens the read. A
+         # RESTRICTIVE policy is AND-ed and can only narrow it - SL D3's `<table>_hides_deleted` (deleted_at IS NULL OR
+         # the trash scope) carries no owner clause by design, and counting it read schedule_items as not owner-scoped
+         # from 2026-10-16 on (found 2026-10-20 re-running this gate beside the LB2 policy sweep).
          "SELECT coalesce(pg_get_expr(polqual, polrelid), '') FROM pg_policy "
-         f"WHERE polrelid = 'public.{table}'::regclass"],
+         f"WHERE polrelid = 'public.{table}'::regclass AND polpermissive"],
         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=45)
     if r.returncode != 0:
         return None
-    quals = [q for q in (r.stdout or "").strip().splitlines() if q.strip()]
+    # ( SELECT auth.uid() AS uid) is auth.uid() asked once per statement (20261020000003) - the same predicate
+    quals = [q.replace("( SELECT auth.uid() AS uid)", "auth.uid()") for q in (r.stdout or "").strip().splitlines() if q.strip()]
     if not quals:
         return False
     # BOTH OPERAND ORDERS. `auth.uid() = auth_uid` and `auth_uid = auth.uid()` are the same

@@ -4366,6 +4366,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "query-indexes",
+        "script":  "tools/validate_query_indexes.py",
+        "args":    [],
+        "label":   "SL LB2 (2026-10-20): every page's queries stay on an index as their tables grow. Every read of the 34 LB2 pages (424 reads + 111 RPC calls) was EXPLAIN ANALYZEd as its row's cast, RLS on, after its tables were grown inside a rolled-back transaction to 50k-130k rows: 42 reads on 16 pages + the worker drawer, and compute_hive_readiness, seq-scanned or walked a whole index (hive PM scope reads walked all 56k scope items; a member's logbook by name had no index; the public feed sorted every public post; admin queues sorted whole tables); and platform-actions summed the credit ledger in the browser from a read capped at 2,000 rows (wrong past the cap). Holds the 19 indexes of 20261020000001_lb2_query_indexes.sql (+ idx_service_providers_auth_uid) as declared (table, key order, partial predicate, never dropped later), the page reads they serve in their measured shape, the credit position read from get_credit_ledger_totals (20261020000002). AND the SHAPES of 20261020000003_lb2_read_shapes.sql - reads no index could serve until their policy, view or function changed: is_mine/to_me/from_me were per-row SECURITY DEFINER calls (1.1 s at 56k listings), my_service_provider_ids() an OR around a hashed subplan, provider truth and trade peers aggregated the whole platform, the analytics admin policy called is_platform_admin() 33,922 times, the founder's credit totals summed every ledger entry; and 225 of 365 policies compared against a bare auth.uid(), which under RLS cannot be an index condition - every 'my hives' check read all of hive_members (3.5 ms vs 0.037 ms wrapped). Each object's last definition keeps its measured shape (a later migration bringing the old one back is red), no policy may compare against a bare auth.uid(), the kept credit totals reconcile with the ledger, and - live, when the local db answers - each index read and 13 shape probes (views EXPLAINed, functions called with auto_explain) stay on an index at grown size as their casts (rolled back and vacuumed)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "print-export-stamped",
         "script":  "tools/validate_print_export_stamped.py",
         "args":    [],
@@ -11622,6 +11631,9 @@ VALIDATORS = [
         "id":      "lifecycle-cells",
         "script":  os.path.join("tools", "prove_lifecycle_cells.mjs"),
         "args":    [],
+        # 202 rows at ~20 s a row (measured 2026-10-21: 3 rows in 20 s, 7 in 160 s) is ~70 minutes; the default 1200 s
+        # killed it about 60 rows in and the runner reported the kill as a FAIL of the platform (same as rollout's).
+        "timeout": 5400,
         "label":   "Lifecycle cells (a first-timer, a returner, a shared tablet, a stranger, a cold link, a wall display; a refused mic, two hives, two years, leaving, two tabs, a release)",
         "group":   "Frontend",
         "skip_if_fast": True,

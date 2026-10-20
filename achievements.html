@@ -1365,11 +1365,13 @@
          ([[feedback_maybesingle_bounced_multihive_users]]).
          validate_author_can_edit_own_work asserts this policy still names auth_worker_names, so dropping the
          filter cannot silently become an unscoped read. */
-      db.from('achievement_xp_log')
-        .select('achievement_id, xp_earned, source_action, earned_at')
-        .order('earned_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(30), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source.
+      /* SL LB2 (2026-10-20): the same 30 rows, asked per name. Read directly (no filter - RLS scopes it to this
+         person's names), the planner walked idx_xp_log_earned through EVERYONE's history until 30 of this person's
+         turned up: 46,324 rows removed at grown size. my_recent_xp() asks each of the person's names for its own 30
+         newest on idx_xp_log_worker and merges them, newest first with the id tiebreaker, so it reads (names x 30)
+         rows whatever the platform's size. It is SECURITY INVOKER - ach_log_owner_read still decides every row - and
+         was checked row for row, in order, against the direct read for every signed-in account. */
+      db.rpc('my_recent_xp', { p_limit: 30 }), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source.
       // BUGFIX (limit-as-aggregate): "XP this week" must be a WINDOW-scoped SUM, never
       // derived from the 30-row list above — an active worker can log >30 XP events in 7
       // days, which the 30-cap would silently undercount. Dedicated week-window query.

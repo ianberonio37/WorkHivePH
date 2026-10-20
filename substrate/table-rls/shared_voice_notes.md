@@ -2,7 +2,7 @@
 name: table-rls-shared_voice_notes
 type: table-rls
 source: db:pg_policies+pg_trigger:shared_voice_notes
-source_sha: 25c6b12252cd2258
+source_sha: 86c18bbe906abb51
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id, thread_key*, worker_name, content*, source, created_at
 
 Policies:
-- `shared_voice_notes_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))`
+- `shared_voice_notes_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

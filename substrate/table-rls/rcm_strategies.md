@@ -2,7 +2,7 @@
 name: table-rls-rcm_strategies
 type: table-rls
 source: db:pg_policies+pg_trigger:rcm_strategies
-source_sha: 0d49ab14abfcbbdd
+source_sha: 438c281d73fcacd2
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,9 +14,9 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id*, fmea_mode_id*, decision*, task_text, interval_days, rationale, weibull_fit_id, pf_interval_id, written_to_pm_scope_item_id, source*, ai_confidence, created_at*, updated_at*, approved_by, approved_at
 
 Policies:
-- `rcm_strategies_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (fmea_mode_id IS NULL) OR (EXISTS ( SELECT 1 FROM rcm_fmea_modes m WHERE ((m.id = rcm_strategie`
-- `rcm_strategies_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND`
-- `rcm_strategies_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
+- `rcm_strategies_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((( SELECT auth.uid() AS uid) IS NULL) OR (fmea_mode_id IS NULL) OR (EXISTS ( SELECT 1 FROM rcm_fmea_modes m WHERE ((m.i`
+- `rcm_strategies_write` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid `
+- `rcm_strategies_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
 
 Guard triggers: `tg_guard_approval`, `trg_text_caps_rcm_strat`
 

@@ -2,7 +2,7 @@
 name: table-rls-kb_documents
 type: table-rls
 source: db:pg_policies+pg_trigger:kb_documents
-source_sha: bfbd723a1293feee
+source_sha: e99a362897387fd1
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id*, title*, content_type, embedding_status, created_at, updated_at
 
 Policies:
-- `kb_documents_hive_access` [SELECT · roles=public] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = kb_documents.hive_id) AND (hm.auth_uid = auth.uid()) AND (h` CHECK=`∅`
+- `kb_documents_hive_access` [SELECT · roles=public] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = kb_documents.hive_id) AND (hm.auth_uid = ( SELECT auth.uid(` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

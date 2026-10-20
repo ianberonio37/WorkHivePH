@@ -2,7 +2,7 @@
 name: table-rls-alert_dismissals
 type: table-rls
 source: db:pg_policies+pg_trigger:alert_dismissals
-source_sha: cee0b023e2a24f2b
+source_sha: 643e5cd6ffe9fa65
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,10 +14,10 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id*, alert_key*, action*, actor, snooze_until, created_at*
 
 Policies:
-- `alert_dismissals_member_delete` [DELETE · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = auth.uid()) AN` CHECK=`∅`
-- `alert_dismissals_member_write` [INSERT · roles=authenticated] USING=`∅` CHECK=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = auth.uid()) AN`
-- `alert_dismissals_member_read` [SELECT · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = auth.uid()) AN` CHECK=`∅`
-- `alert_dismissals_member_update` [UPDATE · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = auth.uid()) AN` CHECK=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = auth.uid()) AN`
+- `alert_dismissals_member_delete` [DELETE · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = ( SELECT auth.` CHECK=`∅`
+- `alert_dismissals_member_write` [INSERT · roles=authenticated] USING=`∅` CHECK=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = ( SELECT auth.`
+- `alert_dismissals_member_read` [SELECT · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = ( SELECT auth.` CHECK=`∅`
+- `alert_dismissals_member_update` [UPDATE · roles=authenticated] USING=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = ( SELECT auth.` CHECK=`(EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = alert_dismissals.hive_id) AND (hm.auth_uid = ( SELECT auth.`
 
 Guard triggers: `trg_daily_cap_alert_dismissals`, `trg_text_caps_alert_dismissals`
 

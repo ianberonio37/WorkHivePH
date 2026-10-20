@@ -192,7 +192,12 @@
     <!-- heading-allow: one of two mutually exclusive views (this gate shows instead of the console) -->
     <h1 style="font-size:1.5em; margin:0.83em 0;">Platform Actions</h1>
     <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
-         the one thing they can do nothing with. Say who can let them in instead. -->
+         the one thing they can do nothing with. Say who can let them in instead.
+         ★AND SAY WHAT THE PAGE IS, before saying who it is for (2026-10-21). A first-timer or a pasted link
+         landed on two lines of refusal (173 characters) that never said what Platform Actions does, so the
+         person could not tell whether they had the wrong page or the wrong account: W3-PG W31340 / W31343,
+         both locking, read BAD. One sentence answers it; the sign-in route serves an admin on another account. -->
+    <p>Platform Actions is a desk for WorkHive's platform admins: verifying credit top-ups, reviewing marketplace listings and sellers, and answering feedback. If you are an admin on another account, sign in with that one.</p>
     <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
     <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
   </div>
@@ -986,9 +991,12 @@
        and reading the base table is what tripped it earlier today. */
     async function fetchCreditPosition() {
       try {
+        // SL LB2 (2026-10-20): the totals come from the database (get_credit_ledger_totals, one row per entry type). The
+        // card used to sum a read capped at 2,000 ledger rows in the browser - past 2,000 entries the liability and
+        // cover silently stopped counting the rest, and the read grew with every entry.
         const [posture, ledger] = await Promise.all([
           db.from('v_credit_posture').select('authorised_credits, issued_credits').maybeSingle(),
-          db.from('v_service_credit_ledger_truth').select('entry_type, amount').limit(2000),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+          db.rpc('get_credit_ledger_totals'),
         ]);
         if (posture.error) throw posture.error;
         if (ledger.error)  throw ledger.error;      // a failed read is not an empty ledger
@@ -1002,11 +1010,11 @@
            Treat null money columns as the permission boundary they are. */
         const p = posture.data;
         if (!p || p.authorised_credits === null || p.issued_credits === null) {
-          return { posture: null, rows: [], _error: 'permission denied', _code: '42501' };
+          return { posture: null, totals: [], _error: 'permission denied', _code: '42501' };
         }
-        return { posture: p, rows: ledger.data || [], _error: null };
+        return { posture: p, totals: ledger.data || [], _error: null };
       } catch (err) {
-        return { posture: null, rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null };
+        return { posture: null, totals: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null };
       }
     }
 
@@ -1042,15 +1050,14 @@
          figure derived from it renders as a gap instead of a number. Real rows always carry an
          amount, so nothing changes in the healthy case -- this only fires when the data is missing,
          which is exactly when the wrong number does the most damage. */
+      // one total per entry type from get_credit_ledger_totals (SL LB2): an entry type with any unreadable amount is
+      // unknown, exactly as a row-by-row sum treated it; an entry type with no rows is zero
       const sum = t => {
-        const rows = (m.rows || []).filter(r => r.entry_type === t);
-        let acc = 0;
-        for (const r of rows) {
-          const n = Number(r.amount);
-          if (r.amount === null || r.amount === undefined || !isFinite(n)) return null;
-          acc += n;
-        }
-        return acc;
+        const row = (m.totals || []).find(r => r.entry_type === t);
+        if (!row) return 0;
+        const n = Number(row.total);
+        if (Number(row.unreadable) > 0 || row.total === null || row.total === undefined || !isFinite(n)) return null;
+        return n;
       };
       const add = (...xs) => xs.some(x => x === null) ? null : xs.reduce((a, b) => a + b, 0);
       const topups   = add(sum('topup'), sum('starter_grant'));

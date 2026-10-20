@@ -2,7 +2,7 @@
 name: table-rls-marketplace_platform_admins
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_platform_admins
-source_sha: aef19670452b0955
+source_sha: 50f46e0f7274fe14
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): worker_name*, granted_at*, granted_by*, auth_uid
 
 Policies:
 - `mkt_admins_write` [ALL · roles=public] USING=`is_marketplace_admin()` CHECK=`is_marketplace_admin()`
-- `mkt_admins_read_self` [SELECT · roles=public] USING=`((auth_uid IS NOT NULL) AND (auth_uid = auth.uid()))` CHECK=`∅`
+- `mkt_admins_read_self` [SELECT · roles=public] USING=`((auth_uid IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
 
 Guard triggers: `trg_bind_platform_admin_account`
 

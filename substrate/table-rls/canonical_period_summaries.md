@@ -2,7 +2,7 @@
 name: table-rls-canonical_period_summaries
 type: table-rls
 source: db:pg_policies+pg_trigger:canonical_period_summaries
-source_sha: a44f8d3bb1991a21
+source_sha: 65986afb0f760fc6
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): id*, hive_id*, asset_tag, level*, period_start*, period_en
 
 Policies:
 - `cps_insert` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `cps_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = can` CHECK=`∅`
+- `cps_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE (` CHECK=`∅`
 - `cps_update` [UPDATE · roles=public] USING=`false` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).

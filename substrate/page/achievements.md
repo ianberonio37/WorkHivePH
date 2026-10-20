@@ -2,16 +2,16 @@
 name: page-achievements
 type: page
 source: file:achievements.html
-source_sha: f11bca2307519ae6
+source_sha: ab91dee93c6f0696
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `achievements.html` — Achievements: WorkHive
 
-Size: 94KB · 28 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 95KB · 28 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
-**RPC calls**: `my_service_provider_ids`
+**RPC calls**: `my_recent_xp`, `my_service_provider_ids`
 **Edge invokes**: (none)
 **Truth views read**: `v_service_provider_truth`, `v_worker_achievements_truth`, `v_worker_truth`
 

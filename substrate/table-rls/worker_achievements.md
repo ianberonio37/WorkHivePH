@@ -2,7 +2,7 @@
 name: table-rls-worker_achievements
 type: table-rls
 source: db:pg_policies+pg_trigger:worker_achievements
-source_sha: 3f17fad4595aa34c
+source_sha: 8b5337519f947ffc
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: True
 Columns (*=NOT NULL): id*, auth_uid, worker_name*, achievement_id*, current_level*, xp_total*, last_action_at
 
 Policies:
-- `worker_achievements_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND ((auth_uid = auth.uid()) OR (worker_name IN ( SELECT user_hive_worker_names() AS user_hive` CHECK=`∅`
+- `worker_achievements_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND ((auth_uid = ( SELECT auth.uid() AS uid)) OR (worker_name IN ( SELECT use` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

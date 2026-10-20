@@ -2,7 +2,7 @@
 name: table-rls-project_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:project_knowledge
-source_sha: b6cb8967df6821ce
+source_sha: eb3cb6d5d58550ea
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,8 +14,8 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id, project_id, source_type*, source_id, project_code, project_type, discipline, text_chunk*, embedding, created_at*, embedding_model
 
 Policies:
-- `project_knowledge_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
-- `project_knowledge_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = project_knowledge.pro`
+- `project_knowledge_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `project_knowledge_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((( SELECT auth.uid() AS uid) IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = proj`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

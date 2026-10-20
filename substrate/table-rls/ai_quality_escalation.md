@@ -2,7 +2,7 @@
 name: table-rls-ai_quality_escalation
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_quality_escalation
-source_sha: 0145fda90840fa4d
+source_sha: d3faa377dc219978
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, hive_id, worker_name, thumbs_down_7d, last_negative_at, reviewed_at, reviewed_by, created_at
 
 Policies:
-- `ai_quality_escalation_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = auth.uid())))`
+- `ai_quality_escalation_hive_all` [ALL · roles=authenticated] USING=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`(hive_id IN ( SELECT hive_members.hive_id FROM hive_members WHERE (hive_members.auth_uid = ( SELECT auth.uid() AS uid)))`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

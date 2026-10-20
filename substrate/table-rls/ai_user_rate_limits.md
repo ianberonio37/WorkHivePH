@@ -2,7 +2,7 @@
 name: table-rls-ai_user_rate_limits
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_user_rate_limits
-source_sha: 67dd9c8ce2aaea5c
+source_sha: ed9d02c8288b58eb
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,7 +15,7 @@ Columns (*=NOT NULL): user_id*, hive_id, call_count*, window_start*, day_count*,
 
 Policies:
 - `ai_user_rate_limits_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `ai_user_rate_limits_own` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (user_id = (auth.uid())::text))` CHECK=`∅`
+- `ai_user_rate_limits_own` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (user_id = (( SELECT auth.uid() AS uid))::text))` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

@@ -2,7 +2,7 @@
 name: table-rls-auth_session_events
 type: table-rls
 source: db:pg_policies+pg_trigger:auth_session_events
-source_sha: 4b99a78700add159
+source_sha: de9c53b44f58b3e2
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,7 +16,7 @@ Columns (*=NOT NULL): id*, auth_uid, hive_id, worker_name, event_type*, ip, meta
 Policies:
 - `auth_session_events_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
 - `auth_session_events_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
-- `auth_session_events_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND ((auth.uid() = auth_uid) OR (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = a` CHECK=`∅`
+- `auth_session_events_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND ((( SELECT auth.uid() AS uid) = auth_uid) OR (EXISTS ( SELECT 1 FROM hive` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

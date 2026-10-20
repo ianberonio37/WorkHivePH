@@ -2,7 +2,7 @@
 name: table-rls-kb_chunks
 type: table-rls
 source: db:pg_policies+pg_trigger:kb_chunks
-source_sha: d77cc87d794ab46a
+source_sha: 22e9987856db7493
 last_verified: 2026-07-13
 supersedes: null
 ---

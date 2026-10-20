@@ -2,7 +2,7 @@
 name: table-rls-pm_scope_items
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_scope_items
-source_sha: b03495c25a9e38d0
+source_sha: 68b0961f5b31e028
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,8 +14,8 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, asset_id, hive_id, item_text*, frequency*, anchor_date, is_custom, created_at, auto_hail*, auto_hail_category, interval_km, interval_kind*
 
 Policies:
-- `pm_scope_items_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM pm_assets pa WHERE ((pa.id = pm_scope_items.asset_id) AND (((pa.hi` CHECK=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM pm_assets pa WHERE ((pa.id = pm_scope_items.asset_id) AND (NOT (pa`
-- `pm_scope_items_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND ((asset_id IN ( SELECT pa.id FROM pm_assets pa WHERE ((pa.hive_id IS NULL) AND (pa.auth_ui` CHECK=`∅`
+- `pm_scope_items_write` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM pm_assets pa WHERE ((pa.id = pm_scope_items.asset` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM pm_assets pa WHERE ((pa.id = pm_scope_items.asset`
+- `pm_scope_items_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND ((asset_id IN ( SELECT pa.id FROM pm_assets pa WHERE ((pa.hive_id IS NULL` CHECK=`∅`
 
 Guard triggers: `trg_daily_cap_pm_scope`, `trg_text_caps_pm_scope`
 

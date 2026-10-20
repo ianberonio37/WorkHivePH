@@ -2,7 +2,7 @@
 name: table-rls-drone_inspections
 type: table-rls
 source: db:pg_policies+pg_trigger:drone_inspections
-source_sha: faff5c970f5590b8
+source_sha: 39977fe32dccf6b9
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,8 +15,8 @@ Columns (*=NOT NULL): id*, hive_id*, asset_node_id, pilot, status*, reviewed_at,
 
 Policies:
 - `drone_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `drone_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
-- `drone_update_supervisor` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = drone_inspections.hive_id) AN` CHECK=`true`
+- `drone_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
+- `drone_update_supervisor` [UPDATE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = drone_inspec` CHECK=`true`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

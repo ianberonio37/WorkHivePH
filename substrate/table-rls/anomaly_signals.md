@@ -2,7 +2,7 @@
 name: table-rls-anomaly_signals
 type: table-rls
 source: db:pg_policies+pg_trigger:anomaly_signals
-source_sha: 6b6c1eeb9de3cabe
+source_sha: 2e615a111b3940aa
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,8 +16,8 @@ Columns (*=NOT NULL): id*, hive_id*, snapshot_date*, machine*, asset_node_id, co
 Policies:
 - `anomaly_signals_delete_locked` [DELETE · roles=public] USING=`false` CHECK=`∅`
 - `anomaly_signals_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
-- `anomaly_signals_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
-- `anomaly_signals_update_supervisor` [UPDATE · roles=public] USING=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = anomaly_signals.hive_id) AND ` CHECK=`((auth.uid() IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = anomaly_signals.hive_id) AND `
+- `anomaly_signals_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
+- `anomaly_signals_update_supervisor` [UPDATE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = anomaly_sign` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = anomaly_sign`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

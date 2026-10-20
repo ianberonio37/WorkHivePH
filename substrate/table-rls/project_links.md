@@ -2,7 +2,7 @@
 name: table-rls-project_links
 type: table-rls
 source: db:pg_policies+pg_trigger:project_links
-source_sha: be1b64c17401ba29
+source_sha: ff7d3df355248f2f
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,8 +14,8 @@ RLS enabled: **True** · has hive_id: True · has auth_uid: False
 Columns (*=NOT NULL): id*, project_id*, hive_id*, link_type*, link_id, label, meta*, created_at*, deleted_at, deleted_by
 
 Policies:
-- `project_links_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
-- `project_links_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = project_links.project`
+- `project_links_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `project_links_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((( SELECT auth.uid() AS uid) IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = proj`
 - `project_links_hides_deleted` [SELECT · roles=public] USING=`((deleted_at IS NULL) OR ( SELECT wh_trash_scope() AS wh_trash_scope))` CHECK=`∅`
 
 Guard triggers: `trg_daily_cap_project_links`, `trg_text_caps_project_links`

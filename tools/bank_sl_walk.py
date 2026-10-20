@@ -183,6 +183,14 @@ CONDITION["C2"] = ("the page read as served in its own browser context (service 
                    "byline) read: each figure states its period, window or moment near it or in its reveal, or is a "
                    "worked example, a benchmark, a sample, a record's own value or a count of what exists now that the "
                    "page's as-of answers - a running total or a windowed figure with no window fails")
+GATES["LB2"] = ["query-indexes", "skew-heal", "scripts-parse"]
+CONDITION["LB2"] = ("the page read as served in its own browser context (service workers blocked, so every read left through the "
+                    "page's own fetch), signed in as the row's cast, settled 12 s and scrolled to its last element with every "
+                    "<details> opened; an init script recorded every REST and RPC request the page made (relation, filters, "
+                    "order, limit, Prefer, RPC argument names, answer status), and each was matched to the LB2 inventory read "
+                    "whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own "
+                    "rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an "
+                    "index at that size")
 GATES["C3"] = ["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
 CONDITION["C3"] = ("the page read as served in its own browser context (service workers blocked, downloads accepted), signed in "
                    "as the row's cast, settled, and prepared as a person would where its printable thing must first exist "
