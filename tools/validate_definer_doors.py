@@ -50,6 +50,22 @@ SIGNED_OUT = {
     "check_username_available": "sign-up asks whether a username is free before an account exists",
     "increment_listing_view": "a visitor opening a public listing counts one view",
 }
+# functions anon must keep: a row policy or security_invoker view anon is evaluated against calls them, so without anon's
+# EXECUTE a signed-out read of those tables fails with permission denied instead of returning nothing. Each answers false
+# or empty for a caller with no account (read through the local API as a visitor, 2026-10-21). A declaration that no
+# anon-evaluated policy or anon-readable invoker view needs any more fails as stale.
+POLICY_HELPERS = {
+    "is_platform_admin": "admin branches of row policies anon is evaluated against; false for no account",
+    "listing_is_mine": "the marketplace listings' owner policies; false for no account",
+    "order_is_mine": "the marketplace orders' party policy; false for no account",
+    "my_listing_ids": "v_marketplace_listings_truth (security_invoker) scopes the seller's own rows; empty for no account",
+    "my_inquiry_ids": "v_marketplace_inquiries_truth (security_invoker); empty for no account",
+    "user_hive_worker_names": "the personal-achievements policy; empty for no account",
+    "user_supervisor_hive_ids": "the supervisor branches of hive policies; empty for no account",
+}
+Y_FIX = "20261015900000_brh_y_revokes_that_hold.sql"
+REVOKE_PUBLIC = re.compile(r"\brevoke\s+(?:all|execute)(?:\s+privileges)?\s+on\s+(?:function|routine)\s+(?:public\.)?"
+                           r"([a-z_][a-z0-9_]*)\s*\(([^)]*)\)\s+from\s+([a-z_, ]+)", re.I)
 CALLER_CHECK = re.compile(r"auth\.uid\(\)|auth\.role\(\)|is_platform_admin|user_can_access_hive|is_hive_member|"
                           r"auth_worker_names|current_setting\('request\.jwt|hive_members|raise\s+exception", re.I)
 REVOKE = re.compile(r"\brevoke\s+(?:all|execute)(?:\s+privileges)?\s+on\s+(?:function|routine)\s+(?:public\.)?"
@@ -132,12 +148,56 @@ def judge(fns: list[dict], revoked: set[str], base: dict) -> tuple[list[str], di
             issues.append(f"S2 public.{n}() is SECURITY DEFINER, anon may execute it, and its body checks no caller - "
                           "close it to anon, make it ask who is calling, or declare it a signed-out entry point "
                           "with its reason")
-    y1_open = sorted({f["name"] for f in fns if f["anon"] and f["name"] in revoked})
+    y1_open = sorted({f["name"] for f in fns if f["anon"] and f["name"] in revoked and f["name"] not in POLICY_HELPERS})
     for n in y1_open:
         if n not in set(base.get("Y1_open", [])) and n not in set(s2_open):
             issues.append(f"Y1 public.{n}() was closed to anon by a migration and anon can execute it again - a revoke "
                           "from PUBLIC does not reach anon on Supabase, and a DROP + CREATE restores the defaults")
     return issues, {"S2_open": s2_open, "Y1_open": sorted(set(y1_open) - set(s2_open))}
+
+
+def helper_uses() -> dict[str, int] | str:
+    """How many anon-evaluated row policies and anon-readable security_invoker views call each declared helper."""
+    names = "|".join(re.escape(n) for n in POLICY_HELPERS)
+    code, out, err = psql(
+        "select x.m[1] || '|' || count(*)::text from (select regexp_matches(coalesce(qual, '') || ' ' || coalesce(with_check, ''), "
+        f"'\\m({names})\\s*\\(', 'g') as m from pg_policies where schemaname = 'public' and roles && "
+        "array['public', 'anon']::name[] union all select regexp_matches(pg_get_viewdef(c.oid), "
+        f"'\\m({names})\\s*\\(', 'g') from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = "
+        "'public' and c.relkind = 'v' and has_table_privilege('anon', c.oid, 'select') and coalesce(array_to_string("
+        "c.reloptions, ','), '') ~ 'security_invoker=(true|on)') x group by x.m[1];")
+    if code:
+        return f"could not read the policies: {(err or out).strip()[-200:]}"
+    return {ln.split("|")[0]: int(ln.split("|")[1]) for ln in out.splitlines() if "|" in ln}
+
+
+def check_helpers() -> list[str]:
+    uses = helper_uses()
+    if isinstance(uses, str):
+        return [f"Y3 LIVE {uses}"]
+    return [f"Y3 {n} is declared a policy helper anon must keep, and no anon-evaluated policy or anon-readable invoker "
+            f"view calls it any more - close it to anon (the declaration is stale)" for n in POLICY_HELPERS if not uses.get(n)]
+
+
+def check_revokes(migs: list[tuple[str, str]] | None = None) -> list[str]:
+    """Y2: from the Y fix on, a migration that revokes a function from PUBLIC names anon too - or grants anon explicitly,
+    which says it means anon to keep it."""
+    files = migs if migs is not None else [(f.name, f.read_text(encoding="utf-8", errors="replace"))
+                                           for f in sorted(MIG.glob("*.sql"))]
+    issues = []
+    for name, text in files:
+        if name <= Y_FIX:
+            continue
+        t = strip_sql(text)
+        for m in REVOKE_PUBLIC.finditer(t):
+            roles = {r.strip().lower() for r in m.group(3).split(",")}
+            fn = m.group(1).lower()
+            if "public" in roles and "anon" not in roles and not re.search(
+                    r"\bgrant\s+(?:all|execute)[^;]*\bfunction\s+(?:public\.)?" + re.escape(fn) + r"\s*\([^;]*\bto\b[^;]*\banon\b", t, re.I):
+                issues.append(f"Y2 {name}: revokes public.{fn}() from PUBLIC but not from anon - Supabase grants anon EXECUTE "
+                              "explicitly on every new function, so this revoke never reaches it; name anon (or grant anon "
+                              "explicitly to say it keeps it)")
+    return issues
 
 
 def load_base() -> dict:
@@ -151,7 +211,10 @@ def run(prefix_sql: str = "") -> tuple[list[str], dict]:
     fns = state(prefix_sql)
     if isinstance(fns, str):
         return [f"LIVE {fns}"], {}
-    return judge(fns, revoked_in_migrations(), load_base())
+    issues, now = judge(fns, revoked_in_migrations(), load_base())
+    if not prefix_sql:
+        issues += check_helpers() + check_revokes()
+    return issues, now
 
 
 def self_test() -> list[str]:
@@ -173,6 +236,14 @@ def self_test() -> list[str]:
         got, _ = run(sql)
         if not any(g.startswith(want) for g in got):
             fails.append(f"mutant '{name}' was not caught (got {got[:2]})")
+    # Y2 static: a later migration that revokes a function from PUBLIC only
+    bad = [("29991231000000_selftest.sql", "revoke all on function public.my_recent_xp(integer) from public;\n"
+                                           "grant execute on function public.my_recent_xp(integer) to authenticated;")]
+    if not any(i.startswith("Y2") for i in check_revokes(bad)):
+        fails.append("mutant 'a revoke from PUBLIC that leaves anon' was not caught (Y2)")
+    ok = [("29991231000000_selftest.sql", "revoke all on function public.my_recent_xp(integer) from public, anon;")]
+    if check_revokes(ok):
+        fails.append("a revoke that names anon was flagged (Y2 false positive)")
     return fails
 
 
@@ -181,7 +252,7 @@ def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
         print(json.dumps({"self_test": "FAIL" if fails else "PASS", "fails": fails}, indent=1) if as_json else
-              ("SELF-TEST PASS (4 live mutants caught in rolled-back transactions; the clean run is green)"
+              ("SELF-TEST PASS (4 live mutants caught in rolled-back transactions and the Y2 static mutant; the clean run is green)"
                if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails)))
         return 1 if fails else 0
     issues, now = run()

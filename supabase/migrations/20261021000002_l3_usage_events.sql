@@ -88,5 +88,5 @@ as $$
    group by 1, 2
    order by uses desc, page, action;
 $$;
-revoke all on function public.founder_feature_use(integer) from public;
+revoke all on function public.founder_feature_use(integer) from public, anon;   -- BRH-Y: Supabase grants anon EXECUTE explicitly, so "from public" alone never reached it
 grant execute on function public.founder_feature_use(integer) to authenticated;

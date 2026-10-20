@@ -736137,8 +736137,8 @@
     },
     {
       "id": "BRH456",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · acknowledge_alert(p_alert_id bigint) - oversight",
       "pages": [
@@ -736198,12 +736198,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000000_fix_alert_rpc_definer_tenant_gate.sql revoked public.acknowledge_alert() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH457",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · compute_adoption_risk(p_hive_id uuid) - oversight",
       "pages": [
@@ -736263,12 +736269,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260513000004_phase3_adoption_observability.sql revoked public.compute_adoption_risk() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH458",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · compute_anomaly_signals(p_hive_id uuid) - oversight",
       "pages": [
@@ -736328,12 +736340,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260513000005_phase4_revenue_surfaces.sql revoked public.compute_anomaly_signals() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH459",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · compute_hive_readiness(p_hive_id uuid) - oversight",
       "pages": [
@@ -736393,12 +736411,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.compute_hive_readiness() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH460",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · ensure_pm_asset_for_node(p_node_id uuid) - oversight",
       "pages": [
@@ -736458,12 +736482,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000010_ensure_pm_asset_for_node_rpc.sql revoked public.ensure_pm_asset_for_node() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH461",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · fetch_active_alerts(p_hive_id uuid) - oversight",
       "pages": [
@@ -736523,12 +736553,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.fetch_active_alerts() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH462",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_active_hives(p_days integer) - oversight",
       "pages": [
@@ -736588,12 +736624,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260905000002_founder_analytics_rollups.sql revoked public.founder_active_hives() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH463",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_anon_sessions(p_days integer) - oversight",
       "pages": [
@@ -736653,12 +736695,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260905000002_founder_analytics_rollups.sql revoked public.founder_anon_sessions() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH464",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_dau_series(p_days integer) - oversight",
       "pages": [
@@ -736718,12 +736766,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260905000002_founder_analytics_rollups.sql revoked public.founder_dau_series() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH465",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_feature_use(p_days integer) - oversight",
       "pages": [
@@ -736783,12 +736837,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED AT THE SOURCE, GATED. 20261021000002_l3_usage_events.sql revoked public.founder_feature_use() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. public.founder_feature_use() is created by 20261021000002_l3_usage_events, which is not in production yet: that file now revokes from PUBLIC and anon (it said PUBLIC only, which Supabase's explicit anon grant outlives), so it lands closed when Ian pushes it; locally 20261015900000_brh_y_revokes_that_hold closed it (anon false, authenticated kept). Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH466",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_mau(p_days integer) - oversight",
       "pages": [
@@ -736848,12 +736908,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260905000002_founder_analytics_rollups.sql revoked public.founder_mau() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH467",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · founder_page_heatmap(p_days integer) - oversight",
       "pages": [
@@ -736913,12 +736979,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260905000002_founder_analytics_rollups.sql revoked public.founder_page_heatmap() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH468",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · generate_project_code(p_hive_id uuid, p_type text, p_year in - oversight",
       "pages": [
@@ -736978,12 +737050,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000032_one_generate_project_code_not_two.sql revoked public.generate_project_code() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH469",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · get_hive_readiness_current(p_hive_id uuid) - oversight",
       "pages": [
@@ -737043,12 +737121,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.get_hive_readiness_current() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH470",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · get_pm_ontime_delivery(p_hive_id uuid, p_period_days integer - oversight",
       "pages": [
@@ -737108,12 +737192,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000005_pm_ontime_delivery_rpc.sql revoked public.get_pm_ontime_delivery() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH471",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · get_project_budget(p_project_id uuid) - oversight",
       "pages": [
@@ -737173,12 +737263,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000023_budget_is_supervisor_only_at_the_database.sql revoked public.get_project_budget() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH472",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · inquiry_is_from_me(p_inquiry uuid) - oversight",
       "pages": [
@@ -737238,12 +737334,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20261008000061_an_inquiry_belongs_to_its_two_accounts.sql revoked public.inquiry_is_from_me() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH473",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · inventory_restock(p_item_id text, p_qty numeric, p_note text - oversight",
       "pages": [
@@ -737303,12 +737405,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260713000008_inventory_restock_rpc.sql revoked public.inventory_restock() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH474",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · is_platform_admin() - oversight",
       "pages": [
@@ -737368,12 +737476,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20260621000003_platform_feedback_rls_harden.sql revoked public.is_platform_admin() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.is_platform_admin() is needed and is kept on purpose: the admin branches of 7 row policies anon is evaluated against - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/is_platform_admin answers false for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH475",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · join_hive_by_code(p_code text, p_worker_name text) - oversight",
       "pages": [
@@ -737433,12 +737547,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260713000002_hive_membership_gates.sql revoked public.join_hive_by_code() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH476",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · listing_is_mine(p_listing uuid) - oversight",
       "pages": [
@@ -737498,12 +737618,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20261008000060_a_listing_belongs_to_an_account_not_a_name.sql revoked public.listing_is_mine() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.listing_is_mine() is needed and is kept on purpose: 9 marketplace-listing row policies anon is evaluated against - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/listing_is_mine answers false for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH477",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · logbook_synced_machines(p_hive_id uuid) - oversight",
       "pages": [
@@ -737563,12 +737689,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED AT THE SOURCE, GATED. 20261021000004_lb1_resume_logbook_summary.sql revoked public.logbook_synced_machines() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. public.logbook_synced_machines() is created by 20261021000004_lb1_resume_logbook_summary, which is not in production yet: that file now revokes from PUBLIC and anon (it said PUBLIC only, which Supabase's explicit anon grant outlives), so it lands closed when Ian pushes it; locally 20261015900000_brh_y_revokes_that_hold closed it (anon false, authenticated kept). Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH478",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · my_inquiry_ids() - oversight",
       "pages": [
@@ -737628,12 +737760,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20261020000003_lb2_read_shapes.sql revoked public.my_inquiry_ids() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.my_inquiry_ids() is needed and is kept on purpose: v_marketplace_inquiries_truth, a security_invoker view anon reads - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/my_inquiry_ids answers [] for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH479",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · my_listing_ids() - oversight",
       "pages": [
@@ -737693,12 +737831,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20261020000003_lb2_read_shapes.sql revoked public.my_listing_ids() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.my_listing_ids() is needed and is kept on purpose: v_marketplace_listings_truth and another security_invoker view anon reads - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/my_listing_ids answers [] for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH480",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · my_logbook_summary(p_worker_name text) - oversight",
       "pages": [
@@ -737758,12 +737902,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED AT THE SOURCE, GATED. 20261021000004_lb1_resume_logbook_summary.sql revoked public.my_logbook_summary() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. public.my_logbook_summary() is created by 20261021000004_lb1_resume_logbook_summary, which is not in production yet: that file now revokes from PUBLIC and anon (it said PUBLIC only, which Supabase's explicit anon grant outlives), so it lands closed when Ian pushes it; locally 20261015900000_brh_y_revokes_that_hold closed it (anon false, authenticated kept). Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH481",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · my_personal_history_count() - oversight",
       "pages": [
@@ -737823,12 +737973,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20261008000064_a_person_chooses_to_bring_their_history_into_a_hive.sql revoked public.my_personal_history_count() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH482",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · order_is_mine(p_order uuid) - oversight",
       "pages": [
@@ -737888,12 +738044,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20261008000062_the_rest_of_the_marketplace_belongs_to_accounts.sql revoked public.order_is_mine() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.order_is_mine() is needed and is kept on purpose: 3 marketplace-order row policies anon is evaluated against - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/order_is_mine answers false for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH483",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · report_community_post(p_post_id uuid) - oversight",
       "pages": [
@@ -737953,12 +738115,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260820000064_reporting_a_post_did_nothing_and_said_it_worked.sql revoked public.report_community_post() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH484",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · semantic_search_kb(p_hive_id uuid, p_query_embedding vector, - oversight",
       "pages": [
@@ -738018,12 +738186,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.semantic_search_kb() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH485",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · semantic_search_kg_facts(p_hive_id uuid, p_query_embedding v - oversight",
       "pages": [
@@ -738083,12 +738257,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.semantic_search_kg_facts() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH486",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · set_project_budget(p_project_id uuid, p_budget_php numeric) - oversight",
       "pages": [
@@ -738148,12 +738328,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000030_budget_write_is_supervisor_only_too.sql revoked public.set_project_budget() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH487",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · set_worker_display_name(p_name text) - oversight",
       "pages": [
@@ -738213,12 +738399,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260826000008_rename_only_before_history.sql revoked public.set_worker_display_name() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH488",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · store_memory_turn(p_hive_id uuid, p_session_id text, p_turn_ - oversight",
       "pages": [
@@ -738278,12 +738470,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260607000005_definer_hive_membership_gates_batch2.sql revoked public.store_memory_turn() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH489",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · suppress_alert(p_alert_id bigint, p_hours integer) - oversight",
       "pages": [
@@ -738343,12 +738541,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000000_fix_alert_rpc_definer_tenant_gate.sql revoked public.suppress_alert() from anon, and anon can execute it today: revoked from anon, then the function was re-created and took the defaults again. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH490",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · sync_asset_identity(p_old_tag text, p_new_tag text, p_new_na - oversight",
       "pages": [
@@ -738408,12 +738612,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260728000019_rename_carries_the_whole_identity.sql revoked public.sync_asset_identity() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH491",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · update_dialog_state(p_hive_id uuid, p_session_id text, p_tur - oversight",
       "pages": [
@@ -738473,12 +738683,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260607000005_definer_hive_membership_gates_batch2.sql revoked public.update_dialog_state() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH492",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · user_can_access_hive(p_hive_id uuid) - oversight",
       "pages": [
@@ -738538,12 +738754,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. 20260620000016_ai_retrieval_isolation.sql revoked public.user_can_access_hive() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. Its callers are signed-in pages and voice-handler.js's signed-in paths, and the function asks who is calling, so anon reached nothing - but the migration meant the door shut. 20261015900000_brh_y_revokes_that_hold revokes EXECUTE from PUBLIC and anon on every overload by name, reading authenticated's and service_role's access first and granting it back explicitly, so only anon changes. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH493",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · user_hive_worker_names() - oversight",
       "pages": [
@@ -738603,12 +738825,18 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20260620000015_rls_personal_worker_achievements.sql revoked public.user_hive_worker_names() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.user_hive_worker_names() is needed and is kept on purpose: the personal-achievements row policy anon is evaluated against - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/user_hive_worker_names answers [] for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH494",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-Y",
       "title": "a revoke a migration meant, which does not hold - index · user_supervisor_hive_ids() - oversight",
       "pages": [
@@ -738668,6 +738896,12 @@
         "repro": "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
         "fix": "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate holds every function a migration closed to anon closed, including after a re-creation",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, DECIDED, GATED. 20260622000000_fix_hive_members_update_recursion.sql revoked public.user_supervisor_hive_ids() from public, and anon can execute it today: revoked from PUBLIC only - anon keeps its own explicit grant. anon's EXECUTE on public.user_supervisor_hive_ids() is needed and is kept on purpose: the supervisor branches of 7 hive row policies anon is evaluated against - without it a signed-out read of those tables fails with permission denied instead of returning nothing. Proven harmless the way a visitor meets it, through the local API with only the public key: POST /rest/v1/rpc/user_supervisor_hive_ids answers [] for a caller with no account. The revoke that cannot hold is now a declaration: definer-doors' POLICY_HELPERS names it with this reason, and Y3 fails the day no anon-evaluated policy or anon-readable invoker view calls it any more. Production, read back after the migration was pushed alone on 2026-10-21: 0 of the 29 overloads that exist there anon-executable; authenticated keeps 28 (compute_hive_readiness was already closed to members in production by 20260619000000's deliberate revoke - hive.html still calls it and falls back to the cached readiness, an always-refused call noted for its own row; locally it had drifted open and is closed to match). Gate that reddens on revert: definer-doors - Y1 a function a migration closed to anon that anon can run again fails (baseline 39 -> 0, may only shrink); Y2 a later migration that revokes a function from PUBLIC without naming anon fails (the root cause, static); Y3 a declared policy helper no policy needs any more fails; --self-test re-grants anon on my_recent_xp in a rolled-back transaction and feeds a PUBLIC-only revoke, and both are caught.",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
