@@ -185,7 +185,33 @@ def selftest():
         ok = False
     else:
         print(f"  {GREEN}PASS{RST} — a materialized view a client can select is caught")
+    # BRH-R: a view that reads its base tables with its owner's rights, which a client can select
+    got = owner_views("begin; alter view public.v_service_provider_leaderboard set (security_invoker = false);")
+    if got is None:
+        print(f"  {YEL}SKIP{RST} — the live owner-rights view mutant needs the local database")
+    elif "v_service_provider_leaderboard" not in got:
+        print(f"  {RED}FAIL{RST} — a client-readable view running as its owner was not caught (got {got[:3]})")
+        ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} — a client-readable view that runs as its owner is caught")
     return 0 if ok else 1
+
+
+def owner_views(prefix_sql=""):
+    """BRH-R: public views a client can SELECT that read their base tables with their OWNER's rights (security_invoker not
+    set), so the reader's own row policies never apply. prefix_sql runs first in a rolled-back transaction."""
+    sql = (prefix_sql + "\nselect c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace "
+           "where n.nspname = 'public' and c.relkind = 'v' and (has_table_privilege('anon', c.oid, 'select') "
+           "or has_table_privilege('authenticated', c.oid, 'select')) and coalesce(array_to_string(c.reloptions, ','), '') "
+           "!~ 'security_invoker=(true|on)' order by 1;\n" + ("rollback;" if prefix_sql else ""))
+    try:
+        p = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+                           input=sql, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+    except Exception:
+        return None
+    if p.returncode != 0:
+        return None
+    return [l.strip() for l in p.stdout.splitlines() if l.strip() and l.strip() not in ("BEGIN", "ALTER VIEW", "ROLLBACK")]
 
 
 def api_matviews(prefix_sql=""):
@@ -287,6 +313,14 @@ def main(argv):
               f"`<table>_public_read` policy:")
         for t in off:
             print(f"    · {BOLD}{t}{RST}{'  (declared public - write the policy)' if t in DECLARED else ''}")
+        return 1
+    ov = owner_views() or []
+    if ov:
+        print(f"\n  {RED}FAIL{RST} — {len(ov)} client-readable view(s) read their base tables with their OWNER's rights "
+              f"(Supabase's advisor: security_definer_view). Make the view security_invoker, or move the owner-rights "
+              f"logic into a SECURITY DEFINER function that asks who is calling (definer-doors holds those):")
+        for t in ov:
+            print(f"    · {BOLD}{t}{RST}")
         return 1
     mv = api_matviews() or []
     if mv:

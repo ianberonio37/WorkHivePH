@@ -63,8 +63,11 @@ SIGNED_OUT = {
     "semantic_search_industry_standards": "the voice companion's public reference: published industry standards",
     "semantic_search_platform_kg_facts": "the voice companion's public reference: the published knowledge graph",
     "seller_has_published_listing": "an anon row policy on marketplace_sellers and the public sellers view ask it",
+    "marketplace_sellers_public_rows": "the public seller list (v_marketplace_sellers_public) - per-seller totals that must "
+                                       "not depend on who asks, so they are counted with the owner's rights (BRH-R)",
 }
 POLICY_ONLY_SIGNED_OUT = {"seller_has_published_listing"}
+VIEW_BACKED_SIGNED_OUT = {"marketplace_sellers_public_rows": "v_marketplace_sellers_public"}
 # functions anon must keep: a row policy or security_invoker view anon is evaluated against calls them, so without anon's
 # EXECUTE a signed-out read of those tables fails with permission denied instead of returning nothing. Each answers false
 # or empty for a caller with no account (read through the local API as a visitor, 2026-10-21). A declaration that no
@@ -98,13 +101,24 @@ def strip_sql(sql: str) -> str:
     return re.sub(r"--[^\n]*", " ", sql)
 
 
+GRANT_ANON = re.compile(r"\bgrant\s+(?:all|execute)(?:\s+privileges)?\s+on\s+(?:function|routine)\s+(?:public\.)?"
+                        r"([a-z_][a-z0-9_]*)\s*\(([^)]*)\)\s+to\s+([a-z_, ]+)", re.I)
+
+
 def revoked_in_migrations() -> set[str]:
-    out = set()
+    """Functions whose LAST statement about anon, in migration order, closed it: a revoke from anon or PUBLIC that no
+    later grant to anon reopened (20261015990000 revokes its functions from everyone, then grants anon back on purpose -
+    the views a visitor may select read them, and they answer nothing without an account)."""
+    last: dict[str, str] = {}
     for f in sorted(MIG.glob("*.sql")):
-        for m in REVOKE.finditer(strip_sql(f.read_text(encoding="utf-8", errors="replace"))):
-            if {r.strip().lower() for r in m.group(3).split(",")} & {"anon", "public"}:
-                out.add(m.group(1).lower())
-    return out
+        text = strip_sql(f.read_text(encoding="utf-8", errors="replace"))
+        events = [(m.start(), m.group(1).lower(), "revoked") for m in REVOKE.finditer(text)
+                  if {r.strip().lower() for r in m.group(3).split(",")} & {"anon", "public"}]
+        events += [(m.start(), m.group(1).lower(), "granted") for m in GRANT_ANON.finditer(text)
+                   if "anon" in {r.strip().lower() for r in m.group(3).split(",")}]
+        for _, fn, what in sorted(events):
+            last[fn] = what
+    return {fn for fn, what in last.items() if what == "revoked"}
 
 
 STATE_SQL = """
@@ -209,6 +223,14 @@ def check_helpers() -> list[str]:
     front = "\n".join(p.read_text(encoding="utf-8", errors="replace")
                       for p in list(ROOT.glob("*.html")) + list(ROOT.glob("*.js")) + list(ROOT.glob("*/index.html")))
     for n in SIGNED_OUT:
+        if n in VIEW_BACKED_SIGNED_OUT:
+            v = VIEW_BACKED_SIGNED_OUT[n]
+            code, out, _ = psql(f"select count(*) from pg_class c where c.relname = '{v}' and c.relnamespace = "
+                                f"'public'::regnamespace and pg_get_viewdef(c.oid) ~ '\\m{n}\\s*\\(' and "
+                                f"has_table_privilege('anon', c.oid, 'select');")
+            if code == 0 and out.strip() == "0":
+                issues.append(f"S3 {n} is declared the owner-rights body of {v}, and that view no longer reads it for anon")
+            continue
         if n in POLICY_ONLY_SIGNED_OUT:
             code, out, _ = psql(f"select count(*) from pg_policies where schemaname = 'public' and "
                                 f"(coalesce(qual, '') || coalesce(with_check, '')) ~ '\\m{n}\\s*\\(';")

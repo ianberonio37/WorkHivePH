@@ -728902,8 +728902,8 @@
     },
     {
       "id": "BRH346",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-R",
       "title": "a view that runs as its owner, past the reader's row policies - index · v_marketplace_listings_public - oversight",
       "pages": [
@@ -728963,12 +728963,19 @@
         "repro": "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
         "fix": "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection moved into a function that checks its caller); the advisor's security_definer_view reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED, FIXED LOCALLY (production with Ian's push), GATED. It read auth_uid twice - to say 'is this listing mine' and to admit a seller's own unpublished listings - and auth_uid is the one listing column a person may not read (every listing's owner account, withheld on purpose), which is why it ran as its owner. Both now ask listing_is_mine(l.id), anon may read the public listing columns the view already shows, and the row policy mkt_listings_read decides the rows: security_invoker, identical rows value for value (visitor 20, provider 24, client 20). It is 20261021000006, after 20261020000003 - which redefines this view and, placed earlier, would put the owner rights back - so it reaches production with Ian's push. Production's advisor named all five (security_definer_view, ERROR). Production read back after the push: the leaderboard, sellers, job-tracking and open-broadcast views are security_invoker; production's marketplace holds 1 seller and 0 published listings, so a visitor's 0 rows is its true answer. Gates that redden on revert: public_read_surface (a client-readable view that runs as its owner fails; its self-test turns the leaderboard back inside a rolled-back transaction and is caught) and definer-doors (the functions that now hold the owner rights must ask who is calling or be a declared public projection, S2/S3).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "public_read_surface"
+        ]
       }
     },
     {
       "id": "BRH347",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-R",
       "title": "a view that runs as its owner, past the reader's row policies - index · v_marketplace_sellers_public - oversight",
       "pages": [
@@ -729028,12 +729035,19 @@
         "repro": "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
         "fix": "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection moved into a function that checks its caller); the advisor's security_definer_view reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Tried as invoker first and REFUSED BY ITS OWN NUMBERS: the same 11/17/17 rows came back with per-seller totals that changed with the reader (Bryan Garcia's order total read 2 to himself and 0 to David Velasco and to visitors) - a public total cannot depend on who asks. So its query moved, unchanged, into marketplace_sellers_public_rows() (SECURITY DEFINER, search_path pinned), declared a public projection in definer-doors, and the view became security_invoker over it (20261015990000, production): identical rows, value for value, for all three readers. Production's advisor named all five (security_definer_view, ERROR). Production read back after the push: the leaderboard, sellers, job-tracking and open-broadcast views are security_invoker; production's marketplace holds 1 seller and 0 published listings, so a visitor's 0 rows is its true answer. Gates that redden on revert: public_read_surface (a client-readable view that runs as its owner fails; its self-test turns the leaderboard back inside a rolled-back transaction and is caught) and definer-doors (the functions that now hold the owner rights must ask who is calling or be a declared public projection, S2/S3).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "public_read_surface"
+        ]
       }
     },
     {
       "id": "BRH348",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-R",
       "title": "a view that runs as its owner, past the reader's row policies - index · v_service_job_tracking - oversight",
       "pages": [
@@ -729093,12 +729107,19 @@
         "repro": "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
         "fix": "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection moved into a function that checks its caller); the advisor's security_definer_view reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. It projects a provider's live location, which no person may read from the table, for the job's own client, provider and hive; its filter asks auth.uid() and my_service_provider_ids(). The query moved, unchanged, into service_job_tracking_rows() (SECURITY DEFINER, its caller check visible to definer-doors) and the view became security_invoker over it (20261015990000, production). Staged in a rolled-back transaction - Bryan's provider en route to David's request: the provider 1 row, the client 1, the hive's supervisor 1 (by design), an unrelated member of another hive 0. Production's advisor named all five (security_definer_view, ERROR). Production read back after the push: the leaderboard, sellers, job-tracking and open-broadcast views are security_invoker; production's marketplace holds 1 seller and 0 published listings, so a visitor's 0 rows is its true answer. Gates that redden on revert: public_read_surface (a client-readable view that runs as its owner fails; its self-test turns the leaderboard back inside a rolled-back transaction and is caught) and definer-doors (the functions that now hold the owner rights must ask who is calling or be a declared public projection, S2/S3).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "public_read_surface"
+        ]
       }
     },
     {
       "id": "BRH349",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-R",
       "title": "a view that runs as its owner, past the reader's row policies - index · v_service_open_broadcasts - oversight",
       "pages": [
@@ -729158,12 +729179,19 @@
         "repro": "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
         "fix": "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection moved into a function that checks its caller); the advisor's security_definer_view reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. It projects open requests near a provider's base location (a column no person may read from the table), for that provider. The query moved, unchanged, into service_open_broadcasts_rows() (SECURITY DEFINER, caller-checked) and the view became security_invoker over it (20261015990000, production). Staged in a rolled-back transaction - a broadcast 1.5 km from Bryan's base: Bryan 1 row, an unrelated member of another hive 0. Production's advisor named all five (security_definer_view, ERROR). Production read back after the push: the leaderboard, sellers, job-tracking and open-broadcast views are security_invoker; production's marketplace holds 1 seller and 0 published listings, so a visitor's 0 rows is its true answer. Gates that redden on revert: public_read_surface (a client-readable view that runs as its owner fails; its self-test turns the leaderboard back inside a rolled-back transaction and is caught) and definer-doors (the functions that now hold the owner rights must ask who is calling or be a declared public projection, S2/S3).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "public_read_surface"
+        ]
       }
     },
     {
       "id": "BRH350",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-R",
       "title": "a view that runs as its owner, past the reader's row policies - index · v_service_provider_leaderboard - oversight",
       "pages": [
@@ -729223,6 +729251,13 @@
         "repro": "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
         "fix": "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection moved into a function that checks its caller); the advisor's security_definer_view reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Compared through the local API as a visitor, a provider (Bryan Garcia) and a client (David Velasco): as invoker the leaderboard returns identical rows for every signed-in reader (0 and 2), and a visitor is refused either way - so it simply runs as its reader: 20261015980000 (production, pushed alone). Production's advisor named all five (security_definer_view, ERROR). Production read back after the push: the leaderboard, sellers, job-tracking and open-broadcast views are security_invoker; production's marketplace holds 1 seller and 0 published listings, so a visitor's 0 rows is its true answer. Gates that redden on revert: public_read_surface (a client-readable view that runs as its owner fails; its self-test turns the leaderboard back inside a rolled-back transaction and is caught) and definer-doors (the functions that now hold the owner rights must ask who is calling or be a declared public projection, S2/S3).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "public_read_surface"
+        ]
       }
     },
     {
