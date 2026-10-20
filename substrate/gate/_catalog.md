@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 9ee61b464479ec60
+source_sha: ebebb62dd725fd49
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1409) — the 'what's already gated' brain
+## gate · registered validators (1410) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -208,9 +208,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `companion_memory_reembed` ⚡ [fail] — Companion Memory C2.3: re-embed-retry (null procedural becomes searchable after re-embed)
 - `companion_memory_supersedes` ⚡ [fail] — Companion Memory C2.1: supersedes down-rank (obsolete procedure ranks below its replacement)
 
-### Data (3)
+### Data (4)
 - `cap-honesty` ⚡ [fail] — Cap honesty (every capped read with rows hidden behind it sits on a page that can admit the cap)
 - `export-truthful` [fail] — Export truthful (every export control produces an artifact that arrives, is named, and carries what the screen showed)
+- `export-truthful-teeth` [fail] — Export-truthful judgment bites (8 fixture controls graded the known way: silent and lying controls fail E1, E2/E3/E4 each fail their own file, an in-page view, 
 - `tile-canonical` ⚡ [fail] — Tile == canonical (every headline number on the board equals the v_*_truth query behind it)
 
 ### Data Engineer (1)
@@ -1115,7 +1116,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `promo-poster-valid` [regression] — T489 (promo-poster generator produces a valid asset): promo-poster.html has the headline + all 5 product pillars, every local img src resolves to an existing fi
 - `provenance-at-foot` ⚡ [fail] — ENH-R (2026-10-19, Ian: provenance out of the space a person reads first): every page that carries a source line, a Show-details explainer or a how-it-is-comput
 - `prover-harness-selftest` ⚡ [fail] — Prover harness self-test: psql/psqlAs answer, PAGE_QUERY uses the page's own key, VIS_JS prefers checkVisibility
-- `prover-signin-key-teeth` ⚡ [fail] — Shared sign-in waits for the credential it uses (15 cases): prover_harness.signIn falls back to window.SUPABASE_KEY, which exists ONLY because shift-brain.html 
+- `prover-signin-key-teeth` ⚡ [fail] — Shared sign-in waits for the credential it uses (17 cases; the last two, 2026-10-21: the load-time model stub is registered BEFORE the page opens - this file's 
 - `provider-availability-driven` [regression] — T102 (service-provider availability honesty): availability is DRIVEN end-to-end - accept_service_request SETS service_providers.availability on job-take and syn
 - `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
 - `psql-probe-suite` ⚡ [fail] — Re-executes EVERY psql recipe in tools/psql_probes/ - the database invariants the page banks stand on (the count is whatever the directory holds; it was 99 when

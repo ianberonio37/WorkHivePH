@@ -11,6 +11,8 @@
 //   settleWait(ms)             - the retry envelope (~9 s) + the last settle pass (15 s) = 17 s default
 // Import: import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, psql, psqlAs, SETTLE_MS } from './prover_harness.mjs';
 import { execSync } from 'node:child_process';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const SEEDER = process.env.WH_SEEDER_URL || 'http://127.0.0.1:5000';
 export const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';           // Baguio Textile Mills
@@ -153,7 +155,11 @@ export const psqlAs = (worker, sql) => {
 // Self-test (no browser): `node tools/prover_harness.mjs --self-test` - the DB helpers answer, the impersonated count
 // is a number, PAGE_QUERY keys are the pages' own parameters, and VIS_JS evaluates to a function that treats a
 // disconnected element as invisible. A harness with no teeth would hand every prover the same silent blind spot.
-if (process.argv.includes('--self-test')) {
+// ★ONLY WHEN THE HARNESS IS THE SCRIPT BEING RUN (2026-10-21). The check read process.argv, which belongs to whichever
+// script imported the harness - so `node tools/prove_export_truthful.mjs --self-test` printed the HARNESS's "self-test
+// OK" and exited before the prover's own self-test ran. A prover's teeth test answered by someone else's pass.
+const RUN_DIRECTLY = !!process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (RUN_DIRECTLY && process.argv.includes('--self-test')) {
   const fails = [];
   if (psql('select 1') !== '1') fails.push('psql cannot reach the local DB');
   if (!/^\d+$/.test(psqlAs(WORKER.name, 'select count(*) from hive_members'))) fails.push('psqlAs did not return a count as the signed-in worker');

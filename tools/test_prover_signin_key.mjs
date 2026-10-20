@@ -51,7 +51,14 @@ function makeCtx(win) {
     },
     async close() { captured.closed = true; },
   };
-  return { ctx: { async newPage() { return page; } }, captured, store };
+  // signIn routes the load-time model functions to a stub before it opens a page (case 6), so the fake
+  // context records each route and the moment the page opened
+  captured.order = [];
+  const ctx = {
+    async route(pattern) { captured.order.push(`route:${pattern}`); },
+    async newPage() { captured.order.push('page'); return page; },
+  };
+  return { ctx, captured, store };
 }
 
 // a client that reports a successful sign-in and a named hive
@@ -137,6 +144,26 @@ const goodClient = (spy) => ({
   const declaresConst = /^\s*const\s+SUPABASE_KEY\s*=/m.test(signInPage);
   check('the sign-in page still exposes SUPABASE_KEY on window (declared with var)', declaresVar, true);
   check('the sign-in page has not switched to const, which exposes nothing', declaresConst, false);
+}
+
+// ── 6. the model stub lands before the page opens ─────────────────────────────
+// Since c458e051 (2026-10-14) signIn routes the load-time model functions to a 503 stub, so a page that
+// briefs on load does not spend a model call on every prover sign-in. This file's fake context had no
+// route(), so from that commit every case above threw at signIn's first line and none of them ran -
+// the gate was red on its own instrument while the harness was fine. Pinned both ways: the stub is
+// registered, and it is registered BEFORE the page opens (a route added after the load is too late).
+{
+  const live = process.env.WH_LIVE_MODEL;
+  delete process.env.WH_LIVE_MODEL;
+  try {
+    const { ctx, captured } = makeCtx({ _whSupabaseClient: goodClient() });
+    await signIn(ctx);
+    const firstRoute = captured.order.findIndex((x) => x.startsWith('route:'));
+    check('the load-time model function is stubbed', captured.order.includes('route:**/functions/v1/shift-planner-orchestrator**'), true);
+    check('the stub is registered before the page opens', firstRoute !== -1 && firstRoute < captured.order.indexOf('page'), true);
+  } finally {
+    if (live !== undefined) process.env.WH_LIVE_MODEL = live;
+  }
 }
 
 console.log(failures === 0

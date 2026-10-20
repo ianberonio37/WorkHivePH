@@ -12330,11 +12330,28 @@ VALIDATORS = [
         # showed. One finding came out of the first run and is fixed: the audit-log export headed itself
         # "Hive: (unnamed)" whenever the name was absent from local storage, handing an auditor a file that
         # could not say what it was a record OF. A control that opens a print view or a new tab is reported
-        # by what it did, not failed.
+        # by what it did, not failed. 2026-10-21: so is an IN-PAGE view (resume's "Preview & Export" opens its
+        # preview overlay) and "nothing to export" SAID over a screen listing nothing (logbook's last-week team
+        # view of a hive with no entries that week) - both had been failed as dead controls.
         "id":      "export-truthful",
         "script":  os.path.join("tools", "prove_export_truthful.mjs"),
         "args":    [],
         "label":   "Export truthful (every export control produces an artifact that arrives, is named, and carries what the screen showed)",
+        "group":   "Data",
+        "skip_if_fast": True,
+    },
+    {
+        # ★WIDENING WHAT PASSES IS HOW A GATE GOES SOFT (2026-10-21). export-truthful learned two honest outcomes
+        # the same day, so its judgment is run on _fixtures/export-truthful-teeth.html - one control per known
+        # answer: a silent control and "No entries to export." over a screen listing three still FAIL (E1), and a
+        # header-only file (E2), a "download.csv" (E3) and a file one row short of the screen (E4) each fail their
+        # own check, while an in-page view, an honest empty and a complete named file pass. Mutation-tested: drop
+        # the empty-list condition and the lying control turns green, which this gate reports. Writing it found a
+        # harness bug: prover_harness ran ITS self-test for any importer started with --self-test and exited.
+        "id":      "export-truthful-teeth",
+        "script":  os.path.join("tools", "prove_export_truthful.mjs"),
+        "args":    ["--self-test"],
+        "label":   "Export-truthful judgment bites (8 fixture controls graded the known way: silent and lying controls fail E1, E2/E3/E4 each fail their own file, an in-page view, an honest empty and a complete file pass)",
         "group":   "Data",
         "skip_if_fast": True,
     },
@@ -13940,7 +13957,7 @@ VALIDATORS = [
         "id":      "prover-signin-key-teeth",
         "script":  os.path.join("tools", "test_prover_signin_key.mjs"),
         "args":    [],
-        "label":   "Shared sign-in waits for the credential it uses (15 cases): prover_harness.signIn falls back to window.SUPABASE_KEY, which exists ONLY because shift-brain.html declares its key with `var` - a top-level `const` creates no window property, and 23 of the platform's 27 key-declaring pages use `const`. The wait covered getDb and supabase but not the key, so a slow line could land the walk between 'the library is here' and 'the page has run', and supabase-js then answered 'supabaseKey is required.' - a message that names an argument while the real cause is a page that never ran. Both directions pinned: the cached client short-circuits before the key is read, the fallback passes the page's OWN key to getDb, a window offering neither returns an honest note instead of reaching getDb, and the wait predicate is satisfied by the client alone or by getDb+supabase+key but NOT by getDb+supabase without it. Mutation-tested: restore the old predicate or drop the honest-note guard and two cases redden each. TWO MORE CASES PIN A COUPLING 44 OTHER TOOLS STILL REST ON: they build a client from window.SUPABASE_KEY WITHOUT waiting for it (against 27 that wait), and they work only because shift-brain.html - the page they all sign in on - declares its key with `var`, the 4-of-27 minority style. Switch that one line to `const` or `let` and all 44 lose their fallback silently, walking the product SIGNED OUT rather than failing loudly. Editing 44 files is the expensive fix for a one-line coupling, so the coupling is asserted here instead: the sign-in page must still expose the key on window, and must not have moved to const.",
+        "label":   "Shared sign-in waits for the credential it uses (17 cases; the last two, 2026-10-21: the load-time model stub is registered BEFORE the page opens - this file's fake context had no route(), so from c458e051 every case threw at signIn's first line and the gate was red on its own instrument): prover_harness.signIn falls back to window.SUPABASE_KEY, which exists ONLY because shift-brain.html declares its key with `var` - a top-level `const` creates no window property, and 23 of the platform's 27 key-declaring pages use `const`. The wait covered getDb and supabase but not the key, so a slow line could land the walk between 'the library is here' and 'the page has run', and supabase-js then answered 'supabaseKey is required.' - a message that names an argument while the real cause is a page that never ran. Both directions pinned: the cached client short-circuits before the key is read, the fallback passes the page's OWN key to getDb, a window offering neither returns an honest note instead of reaching getDb, and the wait predicate is satisfied by the client alone or by getDb+supabase+key but NOT by getDb+supabase without it. Mutation-tested: restore the old predicate or drop the honest-note guard and two cases redden each. TWO MORE CASES PIN A COUPLING 44 OTHER TOOLS STILL REST ON: they build a client from window.SUPABASE_KEY WITHOUT waiting for it (against 27 that wait), and they work only because shift-brain.html - the page they all sign in on - declares its key with `var`, the 4-of-27 minority style. Switch that one line to `const` or `let` and all 44 lose their fallback silently, walking the product SIGNED OUT rather than failing loudly. Editing 44 files is the expensive fix for a one-line coupling, so the coupling is asserted here instead: the sign-in page must still expose the key on window, and must not have moved to const.",
         "group":   "Platform",
         "skip_if_fast": False,
     },
