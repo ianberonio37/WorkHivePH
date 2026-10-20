@@ -3447,7 +3447,7 @@
       // SL L2 (2026-10-21): a delete RLS refuses matches zero rows and returns no error - the trail recorded deletes
       // the database never made. It records only one that landed, under the mode's own name (the id it stored before
       // reads as nothing: the board hides a bare id).
-      if (!_gone || !_gone.length) { showToast('The delete did not go through - this mode may already be gone, or your role in this hive changed. Reload to check.'); return; }
+      if (!_gone || !_gone.length) { showToast(whWriteError(null, 'The delete did not go through - this mode may already be gone, or your role in this hive changed. Reload to check.')); return; }   // SL L4: logged where it is told
       writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, modeName || null, { node_id: _selectedNodeId });
       if (typeof whUse === 'function') whUse(db, 'fmea_mode_deleted');
       showToast('FMEA mode deleted.');
@@ -3653,7 +3653,7 @@
       const { data: _gone, error } = await db.from('rcm_strategies')
         .delete().eq('id', strategyId).eq('hive_id', HIVE_ID).select('id');
       if (error) { showToast(whWriteError(error, 'The delete did not go through. The row is still there.')); return; }
-      if (!_gone || !_gone.length) { showToast('The delete did not go through - this strategy may already be gone, or your role in this hive changed. Reload to check.'); return; }   // SL L2: see deleteFmeaMode
+      if (!_gone || !_gone.length) { showToast(whWriteError(null, 'The delete did not go through - this strategy may already be gone, or your role in this hive changed. Reload to check.')); return; }   // SL L2: see deleteFmeaMode; SL L4: through the shared sentence, so it is logged
       writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyName || null,
         { node_id: _selectedNodeId });
       if (typeof whUse === 'function') whUse(db, 'rcm_strategy_deleted');

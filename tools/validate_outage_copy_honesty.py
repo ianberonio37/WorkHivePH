@@ -172,6 +172,11 @@ def main():
     # or them?" by pointing at the Status page - but it answered in the SECOND clause, after telling a
     # connected person to go and check their connection, which is the clause that gets acted on.
     rde = _fn_body(src, "whReadError")
+    # SL L4 (2026-10-21): whReadError became a wrapper that logs what it says (whTold); its sentences are composed in
+    # _whReadErrorText, so the maker is read together with the function that writes its copy
+    _rdt = _fn_body(src, "_whReadErrorText")
+    if rde is not None and _rdt:
+        rde = rde + "\n" + _rdt
     if rde is None:
         failures.append("whReadError not found - the platform-wide read-failure copy cannot be checked. "
                         "If it moved, re-point this gate rather than dropping the check.")

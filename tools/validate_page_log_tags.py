@@ -18,9 +18,17 @@ PAGES = ["design-system.html", "llm-observability.html", "founder-console.html",
 CALL_RE = re.compile(r"console\.(?:error|warn)\(\s*(['\"`])(.{0,80}?)\1", re.S)
 
 
+SKEW_BLOCK_RE = re.compile(r"<script\b[^>]*\bdata-wh-skew-heal\b[^>]*>[\s\S]*?</script>", re.I)
+
+
 def audit(src: str, page: str) -> tuple[int, list[str]]:
     tag = "[" + page.replace(".html", "") + "]"
     total = 0; bad: list[str] = []
+    # The skew-heal block is GENERATED shared code (tools/render_skew_heal.py), byte-identical on every page that guards
+    # utils.js functions and held so by the skew-heal gate; its one warning carries its own tag, [skew]. A per-page tag
+    # there would make the block differ per page, which is exactly what that gate forbids (2026-10-21: this gate had been
+    # red on its [skew] line since the block landed in 8090d050). Blanked with its newlines kept, so lines still count.
+    src = SKEW_BLOCK_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), src)
     for m in CALL_RE.finditer(src):
         total += 1
         if not m.group(2).startswith(tag):
@@ -38,6 +46,9 @@ def self_test() -> None:
     t, b = audit("console.error('failed')", "x.html"); assert t == 1 and b, "untagged call fails"
     t, b = audit("console.warn(err)", "x.html"); assert b, "non-literal first arg is flagged"
     assert audit("", "x.html") == (0, []), "no emitters = n/a"
+    skew = "<script data-wh-skew-heal=\"whX\">console.warn('[skew] utils.js still lacks ' + m);</script>"
+    assert audit(skew, "x.html") == (0, []), "the generated skew-heal block is not the page's own emitter"
+    t, b = audit(skew + "<script>console.warn('untagged');</script>", "x.html"); assert t == 1 and b, "a page line beside it still bites"
     print("self-test OK: bites on an untagged / non-literal console.error, passes tagged, n/a on silence")
 
 

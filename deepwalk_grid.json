@@ -1,10 +1,10 @@
 {
- "generated": "2026-09-28T07:32:27+00:00",
- "coverage_pct": 91.2,
- "page_pct": 90.6,
- "ai_surface_pct": 94.1,
+ "generated": "2026-10-20T17:31:46+00:00",
+ "coverage_pct": 91.6,
+ "page_pct": 89.8,
+ "ai_surface_pct": 100.0,
  "surfaces": {
-  "pages": 99,
+  "pages": 96,
   "ai_fns": 33
  },
  "page_dims": [
@@ -40,18 +40,19 @@
   "D25",
   "D26"
  ],
- "cells_total": 2343,
+ "cells_total": 2280,
  "state_counts": {
-  "✅": 1175,
-  "🟡": 26,
-  "⬜": 102,
-  "n/a": 1040
+  "✅": 1153,
+  "🟡": 0,
+  "⬜": 106,
+  "n/a": 1021
  },
  "gate_floor": [
   "audit_displayed_values",
   "cwv_gate",
   "validate_agent_memory_persist_complete",
   "validate_ai_daily_ceiling",
+  "validate_ai_eval_answers_are_real",
   "validate_ai_fabrication_contract",
   "validate_ai_prompt_injection",
   "validate_ai_rate_limit_coverage",
@@ -61,6 +62,7 @@
   "validate_attribution",
   "validate_benchmark_rollup_faithfulness",
   "validate_clickable_keyboard_a11y",
+  "validate_client_hive_is_proven",
   "validate_client_resilience",
   "validate_content_page_hygiene",
   "validate_cumulative_quota_enforcement",
@@ -84,6 +86,7 @@
   "validate_public_fn_write_authz",
   "validate_quota_coverage",
   "validate_rate_limit_handling",
+  "validate_rate_limit_key_is_verified",
   "validate_reactivity_wiring",
   "validate_redact_iso",
   "validate_reliability_kpi_faithfulness",
@@ -93,32 +96,35 @@
   "validate_session_resilience",
   "validate_setcontext_pii_safe",
   "validate_supervisor_approval_backstop",
-  "validate_sw_shell_membership"
+  "validate_sw_shell_membership",
+  "validate_voice_router_honesty"
  ],
  "gates_failed": [
   "cwv_gate",
-  "validate_benchmark_rollup_faithfulness",
+  "validate_ai_eval_answers_are_real",
   "validate_inventory_ledger_reconciled",
   "validate_logbook_asset_linkage",
-  "validate_reliability_kpi_faithfulness"
+  "validate_sw_shell_membership"
  ],
  "regressed_cells": [
   "cwv_gate",
-  "validate_benchmark_rollup_faithfulness",
   "validate_inventory_ledger_reconciled",
-  "validate_logbook_asset_linkage"
+  "validate_logbook_asset_linkage",
+  "validate_sw_shell_membership"
  ],
  "next_target": {
-  "surface": "about",
+  "surface": "inventory",
   "kind": "page",
-  "dim": "D6",
-  "dim_label": "core-web-vitals (LCP/CLS/INP)",
+  "dim": "D2",
+  "dim_label": "data-integrity (the 11 DI write classes)",
   "surface_pct": 83.3,
   "open_dims": [
+   "CA",
+   "D2",
    "D6"
   ]
  },
- "drive_plan": "Playwright-walk `about.html` for D6 (core-web-vitals (LCP/CLS/INP)): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: about D6`.",
+ "drive_plan": "Playwright-walk `inventory.html` for D2 (data-integrity (the 11 DI write classes)): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: inventory D2`.",
  "orphan_oracles": [
   "ai_eval_gate",
   "aio_readiness_gate",
@@ -193,12 +199,18 @@
   "validate_absent_money_is_not_zero",
   "validate_accessor_load_order",
   "validate_account_deactivation",
+  "validate_admin_is_an_account",
+  "validate_ai_answer_is_text",
+  "validate_ai_call_sinks",
+  "validate_ai_chain_models_snapshot",
   "validate_ai_context_quality",
   "validate_ai_draft_shows_its_basis",
+  "validate_ai_feedback_carries_trace",
   "validate_ai_hive_context",
   "validate_ai_input_caps",
   "validate_ai_live_invoke",
   "validate_ai_render_provenance",
+  "validate_ai_trust_row_coverage",
   "validate_ai_write_provenance",
   "validate_alert_loop_closes",
   "validate_alert_scope_is_told",
@@ -211,6 +223,7 @@
   "validate_announcement_reach_moderation",
   "validate_anomaly_status_forward",
   "validate_anon_key_retirement",
+  "validate_answer_cache_is_tenant_keyed",
   "validate_answer_presence",
   "validate_approval_authority",
   "validate_approval_lock",
@@ -225,6 +238,7 @@
   "validate_asset_pm_handoff_carries_context",
   "validate_asset_reaches_its_history",
   "validate_assistant_no_orphan_fragment",
+  "validate_assistant_one_model_call",
   "validate_attribution_pinned",
   "validate_audit_actor_hive_scoped",
   "validate_audit_entry_readable",
@@ -253,6 +267,7 @@
   "validate_celebration_proportionality",
   "validate_chain_journey",
   "validate_change_order_immutability",
+  "validate_change_trail",
   "validate_client_singleton",
   "validate_client_write_grants",
   "validate_cls_reservations",
@@ -291,8 +306,10 @@
   "validate_debug_echo_prod_safe",
   "validate_declared_fks_exist",
   "validate_degraded_state_central",
+  "validate_deletes_are_recoverable",
   "validate_deploy_root_hygiene",
   "validate_destructive_proportional_confirm",
+  "validate_device_clock_day",
   "validate_diagram_value_alignment",
   "validate_dialog_floor",
   "validate_display_correctness_fixes",
@@ -302,6 +319,7 @@
   "validate_draft_survives_reauth",
   "validate_earning_moment_is_announced",
   "validate_edge_down_admits_it",
+  "validate_edge_imports_pinned",
   "validate_edge_refusal_reaches_user",
   "validate_edge_refusal_survives_client",
   "validate_edge_symbol_imports",
@@ -333,10 +351,13 @@
   "validate_failed_read_is_not_empty",
   "validate_faithfulness_rail",
   "validate_family_rubric_ratchet",
+  "validate_federated_consent",
   "validate_fee_parity",
   "validate_feedback_round_trip",
   "validate_fetch_retry_contract",
+  "validate_fil_dict_completeness",
   "validate_fil_parity",
+  "validate_file_storage",
   "validate_file_upload_safety",
   "validate_filter_vocabulary_is_complete",
   "validate_findability",
@@ -354,12 +375,14 @@
   "validate_g5d_reauth_restore",
   "validate_game_day_capstone",
   "validate_gate_panel_honesty",
+  "validate_gated_offers",
   "validate_gateway_bypass",
   "validate_global_ai_budget",
   "validate_glossary_registry",
   "validate_growth_write_isolation",
   "validate_guard_mutation_score",
   "validate_hail_geo_coverage",
+  "validate_handler_values_escaped",
   "validate_held_credits_are_told",
   "validate_hidden_class_defined",
   "validate_hive_at_scale",
@@ -371,10 +394,12 @@
   "validate_hive_name_reconciler_wired",
   "validate_hive_name_reconciles",
   "validate_hive_rename_reaches",
+  "validate_hive_restore_adoption",
   "validate_hive_seating_is_by_identity",
   "validate_hive_value_card",
   "validate_hive_value_summary",
   "validate_hive_write_isolation",
+  "validate_hiveless_knowledge_is_owner_read",
   "validate_i18n_coverage",
   "validate_icon_meaning_registry",
   "validate_idle_network",
@@ -398,6 +423,7 @@
   "validate_journey_na_is_earned",
   "validate_journey_ux_dims",
   "validate_jsonld_truth",
+  "validate_kept_copy_says_so",
   "validate_kicked_rejoin_is_explained",
   "validate_knowledge_is_retrievable",
   "validate_kpi_evidence_links",
@@ -410,9 +436,12 @@
   "validate_legal_claim_honesty",
   "validate_lifecycle_state_reachability",
   "validate_lineage_status_drift",
+  "validate_list_cap_not_a_total",
+  "validate_list_caps_say_more",
   "validate_listing_cost_transparency",
   "validate_listing_preview",
   "validate_live_mcp_bank",
+  "validate_live_off_polls",
   "validate_local_triggers_dont_call_prod",
   "validate_locks_are_verified",
   "validate_logbook_quota",
@@ -431,6 +460,8 @@
   "validate_maturity_says_yes_too",
   "validate_md_twins",
   "validate_media_fails_alone",
+  "validate_member_writes_by_row",
+  "validate_membership_read_failure_distinct",
   "validate_membership_resolved_by_auth_uid",
   "validate_migration_grant_regression",
   "validate_migrations_are_additive",
@@ -462,24 +493,32 @@
   "validate_no_interpolated_filter_injection",
   "validate_no_probe_residue",
   "validate_no_raw_enum",
+  "validate_no_retracted_evidence",
+  "validate_no_swallowed_placeholder_tags",
   "validate_no_write_only_tables",
+  "validate_no_zero_default_stat_pills",
   "validate_notification_taxonomy",
   "validate_noun_slot_takes_a_noun",
   "validate_numeric_paste",
+  "validate_observability_reads",
   "validate_oc_adoption_is_a_call",
   "validate_oc_guard_speaks",
   "validate_oc_updated_at_backed",
   "validate_oee_quality_derivation",
+  "validate_offline_is_not_no",
   "validate_offline_queue_confirm",
   "validate_offline_queued",
+  "validate_offline_sync_in_order",
   "validate_offline_write_guard",
   "validate_old_draft_says_its_age",
   "validate_onconflict_index",
   "validate_one_clock_per_string",
   "validate_optimistic_input_restore",
   "validate_orchestrator_query_binding",
+  "validate_outage_copy_honesty",
   "validate_outbound_email_honesty",
   "validate_outbox_delivery",
+  "validate_ownership_by_account",
   "validate_p6_concurrency_class",
   "validate_page_battery",
   "validate_page_contrast",
@@ -494,6 +533,7 @@
   "validate_payment_disclosure",
   "validate_payment_rails",
   "validate_pending_submission_reach",
+  "validate_period_stated",
   "validate_permission_asked_in_context",
   "validate_persona_echo_live",
   "validate_persona_follows_account",
@@ -515,8 +555,10 @@
   "validate_post_action_coherence",
   "validate_power_user_accelerator",
   "validate_presence_unavailable_is_not_absent",
+  "validate_print_export_stamped",
   "validate_print_is_readable_on_paper",
   "validate_printed_truncation_is_disclosed",
+  "validate_production_error_groups",
   "validate_profile_no_self_privilege",
   "validate_project_authority",
   "validate_project_guard_spine",
@@ -524,6 +566,7 @@
   "validate_project_tenancy",
   "validate_projects_correctness",
   "validate_promo_poster",
+  "validate_prompt_example_grounding",
   "validate_provider_availability_driven",
   "validate_psql_probe_suite",
   "validate_public_feed_dated",
@@ -537,6 +580,8 @@
   "validate_python_api_auth",
   "validate_python_api_deps",
   "validate_qty_input_contract",
+  "validate_query_indexes",
+  "validate_queue_count_honours_refusal",
   "validate_queue_drain",
   "validate_queue_survives_restart",
   "validate_quota_warns_before_the_wall",
@@ -553,9 +598,11 @@
   "validate_reference_pages_uncapped",
   "validate_refresh_retry_dedup",
   "validate_refusal_reason_persists",
+  "validate_refusal_sentences",
   "validate_rejection_reaches_the_submitter",
   "validate_reliability_correctness",
   "validate_reliability_tenancy",
+  "validate_reload_once",
   "validate_removal_tells_the_worker",
   "validate_rendered_i18n",
   "validate_repaint_spares_typing",
@@ -568,6 +615,7 @@
   "validate_resume",
   "validate_resume_review_sheet",
   "validate_retention_matches_policy",
+  "validate_retired_page_inert",
   "validate_retired_page_sole_control",
   "validate_return_promise_survives_reauth",
   "validate_review_cadence_kept",
@@ -578,6 +626,7 @@
   "validate_role_adoption_centralized",
   "validate_role_gate_server_backstop",
   "validate_role_marker_revocation",
+  "validate_role_reconciled",
   "validate_role_vocabulary_coverage",
   "validate_rpc_return_shape",
   "validate_rubric_parity",
@@ -606,9 +655,12 @@
   "validate_signout_says_why",
   "validate_signup_bot_protection",
   "validate_signup_enumeration_safety",
+  "validate_skeleton_labelled",
   "validate_skeleton_resolves",
   "validate_skill_privacy_copy_consistent",
   "validate_slo_budget",
+  "validate_slow_hint_reads_only",
+  "validate_slow_read_honest",
   "validate_soft_delete_not_aggregated",
   "validate_someone_to_you",
   "validate_source_chip_freshness",
@@ -629,7 +681,7 @@
   "validate_substrate_freshness",
   "validate_success_is_checked",
   "validate_supervisor_hygiene",
-  "validate_symbol_gallery",
+  "validate_sw_proxy_within_csp",
   "validate_taxonomy_speaks_filipino",
   "validate_team_deeplink_survives",
   "validate_temporal_answer_names_its_window",
@@ -648,17 +700,21 @@
   "validate_timed_journey",
   "validate_toast_is_readable",
   "validate_toast_queue",
+  "validate_told_failures_logged",
   "validate_tools_cta_honesty",
   "validate_trajectory_registry",
   "validate_trigger_writes_need_definer",
   "validate_trust_claim_backed",
   "validate_truth_view_read_isolation",
   "validate_truth_view_security_invoker",
+  "validate_tw_public_sheets",
   "validate_typed_work_is_drafted",
   "validate_ufai_deep_u",
   "validate_unchecked_writes",
   "validate_unconfirmed_write_is_not_a_failure",
   "validate_unprotected_write_grant",
+  "validate_usage_events",
+  "validate_vector_search_recall",
   "validate_vehicle_extract_accuracy",
   "validate_vehicle_foundations",
   "validate_vendor_pricing_freshness",
@@ -671,6 +727,7 @@
   "validate_voice_paraphrase_invariance",
   "validate_voice_refuses_ambiguous_asset",
   "validate_voice_response_latency",
+  "validate_w4_write_recipes",
   "validate_waiting_is_spoken",
   "validate_watchlist_says_what_it_does",
   "validate_webhook_signature_verified",
@@ -688,16 +745,45 @@
   "workflow_gate"
  ],
  "newly_joined": [],
- "surface_set_hash": "3c1490866de4",
- "oracle_set_hash": "58ef82d9dc70",
+ "surface_set_hash": "d822ca67b7a8",
+ "oracle_set_hash": "64d50481a080",
  "live_bonus": {
-  "live_cells": 0,
-  "live_cell_ids": [],
-  "breaches": 8,
-  "fresh": false,
-  "age_days": 23.6,
+  "live_cells": 28,
+  "live_cell_ids": [
+   "H1/F",
+   "H1/I",
+   "H1/U",
+   "H11/F",
+   "H12/F",
+   "H13/F",
+   "H14/F",
+   "H15/F",
+   "H2/A",
+   "H2/I",
+   "H2/U",
+   "H3/A",
+   "H3/F",
+   "H3/U",
+   "H4/A",
+   "H4/U",
+   "H5/A",
+   "H5/F",
+   "H5/I",
+   "H5/U",
+   "H6/A",
+   "H7/F",
+   "H7/U",
+   "H8/A",
+   "H8/F",
+   "H8/I",
+   "H8/U",
+   "H9/F"
+  ],
+  "breaches": 0,
+  "fresh": true,
+  "age_days": 7.4,
   "proven_ever": 32,
-  "this_run": 0
+  "this_run": 28
  },
  "cells": {
   "achievements|D1": {
@@ -1196,10 +1282,9 @@
    "locked": true
   },
   "analytics|D2": {
-   "state": "⬜",
-   "oracle": "validate_benchmark_rollup_faithfulness",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
   },
   "analytics|D3": {
    "state": "✅",
@@ -1294,102 +1379,6 @@
    "state": "✅",
    "oracle": "validate_edge_fn_auth_gate",
    "locked": true
-  },
-  "architecture|D1": {
-   "state": "✅",
-   "oracle": "audit_displayed_values",
-   "locked": true
-  },
-  "architecture|D2": {
-   "state": "n/a"
-  },
-  "architecture|D3": {
-   "state": "✅",
-   "oracle": "validate_reactivity_wiring",
-   "locked": true
-  },
-  "architecture|D4": {
-   "state": "✅",
-   "oracle": "validate_clickable_keyboard_a11y",
-   "locked": true
-  },
-  "architecture|D5": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "architecture|D6": {
-   "state": "⬜",
-   "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
-  },
-  "architecture|D7": {
-   "state": "✅",
-   "oracle": "validate_dom_xss_fields",
-   "locked": true
-  },
-  "architecture|D8": {
-   "state": "✅",
-   "oracle": "validate_definer_tenant_gate",
-   "locked": true
-  },
-  "architecture|D9": {
-   "state": "✅",
-   "oracle": "validate_public_fn_authz",
-   "locked": true
-  },
-  "architecture|D18": {
-   "state": "✅",
-   "oracle": "validate_destructive_safety",
-   "locked": true
-  },
-  "architecture|D19": {
-   "state": "✅",
-   "oracle": "validate_session_resilience",
-   "locked": true
-  },
-  "architecture|D20": {
-   "state": "✅",
-   "oracle": "validate_client_resilience",
-   "locked": true
-  },
-  "architecture|D15": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "architecture|D17": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "architecture|D22": {
-   "state": "✅",
-   "oracle": "validate_interactive_lineage",
-   "locked": true
-  },
-  "architecture|D23": {
-   "state": "✅",
-   "oracle": "validate_plain_language",
-   "locked": true
-  },
-  "architecture|D21F": {
-   "state": "✅",
-   "oracle": "validate_error_capture",
-   "locked": true
-  },
-  "architecture|D12P": {
-   "state": "n/a"
-  },
-  "architecture|CP": {
-   "state": "n/a"
-  },
-  "architecture|CA": {
-   "state": "n/a"
-  },
-  "architecture|A": {
-   "state": "n/a"
   },
   "asset-hub|D1": {
    "state": "✅",
@@ -1488,9 +1477,10 @@
    "locked": true
   },
   "asset-hub|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "asset-hub|A": {
    "state": "✅",
@@ -2071,7 +2061,9 @@
    "locked": true
   },
   "engineering-design|D21F": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
   },
   "engineering-design|D12P": {
    "state": "n/a"
@@ -2280,9 +2272,10 @@
    "locked": true
   },
   "hive|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "hive|A": {
    "state": "✅",
@@ -2581,9 +2574,10 @@
    "state": "n/a"
   },
   "inventory|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "inventory|A": {
    "state": "n/a"
@@ -2668,7 +2662,9 @@
    "locked": true
   },
   "llm-observability|D21F": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
   },
   "llm-observability|D12P": {
    "state": "n/a"
@@ -2780,9 +2776,10 @@
    "locked": true
   },
   "logbook|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "logbook|A": {
    "state": "✅",
@@ -3278,9 +3275,10 @@
    "state": "n/a"
   },
   "offline-fallback|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "offline-fallback|A": {
    "state": "n/a"
@@ -3391,7 +3389,9 @@
    "locked": true
   },
   "plant-connections|D2": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
   },
   "plant-connections|D3": {
    "state": "✅",
@@ -3672,9 +3672,10 @@
    "state": "n/a"
   },
   "pm-scheduler|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "pm-scheduler|A": {
    "state": "n/a"
@@ -4061,7 +4062,9 @@
    "locked": true
   },
   "public-feed|D21F": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_error_capture",
+   "locked": true
   },
   "public-feed|D12P": {
    "state": "n/a"
@@ -4172,9 +4175,10 @@
    "locked": true
   },
   "report-sender|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "report-sender|A": {
    "state": "✅",
@@ -4376,9 +4380,10 @@
    "locked": true
   },
   "shift-brain|CA": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_sw_shell_membership",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "shift-brain|A": {
    "state": "✅",
@@ -4577,198 +4582,6 @@
    "state": "n/a"
   },
   "status|A": {
-   "state": "n/a"
-  },
-  "symbol-gallery|D1": {
-   "state": "✅",
-   "oracle": "audit_displayed_values",
-   "locked": true
-  },
-  "symbol-gallery|D2": {
-   "state": "n/a"
-  },
-  "symbol-gallery|D3": {
-   "state": "✅",
-   "oracle": "validate_reactivity_wiring",
-   "locked": true
-  },
-  "symbol-gallery|D4": {
-   "state": "✅",
-   "oracle": "validate_clickable_keyboard_a11y",
-   "locked": true
-  },
-  "symbol-gallery|D5": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "symbol-gallery|D6": {
-   "state": "⬜",
-   "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
-  },
-  "symbol-gallery|D7": {
-   "state": "✅",
-   "oracle": "validate_dom_xss_fields",
-   "locked": true
-  },
-  "symbol-gallery|D8": {
-   "state": "✅",
-   "oracle": "validate_definer_tenant_gate",
-   "locked": true
-  },
-  "symbol-gallery|D9": {
-   "state": "✅",
-   "oracle": "validate_public_fn_authz",
-   "locked": true
-  },
-  "symbol-gallery|D18": {
-   "state": "✅",
-   "oracle": "validate_destructive_safety",
-   "locked": true
-  },
-  "symbol-gallery|D19": {
-   "state": "✅",
-   "oracle": "validate_session_resilience",
-   "locked": true
-  },
-  "symbol-gallery|D20": {
-   "state": "✅",
-   "oracle": "validate_client_resilience",
-   "locked": true
-  },
-  "symbol-gallery|D15": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "symbol-gallery|D17": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "symbol-gallery|D22": {
-   "state": "✅",
-   "oracle": "validate_interactive_lineage",
-   "locked": true
-  },
-  "symbol-gallery|D23": {
-   "state": "✅",
-   "oracle": "validate_plain_language",
-   "locked": true
-  },
-  "symbol-gallery|D21F": {
-   "state": "✅",
-   "oracle": "validate_error_capture",
-   "locked": true
-  },
-  "symbol-gallery|D12P": {
-   "state": "n/a"
-  },
-  "symbol-gallery|CP": {
-   "state": "n/a"
-  },
-  "symbol-gallery|CA": {
-   "state": "n/a"
-  },
-  "symbol-gallery|A": {
-   "state": "n/a"
-  },
-  "validator-catalog|D1": {
-   "state": "✅",
-   "oracle": "audit_displayed_values",
-   "locked": true
-  },
-  "validator-catalog|D2": {
-   "state": "n/a"
-  },
-  "validator-catalog|D3": {
-   "state": "✅",
-   "oracle": "validate_reactivity_wiring",
-   "locked": true
-  },
-  "validator-catalog|D4": {
-   "state": "✅",
-   "oracle": "validate_clickable_keyboard_a11y",
-   "locked": true
-  },
-  "validator-catalog|D5": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "validator-catalog|D6": {
-   "state": "⬜",
-   "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
-  },
-  "validator-catalog|D7": {
-   "state": "✅",
-   "oracle": "validate_dom_xss_fields",
-   "locked": true
-  },
-  "validator-catalog|D8": {
-   "state": "✅",
-   "oracle": "validate_definer_tenant_gate",
-   "locked": true
-  },
-  "validator-catalog|D9": {
-   "state": "✅",
-   "oracle": "validate_public_fn_authz",
-   "locked": true
-  },
-  "validator-catalog|D18": {
-   "state": "✅",
-   "oracle": "validate_destructive_safety",
-   "locked": true
-  },
-  "validator-catalog|D19": {
-   "state": "✅",
-   "oracle": "validate_session_resilience",
-   "locked": true
-  },
-  "validator-catalog|D20": {
-   "state": "✅",
-   "oracle": "validate_client_resilience",
-   "locked": true
-  },
-  "validator-catalog|D15": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "validator-catalog|D17": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "validator-catalog|D22": {
-   "state": "✅",
-   "oracle": "validate_interactive_lineage",
-   "locked": true
-  },
-  "validator-catalog|D23": {
-   "state": "✅",
-   "oracle": "validate_plain_language",
-   "locked": true
-  },
-  "validator-catalog|D21F": {
-   "state": "✅",
-   "oracle": "validate_error_capture",
-   "locked": true
-  },
-  "validator-catalog|D12P": {
-   "state": "n/a"
-  },
-  "validator-catalog|CP": {
-   "state": "n/a"
-  },
-  "validator-catalog|CA": {
-   "state": "n/a"
-  },
-  "validator-catalog|A": {
    "state": "n/a"
   },
   "voice-journal|D1": {
@@ -9208,9 +9021,9 @@
    "state": "n/a"
   },
   "agent-memory-store|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "agent-memory-store|D11": {
    "state": "✅",
@@ -9248,9 +9061,9 @@
    "locked": true
   },
   "agentic-rag-loop|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "agentic-rag-loop|D11": {
    "state": "✅",
@@ -9286,9 +9099,9 @@
    "state": "n/a"
   },
   "ai-eval-runner|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-eval-runner|D11": {
    "state": "✅",
@@ -9324,9 +9137,9 @@
    "state": "n/a"
   },
   "ai-gateway|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-gateway|D11": {
    "state": "✅",
@@ -9364,9 +9177,9 @@
    "locked": true
   },
   "ai-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-orchestrator|D11": {
    "state": "✅",
@@ -9402,9 +9215,9 @@
    "state": "n/a"
   },
   "amc-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "amc-orchestrator|D11": {
    "state": "✅",
@@ -9440,9 +9253,9 @@
    "state": "n/a"
   },
   "analytics-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "analytics-orchestrator|D11": {
    "state": "✅",
@@ -9478,9 +9291,9 @@
    "state": "n/a"
   },
   "asset-brain-query|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "asset-brain-query|D11": {
    "state": "✅",
@@ -9652,9 +9465,9 @@
    "state": "n/a"
   },
   "engineering-bom-sow|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "engineering-bom-sow|D11": {
    "state": "✅",
@@ -9690,9 +9503,9 @@
    "state": "n/a"
   },
   "engineering-calc-agent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "engineering-calc-agent|D11": {
    "state": "✅",
@@ -9762,9 +9575,9 @@
    "state": "n/a"
   },
   "failure-signature-scan|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "failure-signature-scan|D11": {
    "state": "✅",
@@ -9800,9 +9613,9 @@
    "state": "n/a"
   },
   "fmea-populator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "fmea-populator|D11": {
    "state": "✅",
@@ -9838,9 +9651,9 @@
    "state": "n/a"
   },
   "hierarchical-summarizer|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "hierarchical-summarizer|D11": {
    "state": "✅",
@@ -9876,9 +9689,9 @@
    "state": "n/a"
   },
   "intelligence-report|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "intelligence-report|D11": {
    "state": "✅",
@@ -9948,9 +9761,9 @@
    "state": "n/a"
   },
   "project-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "project-orchestrator|D11": {
    "state": "✅",
@@ -9986,9 +9799,9 @@
    "state": "n/a"
   },
   "scheduled-agents|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "scheduled-agents|D11": {
    "state": "✅",
@@ -10024,9 +9837,9 @@
    "state": "n/a"
   },
   "semantic-fact-extractor|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "semantic-fact-extractor|D11": {
    "state": "✅",
@@ -10062,9 +9875,9 @@
    "state": "n/a"
   },
   "shift-planner-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "shift-planner-orchestrator|D11": {
    "state": "✅",
@@ -10100,9 +9913,9 @@
    "state": "n/a"
   },
   "temporal-rag-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "temporal-rag-orchestrator|D11": {
    "state": "✅",
@@ -10138,9 +9951,9 @@
    "state": "n/a"
   },
   "visual-defect-capture|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "visual-defect-capture|D11": {
    "state": "✅",
@@ -10176,9 +9989,9 @@
    "state": "n/a"
   },
   "voice-action-router|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-action-router|D11": {
    "state": "✅",
@@ -10248,9 +10061,9 @@
    "state": "n/a"
   },
   "voice-journal-agent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-journal-agent|D11": {
    "state": "✅",
@@ -10286,9 +10099,9 @@
    "state": "n/a"
   },
   "voice-logbook-entry|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-logbook-entry|D11": {
    "state": "✅",
@@ -10324,9 +10137,9 @@
    "state": "n/a"
   },
   "voice-report-intent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-report-intent|D11": {
    "state": "✅",
@@ -10362,9 +10175,9 @@
    "state": "n/a"
   },
   "voice-semantic-rag|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-semantic-rag|D11": {
    "state": "✅",
@@ -10400,9 +10213,9 @@
    "state": "n/a"
   },
   "walkthrough-analyzer|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "walkthrough-analyzer|D11": {
    "state": "✅",
@@ -10444,7 +10257,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 6.5,
+ "delta_vs_last": -0.6,
  "dry_streak": 0,
  "dry": false
 }

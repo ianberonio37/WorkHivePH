@@ -672,7 +672,7 @@
 
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whSourcesSync whStartupHive whTold whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1785,6 +1785,9 @@ happens to know maintenance, not a manual.`;
       // person needs, below what they had already said they needed. When a question is already in the thread, the
       // greeting goes above it and the starter chips are skipped (they exist for an empty thread), and focus is left
       // wherever the person put it.
+      // SL L4 (2026-10-21): the greeting carries the read failure in its own words, inside a chat bubble no toast watcher
+      // sees - the sentence is logged here, with the count read's error, when that is the branch the person gets
+      if (_authedUser && !hasRecords && lcUnknown && typeof whTold === 'function') whTold('read', recordsNote, lc && lc.error);
       const _gBox = document.getElementById('chat-messages');
       const _askedFirst = !!(_gBox && _gBox.querySelector('.bubble-user'));
       const _greetEl = addAssistantBubble(_t(`Hi${_greetName ? ' ' + _greetName : ''}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`,
@@ -2059,6 +2062,7 @@ happens to know maintenance, not a manual.`;
     // harvest; migration 20260609000006). Best-effort: anon/RLS/offline never
     // disturb the chat. One-shot per reply.
     // traceId: the id ai-gateway returned for the call whose answer is being rated (null when there was none).
+    let _fbLastErr = null;   // the rating write's own error, for the sentence that says it was not recorded (SL L4)
     async function _recordChatFeedback(rating, question, answer, traceId) {
       const r = Number(rating);
       // An invalid rating is a caller bug, not a failed write - there is nothing to retry, so it does NOT
@@ -2094,7 +2098,7 @@ happens to know maintenance, not a manual.`;
           // the call it judged (LM-E, 2026-10-08), so a "wrong" is matched to its trace and not by its words
           trace_id:    (typeof window.whTraceIdOf === 'function') ? window.whTraceIdOf(traceId) : null,
         });
-        if (fbErr) { console.debug('assistant feedback insert failed (best-effort):', fbErr.message); return false; }
+        if (fbErr) { _fbLastErr = fbErr; console.debug('assistant feedback insert failed (best-effort):', fbErr.message); return false; }
         if (typeof whUse === 'function') whUse(db, 'answer_rated', { helpful: r === 1 });
         return true;
       } catch (_) {
@@ -2203,6 +2207,8 @@ happens to know maintenance, not a manual.`;
             // "silent but honest" was silent to a screen reader too: the buttons came back with no word about why
             // (LM-E walk, LM531, 2026-10-08). The same short sentence the shared trust row says.
             note.textContent = _t('Not recorded - try again.', 'Hindi naitala - subukan muli.');
+            // SL L4: silent to the chat by design, but not to the platform - the sentence beside the buttons is logged
+            if (typeof whTold === 'function') whTold('rating', note.textContent, _fbLastErr);
           } else {
             // Only on a write that actually landed - never on the best-effort failure path, where saying
             // "noted" would be the same false claim the tint used to make.

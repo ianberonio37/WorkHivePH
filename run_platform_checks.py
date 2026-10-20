@@ -6974,6 +6974,21 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL L4 (2026-10-21): when a page fails, the sentence it SHOWED the person is logged beside the code. Of 390
+        # client_errors rows, 383 were the uncaught net; a refused save, a list that could not load, an access check that
+        # could not be asked left nothing, and the one logger kept the technical message, never what the person read.
+        # Holds migration 20261021000003 (shown + code; the binder decides who / which hive / what name; a visitor's
+        # told-* row is admitted with no identity), utils.js whTold and every shared teller that calls it, the toast
+        # watcher's hosts, the shipped failure classifier, and the fixes the walk found (inventory queued a refusal and
+        # then said it was submitted; resume showed Postgres's own words). Static + live, rolled back.
+        "id":      "told-failures-logged",
+        "script":  os.path.join("tools", "validate_told_failures_logged.py"),
+        "args":    [],
+        "label":   "Told failures logged (SL L4): the sentence a page showed when something failed is logged once per load beside its code - the four sentence makers, the failure notices, the list error and the access check log what they say, every L4 page's toast host is read, the classifier answers its cases, RLS and grant refusals are never shown verbatim; the database binds a member's row to their own name and no foreign hive and admits a visitor's told row with no identity (live, rolled back; --self-test: 6 static + 2 live mutants)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "realtime-publication",
         "script":  "validate_realtime_publication.py",
         "args":    [],

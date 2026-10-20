@@ -667,7 +667,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1931,12 +1931,21 @@ async function submitPart() {
           document.getElementById('f-part-number').focus();
           return;
         }
-        if (_ensureInvQueue()) {  // network hiccup while "online": queue it, don't lose the write
+        // ★A REFUSAL IS NOT A NETWORK HICCUP (SL L4 walk, 2026-10-21). Every non-duplicate error went to the offline
+        // queue: a write the DATABASE refused (RLS, 42501 - a permanent answer) was queued as "saved offline, will retry",
+        // replayed by the next page load, and meanwhile this function went on to record the use and say "submitted for
+        // supervisor approval" - beside the refusal it had just been told. Only a network-shaped failure is queued (the
+        // rule asset-hub's FMEA save already keeps); anything else undoes the local row and says what happened.
+        const _isNet = /fetch|network|load failed|connection|timeout/i.test(insertErr.message || '');
+        if (_isNet && _ensureInvQueue()) {  // network hiccup while "online": queue it, don't lose the write
           await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
           showToast('Network issue: saved offline, will retry automatically.');
         } else {
           items.pop(); _items = items;   // revert the phantom local row on a hard failure
-          showFormError(errEl, 'Could not save part: ' + insertErr.message); return;
+          showFormError(errEl, typeof whWriteError === 'function'
+            ? whWriteError(insertErr, 'The part was NOT saved. Nothing changed - check the details and try again.')
+            : 'The part was NOT saved. Nothing changed - check the details and try again.');
+          return;
         }
       }
     }

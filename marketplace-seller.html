@@ -2164,7 +2164,7 @@
         .select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       if (!_replied || !_replied.length) {
-        showToast('Your reply was NOT saved: this inquiry is no longer yours to answer, or it was already closed. The list has been refreshed.', 'error');
+        showToast(whWriteError(null, 'Your reply was NOT saved: this inquiry is no longer yours to answer, or it was already closed. The list has been refreshed.'), 'error');   // SL L4: logged where it is told
         await loadInquiries();
         return;
       }

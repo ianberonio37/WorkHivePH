@@ -1,19 +1,61 @@
 {
   "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
   "totals": {
-    "edge_fns_with_writes": 33,
+    "edge_fns_with_writes": 34,
     "data_cascades_mapped": 21,
-    "data_cascades_UNMAPPED": 2,
+    "data_cascades_UNMAPPED": 5,
     "operational_log_writes": 15,
     "self_config_writes": 2,
-    "infra_writes": 12
+    "infra_writes": 13
   },
   "data_cascades_unmapped": [
     {
+      "fn": "ai-eval-runner",
+      "to_table": "hive_members",
+      "line": 154,
+      "evidence": "functions/ai-eval-runner/index.ts:154",
+      "downstream_pages": [
+        "achievements",
+        "asset-hub",
+        "community",
+        "hive",
+        "inventory",
+        "logbook",
+        "marketplace-seller",
+        "pm-scheduler",
+        "project-manager",
+        "shift-brain",
+        "voice-journal"
+      ],
+      "disposition": "data_unmapped"
+    },
+    {
+      "fn": "ai-eval-runner",
+      "to_table": "hives",
+      "line": 142,
+      "evidence": "functions/ai-eval-runner/index.ts:142",
+      "downstream_pages": [
+        "analytics-report",
+        "hive"
+      ],
+      "disposition": "data_unmapped"
+    },
+    {
+      "fn": "ai-eval-runner",
+      "to_table": "worker_profiles",
+      "line": 132,
+      "evidence": "functions/ai-eval-runner/index.ts:132",
+      "downstream_pages": [
+        "resume",
+        "voice-journal"
+      ],
+      "disposition": "data_unmapped"
+    },
+    {
       "fn": "cmms-webhook-receiver",
       "to_table": "inventory_items",
-      "line": 451,
-      "evidence": "functions/cmms-webhook-receiver/index.ts:451",
+      "line": 447,
+      "evidence": "functions/cmms-webhook-receiver/index.ts:447",
       "downstream_pages": [
         "alert-hub",
         "assistant",
@@ -43,8 +85,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "agentic_rag_traces",
-          "line": 842,
-          "evidence": "functions/agentic-rag-loop/index.ts:842",
+          "line": 867,
+          "evidence": "functions/agentic-rag-loop/index.ts:867",
           "downstream_pages": [
             "agentic-rag-observability"
           ],
@@ -53,8 +95,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "ai_rate_limits",
-          "line": 225,
-          "evidence": "functions/agentic-rag-loop/index.ts:225",
+          "line": 232,
+          "evidence": "functions/agentic-rag-loop/index.ts:232",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -76,13 +118,59 @@
         {
           "fn": "ai-eval-runner",
           "to_table": "ai_quality_log",
-          "line": 324,
-          "evidence": "functions/ai-eval-runner/index.ts:324",
+          "line": 645,
+          "evidence": "functions/ai-eval-runner/index.ts:645",
           "downstream_pages": [],
           "disposition": "infra"
+        },
+        {
+          "fn": "ai-eval-runner",
+          "to_table": "hive_members",
+          "line": 154,
+          "evidence": "functions/ai-eval-runner/index.ts:154",
+          "downstream_pages": [
+            "achievements",
+            "asset-hub",
+            "community",
+            "hive",
+            "inventory",
+            "logbook",
+            "marketplace-seller",
+            "pm-scheduler",
+            "project-manager",
+            "shift-brain",
+            "voice-journal"
+          ],
+          "disposition": "data_unmapped"
+        },
+        {
+          "fn": "ai-eval-runner",
+          "to_table": "hives",
+          "line": 142,
+          "evidence": "functions/ai-eval-runner/index.ts:142",
+          "downstream_pages": [
+            "analytics-report",
+            "hive"
+          ],
+          "disposition": "data_unmapped"
+        },
+        {
+          "fn": "ai-eval-runner",
+          "to_table": "worker_profiles",
+          "line": 132,
+          "evidence": "functions/ai-eval-runner/index.ts:132",
+          "downstream_pages": [
+            "resume",
+            "voice-journal"
+          ],
+          "disposition": "data_unmapped"
         }
       ],
-      "reads": [],
+      "reads": [
+        "hive_members",
+        "v_hives_truth",
+        "worker_profiles"
+      ],
       "invoked_by_pages": []
     },
     "amc-orchestrator": {
@@ -90,8 +178,8 @@
         {
           "fn": "amc-orchestrator",
           "to_table": "amc_briefings",
-          "line": 609,
-          "evidence": "functions/amc-orchestrator/index.ts:609",
+          "line": 606,
+          "evidence": "functions/amc-orchestrator/index.ts:606",
           "downstream_pages": [
             "alert-hub"
           ],
@@ -113,8 +201,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1252,
-          "evidence": "functions/analytics-orchestrator/index.ts:1252",
+          "line": 1351,
+          "evidence": "functions/analytics-orchestrator/index.ts:1351",
           "downstream_pages": [
             "analytics"
           ],
@@ -189,8 +277,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "automation_log",
-          "line": 316,
-          "evidence": "functions/benchmark-compute/index.ts:316",
+          "line": 329,
+          "evidence": "functions/benchmark-compute/index.ts:329",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -200,8 +288,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "hive_benchmarks",
-          "line": 171,
-          "evidence": "functions/benchmark-compute/index.ts:171",
+          "line": 172,
+          "evidence": "functions/benchmark-compute/index.ts:172",
           "downstream_pages": [
             "hive",
             "ph-intelligence"
@@ -211,8 +299,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "network_benchmarks",
-          "line": 226,
-          "evidence": "functions/benchmark-compute/index.ts:226",
+          "line": 228,
+          "evidence": "functions/benchmark-compute/index.ts:228",
           "downstream_pages": [
             "hive"
           ],
@@ -224,17 +312,15 @@
         "v_hives_truth",
         "v_logbook_truth"
       ],
-      "invoked_by_pages": [
-        "hive"
-      ]
+      "invoked_by_pages": []
     },
     "cmms-push-completion": {
       "writes": [
         {
           "fn": "cmms-push-completion",
           "to_table": "automation_log",
-          "line": 238,
-          "evidence": "functions/cmms-push-completion/index.ts:238",
+          "line": 283,
+          "evidence": "functions/cmms-push-completion/index.ts:283",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -244,8 +330,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "external_sync",
-          "line": 196,
-          "evidence": "functions/cmms-push-completion/index.ts:196",
+          "line": 241,
+          "evidence": "functions/cmms-push-completion/index.ts:241",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -269,8 +355,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "automation_log",
-          "line": 427,
-          "evidence": "functions/cmms-sync/index.ts:427",
+          "line": 507,
+          "evidence": "functions/cmms-sync/index.ts:507",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -280,8 +366,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "cmms_audit_log",
-          "line": 435,
-          "evidence": "functions/cmms-sync/index.ts:435",
+          "line": 515,
+          "evidence": "functions/cmms-sync/index.ts:515",
           "downstream_pages": [
             "integrations"
           ],
@@ -290,8 +376,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "external_sync",
-          "line": 258,
-          "evidence": "functions/cmms-sync/index.ts:258",
+          "line": 310,
+          "evidence": "functions/cmms-sync/index.ts:310",
           "downstream_pages": [
             "asset-hub",
             "integrations",
@@ -303,8 +389,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "fault_knowledge",
-          "line": 275,
-          "evidence": "functions/cmms-sync/index.ts:275",
+          "line": 344,
+          "evidence": "functions/cmms-sync/index.ts:344",
           "downstream_pages": [
             "logbook"
           ],
@@ -313,8 +399,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "integration_configs",
-          "line": 412,
-          "evidence": "functions/cmms-sync/index.ts:412",
+          "line": 492,
+          "evidence": "functions/cmms-sync/index.ts:492",
           "downstream_pages": [
             "integrations",
             "plant-connections"
@@ -324,8 +410,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "logbook",
-          "line": 267,
-          "evidence": "functions/cmms-sync/index.ts:267",
+          "line": 328,
+          "evidence": "functions/cmms-sync/index.ts:328",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -367,8 +453,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "inventory_items",
-          "line": 451,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:451",
+          "line": 447,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:447",
           "downstream_pages": [
             "alert-hub",
             "assistant",
@@ -384,8 +470,8 @@
         {
           "fn": "cmms-webhook-receiver",
           "to_table": "logbook",
-          "line": 389,
-          "evidence": "functions/cmms-webhook-receiver/index.ts:389",
+          "line": 385,
+          "evidence": "functions/cmms-webhook-receiver/index.ts:385",
           "downstream_pages": [
             "asset-hub",
             "assistant",
@@ -423,13 +509,33 @@
       "reads": [],
       "invoked_by_pages": []
     },
+    "embed-entry": {
+      "writes": [
+        {
+          "fn": "embed-entry",
+          "to_table": "pm_knowledge",
+          "line": 377,
+          "evidence": "functions/embed-entry/index.ts:377",
+          "downstream_pages": [],
+          "disposition": "infra"
+        }
+      ],
+      "reads": [
+        "pm_knowledge",
+        "v_asset_truth",
+        "v_pm_compliance_truth"
+      ],
+      "invoked_by_pages": [
+        "project-manager"
+      ]
+    },
     "export-hive-data": {
       "writes": [
         {
           "fn": "export-hive-data",
           "to_table": "hive_audit_log",
-          "line": 157,
-          "evidence": "functions/export-hive-data/index.ts:157",
+          "line": 164,
+          "evidence": "functions/export-hive-data/index.ts:164",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -460,8 +566,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 382,
-          "evidence": "functions/failure-signature-scan/index.ts:382",
+          "line": 386,
+          "evidence": "functions/failure-signature-scan/index.ts:386",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -471,8 +577,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "failure_signature_alerts",
-          "line": 267,
-          "evidence": "functions/failure-signature-scan/index.ts:267",
+          "line": 269,
+          "evidence": "functions/failure-signature-scan/index.ts:269",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -488,8 +594,8 @@
         {
           "fn": "fmea-populator",
           "to_table": "rcm_fmea_modes",
-          "line": 418,
-          "evidence": "functions/fmea-populator/index.ts:418",
+          "line": 422,
+          "evidence": "functions/fmea-populator/index.ts:422",
           "downstream_pages": [
             "asset-hub",
             "hive"
@@ -525,8 +631,8 @@
         {
           "fn": "hierarchical-summarizer",
           "to_table": "canonical_period_summaries",
-          "line": 343,
-          "evidence": "functions/hierarchical-summarizer/index.ts:343",
+          "line": 345,
+          "evidence": "functions/hierarchical-summarizer/index.ts:345",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -543,8 +649,8 @@
         {
           "fn": "intelligence-api",
           "to_table": "api_keys",
-          "line": 74,
-          "evidence": "functions/intelligence-api/index.ts:74",
+          "line": 75,
+          "evidence": "functions/intelligence-api/index.ts:75",
           "downstream_pages": [
             "integrations"
           ],
@@ -564,8 +670,8 @@
         {
           "fn": "intelligence-report",
           "to_table": "automation_log",
-          "line": 284,
-          "evidence": "functions/intelligence-report/index.ts:284",
+          "line": 335,
+          "evidence": "functions/intelligence-report/index.ts:335",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -575,8 +681,8 @@
         {
           "fn": "intelligence-report",
           "to_table": "ph_intelligence_reports",
-          "line": 281,
-          "evidence": "functions/intelligence-report/index.ts:281",
+          "line": 327,
+          "evidence": "functions/intelligence-report/index.ts:327",
           "downstream_pages": [
             "ph-intelligence"
           ],
@@ -683,8 +789,8 @@
         {
           "fn": "pf-calculator",
           "to_table": "pf_intervals",
-          "line": 306,
-          "evidence": "functions/pf-calculator/index.ts:306",
+          "line": 302,
+          "evidence": "functions/pf-calculator/index.ts:302",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -704,8 +810,8 @@
         {
           "fn": "platform-gateway",
           "to_table": "gateway_audit_log",
-          "line": 277,
-          "evidence": "functions/platform-gateway/index.ts:277",
+          "line": 278,
+          "evidence": "functions/platform-gateway/index.ts:278",
           "downstream_pages": [
             "plant-connections"
           ],
@@ -739,8 +845,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "ai_reports",
-          "line": 52,
-          "evidence": "functions/scheduled-agents/index.ts:52",
+          "line": 53,
+          "evidence": "functions/scheduled-agents/index.ts:53",
           "downstream_pages": [
             "hive",
             "report-sender"
@@ -750,8 +856,8 @@
         {
           "fn": "scheduled-agents",
           "to_table": "automation_log",
-          "line": 41,
-          "evidence": "functions/scheduled-agents/index.ts:41",
+          "line": 42,
+          "evidence": "functions/scheduled-agents/index.ts:42",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -776,8 +882,8 @@
         {
           "fn": "semantic-fact-extractor",
           "to_table": "knowledge_graph_facts",
-          "line": 295,
-          "evidence": "functions/semantic-fact-extractor/index.ts:295",
+          "line": 304,
+          "evidence": "functions/semantic-fact-extractor/index.ts:304",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -834,8 +940,8 @@
         {
           "fn": "shift-planner-orchestrator",
           "to_table": "shift_plans",
-          "line": 293,
-          "evidence": "functions/shift-planner-orchestrator/index.ts:293",
+          "line": 309,
+          "evidence": "functions/shift-planner-orchestrator/index.ts:309",
           "downstream_pages": [
             "shift-brain"
           ],
@@ -858,8 +964,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "hive_audit_log",
-          "line": 95,
-          "evidence": "functions/supervisor-reset-password/index.ts:95",
+          "line": 104,
+          "evidence": "functions/supervisor-reset-password/index.ts:104",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
@@ -880,8 +986,8 @@
         {
           "fn": "supervisor-reset-password",
           "to_table": "service_outbox",
-          "line": 107,
-          "evidence": "functions/supervisor-reset-password/index.ts:107",
+          "line": 116,
+          "evidence": "functions/supervisor-reset-password/index.ts:116",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -898,8 +1004,8 @@
         {
           "fn": "temporal-rag-orchestrator",
           "to_table": "ai_rate_limits",
-          "line": 314,
-          "evidence": "functions/temporal-rag-orchestrator/index.ts:314",
+          "line": 321,
+          "evidence": "functions/temporal-rag-orchestrator/index.ts:321",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -938,8 +1044,8 @@
         {
           "fn": "visual-defect-capture",
           "to_table": "fault_knowledge",
-          "line": 434,
-          "evidence": "functions/visual-defect-capture/index.ts:434",
+          "line": 506,
+          "evidence": "functions/visual-defect-capture/index.ts:506",
           "downstream_pages": [
             "logbook"
           ],

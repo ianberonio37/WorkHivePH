@@ -83,6 +83,136 @@
   } catch (_) { /* empty-catch-allow: addEventListener unavailable (non-browser), the global net is best-effort */ }
 })();
 
+// ★THE SENTENCE A PERSON SAW IS LOGGED, NOT ONLY THE CODE (SL L4, 2026-10-21). client_errors held 390 rows and 383 were
+// the uncaught net: a failure a person was TOLD about ("The stock was NOT deducted. Nothing changed") left no row, and
+// the one logger kept the error's technical message, never what the person read. whTold(kind, sentence, err) records
+// one row per sentence per page load: the sentence verbatim (shown), the cause's code (a SQLSTATE, an HTTP status, an
+// error name) and its technical message. The four sentence makers (whWriteError / whReadError / whFnError / whAiError)
+// call it with what they return; a page's own failure toast calls it from its showToast. Identity is the database's
+// (bind_client_errors_reporter: a visitor none, a member their own account, an active-membership hive, their own name),
+// so only the hive is offered here. Never throws, never blocks, at most 20 rows a load.
+var _whToldSeen = Object.create(null), _whToldSent = 0, _whToldPending = [], _whToldTimer = null;
+function whTold(kind, sentence, err) {
+  try {
+    var shown = String(sentence == null ? '' : sentence).replace(/\s+/g, ' ').trim();
+    if (!shown || _whToldSent >= 20 || _whToldSeen[shown]) return;   // one row per sentence per load; a loop must not flood
+    var db = window._whSupabaseClient;
+    if (!db || typeof db.from !== 'function') {
+      // ★TOLD BEFORE THE PAGE HAD A CLIENT (SL L4 walk, 2026-10-21): a shared script's first read can fail - and the
+      // connection notice show - before the page builds its client; a notice is shown once, so dropping it here lost it
+      // for good (analytics-report logged it at 390 and not at 1280). Held, and sent when the client exists (<= 10 s).
+      if (_whToldPending.length < 10) _whToldPending.push([kind, shown, err]);
+      if (!_whToldTimer) {
+        var _tries = 0;
+        _whToldTimer = setInterval(function () {
+          _tries++;
+          if (window._whSupabaseClient || _tries > 20) {
+            clearInterval(_whToldTimer); _whToldTimer = null;
+            var q = _whToldPending.splice(0);
+            if (window._whSupabaseClient) q.forEach(function (x) { whTold(x[0], x[1], x[2]); });
+          }
+        }, 500);
+      }
+      return;
+    }
+    _whToldSeen[shown] = 1;
+    _whToldSent++;
+    var code = '', msg = '';
+    try {
+      if (err) {
+        var st = (err.status != null ? err.status : err._httpStatus);
+        code = String(err.code || (st != null && st !== '' ? 'HTTP ' + st : '') || err.name || '');
+        msg = String(err.message || err.error || err.reason || (typeof err === 'string' ? err : '') || '');
+      }
+    } catch (_) { code = ''; msg = ''; }
+    db.from('client_errors').insert({
+      context: 'told-' + String(kind || 'toast').slice(0, 30),
+      shown: shown.slice(0, 400),
+      code: code ? code.slice(0, 60) : null,
+      message: (msg || shown).slice(0, 2000),
+      hive_id: (typeof window.whHiveId === 'function' ? window.whHiveId() : null) || null,
+      page: (location && location.pathname) || null,
+      user_agent: (navigator && navigator.userAgent || '').slice(0, 300)
+    }).then(function () {}, function () {});                    // swallow: never surface a logging failure
+    if (kind !== 'toast') _whToldRecent = { shown: shown, at: Date.now() };
+  } catch (_) { /* empty-catch-allow: logging a told failure must never itself fail the page */ }
+}
+if (typeof window !== 'undefined') window.whTold = whTold;
+var _whToldRecent = null;
+
+// A page's OWN failure sentence, shown through its own showToast (every page has one, with its own signature), is
+// told too. Which toasts are failures: one the page marks as an error (class/type 'error', skillmatrix's ✗), or one whose
+// words say so - "could not", "NOT saved" (the platform writes NOT in capitals for exactly this), "nothing was saved",
+// "only a supervisor", "already handled", "changed since you opened it", "blocked", "you are offline". Input guidance
+// ("Pick a reason", "Function and failure mode are required") is not a failure and is not logged. Tested against every
+// literal toast on the 32 L4 pages (165 failures, 4 former false positives - "revoked ... is refused from now on",
+// "it is not instant", "unavailable listings", "tell us what went wrong" - excluded). No lookbehind: older Safari
+// cannot parse it, and a regex utils.js cannot parse takes every page down with it.
+var _WH_FAIL_CI = new RegExp("\\b(could ?n[o']?t|couldn’t|can ?n[o']?t|cannot|did not go through|did ?n[o']?t (?:go through|save|send|load|reach|start|work)|"
+  + "nothing (?:was|is) (?:saved|changed|deleted|sent|added|created|moved|published|verified|closed|stored|removed|recorded)|nothing changed|"
+  + "no change saved|failed|unable to|not allowed|supervisors? only|only a supervisor|expired|refused by|was refused|were refused|"
+  + "no longer (?:yours|a member|present)|try again|went wrong|(?:is|was|are) unavailable|unavailable,|"
+  + "already (?:been )?(?:handled|approved|decided|taken|deleted|gone|removed|closed|verified)|changed since you opened|"
+  + "someone else (?:changed|renamed|took|handled|has|saved)|changed by someone else|already registered|"
+  + "you (?:are|appear to be) offline|blocked|not available|network issue|could not be)\\b", 'i');
+var _WH_FAIL_CS = new RegExp("\\b(?:was|were|is|are) NOT\\b|\\bNOT (?:saved|sent|deleted|added|changed|posted|published|archived|removed|recorded|"
+  + "deducted|restocked|revoked|approved|rejected|created|updated|accepted|closed|moved|imported|verified|stored|"
+  + "cancelled|submitted|attached)\\b");
+function whToldIfFailure(msg, marker) {
+  try {
+    var text = String(msg == null ? '' : msg).replace(/\s+/g, ' ').trim();
+    if (!text || /what went wrong/i.test(text)) return;
+    // the sentence a maker JUST logged with its code, shown with words around it ("Generation failed: " + sentence)
+    if (_whToldRecent && Date.now() - _whToldRecent.at < 5000 && text.indexOf(_whToldRecent.shown) !== -1) return;
+    if (marker === 'error' || marker === '✗' || _WH_FAIL_CS.test(text) || _WH_FAIL_CI.test(text)) whTold('toast', text);
+  } catch (_) { /* empty-catch-allow: classifying a toast must never fail the toast */ }
+}
+if (typeof window !== 'undefined') window.whToldIfFailure = whToldIfFailure;
+
+// Every page's own showToast writes into one of a few containers: #toast (the U3 live region, 27 pages), #dp-toast
+// (dayplanner), #hive-toast (hive), #toast-container (project-manager, one child per toast) - and index appends one
+// role=alert div per toast onto <body>. One observer reads what was SHOWN, so a page's bespoke failure sentence is
+// told without editing 28 showToast functions with 28 signatures.
+(function whToldToastWatch() {
+  try {
+    if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
+    var read = function (node) {
+      if (!node || node.nodeType !== 1) return;
+      var cls = String(node.className && node.className.baseVal != null ? node.className.baseVal : node.className || '');
+      whToldIfFailure(node.textContent || '', /\berror\b/.test(cls) ? 'error' : '');
+    };
+    var watch = function (el) {
+      if (!el || el.__whToldWatch) return;
+      el.__whToldWatch = true;
+      new MutationObserver(function (muts) {
+        // only #toast-container holds one child PER toast; every other host IS one toast, read whole (alert-hub's
+        // gains an Undo button as a child - read child by child it would log "Undo", not the sentence)
+        var added = [];
+        if (el.id === 'toast-container') {
+          muts.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes || [], function (n) { if (n.nodeType === 1 && n.parentNode === el) added.push(n); }); });
+        }
+        if (added.length) added.forEach(read); else read(el);
+      }).observe(el, { childList: true, characterData: true, subtree: true });
+    };
+    // ...and a host a page creates on first use (alert-hub's and index's #wh-toast, ph-intelligence's #toast, the
+    // shared session toast #wh-auth-toast) is watched the moment it is appended to <body>
+    var IDS = ['toast', 'dp-toast', 'hive-toast', 'toast-container', 'wh-toast', 'wh-auth-toast'];
+    var start = function () {
+      IDS.forEach(function (id) { watch(document.getElementById(id)); });
+      if (document.body) {
+        new MutationObserver(function (muts) {
+          muts.forEach(function (m) { Array.prototype.forEach.call(m.addedNodes || [], function (n) {
+            if (n.nodeType !== 1) return;
+            if (n.id && IDS.indexOf(n.id) !== -1) { watch(n); read(n); return; }
+            if (!n.id && n.getAttribute && n.getAttribute('role') === 'alert') read(n);
+          }); });
+        }).observe(document.body, { childList: true });
+      }
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  } catch (_) { /* empty-catch-allow: a page without these containers still works; only its toasts go unread */ }
+})();
+
 // ── SaaS-layer RL (Rate Limiting) + C (LLM) — the ONE CENTRAL AI-error → user-message mapper ─────
 // METHOD LAW (§0.4b): a page's AI/edge call that fails should show a SCOPE-CORRECT message (429 = "you
 // hit the rate limit, wait" · 503 = "AI busy" · network = "check connection"), not a raw error or a
@@ -1220,6 +1350,9 @@ function _whShowNotice(id, msg, bottomPx) {
   // the SAME words dismissed within the last minute stay dismissed (see the Dismiss control below)
   var _dis = (window._whNoticeDismissed || {})[id];
   if (_dis && _dis.msg === String(msg || '') && (Date.now() - _dis.at) < 60000) return;
+  // SL L4 (2026-10-21): the session, permission, connection and hive-context notices are failures TOLD to a person -
+  // the one shared place they are shown is the one place they are logged (the update and live notices are information)
+  if (id !== 'wh-update-notice' && id !== 'wh-live-notice' && typeof whTold === 'function') whTold('notice', msg);
   var el = document.getElementById(id);
   if (!el) {
     el = document.createElement('div');
@@ -3806,6 +3939,9 @@ function whIdVerified(seller, listing) {
 function whListError(el, message, onRetry) {
   if (!el) return;
   var e = escHtml;
+  // SL L4 (2026-10-21): ~20 pages show a failed read through this card, many with their OWN sentence ("Couldn’t load
+  // your skill matrix. Your levels are unknown right now, not zero.") - logged here, where it is shown, once per load.
+  if (typeof whTold === 'function') whTold('list', message || "Couldn’t load this. Check your connection and try again.");
   // ★THREE ENGLISH STRINGS IN THE CARD ~20 PAGES SHOW WHEN A READ FAILS (2026-09-18, W46017). The
   // Filipino walk of marketplace-seller recorded them in W45961 and named them as shared chrome; the
   // Filipino walk of public-feed hit the same three today, which is the second page and therefore the
@@ -4259,9 +4395,35 @@ function _whSignedOut() {
 
 // Raw Postgres shapes. These name a constraint or a table and mean nothing to the person reading them, so
 // they stay behind the caller's friendlier fallback.
-var _WH_RAW_PG = /violates .*constraint|duplicate key|syntax error|does not exist|out of range|invalid input value/i;
+// ★A ROW-LEVEL-SECURITY REFUSAL WAS SHOWN VERBATIM (SL L4 walk, 2026-10-21). RLS answers 42501 - the deliberate-guard
+// code - with "new row violates row-level security policy for table "marketplace_listings"", and this pattern knew
+// constraints and keys but not policies, so the refusal passed as a guard's own sentence: a person read a table name and
+// the words "row-level security policy". Policy and grant refusals are Postgres-shaped too; they get the not-allowed
+// sentence below.
+var _WH_RAW_PG = /violates .*constraint|violates row-level security|permission denied for|duplicate key|syntax error|does not exist|out of range|invalid input value/i;
 
-function whWriteError(err, fallback) {
+// SL L4 (2026-10-21): the four sentence makers say what failed; each now LOGS the sentence it returns, with the cause's
+// code (whTold) - the page shows it, and client_errors keeps what was shown. The text itself is unchanged: the public
+// name is a wrapper over the sentence function. whAiError and whFnError are assigned on window above; wrapped once here,
+// after both exist (whFnError's own call into whAiError logs the same sentence once - whTold keeps one row per sentence).
+(function whToldMakers() {
+  try {
+    var ai = window.whAiError;
+    if (typeof ai === 'function' && !ai.__whTold) {
+      var aiW = function (err, fallback) { var s = ai(err, fallback); whTold('ai', s, err); return s; };
+      aiW.__whTold = true;
+      window.whAiError = aiW;
+    }
+    var fn = window.whFnError;
+    if (typeof fn === 'function' && !fn.__whTold) {
+      var fnW = async function (err, fallback) { var s = await fn(err, fallback); whTold('fn', s, err); return s; };
+      fnW.__whTold = true;
+      window.whFnError = fnW;
+    }
+  } catch (_) { /* empty-catch-allow: a maker that cannot be wrapped still answers; only its log is lost */ }
+})();
+function whWriteError(err, fallback) { var s = _whWriteErrorText(err, fallback); whTold('write', s, err); return s; }
+function _whWriteErrorText(err, fallback) {
   /* T45 (2026-08-27): bilingual, same argument as whAiError/whReadError. These four are the
      highest-stakes sentences in the taxonomy: every one answers "what happened to my work". */
   var T = (typeof window !== 'undefined' && typeof window._t === 'function')
@@ -4441,7 +4603,8 @@ function whHiveMembershipLost(db, hiveId, workerName) {
 }
 if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;
 
-function whReadError(err, what) {
+function whReadError(err, what) { var s = _whReadErrorText(err, what); whTold('read', s, err); return s; }   // SL L4: logs what it says
+function _whReadErrorText(err, what) {
   var thing = what || 'this';
   /* T45 (2026-08-27): the shared failure voice is bilingual; see whAiError. */
   var T = (typeof window !== 'undefined' && typeof window._t === 'function')
@@ -7840,9 +8003,13 @@ async function whPlatformAdminAnswer(db) {
 function whAdminCheckOfflineText(what) {
   var w = what || 'This page', off = false;
   try { off = (typeof navigator !== 'undefined' && navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
-  if (off) return "You're offline. " + w + ' needs a connection to check your access - it will try again '
-    + 'as soon as you are back online.';
-  return w + ' could not check your access just now, so it stays closed. Reload the page to try again.';
+  var s = off
+    ? "You're offline. " + w + ' needs a connection to check your access - it will try again as soon as you are back online.'
+    : w + ' could not check your access just now, so it stays closed. Reload the page to try again.';
+  // SL L4 (2026-10-21): the operator pages show this sentence as the whole page when the admin check cannot be asked -
+  // it is logged where it is made (offline it cannot reach the table either; whTold drops it quietly then)
+  if (typeof whTold === 'function') whTold('access', s);
+  return s;
 }
 async function isPlatformAdmin(db) {
   return (await whPlatformAdminAnswer(db)) === 'yes';

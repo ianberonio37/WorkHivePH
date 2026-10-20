@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1032-files
-source_sha: d9d17b7d26615283
+source_sha: 6016646173fb12c5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -172,7 +172,7 @@ Entries (name · type · sha):
 - `feedback_a_skipped_gate_is_unrun_during_the_wave_that_breaks_it` · feedback · 0259465edc46e5b8
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 199b2079411adb11
-- `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · 3baa94d29d83f1c8
+- `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · c1406043300a7eb7
 - `feedback_a_stored_role_is_a_cache_of_a_server_fact` · feedback · ea5bd458dda7a433
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_strangers_read_dies_on_a_column_it_never_asked_for` · feedback · 5b16bfb850947922
@@ -211,7 +211,7 @@ Entries (name · type · sha):
 - `feedback_an_impossibly_good_result_is_the_defect` · feedback · b5c69946621283f0
 - `feedback_an_inducer_must_reach_every_read` · feedback · 6a1a7365e245cf12
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
-- `feedback_an_offline_write_keeps_its_order_its_companions_and_its_promise` · feedback · 174294ed2b7bfd92
+- `feedback_an_offline_write_keeps_its_order_its_companions_and_its_promise` · feedback · 8159f46327153ac0
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
 - `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 001495ac3d6067c7
 - `feedback_an_upload_before_its_save_needs_an_exit` · feedback · 84729b1a6da34e20

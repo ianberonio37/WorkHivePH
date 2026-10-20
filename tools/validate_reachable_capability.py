@@ -119,6 +119,12 @@ SERVER_FED_ALLOW = {
     # cap and what is in circulation, and shows figures rather than a queue: there is no empty state and so
     # no promise of future arrivals. Verified: 0 client .insert/.upsert on the table across every page.
     "credit_treasury",
+    # Reviewed 2026-10-21 (SL L2/L4). platform_audit_log is TRIGGER-fed: audit_platform_decision() on
+    # marketplace_listings, marketplace_sellers, platform_feedback and service_credit_topups writes a row, bound to the
+    # deciding admin's account, whenever a platform decision lands (migration 20261021000001). There is no client insert
+    # and there must not be - a decision trail a page could write is a trail a page could forge. platform-actions.html
+    # only READS it. Verified: 0 client .insert/.upsert on the table across shipped pages; 4 triggers write it.
+    "platform_audit_log",
 }
 
 # (page, table) pairs where the page's OWN empty-state copy explicitly says nothing can arrive, so

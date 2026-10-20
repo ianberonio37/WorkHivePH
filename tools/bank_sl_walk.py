@@ -210,7 +210,17 @@ CONDITION["L3"] = ("the page read as served in its own browser context (service 
                    "the database to the cast's account, an active-membership hive and the account's own name (a visitor: no "
                    "account, hive or name), props free of a person's details; and founder_feature_use, read as a platform "
                    "admin, counted it")
-GATES["C3"] = ["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
+GATES["L4"] = ["told-failures-logged", "skew-heal", "scripts-parse"]
+CONDITION["L4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast "
+                   "(or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a "
+                   "page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-"
+                   "security text naming the table (an RPC: permission denied for the function), then the page's main use "
+                   "made as a person makes it; for a page that reads, every read answered 500 from the first request - "
+                   "client_errors and analytics_events never routed; then client_errors was read for that window: a told-* "
+                   "row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own "
+                   "text), bound by the database to the cast's account and an active-membership hive (a visitor: no "
+                   "account, hive or name), and no sentence shown in Postgres's own words")
+GATES["C3"] =["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
 CONDITION["C3"] = ("the page read as served in its own browser context (service workers blocked, downloads accepted), signed in "
                    "as the row's cast, settled, and prepared as a person would where its printable thing must first exist "
                    "(an asset opened, a report generated); printed the way the browser prints (beforeprint, then the print "

@@ -169,6 +169,11 @@ def check_migration_policy_idempotency():
         )
         create_count = len(re.findall(r'\bCREATE\s+POLICY\b', non_comment, re.IGNORECASE))
         drop_count   = len(re.findall(r'\bDROP\s+POLICY\s+IF\s+EXISTS\b', non_comment, re.IGNORECASE))
+        # A create GUARDED by an existence check is re-runnable too (2026-10-21): D3's loop creates each table's
+        # _hides_deleted policy only `if not exists (select 1 from pg_policies ...)` - the same safety as a drop first,
+        # without the window where the table has no policy at all. Count each guard as a drop.
+        guard_count  = len(re.findall(r'\bnot\s+exists\s*\(\s*select\s+1\s+from\s+pg_policies\b', non_comment, re.IGNORECASE))
+        drop_count  += guard_count
         if create_count > 0 and drop_count < create_count:
             issues.append({
                 "check": "migration_policy_idempotency",

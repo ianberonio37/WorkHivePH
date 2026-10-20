@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:676
-source_sha: 30b007b61417ed5c
+source: dir:supabase/migrations:677
+source_sha: 8a712b284597ab87
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (676 migrations)
+## migration · catalog (677 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260731000024_understatement_needs_a_reason` — fns:guard_payment_variance_explained,service_agreed_base · triggers:trg_guard_payment_variance_explained · tables:service_payments
 - `20260801000001_catalog_truth_exposes_cert_level` — (misc DDL/DML)
 - `20260802000001_the_provider_may_read_what_they_were_paid` — policies:service_payments_read
 - `20260802000002_a_provider_who_finished_is_not_still_busy` — fns:reconcile_provider_availability,sync_provider_availability
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261020000003_lb2_read_shapes` — policies:aem_read,agent_memory_delete,agent_memory_insert,agent_memory_insert_own,agent_memory_read,agent_memory_update · fns:get_credit_ledger_totals,get_hive_trade_peers,keep_service_credit_ledger_totals,my_inquiry_ids,my_listing_ids,my_recent_xp · triggers:trg_keep_ledger_totals,trg_keep_ledger_totals_truncate · tables:service_credit_ledger_totals
 - `20261021000001_l2_change_trail` — policies:platform_audit_log_admin_read · fns:audit_logbook_close,audit_platform_decision,audit_shared_change,bind_listing_moderator,bind_shift_plan_publisher,deactivate_my_account · triggers:trg_audit_platform_decision,trg_audit_shared_change,trg_bind_listing_moderator,trg_bind_shift_plan_publisher,trg_logbook_close_audit,trg_stamp_feedback_triage · tables:platform_audit_log,platform_feedback
 - `20261021000002_l3_usage_events` — fns:bind_analytics_events_submitter,founder_feature_use
+- `20261021000003_l4_told_sentence` — policies:client_errors_insert_anon · fns:bind_client_errors_reporter · triggers:trg_bind_client_errors_reporter · tables:client_errors
 
 (showing last 200)
 

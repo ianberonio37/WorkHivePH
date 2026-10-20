@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 2d1a8b6ce5bab200
+source_sha: 86d77ac9b48f278b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1411) — the 'what's already gated' brain
+## gate · registered validators (1412) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -375,7 +375,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1039)
+### Platform (1040)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1345,6 +1345,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `timers` ⚡ [fail] — Timer and Scheduled Job Hygiene
 - `toast-is-readable` [fail] — T182: a message shown too briefly was never shown. A toast is how this platform says 'saved', 'not saved', 'you cannot do that yet' - the entire receipt for mos
 - `toast-queue` ⚡ [fail] — C7 (critic deepwalk T9): RECEIPT TOASTS QUEUE instead of stomping. Walked live: a logbook save fires 'Entry saved' + '+15 XP' + a badge back-to-back and the sin
+- `told-failures-logged` ⚡ [fail] — Told failures logged (SL L4): the sentence a page showed when something failed is logged once per load beside its code - the four sentence makers, the failure n
 - `tools-cta-honesty` ⚡ [fail] — T3/T153: the calculator pages state the account requirement. The 60 /tools/ pages are the top of the funnel - a searcher looking for 'OEE calculator' lands on o
 - `trajectory-registry` ⚡ [fail] — Trajectory Registry + Header Scoreboard (500-arc program SSOT: ids complete T1-T500, pct honest per status (any other value needs an in-flight status + written 
 - `trigger-function` ⚡ [fail] — Trigger Function Existence (CREATE TRIGGER target functions exist; forward-only ratchet)

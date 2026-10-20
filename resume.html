@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1040,7 +1040,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ? ((navigator.onLine === false)
               ? 'You are offline, so this was not backed up to your account. It is saved on this device and will back up when your connection is back.'
               : 'Not backed up to your account - WorkHive did not answer. It is saved on this device; save again in a moment.')
-          : 'Could not save to cloud: ' + (_m || 'error') + '. Saved on device.');
+          // ★...AND A REFUSAL PRINTED THE DATABASE'S OWN WORDS (SL L4 walk, 2026-10-21): "Could not save to cloud: new row
+          // violates row-level security policy for table "resume_documents"". A non-transport failure goes through the
+          // shared write sentence (session / not allowed / a guard's own words), which also logs it beside its code.
+          : (typeof whWriteError === 'function'
+              ? whWriteError(err, 'Not backed up to your account.') + ' It is saved on this device.'
+              : 'Not backed up to your account. It is saved on this device.'));
         await saveLocal();
       } finally {
         if (!silent) { btn.disabled = false; btn.textContent = lbl;

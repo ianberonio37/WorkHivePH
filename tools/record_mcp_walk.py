@@ -83,8 +83,12 @@ def _sparse_wait(s: dict) -> bool:
     is a held load is a different thing: Platform Actions fills its queues before it reveals them, so for those seconds
     its whole page is its heading and "Loading the action queues: listings to review, top-ups, receipts and feedback…"
     - 99 characters, honest, and with the admin still signed in. Such a step arrives when it carries the wait it NAMED
-    (`said`) and kept its identity; a thin step with no named wait, or any thin step of another condition, still fails."""
-    return (s.get("condition") == "loading" and bool(str(s.get("said") or "").strip())
+    (`said`) and kept its identity; a thin step with no named wait, or any thin step of another condition, still fails.
+    ★A TOLD FAILURE IS SPARSE BY DESIGN TOO (SL L4, 2026-10-21): with every read refused, the Founder Console's whole
+    page is the sentence that it could not check access - 107 characters, honest, the admin still signed in. Such a step
+    arrives when it carries the failure sentence it told (`said`, which the banker matched to a logged told row) and
+    kept its identity; the sign-in wall still fails, because there the identity is gone."""
+    return (s.get("condition") in ("loading", "told-failure") and bool(str(s.get("said") or "").strip())
             and s.get("identityKept", True) is True)
 
 

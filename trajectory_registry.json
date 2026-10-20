@@ -928317,8 +928317,8 @@
     },
     {
       "id": "SL3018",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · achievements",
       "pages": [
@@ -928375,12 +928375,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when achievements.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:25:18.317Z (.tmp/slw/results/l4w_3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 16 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your achievements - WorkHive did not answer. Try again in a moment. If it keeps failing, the Sta\" [told-read, code PGRST000] || desktop-1280 (read, 16 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"ℹ Achievements failed to load. Tap Retry.\" [told-toast, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3018.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3019",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · alert hub",
       "pages": [
@@ -928437,12 +928445,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when alert-hub.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:48:42.574Z (.tmp/slw/results/l4w_r2.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3019.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3020",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · analytics report",
       "pages": [
@@ -928499,12 +928515,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when analytics-report.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:48:42.574Z (.tmp/slw/results/l4w_r2.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 15 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (read, 15 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3020.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3021",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · analytics",
       "pages": [
@@ -928563,12 +928587,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when analytics.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:40:08.925Z (.tmp/slw/results/l4w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 19 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (read, 19 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3021.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3022",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · asset hub",
       "pages": [
@@ -928625,12 +928657,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when asset-hub.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:28:53.948Z (.tmp/slw/results/l4w_4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 17 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your assets - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status pa\" [told-read, code PGRST000] || desktop-1280 (read, 17 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your assets - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status pa\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3022.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3023",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · assistant",
       "pages": [
@@ -928687,12 +928727,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when assistant.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:48:42.574Z (.tmp/slw/results/l4w_r2.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 17 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 17 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missin\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3023.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3024",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · community",
       "pages": [
@@ -928749,12 +928797,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when community.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:35:28.002Z (.tmp/slw/results/l4w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501] || desktop-1280 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3024.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3025",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · dayplanner",
       "pages": [
@@ -928811,12 +928867,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when dayplanner.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:40:08.925Z (.tmp/slw/results/l4w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501] || desktop-1280 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3025.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3026",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - solo-owner · engineering design",
       "pages": [
@@ -928873,12 +928937,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from engineering design itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when engineering-design.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:35:28.002Z (.tmp/slw/results/l4w_6.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 4 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 3 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your saved calculations - WorkHive did not answer. Try again in a moment. If it keeps failing, t\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3026.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3027",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · hive",
       "pages": [
@@ -928935,12 +929007,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when hive.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:28:53.948Z (.tmp/slw/results/l4w_4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 42 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your jobs - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page\" [told-read, code PGRST000] || desktop-1280 (read, 39 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your jobs - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status page\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3027.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3028",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · index",
       "pages": [
@@ -928997,12 +929077,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when index.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:32:58.548Z (.tmp/slw/results/l4w_5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 24 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 24 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3028.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3029",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - solo-owner · integrations",
       "pages": [
@@ -929059,12 +929147,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when integrations.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:37:57.391Z (.tmp/slw/results/l4w_7.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501] || desktop-1280 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3029.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3030",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · inventory",
       "pages": [
@@ -929121,12 +929217,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when inventory.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:46:18.012Z (.tmp/slw/results/l4w_r1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3030.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3031",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · logbook",
       "pages": [
@@ -929183,12 +929287,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when logbook.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:19:50.847Z (.tmp/slw/results/l4w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 26 request(s) failed): 10 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your equipment list - WorkHive did not answer. Try again in a moment. If it keeps failing, the S\" [told-read, code PGRST000] || desktop-1280 (read, 26 request(s) failed): 5 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your equipment list - WorkHive did not answer. Try again in a moment. If it keeps failing, the S\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3031.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3032",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - buyer · marketplace seller profile",
       "pages": [
@@ -929245,12 +929357,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when marketplace-seller-profile.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:19:50.847Z (.tmp/slw/results/l4w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 15 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the profile of \"Isidro Suarez\" - WorkHive did not answer. Try again in a moment. If it keeps fai\" [told-read, code PGRST000] || desktop-1280 (read, 15 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the profile of \"Isidro Suarez\" - WorkHive did not answer. Try again in a moment. If it keeps fai\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3032.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3033",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - buyer · marketplace seller",
       "pages": [
@@ -929307,12 +929427,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when marketplace-seller.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:46:18.012Z (.tmp/slw/results/l4w_r1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 4 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501] || desktop-1280 (write, 4 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3033.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3034",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - buyer · marketplace",
       "pages": [
@@ -929369,12 +929497,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when marketplace.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:32:58.548Z (.tmp/slw/results/l4w_5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 32 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (read, 32 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3034.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3035",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · ph intelligence",
       "pages": [
@@ -929431,12 +929567,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when ph-intelligence.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:22:57.706Z (.tmp/slw/results/l4w_2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 16 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the PH Intelligence report - WorkHive did not answer. Try again in a moment. If it keeps failing\" [told-read, code PGRST000] || desktop-1280 (read, 16 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the PH Intelligence report - WorkHive did not answer. Try again in a moment. If it keeps failing\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3035.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3036",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - machine-client · plant connections",
       "pages": [
@@ -929493,12 +929637,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when plant-connections.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:46:18.012Z (.tmp/slw/results/l4w_r1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 12 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (read, 12 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3036.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3037",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · pm scheduler",
       "pages": [
@@ -929555,12 +929707,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when pm-scheduler.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:35:28.002Z (.tmp/slw/results/l4w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3037.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3038",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · project manager",
       "pages": [
@@ -929617,12 +929777,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when project-manager.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:22:57.706Z (.tmp/slw/results/l4w_2.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3038.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3039",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · project report",
       "pages": [
@@ -929679,12 +929847,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when project-report.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:40:08.925Z (.tmp/slw/results/l4w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 17 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 17 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load this report - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status pa\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3039.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3040",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - an anonymous visitor · public feed",
       "pages": [
@@ -929735,12 +929911,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when public-feed.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:19:50.847Z (.tmp/slw/results/l4w_1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Statu\" [told-read, code PGRST000] || desktop-1280 (read, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the public feed - WorkHive did not answer. Try again in a moment. If it keeps failing, the Statu\" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3040.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3041",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · report sender",
       "pages": [
@@ -929797,12 +929981,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when report-sender.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:25:18.317Z (.tmp/slw/results/l4w_3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"You are not allowed to do that with this account, so nothing was saved. Your session is fine. Ask a supervisor\" [told-write, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3041.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3042",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · resume",
       "pages": [
@@ -929859,12 +930051,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when resume.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:48:42.574Z (.tmp/slw/results/l4w_r2.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 2 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501] || desktop-1280 (write, 2 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, code 42501]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3042.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3043",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · shift brain",
       "pages": [
@@ -929921,12 +930121,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when shift-brain.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:35:28.002Z (.tmp/slw/results/l4w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 13 request(s) failed): 6 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 13 request(s) failed): 3 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3043.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3044",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - worker · skillmatrix",
       "pages": [
@@ -929983,12 +930191,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when skillmatrix.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:46:18.012Z (.tmp/slw/results/l4w_r1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 13 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (read, 13 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3044.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3045",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - supervisor · ai quality",
       "pages": [
@@ -930045,12 +930261,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when ai-quality.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:22:57.706Z (.tmp/slw/results/l4w_2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 16 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the \" [told-read, code PGRST000] || desktop-1280 (read, 16 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load your AI quality data - WorkHive did not answer. Try again in a moment. If it keeps failing, the \" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3045.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3046",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - fleet-supervisor · audit log",
       "pages": [
@@ -930107,12 +930331,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when audit-log.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:40:08.925Z (.tmp/slw/results/l4w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 14 request(s) failed): 4 told row(s) whose sentence was on screen, e.g. \"The server could not be reached, so part of this page could not be loaded. Your work is safe. Try again in a m\" [told-notice, code PGRST000] || desktop-1280 (read, 14 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Couldn’t load the audit log - WorkHive did not answer. Try again in a moment. If it keeps failing, the Status \" [told-read, code PGRST000]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3046.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3047",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - oversight · founder console",
       "pages": [
@@ -930163,12 +930395,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when founder-console.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:49:45.126Z (.tmp/slw/results/l4w_r3.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 3 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\" [told-access, a page's own sentence with no code to give] || desktop-1280 (read, 3 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"The Founder Console could not check your access just now, so it stays closed. Reload the page to try again.\" [told-access, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3047.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3048",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - oversight · marketplace admin",
       "pages": [
@@ -930219,12 +930459,20 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when marketplace-admin.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:49:45.126Z (.tmp/slw/results/l4w_r3.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the failure induced at the network (read: every read answered 500 from the first request); phone-390 (read, 15 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Marketplace Admin could not check your access just now, so it stays closed. Reload the page to try again.\" [told-access, a page's own sentence with no code to give] || desktop-1280 (read, 15 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Marketplace Admin could not check your access just now, so it stays closed. Reload the page to try again.\" [told-access, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3048.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
       "id": "SL3049",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L4 · The platform must log the sentence this page showed a person when something failed, not only the code - oversight · platform actions",
       "pages": [
@@ -930275,6 +930523,14 @@
         "engine": "chromium",
         "ask": "The platform must log the sentence this page showed a person when something failed, not only the code",
         "closes": "the L4 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a page that writes, every write after the page loaded answered 403 with Postgres's own 42501 row-level-security text naming the table (an RPC: permission denied for the function), then the page's main use made as a person makes it; for a page that reads, every read answered 500 from the first request - client_errors and analytics_events never routed; then client_errors was read for that window: a told-* row whose shown sentence is a sentence the page showed (its toast, a shared notice or the page's own text), bound by the database to the cast's account and an active-membership hive (a visitor: no account, hive or name), and no sentence shown in Postgres's own words): L4: when platform-actions.html fails, the sentence it showed the person is logged beside the code - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T16:37:57.391Z (.tmp/slw/results/l4w_7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the failure induced at the network (write: every write refused with the database's own 42501 after the page loaded, then the page's main use made); phone-390 (write, 1 request(s) failed): 2 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, a page's own sentence with no code to give] || desktop-1280 (write, 1 request(s) failed): 1 told row(s) whose sentence was on screen, e.g. \"Some of this page could not be shown: your account does not have access to it. Your session is fine. Ask a sup\" [told-notice, a page's own sentence with no code to give]. Gates told-failures-logged (migration 20261021000003: client_errors keeps the shown sentence and its code, the database binds account, hive and name; utils.js whTold from the four sentence makers, the shared notices and every page's toast host; the RLS refusal no longer shown verbatim) and scripts-parse. Receipt .tmp/mcp_walks/SL3049.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "told-failures-logged"
+        ]
       }
     },
     {
@@ -1019755,5 +1020011,5 @@
       }
     }
   ],
-  "next": "SL L4 the sentence a person saw is logged (32) - the platform must log the sentence this page showed a person when something failed, not only the code: inventory each L4 page's failure paths (whWriteError / whReadError / whFnError / showToast on a refusal) against what client_errors records, induce each row's failure as its cast at phone-390 and desktop-1280, then read client_errors for the SAME words the person saw beside the code; then LB1 (33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
+  "next": "SL LB1 row caps and pagination (33) - the platform must page or cap every list on this page and say when more exists than it shows: inventory each LB1 page's lists (.limit / range / Load more / show-all) against the table's real size, seed past the cap as the cast at phone-390 and desktop-1280, then read the page for a cap it states ('showing 50 of 1,240', a Load more that loads the next page, no silent truncation, no count that is the cap); then LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
 }

@@ -136,7 +136,10 @@ SCRIPT_RE       = re.compile(r"<script\b[^>]*>[\s\S]*?</script>", re.IGNORECASE)
 STYLE_RE        = re.compile(r"<style\b[^>]*>[\s\S]*?</style>", re.IGNORECASE)
 CODE_RE         = re.compile(r"<code\b[^>]*>[\s\S]*?</code>", re.IGNORECASE)
 PRE_RE          = re.compile(r"<pre\b[^>]*>[\s\S]*?</pre>", re.IGNORECASE)
-TAG_RE          = re.compile(r"<[^>]+>")
+# A tag ends at the first `>` OUTSIDE a quoted attribute value (2026-10-21): an inline handler such as
+# onclick="... onRestored: () => renderEntries() })" carries `=>`, and `<[^>]+>` ended the tag there, so the
+# rest of the handler - "renderEntries() })" - was scanned as text on the glass (6 false findings on 5 pages).
+TAG_RE          = re.compile(r"<[A-Za-z!/](?:[^>\"']|\"[^\"]*\"|'[^']*')*>")
 
 # renderSourceChip({...}) body capture (same shape source_chip_truth uses)
 CHIP_CALL_RE = re.compile(r"renderSourceChip\s*\(\s*\{(?P<body>[^{}]{0,2500}?)\}\s*\)", re.DOTALL)

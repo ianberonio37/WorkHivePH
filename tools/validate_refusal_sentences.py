@@ -106,7 +106,10 @@ def shared_problems(utils: str) -> list[str]:
     bad = []
     if not re.search(r"function _whSignedOut\(\)", u):
         bad.append("utils.js: _whSignedOut() is gone - every refusal sentence speaks to a member, visitors included")
-    rd, wr = _fn(u, "whReadError"), _fn(u, "whWriteError")
+    # SL L4 (2026-10-21): the two makers became wrappers that log what they say (whTold); the sentences live in
+    # _whReadErrorText / _whWriteErrorText, so the maker is read WITH the function that composes its sentence
+    rd = _fn(u, "whReadError") + _fn(u, "_whReadErrorText")
+    wr = _fn(u, "whWriteError") + _fn(u, "_whWriteErrorText")
     if "_whSignedOut()" not in rd:
         bad.append("utils.js: whReadError's refusal tells a signed-out visitor about 'this account' and 'a supervisor'")
     if "_whSignedOut()" not in wr:
@@ -196,9 +199,10 @@ def self_test() -> int:
         "var _isAccess = (id === 'wh-access-denied-notice');", "var _isAccess = /session|/.test(String(msg||''));"))))
     expect("an admin check answering 'no' on error fails", bool(shared_problems(u.replace(
         "    if (r1.error) return 'unreachable';", "    if (r1.error) return 'no';"))))
+    # SL L4 reshaped the function to build its sentence, log it, then return it - the mutant follows the online branch
     expect("an offline-only admin sentence fails", bool(shared_problems(u.replace(
-        "  return w + ' could not check your access just now, so it stays closed. Reload the page to try again.';",
-        "  return \"You're offline.\";"))))
+        "    : w + ' could not check your access just now, so it stays closed. Reload the page to try again.';",
+        "    : \"You're offline.\";"))))
     mut = dict(pages); mut["hive.html"] = mut["hive.html"].replace("const _rdFailed = !row && window._readinessErr === true;", "const _rdFailed = false;")
     expect("hive's readiness fix reverted fails", any("hive.html" in b for b in page_problems(mut)))
     mut = dict(pages); mut["shift-brain.html"] = mut["shift-brain.html"].replace("empty.style.display = _sbReadFailed ? 'none' : 'block';", "empty.style.display = 'block';")

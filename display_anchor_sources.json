@@ -1,16 +1,16 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 121,
+    "anchors": 119,
     "chrome_excluded": 37,
-    "data_anchors": 84,
-    "resolved": 66,
-    "resolved_pct": 78.6,
-    "resolved_pct_of_all": 54.5,
+    "data_anchors": 82,
+    "resolved": 67,
+    "resolved_pct": 81.7,
+    "resolved_pct_of_all": 56.3,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 8,
+    "resolved_by_js_heuristic": 9,
     "resolved_by_verified_bind": 58,
-    "needs_js_parse": 18
+    "needs_js_parse": 15
   },
   "anchors": [
     {
@@ -47,6 +47,19 @@
         "source": "hive_audit_log",
         "source_kind": "table/view",
         "confidence": "medium"
+      }
+    },
+    {
+      "page": "hive.html",
+      "id": "btn-onboard-back-label",
+      "token": "btn-onboard-back-label",
+      "bucket": "raw",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "v_inventory_items_truth",
+        "source_kind": "table/view",
+        "confidence": "high"
       }
     },
     {
@@ -573,6 +586,22 @@
       "source": {
         "via": "ui_chrome"
       }
+    },
+    {
+      "page": "analytics.html",
+      "id": "an-filter-crit-label",
+      "token": "an-filter-crit-label",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "analytics.html",
+      "id": "an-filter-disc-label",
+      "token": "an-filter-disc-label",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "analytics.html",
@@ -1902,38 +1931,6 @@
       }
     },
     {
-      "page": "validator-catalog.html",
-      "id": "count-stat",
-      "token": "count",
-      "bucket": "raw",
-      "status": "RAW_NEEDS_JS_PARSE",
-      "source": null
-    },
-    {
-      "page": "validator-catalog.html",
-      "id": "fail-stat",
-      "token": "fail-stat",
-      "bucket": "unknown",
-      "status": "NEEDS_JS_PARSE",
-      "source": null
-    },
-    {
-      "page": "validator-catalog.html",
-      "id": "pass-stat",
-      "token": "pass-stat",
-      "bucket": "unknown",
-      "status": "NEEDS_JS_PARSE",
-      "source": null
-    },
-    {
-      "page": "symbol-gallery.html",
-      "id": "sym-count",
-      "token": "count",
-      "bucket": "raw",
-      "status": "RAW_NEEDS_JS_PARSE",
-      "source": null
-    },
-    {
       "page": "llm-observability.html",
       "id": "kpi-total",
       "token": "total",
@@ -1945,14 +1942,6 @@
       "page": "llm-observability.html",
       "id": "kpi-error-rate",
       "token": "kpi-error-rate",
-      "bucket": "unknown",
-      "status": "NEEDS_JS_PARSE",
-      "source": null
-    },
-    {
-      "page": "architecture.html",
-      "id": "n-index",
-      "token": "n-index",
       "bucket": "unknown",
       "status": "NEEDS_JS_PARSE",
       "source": null

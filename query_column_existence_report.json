@@ -1,7 +1,7 @@
 {
   "summary": {
     "files_scanned": 139,
-    "total_calls": 869,
+    "total_calls": 863,
     "total_drift": 0,
     "baseline": 0,
     "tables_known": 214
