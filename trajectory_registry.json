@@ -835827,8 +835827,8 @@
     },
     {
       "id": "SL1621",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · alert hub",
       "pages": [
@@ -835886,12 +835886,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: alert-hub.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:51:30.575Z (.tmp/slw/results/av4w_5.json) as Ben Ocampo (driverben); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep their g Receipt .tmp/mcp_walks/SL1621.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1622",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · analytics",
       "pages": [
@@ -835951,12 +835962,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: analytics.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T03:06:47.219Z (.tmp/slw/results/av4w_rewalk_SL1622.json) as Gloria Tan (vanfleetgloriaph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker h Receipt .tmp/mcp_walks/SL1622.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1623",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · asset hub",
       "pages": [
@@ -836014,12 +836036,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: asset-hub.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:59:25.049Z (.tmp/slw/results/av4w_6.json) as Ben Ocampo (driverben); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack;  Receipt .tmp/mcp_walks/SL1623.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1624",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · assistant",
       "pages": [
@@ -836077,12 +836110,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: assistant.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:59:25.049Z (.tmp/slw/results/av4w_6.json) as Ben Ocampo (driverben); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep their g Receipt .tmp/mcp_walks/SL1624.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1625",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · community",
       "pages": [
@@ -836140,12 +836184,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: community.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:16:41.326Z (.tmp/slw/results/av4w_8.json) as Oscar Ramos (jeepneyoscarph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 1 reload, its 2 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 2 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhen Receipt .tmp/mcp_walks/SL1625.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1626",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · dayplanner",
       "pages": [
@@ -836203,12 +836258,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: dayplanner.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:47:39.693Z (.tmp/slw/results/av4w_12.json) as Gloria Tan (vanfleetgloriaph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWh Receipt .tmp/mcp_walks/SL1626.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1627",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · hive",
       "pages": [
@@ -836266,12 +836332,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: hive.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:07:04.315Z (.tmp/slw/results/av4w_7.json) as Ben Ocampo (driverben); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 2 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 2 failed read(s) cleared. Removed from the active hive (his membership marked kicked in the local database for the walk, restored after; .tmp/slw/results/av4w_probe_kicked.json): phone-390 2 load Receipt .tmp/mcp_walks/SL1627.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1628",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · index",
       "pages": [
@@ -836329,12 +836406,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: index.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:07:04.315Z (.tmp/slw/results/av4w_7.json) as Ben Ocampo (driverben); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack;  Receipt .tmp/mcp_walks/SL1628.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1629",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - solo-owner · integrations",
       "pages": [
@@ -836392,12 +836480,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: integrations.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:24:21.832Z (.tmp/slw/results/av4w_9.json) as Jun Salvador (junvanowner); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep the Receipt .tmp/mcp_walks/SL1629.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1630",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · inventory",
       "pages": [
@@ -836455,12 +836554,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: inventory.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:51:30.575Z (.tmp/slw/results/av4w_5.json) as David Velasco (davidvelasco); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhen Receipt .tmp/mcp_walks/SL1630.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1631",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · logbook",
       "pages": [
@@ -836518,12 +836628,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: logbook.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:20:23.688Z (.tmp/slw/results/av4w_1.json) as Bryan Garcia (bryangarcia); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Before the fix the flap reloaded this page on every reconnect: 12 loads in 35 s (.tmp/slw/results/av4_pre/av4w_1.json). Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a cl Receipt .tmp/mcp_walks/SL1631.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1632",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - buyer · marketplace seller profile",
       "pages": [
@@ -836581,12 +836702,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: marketplace-seller-profile.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:28:15.996Z (.tmp/slw/results/av4w_2.json) as Bryan Garcia (bryangarcia); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep the Receipt .tmp/mcp_walks/SL1632.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1633",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - buyer · marketplace seller",
       "pages": [
@@ -836644,12 +836776,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: marketplace-seller.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:28:15.996Z (.tmp/slw/results/av4w_2.json) as Bryan Garcia (bryangarcia); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBa Receipt .tmp/mcp_walks/SL1633.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1634",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · ph intelligence",
       "pages": [
@@ -836707,12 +836850,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: ph-intelligence.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:43:49.027Z (.tmp/slw/results/av4w_4.json) as Christine Dizon (christinedizon); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReload Receipt .tmp/mcp_walks/SL1634.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1635",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - machine-client · plant connections",
       "pages": [
@@ -836770,12 +836924,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: plant-connections.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:36:20.816Z (.tmp/slw/results/av4w_3.json) as Bryan Garcia (bryangarcia); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep the Receipt .tmp/mcp_walks/SL1635.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1636",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · pm scheduler",
       "pages": [
@@ -836833,12 +836998,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: pm-scheduler.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:16:41.326Z (.tmp/slw/results/av4w_8.json) as Oscar Ramos (jeepneyoscarph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhen Receipt .tmp/mcp_walks/SL1636.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1637",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · project manager",
       "pages": [
@@ -836896,12 +837072,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: project-manager.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:43:49.027Z (.tmp/slw/results/av4w_4.json) as Christine Dizon (christinedizon); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (10 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReload Receipt .tmp/mcp_walks/SL1637.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1638",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - fleet-supervisor · project report",
       "pages": [
@@ -836959,12 +837146,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: project-report.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:47:39.693Z (.tmp/slw/results/av4w_12.json) as Gloria Tan (vanfleetgloriaph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff keep Receipt .tmp/mcp_walks/SL1638.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1639",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - an anonymous visitor · public feed",
       "pages": [
@@ -837016,12 +837214,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: public-feed.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:20:23.688Z (.tmp/slw/results/av4w_1.json) as an anonymous visitor (signed out); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared. Before the fix the flap reloaded this page on every reconnect: 12 loads in 35 s (.tmp/slw/results/av4_pre/av4w_1.json). Gate reload-once holds it (a reconnect Receipt .tmp/mcp_walks/SL1639.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1640",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - worker · shift brain",
       "pages": [
@@ -837079,12 +837288,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: shift-brain.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:24:21.832Z (.tmp/slw/results/av4w_9.json) as Oscar Ramos (jeepneyoscarph); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhen Receipt .tmp/mcp_walks/SL1640.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1641",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - supervisor · ai quality",
       "pages": [
@@ -837142,12 +837362,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: ai-quality.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T01:36:20.816Z (.tmp/slw/results/av4w_3.json) as Christine Dizon (christinedizon); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload, its 1 failed read(s) cleared. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReload Receipt .tmp/mcp_walks/SL1641.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1642",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - oversight · design system",
       "pages": [
@@ -837199,12 +837430,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from design system itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: design-system.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:31:54.124Z (.tmp/slw/results/av4w_10.json) as Leandro Marquez (leandromarquez); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 0 reload. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads runs once until a clean load; every reconnect reload goes through whReloadWhenBack; the skew heal, hive recovery and worker handoff k Receipt .tmp/mcp_walks/SL1642.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1643",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - oversight · llm observability",
       "pages": [
@@ -837256,12 +837498,23 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: llm-observability.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:31:54.124Z (.tmp/slw/results/av4w_10.json) as Leandro Marquez (leandromarquez); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload. Before the fix its 'could not check your access' card reloaded on every reconnect - 4 loads in 35 s, one every ~10 s (the client's 7 s back-off, then the next flap; .tmp/slw/results/av4w_probe_llm.json); now it waits f Receipt .tmp/mcp_walks/SL1643.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
       "id": "SL1644",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV4 · The platform must recover this page with at most one reload, never a loop - oversight · platform actions",
       "pages": [
@@ -837313,6 +837566,17 @@
         "engine": "chromium",
         "ask": "The platform must recover this page with at most one reload, never a loop",
         "closes": "the AV4 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker change after every load (the page under the service worker); the database unreachable while the network flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one reload per fault, none while the database cannot answer, and a failed read recovered on its own): AV4: platform-actions.html recovers with at most one reload under every fault a reload cannot fix - a stuck skew heal, a lost hive, a worker change, an unreachable database under a flapping network - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T02:40:07.706Z (.tmp/slw/results/av4w_11.json) as Leandro Marquez (leandromarquez); every probe a FRESH tab from the cast's signed-in storage (every reload guard lives in sessionStorage), documents counted as main-frame navigation requests (the skew heal stops the stale document before DOMContentLoaded): phone-390: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload || desktop-1280: clean 1 load; skew heal stuck: 2 loads (1 refetch past the cache, then the guard held); hive lost on every load: 1 load; worker change after every load: 2 loads (one reload, then the 60 s guard); database unreachable, network flapping every 3 s for 35 s (11 reconnects): 1 load, no reload; database back: 1 reload. Its 'could not check your access' gate now reloads through whReloadWhenBack: none during the flap, one when the database answered. Gate reload-once holds it (a reconnect asks the database first; a retry that reloads ru Receipt .tmp/mcp_walks/SL1644.json.",
+      "artifacts": {
+        "gates": [
+          "auto-read-retry",
+          "reload-once",
+          "scripts-parse",
+          "skew-heal",
+          "skew-heal-live",
+          "sw-navigation-fallback"
+        ]
       }
     },
     {
@@ -1016285,5 +1016549,5 @@
       }
     }
   ],
-  "next": "SL AV4 recovery: reload once, never loop (24) - every location.reload() path (the skew heal's wh_utils_refetched, the hive-recovered flag, the online and notice reloads) driven to its trigger as each row's cast: count reloads per tab per trigger (at most one, never a loop) and build the missing guard; then C2/C3, L2-4, LB1-4, RL1-3. SL AV3 14/14 CLOSED (a blocked live channel polls its page and says it is not live: rtConn opts, _whLiveState, the backfill's minute) with AV2 33/33. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL C2 period, window and as-of labels (155: 27 production, 9 founder, 119 public) - every visible figure read at 390/1280 as each row's cast with its own card (proximity, never a qualifier borrowed from another card) and its D1 reveal: measured first (.tmp/slw/c2_walk_template.js), then each registered figure gains a period its reveal states (figure_sources.json + the reveal's Period row) and guides date their statistics; then C3, L2-4, LB1-4, RL1-3. SL AV4 24/24 CLOSED (a reconnect asks the database first; a retry that reloads runs once until a clean load; whReloadWhenBack) with AV3 14/14. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }

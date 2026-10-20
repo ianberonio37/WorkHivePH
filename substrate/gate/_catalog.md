@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 6a0b41834225b8a7
+source_sha: 530f6e92d27469d0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1404) — the 'what's already gated' brain
+## gate · registered validators (1405) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1033)
+### Platform (1034)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1179,6 +1179,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `reliability-workbench` ⚡ [fail] — Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)
 - `reliability_tenancy` ⚡ [fail] — AHK4 - reliability data is hive-private, PARENT included. FMEA modes, RCM strategies, Weibull fits and P-F intervals are competitive plant knowledge: what break
 - `reload-mid-flow` [fail] — The CF `reload` oracle, measured by actually reloading mid-flow: a half-filled sheet either survives intact or is GONE, never restored into a state the person d
+- `reload-once` ⚡ [fail] — SL AV4 (2026-10-20): the platform recovers a page with AT MOST ONE automatic reload, never a loop. Walked 24 pages in fresh tabs under faults a reload cannot fi
 - `removal-tells-the-worker` [fail] — T25: being removed from a hive must not arrive as an empty screen (2026-08-27). A supervisor kicks someone; the supervisor's side is a confirm and a roster that
 - `render-contract` [fail] — Render contract: templates and tokens resolve, contrast holds, no markup as text (41 surfaces)
 - `rendered-i18n` ⚡ [fail] — English prose written by JS onto pages that CLAIM to be bilingual - the stamp survives, the translation does not (forward-only ratchet)

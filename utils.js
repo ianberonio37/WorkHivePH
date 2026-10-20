@@ -3593,8 +3593,65 @@ function whRegisterAutoRetry(el, fn) {
   if (!_whAutoRetry.has(el)) _whAutoRetryEls.push(el);
   _whAutoRetry.set(el, { fn: fn, last: 0, busy: false });
 }
+// ★A RECONNECT IS NOT AN ANSWER, AND A RETRY THAT RELOADS IS A LOOP WAITING FOR A FLAP (SL AV4, 2026-10-20). Walked with
+// the database unreachable while the Wi-Fi flapped (offline, then online, every 3 s): public-feed and logbook reloaded
+// on EVERY reconnect - 12 loads in 35 s, for as long as the flapping lasted - because a failed read's Retry is very often
+// location.reload() (the settle pass's own, and a dozen pages'), and this auto-retry re-ran it on each 'online'. The
+// browser's 'online' is about the Wi-Fi, not the database. Two rules, the same ones the skew heal keeps:
+//   * a reconnect round first asks the database one cheap question (whServerAnswers: one HEAD on a public view, its own
+//     5 s budget, one in flight at a time; ANY answer under 500 is an answer) and re-runs nothing if it does not answer;
+//   * a retry that reloads the page is an AUTOMATIC reload, and runs at most once until the page has loaded clean again
+//     (whAutoReloadAllowed / the clean-load reset below). A person's own Retry press is never limited.
+var WH_PROBE_RELATION = 'v_marketplace_listings_public';   // readable by every visitor; a 404 would still be an answer
+var _whProbeBusy = null;
+function whServerAnswers(timeoutMs) {
+  if (_whProbeBusy) return _whProbeBusy;
+  var url = (typeof window !== 'undefined') ? window.WH_SUPABASE_URL : '';
+  if (!url || typeof fetch !== 'function') return Promise.resolve(typeof navigator === 'undefined' || navigator.onLine !== false);
+  var ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var t = setTimeout(function () { try { if (ctl) ctl.abort(); } catch (_) { /* empty-catch-allow: an abort that cannot run leaves the fetch to fail on its own */ } }, timeoutMs || 5000);
+  _whProbeBusy = fetch(url + '/rest/v1/' + WH_PROBE_RELATION + '?select=id&limit=1', {
+    method: 'HEAD', cache: 'no-store', headers: { apikey: window.WH_SUPABASE_ANON_KEY || '' }, signal: ctl ? ctl.signal : undefined
+  }).then(function (r) { return !!r && r.status < 500; }, function () { return false; })
+    .then(function (ok) { clearTimeout(t); _whProbeBusy = null; return ok; });
+  return _whProbeBusy;
+}
+var WH_AUTO_RELOAD_KEY = 'wh_auto_reload';
+function whAutoReloadAllowed(why) {
+  try {
+    var last = JSON.parse(sessionStorage.getItem(WH_AUTO_RELOAD_KEY) || 'null');
+    if (last && last.href === location.href) return false;   // once until a clean load clears it: never a loop
+    sessionStorage.setItem(WH_AUTO_RELOAD_KEY, JSON.stringify({ href: location.href, at: Date.now(), why: String(why || '') }));
+    return true;
+  } catch (_) { return false; }   // storage blocked: no guard, so no automatic reload
+}
+// a page that reached a clean state clears the guard, so a LATER blip can recover it again (a wall display all day)
+function _whRetryReloads(fn) {
+  try { return /\blocation\.reload\s*\(/.test(Function.prototype.toString.call(fn)); } catch (_) { return false; }
+}
+// whReloadWhenBack - the reconnect reload for a page that closed itself because it could not reach the server (the
+// admin pages' "could not check your access" card): on 'online' it asks the database first, reloads only when it
+// answers, and only once until a clean load; otherwise it waits for the next reconnect.
+function whReloadWhenBack() {
+  var onOnline = function () {
+    whServerAnswers().then(function (ok) {
+      if (ok && whAutoReloadAllowed('reconnect')) { location.reload(); return; }
+      if (!ok) window.addEventListener('online', onOnline, { once: true });
+    });
+  };
+  window.addEventListener('online', onOnline, { once: true });
+}
 function whRunAutoRetries(reason) {
   if (!_whAutoRetry) return 0;
+  var pending = _whAutoRetryEls.some(function (el) { return el && el.isConnected && el.querySelector && el.querySelector('.wh-list-error'); });
+  if (!pending) return 0;
+  whServerAnswers().then(function (ok) {
+    if (!ok) { if (typeof console !== 'undefined' && console.info) console.info('[wh] reconnect: the database did not answer, so no failed read was re-run'); return; }
+    _whRunAutoRetriesNow(reason);
+  });
+  return 0;
+}
+function _whRunAutoRetriesNow(reason) {
   var now = Date.now(), ran = 0;
   _whAutoRetryEls = _whAutoRetryEls.filter(function (el) {
     if (!el || !el.isConnected) return false;         // gone from the DOM: drop it
@@ -3603,6 +3660,7 @@ function whRunAutoRetries(reason) {
     // still in the error state? if the page recovered it another way, do not touch it
     if (!el.querySelector('.wh-list-error')) return true;
     if (rec.busy || (now - rec.last) < 3000) return true;
+    if (_whRetryReloads(rec.fn) && !whAutoReloadAllowed('auto-retry ' + reason)) return true;   // reloaded once already
     rec.busy = true; rec.last = now;
     try {
       var out = rec.fn();
@@ -3618,8 +3676,22 @@ function whRunAutoRetries(reason) {
 if (typeof window !== 'undefined') {
   window.whRegisterAutoRetry = whRegisterAutoRetry;
   window.whRunAutoRetries = whRunAutoRetries;
+  window.whServerAnswers = whServerAnswers;
+  window.whAutoReloadAllowed = whAutoReloadAllowed;
+  window.whReloadWhenBack = whReloadWhenBack;
 }
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  // the clean-load reset (SL AV4): 20 s after load with no failed read on screen and no service marked failed, the page
+  // is clean, so the automatic-reload guard clears and a LATER outage can be recovered once again
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      try {
+        if (document.querySelector('.wh-list-error')) return;
+        if (window._whConnFailedSvcs && Object.keys(window._whConnFailedSvcs).length) return;
+        sessionStorage.removeItem(WH_AUTO_RELOAD_KEY);
+      } catch (_) { /* empty-catch-allow: storage blocked - there is no guard to clear */ }
+    }, 20000);
+  });
   var _whWasOffline = false;
   window.addEventListener('offline', function () { _whWasOffline = true; });
   window.addEventListener('online', function () { _whWasOffline = false; whRunAutoRetries('reconnect'); });

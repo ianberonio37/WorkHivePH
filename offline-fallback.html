@@ -74,8 +74,31 @@
     <p data-i="p_connectioncheckedasofpageloa_1305" class="hint wh-source-chip" id="net-hint" role="status" aria-live="polite">Connection checked as of page load · waiting for a connection…</p><!-- G1+E3 (rubric 2026-09-05): the hint IS the live status region -->
   </main>
   <script>
-    // Auto-reload the moment the device reports it's back online.
-    window.addEventListener('online', () => location.reload());
+    // Auto-reload when the device is back online AND the site answers (SL AV4, 2026-10-20): 'online' is the Wi-Fi, not
+    // the site, so a bare reload on every 'online' reloaded this page on every flap while the site was still out of
+    // reach - one HEAD of the page first (the worker leaves non-GET requests to the network), and at most one automatic
+    // reload a minute in this tab. "Try again" is a person's own press and is never limited.
+    (function () {
+      let busy = false;
+      window.addEventListener('online', function onOnline() {
+        if (busy) return;
+        busy = true;
+        const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+        const t = setTimeout(() => { if (ctl) ctl.abort(); }, 5000);
+        fetch(location.href, { method: 'HEAD', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+          .then((r) => r.status < 500, () => false)
+          .then((ok) => {
+            clearTimeout(t); busy = false;
+            if (!ok) return;
+            try {
+              const last = JSON.parse(sessionStorage.getItem('wh_fallback_reload') || 'null');
+              if (last && last.href === location.href && Date.now() - last.at < 60000) return;
+              sessionStorage.setItem('wh_fallback_reload', JSON.stringify({ href: location.href, at: Date.now() }));
+            } catch (e) { return; }
+            location.reload();
+          });
+      });
+    })();
     const hint = document.getElementById('net-hint');
     if (navigator.onLine && hint) hint.textContent = 'Connection checked as of now · looks back — tap "Try again".';
 

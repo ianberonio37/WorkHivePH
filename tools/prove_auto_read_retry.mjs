@@ -68,19 +68,20 @@ try {
 
     out.noSpuriousCall = calls === 0;
 
+    // SL AV4 (2026-10-20): a reconnect round now asks the database first (one HEAD), so each wait covers that answer
     window.dispatchEvent(new Event('offline'));
     window.dispatchEvent(new Event('online'));
-    await sleep(200);
+    await sleep(1500);
     out.retriedOnReconnect = calls === 1;
 
     window.dispatchEvent(new Event('online'));           // inside the 3s floor
-    await sleep(200);
+    await sleep(1000);
     out.rateFloorHeld = calls === 1;
 
     host.innerHTML = '<p>recovered</p>';                 // no longer an error panel
     await sleep(3200);                                    // past the floor, so only state can stop it
     window.dispatchEvent(new Event('online'));
-    await sleep(200);
+    await sleep(1500);
     out.leftRecoveredAlone = calls === 1;
 
     // DETACHED: a fresh element, registered, then removed — it must not be retried
@@ -91,10 +92,33 @@ try {
     gone.remove();
     await sleep(3200);
     window.dispatchEvent(new Event('online'));
-    await sleep(200);
+    await sleep(1500);
     out.droppedDetached = goneCalls === 0;
 
     host.remove();
+
+    // SL AV4: a reconnect while the DATABASE does not answer re-runs nothing ('online' is the Wi-Fi, not the server -
+    // re-running a reload retry there looped a page on every flap), and the same reconnect re-runs it once it answers
+    const host2 = document.createElement('div');
+    document.body.appendChild(host2);
+    let calls2 = 0;
+    whListError(host2, 'Probe: database unreachable.', function () { calls2++; });
+    const realUrl = window.WH_SUPABASE_URL;
+    window.WH_SUPABASE_URL = 'http://127.0.0.1:9';        // nothing listens there: the probe fails at once
+    window.dispatchEvent(new Event('online'));
+    await sleep(2500);
+    out.noRetryWhileUnreachable = calls2 === 0;
+    window.WH_SUPABASE_URL = realUrl;
+    window.dispatchEvent(new Event('online'));
+    await sleep(1500);
+    out.retriedOnceItAnswers = calls2 === 1;
+    host2.remove();
+
+    // SL AV4: an automatic reload is allowed ONCE until a clean load clears the guard
+    sessionStorage.removeItem('wh_auto_reload');
+    const first = whAutoReloadAllowed('probe'), second = whAutoReloadAllowed('probe');
+    out.autoReloadOnce = first === true && second === false;
+    sessionStorage.removeItem('wh_auto_reload');
     return out;
   });
 
@@ -107,6 +131,7 @@ try {
 }
 
 const pass = !v.error && v.helperPresent && v.noSpuriousCall && v.retriedOnReconnect
-          && v.rateFloorHeld && v.leftRecoveredAlone && v.droppedDetached;
+          && v.rateFloorHeld && v.leftRecoveredAlone && v.droppedDetached
+          && v.noRetryWhileUnreachable && v.retriedOnceItAnswers && v.autoReloadOnce;
 console.log((pass ? 'PASS' : 'FAIL') + ` — auto read retry: ${JSON.stringify(v)}`);
 process.exit(pass ? 0 : 1);

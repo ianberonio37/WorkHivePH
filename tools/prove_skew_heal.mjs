@@ -100,10 +100,14 @@ async function walk(page, [w, h], mode, base) {
       missing: names.filter((n) => typeof window[n] !== 'function'),
       flag: (() => { try { return sessionStorage.getItem('wh_utils_refetched'); } catch (e) { return 'blocked'; } })(),
       chars: document.body ? document.body.innerText.length : 0,
+      navType: (() => { try { const e = performance.getEntriesByType('navigation')[0]; return e ? e.type : ''; } catch (e) { return ''; } })(),
     }), need).catch(() => null);
     // a skew reading waits for the RELOAD, not the refetch: between the two, the stopped old document already reads
-    // 'complete' with getDb present (analytics at 1280 was read there and looked unhealed)
-    if (st && st.ready === 'complete' && st.utils && (mode === 'clean' || (refreshed && navs >= 2) || i >= 16)) break;
+    // 'complete' with getDb present (analytics at 1280 was read there and looked unhealed). ★And navs >= 2 is not the
+    // reload either (SL AV4 gate run, 2026-10-20: index.html at 1280 read 14 of 14 missing): a navigation REQUEST is
+    // counted the moment it is sent, while the old stopped document is still the one being read. Only a document whose
+    // own navigation entry says 'reload' is the healed one.
+    if (st && st.ready === 'complete' && st.utils && (mode === 'clean' || (refreshed && navs >= 2 && st.navType === 'reload') || i >= 16)) break;
   }
   if (mode === 'stuck') {
     // after the one reload, watch: a heal that loops would load the document again (and again)

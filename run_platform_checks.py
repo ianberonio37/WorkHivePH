@@ -4366,6 +4366,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "reload-once",
+        "script":  "tools/validate_reload_once.py",
+        "args":    [],
+        "label":   "SL AV4 (2026-10-20): the platform recovers a page with AT MOST ONE automatic reload, never a loop. Walked 24 pages in fresh tabs under faults a reload cannot fix (the skew heal stuck, the stored hive lost on every load, a worker change after every load, the database unreachable while the network flapped every 3 s): the skew heal, hive recovery and worker handoff held at one reload, but the flap LOOPED - public-feed and logbook reloaded on every reconnect (12 loads in 35 s) because a failed read's Retry is location.reload() and the unattended-screen auto-retry re-ran it on each 'online', and five admin pages plus the offline fallback reloaded on every reconnect too. Now a reconnect asks the database first (whServerAnswers: one HEAD, 5 s, any answer under 500), a retry that reloads runs once until the page loads clean, and every reconnect reload goes through whReloadWhenBack. Static, 23 anchors + a generic ban on a bare reload-on-online; self-test: 11 mutations each redden it.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "slow-read-honest",
         "script":  "tools/validate_slow_read_honest.py",
         "args":    [],

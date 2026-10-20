@@ -174,6 +174,14 @@ CONDITION["AV3"] = ("the page read as served in its own browser context (service
                     "rounds (a poll is a round of reads repeating with no one touching the page), and its visible words "
                     "and source lines read - it must re-read on its own and say that it is not live and how often it "
                     "checks, and nothing may still claim live updates")
+GATES["AV4"] = ["reload-once", "auto-read-retry", "skew-heal", "skew-heal-live", "sw-navigation-fallback", "scripts-parse"]
+CONDITION["AV4"] = ("the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in "
+                    "storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation "
+                    "requests, under faults a reload cannot fix: clean (exactly one load); the skew heal stuck (every utils.js, "
+                    "the refetch past the cache too, is yesterday's); the stored hive lost at every document start; a worker "
+                    "change after every load (the page under the service worker); the database unreachable while the network "
+                    "flaps offline/online every 3 s for 35 s, then the database back and one more reconnect - at most one "
+                    "reload per fault, none while the database cannot answer, and a failed read recovered on its own")
 CONDITION["A4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
                    "cast, an init script patching fetch before any page script: first every data read answered 5 s late "
                    "(then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed "
