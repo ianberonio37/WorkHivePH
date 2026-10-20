@@ -1032224,5 +1032224,5 @@
       }
     }
   ],
-  "next": "BRH §BRH.8 security (172, harm first): S/Q - 20261015500000 closes the 6 server-only writers + 10 debug functions (local done; production next, pushed alone ahead of the 10 pending migrations); then the other 20 S functions, P 13 tables, V v_kpi_truth, Y 39 revokes, X 7 grant cells BEFORE 2026-10-30, R 5, T 68, U 2, W 1; then finish SL LB1 (chain-following gate, 6 double-limit chains, batches 7-9, bank 33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
+  "next": "SL LB1 row caps (33): finish - the chain-following gate (8 newly visible reads to dispose, 4 orphan caps, the 6 double-limit chains: alert-hub, asset-hub, dayplanner, marketplace x2, pm-scheduler), V3 RPC-own-caps + get_marketplace_parts_for_my_assets (p_limit + probe + note), batches 7-9 through the MCP browser, bank 33; then LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36). BRH 8 is 171/172 - BRH445 (pg_net) is Ian's dashboard toggle"
 }

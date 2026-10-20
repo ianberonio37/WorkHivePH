@@ -74,7 +74,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **↳ HOW FAST WE MOVE: walk and bank continuously; after a batch run ONLY the gates that cover the files it changed (plus `trajectory-registry` and `live-walk-manifest`), never the whole board — the full board is Ian's gate.** Batch close, in this order: regenerate the header → `build_md_twins` → `build_substrate` → bump `sw.js` once if a precached shell file changed → the relevant gates.
 
-**NEXT: BRH §BRH.8 security (172, harm first): S/Q - 20261015500000 closes the 6 server-only writers + 10 debug functions (local done; production next, pushed alone ahead of the 10 pending migrations); then the other 20 S functions, P 13 tables, V v_kpi_truth, Y 39 revokes, X 7 grant cells BEFORE 2026-10-30, R 5, T 68, U 2, W 1; then finish SL LB1 (chain-following gate, 6 double-limit chains, batches 7-9, bank 33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)**
+**NEXT: SL LB1 row caps (33): finish - the chain-following gate (8 newly visible reads to dispose, 4 orphan caps, the 6 double-limit chains: alert-hub, asset-hub, dayplanner, marketplace x2, pm-scheduler), V3 RPC-own-caps + get_marketplace_parts_for_my_assets (p_limit + probe + note), batches 7-9 through the MCP browser, bank 33; then LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36). BRH 8 is 171/172 - BRH445 (pg_net) is Ian's dashboard toggle**
 
 | Wave | Completion per trajectory |
 |---|---|
@@ -3588,6 +3588,50 @@ what each role reaches today, and every new table's migration carries its own GR
 production's fingerprint and the local database) · `tools/bug_hunt_inventory.py` (`advisor_sites`, classes P..Y) ·
 `tools/seed_expansion_wave4.py` (`BRH_CLASS` P..Y) · `tools/critic_seed_missing.py` (+172) · the momentum guard (every
 specced row is buildable).
+
+### §BRH.8a Walk — P..Y, 171 of 172: production's advisor read 0 on its one ERROR and four of its warnings the same day (2026-10-21)
+
+**Every fix reached production alone.** Each migration was numbered into the gap after production's latest
+(`20261015000001`) and pushed from a folder holding only production's applied migrations plus that one (`db push
+--dry-run` had to list exactly it), so the ten pending migrations stay with Ian's push and his later pushes stay in
+order: `20261015500000` (Q, S writers, V anon) · `600000` (P) · `700000` (V) · `800000` (X backfill) · `900000` (Y) ·
+`950000` (S) · `970000` (T) · `980000`/`990000` (R) · `995000` (U vector). Three ship WITH Ian's push because the
+page code they pair with does: `20261021000005` (S: the any-id readers closed to authenticated, after
+marketplace-seller/marketplace switch to the owner-checked reads), `20261021000006` (R: the listings view, after
+`20261020000003` redefines it). **Production's advisor, before -> after:** rls_disabled_in_public 13 -> 0 (ERROR),
+function_search_path_mutable 73 -> 0, materialized_view_in_api 1 -> 0, anon-executable definer functions 94 -> 52 (the
+18 declared, 10 trigger functions, and definer functions that refuse anon inside), security_definer_view 5 -> 1 until
+Ian's push (the listings view) -> 0.
+
+**What the walk taught, beyond the advisor's list.**
+- **A revoke from PUBLIC never reaches anon on Supabase, and DROP + CREATE restores the defaults** - 39 functions closed
+  on paper and open in fact; `definer-doors` now holds Y1 (live), Y2 (a PUBLIC-only revoke in a new migration fails,
+  static) and Y3 (a declared helper no policy needs fails).
+- **Two functions answered for any id** (`provider_credit_balance`, `service_request_price`): owner-checked twins now
+  serve the pages; proven through the API (own 500.00 / another null; own request 25000.00 / another's null).
+- **A view cannot always run as its reader**: the sellers view's public totals changed with the reader under invoker
+  (Bryan's order total read 2 to himself, 0 to anyone else), so its owner rights moved into a declared function; two
+  service views keep caller-scoped owner rights in functions, proven with staged jobs (an unrelated member sees 0).
+- **The local database had drifted from production in both directions**: a migration production ran
+  (`20260901000002`, the one that re-opened `enqueue_user_push`) had never run locally; `ops_artifact_metrics` and
+  `compute_hive_readiness` were wider locally than in production. Each was brought to production's state.
+- **Instrument fixes**: the vector-recall gate read `<->` inside a comment as a distance operator; the public-read gate
+  let a DECLARED table keep RLS off (a declaration decides the policy, never the switch); a key in `utils.js` was not
+  production's - production uses a publishable key sent as `apikey` alone, and a probe with the wrong key read 401 for
+  everything, which proved nothing (16 bases corrected).
+
+**Open, with its reason on the row: BRH445 (U, pg_net)** - not relocatable, owned by `supabase_admin`, and the role
+migrations run as cannot drop it; the Supabase dashboard can (Database -> Extensions -> pg_net -> disable, then enable
+in `extensions`; 0 requests were queued on 2026-10-21). **W's server-side setting** needs the Supabase Pro plan; the
+product refuses breached passwords itself (`breached-password-check`) and reaches production with Ian's push.
+
+**Found on the way, not yet a row:** production's knowledge tables (`industry_standards_chunks`, `persona_knowledge`,
+`kb_chunks`) hold no embeddings - the voice companion's and the AI's retrieval run on an empty corpus in production; and
+hive.html calls `compute_hive_readiness`, which production refuses to members (by design since `20260619000000`), so
+every hive load quietly falls back to cached readiness.
+
+**Push order for Ian (the repository is public):** every hole the commits name as closed is closed in production
+already; push `08cb9598..HEAD` when ready - `20261021000005`/`000006` then apply with the pages that need them.
 
 ## §SL · The SUB-LAYER wave — every full-stack layer's sub-layers, on every production, founder and public page (Ian, 2026-10-14)
 
