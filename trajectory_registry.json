@@ -731073,8 +731073,8 @@
     },
     {
       "id": "BRH377",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · anomaly_signals_forward_only_status - oversight",
       "pages": [
@@ -731134,12 +731134,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.anomaly_signals_forward_only_status(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH378",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_acknowledged_by_from_hive - oversight",
       "pages": [
@@ -731199,12 +731205,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_acknowledged_by_from_hive(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH379",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_alert_dismissal_actor - oversight",
       "pages": [
@@ -731264,12 +731276,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_alert_dismissal_actor(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH380",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_anomaly_signal_attribution - oversight",
       "pages": [
@@ -731329,12 +731347,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_anomaly_signal_attribution(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH381",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_approved_by_from_hive - oversight",
       "pages": [
@@ -731394,12 +731418,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_approved_by_from_hive(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH382",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_assigned_by_from_hive - oversight",
       "pages": [
@@ -731459,12 +731489,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_assigned_by_from_hive(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH383",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_projects_submitter - oversight",
       "pages": [
@@ -731524,12 +731560,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_projects_submitter(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH384",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_reviewed_by_from_hive - oversight",
       "pages": [
@@ -731589,12 +731631,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_reviewed_by_from_hive(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH385",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_skill_profile_worker_name - oversight",
       "pages": [
@@ -731654,12 +731702,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_skill_profile_worker_name(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH386",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · bind_worker_name_from_hive - oversight",
       "pages": [
@@ -731719,12 +731773,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.bind_worker_name_from_hive(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH387",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_alert_dismissals_text - oversight",
       "pages": [
@@ -731784,12 +731844,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_alert_dismissals_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH388",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_asset_nodes_text - oversight",
       "pages": [
@@ -731849,12 +731915,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_asset_nodes_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH389",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_community_reactions_text - oversight",
       "pages": [
@@ -731914,12 +731986,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_community_reactions_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH390",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_early_access_emails_text - oversight",
       "pages": [
@@ -731979,12 +732057,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_early_access_emails_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH391",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_engineering_calcs_text - oversight",
       "pages": [
@@ -732044,12 +732128,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_engineering_calcs_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH392",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_hive_members_text - oversight",
       "pages": [
@@ -732109,12 +732199,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_hive_members_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH393",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_hives_text - oversight",
       "pages": [
@@ -732174,12 +732270,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_hives_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH394",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_inventory_items_text - oversight",
       "pages": [
@@ -732239,12 +732341,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_inventory_items_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH395",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_inventory_transactions_text - oversight",
       "pages": [
@@ -732304,12 +732412,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_inventory_transactions_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH396",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_logbook_text_fields - oversight",
       "pages": [
@@ -732369,12 +732483,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_logbook_text_fields(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH397",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_marketplace_inquiries_text - oversight",
       "pages": [
@@ -732434,12 +732554,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_marketplace_inquiries_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH398",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_marketplace_listings_text - oversight",
       "pages": [
@@ -732499,12 +732625,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_marketplace_listings_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH399",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_marketplace_reviews_text - oversight",
       "pages": [
@@ -732564,12 +732696,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_marketplace_reviews_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH400",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_marketplace_saved_searches_text - oversight",
       "pages": [
@@ -732629,12 +732767,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_marketplace_saved_searches_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH401",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_marketplace_sellers_text - oversight",
       "pages": [
@@ -732694,12 +732838,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_marketplace_sellers_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH402",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_parts_staged_reservations_text - oversight",
       "pages": [
@@ -732759,12 +732909,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_parts_staged_reservations_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH403",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_pdf_job_size - oversight",
       "pages": [
@@ -732824,12 +732980,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_pdf_job_size(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH404",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_pm_assets_text - oversight",
       "pages": [
@@ -732889,12 +733051,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_pm_assets_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH405",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_pm_completions_text - oversight",
       "pages": [
@@ -732954,12 +733122,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_pm_completions_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH406",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_pm_scope_items_text - oversight",
       "pages": [
@@ -733019,12 +733193,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_pm_scope_items_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH407",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_project_change_orders_text - oversight",
       "pages": [
@@ -733084,12 +733264,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_project_change_orders_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH408",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_project_items_text - oversight",
       "pages": [
@@ -733149,12 +733335,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_project_items_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH409",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_project_links_text - oversight",
       "pages": [
@@ -733214,12 +733406,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_project_links_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH410",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_project_progress_logs_text - oversight",
       "pages": [
@@ -733279,12 +733477,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_project_progress_logs_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH411",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_project_roles_text - oversight",
       "pages": [
@@ -733344,12 +733548,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_project_roles_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH412",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_projects_text - oversight",
       "pages": [
@@ -733409,12 +733619,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_projects_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH413",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_rcm_fmea_modes_text - oversight",
       "pages": [
@@ -733474,12 +733690,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_rcm_fmea_modes_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH414",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_rcm_strategies_text - oversight",
       "pages": [
@@ -733539,12 +733761,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_rcm_strategies_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH415",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_report_contacts_text - oversight",
       "pages": [
@@ -733604,12 +733832,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_report_contacts_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH416",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_resume_documents_text - oversight",
       "pages": [
@@ -733669,12 +733903,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_resume_documents_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH417",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_resume_versions_text - oversight",
       "pages": [
@@ -733734,12 +733974,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_resume_versions_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH418",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_schedule_items_text - oversight",
       "pages": [
@@ -733799,12 +734045,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_schedule_items_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH419",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_skill_profiles_text - oversight",
       "pages": [
@@ -733864,12 +734116,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_skill_profiles_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH420",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · cap_worker_profiles_text - oversight",
       "pages": [
@@ -733929,12 +734187,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.cap_worker_profiles_text(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH421",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · check_listing_rate - oversight",
       "pages": [
@@ -733994,12 +734258,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.check_listing_rate(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH422",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · community_post_rate_limit - oversight",
       "pages": [
@@ -734059,12 +734329,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.community_post_rate_limit(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; already set its own search_path locally (a later local definition) and kept it; production's copy was pinned. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH423",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · community_reply_rate_limit - oversight",
       "pages": [
@@ -734124,12 +734400,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.community_reply_rate_limit(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH424",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · generate_change_order_number - oversight",
       "pages": [
@@ -734189,12 +734471,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.generate_change_order_number(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH425",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · get_downtime_pareto - oversight",
       "pages": [
@@ -734254,12 +734542,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.get_downtime_pareto(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH426",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · get_failure_frequency - oversight",
       "pages": [
@@ -734319,12 +734613,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.get_failure_frequency(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH427",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · get_mtbf_by_machine - oversight",
       "pages": [
@@ -734384,12 +734684,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.get_mtbf_by_machine(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH428",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · get_mttr_by_machine - oversight",
       "pages": [
@@ -734449,12 +734755,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.get_mttr_by_machine(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH429",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · get_repeat_failures - oversight",
       "pages": [
@@ -734514,12 +734826,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.get_repeat_failures(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH430",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · match_persona_knowledge - oversight",
       "pages": [
@@ -734579,12 +734897,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.match_persona_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH431",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · search_all_knowledge - oversight",
       "pages": [
@@ -734644,12 +734968,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.search_all_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH432",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · search_bom_knowledge - oversight",
       "pages": [
@@ -734709,12 +735039,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.search_bom_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH433",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · search_calc_knowledge - oversight",
       "pages": [
@@ -734774,12 +735110,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.search_calc_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH434",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · search_fault_knowledge - oversight",
       "pages": [
@@ -734839,12 +735181,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.search_fault_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH435",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · search_pm_knowledge - oversight",
       "pages": [
@@ -734904,12 +735252,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.search_pm_knowledge(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH436",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · set_projects_updated_at - oversight",
       "pages": [
@@ -734969,12 +735323,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.set_projects_updated_at(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH437",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · shift_plans_forward_only_status - oversight",
       "pages": [
@@ -735034,12 +735394,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.shift_plans_forward_only_status(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH438",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · slo_error_budget - oversight",
       "pages": [
@@ -735099,12 +735465,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.slo_error_budget(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH439",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · tg_asset_nodes_touch_updated - oversight",
       "pages": [
@@ -735164,12 +735536,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.tg_asset_nodes_touch_updated(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH440",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · tg_inventory_txn_chain_qty_after - oversight",
       "pages": [
@@ -735229,12 +735607,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.tg_inventory_txn_chain_qty_after(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH441",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · tg_rcm_touch_updated - oversight",
       "pages": [
@@ -735294,12 +735678,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.tg_rcm_touch_updated(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH442",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · tg_schedule_items_blank_time_is_null - oversight",
       "pages": [
@@ -735359,12 +735749,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.tg_schedule_items_blank_time_is_null(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH443",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · tg_shift_plans_touch_updated - oversight",
       "pages": [
@@ -735424,12 +735820,18 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.tg_shift_plans_touch_updated(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {
       "id": "BRH444",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-T",
       "title": "a function whose search_path the caller can change - index · unified_event_source_rank - oversight",
       "pages": [
@@ -735489,6 +735891,12 @@
         "repro": "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's search_path, so an object the caller can create (a temporary table or function) can stand in for the one the body means",
         "fix": "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then call it once to prove the body still resolves; the advisor reads zero",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED IN PRODUCTION, GATED. Production's advisor (function_search_path_mutable) named public.unified_event_source_rank(): it resolved unqualified names through the CALLER's search_path, so a caller able to create an earlier object (a temporary table or function) could stand it in for the one the body means. 20261015970000_brh_t_search_path_pinned set search_path = public, extensions, pg_temp - the same resolution the API roles already had (their database default is \"$user\", public, extensions), with pg_temp last so nothing temporary can shadow a real name; pinned locally and in production. The migration pins EVERY public function without a search_path of its own (67 locally), leaves one that sets its own alone and extension members to their extension. Exercised after pinning, in a rolled-back transaction: updates firing the text-cap, touch-updated and blank-time triggers, get_mtbf_by_machine (25 rows), get_downtime_pareto (30), slo_error_budget. Pushed to production alone on 2026-10-21; production's advisor re-read the same day: function_search_path_mutable 73 -> 0. Gate that reddens on revert: definer-doors T1 (any public function outside an extension that sets no search_path fails; its --self-test creates one in a rolled-back transaction and it is caught).",
+      "artifacts": {
+        "gates": [
+          "definer-doors"
+        ]
       }
     },
     {

@@ -112,6 +112,9 @@ select 'F' || chr(1) || p.proname || chr(1) || pg_get_function_identity_argument
        || chr(1) || has_function_privilege('anon', p.oid, 'execute')::text
        || chr(1) || has_function_privilege('authenticated', p.oid, 'execute')::text
        || chr(1) || has_function_privilege('service_role', p.oid, 'execute')::text
+       || chr(1) || exists (select 1 from unnest(coalesce(p.proconfig, '{}'::text[])) c where c like 'search_path=%')::text
+       || chr(1) || exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid
+                            and d.deptype = 'e')::text
        || chr(1) || p.prorettype::regtype::text || chr(1) || case when p.prosecdef then pg_get_functiondef(p.oid) else '' end
        || chr(2)
 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -134,15 +137,22 @@ def state(prefix_sql: str = "") -> list[dict] | str:
             if j < 0:
                 continue
             chunk = chunk[j:]
-        _, name, args, definer, anon, auth, svc, rtype, body = chunk.split("\x01", 8)
+        _, name, args, definer, anon, auth, svc, pinned, ext, rtype, body = chunk.split("\x01", 10)
         fns.append({"name": name, "args": args, "definer": definer == "true", "anon": anon == "true",
                     "authenticated": auth == "true", "service_role": svc == "true", "trigger": rtype == "trigger",
+                    "pinned": pinned == "true", "extension": ext == "true",
                     "checks_caller": bool(CALLER_CHECK.search(body))})
     return fns
 
 
 def judge(fns: list[dict], revoked: set[str], base: dict) -> tuple[list[str], dict]:
     issues = []
+    # T1 (BRH-T): a function that resolves names through the CALLER's search_path lets a caller stand a temporary object
+    # in for the one its body means; every public function outside an extension sets its own
+    for f in fns:
+        if not f["pinned"] and not f["extension"]:
+            issues.append(f"T1 public.{f['name']}({f['args'][:60]}) sets no search_path of its own - pin it "
+                          f"(set search_path = public, extensions, pg_temp, or '' with every name qualified)")
     for f in fns:
         if f["name"].startswith("debug_"):
             issues.append(f"Q1 public.{f['name']}({f['args']}) exists - a hand-made debug function no product path "
@@ -262,6 +272,8 @@ def self_test() -> list[str]:
          "grant execute on function public.wh_selftest_open() to anon;", "S2"),
         ("anon re-granted a function a migration closed",
          "grant execute on function public.my_recent_xp(integer) to anon;", "Y1"),
+        ("a function that takes the caller's search_path",
+         "create function public.wh_selftest_unpinned() returns int language sql as 'select 1';", "T1"),
     ]
     for name, sql, want in mutants:
         got, _ = run(sql)
@@ -283,7 +295,7 @@ def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
         print(json.dumps({"self_test": "FAIL" if fails else "PASS", "fails": fails}, indent=1) if as_json else
-              ("SELF-TEST PASS (4 live mutants caught in rolled-back transactions and the Y2 static mutant; the clean run is green)"
+              ("SELF-TEST PASS (5 live mutants caught in rolled-back transactions and the Y2 static mutant; the clean run is green)"
                if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails)))
         return 1 if fails else 0
     issues, now = run()

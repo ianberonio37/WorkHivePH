@@ -4888,7 +4888,7 @@ VALIDATORS = [
     # consume_ai_global_budget: the platform's daily AI budget) were closed in production by 20261015500000. A revoke
     # from PUBLIC never reaches anon on Supabase, and DROP + CREATE restores the defaults - so this holds them closed.
     {"id":"definer-doors","script":os.path.join("tools", "validate_definer_doors.py"),"args":[],
-     "label":"Definer doors (BRH S/Q/Y): no debug_* function; the six server-only writers refuse anon and authenticated; every anon-executable SECURITY DEFINER function asks who is calling or is a declared signed-out entry point; every function a migration closed to anon stays closed (live; the open S/Y baseline may only shrink; --self-test: 4 live mutants in rolled-back transactions)",
+     "label":"Definer doors (BRH S/Q/Y/T): no debug_* function; the server-only functions refuse anon and authenticated; every public function pins its own search_path (T1); every anon-executable SECURITY DEFINER function asks who is calling or is a declared signed-out entry point; every function a migration closed to anon stays closed (live; the open S/Y baseline may only shrink; --self-test: 4 live mutants in rolled-back transactions)",
      "group":"Platform","skip_if_fast":False},
     # BRH-X (2026-10-21): Supabase stops granting new public tables automatically on 2026-10-30 - for new tables and for
     # every replay of the schema. 238 of 247 tables and views held API access no migration wrote; the backfill
