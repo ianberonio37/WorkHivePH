@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """render_figure_sources.py - SL D1 (2026-10-19): every figure says where it came from.
 
-figure_sources.json is the curated registry: {page: [{sel, shows, basedOn, reads, whole?, chrome?, why?}]}. Each entry is
+figure_sources.json is the curated registry: {page: [{sel, shows, basedOn, reads, period, whole?, chrome?, why?}]}. Each entry is
 written from the page's own code - which read fills that element - never guessed from a name. This tool writes each
 page's slice into the page itself, as <script type="application/json" id="wh-figure-sources"> just before </body>, so
 the reveal in utils.js (whFigureSources) has it without another request, and a page served fresh always carries its
@@ -39,7 +39,7 @@ def load_registry() -> dict:
 
 
 def block_for(entries: list) -> str:
-    slim = [{k: e[k] for k in ("sel", "shows", "basedOn", "reads", "whole", "chrome") if k in e} for e in entries]
+    slim = [{k: e[k] for k in ("sel", "shows", "basedOn", "reads", "period", "whole", "chrome") if k in e} for e in entries]
     return HEAD + "\n" + OPEN + json.dumps(slim, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + "</script>\n"
 
 
@@ -57,6 +57,9 @@ def shape_problems(page: str, entries: list) -> list:
             bad.append(f"{where}: says nothing about what it shows")
         if not e.get("reads"):
             bad.append(f"{where}: names no view or RPC it reads")
+        # SL C2 (2026-10-20): and the period, window or moment it belongs to - "Now: ...", a named window, "All time"
+        if not e.get("period"):
+            bad.append(f"{where}: says nothing about the period, window or moment it belongs to")
     return bad
 
 
@@ -135,9 +138,10 @@ def run(apply: bool) -> int:
 
 def self_test() -> int:
     ok = True
-    good = [{"sel": "#stat-total", "shows": "Parts", "basedOn": "x", "reads": "v_inventory_items_truth"}]
+    good = [{"sel": "#stat-total", "shows": "Parts", "basedOn": "x", "reads": "v_inventory_items_truth", "period": "Now"}]
     cases = [("a full entry passes", shape_problems("p", good), False),
-             ("no reads is caught", shape_problems("p", [{"sel": "#a", "shows": "x"}]), True),
+             ("no reads is caught", shape_problems("p", [{"sel": "#a", "shows": "x", "period": "Now"}]), True),
+             ("no period is caught", shape_problems("p", [{"sel": "#a", "shows": "x", "reads": "v"}]), True),
              ("a chrome entry without why is caught", shape_problems("p", [{"sel": "#a", "chrome": True}]), True),
              ("a chrome entry with why passes", shape_problems("p", [{"sel": "#a", "chrome": True, "why": "step dot"}]), False)]
     blk = block_for(good)

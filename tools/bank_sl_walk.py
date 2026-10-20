@@ -174,6 +174,15 @@ CONDITION["AV3"] = ("the page read as served in its own browser context (service
                     "rounds (a poll is a round of reads repeating with no one touching the page), and its visible words "
                     "and source lines read - it must re-read on its own and say that it is not live and how often it "
                     "checks, and nothing may still claim live updates")
+GATES["C2"] = ["period-stated", "figure-sources-written", "provenance-at-foot", "kpi-evidence-links", "skew-heal", "scripts-parse"]
+CONDITION["C2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast "
+                   "(public pages signed out), settled 12 s, scrolled to its last element with every <details> opened; every "
+                   "visible figure - a number stating a quantity, not a date, a time, an identifier, a step counter, a "
+                   "standard's number or a control's label - read with its OWN statement (its sentence, its tile, the "
+                   "heading over its card) and its per-figure reveal, and the page's own as-of (its Sources line or a dated "
+                   "byline) read: each figure states its period, window or moment near it or in its reveal, or is a "
+                   "worked example, a benchmark, a sample, a record's own value or a count of what exists now that the "
+                   "page's as-of answers - a running total or a windowed figure with no window fails")
 GATES["AV4"] = ["reload-once", "auto-read-retry", "skew-heal", "skew-heal-live", "sw-navigation-fallback", "scripts-parse"]
 CONDITION["AV4"] = ("the page read as served, signed in as the row's cast, every probe in a FRESH tab from the cast's signed-in "
                     "storage (every reload guard lives in sessionStorage, per tab), documents counted as main-frame navigation "

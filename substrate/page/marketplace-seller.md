@@ -2,7 +2,7 @@
 name: page-marketplace-seller
 type: page
 source: file:marketplace-seller.html
-source_sha: f8947d79548b4479
+source_sha: a79db9574676895c
 last_verified: 2026-07-13
 supersedes: null
 ---

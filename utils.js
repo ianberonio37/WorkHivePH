@@ -5827,6 +5827,7 @@ function renderKpiTile(opts) {
   // figure in the tile's breakdown answers "where from?" with it (utils.js whFigureSources reads these attributes)
   const _fg = opts.figure && opts.figure.reads
     ? ` data-wh-fig-shows="${escHtml(opts.figure.shows || '')}" data-wh-fig-based="${escHtml(opts.figure.basedOn || '')}" data-wh-fig-reads="${escHtml(opts.figure.reads)}"`
+      + (opts.figure.period ? ` data-wh-fig-period="${escHtml(opts.figure.period)}"` : '')   // SL C2: and the period it covers
     : '';
   return `<div class="card"${_fg} style="border-left:1px solid ${c.border};margin-bottom:1rem;">
     <h2 style="margin:0;font:inherit;color:inherit;">
@@ -6988,7 +6989,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   function declaredEntry(box) {
     for (var i = 0; i < declared.length; i++) if (declared[i].box === box) return declared[i].entry;
     var e = { shows: box.getAttribute('data-wh-fig-shows') || '', basedOn: box.getAttribute('data-wh-fig-based') || '',
-              reads: box.getAttribute('data-wh-fig-reads') || '' };
+              reads: box.getAttribute('data-wh-fig-reads') || '', period: box.getAttribute('data-wh-fig-period') || '' };
     declared.push({ box: box, entry: e });
     return e;
   }
@@ -7040,6 +7041,8 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
       '<p style="margin:0;font-size:0.95rem;font-weight:700;line-height:1.35;overflow-wrap:anywhere;">' +
         escHtml(value) + ' <span style="font-weight:600;color:rgba(244,246,250,0.86);">' + escHtml(entry.shows || '') + '</span></p>' +
       (entry.basedOn ? row('Based on', escHtml(entry.basedOn)) : '') +
+      // SL C2 (2026-10-20): which period, window or moment the figure belongs to - "Now", "The last 7 days", "All time"
+      (entry.period ? row('Period', escHtml(entry.period)) : '') +
       (reads.length ? row('Reads', reads.map(function (r) { return '<code>' + escHtml(r) + '</code>'; }).join(', ')) : '');
     document.body.appendChild(el);
     var r = fig.getBoundingClientRect(), w = el.offsetWidth, hgt = el.offsetHeight;

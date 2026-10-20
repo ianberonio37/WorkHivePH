@@ -1935,7 +1935,7 @@ function renderTeamProgressStrip() {
     // read earns the zero-state. This function is called from the boot path AFTER membership is
     // confirmed for the same reason.
     if (!t || t.error || t.count == null) { renderTeamProgressStrip._done = false; return; }
-    if (t.count) lbTeamProg.innerHTML = whProgressStrip('Team jobs closed out', (c && c.count) || 0, t.count);
+    if (t.count) lbTeamProg.innerHTML = whProgressStrip('Team jobs closed out, all time', (c && c.count) || 0, t.count);
     // Zero-state (2026-09-05): a hive with no logbook rows used to leave the reserved 58px slot
     // EMPTY -- a void with no goal-gradient at all. Say so, and name the first step.
     else lbTeamProg.innerHTML = '<p class="text-xs" style="color:var(--muted);margin:0">'
@@ -4923,7 +4923,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const closed = _haveTrue ? Math.max(0, _mineTrueTotal - _mineTrueOpen)
                              : _allEntries.filter(en => en.status === 'Closed').length;
     lbProg.innerHTML = (_viewMode !== 'team' && typeof whProgressStrip === 'function')
-      ? whProgressStrip('Jobs closed out', closed, total) : '';
+      ? whProgressStrip('Jobs closed out, all time', closed, total) : '';   // SL C2: of every entry you have logged, not this month's
   }
   const query        = document.getElementById('search-input').value.trim().toLowerCase();
   const catFilter    = document.getElementById('filter-category').value;

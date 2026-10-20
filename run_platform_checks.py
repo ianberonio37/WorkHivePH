@@ -4366,6 +4366,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "period-stated",
+        "script":  "tools/validate_period_stated.py",
+        "args":    [],
+        "label":   "SL C2 (2026-10-20): every figure states the period, window or moment it belongs to. Walked 155 pages reading every figure with its OWN statement and its per-figure reveal: pm-scheduler counted due-soon over 14 days and said 'this week' (and the registry 'seven days'); its compliance never said whether it was the 90-day SMRP figure or the on-track share now; logbook's closed-out strip, community's posts and XP and the provider tier's jobs read as this period's when they are running totals; analytics' tiles said 'over the period' and never named it; the 88 reveals said where a figure came from and never when; design-system's specimen numbers never said they were samples. Every registry entry now names its period (render_figure_sources refuses one without) and the reveal shows it. Static, 16 anchors + every tile figure checked; self-test: 9 mutations each redden it.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "reload-once",
         "script":  "tools/validate_reload_once.py",
         "args":    [],
