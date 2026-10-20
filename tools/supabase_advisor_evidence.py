@@ -111,14 +111,24 @@ def api_grant_cells() -> list[dict]:
     grant = re.compile(r"\bgrant\s+[a-z ,()_]+?\s+on\s+(?:table\s+|sequence\s+)?(" + name + r"(?:\s*,\s*" + name +
                        r")*)\s+to\s+([a-z_, ]+)", re.I)
     explicit: dict[str, set] = {}
+    # the BRH-X backfill grants through a VALUES list in a DO block - ('object', 'kind', 'role', 'privileges') - which no
+    # literal `grant ... on ... to ...` pattern sees; it counts as explicit too
+    backfill = re.compile(r"\(\s*'([a-z_][a-z0-9_]*)'\s*,\s*'([rpvmS])'\s*,\s*'(anon|authenticated|service_role)'\s*,\s*'[A-Z, ]+'\s*\)")
     for f in sorted(MIG.glob("*.sql")):
-        for m in grant.finditer(strip_sql(f.read_text(encoding="utf-8", errors="replace"))):
+        text = strip_sql(f.read_text(encoding="utf-8", errors="replace"))
+        for m in grant.finditer(text):
             roles = {r.strip().lower() for r in m.group(2).split(",")} & set(API)
             for t in re.split(r"\s*,\s*", m.group(1)):
                 explicit.setdefault(t.split(".")[-1].strip('"').lower(), set()).update(roles)
+        if "execute format('grant %s on %s public.%I to %I'" in text:
+            for m in backfill.finditer(text):
+                explicit.setdefault(m.group(1), set()).add(m.group(3))
+    # only the privileges the Data API uses count as access - a role holding MAINTAIN, REFERENCES or TRIGGER alone
+    # reaches nothing through PostgREST (v_gcash_receipts_needing_eyes kept anon=m after its SELECT was revoked)
     out = psql("select c.relname || '|' || c.relkind::text || '|' || coalesce((select string_agg(distinct "
                "a.grantee::regrole::text, ',') from aclexplode(c.relacl) a where a.grantee in ('anon'::regrole, "
-               "'authenticated'::regrole, 'service_role'::regrole)), '') from pg_class c join pg_namespace n on "
+               "'authenticated'::regrole, 'service_role'::regrole) and a.privilege_type in ('SELECT', 'INSERT', "
+               "'UPDATE', 'DELETE', 'TRUNCATE')), '') from pg_class c join pg_namespace n on "
                "n.oid = c.relnamespace where n.nspname = 'public' and c.relkind in ('r', 'p', 'v', 'm') order by 1;")
     kinds = {"r": "table", "p": "table", "v": "view", "m": "materialized view"}
     cells: dict[tuple, list] = {}

@@ -4890,6 +4890,12 @@ VALIDATORS = [
     {"id":"definer-doors","script":os.path.join("tools", "validate_definer_doors.py"),"args":[],
      "label":"Definer doors (BRH S/Q/Y): no debug_* function; the six server-only writers refuse anon and authenticated; every anon-executable SECURITY DEFINER function asks who is calling or is a declared signed-out entry point; every function a migration closed to anon stays closed (live; the open S/Y baseline may only shrink; --self-test: 4 live mutants in rolled-back transactions)",
      "group":"Platform","skip_if_fast":False},
+    # BRH-X (2026-10-21): Supabase stops granting new public tables automatically on 2026-10-30 - for new tables and for
+    # every replay of the schema. 238 of 247 tables and views held API access no migration wrote; the backfill
+    # 20261015800000 writes production's grants down, and this holds every grant explicit from here on.
+    {"id":"api-grants-explicit","script":os.path.join("tools", "validate_api_grants_explicit.py"),"args":[],
+     "label":"API grants explicit (BRH-X): a migration that creates a public table, view or sequence grants it (or closes it to anon and authenticated outright); every API privilege the local database holds is written in a migration; a replay under the no-automatic-grant default (simulated in a rolled-back transaction) restores every object production serves (--self-test: static, live and replay mutants)",
+     "group":"Platform","skip_if_fast":False},
     {"id":"duplicate-script-tags","script":"validate_duplicate_script_tags.py","args":[],
      "label":"Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)",
      "group":"Platform","report":"duplicate_script_tags_report.json","skip_if_fast":False},
