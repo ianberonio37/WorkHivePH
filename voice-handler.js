@@ -1083,12 +1083,15 @@
         return 'CANONICAL DATA from v_risk_truth — your hive\'s top at-risk assets right now:\n' + lines.join('\n');
       }
       // All MTBF / MTTR / downtime / failures live in v_kpi_truth.
+      // ★BRH-V (2026-10-21): v_kpi_truth is a MATERIALIZED view - no row policy can apply to it - and the API served it to
+      // anon and to every member, every hive's rows (Supabase's advisor, materialized_view_in_api). It is the service
+      // role's alone now; a member reads their own hive through hive_kpis(), which checks membership and returns nothing
+      // for a hive the person does not belong to.
       const win = intent.window_days || 30;
       const col = _kpiColumn(intent.kind, win);
       if (!col) return '';
-      const { data, error } = await db.from('v_kpi_truth')
+      const { data, error } = await db.rpc('hive_kpis', { p_hive_id: hiveId })
         .select('machine, ' + col + ', generated_at')
-        .eq('hive_id', hiveId)
         .not(col, 'is', null);
       if (error || !data || !data.length) return '';
       // Aggregate to a hive-level rollup the worker would actually expect.

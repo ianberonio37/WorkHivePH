@@ -4882,6 +4882,14 @@ VALIDATORS = [
     {"id":"security-definer-search-path","script":"validate_security_definer_search_path.py","args":[],
      "label":"SECURITY DEFINER search_path (every definer fn pins search_path; covers ALTER FUNCTION hardening; forward-only ratchet)",
      "group":"Platform","report":"security_definer_search_path_report.json","skip_if_fast":False},
+    # BRH S/Q/Y (2026-10-21): Supabase's advisor, emailed 2026-10-20, listed 94 SECURITY DEFINER functions anon could run in
+    # production. Ten hand-made debug_* functions (one returned workers' names and account ids to anyone) and six
+    # server-only writers that check no caller (enqueue_user_push: a Web Push to any account with any link;
+    # consume_ai_global_budget: the platform's daily AI budget) were closed in production by 20261015500000. A revoke
+    # from PUBLIC never reaches anon on Supabase, and DROP + CREATE restores the defaults - so this holds them closed.
+    {"id":"definer-doors","script":os.path.join("tools", "validate_definer_doors.py"),"args":[],
+     "label":"Definer doors (BRH S/Q/Y): no debug_* function; the six server-only writers refuse anon and authenticated; every anon-executable SECURITY DEFINER function asks who is calling or is a declared signed-out entry point; every function a migration closed to anon stays closed (live; the open S/Y baseline may only shrink; --self-test: 4 live mutants in rolled-back transactions)",
+     "group":"Platform","skip_if_fast":False},
     {"id":"duplicate-script-tags","script":"validate_duplicate_script_tags.py","args":[],
      "label":"Duplicate <script>/<link> Tags (no per-page duplicates of script src or stylesheet href; forward-only ratchet)",
      "group":"Platform","report":"duplicate_script_tags_report.json","skip_if_fast":False},

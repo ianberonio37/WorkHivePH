@@ -70,12 +70,16 @@ SENSITIVE_RE = re.compile(
 
 # ── DECLARED: this data is public ON PURPOSE. A entry without a reason is a silenced failure. ──
 DECLARED = {
+    # ★A DECLARATION DECIDES THE POLICY, NEVER THE SWITCH (BRH-P, 2026-10-21). Supabase's critical email of 2026-10-20
+    # (rls_disabled_in_public) named 13 tables production served with RLS off - every one declared here, so this gate
+    # passed them. Public reference data now carries RLS and an explicit `<table>_public_read` policy; and six entries
+    # left this list because their reasons were wrong once read against their columns - ai_rate_limits ("no identity
+    # column": it holds hive_id), terminology_gaps (reported_by), tts_cache (text_content, and the table is unused),
+    # embedding_cache (hashes of what people asked), persona_knowledge (internal prompt material), ai_global_budget -
+    # none read by a page; the service role reads them past RLS (migration 20261015600000).
     "achievement_definitions":      "the badge catalogue — the same for every hive, shown before sign-in",
     "ai_cache":                     "response cache keyed by prompt hash; holds no identity column and is "
                                     "read through the AI chain, never rendered to another user",
-    "ai_global_budget":             "one row of THROTTLING state (minute/day counters, shed and deny counts). "
-                                    "Checked 2026-08-04: no money, no identity — operational, not confidential",
-    "ai_rate_limits":               "per-window request counters for the shared AI chain; no identity column",
     "avatar_animations":            "static animation manifests for the companion avatar",
     "best_practices":               "the maintenance knowledge base — reference content, the product's whole point",
     "canonical_agent_contracts":    "the canonical registry: published contracts, deliberately inspectable",
@@ -89,7 +93,6 @@ DECLARED = {
     "cross_hive_alerts":            "cross-hive BENCHMARK alerts, aggregate by construction. Checked "
                                     "2026-08-04: 0 rows and no hive_id/worker_name column, so nothing "
                                     "tenant-scoped can appear here without changing the schema",
-    "embedding_cache":              "vector cache keyed by content hash; no identity column",
     "equipment_reading_templates":  "reading templates per equipment class — reference data",
     "fallback_model_faq":           "the public FAQ shown when the AI chain sheds load",
     "industry_standards":           "reference standards — public citations",
@@ -98,7 +101,6 @@ DECLARED = {
     "multilingual_terms":           "the Filipino/English dictionary the i18n layer reads",
     "network_benchmarks":           "cross-hive aggregate benchmarks — aggregate by construction",
     "ops_artifact_metrics":         "build/ops metrics for the status surface; no identity column",
-    "persona_knowledge":            "persona prompt fragments for the AI chain — product content",
     "ph_intelligence_reports":      "published Philippine market reports — editorial content",
     "platform_feedback":            "policy IS caller-aware for private rows (is_public = true for the "
                                     "public branch, is_platform_admin() for the rest); listed here because "
@@ -106,8 +108,6 @@ DECLARED = {
     "platform_feedback_votes":      "vote tallies on public feedback; the votes are the public signal",
     "platform_knowledge_graph_facts": "the published knowledge graph — reference content",
     "service_slo_targets":          "the SLO targets the service pages publish as a promise",
-    "terminology_gaps":             "terms the dictionary is missing — a content backlog, not user data",
-    "tts_cache":                    "speech cache keyed by text hash; no identity column",
     "voice_response_queue":         "transient queue for the voice companion; no identity column",
     "wh_health_status":             "the health banner reads this before sign-in, which is the point",
 }
@@ -167,7 +167,57 @@ def selftest():
             ok = False
     if ok:
         print(f"  {GREEN}PASS{RST} — OPEN / CLOSED / CALLER_AWARE / DELEGATED all separate correctly")
+    # BRH-P: the RLS switch itself, live - a table with RLS turned off inside a rolled-back transaction must be named
+    got = rls_off_tables("begin; alter table public.multilingual_terms disable row level security;")
+    if got is None:
+        print(f"  {YEL}SKIP{RST} — the live RLS mutant needs the local database")
+    elif "multilingual_terms" not in got:
+        print(f"  {RED}FAIL{RST} — a public table with RLS turned off was not caught (got {got[:3]})")
+        ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} — a public table with RLS turned off is caught, declared or not")
+    # BRH-V: a materialized view can carry no row policy, so a client SELECT on one reads every row of every hive
+    got = api_matviews("begin; grant select on public.v_kpi_truth to authenticated;")
+    if got is None:
+        print(f"  {YEL}SKIP{RST} — the live materialized-view mutant needs the local database")
+    elif "v_kpi_truth" not in got:
+        print(f"  {RED}FAIL{RST} — a materialized view granted to authenticated was not caught (got {got[:3]})")
+        ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} — a materialized view a client can select is caught")
     return 0 if ok else 1
+
+
+def api_matviews(prefix_sql=""):
+    """Public materialized views anon or authenticated may SELECT - every row, past every policy. prefix_sql runs first in
+    a transaction that is rolled back. None when the database cannot be read."""
+    sql = (prefix_sql + "\nselect c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace "
+           "where n.nspname = 'public' and c.relkind = 'm' and (has_table_privilege('anon', c.oid, 'select') "
+           "or has_table_privilege('authenticated', c.oid, 'select')) order by 1;\n" + ("rollback;" if prefix_sql else ""))
+    try:
+        p = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+                           input=sql, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+    except Exception:
+        return None
+    if p.returncode != 0:
+        return None
+    return [l.strip() for l in p.stdout.splitlines() if l.strip() and l.strip() not in ("BEGIN", "GRANT", "ROLLBACK")]
+
+
+def rls_off_tables(prefix_sql=""):
+    """Every public table with row-level security OFF. prefix_sql runs first in a transaction that is rolled back (the
+    self-test's mutant). None when the database cannot be read."""
+    sql = (prefix_sql + "\nselect c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace "
+           "where n.nspname = 'public' and c.relkind in ('r', 'p') and not c.relrowsecurity order by 1;\n"
+           + ("rollback;" if prefix_sql else ""))
+    try:
+        p = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres", "-tA"],
+                           input=sql, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+    except Exception:
+        return None
+    if p.returncode != 0:
+        return None
+    return [l.strip() for l in p.stdout.splitlines() if l.strip() and l.strip() not in ("BEGIN", "ALTER TABLE", "ROLLBACK")]
 
 
 def main(argv):
@@ -227,6 +277,25 @@ def main(argv):
         print(f"\n  {RED}FAIL{RST} — instrument check: {total} readable tables and NOT ONE has a "
               f"caller-aware policy. That is not credible on this database; the catalogue parse is "
               f"broken. Fix the gate before believing any finding below.")
+        return 1
+
+    # BRH-P: a declaration decides the POLICY, never the switch - any public table with RLS off fails, declared or not
+    off = rls_off_tables() or []
+    if off:
+        print(f"\n  {RED}FAIL{RST} — {len(off)} public table(s) have row-level security OFF (Supabase's advisor: "
+              f"rls_disabled_in_public, critical). Turn it on; if the table is public on purpose, write that as a "
+              f"`<table>_public_read` policy:")
+        for t in off:
+            print(f"    · {BOLD}{t}{RST}{'  (declared public - write the policy)' if t in DECLARED else ''}")
+        return 1
+    mv = api_matviews() or []
+    if mv:
+        print(f"\n  {RED}FAIL{RST} — {len(mv)} materialized view(s) a client can SELECT (Supabase's advisor: "
+              f"materialized_view_in_api). No row policy can apply to one, so every row of every hive is readable. "
+              f"Revoke SELECT from anon and authenticated and serve each caller its rows through a function that checks "
+              f"who is asking:")
+        for t in mv:
+            print(f"    · {BOLD}{t}{RST}")
         return 1
 
     undeclared = [t for t in buckets["OPEN"] if t not in DECLARED]

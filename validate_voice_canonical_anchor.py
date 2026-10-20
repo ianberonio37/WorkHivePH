@@ -38,6 +38,7 @@ qa (cross-surface gating), platform-guardian (gate registration).
 from __future__ import annotations
 
 import os
+import re
 import sys
 
 if sys.platform == "win32":
@@ -78,7 +79,14 @@ def check_canonical_fetch(src):
             "reason": "_fetchCanonicalData() is missing. The classifier with no fetch produces nothing to inject; the worker still gets a vague 'check Analytics' reply.",
         })
         return issues
-    missing_views = [v for v in REQUIRED_TRUTH_VIEWS if v not in src]
+    # ★A NAME IN A COMMENT IS NOT A READ (BRH-V, 2026-10-21). This asked only whether the view's NAME appeared in the
+    # file. v_kpi_truth is now the service role's alone (a materialized view: no row policy can scope it), and a member
+    # reads it through hive_kpis(), which checks membership - so the check asks for the READ itself: .rpc('hive_kpis'
+    # (or a direct .from of the view) for KPIs, .from('v_risk_truth') for risk.
+    readers = {"v_kpi_truth": (r"\.rpc\(\s*['\"]hive_kpis['\"]", r"\.from\(\s*['\"]v_kpi_truth['\"]"),
+               "v_risk_truth": (r"\.from\(\s*['\"]v_risk_truth['\"]",)}
+    missing_views = [v for v in REQUIRED_TRUTH_VIEWS
+                     if not any(re.search(rx, src) for rx in readers.get(v, (re.escape(v),)))]
     if missing_views:
         issues.append({
             "check": "canonical_fetch",

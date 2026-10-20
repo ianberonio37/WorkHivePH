@@ -1,0 +1,1055 @@
+{
+ "read": "2026-10-21",
+ "project": "workhive (hzyvnjtisfgbksicrouu)",
+ "source": "Supabase security advisor (get_advisors, type=security) and a read-only schema fingerprint, both through the claude.ai Supabase connector; the local database read-only",
+ "emails": [
+  "2026-10-20 Action required: security vulnerabilities detected in your projects (rls_disabled_in_public, critical, issues as of 17 Oct 2026)",
+  "2026-10-20 Final notice: new tables in public need grants from October 30"
+ ],
+ "advisor": {
+  "rls_enabled_no_policy": {
+   "level": "INFO",
+   "title": "RLS Enabled No Policy",
+   "count": 12
+  },
+  "security_definer_view": {
+   "level": "ERROR",
+   "title": "Security Definer View",
+   "count": 5
+  },
+  "function_search_path_mutable": {
+   "level": "WARN",
+   "title": "Function Search Path Mutable",
+   "count": 73
+  },
+  "rls_disabled_in_public": {
+   "level": "ERROR",
+   "title": "RLS Disabled in Public",
+   "count": 13
+  },
+  "extension_in_public": {
+   "level": "WARN",
+   "title": "Extension in Public",
+   "count": 2
+  },
+  "materialized_view_in_api": {
+   "level": "WARN",
+   "title": "Materialized View in API",
+   "count": 1
+  },
+  "anon_security_definer_function_executable": {
+   "level": "WARN",
+   "title": "Public Can Execute SECURITY DEFINER Function",
+   "count": 94
+  },
+  "authenticated_security_definer_function_executable": {
+   "level": "WARN",
+   "title": "Signed-In Users Can Execute SECURITY DEFINER Function",
+   "count": 113
+  },
+  "auth_leaked_password_protection": {
+   "level": "WARN",
+   "title": "Leaked Password Protection Disabled",
+   "count": 1
+  }
+ },
+ "P_rls_disabled": [
+  "network_benchmarks",
+  "equipment_reading_templates",
+  "service_slo_targets",
+  "terminology_gaps",
+  "multilingual_terms",
+  "ph_intelligence_reports",
+  "tts_cache",
+  "best_practices",
+  "cross_hive_alerts",
+  "avatar_animations",
+  "embedding_cache",
+  "persona_knowledge",
+  "ai_rate_limits"
+ ],
+ "Q_prod_only": [
+  "debug_anon_all_workers()",
+  "debug_anon_first_row(p_table text)",
+  "debug_anon_role()",
+  "debug_anon_visible_count(p_table text)",
+  "debug_column_privs(p_table text)",
+  "debug_definer_all_workers()",
+  "debug_list_objects(p_name text)",
+  "debug_table_policies(p_table text)",
+  "debug_table_privs(p_table text)",
+  "debug_table_rls_state(p_table text)"
+ ],
+ "R_definer_views": [
+  "v_marketplace_sellers_public",
+  "v_marketplace_listings_public",
+  "v_service_open_broadcasts",
+  "v_service_job_tracking",
+  "v_service_provider_leaderboard"
+ ],
+ "S_anon_definer_unchecked": [
+  {
+   "name": "ai_cache_bump",
+   "writes": true
+  },
+  {
+   "name": "ai_cache_sweep_expired",
+   "writes": true
+  },
+  {
+   "name": "check_username_available",
+   "writes": false
+  },
+  {
+   "name": "consume_ai_global_budget",
+   "writes": true
+  },
+  {
+   "name": "enqueue_user_push",
+   "writes": true
+  },
+  {
+   "name": "get_marketplace_price_comps",
+   "writes": false
+  },
+  {
+   "name": "get_marketplace_seller_public",
+   "writes": false
+  },
+  {
+   "name": "get_marketplace_trust_badges",
+   "writes": false
+  },
+  {
+   "name": "increment_listing_view",
+   "writes": true
+  },
+  {
+   "name": "listing_reservation_amount",
+   "writes": false
+  },
+  {
+   "name": "marketplace_platform_response_hours",
+   "writes": false
+  },
+  {
+   "name": "photo_attach_stats",
+   "writes": false
+  },
+  {
+   "name": "provider_credit_balance",
+   "writes": false
+  },
+  {
+   "name": "prune_embedding_cache",
+   "writes": true
+  },
+  {
+   "name": "record_ai_chain_depth",
+   "writes": true
+  },
+  {
+   "name": "redeem_service_voucher",
+   "writes": false
+  },
+  {
+   "name": "rerank_kb_chunks",
+   "writes": false
+  },
+  {
+   "name": "seller_has_published_listing",
+   "writes": false
+  },
+  {
+   "name": "semantic_search_industry_standards",
+   "writes": false
+  },
+  {
+   "name": "semantic_search_platform_kg_facts",
+   "writes": false
+  },
+  {
+   "name": "service_agreed_base",
+   "writes": false
+  },
+  {
+   "name": "service_knob",
+   "writes": false
+  },
+  {
+   "name": "service_knob_pct",
+   "writes": false
+  },
+  {
+   "name": "service_objection_deadline",
+   "writes": false
+  },
+  {
+   "name": "service_request_price",
+   "writes": false
+  },
+  {
+   "name": "sync_pm_asset_identity",
+   "writes": false
+  }
+ ],
+ "T_search_path_mutable": [
+  "anomaly_signals_forward_only_status",
+  "bind_acknowledged_by_from_hive",
+  "bind_alert_dismissal_actor",
+  "bind_anomaly_signal_attribution",
+  "bind_approved_by_from_hive",
+  "bind_assigned_by_from_hive",
+  "bind_projects_submitter",
+  "bind_reviewed_by_from_hive",
+  "bind_skill_profile_worker_name",
+  "bind_worker_name_from_hive",
+  "cap_alert_dismissals_text",
+  "cap_asset_nodes_text",
+  "cap_community_reactions_text",
+  "cap_early_access_emails_text",
+  "cap_engineering_calcs_text",
+  "cap_hive_members_text",
+  "cap_hives_text",
+  "cap_inventory_items_text",
+  "cap_inventory_transactions_text",
+  "cap_logbook_text_fields",
+  "cap_marketplace_inquiries_text",
+  "cap_marketplace_listings_text",
+  "cap_marketplace_reviews_text",
+  "cap_marketplace_saved_searches_text",
+  "cap_marketplace_sellers_text",
+  "cap_parts_staged_reservations_text",
+  "cap_pdf_job_size",
+  "cap_pm_assets_text",
+  "cap_pm_completions_text",
+  "cap_pm_scope_items_text",
+  "cap_project_change_orders_text",
+  "cap_project_items_text",
+  "cap_project_links_text",
+  "cap_project_progress_logs_text",
+  "cap_project_roles_text",
+  "cap_projects_text",
+  "cap_rcm_fmea_modes_text",
+  "cap_rcm_strategies_text",
+  "cap_report_contacts_text",
+  "cap_resume_documents_text",
+  "cap_resume_versions_text",
+  "cap_schedule_items_text",
+  "cap_skill_profiles_text",
+  "cap_worker_profiles_text",
+  "check_listing_rate",
+  "community_post_rate_limit",
+  "community_reply_rate_limit",
+  "generate_change_order_number",
+  "get_downtime_pareto",
+  "get_failure_frequency",
+  "get_mtbf_by_machine",
+  "get_mttr_by_machine",
+  "get_repeat_failures",
+  "match_persona_knowledge",
+  "search_all_knowledge",
+  "search_bom_knowledge",
+  "search_calc_knowledge",
+  "search_fault_knowledge",
+  "search_pm_knowledge",
+  "set_projects_updated_at",
+  "shift_plans_forward_only_status",
+  "slo_error_budget",
+  "tg_asset_nodes_touch_updated",
+  "tg_inventory_txn_chain_qty_after",
+  "tg_rcm_touch_updated",
+  "tg_schedule_items_blank_time_is_null",
+  "tg_shift_plans_touch_updated",
+  "unified_event_source_rank"
+ ],
+ "U_extension_in_public": [
+  "vector",
+  "pg_net"
+ ],
+ "V_matview_in_api": [
+  "v_kpi_truth"
+ ],
+ "W_leaked_password_protection": [
+  "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security."
+ ],
+ "X_api_grant_cells": [
+  {
+   "role": "anon",
+   "kind": "table",
+   "objects": [
+    "ai_global_budget",
+    "ai_rate_limits",
+    "ai_reply_feedback",
+    "alert_dismissals",
+    "analytics_snapshots",
+    "api_keys",
+    "asset_risk_scores",
+    "avatar_animations",
+    "best_practices",
+    "bom_knowledge",
+    "calc_knowledge",
+    "cmms_audit_log",
+    "conversation_analytics",
+    "cross_hive_alerts",
+    "embedding_cache",
+    "equipment_reading_templates",
+    "external_sync",
+    "failure_signature_alerts",
+    "hive_analytics_cache",
+    "hive_audit_log",
+    "hive_benchmarks",
+    "integration_configs",
+    "multilingual_terms",
+    "network_benchmarks",
+    "offline_snapshot_cache",
+    "ops_artifact_metrics",
+    "parts_records",
+    "parts_staged_reservations",
+    "parts_staging_recommendations",
+    "persona_knowledge",
+    "ph_intelligence_reports",
+    "project_change_orders",
+    "project_items",
+    "project_knowledge",
+    "project_links",
+    "project_progress_logs",
+    "project_roles",
+    "service_slo_targets",
+    "terminology_gaps",
+    "tts_cache",
+    "tts_quality_log",
+    "voice_response_queue"
+   ]
+  },
+  {
+   "role": "anon",
+   "kind": "view",
+   "objects": [
+    "v_active_anomaly_alerts",
+    "v_adoption_truth",
+    "v_anomaly_truth",
+    "v_conversation_health",
+    "v_dialog_state_current",
+    "v_gcash_receipts_needing_eyes",
+    "v_hive_value_summary",
+    "v_insurance_bridge_truth",
+    "v_kb_freshness_truth",
+    "v_knowledge_freshness_truth",
+    "v_service_credit_ledger_truth",
+    "v_service_credit_topups_truth",
+    "v_service_job_tracking",
+    "v_service_open_broadcasts",
+    "v_service_request_truth",
+    "v_session_memory_recent",
+    "v_wh_traces_slo"
+   ]
+  },
+  {
+   "role": "authenticated",
+   "kind": "table",
+   "objects": [
+    "ai_global_budget",
+    "ai_rate_limits",
+    "asset_risk_scores",
+    "avatar_animations",
+    "best_practices",
+    "bom_knowledge",
+    "calc_knowledge",
+    "conversation_analytics",
+    "cross_hive_alerts",
+    "early_access_emails",
+    "embedding_cache",
+    "equipment_reading_templates",
+    "external_sync",
+    "failure_signature_alerts",
+    "hive_analytics_cache",
+    "hive_audit_log",
+    "hive_benchmarks",
+    "integration_configs",
+    "multilingual_terms",
+    "network_benchmarks",
+    "offline_snapshot_cache",
+    "ops_artifact_metrics",
+    "parts_records",
+    "parts_staged_reservations",
+    "parts_staging_recommendations",
+    "persona_knowledge",
+    "ph_intelligence_reports",
+    "project_change_orders",
+    "project_items",
+    "project_knowledge",
+    "project_links",
+    "project_progress_logs",
+    "project_roles",
+    "terminology_gaps",
+    "tts_cache",
+    "tts_quality_log"
+   ]
+  },
+  {
+   "role": "authenticated",
+   "kind": "view",
+   "objects": [
+    "v_active_anomaly_alerts",
+    "v_conversation_health",
+    "v_dialog_state_current",
+    "v_hive_value_summary",
+    "v_kb_freshness_truth",
+    "v_session_memory_recent",
+    "v_wh_traces_slo"
+   ]
+  },
+  {
+   "role": "service_role",
+   "kind": "materialized view",
+   "objects": [
+    "v_kpi_truth"
+   ]
+  },
+  {
+   "role": "service_role",
+   "kind": "table",
+   "objects": [
+    "achievement_definitions",
+    "achievement_xp_log",
+    "agent_episodic_memory",
+    "agent_followups",
+    "agent_memory",
+    "agentic_rag_traces",
+    "ai_audit_log",
+    "ai_cache",
+    "ai_cost_log",
+    "ai_global_budget",
+    "ai_knowledge_gap",
+    "ai_quality_escalation",
+    "ai_quality_log",
+    "ai_reply_feedback",
+    "ai_reports",
+    "ai_user_rate_limits",
+    "alert_dismissals",
+    "amc_briefings",
+    "analytics_events",
+    "analytics_snapshots",
+    "anomaly_alerts",
+    "anomaly_signals",
+    "api_keys",
+    "asset_edges",
+    "asset_embeddings",
+    "asset_nodes",
+    "asset_risk_scores",
+    "asset_watchlist",
+    "auth_session_events",
+    "automation_log",
+    "avatar_animations",
+    "avatar_state",
+    "best_practices",
+    "bom_knowledge",
+    "calc_knowledge",
+    "canonical_agent_contracts",
+    "canonical_capabilities",
+    "canonical_capture_contracts",
+    "canonical_formulas",
+    "canonical_lineage_edges",
+    "canonical_period_summaries",
+    "canonical_sources",
+    "canonical_standards",
+    "client_errors",
+    "cmms_audit_log",
+    "community_post_xp_awards",
+    "community_posts",
+    "community_reaction_xp_awards",
+    "community_reactions",
+    "community_replies",
+    "community_reply_xp_awards",
+    "community_xp",
+    "companion_handoff",
+    "consulting_engagements",
+    "conversation_analytics",
+    "cross_hive_alerts",
+    "dialog_state",
+    "drone_inspections",
+    "early_access_emails",
+    "embedding_cache",
+    "embedding_outbox",
+    "embedding_registry",
+    "engineering_calcs",
+    "equipment_reading_templates",
+    "external_sync",
+    "failure_signature_alerts",
+    "fallback_model_faq",
+    "fault_knowledge",
+    "gateway_audit_log",
+    "gcash_inbound_receipts",
+    "hive_adoption_score",
+    "hive_analytics_cache",
+    "hive_audit_log",
+    "hive_benchmarks",
+    "hive_members",
+    "hive_quotas",
+    "hive_readiness",
+    "hive_readiness_audit",
+    "hive_retention_config",
+    "hive_route_calls",
+    "hive_route_quotas",
+    "hive_service_settings",
+    "hives",
+    "industry_standards",
+    "industry_standards_chunks",
+    "integration_configs",
+    "inventory_items",
+    "inventory_transactions",
+    "kb_chunks",
+    "kb_documents",
+    "knowledge_graph_facts",
+    "language_preferences",
+    "logbook",
+    "login_attempts",
+    "marketplace_disputes",
+    "marketplace_inquiries",
+    "marketplace_listings",
+    "marketplace_orders",
+    "marketplace_platform_admins",
+    "marketplace_reviews",
+    "marketplace_saved_searches",
+    "marketplace_sellers",
+    "marketplace_watchlist",
+    "mentor_relay_queue",
+    "mfa_enrollments",
+    "multilingual_terms",
+    "network_benchmarks",
+    "offline_snapshot_cache",
+    "ops_artifact_metrics",
+    "ops_db_size_history",
+    "parts_records",
+    "parts_staged_reservations",
+    "parts_staging_recommendations",
+    "pdf_jobs",
+    "persona_knowledge",
+    "pf_intervals",
+    "ph_intelligence_reports",
+    "platform_feedback",
+    "platform_feedback_votes",
+    "platform_knowledge_graph_facts",
+    "pm_assets",
+    "pm_completions",
+    "pm_knowledge",
+    "pm_scope_items",
+    "project_change_orders",
+    "project_items",
+    "project_knowledge",
+    "project_links",
+    "project_progress_logs",
+    "project_roles",
+    "projects",
+    "push_subscriptions",
+    "rcm_fmea_modes",
+    "rcm_strategies",
+    "report_contacts",
+    "resume_documents",
+    "resume_versions",
+    "schedule_items",
+    "sensor_readings",
+    "sensor_topic_map",
+    "service_catalog",
+    "service_credit_ledger",
+    "service_credit_topups",
+    "service_job_events",
+    "service_offers",
+    "service_outbox",
+    "service_providers",
+    "service_requests",
+    "service_slo_targets",
+    "service_voucher_redemptions",
+    "service_vouchers",
+    "shared_voice_notes",
+    "shift_plans",
+    "skill_badges",
+    "skill_exam_attempts",
+    "skill_exam_keys",
+    "skill_knowledge",
+    "skill_profiles",
+    "sso_configs",
+    "terminology_gaps",
+    "tts_cache",
+    "tts_quality_log",
+    "unified_events",
+    "voice_journal_entries",
+    "voice_response_queue",
+    "weibull_fits",
+    "wh_feature_flags",
+    "wh_health_status",
+    "wh_traces",
+    "wh_voice_presence",
+    "worker_achievements",
+    "worker_known_devices",
+    "worker_profiles"
+   ]
+  },
+  {
+   "role": "service_role",
+   "kind": "view",
+   "objects": [
+    "v_achievement_xp_log",
+    "v_active_anomaly_alerts",
+    "v_adoption_truth",
+    "v_ai_reports_truth",
+    "v_alert_truth",
+    "v_amc_truth",
+    "v_anomaly_truth",
+    "v_asset_state_truth",
+    "v_asset_truth",
+    "v_audit_unified",
+    "v_community_reputation_truth",
+    "v_conversation_health",
+    "v_cron_health",
+    "v_dialog_state_current",
+    "v_external_sync_truth",
+    "v_fmea_truth",
+    "v_gcash_receipts_needing_eyes",
+    "v_hive_readiness_truth",
+    "v_hive_value_summary",
+    "v_hives_truth",
+    "v_industry_standards_coverage",
+    "v_insurance_bridge_truth",
+    "v_inventory_items_truth",
+    "v_inventory_transactions_truth",
+    "v_kb_freshness_truth",
+    "v_knowledge_freshness_truth",
+    "v_knowledge_truth",
+    "v_logbook_truth",
+    "v_marketplace_inquiries_truth",
+    "v_marketplace_listings_public",
+    "v_marketplace_listings_truth",
+    "v_marketplace_orders_truth",
+    "v_marketplace_sellers_public",
+    "v_pf_truth",
+    "v_pm_compliance_truth",
+    "v_pm_scope_items_truth",
+    "v_project_items_truth",
+    "v_project_progress_truth",
+    "v_project_truth",
+    "v_rcm_truth",
+    "v_risk_truth",
+    "v_sensor_recent",
+    "v_sensor_truth",
+    "v_service_area_presence",
+    "v_service_catalog_truth",
+    "v_service_credit_ledger_truth",
+    "v_service_credit_topups_truth",
+    "v_service_job_tracking",
+    "v_service_open_broadcasts",
+    "v_service_provider_leaderboard",
+    "v_service_provider_truth",
+    "v_service_request_truth",
+    "v_service_slo",
+    "v_session_memory_recent",
+    "v_skill_badges_truth",
+    "v_storage_health",
+    "v_weibull_truth",
+    "v_wh_traces_slo",
+    "v_worker_achievements",
+    "v_worker_achievements_truth",
+    "v_worker_assignment_truth",
+    "v_worker_skill_truth",
+    "v_worker_truth"
+   ]
+  }
+ ],
+ "Y_revokes_that_do_not_hold": [
+  {
+   "name": "acknowledge_alert",
+   "args": "p_alert_id bigint",
+   "security_definer": true,
+   "revoked_in": "20260620000000_fix_alert_rpc_definer_tenant_gate.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "compute_adoption_risk",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260513000004_phase3_adoption_observability.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "compute_anomaly_signals",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260513000005_phase4_revenue_surfaces.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "compute_hive_readiness",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "ensure_pm_asset_for_node",
+   "args": "p_node_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260728000010_ensure_pm_asset_for_node_rpc.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "fetch_active_alerts",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "founder_active_hives",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20260905000002_founder_analytics_rollups.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "founder_anon_sessions",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20260905000002_founder_analytics_rollups.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "founder_dau_series",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20260905000002_founder_analytics_rollups.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "founder_feature_use",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20261021000002_l3_usage_events.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "founder_mau",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20260905000002_founder_analytics_rollups.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "founder_page_heatmap",
+   "args": "p_days integer",
+   "security_definer": false,
+   "revoked_in": "20260905000002_founder_analytics_rollups.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "generate_project_code",
+   "args": "p_hive_id uuid, p_type text, p_year integer",
+   "security_definer": true,
+   "revoked_in": "20260728000032_one_generate_project_code_not_two.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "get_hive_readiness_current",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "get_pm_ontime_delivery",
+   "args": "p_hive_id uuid, p_period_days integer",
+   "security_definer": true,
+   "revoked_in": "20260728000005_pm_ontime_delivery_rpc.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "get_project_budget",
+   "args": "p_project_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260728000023_budget_is_supervisor_only_at_the_database.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "inquiry_is_from_me",
+   "args": "p_inquiry uuid",
+   "security_definer": true,
+   "revoked_in": "20261008000061_an_inquiry_belongs_to_its_two_accounts.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "inventory_restock",
+   "args": "p_item_id text, p_qty numeric, p_note text, p_txn_id text",
+   "security_definer": true,
+   "revoked_in": "20260713000008_inventory_restock_rpc.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "is_platform_admin",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20260621000003_platform_feedback_rls_harden.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "join_hive_by_code",
+   "args": "p_code text, p_worker_name text",
+   "security_definer": true,
+   "revoked_in": "20260713000002_hive_membership_gates.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "listing_is_mine",
+   "args": "p_listing uuid",
+   "security_definer": true,
+   "revoked_in": "20261008000060_a_listing_belongs_to_an_account_not_a_name.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "logbook_synced_machines",
+   "args": "p_hive_id uuid",
+   "security_definer": false,
+   "revoked_in": "20261021000004_lb1_resume_logbook_summary.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "my_inquiry_ids",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20261020000003_lb2_read_shapes.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "my_listing_ids",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20261020000003_lb2_read_shapes.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "my_logbook_summary",
+   "args": "p_worker_name text",
+   "security_definer": false,
+   "revoked_in": "20261021000004_lb1_resume_logbook_summary.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "my_personal_history_count",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20261008000064_a_person_chooses_to_bring_their_history_into_a_hive.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "order_is_mine",
+   "args": "p_order uuid",
+   "security_definer": true,
+   "revoked_in": "20261008000062_the_rest_of_the_marketplace_belongs_to_accounts.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "report_community_post",
+   "args": "p_post_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260820000064_reporting_a_post_did_nothing_and_said_it_worked.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "semantic_search_kb",
+   "args": "p_hive_id uuid, p_query_embedding vector, p_similarity_threshold real, p_limit integer",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "semantic_search_kg_facts",
+   "args": "p_hive_id uuid, p_query_embedding vector, p_similarity_threshold real, p_limit integer, p_min_confidence real",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "set_project_budget",
+   "args": "p_project_id uuid, p_budget_php numeric",
+   "security_definer": true,
+   "revoked_in": "20260728000030_budget_write_is_supervisor_only_too.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "set_worker_display_name",
+   "args": "p_name text",
+   "security_definer": true,
+   "revoked_in": "20260826000008_rename_only_before_history.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "store_memory_turn",
+   "args": "p_hive_id uuid, p_session_id text, p_turn_num integer, p_user_input text, p_assistant_response text, p_intent text, p_confidence real, p_response_time_ms integer",
+   "security_definer": true,
+   "revoked_in": "20260607000005_definer_hive_membership_gates_batch2.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "suppress_alert",
+   "args": "p_alert_id bigint, p_hours integer",
+   "security_definer": true,
+   "revoked_in": "20260620000000_fix_alert_rpc_definer_tenant_gate.sql",
+   "revoked_from": [
+    "anon"
+   ],
+   "why": "revoked from anon, then the function was re-created and took the defaults again"
+  },
+  {
+   "name": "sync_asset_identity",
+   "args": "p_old_tag text, p_new_tag text, p_new_name text, p_node_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260728000019_rename_carries_the_whole_identity.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "update_dialog_state",
+   "args": "p_hive_id uuid, p_session_id text, p_turn_num integer, p_intent text, p_confidence real, p_context_slots jsonb, p_clarification_pending boolean, p_clarification_prompt text",
+   "security_definer": true,
+   "revoked_in": "20260607000005_definer_hive_membership_gates_batch2.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "user_can_access_hive",
+   "args": "p_hive_id uuid",
+   "security_definer": true,
+   "revoked_in": "20260620000016_ai_retrieval_isolation.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "user_hive_worker_names",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20260620000015_rls_personal_worker_achievements.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  },
+  {
+   "name": "user_supervisor_hive_ids",
+   "args": "",
+   "security_definer": true,
+   "revoked_in": "20260622000000_fix_hive_members_update_recursion.sql",
+   "revoked_from": [
+    "public"
+   ],
+   "why": "revoked from PUBLIC only - anon keeps its own explicit grant"
+  }
+ ],
+ "not_seeded": {
+  "rls_enabled_no_policy": "INFO: a table with RLS on and no policy refuses anon and authenticated entirely - the safe state for a server-only table",
+  "authenticated_security_definer_function_executable": "the signed-in RPC surface; each function's own caller check is the S and Y classes' subject, not a separate row"
+ }
+}

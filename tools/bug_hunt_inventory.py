@@ -49,6 +49,24 @@ THREE MORE, from what Ian pointed out on 2026-10-14 (the same wave, the same rul
                                             stylesheet, manifest or the service worker asks for - one row per kind of
                                             artifact, so each kind is probed on the live origin for its 404
 
+TEN MORE, from Supabase's two emails of 2026-10-20 (Ian, 2026-10-21: "I just got an email from Vercel and Supabase,
+kindly check those and add appropriate number of trajectories"). The emails named one lint - rls_disabled_in_public,
+critical - and the October 30 change to the Data API's automatic grant; the advisor they link held the rest. Read
+through the claude.ai Supabase connector (read-only) into the committed supabase_advisor_evidence.json
+(tools/supabase_advisor_evidence.py), one row per site:
+  P  a public table anyone can read         row-level security off on a public table the API serves
+  Q  an object only production holds        no migration creates it (ten hand-made debug_* functions, anon-executable)
+  R  a view that runs as its owner          SECURITY DEFINER view: the reader's own row policies never apply
+  S  a definer function that asks no one    anon may execute it and its body checks no caller
+  T  a search_path the caller can change    the function resolves unqualified names through the caller's path
+  U  an extension in the public schema      its objects sit in the schema the API exposes
+  V  a materialized view past every policy  no RLS is possible on it; the API served it to anon and every member
+  W  leaked passwords accepted              Supabase Auth's leaked-password protection is off
+  X  access that rests on the automatic     per (role, kind of object): what the role holds that no migration granted
+     grant ending 2026-10-30                - lost on any replay of the schema from that day (db reset, a branch)
+  Y  a revoke that does not hold            a migration closed a function to anon, and anon can still run it
+The Vercel email (Deployment Storage, 75% of 10 GB, 2026-10-13) is the one class N already holds.
+
 Only PRODUCTION pages seed rows (LX_NON_PRODUCTION, per Ian 2026-09-30). Deterministic: source regexes and committed
 JSON only, so the registry validator can replay it on every run.
 
@@ -73,6 +91,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 OWNS_SEATING = {"index.html", "hive.html"}          # these pages seat the hive themselves (join/create/switch, the home)
 JOURNEYS = ROOT / "live_page_journeys_results.json"
 DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
+ADVISOR = ROOT / "supabase_advisor_evidence.json"   # P..Y, read from production's advisor (tools/supabase_advisor_evidence.py)
 
 GUARD = re.compile(r"typeof\s+(wh[A-Za-z0-9_]+)\s*(?:===|==)\s*'function'")
 DEFINED = re.compile(r"^(?:async\s+)?function\s+(wh[A-Za-z0-9_]+)\s*\(|^\s*window\.(wh[A-Za-z0-9_]+)\s*=", re.M)
@@ -391,8 +410,55 @@ def collect(sources: dict | None = None) -> list[dict]:
                                         f"probe: https://workhiveph.com/{biggest}"})
         except Exception as e:   # no git, or no deploy tool: N seeds nothing rather than a guess
             print(f"  bug-hunt N: not measured ({e})", file=sys.stderr)
+    # P..Y - what Supabase's advisor and production's schema said (2026-10-21), one row per site
+    if sources is None and ADVISOR.exists():
+        sites += advisor_sites(json.loads(ADVISOR.read_text(encoding="utf-8")))
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
+
+
+def advisor_sites(ev: dict) -> list[dict]:
+    """One site per finding in supabase_advisor_evidence.json. The walk is an API probe made as the person the defect
+    exposes, so every row is met on the home and walked by platform staff (N's precedent)."""
+    out = []
+
+    def add(cls: str, key: str, detail: str) -> None:
+        out.append({"cls": cls, "page": "index.html", "line": 0, "key": key, "persona": "oversight", "detail": detail})
+
+    for t in ev.get("P_rls_disabled", []):
+        add("P", t, f"public.{t} has row-level security off and the API serves it - anyone holding the site's public key "
+                    f"reads every row (production advisor, rls_disabled_in_public, {ev['read']})")
+    for o in ev.get("Q_prod_only", []):
+        add("Q", o, f"production holds {o} and no migration creates it - anon may execute it, and no review, gate or "
+                    f"local walk has ever seen it (schema fingerprint, {ev['read']})")
+    for v in ev.get("R_definer_views", []):
+        add("R", v, f"public.{v} is a SECURITY DEFINER view: it reads its base tables with its owner's rights, so the "
+                    f"reader's own row policies never apply (production advisor, security_definer_view)")
+    for f in ev.get("S_anon_definer_unchecked", []):
+        add("S", f["name"], f"anon may execute public.{f['name']}(), a SECURITY DEFINER function whose body checks no "
+                            f"caller{' and WRITES' if f.get('writes') else ''} - it runs as its owner, past every policy, "
+                            f"for anyone holding the public key")
+    for f in ev.get("T_search_path_mutable", []):
+        add("T", f, f"public.{f}() resolves unqualified names through the caller's search_path (production advisor, "
+                    f"function_search_path_mutable)")
+    for e in ev.get("U_extension_in_public", []):
+        add("U", e, f"the {e} extension is installed in public, the schema the API exposes (production advisor)")
+    for m in ev.get("V_matview_in_api", []):
+        add("V", m, f"public.{m} is a materialized view - no row-level security can apply to it - and the API served it "
+                    f"to anon and to every signed-in member, every hive's rows (production advisor, materialized_view_in_api)")
+    for d in ev.get("W_leaked_password_protection", []):
+        add("W", "leaked-password protection", f"Supabase Auth accepts passwords known to be leaked: {d}")
+    for c in ev.get("X_api_grant_cells", []):
+        objs = c["objects"]
+        add("X", f"{c['role']} · {c['kind']}",
+            f"{len(objs)} public {c['kind']}{'s' if len(objs) != 1 else ''} the {c['role']} role reaches today with no "
+            f"migration granting it ({', '.join(objs[:6])}{' ...' if len(objs) > 6 else ''}) - the access rests on "
+            f"Supabase's automatic grant, which stops for new tables and every replay of the schema on 2026-10-30")
+    for r in ev.get("Y_revokes_that_do_not_hold", []):
+        add("Y", f"{r['name']}({r['args'][:60]})",
+            f"{r['revoked_in']} revoked public.{r['name']}() from {'/'.join(r['revoked_from'])}, and anon can execute it "
+            f"today: {r['why']}")
+    return out
 
 
 def _page_loading(script: str) -> str | None:
@@ -474,10 +540,20 @@ def main() -> int:
                      ("K", "design slop the ratchet still holds        (layer F, per file :: antipattern)"),
                      ("L", "a control offered to a person it refuses   (layer AU, per control)"),
                      ("M", "copy contradicting who the person is       (layer AU, per page / component)"),
-                     ("N", "a file every deployment stores, never served (layer H, per kind)")):
+                     ("N", "a file every deployment stores, never served (layer H, per kind)"),
+                     ("P", "a public table anyone can read (RLS off)   (layer S, per table)"),
+                     ("Q", "an object only production holds            (layer S, per object)"),
+                     ("R", "a view that runs as its owner              (layer S, per view)"),
+                     ("S", "a definer function that asks no caller     (layer S, per function)"),
+                     ("T", "a search_path the caller can change        (layer S, per function)"),
+                     ("U", "an extension in the public schema          (layer S, per extension)"),
+                     ("V", "a materialized view past every policy      (layer S, per view)"),
+                     ("W", "leaked passwords accepted                  (layer S, one setting)"),
+                     ("X", "access resting on the grant ending 10-30   (layer CI, per role x kind)"),
+                     ("Y", "a revoke a migration meant, not holding    (layer S, per function)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
-    for c in "DEFGHJKLMN":
+    for c in "DEFGHJKLMNPQRSTUVWXY":
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue

@@ -1138,6 +1138,76 @@ BRH_CLASS = {
           ".vercelignore is an allowlist of what the site serves and deploy-payload holds it (a requested file left "
           "out, a development artifact shipped, or the payload over budget fails); after the deploy the probe answers "
           "404"),
+    # ...and ten more, from Supabase's two emails of 2026-10-20 (§BRH.8), measured from production's own advisor and
+    # schema (supabase_advisor_evidence.json). Each row is an API probe made as the person the defect exposes, walked by
+    # platform staff from the home (N's precedent); a production fix closes on the advisor's re-read after Ian's push.
+    "P": ("S", "oversight",
+          "a public table anyone holding the public key can read, because row-level security is off",
+          "with only the site's public (anon) key, GET /rest/v1/<table>?select=* - every row comes back; the advisor's "
+          "rls_disabled_in_public names the table",
+          "enable row-level security with a policy that admits exactly the readers the product needs (a public SELECT "
+          "for reference data a signed-out page reads, the hive's members, or nobody for a server-only table the service "
+          "role reads past RLS), revoke what no reader uses, and hold every public table to RLS on"),
+    "Q": ("S", "oversight",
+          "an object production holds that no migration creates",
+          "diff production's schema fingerprint against the migrations: the object exists only in production, so no "
+          "review, gate or local walk ever saw it (debug_definer_all_workers() handed anyone the top ten workers' names "
+          "and account ids)",
+          "drop it by migration, every overload by name, or adopt it into a migration if the product needs it; a drift "
+          "check compares production's fingerprint with the migrations before a push"),
+    "R": ("S", "oversight",
+          "a view that runs as its owner, past the reader's row policies",
+          "as anon, or as a member of another hive, select from the view: it returns rows the base tables' policies "
+          "refuse that reader, because a SECURITY DEFINER view checks only its owner's rights",
+          "security_invoker = true with base-table policies that admit what the view is meant to show (or the projection "
+          "moved into a function that checks its caller); the advisor's security_definer_view reads zero"),
+    "S": ("S", "oversight",
+          "a SECURITY DEFINER function anyone may execute, whose body checks no caller",
+          "with only the public key, POST /rest/v1/rpc/<function>: it runs as its owner, past every policy, for a caller "
+          "it never asks about (enqueue_user_push queued a Web Push to any account with any link; "
+          "consume_ai_global_budget spent the platform's daily AI budget)",
+          "revoke EXECUTE from PUBLIC, anon and authenticated where only the service role or another definer calls it; "
+          "where a signed-out page genuinely needs it, prove it returns only public facts and keep it; a gate holds every "
+          "anon-executable definer function to a declared reason"),
+    "T": ("S", "oversight",
+          "a function whose search_path the caller can change",
+          "the advisor's function_search_path_mutable names it: its unqualified names resolve through the caller's "
+          "search_path, so an object the caller can create (a temporary table or function) can stand in for the one the "
+          "body means",
+          "pin it (ALTER FUNCTION ... SET search_path = '' with every name schema-qualified, or = public, pg_temp), then "
+          "call it once to prove the body still resolves; the advisor reads zero"),
+    "U": ("S", "oversight",
+          "an extension installed in the public schema",
+          "the advisor's extension_in_public names it: its functions and types sit beside the API's own objects in the "
+          "schema PostgREST exposes",
+          "move it to the extensions schema (ALTER EXTENSION ... SET SCHEMA extensions) with every reference to its types "
+          "updated, proven on a replay of the schema - or record why it must stay"),
+    "V": ("S", "oversight",
+          "a materialized view the API serves past every row policy",
+          "a materialized view cannot carry row-level security: as a member of one hive (and, until 2026-10-21, as anon), "
+          "select it with another hive's id - that hive's figures come back",
+          "revoke SELECT from anon and authenticated, serve each hive its own rows through a function that checks "
+          "membership (user_can_access_hive), and point the page's read at it"),
+    "W": ("S", "oversight",
+          "sign-up and password change accept passwords known to be leaked",
+          "the advisor's auth_leaked_password_protection: Supabase Auth's check against breached-password lists is off, "
+          "so a password from a public breach is accepted at sign-up and on a password change",
+          "turn on leaked-password protection in Supabase Auth's password settings (Ian's dashboard) and re-read the "
+          "advisor"),
+    "X": ("CI", "oversight",
+          "API access that rests on Supabase's automatic grant, which stops on 2026-10-30",
+          "replay the schema with the automatic grant off - what a local supabase db reset, a preview branch or a new "
+          "project gets from 2026-10-30 - and read the objects as the role: 'permission denied'",
+          "a migration that grants the role what it holds today, explicitly, object by object (generated from the live "
+          "ACL, revokes included), and a gate that every new public table or view carries its own GRANT in the migration "
+          "that creates it"),
+    "Y": ("S", "oversight",
+          "a revoke a migration meant, which does not hold",
+          "has_function_privilege('anon', <function>, 'execute') is true although a migration revoked it - Supabase "
+          "grants EXECUTE to anon explicitly on every new function, so 'revoke ... from public' never reaches it, and "
+          "DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
+          "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate "
+          "holds every function a migration closed to anon closed, including after a re-creation"),
 }
 
 

@@ -2283197,6 +2283197,3102 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "BRH323",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH324",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH325",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH326",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH327",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH328",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH329",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH330",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH331",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH332",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH333",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH334",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH335",
+      "wave": "BRH-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH336",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH337",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH338",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH339",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH340",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH341",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH342",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH343",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH344",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH345",
+      "wave": "BRH-Q",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH346",
+      "wave": "BRH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH347",
+      "wave": "BRH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH348",
+      "wave": "BRH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH349",
+      "wave": "BRH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH350",
+      "wave": "BRH-R",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH351",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH352",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH353",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH354",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH355",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH356",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH357",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH358",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH359",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH360",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH361",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH362",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH363",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH364",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH365",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH366",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH367",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH368",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH369",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH370",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH371",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH372",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH373",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH374",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH375",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH376",
+      "wave": "BRH-S",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH377",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH378",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH379",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH380",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH381",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH382",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH383",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH384",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH385",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH386",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH387",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH388",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH389",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH390",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH391",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH392",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH393",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH394",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH395",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH396",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH397",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH398",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH399",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH400",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH401",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH402",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH403",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH404",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH405",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH406",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH407",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH408",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH409",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH410",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH411",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH412",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH413",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH414",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH415",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH416",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH417",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH418",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH419",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH420",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH421",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH422",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH423",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH424",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH425",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH426",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH427",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH428",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH429",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH430",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH431",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH432",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH433",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH434",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH435",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH436",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH437",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH438",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH439",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH440",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH441",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH442",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH443",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH444",
+      "wave": "BRH-T",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH445",
+      "wave": "BRH-U",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH446",
+      "wave": "BRH-U",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH447",
+      "wave": "BRH-V",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH448",
+      "wave": "BRH-W",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH449",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH450",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH451",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH452",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH453",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH454",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH455",
+      "wave": "BRH-X",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH456",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH457",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH458",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH459",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH460",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH461",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH462",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH463",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH464",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH465",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH466",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH467",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH468",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH469",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH470",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH471",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH472",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH473",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH474",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH475",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH476",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH477",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH478",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH479",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH480",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH481",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH482",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH483",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH484",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH485",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH486",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH487",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH488",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH489",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH490",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH491",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH492",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH493",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "BRH494",
+      "wave": "BRH-Y",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }
