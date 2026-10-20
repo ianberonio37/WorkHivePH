@@ -4357,6 +4357,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "live-off-polls",
+        "script":  "tools/validate_live_off_polls.py",
+        "args":    [],
+        "label":   "SL AV3 (2026-10-20): when a page's live channel cannot join (a firewall closing the websocket), the page re-reads on a timer and SAYS it is not live and how often it checks - never frozen on its first read under 'updates automatically'. Walked with the socket closed on open: 9 of the 11 pages with a live channel never read again, four lines still claimed live ('updates automatically', 'ONLINE NOW', 'Live updates on'), and the degrade-to-poll helper had no adopters. rtConn(onState, ms, opts) now polls opts.reload until SUBSCRIBED (CLOSED never starts one), _whLiveState rewrites the source line and shows one info notice, the hive/community backfill checks once a minute, and every subscribing page names what it keeps current (no bare rtConn()). Static, 42 anchors; self-test: 12 mutations each redden it.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "slow-read-honest",
         "script":  "tools/validate_slow_read_honest.py",
         "args":    [],

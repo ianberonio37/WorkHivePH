@@ -2702,7 +2702,8 @@ function subscribeInventoryRealtime() {
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
       () => reload())
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    // SL AV3: a blocked live channel polls the same reload (rtConn's fallback) and the page says it is not live
+    .subscribe(typeof rtConn === 'function' ? rtConn(undefined, undefined, { name: 'the parts list', reload: () => reload() }) : undefined);
 }
 window.addEventListener('beforeunload', () => {
   if (invRealtimeChannel) { try { db.removeChannel(invRealtimeChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup on unload */ } }

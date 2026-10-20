@@ -3197,9 +3197,20 @@ function _isMinePost(p) {
   // "Start" is idempotent by name, so starting twice is a no-op rather than a re-subscribe.
   // The same shape is guarded in startFeedChannel and startGlobalFeedChannel below -- all three
   // were written identically, so all three carried the identical hole.
+  // ★"ONLINE NOW" OVER A LIST NOBODY COULD FILL (SL AV3 walk, 2026-10-20): presence travels only on the live channel, so
+  // with it blocked the bar kept its first paint under an "Online now" heading - read as "no one is here". It says what
+  // is true instead, and the heading stops claiming a list; both come back when the channel joins.
+  function _presenceUnavailable(on) {
+    const bar = document.getElementById('presence-bar');
+    const head = document.querySelector('[data-i="p_onlinenow_c930"]');
+    if (on) {
+      if (head) head.textContent = "Who's online";
+      if (bar) bar.innerHTML = '<span class="presence-chip" style="color:rgba(255,255,255,0.72);">Not shown while live updates are off on this connection.</span>';
+    } else if (head) head.textContent = 'Online now';
+  }
   function startPresence() {
     if (presenceChannel) return;
-    let connTimeout = setTimeout(() => setConn('offline'), 8000);
+    let connTimeout = setTimeout(() => { setConn('offline'); _presenceUnavailable(true); }, 8000);
 
     presenceChannel = db.channel('hive-community-presence:' + HIVE_ID, {
       config: { presence: { key: WORKER_NAME } }
@@ -3211,9 +3222,11 @@ function _isMinePost(p) {
         clearTimeout(connTimeout);
         if (status === 'SUBSCRIBED') {
           setConn('live');
+          _presenceUnavailable(false);
           await presenceChannel.track({ worker_name: WORKER_NAME, at: Date.now() });
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           setConn('offline');
+          _presenceUnavailable(true);
         }
       });
   }
@@ -3381,7 +3394,8 @@ function _isMinePost(p) {
     const label = document.getElementById('conn-label');
     const pill  = document.getElementById('conn-pill');
     dot.className   = 'conn-dot ' + state;
-    label.textContent = state === 'live' ? 'Live' : state === 'reconnecting' ? 'Reconnecting…' : 'Offline';
+    // "Not live", not "Offline": the device is often online with only the live channel blocked (SL AV3)
+    label.textContent = state === 'live' ? 'Live' : state === 'reconnecting' ? 'Reconnecting…' : 'Not live';
     // Silence-is-golden: the pill is REDUNDANT in the healthy "live" state — hide it, and show it
     // ONLY when the realtime link degrades (the one moment the status is worth a pixel).
     if (pill) pill.style.display = (state === 'live') ? 'none' : 'flex';

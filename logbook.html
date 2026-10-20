@@ -1999,7 +1999,22 @@ function subscribeLogbookRealtime() {
         _logbookLiveCount++;
         renderLiveBadge();
       })
-    .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+    // SL AV3: a blocked live channel counts the same teammate entries on a poll (rtConn's fallback) and says it is not live
+    .subscribe(typeof rtConn === 'function' ? rtConn(undefined, undefined, { name: 'team entries', reload: _pollLogbookTeam }) : undefined);
+}
+// The live badge's job without the channel: how many teammates' entries arrived in this hive since this page started
+// listening (or since the badge was last opened). A head-only count - nothing is repainted under someone's typing; the
+// badge offers the refresh exactly as it does live.
+let _lbLiveSince = new Date().toISOString();
+async function _pollLogbookTeam() {
+  if (!HIVE_ID || !db) return;
+  let q = db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
+    .eq('hive_id', HIVE_ID).gt('created_at', _lbLiveSince);
+  if (_authUid) q = q.or('auth_uid.is.null,auth_uid.neq.' + _authUid);
+  const { count, error } = await q;
+  if (error || typeof count !== 'number') return;
+  _logbookLiveCount = count;
+  renderLiveBadge();
 }
 function renderLiveBadge() {
   const badge = document.getElementById('logbook-live-badge');
@@ -2013,6 +2028,7 @@ function renderLiveBadge() {
 }
 function refreshFromLiveBadge() {
   _logbookLiveCount = 0;
+  _lbLiveSince = new Date().toISOString();   // the polled count starts again from here (SL AV3)
   renderLiveBadge();
   // Pull the newest entries into the team feed, respecting query-first: re-run
   // the active search if already searching team; otherwise switch to team view

@@ -706,7 +706,7 @@
   const _auditChip = document.getElementById('audit-source-chip');
   if (_auditChip && typeof renderSourceChip === 'function') {
     _auditChip.innerHTML = renderSourceChip({
-      freshness: 'Live · updates automatically',
+      freshness: 'Live · refreshes every 30 s',   // SL AV3: this feed polls (whPoll, 30 s) - it has no live channel to claim
       // two tables now, and the chip says so: a chip naming one source beside a feed carrying two is the
       // same class of untruth this page exists to prevent
       source:    'hive_audit_log + ai_audit_log',
@@ -844,7 +844,7 @@
       }).catch(function () { _filterVocabPartial = true; renderFeed(); });
     }
     document.getElementById('footer-meta').textContent =
-      'Last refreshed ' + fmtTime(new Date()) + ' PHT · Live updates on'; // Cluster-1 sweep (critic T64 walk, 2026-09-02): the time was Manila-pinned but UNLABELED - // a viewer off the plant clock cannot tell whose 10:52 this is. Qualifier beside the figure // (the asset-hub '13:00 PHT' pattern).
+      'Last refreshed ' + fmtTime(new Date()) + ' PHT · refreshes every 30 s';   // SL AV3: a 30 s poll, not a live channel - said as what it is // Cluster-1 sweep (critic T64 walk, 2026-09-02): the time was Manila-pinned but UNLABELED - // a viewer off the plant clock cannot tell whose 10:52 this is. Qualifier beside the figure // (the asset-hub '13:00 PHT' pattern).
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────

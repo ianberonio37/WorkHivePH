@@ -1213,7 +1213,9 @@
         event: '*', schema: 'public', table: 'amc_briefings',
         filter: 'hive_id=eq.' + HIVE_ID,
       }, () => { loadAll(); })
-      .subscribe(rtConn());
+      // SL AV3: no reload of its own - startRefresh's 60 s loadAll already re-reads the brief, the feed and the anomaly
+      // engine; while the channel cannot join, rtConn says this board is not live and how often it checks
+      .subscribe(rtConn(undefined, undefined, { name: 'the alert board', pollMs: 60000 }));
   }
 
   // Consolidated channel cleanup. Both amc and anomaly channels remove here so
@@ -1453,7 +1455,7 @@
         event: '*', schema: 'public', table: 'anomaly_signals',
         filter: 'hive_id=eq.' + HIVE_ID,
       }, _scheduleAnomalyReload)   // debounced; one load per 600ms burst
-      .subscribe(rtConn());
+      .subscribe(rtConn(undefined, undefined, { name: 'anomaly signals', pollMs: 60000 }));   // SL AV3: loadAll's 60 s refresh re-reads them
     // Cleanup is folded into the consolidated beforeunload listener above
     // (the one near startAmcRealtime) so we don't leak listeners by adding
     // a new one on every subscribe.

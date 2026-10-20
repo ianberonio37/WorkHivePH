@@ -2998,7 +2998,8 @@
           // keeps the anomaly chip accurate.
           loadDetailTelemetry(nodeId);
         })
-        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+        // SL AV3: a blocked live channel re-reads this asset's readings on a poll (rtConn's fallback)
+        .subscribe(typeof rtConn === 'function' ? rtConn(undefined, undefined, { name: 'sensor readings', reload: () => loadDetailTelemetry(nodeId) }) : undefined);
     }
 
     // ── Reliability Workbench: FMEA tab (Phase R.2) ────────────────────────────
@@ -4606,7 +4607,8 @@
         txt.textContent = 'live';
       } else {
         chip.classList.add('offline');
-        txt.textContent = state === 'connecting' ? 'connecting' : 'offline';
+        // the device may be online with only the live channel blocked: "not live" is what is true (SL AV3)
+        txt.textContent = state === 'connecting' ? 'connecting' : 'not live';
       }
     }
 
@@ -4729,11 +4731,15 @@
         }
       });
 
-      _hubChannel.subscribe(status => {
+      // SL AV3: through rtConn, so a blocked live channel re-reads this asset's panels on a poll and the page says it is
+      // not live; the chip still follows the state. Switching assets removes the channel (CLOSED), which stops its poll.
+      _hubChannel.subscribe(rtConn((state) => {
         if (_connTimeout) { clearTimeout(_connTimeout); _connTimeout = null; }
-        if (status === 'SUBSCRIBED') setLiveChip('live');
-        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') setLiveChip('offline');
-      });
+        setLiveChip(state === 'live' ? 'live' : 'offline');
+      }, 8000, { name: 'this asset', reload: () => {
+        if (_selectedNodeId !== nodeId) return;
+        loadDetailTimeline(nodeId); loadDetailStats(nodeId); loadDetailFmea(nodeId); loadDetailRisk(nodeId); loadLatestWeibull(nodeId);
+      } }));
     }
 
     // ── Edge editor (supervisor only) ─────────────────────────────────────────

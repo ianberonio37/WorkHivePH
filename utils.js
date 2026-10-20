@@ -1235,7 +1235,7 @@ function _whShowNotice(id, msg, bottomPx) {
     // three failures - session, permission, connection - and the service-worker update notice borrowed it, so after
     // every deploy every page showed a benign message in the danger red the platform keeps for things that broke.
     // The update notice is information: navy, cloud text, a blue edge. The three failures keep their red.
-    var _info = (id === 'wh-update-notice');
+    var _info = (id === 'wh-update-notice' || id === 'wh-live-notice');   // information, not an error (SL AV3)
     el.style.cssText = 'position:fixed;left:8px;' + (_wide ? 'left:auto;right:16px;max-width:560px;' : 'right:8px;') + 'bottom:calc(' + bottomPx
       + ' + env(safe-area-inset-bottom,0px));'
       + 'z-index:2147483000;padding:12px 14px;border-radius:12px;font-size:0.8rem;line-height:1.45;'
@@ -1278,7 +1278,7 @@ function _whShowNotice(id, msg, bottomPx) {
   // the notice speaks the page's language (design lens copy on ai-quality, 2026-09-15: Reload / Dismiss were English on a Filipino page)
   var _tN = (typeof window !== 'undefined' && typeof window._t === 'function') ? window._t : function (en) { return en; };
   _rb.textContent = _isSession ? _tN('Sign in', 'Mag-sign in') : ((typeof window.whPageRetry === 'function') ? _tN('Retry', 'Subukan ulit') : _tN('Reload', 'I-reload'));
-  var _infoTone = (id === 'wh-update-notice');
+  var _infoTone = (id === 'wh-update-notice' || id === 'wh-live-notice');
   _rb.style.cssText = 'margin-left:10px;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:600;'
     + (_infoTone
       ? 'cursor:pointer;background:rgba(41,182,217,0.14);color:var(--wh-cloud, #F4F6FA);border:1px solid rgba(41,182,217,0.45);'
@@ -1299,7 +1299,9 @@ function _whShowNotice(id, msg, bottomPx) {
       location.reload();
     }
   });
-  if (!(_isAccess && !_isSession)) el.appendChild(_rb);   // a refused member: no Reload that cannot help (see _isAccess)
+  // a refused member: no Reload that cannot help (see _isAccess); live updates blocked by the network: a reload cannot
+  // reopen a firewall either, and the page is already checking for changes on its own (SL AV3)
+  if (!(_isAccess && !_isSession) && id !== 'wh-live-notice') el.appendChild(_rb);
   // ★A NOTICE WITH NO WAY TO CLEAR IT SAT ON THE SIGN-IN BUTTON (2026-09-14, W4 narrow-320 walk, confusion
   // C15, gate notice-dismissible). Measured at 320x720 on the front-door sign-in form with a read failed: this
   // fixed bar (z 2147483000) landed exactly on "Enterprise SSO" - elementFromPoint at that button's centre
@@ -1956,10 +1958,31 @@ function whRealtimeBackfill(refetch, opts) {
   };
   var schedule = function () { clearTimeout(timer); timer = setTimeout(run, opts.debounceMs || 1500); };
   if (!rt._onlineBound) { rt._onlineBound = true; window.addEventListener('online', schedule); }
+  // ★A BACKFILL WAITS FOR A RECONNECT THAT A BLOCKED SOCKET NEVER MAKES (SL AV3 walk, 2026-10-20): hive and community
+  // re-read only on a re-SUBSCRIBED after a drop - with the socket closed from the start nothing ever subscribed, so
+  // nothing was re-read for the whole visit while their source lines said "updates automatically". The same refetch now
+  // runs on a poll while no channel can join (one per page, as the backfill is), and stops when one does.
+  // a backfill refetch re-reads the whole page (measured: hive 11 reads, community 15), so it checks once a minute -
+  // alert-hub's own cadence for a board left open - where rtConn's single-region reloads check every 30 s
+  var pollMs = opts.pollMs || 60000, poll = null, tag = opts.tag || 'this page';
+  var degrade = function () {
+    if (!poll && typeof whPoll === 'function') poll = whPoll(function () { return refetch(); }, pollMs, { immediate: false });
+    if (typeof _whLiveState === 'function') _whLiveState(tag, 'offline', pollMs);
+  };
+  var recover = function () {
+    if (poll) { try { poll.stop(); } catch (_) { /* empty-catch-allow */ } poll = null; }
+    if (typeof _whLiveState === 'function') _whLiveState(tag, 'live');
+  };
+  setTimeout(function () {
+    var cl = window._whSupabaseClient, chans = 0;
+    try { chans = (cl && typeof cl.getChannels === 'function') ? cl.getChannels().length : 0; } catch (_) { chans = 0; }
+    if (!rt._joined && chans > 0) degrade();
+  }, opts.ms || 8000);
   return function (status) {
     if (typeof rtConn === 'function') { try { rtConn()(status); } catch (e) { console.debug('rtConn refused', e); } }
-    if (status === 'SUBSCRIBED') { if (rt.wasDown) { rt.wasDown = false; schedule(); } }
-    else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') { rt.wasDown = true; }
+    if (status === 'SUBSCRIBED') { rt._joined = true; recover(); if (rt.wasDown) { rt.wasDown = false; schedule(); } }
+    else if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') { rt.wasDown = true; degrade(); }
+    else if (status === 'CLOSED') { rt.wasDown = true; }
   };
 }
 window.whRealtimeBackfill = whRealtimeBackfill;
@@ -2933,6 +2956,9 @@ function renderSourceChip(opts) {
   var parts = [];
   if (freshness) {
     var _fp = _whFreshnessPhrase(freshness, _tt);   // C-AK
+    // SL AV3: while a live channel on this page cannot join, "updates automatically" is false - see _whLiveState
+    var _ldS = (typeof window !== 'undefined') ? window.__whLiveDownSecs : 0;
+    if (_ldS && /updates automatically/i.test(_fp)) _fp = _fp.replace(/updates automatically/i, 'live updates off - checks for changes every ' + _ldS + ' s');
     /* ★"LIVE" NAMES ITS INSTANT AND ITS CLOCK (2026-10-09, UFAI layer C: asset-hub read 56 figures with no period and
        no clock). A live chip said "Live + daily snapshot" or "Live · refreshed on load" and never WHEN it read, or on
        whose clock - and a count of assets has no window but the moment it was taken. The chip renders when the page's
@@ -7270,20 +7296,85 @@ function logPageView(db, extraProps) {
 // `onState` is optional — bare `rtConn()` just guards the silent freeze. For
 // data-feed channels the page already rendered its initial DB query, so 'offline'
 // simply means "live updates paused", not "no data".
-function rtConn(onState, ms) {
+// ★A BLOCKED LIVE CHANNEL FROZE THE PAGE, SILENTLY (SL AV3 walk, 2026-10-20). Walked with the realtime socket closed on
+// open (a plant firewall's shape): 9 of the 11 pages with a live channel never read again - a teammate's new log entry,
+// a used part, a posted reply simply never arrived - and three went on saying "updates automatically" or "ONLINE NOW"
+// (the other two refreshed on their own 60 s timers). whRealtimeSubscribe,
+// the helper that degrades to polling, had no adopters: every page subscribes through rtConn. So rtConn carries the
+// fallback. opts = { name, reload, pollMs }: when the channel cannot JOIN (CHANNEL_ERROR, TIMED_OUT, or no answer in
+// `ms`), `reload` - the page's own live-change handler - runs every pollMs (whPoll: paused while the tab is hidden) until
+// the channel is SUBSCRIBED; and the page says it is not live (_whLiveState). CLOSED is a page removing its own channel
+// (a section switch, unload): it stops this channel's poll and never starts one. onState is still told 'live'/'offline'.
+function rtConn(onState, ms, opts) {
   const cb = (typeof onState === 'function') ? onState : function () {};
-  let settled = false;
+  const o = (opts && typeof opts === 'object') ? opts : null;
+  let settled = false, poll = null;
+  const stopPoll = function () { if (poll) { try { poll.stop(); } catch (_) { /* empty-catch-allow: a stopped poll is the goal */ } poll = null; } };
+  const degrade = function () {
+    if (o && typeof o.reload === 'function' && !poll && typeof whPoll === 'function') {
+      poll = whPoll(function () { return o.reload(); }, o.pollMs || 30000, { immediate: false });
+    }
+    if (o) _whLiveState(o.name || 'this page', 'offline', o.pollMs || 30000);
+  };
   const timer = setTimeout(function () {
-    if (!settled) { settled = true; cb('offline'); }
+    if (!settled) { settled = true; degrade(); cb('offline'); }
   }, ms || 8000);
   return function (status) {
     if (status === 'SUBSCRIBED') {
-      settled = true; clearTimeout(timer); cb('live');
-    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-      settled = true; clearTimeout(timer); cb('offline');
+      settled = true; clearTimeout(timer); stopPoll();
+      if (o) _whLiveState(o.name || 'this page', 'live');
+      cb('live');
+    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+      settled = true; clearTimeout(timer); degrade(); cb('offline');
+    } else if (status === 'CLOSED') {
+      settled = true; clearTimeout(timer); stopPoll();
+      if (o) _whLiveState(o.name || 'this page', 'closed');
+      cb('offline');
     }
   };
 }
+// Which of this page's live channels are down, and saying so: the "updates automatically" clause of a source line
+// becomes "live updates off - checks for changes every N s" while any is, and comes back when all are live again; the moment it
+// happens, one notice says the same. A page's own live labels (presence, a Live pill) are its own to change - onState.
+function _whLiveState(name, state, pollMs) {
+  try {
+    const reg = window.__whLiveState || (window.__whLiveState = {});
+    const isDown = function (k) { return reg[k] && reg[k].state === 'offline'; };
+    const wasDown = Object.keys(reg).some(isDown);
+    if (state === 'closed') delete reg[name]; else reg[name] = { state: state, ms: pollMs || 30000 };
+    const downKeys = Object.keys(reg).filter(isDown);
+    const down = downKeys.length > 0;
+    // several channels down: the page is as current as its quickest check
+    const secs = down ? Math.round(Math.min.apply(null, downKeys.map(function (k) { return reg[k].ms; })) / 1000) : 0;
+    // renderSourceChip reads this too, so a source line the page draws AGAIN while live is off says the same thing
+    window.__whLiveDownSecs = secs;
+    const NOT_LIVE = 'live updates off - checks for changes every ' + secs + ' s';   // not 'not live': the line opens with 'Live' (a live read)
+    const NOT_LIVE_RE = /live updates off - checks for changes every \d+ s/i;
+    const nodes = Array.prototype.slice.call(document.querySelectorAll('.wh-source-chip'))
+      .concat(Array.prototype.slice.call(document.querySelectorAll('template[data-wh-source]')).map(function (t) { return t.content; }));
+    nodes.forEach(function (n) {
+      const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT, null);
+      let tn;
+      while ((tn = w.nextNode())) {
+        if (down && (/updates automatically/i.test(tn.nodeValue) || NOT_LIVE_RE.test(tn.nodeValue))) {
+          tn.nodeValue = tn.nodeValue.replace(/updates automatically/i, NOT_LIVE).replace(NOT_LIVE_RE, NOT_LIVE);
+        } else if (!down && NOT_LIVE_RE.test(tn.nodeValue)) {
+          tn.nodeValue = tn.nodeValue.replace(NOT_LIVE_RE, 'updates automatically');
+        }
+      }
+    });
+    if (down && !wasDown && typeof _whShowNotice === 'function') {
+      _whShowNotice('wh-live-notice', 'Live updates are off on this connection, so this page checks for changes every ' + secs
+        + ' seconds. Your work is not affected.', '304px');
+    } else if (!down && wasDown) {
+      const n = document.getElementById('wh-live-notice');
+      if (n && n.parentNode) n.parentNode.removeChild(n);
+    }
+    try { window.dispatchEvent(new CustomEvent('wh:live-state', { detail: { down: down, name: name, state: state } })); }
+    catch (_) { /* empty-catch-allow: a listener's failure must not stop the state change */ }
+  } catch (_) { /* empty-catch-allow: a status line must never break a subscription */ }
+}
+if (typeof window !== 'undefined') window._whLiveState = _whLiveState;
 
 // ─────────────────────────────────────────────
 // isPlatformAdmin — gate util for founder-console.html (Phase 0)

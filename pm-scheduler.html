@@ -1698,7 +1698,11 @@ async function subscribeRealtime() {
         renderDetail(currentAsset);
       }
     })
-    .subscribe(rtConn());
+    // SL AV3: a blocked live channel polls the same refresh (rtConn's fallback) and the page says it is not live
+    .subscribe(rtConn(undefined, undefined, { name: 'PM completions', reload: async () => {
+      await loadData(); renderDashboard();
+      if (currentScreen === 'detail' && currentAsset) renderDetail(currentAsset);
+    } }));
 }
 
 // ─────────────────────────────────────

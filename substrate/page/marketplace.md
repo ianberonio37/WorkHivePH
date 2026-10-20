@@ -2,19 +2,19 @@
 name: page-marketplace
 type: page
 source: file:marketplace.html
-source_sha: 0a761c733b504f75
+source_sha: b80b7d6c575f7925
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace.html` — Marketplace: WorkHive
 
-Size: 403KB · 115 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 405KB · 116 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (12): `hive_audit_log.insert`, `marketplace_inquiries.insert`, `marketplace_listings.insert`, `marketplace_reviews.insert`, `marketplace_saved_searches.delete`, `marketplace_saved_searches.insert`, `marketplace_saved_searches.update`, `marketplace_watchlist.delete`, `marketplace_watchlist.insert`, `service_payments.insert`, `service_requests.insert`, `service_requests.update`
 **RPC calls**: `apply_credits_to_request`, `get_community_reputation`, `get_marketplace_parts_for_my_assets`, `get_marketplace_price_comps`, `get_marketplace_trust_badges`, `get_saved_search_matches`, `increment_listing_view`, `listing_reservation_amount`, `my_credit_balance`, `raise_service_objection`, `select_quote`, `service_knob`, `service_knob_pct`, `service_request_price`
 **Edge invokes**: `ai-gateway`, `marketplace-listing-assist`
 **Truth views read**: `v_inventory_items_truth`, `v_marketplace_inquiries_truth`, `v_marketplace_listings_public`, `v_marketplace_sellers_public`, `v_service_area_presence`, `v_service_catalog_truth`, `v_service_job_tracking`, `v_service_provider_truth`, `v_service_request_truth`
 
-**Functions**: _aiDraftedNote, _blobToDataUrl, _creditsBackChipHtml_LOCAL_RETIRED, _gap, _lev, _mkDeniedSaid, _mktSyncUrl, _prefill, _releaseSheets, _retryAfterSeconds, _setListingsChrome, _svcErrorText, _svcMapLoad, _svcQuoteFormHtml, _svcSubmitGuard, _val, applySavedSearch, buildRfqTemplate, buildSearchSummary, cardHtml, clearCompare, closeSheet, compressImageFile, computeListingQuality, condClass, condLabel, creditsBack, creditsBackChipHtml, deleteSavedSearch, fmtPrice, halfDown, handleAiAssist, handleInquirySubmit, handlePostSubmit, handleSaveCurrentSearch, handleSubmitRfq, hasActiveFilters, initials, injectListingJsonLd, loadClientServices, loadCounts, loadListings, loadMyInquiryReplies, loadRewardKnobs, loadWatchlist, mapInventoryCategory, onPriceInput, openDetailSheet, openInquirySheet, openPostSheet, openRfqSheet, openSavedSearchesSheet, openSheet, openWatchlistSheet, populateCategorySelect, prefillPostFromInventory, renderClientServices, renderFilterChips, renderListings, renderMarketChip …
+**Functions**: _aiDraftedNote, _blobToDataUrl, _creditsBackChipHtml_LOCAL_RETIRED, _gap, _lev, _mkDeniedSaid, _mktSyncUrl, _pollNewListings, _prefill, _releaseSheets, _retryAfterSeconds, _setListingsChrome, _svcErrorText, _svcMapLoad, _svcQuoteFormHtml, _svcSubmitGuard, _val, applySavedSearch, buildRfqTemplate, buildSearchSummary, cardHtml, clearCompare, closeSheet, compressImageFile, computeListingQuality, condClass, condLabel, creditsBack, creditsBackChipHtml, deleteSavedSearch, fmtPrice, halfDown, handleAiAssist, handleInquirySubmit, handlePostSubmit, handleSaveCurrentSearch, handleSubmitRfq, hasActiveFilters, initials, injectListingJsonLd, loadClientServices, loadCounts, loadListings, loadMyInquiryReplies, loadRewardKnobs, loadWatchlist, mapInventoryCategory, onPriceInput, openDetailSheet, openInquirySheet, openPostSheet, openRfqSheet, openSavedSearchesSheet, openSheet, openWatchlistSheet, populateCategorySelect, prefillPostFromInventory, renderClientServices, renderFilterChips, renderListings …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

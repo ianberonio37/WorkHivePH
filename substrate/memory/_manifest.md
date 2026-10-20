@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1031-files
-source_sha: 0cc990b9053afee3
+source_sha: d82beb74d9b05a38
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -322,7 +322,7 @@ Entries (name · type · sha):
 - `feedback_filipino_and_dictionary_work_is_out` · feedback · ee0d4bcfe020c878
 - `feedback_five_faults_all_toward_false_failure` · feedback · c5de1d076bc732fe
 - `feedback_five_passes_over_one_question` · feedback · d81532f7822bebe0
-- `feedback_five_ways_a_reader_said_the_page_was_silent` · feedback · 87e033d8e0c93e28
+- `feedback_five_ways_a_reader_said_the_page_was_silent` · feedback · 995b79745e8209da
 - `feedback_fix_every_path_that_mutates_not_just_the_walked_one` · feedback · b7c3ff5a5e51cfc3
 - `feedback_fixed_char_window_validator_is_brittle` · feedback · 8d70c5bbff536c80
 - `feedback_flywheel_is_full_loop_not_shallow` · feedback · 86b75303ba39dfb5

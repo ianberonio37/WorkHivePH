@@ -3084,6 +3084,31 @@
       }
     }
 
+    // SL AV3: the inbox re-read while its live channel cannot join - quietly (no "Loading…" wipe, the reader keeps their
+    // place), and an item that arrived since the last read is announced the way a live one is.
+    async function _pollFeedbackInbox() {
+      const { data, error } = await db.from('platform_feedback')
+        .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
+        .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+        .limit(500);   // cap-ok: the same read as renderFeedbackInbox, which discloses the cap in applyFeedbackView
+      if (error) throw error;
+      const known = new Set(_fb.rows.map(r => r.id));
+      const fresh = (data || []).filter(r => !known.has(r.id));
+      const focusedId = document.activeElement && document.activeElement.closest && document.activeElement.closest('#fb-list [data-fb-id]')
+        ? document.activeElement.closest('[data-fb-id]').getAttribute('data-fb-id') : null;
+      _fb.rows = data || [];
+      const upd = document.getElementById('feedback-updated');
+      if (upd) upd.textContent = new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
+      applyFeedbackView();
+      if (focusedId) { const again = document.querySelector('#fb-list [data-fb-id="' + CSS.escape(focusedId) + '"]'); if (again) again.focus(); }
+      if (fresh.length) {
+        const r = fresh[0];
+        showToast(fresh.length === 1 ? 'New ' + r.kind + ' from ' + (r.worker_name || r.contact_email || 'anonymous') : fresh.length + ' new feedback items');
+        setRagDot('rag-feedback', 'warn');
+      }
+    }
+
     function applyFeedbackView() {
       // Counts per status (always over the full rows, regardless of search)
       const counts = { new:0, triaged:0, in_progress:0, resolved:0, all:_fb.rows.length };
@@ -3110,7 +3135,7 @@
         list.innerHTML = honestEmpty(
           'No feedback here yet',
           _fb.activeTab === 'new'
-            ? 'When users send feedback via the floating widget on any page, new items land in this tab in real time.'
+            ? 'When users send feedback via the floating widget on any page, new items land in this tab as they arrive.'
             : 'Nothing matches the current filters.',
           ''
         );
@@ -3334,11 +3359,17 @@
         // reconnect & backfill (2026-09-05, P186): rtConn() only paints the connection state. Rows inserted while the
         // channel was down never arrive, so on the first SUBSCRIBED after a drop, re-read the inbox; and when the
         // browser comes back online, refresh the whole console (every panel is a snapshot that went stale).
-        .subscribe((status) => {
-          rtConn()(status);
+        // SL AV3 (2026-10-20): a channel that never JOINS (a firewall closing the socket) never re-SUBSCRIBES either, so the
+        // backfill below never ran and the inbox froze on its first read. rtConn now polls _pollFeedbackInbox while the
+        // channel is down and says the console is not live; one handler for the visit, not a fresh one per status.
+        .subscribe((() => {
+          const _fbConn = rtConn(undefined, undefined, { name: 'the feedback inbox', reload: _pollFeedbackInbox });
+          return (status) => {
+          _fbConn(status);
           if (status === 'SUBSCRIBED') { if (_fb.wasDown) { _fb.wasDown = false; try { renderFeedbackInbox(); } catch (e) { console.debug('feedback backfill refused', e); } } }
           else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') { _fb.wasDown = true; }
-        });
+          };
+        })());
       window.addEventListener('online', () => { try { refreshAll(); } catch (e) { console.debug('online refresh refused', e); } });
       window.addEventListener('beforeunload', () => {
         if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }

@@ -1585,7 +1585,9 @@
           applyFeedbackView();
           showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
         })
-        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+        // SL AV3: the queues already re-read every 60 s (refreshQueues), so a blocked live channel needs no second poll -
+        // only to say that new feedback arrives on that minute, not live
+        .subscribe(typeof rtConn === 'function' ? rtConn(undefined, undefined, { name: 'the feedback inbox', pollMs: 60000 }) : undefined);
 
       /* BOTH events, because neither is sufficient alone and the channel is a server-side resource.
          `beforeunload` is the platform convention (every other channel page uses it, and the

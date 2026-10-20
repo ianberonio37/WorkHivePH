@@ -48,6 +48,16 @@ for (const c of CASES) {
     if (pageErrors.length) { bad++; console.log(`  BAD ${c.file.padEnd(24)} ${target} not present AND the page threw: ${pageErrors[0]}`); await p.close(); continue; }
     console.log(`  n/a ${c.file.padEnd(24)} ${target} not present/visible`); n--; await p.close(); continue;
   }
+  // ★A CONTROL BEHIND A RETIREMENT OVERLAY IS PRESENT AND UNREACHABLE (2026-10-20, SL AV3 gate run): marketplace-admin is
+  // retired - its overlay covers the page and its content is inert - so #search-input passed checkVisibility (occlusion
+  // and inert are not visibility), .focus() went nowhere and the typing landed on <body>: "focus LOST", a defect in a
+  // page no one can type into. Inert or walled is the same honest n/a as absent; its work moved to platform-actions,
+  // which this prover still types into.
+  const walled = await p.evaluate((sel) => {
+    const el = document.querySelector(sel), ov = document.getElementById('wh-retired-overlay');
+    return !!(el && (el.closest('[inert]') || (ov && getComputedStyle(ov).display !== 'none' && ov.getClientRects().length > 0)));
+  }, target);
+  if (walled) { console.log(`  n/a ${c.file.padEnd(24)} ${target} is behind the page's retirement overlay (inert) - nobody can type there`); n--; await p.close(); continue; }
   await p.evaluate((sel) => document.querySelector(sel).focus(), target);
   if (c.text) { for (const ch of c.text) { await p.keyboard.type(ch); await p.waitForTimeout(250); } }
   if (c.after) { await p.click(c.after, { timeout: 5000 }).catch(() => {}); await p.evaluate((sel) => { const el = document.querySelector(sel); if (el) el.focus(); }, target); }   // a list-driving button; the person returns to the field

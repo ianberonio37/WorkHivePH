@@ -1270,7 +1270,29 @@
         renderAchievementsBody();
         if (newLevel > oldLevel) handleLevelUp(updated.achievement_id, oldLevel, newLevel);
       })
-      .subscribe(rtConn());
+      // SL AV3: a blocked live channel re-reads the same rows on a poll (rtConn's fallback) and says it is not live
+      .subscribe(rtConn(undefined, undefined, { name: 'your achievements', reload: _pollAchievements }));
+  }
+  // The live handler's job without its payload: read this worker's achievement rows again, apply each change the way the
+  // handler does (a level that rose still celebrates), and repaint. Re-subscribes nothing.
+  async function _pollAchievements() {
+    let uid = null;
+    try { uid = (await db.auth.getSession()).data.session?.user?.id || null; } catch (_) { /* empty-catch-allow: fall back to the name */ }
+    let q = db.from('v_worker_achievements_truth').select('achievement_id, current_level, xp_total, last_action_at');
+    q = uid ? q.or('auth_uid.eq.' + uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(WORKER_NAME || '')) + ')')
+            : q.eq('worker_name', WORKER_NAME);
+    const { data, error } = await q.limit(500);   // cap-ok: one worker's achievements (<= 12 rows), as init's read
+    if (error || !Array.isArray(data)) return;
+    data.forEach((updated) => {
+      const existing = _achievements.find(a => a.achievement_id === updated.achievement_id);
+      const oldLevel = existing ? (existing.current_level || 0) : 0;
+      const newLevel = updated.current_level || 0;
+      if (existing) { existing.current_level = newLevel; existing.xp_total = updated.xp_total; }
+      else _achievements.push(updated);
+      if (newLevel > oldLevel && existing) handleLevelUp(updated.achievement_id, oldLevel, newLevel);
+    });
+    renderHero();
+    renderAchievementsBody();
   }
   window.addEventListener('beforeunload', () => { if (_achChannel) db.removeChannel(_achChannel); });
 

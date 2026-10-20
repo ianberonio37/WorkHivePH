@@ -3271,7 +3271,13 @@ document.addEventListener('keydown', e => {
             }
             reloadSchedule();
           })
-        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+        // SL AV3: a blocked live channel reloads the schedule on a poll (rtConn's fallback) and says it is not live -
+        // never while the editor is open (the live handler's own rule: no reload out from under an open editor)
+        .subscribe(typeof rtConn === 'function' ? rtConn(undefined, undefined, { name: 'your schedule', reload: () => {
+          const _m = document.getElementById('modal');
+          if (_m && _m.classList.contains('open')) return;
+          reloadSchedule();
+        } }) : undefined);
       window.addEventListener('beforeunload', () => {
         if (_dpRtChannel) { try { db.removeChannel(_dpRtChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup */ } }
       });

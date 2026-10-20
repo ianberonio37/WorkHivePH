@@ -116,7 +116,9 @@ def shared_problems(utils: str) -> list[str]:
     sn = _fn(u, "_whShowNotice")
     if not re.search(r"var _isAccess = \(id === 'wh-access-denied-notice'\);", sn) or "/session|" in sn:
         bad.append("utils.js: the notice decides Sign in from its own text again - 'your session is fine' earns a Sign in button")
-    if "if (!(_isAccess && !_isSession)) el.appendChild(_rb);" not in sn:
+    # SL AV3 (2026-10-20) added a second reason for no Reload (the live-off notice: a reload cannot open a firewall);
+    # the refused member's condition must still lead the guard
+    if not re.search(r"if \(!\(_isAccess && !_isSession\)(?: && id !== 'wh-live-notice')?\) el\.appendChild\(_rb\);", sn):
         bad.append("utils.js: a refused member's notice offers a Reload that cannot turn a no into a yes")
     pa = _fn(u, "whPlatformAdminAnswer")
     if not re.search(r"if \(r1\.error\) return 'unreachable';", pa) or not re.search(r"if \(r2\.error\) return 'unreachable';", pa):

@@ -5741,7 +5741,35 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         updateCountBadges();
         showToast('New listing just posted!', 'info');
       })
-      .subscribe(rtConn());
+      // SL AV3: a blocked live channel finds new listings on a poll (rtConn's fallback) and the page says it is not live.
+      // A section switch removes this channel (CLOSED), which stops its poll; the next section's channel starts its own.
+      .subscribe(rtConn(undefined, undefined, { name: 'new listings', reload: _pollNewListings }));
+  }
+  // The live prepend's job without the channel: listings published in this section since the newest one shown, read
+  // through the same public view and the same filters, prepended without re-rendering the feed under someone browsing.
+  async function _pollNewListings() {
+    const newest = _listings.reduce((m, l) => (l && l.created_at && l.created_at > m ? l.created_at : m), '');
+    if (!newest) return;
+    const section = _section;
+    const { data, error } = await db.from('v_marketplace_listings_public')
+      .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
+      .eq('status', 'published').eq('section', section).gt('created_at', newest)
+      .order('created_at', { ascending: false }).order('id').limit(20);   // cap-ok: only what arrived since the newest shown
+    if (error || !Array.isArray(data) || section !== _section) return;
+    const fresh = data.filter((row) => {
+      if (_listings.some(l => l.id === row.id)) return false;
+      if (_cat !== 'All' && row.category !== _cat) return false;
+      if (_priceMin != null && row.price < _priceMin) return false;
+      if (_priceMax != null && row.price > _priceMax) return false;
+      if (_query) { const s = _query.toLowerCase(); if (!(row.title || '').toLowerCase().includes(s) && !(row.description || '').toLowerCase().includes(s)) return false; }
+      return true;
+    });
+    if (!fresh.length) return;
+    _listings.unshift(...fresh);
+    renderListings();
+    _counts[_section] = (_counts[_section] || 0) + fresh.length;
+    updateCountBadges();
+    showToast(fresh.length === 1 ? 'New listing just posted!' : fresh.length + ' new listings posted', 'info');
   }
 
   /* ============================================================

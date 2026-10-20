@@ -164,6 +164,16 @@ CONDITION["AV2"] = ("the page read as served in its own browser context (service
                     "needs a connection, nothing sent on return) or NONE (no such write offered to this cast); every write "
                     "the queue sent on return was answered in the page, so nothing landed. Then two items put through each "
                     "queue the page registered, the first with the LATER key: they must sync in the order made")
+GATES["AV3"] = ["live-off-polls", "realtime-backfill", "realtime-blocked-socket", "realtime-degradation-honest",
+                "realtime-channel-cleanup", "idle-network", "reference-repaint-focus", "skew-heal", "scripts-parse"]
+CONDITION["AV3"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
+                    "cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's "
+                    "first asset); a CONTROL load with the realtime websocket allowed records what the page says when it "
+                    "is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's "
+                    "shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into "
+                    "rounds (a poll is a round of reads repeating with no one touching the page), and its visible words "
+                    "and source lines read - it must re-read on its own and say that it is not live and how often it "
+                    "checks, and nothing may still claim live updates")
 CONDITION["A4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's "
                    "cast, an init script patching fetch before any page script: first every data read answered 5 s late "
                    "(then for real) - the waiting judged at 1.8 s, the freshness once the reads had landed and stayed "

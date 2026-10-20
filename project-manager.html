@@ -3678,7 +3678,8 @@ function subscribeRealtime() {
         () => { if (_detailId) refreshDetail(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'project_progress_logs', filter: `hive_id=eq.${HIVE_ID}` },
         () => { if (_detailId) refreshDetail(); })
-    .subscribe(rtConn());
+    // SL AV3: a blocked live channel polls the same refresh (rtConn's fallback) and the page says it is not live
+    .subscribe(rtConn(undefined, undefined, { name: 'projects', reload: () => { loadProjects(); if (_detailId) refreshDetail(); } }));
 }
 window.addEventListener('beforeunload', () => { if (_rtChannel) db.removeChannel(_rtChannel); });
 

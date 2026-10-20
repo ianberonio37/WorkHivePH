@@ -834761,8 +834761,8 @@
     },
     {
       "id": "SL1607",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · achievements",
       "pages": [
@@ -834820,12 +834820,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, achievements.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T23:54:06.683Z (.tmp/slw/results/av3w_2.json) as David Velasco (davidvelasco), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_worker_achievements_truth), +48s (1 read: v_worker_achievements_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_worker_achievements_truth), +48s (1 read: v_worker_achievements_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/community backfill checks once a minute, every subscribing page names what it keeps current), with realtime-bac Receipt .tmp/mcp_walks/SL1607.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1608",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · alert hub",
       "pages": [
@@ -834883,12 +834897,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, alert-hub.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:01:01.565Z (.tmp/slw/results/av3w_3.json) as Ben Ocampo (driverben), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +48s (10 reads: v_risk_truth, v_inventory_items_truth, v_pm_scope_items_truth); said \"Updated just now · Auto-refresh every minute\"; \"· Auto-refresh every minute\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +48s (10 reads: v_risk_truth, v_inventory_items_truth, v_pm_scope_items_truth); said \"Updated just now · Auto-refresh every minute\"; \"· Auto-refresh every minute\"; nothing still claims live. Its own 60 s refresh (startRefresh's loadAll: the feed, the brief and the anomaly engine) is what keeps it current; its two channels now say so when they cannot join. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the h Receipt .tmp/mcp_walks/SL1608.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1609",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · asset hub",
       "pages": [
@@ -834946,12 +834974,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, asset-hub.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:01:01.565Z (.tmp/slw/results/av3w_3.json) as Ben Ocampo (driverben), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (6 reads: v_logbook_truth, pm_completions, v_asset_truth), +48s (6 reads: v_logbook_truth, pm_completions, v_asset_truth); said \"NOT LIVE\"; \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (6 reads: v_logbook_truth, pm_completions, v_asset_truth), +48s (6 reads: v_logbook_truth, pm_completions, v_asset_truth); said \"NOT LIVE\"; \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Its live channels belong to an open asset, so the walk opened the first asset in the fleet list before watching (asset-hub subscribes only for an open asset; the bare list holds no chan Receipt .tmp/mcp_walks/SL1609.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1610",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - fleet-supervisor · community",
       "pages": [
@@ -835009,12 +835051,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, community.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:14:42.177Z (.tmp/slw/results/av3w_5.json) as Oscar Ramos (jeepneyoscarph), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, it says \"ONLINE NOW\"; socket closed on open -> re-read on its own at +48s (15 reads: v_community_posts_truth, community_xp, community_posts); said \"Not live\"; \"Not shown while live updates are off on this connection.\"; nothing still claims live || desktop-1280: live, it says \"ONLINE NOW\"; socket closed on open -> re-read on its own at +48s (15 reads: v_community_posts_truth, community_xp, community_posts); said \"Not live\"; \"Not shown while live updates are off on this connection.\"; nothing still claims live. Its whole-page refetch is 15 reads, so the shared backfill checks once a minute; presence cannot travel without the channel, so the bar says it is not shown instead of an empty 'Online now'. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/comm Receipt .tmp/mcp_walks/SL1610.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1611",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - fleet-supervisor · dayplanner",
       "pages": [
@@ -835072,12 +835128,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, dayplanner.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:28:01.710Z (.tmp/slw/results/av3w_7.json) as Gloria Tan (vanfleetgloriaph), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +19s (1 read: schedule_items), +49s (1 read: schedule_items); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +19s (1 read: schedule_items), +49s (1 read: schedule_items); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/community backfill checks once a minute, every subscribing page names what it keeps current), with realtime-backfill, realtime-blocked-socket, realtime-degradatio Receipt .tmp/mcp_walks/SL1611.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1612",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · hive",
       "pages": [
@@ -835135,12 +835205,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, hive.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:07:49.251Z (.tmp/slw/results/av3w_4.json) as Ben Ocampo (driverben), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, it says \"Live · updates automatically · as of 08:01 PHT · Based on your hive's…\"; socket closed on open -> re-read on its own at +48s (11 reads: v_logbook_truth, pm_completions, v_pm_scope_items_truth); said \"Live updates are off on this connection, so this page checks for changes every 60 seconds…\"; \"Live · live updates off - checks for changes every 60 s · as of 08:01 PHT · Based on your…\"; nothing still claims live || desktop-1280: live, it says \"Live · updates automatically · as of 08:02 PHT · Based on your hive's…\"; socket closed on open -> re-read on its own at +48s (11 reads: v_logbook_truth, pm_completions, v_pm_scope_items_truth); said \"Live updates are off on this connection, so this page checks for changes every 60 seconds…\"; \"Live · live updates off - checks for changes every 60 s · as of 08:03 PHT · Based on your…\"; nothing still claims live. Its whole-page refe Receipt .tmp/mcp_walks/SL1612.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1613",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · inventory",
       "pages": [
@@ -835198,12 +835282,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, inventory.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T23:54:06.683Z (.tmp/slw/results/av3w_2.json) as David Velasco (davidvelasco), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +19s (6 reads: v_inventory_items_truth, asset_nodes, v_inventory_transactions_truth), +49s (6 reads: v_inventory_items_truth, asset_nodes, v_inventory_transactions_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +19s (6 reads: v_inventory_items_truth, asset_nodes, v_inventory_transactions_truth), +49s (6 reads: v_inventory_items_truth, asset_nodes, v_inventory_transactions_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewr Receipt .tmp/mcp_walks/SL1613.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1614",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · logbook",
       "pages": [
@@ -835261,12 +835359,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, logbook.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T23:46:46.077Z (.tmp/slw/results/av3w_1.json) as Bryan Garcia (bryangarcia), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_logbook_truth), +48s (1 read: v_logbook_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_logbook_truth), +48s (1 read: v_logbook_truth); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/community backfill checks once a minute, every subscribing page names what it keeps current), with realtime-backfill, realtime-blocked-socket, realtime-degradati Receipt .tmp/mcp_walks/SL1614.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1615",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - buyer · marketplace",
       "pages": [
@@ -835324,12 +835436,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, marketplace.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:07:49.251Z (.tmp/slw/results/av3w_4.json) as Isidro Suarez (isidrosuarez), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_marketplace_listings_public), +48s (1 read: v_marketplace_listings_public); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (1 read: v_marketplace_listings_public), +48s (1 read: v_marketplace_listings_public); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/community backfill checks once a minute, every subscribing page names what it keeps current), with real Receipt .tmp/mcp_walks/SL1615.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1616",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - worker · pm scheduler",
       "pages": [
@@ -835387,12 +835513,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, pm-scheduler.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:14:42.177Z (.tmp/slw/results/av3w_5.json) as Oscar Ramos (jeepneyoscarph), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (5 reads: pm_assets, v_pm_scope_items_truth, pm_completions), +48s (5 reads: pm_assets, v_pm_scope_items_truth, pm_completions); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (5 reads: pm_assets, v_pm_scope_items_truth, pm_completions), +48s (5 reads: pm_assets, v_pm_scope_items_truth, pm_completions); said \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/community backfill  Receipt .tmp/mcp_walks/SL1616.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1617",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - fleet-supervisor · project manager",
       "pages": [
@@ -835450,12 +835590,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, project-manager.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-19T23:46:46.077Z (.tmp/slw/results/av3w_1.json) as Christine Dizon (christinedizon), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, it says \"Live · refreshed on load · updates automatically · as of 07:43 PHT · …\"; socket closed on open -> re-read on its own at +18s (3 reads: projects, v_project_items_truth, v_project_truth), +48s (3 reads: projects, v_project_items_truth, v_project_truth); said \"Live · refreshed on load · live updates off - checks for changes every 30 s · as of 07:43…\"; \"Live updates are off on this connection, so this page checks for changes every 30 seconds…\"; nothing still claims live || desktop-1280: live, it says \"Live · refreshed on load · updates automatically · as of 07:45 PHT · …\"; socket closed on open -> re-read on its own at +18s (3 reads: projects, v_project_items_truth, v_project_truth), +48s (3 reads: projects, v_project_items_truth, v_project_truth); said \"Live · refreshed on load · live updates off - checks for changes every 30 s · as of 07:45…\"; \"Live updates  Receipt .tmp/mcp_walks/SL1617.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1618",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - fleet-supervisor · audit log",
       "pages": [
@@ -835513,12 +835667,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, audit-log.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:28:01.710Z (.tmp/slw/results/av3w_7.json) as Gloria Tan (vanfleetgloriaph), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (4 reads: hive_audit_log, ai_audit_log), +48s (4 reads: hive_audit_log, ai_audit_log); said \"Last refreshed 08:21 AM PHT · refreshes every 30 s\"; \"Last refreshed 08:22 AM PHT · refreshes every 30 s\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +18s (4 reads: hive_audit_log, ai_audit_log), +48s (4 reads: hive_audit_log, ai_audit_log); said \"Last refreshed 08:23 AM PHT · refreshes every 30 s\"; \"Last refreshed 08:24 AM PHT · refreshes every 30 s\"; nothing still claims live. It polls by design (whPoll, 30 s) and opens no live channel; its source line and footer now say 'refreshes every 30 s' where they said 'updates automatically' and 'Live updates on'. Gate live-off-polls holds the fix (rtConn polls opts.reload unti Receipt .tmp/mcp_walks/SL1618.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1619",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - oversight · founder console",
       "pages": [
@@ -835570,12 +835738,26 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, founder-console.html is retired and does no work - it claims nothing - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:21:24.808Z (.tmp/slw/results/av3w_6.json) as Leandro Marquez (leandromarquez), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: retired overlay shown, 0 reads after the channel would have failed, no claim || desktop-1280: retired overlay shown, 0 reads after the channel would have failed, no claim. retired behind its overlay - the page shows only its pointer to the Founder Ops dashboard; its boot returns before any read, so it opens no live channel and claims nothing. Its inbox code was proven for the day it is restored: the same walk with the overlay's id renamed as it parsed (the documented un-retire; .tmp/slw/results/av3w_probe_fc.json) re-read the inbox at +19 s and +49 s and showed the live-off notice at both widths - the one 'Realtime' it showed is the name of a check group in the console's health panel, not a claim. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and shows one info notice, the hive/comm Receipt .tmp/mcp_walks/SL1619.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL1620",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-AV",
       "title": "AV3 · The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live - oversight · platform actions",
       "pages": [
@@ -835627,6 +835809,20 @@
         "engine": "chromium",
         "ask": "The platform must keep this page current by polling when the live channel is blocked or down, and say that it is not live",
         "closes": "the AV3 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-20] pct -> 60. WALKED LIVE 2026-10-20 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (a page whose live channel belongs to one thing opened on it, as a person does - asset-hub's first asset); a CONTROL load with the realtime websocket allowed records what the page says when it is live; then the page loaded with the websocket closed the moment it opened (a plant firewall's shape) and watched 12 s + 70 s: every data read after the channel failed timed and grouped into rounds (a poll is a round of reads repeating with no one touching the page), and its visible words and source lines read - it must re-read on its own and say that it is not live and how often it checks, and nothing may still claim live updates): AV3: with live updates blocked, platform-actions.html keeps itself current by checking for changes on a timer and says it is not live and how often it checks - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T00:21:24.808Z (.tmp/slw/results/av3w_6.json) as Leandro Marquez (leandromarquez), service workers blocked; a control load with the realtime websocket allowed, then the page with the websocket closed the moment it opened (a plant firewall's shape) watched 12 s + 70 s, every read timed: phone-390: live, no update claim on screen; socket closed on open -> re-read on its own at +49s (7 reads: v_marketplace_listings_truth, v_marketplace_sellers_truth, v_service_credit_topups_truth); said \"Live updates are off on this connection, so this page checks for changes every 60 seconds…\"; nothing still claims live || desktop-1280: live, no update claim on screen; socket closed on open -> re-read on its own at +50s (7 reads: v_marketplace_listings_truth, v_marketplace_sellers_truth, v_service_credit_topups_truth); said \"Live updates are off on this connection, so this page checks for changes every 60 seconds…\"; nothing still claims live. Its queues refresh every 60 s on their own (refreshQueues); its inbox channel says it is not live. Gate live-off-polls holds the fix (rtConn polls opts.reload until SUBSCRIBED and never on CLOSED, _whLiveState rewrites the source line and show Receipt .tmp/mcp_walks/SL1620.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "live-off-polls",
+          "realtime-backfill",
+          "realtime-blocked-socket",
+          "realtime-channel-cleanup",
+          "realtime-degradation-honest",
+          "reference-repaint-focus",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1016089,5 +1016285,5 @@
       }
     }
   ],
-  "next": "SL AV3 degraded mode: poll when live is off (14) - 13 of 14 pages subscribe with rtConn() and no fallback (whRealtimeSubscribe, the shared live-or-poll helper, has no adopters): measure frozen vs polling + 'not live' said, then centralise; then AV4 reload once never loop (24), C2/C3, L2-4, LB1-4, RL1-3. SL AV2 33/33 CLOSED (queues drain in the order made; inventory's ledger entry, audit row and Use/Restock queue; resume keeps its sync promise; five online-only actions refuse up front) with A4 30/30. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL AV4 recovery: reload once, never loop (24) - every location.reload() path (the skew heal's wh_utils_refetched, the hive-recovered flag, the online and notice reloads) driven to its trigger as each row's cast: count reloads per tab per trigger (at most one, never a loop) and build the missing guard; then C2/C3, L2-4, LB1-4, RL1-3. SL AV3 14/14 CLOSED (a blocked live channel polls its page and says it is not live: rtConn opts, _whLiveState, the backfill's minute) with AV2 33/33. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
 }
