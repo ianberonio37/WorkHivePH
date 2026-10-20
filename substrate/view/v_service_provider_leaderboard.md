@@ -2,13 +2,13 @@
 name: view-v_service_provider_leaderboard
 type: view
 source: db:pg_get_viewdef:v_service_provider_leaderboard
-source_sha: 7fefdb21d8d3da18
+source_sha: d64e036e32195467
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_service_provider_leaderboard`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
 **Source tables:** `v_service_provider_truth`
 **Trust/identity cols exposed:** (none)  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 

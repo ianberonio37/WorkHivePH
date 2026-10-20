@@ -1589,7 +1589,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whMoreNote whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1682,14 +1682,13 @@ let _syncedMachineSource = {};  // { "P-001": "SAP PM", "EQ-042": "Maximo" }
 async function loadSyncedMachines() {
   if (!HIVE_ID) return;
   try {
-    const { data } = await db.from('v_external_sync_truth')
-      .select('sync_payload, system_type')
-      .eq('hive_id', HIVE_ID)
-      .eq('entity_type', 'work_order')
-      .limit(500);
+    // ★ANY 500 WORK ORDERS, ONE PER ROW (SL LB1, 2026-10-21): the badge needs one row per MACHINE, and a busy machine's
+    // work orders could fill the read so every other synced machine lost its badge. logbook_synced_machines() returns
+    // each machine once, with its newest source (migration 20261021000004).
+    const { data } = await db.rpc('logbook_synced_machines', { p_hive_id: HIVE_ID });
     _syncedMachineSource = {};
     (data || []).forEach(r => {
-      const machine = r.sync_payload?.machine;
+      const machine = r.machine;
       if (machine) {
         _syncedMachineSource[machine] = (r.system_type || 'cmms')
           .replace('sap_pm', 'SAP PM').replace('maximo', 'Maximo').replace('generic', 'CMMS');
@@ -2074,7 +2073,7 @@ async function searchTeam(append = false, byPress = false) {
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-    .limit(TEAM_PAGE);
+    .limit(TEAM_PAGE);   // paged: loadMoreLogbook
 
   // .eq('category', null) matches NOTHING in PostgREST - a null comparison is never true - so the
   // no-discipline case needs .is(), not a falsy value passed to the same call.
@@ -2635,7 +2634,7 @@ async function loadEntries(append = false) {
     .or(_MINE())
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-    .limit(MINE_PAGE); // L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
+    .limit(MINE_PAGE); // paged: loadMoreLogbook. L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
   // The keyset step. ★IT IS .lte, NOT .lt, AND THAT IS THE WHOLE POINT (measured 2026-10-06).
   // `date` is a timestamptz but it is NOT unique: 527 of Bryan Garcia's own dates carry more than one
@@ -2970,7 +2969,7 @@ async function _autoLinkLogbookToProject(entry) {
     .eq('hive_id', HIVE_ID)
     .eq('link_type', 'asset')
     .eq('link_id', legacyId)
-    .limit(500); // Arc L · L2: row cap (links for ONE asset ≤ handful; bounded-by-nature)
+    .limit(500); // Arc L · L2: row cap (links for ONE asset ≤ handful; bounded-by-nature) · cap-ok (LB1): its largest group (hive_id, link_id) is far under 500 - sized live by list-caps-say-more
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
   // canonical-allow: project_links join already constrained the id set; this is a narrow targeted fetch
@@ -2978,7 +2977,7 @@ async function _autoLinkLogbookToProject(entry) {
     .select('id, project_code, name, status')
     .in('id', projectIds)
     .in('status', ['planning', 'active'])
-    .limit(500); // Arc L · L2: row cap (.in() over the prior bounded project_links set; bounded-by-nature)
+    .limit(500); // Arc L · L2: row cap (.in() over the prior bounded project_links set; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   if (!projs?.length) return;
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
@@ -3122,8 +3121,8 @@ async function initAssets() {
     // the asset picker needs the same shaped row set it writes (legacy-aliased COLS), v_asset_truth
     // renames id → asset_id which would break the existing _assets[].id consumers
     const [hiveRes, myRes, uidRes] = await Promise.all([
-      db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500), // Arc L · L2: row cap (hive equipment registry feeds asset picker; bounded-by-nature)
-      db.from('asset_nodes').select(COLS).or(_MINE()).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature)
+      db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500), // Arc L · L2: row cap (hive equipment registry feeds asset picker; bounded-by-nature) · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      db.from('asset_nodes').select(COLS).or(_MINE()).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
       // ★MY ASSETS BY IDENTITY, NOT BY DISPLAY NAME (2026-10-04, Ian: "in the select an asset there is
       // nothing there, but I can see it in my asset hub"). The picker found "mine" with
       // worker_name = WORKER_NAME, a free-text display name; asset-hub.html finds the same rows with
@@ -3143,7 +3142,7 @@ async function initAssets() {
       // canonical-allow: the IDENTITY half of the picker union, same COLS shape as the hive branch
       // above - v_asset_truth exposes no worker_name, so the name half of this union cannot be
       // expressed against the view, and that half exists for rows whose auth_uid was never bound.
-      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).limit(500), // Arc L · L2: row cap (one person's assets by identity; bounded-by-nature)
+      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).limit(500), // Arc L · L2: row cap (one person's assets by identity; bounded-by-nature) · cap-ok (LB1): its largest group (auth_uid) is far under 500 - sized live by list-caps-say-more
     ]);
     // Don't concatenate the upstream message into the notice: a person was shown "Could not load hive
     // assets: injected server fault" in the measured run, and in production that is whatever Postgres
@@ -3175,10 +3174,10 @@ async function initAssets() {
     const [soloUidRes, soloNameRes] = await Promise.all([
       // canonical-allow: solo-mode picker, identity half of the same union (see the hive branch) -
       // v_asset_truth carries no worker_name, so the name half has no view-side equivalent.
-      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker by identity; bounded-by-nature)
+      db.from('asset_nodes').select(COLS).eq('auth_uid', _authUid).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker by identity; bounded-by-nature) · cap-ok (LB1): its largest group (auth_uid) is far under 500 - sized live by list-caps-say-more
       // canonical-allow: solo-mode picker, NAME half - _MINE() filters on worker_name, a column
       // v_asset_truth does not expose at all, so this read has no canonical equivalent to move to.
-      db.from('asset_nodes').select(COLS).or(_MINE()).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature)
+      db.from('asset_nodes').select(COLS).or(_MINE()).is('hive_id', null).limit(500), // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     ]);
     const soloErr = soloUidRes.error && soloNameRes.error ? soloNameRes.error : null;
     if (soloUidRes.error) console.error('assets load (by identity):', soloUidRes.error.message);
@@ -3200,7 +3199,7 @@ async function initAssets() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back after localStorage migration
     const { data: migrated } = await db.from('asset_nodes').select(COLS)
-      .or(_MINE()).is('hive_id', null).limit(500); // Arc L · L2: row cap (post-upsert read-back; bounded-by-nature)
+      .or(_MINE()).is('hive_id', null).limit(500); // Arc L · L2: row cap (post-upsert read-back; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     _assets = migrated || [];
   } else {
     _assets = sbAssets;
@@ -3738,14 +3737,14 @@ async function loadAssetDetail(asset) {
           .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
           .or(_MINE())
           .contains('linked_asset_node_ids', [assetNodeId])
-          .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap
+          .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
         ...(HIVE_ID ? [
           db.from('inventory_items')
             .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
             .eq('hive_id', HIVE_ID)
             .eq('status', 'approved')
             .contains('linked_asset_node_ids', [assetNodeId])
-            .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap
+            .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
         ] : []),
       ]
     : [];
@@ -3757,7 +3756,7 @@ async function loadAssetDetail(asset) {
           .eq('asset_node_id', assetNodeId)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(50)
+          .limit(50 + 1)   // more-said: by renderDetailFaultHistory (SL LB1: a 51st entry says older faults exist)
       : Promise.resolve({ data: [] }),
     ...invQueries,
   ]);
@@ -3790,7 +3789,8 @@ async function loadAssetDetail(asset) {
       if (!seen.has(item.id)) { seen.add(item.id); _detailLinkedItems.push(item); }
     }
   }
-  const faults = faultsRes.data || [];
+  _detailFaultsMore = (faultsRes.data || []).length > 50;   // SL LB1
+  const faults = (faultsRes.data || []).slice(0, 50);
 
   let txns = [];
   if (_detailLinkedItems.length) {
@@ -3801,8 +3801,9 @@ async function loadAssetDetail(asset) {
       .eq('type', 'use')
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(50);
-    txns = t || [];
+      .limit(50 + 1);   // more-said: by renderDetailConsumption (SL LB1: a 51st use says older consumption exists)
+    _detailTxnsMore = (t || []).length > 50;
+    txns = (t || []).slice(0, 50);
   }
 
   document.getElementById('asset-detail-loading').classList.add('hidden');
@@ -3844,6 +3845,7 @@ function renderDetailStocked(items) {
   document.getElementById('detail-stocked-view').classList.remove('hidden');
 }
 
+let _detailTxnsMore = false, _detailFaultsMore = false;   // SL LB1: the asset detail's two lists read one past 50
 function renderDetailConsumption(txns, itemsList) {
   const list  = document.getElementById('detail-consumption-list');
   const byId  = {};
@@ -3880,6 +3882,9 @@ function renderDetailConsumption(txns, itemsList) {
     </div>`;
   }).join('');
   document.getElementById('detail-consumption-view').classList.remove('hidden');
+  // SL LB1: the 50 newest uses of this asset's parts - say when older ones exist
+  if (typeof whMoreNote === 'function') whMoreNote(list, { shown: txns.length, more: _detailTxnsMore, noun: 'part uses',
+    order: 'newest', src: 'v_inventory_transactions_truth' });
 }
 
 function renderDetailFaultHistory(entries) {
@@ -3918,6 +3923,9 @@ function renderDetailFaultHistory(entries) {
     </div>`;
   }).join('');
   document.getElementById('detail-faults-view').classList.remove('hidden');
+  // SL LB1: the asset's 50 newest entries - say when older ones exist
+  if (typeof whMoreNote === 'function') whMoreNote(list, { shown: entries.length, more: _detailFaultsMore, noun: 'entries for this asset',
+    order: 'newest', where: 'Older ones are in the Logbook search.', src: 'logbook' });
 }
 
 function switchDetailTab(tab) {
@@ -4048,7 +4056,7 @@ async function loadMachineHistory(machineId) {
       .not('problem', 'is', null)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(5);
+      .limit(5);   // more-said: by loadMachineHistory (the title says the true total from the head-count below and 'showing the latest 5')
 
     // ★SOLO: the person's OWN hive-less rows (2026-10-07). This branch was always empty for a solo owner - not
     // because of this filter but because fault_knowledge_read only admitted `hive_id IN (my hives)`, which a
@@ -4249,7 +4257,7 @@ async function loadReadingTemplates() {
     // Arc L · L2: a real .limit() row cap keeps it formally bounded (free-tier egress safe even if it grows)
     const { data, error } = await db.from('equipment_reading_templates')
       .select('category, reading_key, label, unit, placeholder, sort_order')
-      .order('category').order('sort_order').order('id').limit(500);
+      .order('category').order('sort_order').order('id').limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     if (error || !data?.length) {
       _readingTemplates = READINGS_FALLBACK;
       return _readingTemplates;
@@ -5739,7 +5747,7 @@ async function loadPMTasksForAsset() {
     q = db.from('v_pm_compliance_truth').select('pm_asset_id, asset_name, tag_id, category').eq('hive_id', HIVE_ID).limit(500); // limit-as-count-allow: asset-picker registry (bounded-by-nature ≤ dozens/hive), does not feed a .length count. Arc L · L2 row cap
   } else {
     // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
-    q = db.from('pm_assets').select('id, asset_name, tag_id, category').or(_MINE()).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature)
+    q = db.from('pm_assets').select('id, asset_name, tag_id, category').or(_MINE()).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   }
   const { data: pmRaw } = await q;
   // Normalise the id column so downstream code (which expects `id`) works
@@ -5765,14 +5773,13 @@ async function loadPMTasksForAsset() {
   let scopeQ = db.from('v_pm_scope_items_truth')
     .select('id:scope_item_id, asset_id, item_text, frequency, anchor_date, next_due_date, days_until_due, is_overdue, is_due_soon')
     .in('asset_id', assetIds)
-    .limit(500); // limit-as-count-allow: scope items per asset are bounded-by-nature (≤ dozens), cap never truncates so needsAttention.length stays accurate. Arc L · L2 row cap
-  // canonical-allow: per-scope-item completion HISTORY is needed for the inline PM context panel; the rollup view only exposes last_completed_at
-  let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false }).order('id').limit(2000); // L2: newest-first cap on completion-history egress; generous for the inline PM context panel
-  if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
-  const [itemsRes, compsRes] = await Promise.all([scopeQ, compsQ]);
+    .limit(500); // cap-ok[asset_id]: scope items per asset are bounded-by-nature (≤ dozens), cap never truncates so needsAttention.length stays accurate. Arc L · L2 row cap
+  // SL LB1 (2026-10-21): a 2,000-row pm_completions read ran here on every lookup and its rows were never used - the
+  // panel's status comes from the view's own is_overdue / is_due_soon / next_due_date. Removed.
+  if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); }
+  const itemsRes = await scopeQ;
 
   const items = itemsRes.data || [];
-  const comps = compsRes.data || [];
 
   if (!items.length) { panel.classList.add('hidden'); _pmItemsForAsset = []; return; }
 
@@ -6148,13 +6155,16 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   // T17 (2026-08-25): the trg_logbook_achievement trigger pays XP on this insert (506 awards in the
   // ledger) and NO earning surface ever said so - the motivation loop fired invisibly. Read back the
   // just-written award rows so the receipt claims exactly what the ledger holds, nothing invented.
-  let _xpNote = '';
-  try {
-    const { data: _xpRows } = await db.from('achievement_xp_log')
-      .select('xp_earned').eq('source_id', entry.id).is('reversed_at', null).limit(20);  // L2: a source pays a handful of awards at most
-    const _xpSum = (_xpRows || []).reduce((s, r2) => s + (r2.xp_earned || 0), 0);
-    if (_xpSum > 0) _xpNote = ` · +${_xpSum} XP`;
-  } catch (_) { /* empty-catch-allow: xp read failed -> the receipt claims nothing rather than guessing an award */ }
+  // SL LB1: the receipt's XP read, named so its one-past-the-cap rule can be held
+  async function _logXpNote(sourceId) {
+    try {
+      const { data: _xpRows } = await db.from('achievement_xp_log')
+        .select('xp_earned').eq('source_id', sourceId).is('reversed_at', null).limit(50 + 1);  // more-said: by _logXpNote (a source pays a handful of awards; a 51st makes the sum a floor, shown with +)
+      const _xpSum = (_xpRows || []).slice(0, 50).reduce((s, r2) => s + (r2.xp_earned || 0), 0);
+      return _xpSum > 0 ? ` · +${_xpSum}${(_xpRows || []).length > 50 ? '+' : ''} XP` : '';
+    } catch (_) { return ''; /* empty-catch-allow: xp read failed -> the receipt claims nothing rather than guessing an award */ }
+  }
+  const _xpNote = await _logXpNote(entry.id);
   showToast(_t(`✓ Logged: updated ${_fx.join(' · ')}${_xpNote}`,
       `✓ Na-log: na-update ang ${_fx.join(' · ')}${_xpNote}`), _fx.length > 1 ? 6000 : 2800);
   saveBtn.disabled = false;
@@ -7071,7 +7081,7 @@ const _exportTeamAll = async () => {
       .eq('hive_id', HIVE_ID)
       .order('date', { ascending: false })
       .order('id')                    // MR4: the sort above is not total on its own
-      .range(from, from + PAGE - 1);
+      .range(from, from + PAGE - 1);   // paged: _exportTeamAll (every page of the filtered team view)
     if (category) q = q.eq('category', category);
     if (status)   q = q.eq('status', status);
     if (worker)   q = q.eq('worker_name', worker);
@@ -7107,7 +7117,7 @@ const _exportPageAll = async () => {
       .or(_MINE())
       .order('date', { ascending: false })
       .order('id')                    // MR4: the sort above is not total on its own
-      .range(from, from + PAGE - 1);
+      .range(from, from + PAGE - 1);   // paged: _exportPageAll (every page of the worker's own history)
     if (HIVE_ID) q = q.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
     if (category) q = q.eq('category', category);
     if (status)   q = q.eq('status', status);
@@ -7548,8 +7558,8 @@ const _PICKER_COLS = 'id, part_name, part_number, qty_on_hand, unit, bin_locatio
 async function loadInventoryForPicker() {
   if (HIVE_ID) {
     const [myRes, hiveRes] = await Promise.allSettled([
-      db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000), // L2: parts picker; inventory bounded-by-nature
-      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature
+      db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000), // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);
     const seen = new Set();
     const merged = [];
@@ -7558,7 +7568,7 @@ async function loadInventoryForPicker() {
     }
     _inventoryItems = merged;
   } else {
-    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000); // L2: parts picker; inventory bounded-by-nature
+    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000); // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     _inventoryItems = data || [];
   }
 }

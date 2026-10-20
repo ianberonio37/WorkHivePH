@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whManilaYmd whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
+<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whManilaYmd whMoreNote whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -573,10 +573,10 @@
         const [drafts, sellers] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
-            .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+            .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50 + 1),   // more-said: by renderMktModeration (SL LB1: a 51st draft is the probe) - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
           db.from('v_marketplace_sellers_truth')
             .select('id,worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
-            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50 + 1),   // more-said: by renderMktModeration (SL LB1: a 51st seller is the probe) - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
         ]);
         /* CARRY THE CODE AND STATUS, NOT JUST THE SENTENCE. supabase-js reports a PostgREST failure
            through `error` rather than by throwing, so only the catch below was populating _code and
@@ -586,7 +586,8 @@
            Measured 2026-08-05 by injecting a 401 at the route layer. */
         const _e = drafts.error || sellers.error;
         return {
-          drafts: drafts.data || [], sellers: sellers.data || [],
+          drafts: (drafts.data || []).slice(0, 50), sellers: (sellers.data || []).slice(0, 50),
+          draftsMore: (drafts.data || []).length > 50, sellersMore: (sellers.data || []).length > 50,   // SL LB1
           _error: _e ? _e.message : null,
           _code: _e ? (_e.code || null) : null,
           _status: _e ? (_e.status || _e._httpStatus || null) : null,
@@ -711,10 +712,10 @@
         const _q = db.from('v_service_credit_topups_truth')
           .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
           .eq('status', 'pending_verification')
-          .order('created_at', { ascending: true }).order('id').limit(50);   // cap-ok: the queue count discloses '50+' when this read is full
+          .order('created_at', { ascending: true }).order('id').limit(50 + 1);   // more-said: by renderSvcTopups - the queue count says '50+' when a 51st is waiting (SL LB1)
         const { data, error } = await (typeof whQueryTimeout === 'function'
           ? whQueryTimeout(_q, 15000, 'the top-up queue') : _q);
-        return { rows: data || [], _error: error ? error.message : null,
+        return { rows: (data || []).slice(0, 50), more: (data || []).length > 50, _error: error ? error.message : null,
                  _code: error ? (error.code || null) : null,
                  _status: error ? (error.status || error._httpStatus || null) : null };
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
@@ -757,7 +758,7 @@
             </div>
           </div>`).join('');
       }
-      setCount('svc-topups-count', rows.length >= 50 ? '50+' : rows.length, 'warn');   // cap is not a total (2026-09-05): the read is .limit(50)
+      setCount('svc-topups-count', m.more ? '50+' : rows.length, 'warn');   // cap is not a total (2026-09-05); SL LB1: a 51st row decides it
     }
 
     // ── Recent decisions (SL L2, 2026-10-21) ──────────────────────────────────────────────────────────────────────
@@ -770,9 +771,9 @@
           .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
           .order('created_at', { ascending: false })
           .order('id')   // MR4: created_at alone is not a total order
-          .limit(20);
+          .limit(20 + 1);   // more-said: by renderDecisions - 'latest 20' when a 21st exists (SL LB1)
         if (error) throw error;
-        return { rows: data || [], _error: null };
+        return { rows: (data || []).slice(0, 20), more: (data || []).length > 20, _error: null };
       } catch (err) {
         return { rows: [], _error: (err && err.message) || 'fetch failed', _code: (err && err.code) || null };
       }
@@ -801,7 +802,7 @@
           </div>`;
         }).join('');
       }
-      setCount('decisions-count', rows.length >= 20 ? 'latest 20' : rows.length, '');   // a cap is not a total: the read is .limit(20)
+      setCount('decisions-count', m.more ? 'latest 20' : rows.length, '');   // a cap is not a total; SL LB1: a 21st row decides it
     }
 
     let _svcTopupWired = false;
@@ -951,7 +952,7 @@
          This is the same defect this file already fixed for the top-up queue (:482) and the feedback
          queue (:1022), both of which set an em-dash on error; these two marketplace badges were the
          ones never given that branch. An em-dash asserts nothing, which is the only honest answer. */
-      setCount('mkt-listings-count', m._error ? '—' : ((m.drafts || []).length >= 50 ? '50+' : (m.drafts || []).length), m._error ? '' : 'warn');   // the read is capped at 50: say so
+      setCount('mkt-listings-count', m._error ? '—' : (m.draftsMore ? '50+' : (m.drafts || []).length), m._error ? '' : 'warn');   // the read is capped at 50: say so
 
       // Sellers awaiting verification
       const sc = document.getElementById('mkt-sellers-content');
@@ -990,7 +991,7 @@
          reader auditing this line alone sees a variable, not a fallback, which is exactly why the 500
          injection found it and four greps did not. Gated on the same m._error the pane uses, so the
          badge and the pane can no longer disagree about whether the read happened. */
-      setCount('mkt-sellers-count', m._error ? '—' : (sellerCount >= 50 ? '50+' : sellerCount), m._error ? '' : 'warn');   // the read is capped at 50: say so
+      setCount('mkt-sellers-count', m._error ? '—' : (m.sellersMore ? '50+' : sellerCount), m._error ? '' : 'warn');   // the read is capped at 50: say so
 
       /* The "Open disputes" renderer was RETIRED 2026-08-03 with its table. Its honest-empty copy
          ("none can arrive") was the right fix for a queue that had to stay; deleting the queue is the
@@ -1005,7 +1006,7 @@
         // Bounded, same as the top-up queue above: unreviewed GCash receipts are money waiting on a
         // human, and a stalled read that never resolves reads as "nothing to review".
         const _q = db.from('v_gcash_receipts_needing_eyes')
-          .select('reference, amount, sender_name, match_state, match_note, created_at', { count: 'exact' }).limit(20);   // the badge paints the EXACT server count; the list shows the first 20 (P355 a claim a query enforces, 2026-09-05)
+          .select('reference, amount, sender_name, match_state, match_note, created_at', { count: 'exact' }).limit(20);   // more-said: by renderGcashLeftovers - the badge paints the EXACT server count; the list shows the first 20 and says so (P355 a claim a query enforces, 2026-09-05)
         const { data, error, count } = await (typeof whQueryTimeout === 'function'
           ? whQueryTimeout(_q, 15000, 'the GCash receipts') : _q);
         _gcashCount = (typeof count === 'number') ? count : null;
@@ -1060,6 +1061,9 @@
             <span class="mod-sub">${e(r.match_note || '')}</span></div>
         </div>`).join('');
       setCount('gcash-receipts-count', (typeof _gcashCount === 'number' ? _gcashCount : rows.length), 'warn');   // exact count, not the 20-row page
+      // SL LB1: the list is the first 20 of the badge's count - under the list, say so
+      if (typeof whMoreNote === 'function') whMoreNote(box, { shown: rows.length, total: _gcashCount,
+        more: typeof _gcashCount === 'number' && _gcashCount > rows.length, noun: 'receipts', order: 'first', src: 'v_gcash_receipts_needing_eyes' });
     }
 
     /* THE PLATFORM'S OWN MONEY POSITION. Both halves come from v_credit_posture, never from
@@ -1425,8 +1429,8 @@
           .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
           .order('created_at', { ascending: false })
           .order('id')                       // MR4: the sort above is not total on its own
-          .limit(500);   // cap-ok: the 'all' count discloses '500+' when this read is full
-        return { rows: data || [], _error: error ? error.message : null,
+          .limit(500 + 1);   // more-said: by applyFeedbackView - the 'all' count says '500+' when a 501st exists (SL LB1)
+        return { rows: (data || []).slice(0, 500), more: (data || []).length > 500, _error: error ? error.message : null,
                  _code: error ? (error.code || null) : null,
                  _status: error ? (error.status || error._httpStatus || null) : null };
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
@@ -1436,6 +1440,7 @@
       m = m || {};
       _fb.error = m._error || null;
       _fb.rows = m.rows || [];
+      _fb.more = !!m.more;   // SL LB1
       applyFeedbackView();
     }
 
@@ -1457,7 +1462,7 @@
 
       // Counts are over ALL rows, never the filtered view — a tab badge that moved when you typed
       // in the search box would make "3 new" unreadable as a workload.
-      const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.rows.length >= 500 ? '500+' : _fb.rows.length };   // cap is not a total (2026-09-05): the read is .limit(500)
+      const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.more ? '500+' : _fb.rows.length };   // SL LB1: a 501st row decides it   // cap is not a total (2026-09-05): the read is .limit(500)
       _fb.rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
       // The tab pills are written directly rather than through setCount (which would impose its own
       // `count` class on a span that has none), so they carry the same guard explicitly. Without it the

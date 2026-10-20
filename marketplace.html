@@ -1273,7 +1273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whMoreNote whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1851,7 +1851,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         .eq('active', true)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
-        .limit(50);
+        .limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
       if (error) throw error;
 
       const items = data || [];
@@ -2052,12 +2052,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       if (!_sess) { _watchlist = new Set(); return; }
       const { data } = await db
         .from('marketplace_watchlist')
-        .select('listing_id').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        
+        .select('listing_id')
         // bounded-by-nature: one worker's saved-listing IDs (≤ dozens); .limit(500) is safe insurance — a personal watchlist never reaches 500.
         // BRP-C: RLS (mkt_watchlist_owner_rw) already scopes this to the signed-in person via
         // auth_worker_names(); the client name filter only added a way to narrow it to nothing.
-        .limit(500);
+        .limit(500);   // cap-ok (LB1): one person's saved listings - its largest group is far under 500, sized live by list-caps-say-more
       _watchlist = new Set((data || []).map(r => r.listing_id));
     } catch (_) { _watchlist = new Set(); }
     // T5: replay the save the person tapped BEFORE signing in (stashed by toggleWatchlist's
@@ -2080,6 +2079,12 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
      surface read them, so an answered inquiry looked exactly like an ignored one. Reads the TRUTH
      VIEW per the canonical-source rule. Bounded (10, newest first with a total order) and
      best-effort: no replies, or a failed read, renders nothing rather than a broken panel. */
+  /* ★TWO CAPS, AND THE LAST ONE WON (SL LB1, 2026-10-21). This read carried .limit(200 + 1) on its select line and
+     .limit(10) at its end. PostgREST sends the LAST, so the panel held a buyer's 10 newest inquiries while the code
+     beside the first cap counted toward 201 - the "200+" it was meant to show could never appear, and the eleventh
+     inquiry and every older one vanished without a word. One cap now: the panel's 10, probed one past, and a way to
+     the older ones. */
+  let _inqLimit = 10;
   async function loadMyInquiryReplies() {
     const slot = document.getElementById('mk-my-replies');
     if (!slot || !WORKER_NAME) return;
@@ -2088,8 +2093,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       try { _sess = (await db.auth.getSession())?.data?.session || null; } catch (_) { _sess = null; }
       if (!_sess) return;
       const { data, error } = await db.from('v_marketplace_inquiries_truth')
-        .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        
+        .select('id, listing_id, message, reply_text, replied_at, seller_name, created_at, status')
         .eq('from_me', true)
         /* T96 (2026-08-27): SHOW THE UNANSWERED ONES TOO. This read filtered
            .not('reply_text','is',null), so a buyer saw a thread only once the SELLER had got
@@ -2101,14 +2105,16 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
            Ordered by created_at so the newest ask leads whether or not it has been answered
            (replied_at is NULL for pending, and NULLs do not sort usefully as a primary key). */
         .order('created_at', { ascending: false }).order('id')
-        .limit(10);
+        .limit(_inqLimit + 1);   // more-said (SL LB1: one row past the panel's count says older inquiries exist; "Show older inquiries" widens it)
       if (error || !data || !data.length) return;
+      const _inqMore = data.length > _inqLimit;   // SL LB1
+      if (_inqMore) data.splice(_inqLimit);
       const e = escHtml;
       slot.innerHTML =
         // one card treatment (critic R3, 2026-10-13): a list, not a KPI tile - list-row, the component's padding
         '<div class="simple-card list-row" style="border-left:3px solid var(--wh-orange);">' +
         '<div style="font-size: 0.75rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
-        'Your inquiries &middot; ' + data.length + '</div>' +
+        'Your inquiries &middot; ' + data.length + (_inqMore ? '+' : '') + '</div>' +
         data.map(function (r) {
           var when = r.replied_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.replied_at) : String(r.replied_at).slice(0, 10)) : '';
           var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
@@ -2126,6 +2132,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
             (r.listing_id ? '<a href="marketplace.html?listing=' + encodeURIComponent(r.listing_id) + '" style="font-size: 0.75rem;color:var(--wh-blue-text);text-decoration:none;display:inline-flex;min-height:44px;align-items:center;">Open the listing &rarr;</a>' : '') +
             '</div>';
         }).join('') + '</div>';
+      if (typeof whMoreNote === 'function') whMoreNote(slot.firstElementChild, { shown: data.length, more: _inqMore, noun: 'inquiries',
+        order: 'newest', moreLabel: 'Show older inquiries', onMore: function () { _inqLimit += 20; return loadMyInquiryReplies(); },
+        src: 'v_marketplace_inquiries_truth' });   // SL LB1
       slot.style.display = 'block';
     } catch (_) { /* empty-catch-allow: the replies panel is additive; the marketplace works without it */ }
   }
@@ -2231,10 +2240,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         .in('id', ids)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
-        .limit(500);
+        .limit(500 + 1);   // more-said: by openWatchlistSheet (SL LB1: bounded by the saved ids; a 501st row would be said, not dropped)
       if (error) throw error;
 
-      const items = data || [];
+      const _wlMore = (data || []).length > 500;   // SL LB1
+      const items = (data || []).slice(0, 500);
       // MK4 listing-lifecycle completeness (deepwalk 2026-07-24): a saved listing that later goes
       // sold/removed becomes UNREADABLE to this buyer (mkt_listings_read = published OR own OR admin),
       // so it silently vanished from their saved list. Disappearing without a word is the dead-end this
@@ -2253,6 +2263,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       }
 
       const e = escHtml;
+      if (typeof whMoreNote === 'function') whMoreNote(content, { shown: items.length, more: _wlMore, noun: 'saved listings', order: 'newest', src: 'v_marketplace_listings_public' });   // SL LB1
       content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _goneNote + items.map(item => {
         const removed = item.status === 'removed';
         const hasImg  = !!item.image_url;
@@ -2832,7 +2843,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         // rank with the row SET unchanged. Under `.limit(PAGE_SIZE)` that means a listing can be shown twice
         // or skipped entirely between refreshes. `id` is unique, so it makes the order TOTAL and stable.
         .order('id', { ascending: false })
-        .limit(PAGE_SIZE);
+        .limit(PAGE_SIZE);   // paged: loadListings (Load More reads the next page after the last row shown)
 
       /* Server-side search. The PUBLIC view (v_marketplace_listings_public - since 2026-09-07 this page
          reads listings through it: same columns minus the seller's contact and the moderation notes, so
@@ -3144,7 +3155,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         .eq('listing_id', id)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
-        .limit(5);
+        .limit(5 + 1);   // more-said: by openDetailSheet (SL LB1: a 6th review says the seller's profile holds more)
+      const _rvMore = !!(reviews && reviews.length > 5);
+      if (_rvMore) reviews.splice(5);
       if (reviews && reviews.length) {
         reviewsHtml = reviews.map(rv => `
           <div class="review-item">
@@ -3157,7 +3170,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
               <span class="review-date">${e(timeAgo(rv.created_at))}</span>
             </div>
             <p class="review-text">${e(rv.comment)}</p>
-          </div>`).join('');
+          </div>`).join('')
+          + (_rvMore ? '<p class="review-text" data-wh-more-note role="note">Showing the 5 most recent reviews of this listing. There are more.</p>' : '');
       }
     } catch (_) { /* ignore */ /* empty-catch-allow: best-effort silent swallow */ }
 
@@ -3699,15 +3713,19 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
 
   /* "Parts for YOUR assets" discovery rail (U-axis): published listings from OTHER plants
      whose part_number matches this hive's inventory, via the membership-guarded DEFINER RPC. */
+  // SL LB1: the rail shows the newest 24 matches; "Show more matching parts" widens it 24 at a time, up to 200
+  let _pfaLimit = 24;
   async function renderPartsForMyAssets() {
     const e = escHtml;
     const sec  = document.getElementById('parts-for-assets');
     const rail = document.getElementById('parts-for-assets-rail');
     if (!sec || !rail || !HIVE_ID) return;
     try {
-      const { data, error } = await db.rpc('get_marketplace_parts_for_my_assets', { p_hive_id: HIVE_ID });
-      const rows = data || [];
-      if (error || !rows.length) { sec.style.display = 'none'; return; }
+      const { data, error } = await db.rpc('get_marketplace_parts_for_my_assets', { p_hive_id: HIVE_ID, p_limit: _pfaLimit + 1 });   // more-said (SL LB1: one row past the rail says more listings match - the function used to cap itself at 24, oldest UUIDs first, and say nothing)
+      const all = data || [];
+      if (error || !all.length) { sec.style.display = 'none'; return; }
+      const more = all.length > _pfaLimit;
+      const rows = all.slice(0, _pfaLimit);
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
           style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:8px;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
@@ -3716,6 +3734,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           <div style="font-size: 0.75rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
         </button>`).join('');
       sec.style.display = 'block';
+      whMoreNote(rail, { shown: rows.length, more, noun: 'matching parts', order: 'newest', src: 'rpc:get_marketplace_parts_for_my_assets',
+        moreLabel: 'Show more matching parts',
+        onMore: _pfaLimit < 200 ? function () { _pfaLimit = Math.min(200, _pfaLimit + 24); return renderPartsForMyAssets(); } : undefined });
     } catch (_) { sec.style.display = 'none'; }
   }
 
@@ -4314,10 +4335,13 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     if (!pane) return;
     pane.innerHTML = '<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:var(--wh-radius);"></div></div>';
     try {
-      const [catRes, mineRes] = await Promise.all([
-        db.from('v_service_catalog_truth').select('*').eq('segment', (HIVE_ID ? 'industrial' : 'consumer')).order('category').order('id').limit(200),  // P8 consumer door: hive-less clients see the COMMON services rate card. MR4 tiebreaker: many services share a category, so category alone is not a total order and the rate card could reshuffle between loads.
-        _authUid ? db.from('v_service_request_truth').select('*').order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20)  // MR4 tiebreaker: created_at alone is not a total order
-                 : Promise.resolve({ data: [] })
+      const [catRes, mineRes, openRes] = await Promise.all([
+        db.from('v_service_catalog_truth').select('*').eq('segment', (HIVE_ID ? 'industrial' : 'consumer')).order('category').order('id').limit(200),  // P8 consumer door: hive-less clients see the COMMON services rate card. MR4 tiebreaker: many services share a category, so category alone is not a total order and the rate card could reshuffle between loads. · cap-ok (LB1): its largest group (segment) is far under 200 - sized live by list-caps-say-more
+        _authUid ? db.from('v_service_request_truth').select('*').eq('client_auth_uid', _authUid).order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20 + 1)  // MR4 tiebreaker: created_at alone is not a total order. more-said: by renderClientServices (SL LB1: the client's OWN requests, filtered in the query - they were filtered after the cap, so a provider's rows could crowd them out)
+                 : Promise.resolve({ data: [] }),
+        // SL LB1: the badge counts OPEN requests exactly, not among the 20 newest
+        _authUid ? db.from('v_service_request_truth').select('id', { count: 'exact', head: true }).eq('client_auth_uid', _authUid).in('status', SVC_OPEN)
+                 : Promise.resolve({ count: 0 })
       ]);
       /* A FAILED READ IS NOT AN EMPTY ONE. supabase-js does NOT throw on a query error -- it
          resolves with { data: null, error }. So `catRes.data || []` turned every failure into an
@@ -4341,11 +4365,12 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       if (catRes.error && mineRes.error) throw catRes.error;
       const partial = { cats: catRes.error || null, mine: mineRes.error || null };
       const cats = catRes.data || [];
-      const mine = (mineRes.data || []).filter(r => r.client_auth_uid === _authUid);
+      const mine = (mineRes.data || []).slice(0, 20).filter(r => r.client_auth_uid === _authUid);
+      mine._more = (mineRes.data || []).length > 20;   // SL LB1: read by renderClientServices
       const badge = document.getElementById('count-services');
       // A badge must not assert a count from a read that failed — the stale-count class again.
       if (badge) {
-        const _openN = String(mine.filter(r => SVC_OPEN.includes(r.status)).length);
+        const _openN = String((openRes && typeof openRes.count === 'number') ? openRes.count : mine.filter(r => SVC_OPEN.includes(r.status)).length);
         if (partial.mine && typeof whStatUnknown === 'function') whStatUnknown(badge, _t('count', 'bilang'));
         else if (!partial.mine && typeof whStatValue === 'function') whStatValue(badge, _openN);
         else badge.textContent = partial.mine ? '—' : _openN;
@@ -4410,7 +4435,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       '<button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + '" data-i="retry">Retry</button></div>';
     let html = '';
     // ── my requests tracker ──
-    html += '<h2 style="font-size:0.95rem;margin:0.4rem 0 0.5rem;">My service requests <span class="tab-count">' + (fail.mine ? '—' : mine.length) + '</span></h2>';
+    html += '<h2 style="font-size:0.95rem;margin:0.4rem 0 0.5rem;">My service requests <span class="tab-count">' + (fail.mine ? '—' : mine.length + (mine._more ? '+' : '')) + '</span></h2>';
     if (fail.mine) {
       html += halfDown('your service requests', fail.mine);
     } else if (!_authUid) {
@@ -4449,6 +4474,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
             ? '<button type="button" onclick="svcClientCancel(\'' + e(r.id) + '\')" style="' + _svcGhostC + '" data-i="cancelrequest">Cancel request</button>' : '') +
           '</div>';
       });
+      // SL LB1: the tracker lists the 20 newest; say when older requests exist
+      if (mine._more) html += '<p data-wh-more-note role="note" style="font-size:0.8125rem;color:rgba(255,255,255,0.80);margin:0 0 0.6rem;">Showing your 20 newest requests. Older ones are not listed here.</p>';
     }
     // ── hail composer: rate card ──
     html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Hail a service</h2>';
@@ -4858,13 +4885,13 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     // canonical-allow: party-scoped transactional read (RLS: only the request's client sees its
     // offers) - a quote list is negotiation state, not a KPI; single surface, no truth-view fit
     const { data: offers, error } = await db.from('service_offers').select('*')
-      .eq('request_id', requestId).eq('kind', 'quote').eq('status', 'pending').limit(50);
+      .eq('request_id', requestId).eq('kind', 'quote').eq('status', 'pending').limit(50);   // cap-ok (LB1): its largest group (request_id) is far under 50 - sized live by list-caps-say-more
     // T176 (2026-08-28): sent=false, because this is the READ path - _svcErrorText then omits
     // ", so nothing was sent", which would be its own small lie when nothing was being sent.
     if (error) { showToast(_svcErrorText(error, false), 'error'); return; }
     if (!offers || !offers.length) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">No quotes yet - check back soon.</p>'; return; }
     const ids = offers.map(o => o.provider_id);
-    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);
+    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
     const byId = {}; (provs || []).forEach(p => { byId[p.id] = p; });
     slot.innerHTML = offers.map(o => {
       const p = byId[o.provider_id] || {};
@@ -5313,7 +5340,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         .select('service_area, providers_online, verified_online, categories')
         // MR4 tiebreaker: providers_online is a COUNT, so ties are the norm, not the exception (several areas
         // with the same number online). service_area is unique in this view, making the order total.
-        .order('providers_online', { ascending: false }).order('service_area').limit(6);
+        .order('providers_online', { ascending: false }).order('service_area').limit(6 + 1);   // more-said: by svcLoadPresence (SL LB1: the line names the top 3 and says how many more areas)
       /* A FAILED READ IS NOT AN EMPTY ONE, AND ON THIS SURFACE THE DIFFERENCE DECIDES WHETHER
          SOMEONE WAITS. `if (error || !data.length) return;` sent both down the same silent path, so
          with the backend refusing, the services pane rendered EXACTLY what it renders when nobody is
@@ -5355,7 +5382,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       if (!total) return;
       const e = escHtml;
       const areas = data.slice(0, 3).map(r =>
-        e(r.service_area) + ' (' + Number(r.providers_online) + ')').join(' · ');
+        e(r.service_area) + ' (' + Number(r.providers_online) + ')').join(' · ')
+        // SL LB1: three areas are named; say that others have providers online too
+        + (data.length > 3 ? ' · ' + (data.length > 6 ? 'more areas' : (data.length - 3) + ' more area' + (data.length - 3 === 1 ? '' : 's')) : '');
       // T102 (2026-08-26): "online now" is reconciled by a 1-minute cron (service-availability-
       // reconcile-1min) - state the lag so the claim carries its own freshness window instead of
       // implying live presence.
@@ -5762,8 +5791,10 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     const { data, error } = await db.from('v_marketplace_listings_public')
       .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,seller_kyb_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status,ai_assisted_fields')
       .eq('status', 'published').eq('section', section).gt('created_at', newest)
-      .order('created_at', { ascending: false }).order('id').limit(20);   // cap-ok: only what arrived since the newest shown
+      .order('created_at', { ascending: false }).order('id').limit(20 + 1);   // more-said: by _pollNewListings (SL LB1: past 20 new arrivals it asks for a reload rather than skip the rest)
     if (error || !Array.isArray(data) || section !== _section) return;
+    // SL LB1: more than 20 arrived - adding 20 and moving the marker past the rest would skip them until a reload
+    if (data.length > 20) { showToast('More than 20 new listings were posted - reload to see them all.', 'info'); return; }
     const fresh = data.filter((row) => {
       if (_listings.some(l => l.id === row.id)) return false;
       if (_cat !== 'All' && row.category !== _cat) return false;

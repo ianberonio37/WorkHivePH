@@ -1,10 +1,10 @@
 {
   "summary": {
     "files_scanned": 139,
-    "total_calls": 863,
+    "total_calls": 864,
     "total_drift": 0,
     "baseline": 0,
-    "tables_known": 214
+    "tables_known": 224
   },
   "per_file": [
     {

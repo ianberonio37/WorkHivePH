@@ -947,7 +947,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTrash whUse">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whTrash whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1135,7 +1135,7 @@ async function loadHiveMembers() {
   // (active membership for THIS hive, ordered for the dropdown); v_worker_truth
   // is a worker-centric composite that doesn't expose the same ordering scope
   const { data, error } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read) · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
   if (error) { console.warn(error.message); return; }
   _members = (data || []).map(r => r.worker_name).filter(Boolean);
   // Populate filter + form pickers
@@ -1152,7 +1152,7 @@ async function loadProjects() {
   if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4, 'your projects');
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
-    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
+    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated) · cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
   // Two problems measured here under an injected 500: the notice appeared at 240ms and was GONE by 13s
   // while three zeros stayed on screen, and it showed the reader the raw upstream text ("Load failed:
   // injected server fault" — in production, whatever Postgres said). Say it in a human sentence, keep
@@ -1164,7 +1164,7 @@ async function loadProjects() {
   const ids = _projects.map(p => p.id);
   if (ids.length) {
     const { data: items } = await db.from('v_project_items_truth')
-      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap)
+      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     const rollup = {};
     (items || []).forEach(it => {
       if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0, hours: 0, lateItems: 0 };
@@ -1200,7 +1200,7 @@ async function loadProjects() {
     // Extension 1: the canonical maintenance-nature facet (reactive/preventive/project)
     // from v_project_truth — WAT: derived server-side, never re-computed on the client.
     const { data: nat } = await db.from('v_project_truth')
-      .select('project_id, maintenance_nature').in('project_id', ids).limit(500);
+      .select('project_id, maintenance_nature').in('project_id', ids).limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     const natMap = {};
     (nat || []).forEach(n => { natMap[n.project_id] = n.maintenance_nature; });
     _projects.forEach(p => { p._nature = natMap[p.id] || null; });
@@ -2246,12 +2246,12 @@ async function openDetail(id) {
 
   // Load children + rollup + roles + change_orders in parallel
   const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
-    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').order('id').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap)
-    db.from('project_links').select('*').eq('project_id', id).order('created_at').order('id').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap)
-    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).order('id').limit(30),
+    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').order('id').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
+    db.from('project_links').select('*').eq('project_id', id).order('created_at').order('id').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
+    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).order('id').limit(30),   // cap-ok (LB1): its largest group (project_id) is far under 30 - sized live by list-caps-say-more
     fetchProgressRollup(id),
-    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap)
-    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap)
+    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
+    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
   ]);
   /* A FAILED READ IS NOT AN EMPTY PROJECT. supabase-js resolves with { data: null, error } rather
      than throwing, so five unchecked `.data || []` would render this project as having no scope, no
@@ -2542,13 +2542,14 @@ async function openBomImport() {
     .not('bom_data', 'is', null)
     .order('created_at', { ascending: false })
     .order('id')
-    .limit(30);
+    .limit(30 + 1);   // more-said (SL LB1: a 31st says older calculations are not listed)
   if (error) {
     status.textContent = (typeof whReadError === 'function')
       ? whReadError(error, 'the saved calculations') : 'Could not load the saved calculations: ' + error.message;
     return;
   }
-  const rows = (data || []).filter(r => Array.isArray(r.bom_data) && r.bom_data.length);
+  const _bomMore = (data || []).length > 30;   // SL LB1
+  const rows = (data || []).slice(0, 30).filter(r => Array.isArray(r.bom_data) && r.bom_data.length);
   if (!rows.length) {
     status.textContent = 'No saved calculations carry a BOM yet. In Engineering Design, run a calculation, generate its BOM + SOW, and save it to history - it will appear here.';
     return;
@@ -2564,6 +2565,8 @@ async function openBomImport() {
     btn.addEventListener('click', () => importBomItems(r, btn));
     list.appendChild(btn);
   });
+  if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, more: _bomMore, noun: 'saved calculations', order: 'newest',
+    where: 'Older ones are not listed here.', src: 'engineering_calcs' });   // SL LB1
 }
 
 async function importBomItems(calcRow, btn) {
@@ -2684,6 +2687,7 @@ async function saveScopeItem() {
 
 /* ── Pane: Linked work ────────────────────────────────────── */
 let _linkSuggestions = [];
+let _linkSuggestionsMore = false;   // SL LB1: there are more open entries than the five suggested
 async function refreshSuggestedLinks() {
   _linkSuggestions = [];
   if (!_detail) return;
@@ -2695,8 +2699,10 @@ async function refreshSuggestedLinks() {
     .select('id, machine, problem, status, created_at')
     .eq('hive_id', HIVE_ID).eq('status', 'Open')
     .gte('created_at', since)
-    .order('created_at', { ascending: false }).order('id').limit(20);
-  _linkSuggestions = (data || []).filter(r => !linkedLogIds.has(r.id)).slice(0, 5);
+    .order('created_at', { ascending: false }).order('id').limit(20 + 1);   // more-said: by renderLinked (SL LB1: the banner counted the five it shows)
+  const _cands = (data || []).slice(0, 20).filter(r => !linkedLogIds.has(r.id));
+  _linkSuggestionsMore = _cands.length > 5 || (data || []).length > 20;
+  _linkSuggestions = _cands.slice(0, 5);
 }
 async function linkSuggested(idx) {
   // Online-only class: this page registers no offline write queue, so a write fired here
@@ -2733,7 +2739,7 @@ function renderLinked() {
   }).join('');
   const suggestionBanner = _linkSuggestions.length ? `
     <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;">
-      <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length} open logbook ${_linkSuggestions.length === 1 ? 'entry' : 'entries'} from the last 30 days</div>
+      <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length}${_linkSuggestionsMore ? '+' : ''} open logbook ${(_linkSuggestions.length === 1 && !_linkSuggestionsMore) ? 'entry' : 'entries'} from the last 30 days</div>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
         ${_linkSuggestions.map((c, i) => `
@@ -2762,17 +2768,17 @@ async function loadLinkOptions() {
   $('l-picker-wrap').classList.toggle('hidden', t === 'contractor');
   if (t === 'contractor') return;
   const queries = {
-    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').order('id').limit(200),
-    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(50),
+    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').order('id').limit(200),   // cap-ok (LB1): its largest group (hive_id) is far under 200 - sized live by list-caps-say-more
+    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(50 + 1),   // more-said (SL LB1: one past 50 says older ones are not in the picker)
     // canonical-allow: project link picker needs individual completion rows; v_pm_compliance_truth aggregates only
     // T189 (2026-08-28): +status. These rows are offered under a group heading that reads "PM
     // completions" and each was labelled with a bare date, so a SKIPPED PM was selectable as
     // project evidence of work performed. Milder than the asset timeline (a date is not the
     // sentence "completed by X"), but the heading supplies the claim the item omits.
-    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at, status').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50),
-    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').order('id').limit(200),
-    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
-    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
+    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at, status').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50 + 1),   // more-said (SL LB1: one past 50 says older ones are not in the picker)
+    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').order('id').limit(200),   // cap-ok (LB1): its largest group (hive_id) is far under 200 - sized live by list-caps-say-more
+    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30 + 1),   // more-said (SL LB1: one past 30 says older ones are not in the picker)
+    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30 + 1),   // more-said (SL LB1: one past 30 says older ones are not in the picker)
   };
   const fn = queries[t]; if (!fn) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   const { data, error } = await fn();
@@ -2794,6 +2800,12 @@ async function loadLinkOptions() {
     if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}`;
     return r.id;
   };
+  // SL LB1: each list reads one past its cap; the picker offers the cap and says, under it, that older ones exist
+  const _pkCap = { asset: 200, logbook: 50, pm_completion: 50, inventory_item: 200, engineering_calc: 30, marketplace_listing: 30 }[t] || 0;
+  const _pkMore = _pkCap > 0 && (data || []).length > _pkCap;
+  if (_pkMore) data = data.slice(0, _pkCap);
+  if (typeof whMoreNote === 'function') whMoreNote($('l-picker'), { shown: (data || []).length, more: _pkMore, noun: 'items', order: 'newest',
+    where: 'Older ones are not offered here.', src: 'link-picker' });
   $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
 }
 

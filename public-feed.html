@@ -454,7 +454,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(PAGE_SIZE);
+      .limit(PAGE_SIZE);   // paged: loadMore (Load more reads the next page after the last row shown)
     // ★MR4b: THE ORDER WAS MADE TOTAL AND THE CURSOR WAS LEFT BEHIND. The sort above is
     // (created_at desc, id asc) - a previous pass added `.order('id')` precisely because created_at
     // alone is not total - but the cursor stayed `.lt('created_at', T)`, which is strictly-less-than

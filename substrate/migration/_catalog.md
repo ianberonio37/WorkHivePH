@@ -1,30 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:677
-source_sha: 8a712b284597ab87
+source: dir:supabase/migrations:692
+source_sha: a6644b8aac7d3601
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (677 migrations)
+## migration · catalog (692 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260801000001_catalog_truth_exposes_cert_level` — (misc DDL/DML)
-- `20260802000001_the_provider_may_read_what_they_were_paid` — policies:service_payments_read
-- `20260802000002_a_provider_who_finished_is_not_still_busy` — fns:reconcile_provider_availability,sync_provider_availability
-- `20260803000001_cap_the_new_payment_write` — triggers:trg_daily_cap_service_payments
-- `20260803000002_restore_security_invoker_on_catalog_truth` — (misc DDL/DML)
-- `20260803000003_grant_service_payments_explicitly` — (misc DDL/DML)
-- `20260803000004_the_radius_only_ever_reached_20km` — fns:service_knob
-- `20260803000005_credit_treasury_the_liability_cap` — policies:credit_treasury_read · fns:issue_credits,retire_credits · tables:credit_treasury
-- `20260803000006_credit_economy_knobs` — fns:service_knob,service_knob_pct · tables:hive_service_settings
-- `20260803000007_listing_reservations` — policies:credit_reservations_read · fns:guard_listing_requires_reservation,listing_reservation_amount,release_reservation_on_delist,seller_credit_balance · triggers:trg_listing_requires_reservation,trg_release_reservation · tables:credit_reservations
-- `20260803000008_reward_earn_or_spend` — fns:grant_listing_reward,guard_reward_exclusive,guard_reward_spend_cap · triggers:trg_grant_listing_reward,trg_reward_exclusive,trg_reward_spend_cap · tables:service_credit_ledger
-- `20260803000009_reward_fund_is_not_a_spend` — fns:grant_listing_reward · tables:service_credit_ledger
-- `20260803000010_holding_fee_and_starter_grant` — fns:claim_starter_grant,sweep_listing_holding_fee · tables:credit_starter_grants
-- `20260803000011_a_wallet_is_nobody_elses_business` — fns:seller_credit_balance
-- `20260803000012_non_transferable_non_withdrawable` — fns:grant_listing_reward,guard_credits_non_transferable · triggers:trg_credits_non_transferable
 - `20260803000013_one_trigger_owns_the_sale` — fns:grant_listing_reward,release_reservation_on_delist
 - `20260803000014_the_guard_that_blocked_its_own_cashback` — fns:guard_credits_non_transferable
 - `20260803000015_adjudication_is_a_platform_act` — fns:apply_dispute_adjustment
@@ -201,6 +186,16 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261014000003_a_profile_claims_only_a_hive_it_belongs_to` — policies:mkt_sellers_insert,mkt_sellers_update,resume_documents_insert,resume_documents_update
 - `20261014000004_observability_reads_follow_the_page_gate` — policies:agentic_rag_traces_read,ai_cost_log_read,gateway_audit_read
 - `20261015000001_a_logbook_id_is_a_token` — tables:logbook
+- `20261015500000_brh_close_anon_doors` — (misc DDL/DML)
+- `20261015600000_brh_p_rls_on_every_public_table` — tables:public
+- `20261015700000_brh_v_kpi_truth_member_read` — fns:hive_kpis
+- `20261015800000_brh_x_explicit_api_grants` — (misc DDL/DML)
+- `20261015900000_brh_y_revokes_that_hold` — (misc DDL/DML)
+- `20261015950000_brh_s_definer_doors_closed` — fns:my_provider_credit_balance,my_service_request_price
+- `20261015970000_brh_t_search_path_pinned` — (misc DDL/DML)
+- `20261015980000_brh_r_views_run_as_the_reader` — (misc DDL/DML)
+- `20261015990000_brh_r_owner_rights_in_functions` — fns:marketplace_sellers_public_rows,service_job_tracking_rows,service_open_broadcasts_rows
+- `20261015995000_brh_u_vector_out_of_public` — (misc DDL/DML)
 - `20261016000001_d3_deletes_are_recoverable_for_30_days` — fns:_wh_trash_id_type,audit_asset_node_delete,audit_logbook_post_close_amendment,audit_pm_asset_delete,audit_trash_transition,enqueue_for_embedding · triggers:trg_audit_trash_transition,trg_logbook_knowledge_on_trash,trg_logbook_xp_on_trash,trg_name_held_by_deleted,trg_replace_deleted_pairing · tables:public
 - `20261016000002_d3_every_reader_skips_deleted_rows` — fns:compute_adoption_risk,compute_anomaly_signals,compute_hive_readiness,ensure_pm_asset_for_node,get_hive_board_dashboard,get_marketplace_parts_for_my_assets
 - `20261016000003_a_supervisor_sets_the_hives_retention` — fns:set_hive_retention · tables:hive_retention_config
@@ -210,6 +205,11 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261021000001_l2_change_trail` — policies:platform_audit_log_admin_read · fns:audit_logbook_close,audit_platform_decision,audit_shared_change,bind_listing_moderator,bind_shift_plan_publisher,deactivate_my_account · triggers:trg_audit_platform_decision,trg_audit_shared_change,trg_bind_listing_moderator,trg_bind_shift_plan_publisher,trg_logbook_close_audit,trg_stamp_feedback_triage · tables:platform_audit_log,platform_feedback
 - `20261021000002_l3_usage_events` — fns:bind_analytics_events_submitter,founder_feature_use
 - `20261021000003_l4_told_sentence` — policies:client_errors_insert_anon · fns:bind_client_errors_reporter · triggers:trg_bind_client_errors_reporter · tables:client_errors
+- `20261021000004_lb1_resume_logbook_summary` — fns:logbook_synced_machines,my_logbook_summary
+- `20261021000005_brh_s_any_id_readers_closed` — (misc DDL/DML)
+- `20261021000006_brh_r_listings_runs_as_the_reader` — (misc DDL/DML)
+- `20261021000007_lb1_parts_for_my_assets_says_more` — fns:get_marketplace_parts_for_my_assets
+- `20261021000008_lb1_seller_reply_stats_for_every_visitor` — fns:marketplace_seller_reply_stats
 
 (showing last 200)
 

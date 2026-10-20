@@ -56,6 +56,8 @@ SIGNED_OUT = {
     "increment_listing_view": "a visitor opening a public listing counts one view",
     "get_marketplace_price_comps": "the public marketplace shows price comparisons from published and sold listings",
     "get_marketplace_seller_public": "the public seller profile - a projection that names no contact, hive or account",
+    "marketplace_seller_reply_stats": "the public seller profile's reply count and average reply time - two aggregates over "
+                                      "the seller's whole inquiry record, the same for every visitor (no row, buyer or message)",
     "get_marketplace_trust_badges": "the public listing cards show each seller's trust tier",
     "listing_reservation_amount": "the public marketplace states a listing's reservation: arithmetic on its price",
     "service_knob": "the marketplace's published service terms (offer and quote windows, broadcast radius)",

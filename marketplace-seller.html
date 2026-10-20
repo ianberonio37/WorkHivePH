@@ -646,7 +646,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue whUse">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whMoreNote whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -948,7 +948,7 @@
         .eq('is_mine', true)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
+        .limit(500 + 1);   // more-said: by renderListings (SL LB1: a 501st says the list holds the newest 500; the head-count beside it gives the total)
       /* Bounded, or showSkeletons() above never ends. supabase-js does not pass through
          fetchWithTimeout, so a stalled read just stays stalled while the page shimmers at a seller
          who has already decided it is broken. whQueryTimeout resolves in supabase's own {data,error}
@@ -957,7 +957,8 @@
         ? whQueryTimeout(_q, 15000, 'your listings') : _q);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.listings = false; _readFailErr.listings = null;
-      _listings = data || [];
+      _listingsMore = (data || []).length > 500;   // SL LB1
+      _listings = (data || []).slice(0, 500);
       // L2: accurate listing COUNT via head-only query (zero row egress) so the
       // badge/profile stat never undercounts if the list ever exceeds the cap.
       // A head:true COUNT resolves {count:null, error}; it does not throw. `count || 0` therefore
@@ -1056,6 +1057,7 @@
     el.textContent = _statOrGap(failed, value);
   };
   let _listingsTotal  = 0;
+  let _listingsMore = false;   // SL LB1: the listings read found more than the 500 it loads
 
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
   async function loadInquiries() {
@@ -1067,7 +1069,7 @@
         .eq('to_me', true)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
+        .limit(50); // more-said: by renderInquiries - the list shows the 50 newest and says "of N" from the head counts below (SL LB1)
       // Bounded for the same reason as loadListings above: an unbounded read under a stalled
       // connection leaves the inquiries skeleton shimmering with nothing ever said.
       const { data, error, status } = await (typeof whQueryTimeout === 'function'
@@ -1581,7 +1583,11 @@
           ${item.status === 'draft' ? `<button class="btn-sm danger" data-action="delete" data-id="${e(item.id)}" data-i="delete">Delete</button>` : ''}
           ${item.status === 'published' ? `<a href="marketplace.html" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;">View Live</a>` : ''}
         </div>
-      </div>`).join('');
+      </div>`).join('') + '<span data-ms-listings-end hidden></span>';
+    // SL LB1: once every loaded listing is on screen, past the 500 the list says it holds the newest of the total
+    if (typeof whMoreNote === 'function') whMoreNote(area.querySelector('[data-ms-listings-end]'), {
+      shown: _listings.length, total: _listingsTotal, more: _listingsMore && visible.length >= filtered.length,
+      noun: 'listings', order: 'newest', src: 'v_marketplace_listings_truth' });
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1657,7 +1663,10 @@
               </div>
             </div>` : `<span style="font-size: 0.75rem;color:var(--wh-green);">Replied ${e(timeAgo(inq.replied_at))}</span>`}
         </div>`;
-    }).join('');
+    }).join('')
+      // SL LB1: the 50 newest of the exact count the badge already holds
+      + ((typeof _inquiriesTotal === 'number' && _inquiriesTotal > _inquiries.length)
+        ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Showing the ' + _inquiries.length + ' newest of ' + _inquiriesTotal.toLocaleString('en-PH') + ' inquiries.</p>' : '');
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2278,9 +2287,11 @@
       _svcMyIds = (ids || []).map(r => (typeof r === 'string' ? r : (r && (r.my_service_provider_ids || r.id)))).filter(Boolean);
       if (!_svcMyIds.length) { await renderSvcOnboard(area); return; }
       const [provRes, feedRes, jobsRes] = await Promise.all([
-        db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),
-        db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30),
-        db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60)
+        db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
+        db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30 + 1),   // more-said: by renderSvcConsole (SL LB1: a 31st open request is said, and the badge reads 30+)
+        // SL LB1: the provider's OWN jobs, filtered in the query - they were filtered after the cap, so a person who also
+        // hires services could see their provider jobs crowded out of the 60 newest
+        db.from('v_service_request_truth').select('*').in('matched_provider_id', _svcMyIds).in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60 + 1)   // more-said: by renderSvcConsole
       ]);
       /* ALL THREE, not just the first. Only provRes was checked, so a failure of the BROADCAST FEED
          or the JOBS read resolved with { data: null, error } and became an empty array -- the
@@ -2295,8 +2306,10 @@
       if (jobsRes.error) throw jobsRes.error;
       await svcRewardPct();   // warm the rate so the first paint already carries the hold
       const provs = provRes.data || [];
-      const feed = feedRes.data || [];
-      const mine = (jobsRes.data || []).filter(j => _svcMyIds.includes(j.matched_provider_id));
+      const feed = (feedRes.data || []).slice(0, 30);
+      feed._more = (feedRes.data || []).length > 30;   // SL LB1
+      const _jobsMore = (jobsRes.data || []).length > 60;   // SL LB1
+      const mine = (jobsRes.data || []).slice(0, 60).filter(j => _svcMyIds.includes(j.matched_provider_id));
       const jobs = mine.filter(j => SVC_ACTIVE.includes(j.status));
       /* A DISPUTED JOB USED TO VANISH FROM THIS CONSOLE ENTIRELY (found 2026-08-04, S-adversarial
          scam_buyer walk). SVC_ACTIVE is accepted/en_route/on_site/in_progress and SVC_FINISHED is
@@ -2306,10 +2319,14 @@
          them, and until now the first they would know of a case against them is money leaving their
          wallet. Shown FIRST, above active work, because it is the most urgent thing on the page. */
       const disputed = mine.filter(j => SVC_DISPUTED.includes(j.status));
-      const closed = mine.filter(j => SVC_CLOSED.includes(j.status)).slice(0, 8);
+      const _closedAll = mine.filter(j => SVC_CLOSED.includes(j.status));
+      const closed = _closedAll.slice(0, 8);
+      closed._more = _closedAll.length > 8 || _jobsMore;   // SL LB1
       // P6 second direction: a finished job is rateable provider->client until rated. This only
       // decides whether to OFFER the control; the guard (mig 46) is the enforcement.
-      const done = mine.filter(j => SVC_FINISHED.includes(j.status)).slice(0, 8);
+      const _doneAll = mine.filter(j => SVC_FINISHED.includes(j.status));
+      const done = _doneAll.slice(0, 8);
+      done._more = _doneAll.length > 8 || _jobsMore;   // SL LB1
       let ratedIds = new Set();
       /* T35 (2026-08-27): WHAT WAS I ACTUALLY PAID. service_payments was INSERTED by
          marketplace.html and read by NOTHING - no page, no view, no edge function. The row is not
@@ -2328,7 +2345,7 @@
       if (done.length) {
         try {
           const { data: rvs } = await db.from('marketplace_reviews').select('request_id')
-            .in('request_id', done.map(j => j.id)).eq('direction', 'provider_to_client').limit(50);
+            .in('request_id', done.slice(0, 8).map(j => j.id)).eq('direction', 'provider_to_client').limit(8);   // in-list[request_id, direction] (LB1): one review per job and direction
           ratedIds = new Set((rvs || []).map(r => r.request_id));
         } catch (_) { /* empty-catch-allow: the rate control degrades to shown; the guard still refuses a duplicate */ }
         /* T105 (2026-08-27): BROWSER PERMISSION IS NOT A SUBSCRIPTION. The push card below renders
@@ -2348,7 +2365,7 @@
           // adding a shared contract. Revisit the moment a second surface needs these columns.
           const { data: pays } = await db.from('service_payments')
             .select('request_id, amount_paid, method, gcash_ref, variance_reason')
-            .in('request_id', done.map(j => j.id)).limit(50);
+            .in('request_id', done.slice(0, 8).map(j => j.id)).limit(8);   // in-list[request_id] (LB1): one payment per job
           payByReq = new Map((pays || []).map(p => [p.request_id, p]));
         } catch (_) { /* empty-catch-allow: the card falls back to its pre-payment shape */ }
       }
@@ -2367,7 +2384,7 @@
       const badge = document.getElementById('badge-services');
       // distinct JOBS, matching the list below it: the feed carries one row per (request x provider
       // identity), so a person with two qualifying identities had the tab badge counting one hail twice
-      if (badge) badge.textContent = String(new Set(feed.map(f => f.request_id)).size);
+      if (badge) badge.textContent = String(new Set(feed.map(f => f.request_id)).size) + (feed._more ? '+' : '');   // SL LB1
       renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed, payByReq, pushRowKnown);
       /* A quote price is WORK, not a keystroke: the provider adds up materials, travel and hours
          before typing it. Measured 2026-08-05 -- typed 3750, reloaded, and the box came back empty,
@@ -2410,7 +2427,7 @@
     const e = escHtml;
     let cats = [];
     try {
-      const { data } = await db.from('v_service_catalog_truth').select('category').limit(200);
+      const { data } = await db.from('v_service_catalog_truth').select('category').limit(200);   // cap-ok (LB1): its largest group (the whole table) is far under 200 - sized live by list-caps-say-more
       cats = [...new Set((data || []).map(r => r.category))].sort();
     } catch (_) { /* empty-catch-allow: category list is a convenience; the form still works */ }
     const catBoxes = cats.map(c =>
@@ -2443,7 +2460,7 @@
       // from how the rest of the platform resolves roles (auth_worker_names(), my_service_provider_ids()
       // both read hive_members directly). Single-surface, no cross-page number to diverge.
       const { data: sup } = await db.from('hive_members').select('hive_id, hives(name)')
-        .eq('auth_uid', _authUid).eq('status', 'active').eq('role', 'supervisor').limit(20);
+        .eq('auth_uid', _authUid).eq('status', 'active').eq('role', 'supervisor').limit(20);   // cap-ok (LB1): its largest group (auth_uid) is far under 20 - sized live by list-caps-say-more
       const slot = document.getElementById('svc-hive-reg');
       if (slot && sup && sup.length) {
         const e2 = escHtml;
@@ -2585,7 +2602,7 @@
            on screen explains the gap. A seller checking their own money would be looking at a
            silent slice ([[feedback_a_row_cap_is_not_pagination]]). Peeking a fourth row costs
            nothing and turns a silent cap into a stated one. */
-        .order('created_at', { ascending: false }).order('id').limit(4);
+        .order('created_at', { ascending: false }).order('id').limit(3 + 1);   // more-said: by svcWalletHtml (T68: a 4th entry says the card does not show them all)
       const _all = led.data || [];
       lines = _all.slice(0, 3);
       lines._more = _all.length > 3;
@@ -2597,15 +2614,16 @@
        is security_invoker, so the own-account RLS policy (service_credit_topups_own) still decides
        the rows; going through it costs nothing and keeps one definition of what a top-up IS. The
        canonical-drift ratchet caught this, which is the only reason it is not still shipping. */
-    let pending = [];
+    let pending = [], pendingMore = false;
     try {
       const { data: _p } = await db.from('v_service_credit_topups_truth')
         .select('amount, gcash_ref, created_at')
         .eq('account_id', provId).eq('status', 'pending_verification')
         // MR4: created_at alone is not a total order — two receipts filed in the same second could
         // swap places between renders, and this list is capped at 5, so one could vanish entirely.
-        .order('created_at', { ascending: false }).order('id').limit(5);
-      pending = _p || [];
+        .order('created_at', { ascending: false }).order('id').limit(5 + 1);   // more-said: by svcWalletHtml (SL LB1: a 6th receipt says more are waiting)
+      pendingMore = (_p || []).length > 5;
+      pending = (_p || []).slice(0, 5);
     } catch (_) { /* empty-catch-allow: no receipt is better than a broken wallet card */ }
     return '<div class="simple-card" style="margin-bottom:0.75rem;padding:1rem 1rem;">' +
       '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:baseline;justify-content:space-between;">' +
@@ -2669,6 +2687,7 @@
               + ' · ref ' + e(t.gcash_ref || '-')
               + ' · filed ' + e(new Date(t.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))
               + '</div>').join('')
+          + (pendingMore ? '<div data-wh-more-note role="note" style="margin-top:0.25rem;opacity:0.95;">These are your 5 newest; more are waiting to be verified.</div>' : '')   // SL LB1
           + '<div style="margin-top:0.25rem;opacity:0.8;">Credits appear here the moment it is verified. '
           + 'Nothing is lost while it waits.</div></div>'
         : '') +
@@ -2918,6 +2937,7 @@
     if (closed && closed.length) {
       html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Closed '
            +  '<span class="tab-count">' + closed.length + '</span></h2>';
+      if (closed._more) html += '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Your 8 most recent closed jobs. Older ones are not listed here.</p>';   // SL LB1
       closed.forEach(j => {
         html +=
           '<div class="simple-card" style="margin-bottom:0.5rem;padding:1rem 1rem;opacity:0.85;">'
@@ -2934,6 +2954,7 @@
     // rating, so a provider can flag a client who was not ready. One per direction (mig 46).
     if (done && done.length) {
       html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Recently finished <span class="tab-count">' + done.length + '</span></h2>';
+      if (done._more) html += '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Your 8 most recently finished jobs. Older ones are not listed here.</p>';   // SL LB1
       done.forEach(j => {
         const rated = ratedIds && ratedIds.has(j.id);
         html +=
@@ -2990,7 +3011,8 @@
       _seenJob.set(k, row);
       _byJob.push(row);
     });
-    html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + _byJob.length + '</span></h2>';
+    html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + _byJob.length + (feed._more ? '+' : '') + '</span></h2>';
+    if (feed._more) html += '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">The 30 newest open requests. More are waiting - they appear here as these are taken.</p>';   // SL LB1
     if (!_byJob.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No open requests in your service area right now. Stay Online and new hails appear here live.</p></div>';
     } else {
@@ -3386,7 +3408,7 @@
     area.innerHTML = `<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:8px;"></div></div>`;
 
     const e = escHtml;
-    let myAvgH = null, platformAvgH = null;
+    let myAvgH = null, platformAvgH = null, _replMore = false, _tallyMore = false;   // SL LB1
 
     try {
       /* My response time + reply count (already used elsewhere) */
@@ -3395,8 +3417,11 @@
         .select('created_at, replied_at')
         .eq('to_me', true)
         .not('replied_at', 'is', null)
-        .limit(200);
-      const myRepl = myRepliedInq || [];
+        // SL LB1: the LATEST 200 replies, in order - the read took any 200 and averaged them
+        .order('replied_at', { ascending: false }).order('id')
+        .limit(200 + 1);   // more-said: by loadAnalytics (the card says "your latest 200 replies" when there are more)
+      _replMore = (myRepliedInq || []).length > 200;
+      const myRepl = (myRepliedInq || []).slice(0, 200);
       if (myRepl.length) {
         const totalMs = myRepl.reduce((sum, i) => sum + Math.max(0, new Date(i.replied_at).getTime() - new Date(i.created_at).getTime()), 0);
         myAvgH = (totalMs / myRepl.length) / 3600000;
@@ -3420,8 +3445,10 @@
         .from('v_marketplace_inquiries_truth')
         .select('listing_id, status')
         .eq('to_me', true)
-        .limit(5000); // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
-      (data || []).forEach(r => {
+        .order('created_at', { ascending: false }).order('id')
+        .limit(5000 + 1);   // more-said: by loadAnalytics (SL LB1: per-listing counts say when they cover the latest 5,000; the totals are exact head counts) // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
+      _tallyMore = (data || []).length > 5000;
+      (data || []).slice(0, 5000).forEach(r => {
         if (r.listing_id) {
           inqByListing[r.listing_id] = (inqByListing[r.listing_id] || 0) + 1;
           totalInquiries++;
@@ -3429,6 +3456,17 @@
         }
       });
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    // SL LB1: past 5,000 the tallies are partial - the two totals come from exact head counts instead
+    if (_tallyMore) {
+      try {
+        const [_tRes, _pRes] = await Promise.all([
+          db.from('v_marketplace_inquiries_truth').select('id', { count: 'exact', head: true }).eq('to_me', true),
+          db.from('v_marketplace_inquiries_truth').select('id', { count: 'exact', head: true }).eq('to_me', true).eq('status', 'pending'),
+        ]);
+        if (typeof _tRes.count === 'number') totalInquiries = _tRes.count;
+        if (typeof _pRes.count === 'number') pendingInquiries = _pRes.count;
+      } catch (_) { /* empty-catch-allow: the tallies stand, with the per-listing note saying they are partial */ }
+    }
 
     /* Aggregate views from already-loaded _listings */
     const myListings = _listings || [];
@@ -3468,13 +3506,13 @@
             <div style="font-size:1.5rem;font-weight:800;color:${e(respColor)};line-height:1;">
               ${myAvgH == null ? '-' : myAvgH < 1 ? '<1h' : Math.round(myAvgH) + 'h'}
             </div>
-            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">YOUR AVERAGE</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">YOUR AVERAGE${_replMore ? ' (latest 200 replies)' : ''}</div>
           </div>
           <div>
             <div style="font-size:1.125rem;font-weight:600;color:var(--wh-steel-bright);line-height:1;">
               ${platformAvgH == null ? '-' : platformAvgH < 1 ? '<1h' : Math.round(platformAvgH) + 'h'}
             </div>
-            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">PLATFORM AVG</div>
+            <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.25rem;">PLATFORM AVG (up to the latest 500 replies)</div>
           </div>
           <div style="flex:1;min-width:140px;">
             <div style="font-size:0.75rem;color:${e(respColor)};font-weight:600;">${e(respCmp)}</div>
@@ -3490,6 +3528,7 @@
       html += `<div class="empty-state" style="padding:1.5rem 1rem;"><p>Post a listing to start tracking performance.</p><button type="button" onclick="switchTab('listings')" style="margin-top:0.5rem;padding:0.5rem 1rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;cursor:pointer;" data-i="postalisting">Post a Listing →</button></div>`;
     } else {
       const sorted = [...myListings].sort((a, b) => Number(b.view_count || 0) - Number(a.view_count || 0));
+      if (_tallyMore) html += '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Inquiry counts per listing cover your 5,000 most recent inquiries.</p>';   // SL LB1
       html += `<div style="display:flex;flex-direction:column;gap:0.5rem;">`;
       sorted.forEach(l => {
         const views = Number(l.view_count || 0);

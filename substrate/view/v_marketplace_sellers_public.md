@@ -2,16 +2,16 @@
 name: view-v_marketplace_sellers_public
 type: view
 source: db:pg_get_viewdef:v_marketplace_sellers_public
-source_sha: 904dd89db8819932
+source_sha: b27796ce08b0e17e
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_marketplace_sellers_public`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
-**Source tables:** `LATERAL`, `marketplace_listings`, `marketplace_orders`
-**Trust/identity cols exposed:** `cert_verified_at`, `certifications`, `is_verified_public`, `kyb_verified_at`  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**Source tables:** `marketplace_sellers_public_rows`
+**Trust/identity cols exposed:** `rating_avg`  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 
-**Definition (collapsed):**  SELECT s.worker_name, s.hive_id, s.tier, s.kyb_verified, s.cert_verified, s.total_sales, s.rating_avg, s.rating_count, s.response_rate, s.response_time_h, COALESCE(active_listings.n, (0)::bigint) AS active_listings_count, COALESCE(total_orders.n, (0)::bigint) AS total_orders_count, active_listings.last_at AS last_listed_at, total_orders.last_at AS last_order_at, (s.kyb_verified AND s.cert_verified) AS is_verified_public, ((s.messenger_username IS NOT NULL) AND (s.certifications IS NOT NULL)) AS profile_complete, CASE WHEN (auth.uid() IS NOT NULL) THEN s.messenger_username ELSE NULL::text END  …
+**Definition (collapsed):**  SELECT worker_name, hive_id, tier, kyb_verified, cert_verified, total_sales, (rating_avg)::numeric(3,2) AS rating_avg, rating_count, (response_rate)::numeric(5,2) AS response_rate, (response_time_h)::numeric(6,1) AS response_time_h, active_listings_count, total_orders_count, last_listed_at, last_order_at, is_verified_public, profile_complete, messenger_username, certifications, kyb_verified_at, cert_verified_at, created_at FROM marketplace_sellers_public_rows() r(worker_name, hive_id, tier, kyb_verified, cert_verified, total_sales, rating_avg, rating_count, response_rate, response_time_h, act …
 
 Links: [[reference_xhive_view_read_leak_security_invoker]] [[reference_marketplace_listing_trust_forge]]

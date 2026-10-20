@@ -1357,16 +1357,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5);
+        .limit(5);   // more-said: by renderHistory (the section label says "the 5 most recent of N" from the exact count)
       if (error) {
         // created_at may not exist — retry without ordering
         const fallback = await db
           .from('v_ai_reports_truth')
-          .select('id, report_type, summary')
+          .select('id, report_type, summary', { count: 'exact' })   // SL LB1: the fallback counts too, so its label can say what the five are a slice of
           .eq('hive_id', HIVE_ID)
-          .limit(5);
+          .limit(5);   // more-said: by renderHistory
         data  = fallback.data;
         error = fallback.error;
+        count = fallback.count;
       }
       if (error || !data?.length) return;
       // the exact count comes back from PostgREST independently of the .limit(5) above, so the label
@@ -1628,7 +1629,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);
+        .limit(500);   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
       if (error) {
         // Supabase failed — fall back to localStorage so contacts aren't lost, and RECORD that we did
         console.error('report contacts read failed:', error.message);
@@ -1671,7 +1672,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .gte('triggered_at', since)
           .order('triggered_at', { ascending: false })
           .order('id')                      // total order: two bounces can share a timestamp
-          .limit(200);
+          .limit(200);   // window-ok[30d] (LB1): a hive's bounce events in 30 days - bounded by what it sends, sized live
         // A failed read must not be rendered as "no bounces". Leaving the map untouched means the
         // page simply does not claim either way, rather than claiming everything is fine.
         if (error || !Array.isArray(data)) return;

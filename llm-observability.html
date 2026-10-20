@@ -296,7 +296,7 @@
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(5000);   // cap-ok: #meta discloses "showing the latest 5,000" when this cap bites (see the render below)
+      .limit(5000 + 1);   // more-said: by load - #meta says "showing the latest 5,000" when a 5,001st call exists (SL LB1: a probe, so exactly 5,000 is not called a cap)
 
     if (e1) {
       // the fourth state (2026-09-05): say it in plain words, with the way out
@@ -304,7 +304,8 @@
       document.getElementById('meta').innerHTML = 'Could not load the cost log (' + escHtml(String(e1.message || 'no response')) + '). <button type="button" onclick="location.reload()" style="color:inherit;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;" data-i="reloadtotryagain">Reload to try again</button>.';
       return;
     }
-    const logs = costLogs || [];
+    const _logsMore = (costLogs || []).length > 5000;   // SL LB1: the probe row says more calls exist in the window
+    const logs = (costLogs || []).slice(0, 5000);
 
     // Aggregate
     const total      = logs.length;
@@ -380,7 +381,7 @@
 
     document.getElementById('meta').innerHTML = `<strong>${total}</strong> calls across <strong>${Object.keys(byTask).length}</strong> fn surfaces, <strong>${Object.keys(byHive).length}</strong> hive(s) in last ${win}h. · as of ${new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' })} · refreshes on each window change`;
     // cap is not a total (2026-09-05): the window read is .limit(5000); when the cap bites, say so beside the count.
-    if (logs.length >= 5000) document.getElementById('meta').innerHTML += ' · <strong>showing the latest 5,000</strong> calls: the true total in this window is larger';
+    if (_logsMore) document.getElementById('meta').innerHTML += ' · <strong>showing the latest 5,000</strong> calls: the true total in this window is larger';
 
     document.getElementById('loaded-at').textContent = 'Loaded ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
   }

@@ -6,11 +6,11 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ## Summary
 
 - Calm-opted-in pages: **13**
-- Fully compliant pages (0 drift + 0 gap): **9** (69%)
+- Fully compliant pages (0 drift + 0 gap): **8** (61%)
 - Canonical reads (✅): **48**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **8**
-- Allowed reads (legitimate raw): **49**
+- Gap reads (❌ no wrapper exists yet): **9**
+- Allowed reads (legitimate raw): **48**
 - Truth views in registry: **45**
 
 ## Per-page conformance
@@ -20,7 +20,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `achievements.html` | 3 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
 | `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
-| `alert-hub.html` | 5 | 0 | 0 | 6 | ✓ | ✅ |
+| `alert-hub.html` | 5 | 0 | 1 | 5 | ✓ | ❌ |
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
 | `asset-hub.html` | 10 | 0 | 0 | 10 | ✓ | ✅ |
 | `dayplanner.html` | 2 | 0 | 0 | 2 | ✓ | ✅ |
@@ -36,6 +36,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | Raw table | Pages reading it | Suggested wrapper |
 |---|---:|---|
 | `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
+| `alert_dismissals` | 1 | `v_alert_dismissal_truth` (suggested) |
 | `analytics_snapshots` | 1 | `v_analytics_snapshot_truth` (suggested) |
 | `marketplace_listings` | 1 | `v_marketplace_listing_truth` (suggested) |
 | `service_credit_topups` | 1 | `v_service_credit_topup_truth` (suggested) |
@@ -65,10 +66,11 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 **Gap** (1): `ai_reply_feedback`
 **Allowed raw** (1): `ai_cost_log`
 
-### `alert-hub.html` — ✅ compliant
+### `alert-hub.html` — ❌ not compliant
 
 **Canonical** (5): `v_alert_truth`, `v_anomaly_truth`, `v_inventory_items_truth`, `v_pm_scope_items_truth`, `v_risk_truth`
-**Allowed raw** (6): `alert_dismissals`, `amc_briefings`, `anomaly_signals`, `automation_log`, `hive_audit_log`, `parts_staging_recommendations`
+**Gap** (1): `alert_dismissals`
+**Allowed raw** (5): `amc_briefings`, `anomaly_signals`, `automation_log`, `hive_audit_log`, `parts_staging_recommendations`
 
 ### `analytics.html` — ❌ not compliant
 

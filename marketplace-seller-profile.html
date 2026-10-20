@@ -404,7 +404,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whIsAccessDenied whListError whListSkeleton whLoadRewardKnobs whQueryTimeout whReadError whSourcesSync whUse">
+<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whIsAccessDenied whListError whListSkeleton whLoadRewardKnobs whMoreNote whQueryTimeout whReadError whSourcesSync whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -440,10 +440,10 @@
   let _seller    = null;
   let _listings  = [];
   let _reviews   = [];
+  let _listingsMore = false, _reviewsMore = false;   // SL LB1: a read found more than the page shows
   let _section   = 'all';
   let _avgResponseHours = null;
   let _replyCount       = 0;
-  let _replyCapped      = false;  // the response-time read returned its full cap, so the average is over a slice (W3-AR 2026-09-09)
   let _replyReadFailed  = false;  // the replies read failed: the average is unknown, not "none yet" (critique W45957)
   // How many reviews this page shows. Named so the query cap and the label that discloses the cap
   // can never drift apart (MK10: a truncated list has to say so).
@@ -894,7 +894,7 @@
             .eq('status', 'published')
             .order('created_at', { ascending: false })
             .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-            .limit(60), 15000, 'this seller’s listings')
+            .limit(60 + 1), 15000, 'this seller’s listings')   // more-said: by renderListings (SL LB1: a 61st listing says this seller has more than the page shows)
         : db
             .from('v_marketplace_listings_public')
             .select('id,title,section,category,condition,price,location,image_url,created_at')
@@ -902,9 +902,10 @@
             .eq('status', 'published')
             .order('created_at', { ascending: false })
             .order('id')
-            .limit(60));
+            .limit(60 + 1));   // more-said: by renderListings (SL LB1: a 61st listing says this seller has more than the page shows)
       if (error) { if (status) error._httpStatus = status; throw error; }
-      _listings = data || [];
+      _listingsMore = (data || []).length > 60;   // SL LB1
+      _listings = (data || []).slice(0, 60);
       // THE REWARD MUST NEVER GATE THE LISTINGS. Fetched once for the page, never per card — and
       // deliberately NOT awaited here: awaiting it inside the listing path means a slow knob RPC
       // delays the listings themselves, which is a worse failure than a missing chip. So it runs
@@ -981,7 +982,9 @@
     if (!grid) return;
 
     const filtered = _section === 'all' ? _listings : _listings.filter(l => l.section === _section);
-    if (countEl) countEl.textContent = filtered.length === 1 ? '1 listing' : `${filtered.length} listings`;
+    // SL LB1: the read stops at 60 - past it the count is a floor, and says so
+    const _lmore = _listingsMore && _section === 'all';
+    if (countEl) countEl.textContent = (filtered.length === 1 && !_lmore) ? '1 listing' : `${filtered.length}${_lmore ? '+' : ''} listings`;
     // The ordering note is only meaningful when there is an order to describe.
     const orderNote = document.getElementById('listings-order-note');
     if (orderNote) orderNote.style.display = filtered.length > 1 ? '' : 'none';
@@ -993,6 +996,7 @@
           <h3>No ${_section === 'all' ? '' : _section + ' '}listings</h3>
           <p>${_section === 'all' ? 'This seller has no published listings yet.' : 'Try a different section above.'}</p>
         </div>`;
+      if (typeof whMoreNote === 'function') whMoreNote(grid, null);
       return;
     }
 
@@ -1027,6 +1031,9 @@
           </div>
         </a>`;
     }).join('');
+    // SL LB1: the grid holds the seller's 60 newest; when there are more, it says so under them
+    if (typeof whMoreNote === 'function') whMoreNote(grid, { shown: filtered.length, more: _lmore, noun: 'listings from this seller',
+      order: 'newest', src: 'v_marketplace_listings_public' });
   }
 
   /* ── Load reviews ───────────────────────────────────────────────────── */
@@ -1067,9 +1074,9 @@
         .in('listing_id', listingIds)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(REVIEWS_SHOWN);
+        .limit(REVIEWS_SHOWN + 1);   // more-said: by renderReviews (SL LB1: one past the cap says more reviews exist)
       if (error) { _reviews = []; _reviewsFailed = true; }
-      else { _reviews = data || []; _reviewsFailed = false; }
+      else { _reviewsMore = (data || []).length > REVIEWS_SHOWN; _reviews = (data || []).slice(0, REVIEWS_SHOWN); _reviewsFailed = false; }
     } catch (_) { _reviews = []; _reviewsFailed = true; }
     // Only a read that ANSWERED may license a conclusion about this seller.
     _reviewsResolved = !_reviewsFailed;
@@ -1117,7 +1124,7 @@
     if (countEl) {
       const shown = _reviews.length;
       const _base = shown === 1 ? '1 review'
-        : shown >= REVIEWS_SHOWN ? `${shown} most recent reviews`
+        : shown >= REVIEWS_SHOWN ? `${shown} most recent reviews${_reviewsMore ? ' (there are more)' : ''}`
         : `${shown} reviews`;
       // ★"5.0★ (2)" ABOVE "1 REVIEW" (critique W45957, 2026-10-13). The rating counts verified purchases that RATED; this
       // list holds the reviews that were WRITTEN - two true numbers, and a buyer comparing them saw a contradiction with
@@ -1183,59 +1190,21 @@
 
   /* ── Compute response time ──────────────────────────────────────────── */
   async function computeResponseStats() {
-    // Inquiries are private to their buyer and seller, so a stranger's read of them is REFUSED by design (401
-    // through the invoker view) - and this page used to fire it anyway, then paint "0 replies" from the refusal,
-    // a count that was never measured. Without a session the page now reads the seller's response stats from
-    // the public seller view (response_time_h is a badge column) and shows '-' for the reply count (EX-HP, 2026-09-07).
-    let _strangerStats = false;
-    try { _strangerStats = !(await db.auth.getSession())?.data?.session; } catch (_) { _strangerStats = true; }
-    if (_strangerStats) {
-      try {
-        const { data: sv } = await db.from('v_marketplace_sellers_public').select('response_time_h').eq('worker_name', WORKER_VIEW).maybeSingle();
-        _avgResponseHours = (sv && sv.response_time_h != null) ? Number(sv.response_time_h) : null;
-      } catch (_) { _avgResponseHours = null; }
-      _replyCount = 0;
-      const repEl0 = document.getElementById('stat-replies');
-      const resEl0 = document.getElementById('stat-response');
-      if (repEl0) repEl0.textContent = '-';
-      if (resEl0) resEl0.textContent = _avgResponseHours == null ? '-' : (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h');
-      if (_seller) renderHero();
-      return;
-    }
+    // ★THE REPLY FIGURES WERE THE VIEWER'S OWN SLICE (SL LB1 walk, 2026-10-21). They were computed from the inquiries
+    // themselves, which are private to their buyer and seller: a signed-in visitor read only the conversations THEY
+    // were party to (measured: 0 rows on a seller with 2 replies, painted "0 replied - None yet"), a stranger was
+    // refused outright and shown '-', and the Quick Reply badge (5+ replies under 4h) could reach no visitor but the
+    // seller's own trading partners. Both figures are facts about the SELLER, so they come from one aggregate every
+    // visitor can ask - marketplace_seller_reply_stats: the reply count beside the average over the seller's whole
+    // inquiry record (the formula the public response_time_h uses), two numbers and no rows. Nothing is capped, so the
+    // average is never over a slice.
     try {
-      const { data, error } = await db
-        .from('v_marketplace_inquiries_truth')
-        .select('created_at, replied_at, status')
-        .eq('seller_name', WORKER_VIEW)
-        .not('replied_at', 'is', null)
-        /* W3-AR (2026-09-09): this was the one capped read on the page with NO ordering at all, while
-           every sibling carries .order(...).order('id') and the MR4 note about a sort that is not total
-           on its own. Without it the 50 rows are whatever the planner returns, so a seller past the cap
-           would get an average response time computed from an ARBITRARY 50 - and a different arbitrary
-           50 on the next refresh, moving a number displayed as a fact about them. Measured today the
-           busiest seller has 2 replied inquiries, so nothing is wrong on screen right now; ordering it
-           makes the cap MEAN something (the most recent 50) and makes the answer repeatable. Same shape
-           the page already fixed once above, where the headline rating was "capped at .limit(20), so it
-           was a partial average presented as the rating". */
-        .order('replied_at', { ascending: false })
-        .order('id')
-        .limit(50);
-
+      const { data: rs, error } = await db.rpc('marketplace_seller_reply_stats', { p_worker_name: WORKER_VIEW });
       if (error) throw error;   // a refused or failed read is not "no replies" - it was answered as none before (W45957)
+      const row = Array.isArray(rs) ? rs[0] : rs;
+      _replyCount = row && Number.isFinite(Number(row.replied_count)) ? Number(row.replied_count) : 0;
+      _avgResponseHours = row && row.avg_reply_h != null ? Number(row.avg_reply_h) : null;
       _replyReadFailed = false;
-      const replied = data || [];
-      _replyCount = replied.length;
-      _replyCapped = replied.length >= 50;
-      if (replied.length) {
-        const totalMs = replied.reduce((sum, inq) => {
-          const start = new Date(inq.created_at).getTime();
-          const end   = new Date(inq.replied_at).getTime();
-          return sum + Math.max(0, end - start);
-        }, 0);
-        _avgResponseHours = (totalMs / replied.length) / 3600000;
-      } else {
-        _avgResponseHours = null;
-      }
     } catch (_) {
       _replyCount = 0;
       _avgResponseHours = null;
@@ -1244,7 +1213,8 @@
 
     const repEl = document.getElementById('stat-replies');
     const resEl = document.getElementById('stat-response');
-    if (repEl) repEl.textContent = _replyReadFailed ? 'Not loaded' : _replyCount;   // a failed read is not 0 replies (W45957)
+    if (repEl) repEl.textContent = _replyReadFailed ? 'Not loaded'   // a failed read is not 0 replies (W45957)
+      : _replyCount.toLocaleString('en-PH');
     if (resEl) {
       // ★A BARE GREEN DASH (critique W45957, 2026-10-13): with no replied inquiry yet the average is not a number, and
       // it was painted "-" in the success green - read as "good" or as broken, and identical to a read that failed. The
@@ -1253,14 +1223,7 @@
         ? (_avgResponseHours < 1 ? '<1h' : Math.round(_avgResponseHours) + 'h')
         : (_replyReadFailed ? 'Not loaded' : 'None yet');
       resEl.classList.toggle('green', _avgResponseHours != null);
-      // W3-AR: if the read came back at its cap this is an average over the most recent 50 replies,
-      // not over all of them. The figure stays (it is still the best answer available); the title
-      // stops implying it covers everything, which is the half a bounded number owes its reader.
-      if (_avgResponseHours != null) {
-        resEl.title = _replyCapped
-          ? 'Average over this seller’s 50 most recent replies, not all of them'
-          : `Average over all ${_replyCount} of this seller’s replies`;
-      }
+      if (_avgResponseHours != null) resEl.title = `Average over all ${_replyCount.toLocaleString('en-PH')} of this seller’s replies`;
     }
 
     /* Re-render hero so Quick Reply badge appears now that response data is loaded */
@@ -1329,7 +1292,7 @@
         })
       : renderSourceChip({
           freshness: 'Live · refreshed on load',
-          source: 'v_marketplace_listings_public + v_marketplace_inquiries_truth + marketplace_reviews',
+          source: 'v_marketplace_listings_public + marketplace_seller_reply_stats + marketplace_reviews',
           // not "your": this is ANOTHER person's public profile (see renderSourceChip's 2026-10-06 note)
           possessive: false,
           sourceLabel: "this seller's listings, replies and verified-purchase reviews",
@@ -1346,6 +1309,6 @@
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
 <!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
-<script type="application/json" id="wh-figure-sources">[{"sel":"#stat-listings","shows":"this seller's live listings","basedOn":"the seller's published listings","reads":"v_marketplace_listings_public","period":"Now: this seller's live listings"},{"sel":"#stat-replies","shows":"buyer inquiries this seller has replied to","basedOn":"inquiries to this seller that carry a reply","reads":"v_marketplace_inquiries_truth","period":"All time: every inquiry this seller has answered"},{"sel":"#community-rep","shows":"this seller's community standing: XP and public posts","basedOn":"the seller's community XP in their own hive and the posts they made public","reads":"get_seller_community_reputation","period":"All time: XP and public posts so far"}]</script>
+<script type="application/json" id="wh-figure-sources">[{"sel":"#stat-listings","shows":"this seller's live listings","basedOn":"the seller's published listings","reads":"v_marketplace_listings_public","period":"Now: this seller's live listings"},{"sel":"#stat-replies","shows":"buyer inquiries this seller has replied to","basedOn":"every inquiry to this seller that carries a reply - the seller's whole record, the same for every visitor","reads":"marketplace_seller_reply_stats","period":"All time: every inquiry this seller has answered"},{"sel":"#community-rep","shows":"this seller's community standing: XP and public posts","basedOn":"the seller's community XP in their own hive and the posts they made public","reads":"get_seller_community_reputation","period":"All time: XP and public posts so far"}]</script>
 </body>
 </html>

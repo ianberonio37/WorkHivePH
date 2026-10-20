@@ -693,7 +693,7 @@
     const { data: hiveBench } = await db.from('hive_benchmarks')
       .select('equipment_category, mtbf_days')
       .eq('hive_id', HIVE_ID)
-      .limit(100);
+      .limit(100);   // cap-ok (LB1): its largest group (hive_id) is far under 100 - sized live by list-caps-say-more
       /* W3-AR (2026-09-08): this compared your plant against the network on the first FIVE of your
          equipment categories and said nothing about the rest — a seeded hive already carries ten, so
          half its plant was silently absent from its own comparison. Categories are bounded by nature

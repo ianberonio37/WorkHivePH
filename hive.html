@@ -1963,7 +1963,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync whUse">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whMoreNote whRealtimeBackfill whRequireOnline whSourcesSync whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2125,6 +2125,8 @@ let _pendingParts       = [];
 // pending assets/parts needing approval. Reset false on every successful load.
 let _approvalReadErr    = false;
 let _feedEntries        = [];
+let _feedMore           = false;   // SL LB1: the board's activity read stopped at its cap - older entries exist
+let _openJobsMore       = false;   // SL LB1: more open jobs than the tally read
 let _feedDisplayCount   = 15;
 // Fan-out collapse (2026-06-07): get_hive_board_dashboard payload for the
 // hive-scoped plain-read loaders (members/feed/pm-health/team-stock/approvals).
@@ -2532,10 +2534,10 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       try {
         const { data: mems, error: mErr } = await db.from('v_worker_truth')
           .select('hive_id, role').or(_MINE())
-          .neq('hive_status', 'kicked').limit(500);
+          .neq('hive_status', 'kicked').limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
         if (mErr || !mems || !mems.length) return;
         const { data: hs } = await db.from('v_hives_truth')
-          .select('id, name').in('id', mems.map(m => m.hive_id)).limit(500);
+          .select('id, name').in('id', mems.map(m => m.hive_id)).limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
         if (!hs || !hs.length) return;
         const prev = getHiveList();
         saveHiveList(hs.map(h => ({
@@ -2596,7 +2598,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .select('hive_id, role')
       .or(_MINE())
       .neq('hive_status', 'kicked')
-      .limit(500);  // L2: one worker's memberships are bounded-by-nature (<= dozens of hives); insurance cap, never truncates
+      .limit(500);  // L2: one worker's memberships are bounded-by-nature (<= dozens of hives); insurance cap, never truncates · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
 
     if (recErr) {
       // Query failed (network/server issue): show onboard with a helpful hint
@@ -2625,7 +2627,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .from('v_hives_truth')
       .select('id, name, created_by')
       .in('id', hiveIds)
-      .limit(500);  // L2: hiveIds comes from the bounded membership query above -> bounded-by-nature; insurance cap
+      .limit(500);  // L2: hiveIds comes from the bounded membership query above -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
 
     if (!hives || !hives.length) {
       showView('onboard');
@@ -4153,7 +4155,7 @@ async function loadSupervisorSummary() {
       .select('qty_on_hand, is_low_stock, is_out_of_stock')
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved')
-      .limit(500);  // L2: hive parts catalog (distinct SKUs stocked) is bounded-by-nature, not an append-forever log; reads flag cols -> can't be head:true; insurance cap
+      .limit(500);  // L2: hive parts catalog (distinct SKUs stocked) is bounded-by-nature, not an append-forever log; reads flag cols -> can't be head:true; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     (invRows || []).forEach(i => {
       const isOut = i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0;
       const isLow = i.is_low_stock === true;
@@ -4687,7 +4689,7 @@ async function loadKnowledgePipeline() {
     const { data, error } = await db.from('v_knowledge_freshness_truth')
       .select('kind, total_rows, embedded_rows, pending_rows, last_embedded_at, days_since_last_embed, embedded_pct')
       .eq('hive_id', HIVE_ID)
-      .limit(500);  // L2: freshness rollup is exactly 3 kinds (fault/skill/pm) per hive -> bounded-by-nature; insurance cap
+      .limit(500);  // L2: freshness rollup is exactly 3 kinds (fault/skill/pm) per hive -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (error) throw error;  // P2-03: honor the supabase {error} instead of swallowing it as [] -> fake "up to date"
     rows = data || [];
   } catch (e2) { kpipeErr = e2; console.warn('Knowledge pipeline read failed:', e2?.message || e2); }
@@ -4969,12 +4971,12 @@ async function loadMembers() {
         .neq('status', 'kicked')
         .order('joined_at')
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list
+        .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
       db.from('v_logbook_truth')
         .select('worker_name')
         .eq('hive_id', HIVE_ID)
         .eq('status', 'Open')
-        .limit(2000)  // limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
+        .limit(2000 + 1)  // more-said: by loadMembers (SL LB1: a 2,001st open job marks every tally as a floor). Was limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
     ]);
     if (membersRes.error) { membersErr = membersRes.error; console.error('loadMembers:', membersRes.error.message); }
     /* The OPEN-JOBS read was unchecked. supabase-js resolves with { data: null, error }, so a
@@ -4985,7 +4987,8 @@ async function loadMembers() {
        render says workload is unavailable instead of implying zero. */
     if (openJobsRes.error) { openJobsErr = openJobsRes.error; console.error('loadMembers openJobs:', openJobsRes.error.message); }
     membersData  = membersRes.data  || [];
-    openJobsData = openJobsRes.data || [];
+    _openJobsMore = (openJobsRes.data || []).length > 2000;   // SL LB1
+    openJobsData = (openJobsRes.data || []).slice(0, 2000);
   }
 
   memberNames = membersData.map(m => m.worker_name);
@@ -5038,7 +5041,7 @@ async function loadMembers() {
     // C2/K1: pair the workload color with a WORD so heavy/busy isn't conveyed by color alone.
     const workloadWord = openJobs >= 5 ? _t(' · heavy', ' · mabigat') : openJobs >= 3 ? _t(' · busy', ' · abala') : '';
     const workloadBadge = openJobs > 0
-      ? `<span class="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs} ${_t('open','bukas')}${workloadWord}</span>`
+      ? `<span class="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs}${_openJobsMore ? '+' : ''} ${_t('open','bukas')}${workloadWord}</span>`
       : `<span class="text-xs text-white/80 flex-shrink-0">${_t('no open jobs','walang bukas na trabaho')}</span>`;
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
@@ -5182,7 +5185,9 @@ async function loadFeed() {
   if (_board) {
     logData   = _board.feed_logbook || [];
     openCount = Number(_board.open_count || 0);
-    pmData    = _board.feed_pm || [];   // asset_name/item_text/frequency already flattened by the RPC
+    pmData    = _board.feed_pm || [];
+    // SL LB1: the board RPC stops its feed at 40 entries and 20 completions - a full array means older activity exists
+    _feedMore = logData.length >= 40 || pmData.length >= 20;   // asset_name/item_text/frequency already flattened by the RPC
   } else {
     const [logRes, openRes, pmRes] = await Promise.all([
       db.from('v_logbook_truth')
@@ -5190,7 +5195,7 @@ async function loadFeed() {
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(40),
+        .limit(40 + 1),   // more-said: by renderFeed (SL LB1: a 41st entry says older activity exists)
       db.from('v_logbook_truth')
         .select('*', { count: 'exact', head: true })
         .eq('hive_id', HIVE_ID)
@@ -5201,15 +5206,16 @@ async function loadFeed() {
         .eq('status', 'done')
         .order('completed_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(20)
+        .limit(20 + 1)   // more-said: by renderFeed (SL LB1: a 21st completion says older PM activity exists)
     ]);
     // A5 honest-degraded: a failed read must NOT render as a fake-empty "quiet hive" or a
     // fake-zero Open Work count (that hides real, possibly safety-critical, work). Capture
     // the error and (below) show an explicit "couldn't load" + a dashed count instead.
     feedReadErr = logRes.error || openRes.error || pmRes.error || null;
-    logData   = logRes.data || [];
+    _feedMore = (logRes.data || []).length > 40 || (pmRes.data || []).length > 20;   // SL LB1
+    logData   = (logRes.data || []).slice(0, 40);
     openCount = openRes.error ? null : (openRes.count || 0);
-    pmData    = (pmRes.data || []).map(e => ({
+    pmData    = (pmRes.data || []).slice(0, 20).map(e => ({
       ...e,
       asset_name: e.pm_assets?.asset_name || '',
       item_text:  e.pm_scope_items?.item_text || '',
@@ -5272,9 +5278,10 @@ async function loadFeed() {
       const [oldLogRes] = await Promise.all([
         db.from('v_logbook_truth').select('id, worker_name, date, machine, category, problem, status, created_at')
           .in('worker_name', memberNames).is('hive_id', null)
-          .order('created_at', { ascending: false }).order('id').limit(40)
+          .order('created_at', { ascending: false }).order('id').limit(40 + 1)   // more-said: by renderFeed (SL LB1)
       ]);
-      const oldMerged = (oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' }))
+      _feedMore = (oldLogRes.data || []).length > 40;   // SL LB1
+      const oldMerged = (oldLogRes.data || []).slice(0, 40).map(e => ({ ...e, _type: 'logbook' }))
         .sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
       if (oldMerged.length) {
         emptyEl.classList.add('hidden');
@@ -5313,6 +5320,10 @@ function renderFeed() {
     buildFeedCard(e, false)
   ).join('');
   moreWrap.classList.toggle('hidden', _feedDisplayCount >= _feedEntries.length);
+  // SL LB1: once everything loaded is on screen, say the board holds only the newest activity, and where the rest is
+  if (typeof whMoreNote === 'function') whMoreNote(feed, { more: _feedMore && _feedDisplayCount >= _feedEntries.length, src: 'hive-feed',
+    said: 'The board shows the newest activity. Older entries are in the team Logbook and the PM Scheduler.',
+    href: 'logbook.html?view=team', hrefLabel: 'Open the team Logbook' });
 }
 
 function loadMoreFeed() { _feedDisplayCount += 15; renderFeed(); }
@@ -5411,13 +5422,13 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
   // Parallel fetch: skill badges + community XP + recent activity.
   Promise.all([
     (_them ? db.from('v_skill_badges_truth').select('discipline, level').or(_them)
-             : db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName)).order('level', { ascending: false }).order('id').limit(5),
+             : db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName)).order('level', { ascending: false }).order('id').limit(1),   // SL LB1: only the top badge is shown - ask for one
     (_them ? db.from('community_xp').select('xp_total').or(_them).eq('hive_id', HIVE_ID)
              : db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
     (_uid ? db.from('hive_members').select('role, joined_at').eq('auth_uid', _uid).eq('hive_id', HIVE_ID)
             : db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
     (_them ? db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).or(_them)
-             : db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName)).order('created_at', { ascending: false }).order('id').limit(3),
+             : db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName)).order('created_at', { ascending: false }).order('id').limit(3 + 1),   // more-said: by _openWorkerProfileDrawer (SL LB1: a 4th says more entries exist)
     /* THE TIEBREAKER WAS INERT (fixed 2026-08-08). This read .eq('worker_name', workerName) and then
        ordered by .order('worker_name') - the very column it had just filtered to a SINGLE value, so
        it is constant across every returned row and can break no tie at all. It reads as a tiebreaker
@@ -5441,7 +5452,8 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     const xp     = xRes.data?.xp_total || 0;
     const role   = mRes.data?.role || 'member';
     const joined = mRes.data?.joined_at ? whFmtDate(mRes.data.joined_at) : '-'; // FD1a canonical
-    const recent = lRes.data || [];
+    const recentMore = (lRes.data || []).length > 3;   // SL LB1
+    const recent = (lRes.data || []).slice(0, 3);
 
     const body = document.getElementById('wh-wp-body');
     if (!body) return;
@@ -5475,6 +5487,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
               '</div>'
             ).join('')
           : '<p style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin:0;">No recent logbook entries.</p>') +
+        (recentMore ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:6px 0 0;">The 3 most recent. More are in the Logbook.</p>' : '') +
       '</div>';
     const sub = panel.querySelector('p:nth-of-type(1) + p');
     if (sub) sub.style.display = 'none';
@@ -5699,7 +5712,7 @@ async function checkStockAlert() {
       .select('part_name, qty_on_hand, min_qty')
       .or(_MINE())
       .eq('status', 'approved')
-      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     inv = res.data;
   }
   if (!inv || !inv.length) return;
@@ -5817,7 +5830,7 @@ async function buildNotifications() {
       .select('part_name, qty_on_hand, min_qty')
       .or(_MINE())
       .eq('status', 'approved')
-      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     inv = res.data;
   }
   (inv || []).forEach(i => {
@@ -5829,26 +5842,28 @@ async function buildNotifications() {
   });
 
   // Open work orders older than 48 hours (scoped to current hive; include solo entries if no hive)
-  let oldWOs;
+  let oldWOs, _oldWOsTotal = null;   // _oldWOsTotal: SL LB1
   if (_board) {
     oldWOs = _board.own_old_wos || [];
+    _oldWOsTotal = oldWOs.length >= 5 ? null : oldWOs.length;   // SL LB1: the board stops at 5 - a full five is a floor
   } else {
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     let woQuery = db.from('v_logbook_truth')
-      .select('machine, date, created_at')
+      .select('machine, date, created_at', { count: 'exact' })   // SL LB1: the notice states the true count
       .or(_MINE())
       .eq('status', 'Open')
       .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(5); // L2: order+limit on the base chain (server applies them by query-param) so this read is row-bounded; the conditional .or() below is just an extra filter
+      .limit(5); // more-said: by buildNotifications - the notice says the exact count beside the newest five (SL LB1). L2: order+limit on the base chain (server applies them by query-param) so this read is row-bounded; the conditional .or() below is just an extra filter
     if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
     const res = await woQuery;
     oldWOs = res.data;
+    _oldWOsTotal = (typeof res.count === 'number') ? res.count : null;
   }
   if (oldWOs && oldWOs.length) {
     pushNotif('open-wo', 'Open work orders',
-      `${oldWOs.length} WO${oldWOs.length > 1 ? 's' : ''} open for 48+ hrs (${escHtml(oldWOs[0].machine)} and others).`,
+      `${_oldWOsTotal != null ? _oldWOsTotal : oldWOs.length + '+'} WO${(_oldWOsTotal == null || _oldWOsTotal > 1) ? 's' : ''} open for 48+ hrs (${escHtml(oldWOs[0].machine)} and others).`,
       'logbook.html');
   }
 
@@ -5872,17 +5887,13 @@ async function loadPMHealth() {
     pmComps = [];  // completions only fed the (unused) weekComps local; skip the read on the RPC path
     _pmHealthErr = false;  // RPC bundle is authoritative
   } else {
-    const [itemsRes, compsRes] = await Promise.all([
+    const [itemsRes] = await Promise.all([
       db.from('v_pm_scope_items_truth')
         .select('scope_item_id, pm_asset_id, asset_name, is_overdue, is_due_soon')
         .eq('hive_id', HIVE_ID)
-        .limit(500),  // L2: PM scope items = assets x scope rows, bounded config per hive (not append-forever); insurance cap
-      db.from('pm_completions')
-        .select('scope_item_id, completed_at, worker_name')
-        .eq('hive_id', HIVE_ID).eq('status', 'done')
-        .order('completed_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(2000),  // L2: newest-first cap on completion-history egress; generous for a hive's recent PM history
+        .limit(500),  // L2: PM scope items = assets x scope rows, bounded config per hive (not append-forever); insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      // SL LB1 (2026-10-21): a 2,000-row pm_completions read stood here; its rows fed only weekComps, which nothing
+      // reads (the RPC path already skips it). Removed.
     ]);
     // P2-02 honest-degraded: a FAILED scope read must NOT fall through as a fake-empty "no overdue
     // PMs" (which hides a missed-PM safety signal). Distinguish error from a legitimately-empty hive.
@@ -5893,7 +5904,7 @@ async function loadPMHealth() {
     }
     _pmHealthErr = false;
     pmItems = itemsRes.data || [];
-    pmComps = compsRes.data || [];
+    pmComps = [];   // SL LB1: the completion read is gone - nothing read these rows
   }
 
   // NOTE: the cross-hive stale-count reset lives in switchToHive() (not here) — resetting
@@ -5977,7 +5988,7 @@ async function checkTeamStockAlert() {
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved')
       .in('worker_name', others)
-      .limit(500);  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap
+      .limit(500);  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (res.error) {
       // E2/G1: a failed read must NOT render identically to "no teammates low" — a safety-relevant
       // stock alert vanishing with no signal is dangerous. Surface a neutral inline retry instead.
@@ -6059,8 +6070,8 @@ async function loadApprovalQueue() {
     _approvalReadErr = false;  // RPC bundle is authoritative
   } else {
     const [assetsRes, partsRes] = await Promise.all([
-      db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500),  // L2: pending-approval queue is transient (items leave 'pending' on approve/reject) -> bounded-by-nature; insurance cap
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500)  // L2: pending-approval queue is transient -> bounded-by-nature; insurance cap
+      db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500),  // L2: pending-approval queue is transient (items leave 'pending' on approve/reject) -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500)  // L2: pending-approval queue is transient -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     ]);
     // P2-01 honest-degraded: a FAILED read must NOT render as a fake "All caught up" (which hides
     // pending items awaiting supervisor approval). Capture the error so renderApprovalQueue shows it.
@@ -6081,8 +6092,8 @@ async function loadApprovalQueue() {
     try {
       const norm = (s) => String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
       const [aRes, pRes] = await Promise.all([
-        db.from('asset_nodes').select('tag, name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),
-        db.from('v_inventory_items_truth').select('part_number, part_name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),
+        db.from('asset_nodes').select('tag, name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),   // cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
+        db.from('v_inventory_items_truth').select('part_number, part_name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),   // cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
       ]);
       if (!aRes.error && !pRes.error) {
         window._apprExisting = {
@@ -6464,9 +6475,12 @@ async function loadAuditLog() {
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(50);
+      .limit(50 + 1);   // more-said: by loadAuditLog (SL LB1: a 51st event says the trail holds more - the glance said "50")
     data = res.data; error = res.error;
   }
+  // SL LB1: the board stops its trail at 50 (a full 50 is a floor); the fallback probes a 51st
+  const _auditMore = (_board && _board.audit_log) ? (data || []).length >= 50 : (data || []).length > 50;
+  if (data) data = data.slice(0, 50);
 
   const list    = document.getElementById('audit-log-list');
   const emptyEl = document.getElementById('audit-log-empty');
@@ -6494,7 +6508,7 @@ async function loadAuditLog() {
   const _alc = document.getElementById('audit-log-count');
   if (_alc) {
     const _last = data[0] && data[0].created_at && typeof timeAgo === 'function' ? timeAgo(data[0].created_at) : '';
-    _alc.textContent = ' · ' + data.length + (_last ? ' · ' + _t('last', 'huli') + ' ' + _last : '');
+    _alc.textContent = ' · ' + data.length + (_auditMore ? '+' : '') + (_last ? ' · ' + _t('last', 'huli') + ' ' + _last : '');   // SL LB1: the latest 50 is a floor
   }
 
   // Action vocabulary: utils.js WH_AUDIT_ACTIONS, through whAuditView (SL L2, 2026-10-21). This board kept its own
@@ -6734,11 +6748,14 @@ async function loadPatternAlerts() {
         .order('severity', { ascending: false })
         .order('detected_at', { ascending: false })
         .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5);
+        .limit(5 + 1);   // more-said: by loadPatternAlerts (SL LB1: a 6th active alert is said, with the way to the rest)
       alerts = res.data;
     }
 
     if (!alerts || !alerts.length) return;
+    // SL LB1: the board stops at 5, the fallback probes a 6th - either way, a full five means more are active
+    const _alertsMore = (_board && _board.pattern_alerts) ? alerts.length >= 5 : alerts.length > 5;
+    alerts = alerts.slice(0, 5);
 
     const sevColor = { critical: '#f87171', warning: '#F7A21B', info: '#29B6D9' };
     // FILLS AND BORDERS KEEP THE STRONG HUE; SMALL TEXT DOES NOT. tokens.css grades all three of the
@@ -6779,6 +6796,8 @@ async function loadPatternAlerts() {
         </div>
       </div>`;
     }).join('');
+    if (typeof whMoreNote === 'function') whMoreNote(content, { shown: alerts.length, more: _alertsMore, noun: 'active pattern alerts',
+      order: 'most severe', href: 'alert-hub.html?kind=pattern', hrefLabel: 'Open the Alert Hub', src: 'v_alert_truth' });   // SL LB1
 
     // C1/L1/A2: the summary badge reflects the HIGHEST severity present (not a static red),
     // so an info-only scan doesn't overstate as critical-red; also carry a glanceable count.
@@ -6837,16 +6856,19 @@ async function loadBenchmarks() {
           .eq('hive_id', HIVE_ID)
           .order('failure_count', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(5),
+          .limit(5 + 1),   // more-said: by loadBenchmarks (SL LB1: a 6th category is said)
         db.from('network_benchmarks')
           .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
           .order('sample_hives', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(10),
+          .limit(10),   // cap-ok (LB1): its largest group (the whole table) is far under 10 - sized live by list-caps-say-more
       ]);
       hiveData    = hiveRes.data    || [];
       networkData = networkRes.data || [];
     }
+    // SL LB1: the five categories with the most failures - the board stops at 5, the fallback probes a 6th
+    const _benchMore = (_board && _board.benchmarks) ? hiveData.length >= 5 : hiveData.length > 5;
+    hiveData = hiveData.slice(0, 5);
 
     // Build a lookup of network benchmarks by category.
     const netByCategory = {};
@@ -6900,7 +6922,8 @@ async function loadBenchmarks() {
         + '</div>';
     });
 
-    content.innerHTML = html;
+    content.innerHTML = html
+      + (_benchMore ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:6px 0 0;">The 5 equipment categories with the most failures. The rest are in Analytics.</p>' : '');   // SL LB1
     panel.classList.remove('hidden');
 
   } catch (e) {
@@ -7072,7 +7095,7 @@ async function loadTeamPulse() {
     stockSrc = _board.team_inventory;
   } else {
     const stockRes = await db.from('v_inventory_items_truth').select('qty_on_hand, min_qty')
-      .eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500);  // L2: hive approved parts catalog is bounded-by-nature; insurance cap
+      .eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500);  // L2: hive approved parts catalog is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     stockSrc = stockRes.data || [];
   }
   const stockIssues = (stockSrc || []).filter(i =>
@@ -7105,7 +7128,7 @@ async function loadTeamPulse() {
     if (qwEl) {
       const actRes = await db.from('v_worker_assignment_truth')
         .select('worker_name, last_job_at, last_pm_at')
-        .eq('hive_id', HIVE_ID).limit(500);   // L2: hive members are bounded-by-nature; insurance cap
+        .eq('hive_id', HIVE_ID).limit(500);   // L2: hive members are bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
       qwEl.hidden = false;
       if (actRes.error) {
         // honest-degraded: an unread activity list must NOT imply everyone is active (a false "all clear")

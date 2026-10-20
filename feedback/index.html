@@ -291,7 +291,7 @@
   // dashboard, so the getDb() idle-refresh contract does not apply here. dim-14 exempt.
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const _state = { rows: [], votes: new Set(), kindFilter: '*', voterToken: null };
+  const _state = { rows: [], votes: new Set(), kindFilter: '*', voterToken: null, more: false };   // more: SL LB1
 
   // Minimal escHtml — public page doesn't load utils.js
   function escHtml(s) {
@@ -335,14 +335,15 @@
           .order('upvotes', { ascending: false })
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(200),
+          .limit(200 + 1),   // more-said: by render (SL LB1: a 201st item says the board holds more than it shows)
         db.from('platform_feedback_votes')
           .select('feedback_id')
           .eq('voter_token', tok)
-          .limit(500),
+          .limit(500),   // cap-ok (LB1): its largest group (voter_token) is far under 500 - sized live by list-caps-say-more
       ]);
       if (itemsRes.error) throw itemsRes.error;
-      _state.rows  = itemsRes.data || [];
+      _state.more  = (itemsRes.data || []).length > 200;
+      _state.rows  = (itemsRes.data || []).slice(0, 200);
       _state.votes = new Set((votesRes.data || []).map(v => v.feedback_id));
       render();
     } catch (e) {
@@ -365,7 +366,10 @@
         '<div class="text-center text-white/50 text-sm py-16">' +
         (_state.rows.length === 0
           ? 'No public items yet. Once visitors send feedback (via the 💬 button on any page) and the admin marks it public, it appears here.'
-          : 'Nothing matches that filter.') +
+          : _state.more
+            // SL LB1: the filter runs over the 200 most-voted items; past them, "nothing" is not known
+            ? 'None of the 200 most-voted items match that filter. More items exist that this page does not load.'
+            : 'Nothing matches that filter.') +
         '</div>';
       return;
     }
@@ -394,7 +398,9 @@
           </div>
         </div>
       </article>`;
-    }).join('');
+    }).join('')
+      // SL LB1: the board shows the 200 most-voted items; when there are more, it says so under them
+      + (_state.more ? '<p data-wh-more-note role="note" style="margin:12px 0 0;text-align:center;font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80)">Showing the ' + rows.length + (_state.kindFilter === '*' ? ' most-voted items' : ' matches among the 200 most-voted items') + '. There are more.</p>' : '');
 
     list.querySelectorAll('[data-vote]').forEach(btn => {
       btn.addEventListener('click', () => onVote(btn.dataset.vote, btn));

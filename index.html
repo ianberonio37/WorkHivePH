@@ -3177,7 +3177,7 @@
 </script>
 
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWorker whWriteError">
+<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3789,7 +3789,7 @@
         .select('hive_id, role')
         .eq('auth_uid', _uid)
         .neq('hive_status', 'kicked')
-        .limit(500);  // one worker's memberships are bounded-by-nature; insurance cap
+        .limit(500);  // one worker's memberships are bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (auth_uid) is far under 500 - sized live by list-caps-say-more
       // On error or no membership: stay cleared = solo mode (honest-empty, not wrong-tenant).
       if (recErr || !memberships || !memberships.length) return null;
 
@@ -3804,7 +3804,7 @@
         // tie-break so the order is TOTAL and two hives sharing a name cannot swap.
         .order('name', { ascending: true })
         .order('id',   { ascending: true })
-        .limit(500);
+        .limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
       if (!hives || !hives.length) return null;
 
       // Refresh the hive-switcher LIST too, not just the active hive — otherwise the
@@ -5286,7 +5286,7 @@
       } catch (_e) { /* empty-catch-allow: fall through to legacy multi-query path */ }
     }
 
-    let jobs, risks, invRaw = [], pmAssets = [],
+    let jobs, risks, invRaw = [], pmAssets = [], _invLowCount = null,
         closedToday = 0, pmDoneToday = 0, jobsCount = 0, risksCount = 0;
 
     if (_dash) {
@@ -5311,7 +5311,7 @@
         .eq('status', 'Open')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5),
+        .limit(5),   // more-said (SL LB1: the tile's exact count, read beside it, states what the five are a slice of)
 
       // Risk alerts (critical/high assets). Canonical: v_risk_truth gives
       // the latest score per asset via DISTINCT ON, avoiding stale history rows.
@@ -5323,17 +5323,21 @@
             .in('risk_level', ['critical', 'high'])
             .order('risk_score', { ascending: false })
             .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
-            .limit(5)
+            .limit(5)   // more-said (SL LB1: the exact risk count beside it says how many the strip is the top of)
         : Promise.resolve({ data: [] }),
 
       // Inventory items (to find low-stock client-side). v_inventory_items_truth
       // exposes reorder_point as an alias for min_qty: the underlying table
       // has no reorder_point column, so this read returned nulls silently
       // before the canonical view landed. Low-stock counts now actually fire.
+      // ★THE TILE WAS COUNTED FROM 100 ROWS OF EVERY PART (SL LB1, 2026-10-21): the read took any 100 items and kept the
+      // low ones, so past 100 parts a low part could be missed and the tile undercounted (the largest scope holds 102). It
+      // now asks for the LOW parts only, with their exact count.
       db.from('v_inventory_items_truth')
-        .select('part_name, qty_on_hand, reorder_point, is_low_stock')
+        .select('part_name, qty_on_hand, reorder_point, is_low_stock', { count: 'exact' })
         .or(_scopeOr)
-        .limit(100), // limit-as-count-allow: low-stock tile is rare; 100 covers typical PH plant inventory. TODO: head-count if a hive ever exceeds.
+        .eq('is_low_stock', true)
+        .limit(100), // more-said (SL LB1: the exact count is the tile; the chips say +N more from it)
 
       // PM overdue via the frequency-aware canonical PER-SCOPE-ITEM view in a
       // hive — the SAME is_overdue signal pm-scheduler #stat-overdue and the
@@ -5352,7 +5356,7 @@
         : db.from('pm_assets')
             .select('id, asset_name, category')
             .or(_scopeOr)
-            .limit(100),
+            .limit(100),   // cap-ok[auth_uid] (LB1): one worker's own PM assets in solo mode, sized live
 
       // Hive Activity Today: jobs closed today (hive-scoped, count only)
       HIVE_ID
@@ -5394,6 +5398,7 @@
       jobs     = logRes.status   === 'fulfilled' ? (logRes.value.data   || []) : [];
       risks    = riskRes.status  === 'fulfilled' ? (riskRes.value.data  || []) : [];
       invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
+      _invLowCount = (invRes.status === 'fulfilled' && typeof invRes.value.count === 'number') ? invRes.value.count : null;   // SL LB1
       pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
       /* 'fulfilled' IS NOT 'SUCCEEDED'. The note below already says supabase-js resolves with
          {data:null, error} on a network fault, and the same is true of a head:true COUNT, which
@@ -5496,13 +5501,17 @@
         try {
           // canonical-allow: solo-mode fallback — truth view is hive-scoped only;
           // need individual completion rows to compute per-asset cutoff client-side
+          // ★THE NEWEST 500 OF EVERY COMPLETION, THEN A 30-DAY TEST (SL LB1, 2026-10-21): an asset last serviced within 30
+          // days but outside the newest 500 read as never serviced and counted overdue. Only the window matters, so the
+          // read asks for the window.
           const { data: comps } = await db.from('pm_completions')
             .select('asset_id, completed_at')
             .in('asset_id', assetIds)
             .eq('status', 'done')
+            .gte('completed_at', new Date(Date.now() - 30 * 86400000).toISOString())
             .order('completed_at', { ascending: false })
             .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-            .limit(500);
+            .limit(500);   // window-ok[30d] (LB1): one worker's PM completions in 30 days, sized live
           const lastByAsset = {};
           (comps || []).forEach(c => {
             if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();
@@ -5528,7 +5537,7 @@
     // honest and the two pages agree. (Out-of-stock = canonical is_out_of_stock, or
     // qty_on_hand<=0 when the flag isn't in this payload.)
     const _outOfStock = lowStock.filter(i => i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0).length;
-    if (_lowStockTotal === null) _lowStockTotal = lowStock.length;   // non-RPC fallback path
+    if (_lowStockTotal === null) _lowStockTotal = (typeof _invLowCount === 'number' && _invLowCount >= lowStock.length) ? _invLowCount : lowStock.length;   // non-RPC fallback path: the exact count (SL LB1)
     const _lowOnly    = Math.max(0, _lowStockTotal - _outOfStock);
 
     (function renderStats() {
@@ -5542,7 +5551,7 @@
             : `${_t('PM Overdue','Lumipas na PM')} (${_t('assets','makina')})`,  color: '#29B6D9', href: 'pm-scheduler.html?filter=overdue' }, // T19: land ON the overdue view the number names
         // the label carries the NOUN (parts): a tile reading "LOW STOCK / 3" reads as a stock
         // LEVEL of 3, not as 3 parts running low - the units_visible counted-noun discipline
-        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Parts','Piyesa')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low-stock parts','Kulang na piyesa'), color: '#f7a21b', href: 'inventory.html?status=below'    },
+        { kpi: 'low-stock',   num: _lowStockTotal, label: (_outOfStock > 0 && _lowStockTotal <= lowStock.length) ? `${_t('Parts','Piyesa')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low-stock parts','Kulang na piyesa'), color: '#f7a21b', href: 'inventory.html?status=below'    },
         // A tile whose count could not be READ (null) must not be filtered out alongside the real
         // zeros — that is how an unreadable "Risk Alerts 3" became no tile at all, which reads as
         // "no risk alerts". Keep it, and let it show a gap.
@@ -5973,6 +5982,10 @@
       topRiskEl/* xss-allow: renderRiskStrip escHtml's every field (utils.js) */ .innerHTML =
         renderRiskStrip(risks, { title: _t('Top At-Risk Assets','Pinaka-Nanganganib na Asset'), limit: 3, ragTile: 'index:top_risk' });
     }
+    // SL LB1: the strip is the top three of every high/critical asset - say how many when there are more
+    if (topRiskEl && typeof whMoreNote === 'function') whMoreNote(topRiskEl, { shown: Math.min(3, risks.length), total: risksCount,
+      more: risks.length > 0 && risksCount > Math.min(3, risks.length), noun: 'at-risk assets', order: 'highest',
+      href: 'alert-hub.html?kind=risk', hrefLabel: 'Open the Alert Hub', src: 'v_risk_truth' });
 
     // Hive Activity Today (only meaningful when in a hive context)
     const activityEl = document.getElementById('oh-activity');
@@ -5990,7 +6003,7 @@
             <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
           <div style="text-align:center;">
-            <span class="ac-num" style="color:var(--wh-violet-text);">${risks.length}</span>
+            <span class="ac-num" style="color:var(--wh-violet-text);">${risksCount}</span>
             <span class="ac-lbl">${_t('Active Alerts','Aktibong Alerto')}</span>
           </div>
         </div>`;
@@ -6024,6 +6037,9 @@
           </div>`;
         }).join('');
       }
+      // SL LB1: the five newest open jobs of the tile's count - say so, and where the rest are
+      if (typeof whMoreNote === 'function') whMoreNote(jobsEl, { shown: jobs.length, total: jobsCount, more: jobs.length > 0 && jobsCount > jobs.length,
+        noun: 'open jobs', order: 'newest', href: 'logbook.html?view=team&status=Open', hrefLabel: 'Open the Logbook', src: 'v_logbook_truth' });
     }
 
     // Low stock section
@@ -6038,7 +6054,7 @@
               <div style="font-size: 0.75rem; font-weight:600; background:rgba(247,162,27,.08); border:1px solid rgba(247,162,27,.2); border-radius:12px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
                 ${escHtml(i.part_name)} <span style="color:var(--wh-orange-text);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
-            ${lowStock.length > 8 ? `<div style="font-size: 0.75rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
+            ${_lowStockTotal > 8 ? `<div style="font-size: 0.75rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${(_lowStockTotal - Math.min(8, lowStock.length)).toLocaleString('en-PH')} more</div>` : ''}
           </div>
         </div>`;
     }

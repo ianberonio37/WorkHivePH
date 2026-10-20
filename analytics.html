@@ -1408,11 +1408,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     loadPmOntime();  // the cached path renders without ever calling fetchPhase
     if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
     try {
+      // ★THE LOOKUP READ THE WHOLE HISTORY, UNORDERED (SL LB1, 2026-10-21). Only TODAY's snapshot (PHT) is ever used, but
+      // the read asked for any 500 of the hive's snapshots in no order - one a day per phase accumulates, and past 500 the
+      // rows that came back need not include today's, so the page recomputed on every visit with nothing said. It now
+      // asks for today's only, oldest first so the newest of each phase is the one that stays in the cache.
+      const _phtNow0 = new Date(Date.now() + 8 * 3600 * 1000);
+      const _phtMidnightIso = new Date(Date.UTC(_phtNow0.getUTCFullYear(), _phtNow0.getUTCMonth(), _phtNow0.getUTCDate()) - 8 * 3600 * 1000).toISOString();
       const { data, error } = await db.from('analytics_snapshots')
         .select('phase, payload, computed_at')
         .eq('hive_id', HIVE_ID)
         .eq('period_days', _period)
-        .limit(500);   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+        .gte('computed_at', _phtMidnightIso)
+        .order('computed_at', { ascending: true }).order('id')
+        .limit(500);   // window-ok[1d]: today's snapshots for one hive and period - a handful of phases, sized live by list-caps-say-more
       // ★ FOURTH INSTANCE OF ONE `return` MEANING TWO OPPOSITE THINGS. `error` (the saved copy could
       // not be READ) and `!data` (there is no saved copy) both returned [], so the page fell back to a
       // live recompute and said nothing. The numbers that come back are fine — but the snapshot payload

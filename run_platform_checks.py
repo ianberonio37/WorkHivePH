@@ -6993,6 +6993,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL LB1 (2026-10-21): every list is paged or capped, and says when more exists than it shows. 241 capped list
+        # reads on the 33 LB1 pages; 47 said nothing past their cap and 58 caps bit on today's data - alert-hub showed
+        # 20 of 64 failure-pattern alerts, a resume said "Logged 300" for 3,666 entries, a card filtered by a status no
+        # listing can have. Holds utils.js whMoreNote, every read's disposition, the live sizes, and migration
+        # 20261021000004 (my_logbook_summary, logbook_synced_machines) and 20261021000007 (the parts rail's p_limit: the
+        # function capped itself at 24, the 24 smallest UUIDs, and said nothing). Static + live (read-only).
+        "id":      "list-caps-say-more",
+        "script":  os.path.join("tools", "validate_list_caps_say_more.py"),
+        "args":    [],
+        "label":   "List caps say more (SL LB1): every capped list read on the 33 LB1 pages is paged, says when more exists (a probe or a count, and whMoreNote or the page's own sentence), is a key chunk under a unique index, or is proven never to bite - sized live against today's data with its literal filters; streams (trails, logs, feeds, queues) may not claim cap-ok because the local data cannot see production's volume ; every cap traces to its read (chains followed, reads built in steps attributed) and a chain carries one cap; every literal LIMIT inside a function an LB1 page calls is declared with the page function that says it, read live from the definitions (static + live; --self-test: 15 static mutants + 3 live)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
         # SL L4 (2026-10-21): when a page fails, the sentence it SHOWED the person is logged beside the code. Of 390
         # client_errors rows, 383 were the uncaught net; a refused save, a list that could not load, an access check that
         # could not be asked left nothing, and the one logger kept the technical message, never what the person read.

@@ -834,6 +834,7 @@ function loadMoreInventory() { _invDisplayCount += 12; renderParts(); }
 // ────────────────────────────────────────────
 let _items  = [];
 let _txns   = [];
+let _txnsMore = false;   // SL LB1: the year's window held more than the 500 transactions read
 let _assets = [];
 // A read failure must reach the RENDER, not just the console. The load path has computed
 // _invReadErr since P2 ("honest-degraded") but only used it to skip the localStorage
@@ -2305,20 +2306,20 @@ async function _autoLinkInventoryToProject(item) {
     const { data: assetLinks } = await db.from('project_links')
       .select('project_id')
       .eq('hive_id', HIVE_ID).eq('link_type', 'asset').in('link_id', legacyIds)
-      .limit(500); // Arc L L2: links for a handful of assets; bounded-by-nature
+      .limit(500); // Arc L L2: links for a handful of assets; bounded-by-nature · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (!assetLinks?.length) return;
     const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
     // canonical-allow: narrow targeted fetch over the bounded project_links id set
     const { data: projs } = await db.from('projects')
       .select('id, project_code')
       .in('id', projectIds).in('status', ['planning', 'active'])
-      .limit(500);
+      .limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     if (!projs?.length) return;
     // Only insert links that don't already exist (avoid a batch 23505 on partial dupes).
     const { data: existing } = await db.from('project_links')
       .select('project_id')
       .eq('hive_id', HIVE_ID).eq('link_type', 'inventory_item').eq('link_id', String(item.id))
-      .in('project_id', projectIds).limit(500);
+      .in('project_id', projectIds).limit(500);   // cap-ok (LB1): its largest group (hive_id, link_id) is far under 500 - sized live by list-caps-say-more
     const have = new Set((existing || []).map(l => l.project_id));
     const fresh = projs.filter(p => !have.has(p.id));
     if (!fresh.length) return;
@@ -2432,6 +2433,10 @@ function openDetailModal(id) {
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-3">${escHtml(_t('Transaction History (last 20)', 'Kasaysayan ng Transaksyon (huling 20)'))}</p>
+      ${(_txnsMore && txns.length < 20)
+        // SL LB1: the window is the newest 500 transactions across every part - past it, this part's history may be short
+        ? '<p class="text-xs text-white/80 mb-2" data-wh-more-note role="note">' + escHtml('Only your newest 500 transactions of the last year are loaded, so older ones for this part may be missing.') + '</p>'
+        : ''}
       ${txns.length === 0
         ? '<p class="text-xs text-white/80 text-center py-4">No transactions yet.</p>'
         : txns.map(t => `
@@ -2758,7 +2763,7 @@ async function initData() {
     // stock only (+ their own items, fetched separately below). RLS (inventory_items_read)
     // already scopes BOTH reads to active hive members, so this widens nothing cross-hive.
     // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap.
-    const _hiveItemsQ = db.from('v_inventory_items_truth').select('*').limit(1000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+    const _hiveItemsQ = db.from('v_inventory_items_truth').select('*').limit(2000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more (the read's only cap: the 1000 here was overridden by a 2000 chained after the role ternary, and only the last cap is sent)
         .eq('hive_id', HIVE_ID);
     itemsFetches = Promise.all([
       (HIVE_ROLE === 'supervisor'
@@ -2771,8 +2776,8 @@ async function initData() {
       // gives no deterministic order whatsoever - 81 rows tied on the sort key, sequence decided by
       // the planner and free to differ on every read. A supervisor comparing two loads of the hive's
       // spares would see the list reshuffle with nothing having changed.
-      ).order('created_at').order('id').limit(2000),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)
+      ).order('created_at').order('id'),
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -2780,8 +2785,8 @@ async function initData() {
     // breaks the existing _buildAssetNodeMaps() consumer
     assetsFetches = Promise.all([
       // L2: a hive's asset register is bounded-by-nature (config list); insurance cap
-      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').limit(2000),
-      db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).order('created_at').order('id').limit(2000)
+      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').limit(2000),   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -2789,13 +2794,13 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
-    db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500),
+    db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500 + 1),   // more-said: by openDetailModal (SL LB1: a 501st row means a part's history may be cut short)
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     itemsFetches,
     assetsFetches
   ]);
@@ -2838,15 +2843,17 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+      db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
       // Same window/cap as the primary fetch above — keep the two paths consistent.
-      db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500)
+      db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500 + 1)   // more-said: by openDetailModal (SL LB1: a 501st row means a part's history may be cut short)
     ]);
     _items = ir.data || [];
-    _txns  = tr.data || [];
+    _txnsMore = (tr.data || []).length > 500;   // SL LB1
+    _txns  = (tr.data || []).slice(0, 500);
   } else {
     _items = mergedItems;
-    _txns  = txnsRes.data || [];
+    _txnsMore = (txnsRes.data || []).length > 500;   // SL LB1
+    _txns  = (txnsRes.data || []).slice(0, 500);
   }
 
   // Phase ML-2: load active staged reservations (consumed_at IS NULL AND released_at IS NULL)
@@ -2856,7 +2863,7 @@ async function initData() {
       .eq('hive_id', HIVE_ID)
       .is('consumed_at', null)
       .is('released_at', null)
-      .limit(500); // L2: bounded-by-nature — only currently-active (unconsumed+unreleased) reservations exist in this set; per-hive simultaneous-active count is bounded by open jobs (≤ dozens), never reaches 500. Summed into a per-item Map; insurance cap cannot truncate a real set.
+      .limit(500); // L2: bounded-by-nature — only currently-active (unconsumed+unreleased) reservations exist in this set; per-hive simultaneous-active count is bounded by open jobs (≤ dozens), never reaches 500. Summed into a per-item Map; insurance cap cannot truncate a real set. · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (resvErr) {
       console.warn('staged reservations:', resvErr.message);
     } else {
@@ -2893,7 +2900,7 @@ async function initData() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
     const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
-      .or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
+      .or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     _assets = migA || [];
   } else {
     _assets = mergedAssets;

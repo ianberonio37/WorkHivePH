@@ -13,7 +13,9 @@ current sources. A data block is not executed, so it needs nothing from the CSP.
     python tools/render_figure_sources.py --self-test
 
 Each entry also passes a shape check: a selector, what it shows, the view or RPC it reads (named in the database:
---check verifies every name against pg_class / pg_proc when the local database is up), and `why` on a chrome entry.
+--check verifies every name against pg_class / pg_proc when the local database is up), and `why` on a chrome entry. Every
+name must also be a read the page's own code makes - in the page or a script it loads, comments and this generated block
+set aside - so the reveal never credits a source the figure no longer comes from (SL LB1, 2026-10-21).
 """
 from __future__ import annotations
 
@@ -80,6 +82,43 @@ def read_names(e: dict) -> list:
     return [x for x in re.split(r"\s*[,+]\s*", str(e.get("reads") or "")) if x and re.match(r"^[a-z_][a-z0-9_]*$", x)]
 
 
+def _code_only(src: str) -> str:
+    """What runs: this tool's own generated block (which names every read by construction) and comments removed."""
+    src = BLOCK_RX.sub("\n", src)
+    src = re.sub(r"<!--.*?-->", " ", src, flags=re.S)
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    return re.sub(r"(^|[^:'\"\\])//[^\n]*", r"\1", src)
+
+
+def page_code(page: str) -> str:
+    """The page and every same-origin script it loads - wherever the read behind one of its figures is made."""
+    p = ROOT / page
+    src = p.read_text(encoding="utf-8", errors="replace")
+    parts = [_code_only(src)]
+    for m in re.finditer(r'<script[^>]*\ssrc="([^"?#]+\.js)', src):
+        f = (p.parent / m.group(1)).resolve()
+        if f.is_file():
+            parts.append(_code_only(f.read_text(encoding="utf-8", errors="replace")))
+    return "\n".join(parts)
+
+
+def unread_sources(page: str, entries: list, code: str) -> list:
+    """★A FIGURE'S SOURCE IS A READ THE PAGE MAKES (SL LB1 walk, 2026-10-21). The seller profile's "Inquiries Replied"
+    was computed from the inquiries themselves, which RLS shows a visitor only where they are a party - a signed-in
+    visitor was told "0 replied" about a seller with 2. The fix moved the figure to an aggregate every visitor reads
+    alike; this holds the registry to the code, so the reveal can never credit a source the figure no longer comes from
+    (nor the figure drift back to the viewer's slice while its source still names the aggregate)."""
+    bad = []
+    for e in entries:
+        if e.get("chrome"):
+            continue
+        for n in read_names(e):
+            if not re.search(r"['\"`]" + re.escape(n) + r"['\"`]", code):
+                bad.append(f"{page} {e.get('sel')!r}: says it reads {n!r}, and neither the page nor a script it loads "
+                           "names it - the reveal would credit a source the figure does not come from")
+    return bad
+
+
 def run(apply: bool) -> int:
     reg = load_registry()
     problems, wrote = [], []
@@ -92,6 +131,9 @@ def run(apply: bool) -> int:
             for n in re.split(r"\s*[,+]\s*", str(e.get("reads") or "")):
                 if n.endswith(".json") and not (ROOT / n).is_file():
                     problems.append(f"{page} {e.get('sel')!r}: reads {n!r}, which is no file the site serves")
+    for page, entries in reg.items():
+        if (ROOT / page).is_file():
+            problems += unread_sources(page, entries, page_code(page))
     names = db_names()
     if names is not None:
         for page, entries in reg.items():
@@ -132,7 +174,8 @@ def run(apply: bool) -> int:
         print(f"FAIL figure-sources-written - {len(problems)} problem(s)")
         return 1
     print(f"PASS figure-sources-written - {len(reg)} page(s), {n_fig} figure source(s) written into their pages, every "
-          f"one naming what it shows and the view it reads{'' if names is None else ' (each read checked in the database)'}")
+          f"one naming what it shows and the view it reads - a read the page's own code makes"
+          f"{'' if names is None else ', checked in the database'}")
     return 0
 
 
@@ -147,6 +190,12 @@ def self_test() -> int:
     blk = block_for(good)
     cases.append(("the block round-trips", [] if BLOCK_RX.search("\n" + blk) else ["no match"], False))
     cases.append(("a script close inside text is escaped", [] if "<\\/" in block_for([{"sel": "#a", "shows": "</script>", "reads": "x"}]) else ["raw"], False))
+    cases.append(("a source the page reads passes", unread_sources("p", good, "db.from('v_inventory_items_truth').select('*')"), False))
+    cases.append(("a source the page never reads is caught", unread_sources("p", good, "db.from('v_other_truth').select('*')"), True))
+    cases.append(("a name in prose is not a read", unread_sources("p", good, "// v_inventory_items_truth was the old source"), True))
+    cases.append(("a quoted name in a comment is not a read", unread_sources("p", good, _code_only("// db.from('v_inventory_items_truth')")), True))
+    cases.append(("the generated block naming the read is not a read",
+                  unread_sources("p", good, _code_only("\n" + block_for(good))), True))
     for label, got, want_bad in cases:
         hit = bool(got)
         print(f"  {'ok ' if hit == want_bad else 'BAD'} {label}")

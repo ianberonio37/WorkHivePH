@@ -24,14 +24,20 @@ PAGES = [
     "alert-hub.html", "project-report.html", "skillmatrix.html", "achievements.html", "community.html", "plant-connections.html",
 ]
 CAP_RE = re.compile(r"\.limit\(\s*(\d+)\s*\)|\.slice\(\s*0\s*,\s*(\d+)\s*\)")
-DISCLOSE_RE = re.compile(r"latest\s+\$?\{?[\d,]+|showing|first\s+\$?\{?[\d,]+|were loaded|shown\b|cap-ok:", re.I)
+# ★SL LB1 (2026-10-21) gave every capped read on these pages a disposition that list-caps-say-more holds to proof - a
+# probe one row past the cap and whMoreNote ("more-said"), a Load-more control ("paged:"), a live-sized cap ("cap-ok[...]"
+# / "cap-ok (LB1):"), a time window, a key chunk, an exact count. The probe's own `.slice(0, N)` sits beside it. This gate
+# only knew the literal "cap-ok:", so the rewrite read as six undisclosed caps on pages that had just started saying more.
+DISCLOSE_RE = re.compile(r"latest\s+\$?\{?[\d,]+|showing|first\s+\$?\{?[\d,]+|were loaded|shown\b|cap-ok:|cap-ok\b[\[ (]"
+                         r"|more-said|paged:\s*[A-Za-z_$]|window-ok\[|in-list\[|exact-count:", re.I)
 CONTEXT = 60          # lines either side of the capped site
 MIN_N = 10            # a slice(0, 3) is a preview, not a cap on a list
 DATE_SLICES = {10, 16, 19}   # slice(0, 10|16|19) is an ISO date / minute / timestamp cut, not a list cap
 # a count/badge sink: setCount(...), or a textContent/innerText assignment into an element whose id names a count/badge
 BADGE_RE = re.compile(r"setCount\(|getElementById\('[a-z-]*(count|badge|total)[a-z-]*'\)\.(textContent|innerText)\s*=", re.I)
-# a '+' disclosure on the painted line: '50+', "'+'", or a `>= N ?` cap branch
-PLUS_RE = re.compile(r"\d+\+|'\+'|\+'|>=\s*\d+\s*\?")
+# a '+' disclosure on the painted line: '50+', "'+'", or a `>= N ?` cap branch - or the probe's own flag choosing the
+# words when more exist (`m.more ? 'latest 20' : rows.length`, platform-actions' decisions badge)
+PLUS_RE = re.compile(r"\d+\+|'\+'|\+'|>=\s*\d+\s*\?|\bmore\s*\?\s*['\"`]")
 
 
 def audit(src: str, name: str) -> list[str]:
@@ -48,6 +54,10 @@ def audit(src: str, name: str) -> list[str]:
             # in a string-shaped expression - (x || ''), escHtml(...), String(...), .name/.title/.question
             before = line[max(0, m.start() - 48):m.start()]
             if m.group(2) and re.search(r"(\|\|\s*''\)|escHtml\([^)]*\)|String\([^)]*\)|`|\.(question|name|title|subject|text|body|message|note|label|rationale)\b)\s*$", before):
+                continue
+            # ...and a slice an ellipsis follows is a cut string whatever its receiver is called (alert-hub's
+            # `name.slice(0, 79) + '…'` trims a display name to 80 characters)
+            if m.group(2) and re.match(r"\s*\+\s*(?:'(?:…|\.\.\.)'|\"(?:…|\.\.\.)\"|`(?:…|\.\.\.)`)", line[m.end():]):
                 continue
             lo, hi = max(0, i - CONTEXT), min(len(lines), i + CONTEXT + 1)
             window = "\n".join(lines[lo:hi])
@@ -84,7 +94,18 @@ def self_test() -> None:
     assert audit(badge_ok, "badge_ok") == [], "an exact-count read may feed a badge"
     badge_plus = "const q = db.from('x').select('*').limit(50);   // cap-ok: rows only" + chr(10) + ("x" + chr(10)) * 3 + "setCount('drafts-count', rows.length >= 50 ? '50+' : rows.length, 'warn');" + chr(10)
     assert audit(badge_plus, "badge_plus") == [], "a '+'-disclosed badge passes"
-    print("self-test OK: bites on an undisclosed .limit(500) and on a badge painted from a capped read; passes disclosed / annotated / tiny / exact-count / '+' sites")
+    # SL LB1: a probe read with its disposition, its slice, and the badge that says 'latest 20' when the 21st row came back
+    lb1 = ("const { data } = await db.from('x').select('*').limit(20 + 1);   // more-said (a 21st row says more exist)" + chr(10)
+           + "const rows = (data || []).slice(0, 20), more = (data || []).length > 20;" + chr(10)
+           + "setCount('decisions-count', more ? 'latest 20' : rows.length, '');" + chr(10))
+    assert audit(lb1, "lb1") == [], "an LB1 probe, its slice and its 'latest N' badge pass"
+    assert audit(("x" + chr(10)) * 70 + "const rows = (data || []).slice(0, 20);" + chr(10) + ("x" + chr(10)) * 70, "bare"), \
+        "a slice with no disposition and no disclosure still FAILs"
+    assert any('count/badge' in x for x in audit(lb1.replace("more ? 'latest 20' : rows.length", "rows.length"), "lb1_badge")), \
+        "the probe's badge painted from .length alone still FAILs"
+    assert audit("return name.length > 80 ? name.slice(0, 79) + '…' : name;", "cut") == [], "a cut name is not a list cap"
+    print("self-test OK: bites on an undisclosed .limit(500), a bare slice and a badge painted from a capped read; passes "
+          "disclosed / annotated / LB1-disposed / tiny / exact-count / '+' / 'latest N' / cut-string sites")
 
 
 def main() -> int:

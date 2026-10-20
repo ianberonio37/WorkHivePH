@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 86d77ac9b48f278b
+source_sha: 8e4b22a2e738132b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1412) — the 'what's already gated' brain
+## gate · registered validators (1416) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -367,15 +367,16 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Performance (6)
+### Performance (7)
 - `consumption-bound` ⚡ [fail] — Consumption bounds (a page that caps what it loads says so where a reader can see it)
 - `growth-honesty` [fail] — Growth honesty (reads bounded before growth exposes them, load-more reaches what it promises, concurrent writes detectable)
+- `list-caps-say-more` ⚡ [fail] — List caps say more (SL LB1): every capped list read on the 33 LB1 pages is paged, says when more exists (a probe or a count, and whMoreNote or the page's own se
 - `tw-public-sheets` ⚡ [fail] — Public pages on compiled Tailwind (no Play CDN; every class compiled; the sheet last in <head>)
 - `w4-layer-availability` ⚡ [fail] — Wave-4 layer-A stories: every A-layer row's page catches a slow/absent service and shows a legible degraded state, or makes no network call of its own (source-l
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1040)
+### Platform (1043)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -454,6 +455,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `anon-boundaries` ⚡ [fail] — ANON identity boundaries asked over the REAL gateway with the publishable key and NO session - and it was never being run (registered 2026-08-31). The script ex
 - `answer-presence` ⚡ [fail] — T151: a searcher's question answered above the fold, swept across all 53 learn articles. Somebody arrives from a search result with a question the snippet promi
 - `api-adoption` ⚡ [fail] — API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)
+- `api-grants-explicit` ⚡ [fail] — API grants explicit (BRH-X): a migration that creates a public table, view or sequence grants it (or closes it to anon and authenticated outright); every API pr
 - `approval-lock` ⚡ [fail] — Approval optimistic-lock class (static) — every client approve-write that stamps `approved_at: new Date()` must carry an optimistic lock (`.eq('status','pending
 - `approval-queue-aggregates` ⚡ [fail] — Critic-deepwalk T20 lock: the hive board's approval badge counts EVERYTHING a supervisor owes a decision on. Walked live: the queue showed 4 (assets) while 30 m
 - `approval-race` [fail] — T145: two supervisors, one pending item, ONE outcome. The sharpest concurrency case on this platform - both press Approve within the same second - and the walk 
@@ -502,6 +504,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `bounce-idempotency` [fail] — T112: one delivery id, one bounce row. resend-webhook-receiver ended in a bare INSERT, while Svix (which Resend uses) delivers AT LEAST ONCE, retries on any non
 - `boundary-refusal-ratchet` ⚡ [fail] — T-arc boundary_not_emptiness, held as a forward-only line (2026-08-31). 34 bank rows carry ONE oracle - 'a permission boundary reads as not-visible-with-this-se
 - `bounded-list-offers-the-rest` [fail] — CF: a capped list must admit the rest exists (T129, 2026-08-27). A long list has to be capped - the DOM cannot carry two thousand rows and stay usable - so the 
+- `breached-password-check` ⚡ [fail] — Breached-password check (BRH-W): index.html asks the Pwned Passwords range API (a 5-character SHA-1 prefix only) before sign-up and before a reset link sets a p
 - `breadcrumb-contrast` ⚡ [fail] — no public page renders its breadcrumb at alpha 0.45 (4.13:1, below WCAG AA 4.5)
 - `breadcrumb-span-opacity` ⚡ [fail] — no breadcrumb compounds an opacity onto its colour alpha - the separators and the current-page label clear WCAG AA, not just the links
 - `browser-floor-retry-teeth` ⚡ [fail] — Client-missing retry (10 cases): browser-floor.js told a person 'a file it needs did not arrive' on the FIRST dropped request, and three journey rows died on th
@@ -671,6 +674,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `deep-link-arrival-selftest` ⚡ [fail] — Deep-link arrival oracle teeth: a door without a return address is recorded as one, and it reports how many rows it has to answer so an empty denominator cannot
 - `deeplink-param-contracts` ⚡ [blocker] — Deep-Link Param Contracts (forward-only: no NEW emitted ?param lacks a .get() reader in its destination — catches the dead-param class from the Phase-6b edge wa
 - `deepwalk-flywheel` [warn] — PLATFORM deep-walk FLYWHEEL v2 (Ian 2026-07-08): the WHOLE-platform quality ruler — GLOB-discovers the grid each cycle (40 pages × 13 oracle dims + 33 AI edge f
+- `definer-doors` ⚡ [fail] — Definer doors (BRH S/Q/Y/T): no debug_* function; the server-only functions refuse anon and authenticated; every public function pins its own search_path (T1); 
 - `definer-membership-gate` ⚡ [fail] — SECURITY DEFINER Hive-Membership Gate (every DEFINER hive-fn gated OR service_role-only)
 - `degraded-state-central` ⚡ [fail] — per-page SaaS-LAYER · Layer AV (Availability & Recovery) — METHOD-LAW central-component adoption gate. The device-offline / degraded warning is ONE shared idemp
 - `deletes-are-recoverable` ⚡ [fail] — SL D3 (2026-10-16, Ian: 30-day recoverable): what a page deletes stays recoverable for 30 days - a logbook entry, an asset with its reliability history, a part 

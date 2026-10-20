@@ -923,7 +923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1063,7 +1063,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // when the user clicks Live Sync).
     if (HIVE_ID) {
       try {
-        const { data, error } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);
+        const { data, error } = await db.from('integration_configs').select('*').eq('hive_id', HIVE_ID).limit(500);   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
       /* W3-AR (2026-09-08): insurance cap, never truncates. A hive configures a handful of CMMS
          connections - the largest in this database holds 15 against this ceiling of 500 - so the 500
          exists to stop an unbounded read growing without limit, not to slice a list a reader could
@@ -2153,7 +2153,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .select('external_id')
           .eq('hive_id', HIVE_ID).eq('entity_type', 'work_order')
           .in('external_id', allExtIds.slice(j, j + 300))
-          .limit(300); // L2: bounded by the 300-id IN-list above
+          .limit(300 + 1); // L2: bounded by the 300-id IN-list above. more-said: by _startImportInner (SL LB1: a 301st match means some ids went unchecked - the import stops rather than duplicate)
+        if (!exErr && (existing || []).length > 300) {
+          // SL LB1: more matches than ids asked about (a duplicate sync row) - the check is incomplete, so nothing is written
+          showResults(total, 0, total, [], {});
+          document.getElementById('results-subtitle').textContent = 'Nothing was imported: WorkHive found more earlier imports of these work orders than it could check at once. Try a smaller file, or ask a supervisor to review the earlier imports.';
+          return;
+        }
         if (exErr) {
           console.error('import pre-check failed:', exErr);
           showResults(total, 0, total, [], {});
@@ -2757,7 +2763,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     if (!HIVE_ID) return;
     const { data, error } = await db.from('integration_configs')
-      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(500);
+      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(500);   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     const list = document.getElementById('sync-active-list');
     if (error) {
       // A5 outage honesty: a real read failure must NOT render as fake-empty.
@@ -2963,7 +2969,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   async function loadApiKeys() {
     if (!HIVE_ID) return;
-    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false }).order('id').limit(500);
+    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false }).order('id').limit(500);   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     const list = document.getElementById('api-keys-list');
     if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(k => {
@@ -3015,10 +3021,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('operation', 'file_import')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5);
+        .limit(5 + 1);   // more-said (SL LB1: a 6th import says the history holds more than the 5 shown)
 
       if (!data?.length) return;
       section.style.display = 'block';
+      const _impMore = data.length > 5;
+      data.splice(5);
 
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(row => {
         const age   = Date.now() - new Date(row.created_at).getTime();
@@ -3038,6 +3046,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:0.75rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
+      if (typeof whMoreNote === 'function') whMoreNote(list, { shown: data.length, more: _impMore, noun: 'imports', order: 'newest',
+        where: 'Older imports cannot be undone from here.', src: 'cmms_audit_log' });
     } catch (_) { /* cmms_audit_log may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
   }
 
@@ -3114,7 +3124,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // different set than the one counted. `id` is the base-table primary key and the view
           // exposes it, so this closes the order provably rather than by inherited convention.
           .order('id')
-          .limit(_batchSize);
+          .limit(_batchSize);   // exact-count: _batchSize (the batch's own recorded row count - this selects exactly the rows a rollback deletes, nothing is shown)
         _batchRows = res.data || [];
         _readErr = res.error || null;
       }
@@ -3225,7 +3235,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .eq('entity_type', 'work_order')
           .order('last_synced_at', { ascending: false, nullsFirst: false })
           .order('id')   // total order, so pages neither repeat nor skip a row
-          .range(_from, _from + _PAGE - 1);
+          .range(_from, _from + _PAGE - 1);   // more-said: by loadConflicts (pages to a 5,000 ceiling and the verdict says what it could not check)
         if (_extErr) {
           listEl/* xss-allow: escHtml on the only dynamic value */ .innerHTML = `<div style="font-size:0.75rem; color:var(--red);">${escHtml(whReadError(_extErr, 'the synced work orders'))} Nothing was checked, so this is not a verdict on sync.</div>`;
           return;

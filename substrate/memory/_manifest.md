@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1032-files
-source_sha: 6016646173fb12c5
+source_sha: 7d240be9f2028560
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -118,7 +118,7 @@ Entries (name · type · sha):
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 3fd1de503c190f8e
 - `feedback_a_name_is_not_an_identity` · feedback · 33f4821e7a1aeaeb
-- `feedback_a_needs_ian_list_is_a_stop` · feedback · 3a6dcd7f24cc8af4
+- `feedback_a_needs_ian_list_is_a_stop` · feedback · 2ebd443668a5d1d1
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7
 - `feedback_a_new_guard_breaks_the_triggers_that_already_write` · feedback · d3dfa188021986ae
 - `feedback_a_new_roster_kind_must_teach_every_consumer` · feedback · 1a4b1ecd5fe177d6
@@ -253,7 +253,7 @@ Entries (name · type · sha):
 - `feedback_centralized_icon_library_emoji_first` · feedback · c09e4df4b4f280a0
 - `feedback_changing_the_measurement_is_not_drift` · feedback · dd7df34ccea87f92
 - `feedback_chasing_the_metric_made_the_video_worse` · feedback · 0eed62d85aa7e5d7
-- `feedback_check_the_connected_mcps_before_declaring_a_login_ceiling` · feedback · 692d9a18543015a6
+- `feedback_check_the_connected_mcps_before_declaring_a_login_ceiling` · feedback · b3ee4f8c0a3f4fae
 - `feedback_check_the_premise_before_building_the_pattern` · feedback · 83324dc7953412b7
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
@@ -500,7 +500,7 @@ Entries (name · type · sha):
 - `feedback_reveal_then_sweep` · feedback · 5d8bd29f948c0657
 - `feedback_review_ripple_first` · feedback · 1aef70243094cd25
 - `feedback_review_the_pillar_not_the_gate` · feedback · 4cb1ef5c32fc5df9
-- `feedback_rls_is_never_consulted_for_truncate` · feedback · a4462528c154edd5
+- `feedback_rls_is_never_consulted_for_truncate` · feedback · fb0eca677770c3b5
 - `feedback_rls_probe_needs_the_role_not_just_claims` · feedback · 927d71b637b841bb
 - `feedback_roadmap_header_scoreboard_generated_not_authored` · feedback · 0ed5d9036ba3bd82
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb

@@ -862,7 +862,7 @@ async function init() {
       // one badge per (discipline, level) across 6 fixed disciplines. Measured 2026-09-09: the busiest
       // worker in the data holds 19. The 500 is insurance, not a window, so it cannot silently shorten
       // anything; unlike the weekly-XP read on achievements.html, nothing here is summed (W3-AR).
-      db.from('v_skill_badges_truth').select('discipline, level').or(_MINE()).limit(500),
+      db.from('v_skill_badges_truth').select('discipline, level').or(_MINE()).limit(500),   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     ]);
   } catch (err) {
     // E2 consistent states: a failed profile/badges fetch surfaces a toast

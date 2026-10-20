@@ -4012,6 +4012,61 @@ function whListError(el, message, onRetry) {
 // The rules are theme-agnostic (white-alpha on the dark app surface, no page
 // design tokens), so they're safe to inject globally. Idempotent (id-guarded);
 // the components.css pages just get an identical, harmless duplicate rule set.
+// whMoreNote - SL LB1 (2026-10-21): a capped list says when more exists than it shows. Measured on the 33 LB1 pages: 241
+// capped list reads, 47 that said nothing past their cap - alert-hub's feed showed 20 of 64 signature alerts, and a
+// list that stops without a word reads as everything there is. The read asks ONE row past its cap (.limit(N + 1)) or
+// asks for a count, renders N, and calls this with what it learned:
+//   whMoreNote(listEl, { shown: 20, more: rows.length > 20, total: count|null, noun: 'alerts', order: 'newest',
+//                        onMore: fn, moreLabel: 'Show 20 more', href: 'logbook.html', hrefLabel: 'Open the logbook' })
+// One note, directly after the list, replaced on every render and removed when nothing more exists:
+//   a total     "Showing the 20 newest of 64 alerts."
+//   no total    "Showing the 20 newest alerts. There are more."
+//   a feed merged from several capped reads says them together in its own words (state.said)
+//   the way to the rest, when there is one: a 44px button (onMore) or link (href); without one, `where` says where they
+//   are ("Older entries are in the Logbook.") or the sentence stands alone - more exists and this list does not show it.
+// Returns the note element (or null). Never throws: a note that cannot render must not take the list down with it.
+function whMoreNote(listEl, state) {
+  try {
+    if (!listEl || !listEl.parentNode) return null;
+    var nx = listEl.nextElementSibling;
+    if (nx && nx.hasAttribute && nx.hasAttribute('data-wh-more-note')) nx.parentNode.removeChild(nx);
+    if (!state || !state.more) return null;
+    var e = escHtml;
+    var shown = Math.max(0, Number(state.shown) || 0);
+    var noun = String(state.noun || 'items');
+    var order = state.order === '' ? '' : String(state.order || 'newest');
+    var total = (typeof state.total === 'number' && isFinite(state.total) && state.total > shown) ? state.total : null;
+    var head = 'Showing the ' + shown.toLocaleString('en-PH') + (order ? ' ' + order : '');
+    var said = state.said ? String(state.said)
+      : total != null
+        ? head + ' of ' + total.toLocaleString('en-PH') + ' ' + noun + '.'
+        : head + ' ' + noun + '. There are more.';
+    var note = document.createElement('div');
+    note.className = 'wh-more-note';
+    note.setAttribute('data-wh-more-note', '');
+    if (state.src) note.setAttribute('data-wh-more-src', String(state.src));   // which read it speaks for (the LB1 walk maps by it)
+    note.setAttribute('role', 'note');
+    var html = '<span>' + e(said) + (state.where ? ' ' + e(String(state.where)) : '') + '</span>';
+    if (typeof state.onMore === 'function') {
+      html += '<button type="button" class="wh-more-btn">' + e(String(state.moreLabel || 'Show more')) + '</button>';
+    } else if (state.href) {
+      html += '<a class="wh-more-link" href="' + e(String(state.href)) + '">' + e(String(state.hrefLabel || 'See all')) + '</a>';
+    }
+    note.innerHTML = html;
+    if (typeof state.onMore === 'function') {
+      var b = note.querySelector('.wh-more-btn');
+      if (b) b.addEventListener('click', function () {
+        b.disabled = true; b.setAttribute('aria-busy', 'true');
+        var done = function () { if (b.isConnected) { b.disabled = false; b.removeAttribute('aria-busy'); } };
+        try { Promise.resolve(state.onMore()).then(done, done); } catch (_) { done(); }
+      });
+    }
+    listEl.insertAdjacentElement('afterend', note);
+    return note;
+  } catch (_) { return null; }   // empty-catch-allow: the list already rendered; a missing note beats a broken page
+}
+if (typeof window !== 'undefined') window.whMoreNote = whMoreNote;
+
 if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-css')) {
   var whListStatesCss = document.createElement('style');
   whListStatesCss.id = 'wh-list-states-css';
@@ -4030,7 +4085,13 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.86);line-height:1.5}' +
     '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
     '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud, #F4F6FA);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
-    '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}';
+    '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}' +
+    /* SL LB1: the sentence under a capped list that says more exists, and its way to the rest (a 44px target) */
+    '.wh-more-note{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin:8px 0 0;font-size:0.8125rem;line-height:1.4;color:var(--wh-text-muted,rgba(255,255,255,0.80))}' +
+    '.wh-more-note .wh-more-btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud,#F4F6FA);font-family:inherit;font-size:0.8125rem;font-weight:600;cursor:pointer}' +
+    '.wh-more-note .wh-more-btn:hover{border-color:rgba(255,255,255,0.32)}' +
+    '.wh-more-note .wh-more-btn[disabled]{opacity:0.6;cursor:default}' +
+    '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#F7A21B);font-weight:600;text-decoration:underline;text-underline-offset:2px}';
   (document.head || document.documentElement).appendChild(whListStatesCss);
 }
 

@@ -2,13 +2,13 @@
 name: page-marketplace-admin
 type: page
 source: file:marketplace-admin.html
-source_sha: 3b9ffd7bc1925b31
+source_sha: fe15a3b4caab92f8
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace-admin.html` — Marketplace Admin | WorkHive
 
-Size: 74KB · 23 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 75KB · 23 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (5): `hive_audit_log.insert`, `marketplace_disputes.update`, `marketplace_listings.update`, `marketplace_orders.update`, `marketplace_sellers.update`
 **RPC calls**: (none)

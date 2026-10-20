@@ -984,7 +984,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (error) return;  // versioning is best-effort, never blocks the main save
         // Prune to the 10 most recent.
         // canonical-allow: resume_versions is owner-scoped private version history (RLS owner-only), read here only to prune the worker's OWN snapshots — single-surface, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
-        const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).order('id').range(10, 49);
+        const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).order('id').range(10, 49);   // cap-ok[resume_id] (LB1): versions are pruned to 10 on every save, so one resume never nears 40 - sized live
         if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
       } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
     }
@@ -1146,7 +1146,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); this lists the worker's OWN resume drafts for the picker — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, title, updated_at').eq('auth_uid', _authUid)
-          .order('updated_at', { ascending: false }).order('id').limit(50);
+          .order('updated_at', { ascending: false }).order('id').limit(50);   // cap-ok (LB1): its largest group (auth_uid) is far under 50 - sized live by list-caps-say-more
         return (!error && Array.isArray(data)) ? data : [];
       } catch (_) { return []; }
     }
@@ -1362,18 +1362,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         try { const { data: wp } = await db.from('worker_profiles').select('display_name').eq('auth_uid', _authUid).maybeSingle();
           if (wp && wp.display_name) wname = wp.display_name; } catch (_) { /* empty-catch-allow: fall back to the localStorage name */ }
       }
-      const [badgesRes, profileRes, certRes, logRes, userRes] = await Promise.allSettled([
-        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', wname).limit(500),
+      const [badgesRes, profileRes, certRes, logRes, userRes, sumRes] = await Promise.allSettled([
+        db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', wname).limit(500),   // cap-ok (LB1): its largest group (worker_name) is far under 500 - sized live by list-caps-say-more
         db.from('skill_profiles').select('primary_skill').eq('worker_name', wname).maybeSingle(),
         // canonical-allow: v_skill_badges_truth (read above) exposes discipline+level only; the resume certificate auto-fill also needs earned_at + exam_score, which the truth view does not expose, so it reads skill_badges directly for those supplementary columns.
-        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', wname).limit(500),
-        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', wname).order('created_at', { ascending: false }).order('id').limit(300),
+        db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', wname).limit(500),   // cap-ok (LB1): its largest group (worker_name) is far under 500 - sized live by list-caps-say-more
+        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', wname).order('created_at', { ascending: false }).order('id').limit(300 + 1),   // more-said: by runAutofill (SL LB1: the HIGHLIGHTS come from the newest 300; the totals come from my_logbook_summary)
         db.auth.getUser(),
+        // ★THE RESUME SAID "LOGGED 300" FOR 3,666 (SL LB1, 2026-10-21): the count, the distinct equipment and the start
+        // year were taken over the newest-300 read above. They are the WHOLE logbook's figures now, from the database.
+        db.rpc('my_logbook_summary', { p_worker_name: wname }),
       ]);
       const badges  = (badgesRes.status === 'fulfilled' && badgesRes.value.data) || [];
       const primary = (profileRes.status === 'fulfilled' && profileRes.value.data && profileRes.value.data.primary_skill) || '';
       const certs   = (certRes.status === 'fulfilled' && certRes.value.data) || [];
-      const logs    = (logRes.status === 'fulfilled' && logRes.value.data) || [];
+      const _logsAll = (logRes.status === 'fulfilled' && logRes.value.data) || [];
+      const logs    = _logsAll.slice(0, 300);
+      const logsMore = _logsAll.length > 300;   // SL LB1: the newest-300 read found more
+      const _sum = (sumRes && sumRes.status === 'fulfilled' && !sumRes.value.error && Array.isArray(sumRes.value.data) && sumRes.value.data[0]) || null;
       const email   = (userRes.status === 'fulfilled' && userRes.value.data && userRes.value.data.user && userRes.value.data.user.email) || '';
 
       const items = [];
@@ -1416,17 +1422,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (logs.length) {
         const machines = [...new Set(logs.map(l => l.asset_tag || l.machine).filter(Boolean))];
         const dates = logs.map(l => l.date || l.created_at).filter(Boolean).sort();
-        const start = dates.length ? String(dates[0]).slice(0, 4) : '';
+        // SL LB1: the whole logbook's figures when the database gave them; otherwise the slice's, marked as a floor
+        const nEntries = _sum ? Number(_sum.entries) : logs.length;
+        const nEquip   = _sum ? Number(_sum.equipment) : machines.length;
+        const plus     = (!_sum && logsMore) ? '+' : '';
+        const start = (_sum && _sum.first_date) ? String(_sum.first_date).slice(0, 4)
+          : (!logsMore && dates.length) ? String(dates[0]).slice(0, 4) : '';
         const top = logs.filter(l => l.action).sort((a, b) => (b.downtime_hours || 0) - (a.downtime_hours || 0)).slice(0, 8)
           .map(l => { const m = l.asset_tag || l.machine || 'equipment'; return `${m}: ${l.action}${l.problem ? ` (resolved: ${l.problem})` : ''}`; });
-        const highlights = [`Logged ${logs.length} maintenance records across ${machines.length} equipment items.`].concat(top);
+        const highlights = [`Logged ${nEntries.toLocaleString('en-PH')}${plus} maintenance records across ${nEquip.toLocaleString('en-PH')}${plus} equipment items.`].concat(top);
         const plant = HIVE_NAME || 'Independent / Solo practice';
         items.push({ group: 'Experience', value: `${headline} at ${plant}`, checked: true, src: 'Logbook',
           apply: (r, val) => { if (entryExists('work', { position: headline, name: plant })) return; r.work.unshift({ position: headline, name: plant, location: '', startDate: start, endDate: 'Present', highlights, _source: 'Logbook' }); } });
 
         // Deterministic summary uses the same numbers
         items.push(mkBasic('Your details', 'summary', 'Professional summary',
-          `${headline} with hands-on experience maintaining ${machines.length} equipment types and ${logs.length} documented maintenance jobs.`, 'Logbook'));
+          `${headline} with hands-on experience maintaining ${nEquip.toLocaleString('en-PH')}${plus} equipment types and ${nEntries.toLocaleString('en-PH')}${plus} documented maintenance jobs.`, 'Logbook'));
       }
 
       if (!items.length) { toast('No WorkHive data found yet: start with the Skill Matrix and Logbook.'); return; }

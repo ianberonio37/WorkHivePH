@@ -395,7 +395,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whPlatformAdminAnswer whReadError whReloadWhenBack whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whMoreNote whPlatformAdminAnswer whReadError whReloadWhenBack whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -569,6 +569,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _tab      = 'draft';
   let _listings = [];
   let _sellers  = [];
+  let _listingsMore = false, _sellersMore = false;   // SL LB1: a read found more than the 100 it shows
   let _query    = '';
   let _stats    = { draft: null, published: null, removed: null, sellers: null, unverified: null };  // null = not read yet, which is not 0
   let _adminDisplayCount = 30;  // List View Contract: client-side slice pagination
@@ -588,9 +589,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('status', status)
         .order('created_at', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(100);   // cap-ok: moderation queue renders rows only; the queue COUNTS come from exact head:true count queries below
+        .limit(100 + 1);   // more-said: by renderListings - the queue COUNTS come from exact head:true count queries below; SL LB1: a 101st row says more are waiting
       if (error) throw error;
-      _listings = data || []; _readFailed.listings = false;
+      _listingsMore = (data || []).length > 100;   // SL LB1
+      _listings = (data || []).slice(0, 100); _readFailed.listings = false;
     } catch (_err) {
       _listings = []; _readFailed.listings = true;
       if (typeof showToast === 'function') {
@@ -615,9 +617,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,created_at,active_listings_count,is_verified_public,last_listed_at')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(100);   // cap-ok: seller review list renders rows only; the counts come from exact head:true count queries below
+        .limit(100 + 1);   // more-said: by renderSellers - the counts come from exact head:true count queries below; SL LB1: a 101st row says more exist
       if (error) throw error;
-      _sellers = data || []; _readFailed.sellers = false;
+      _sellersMore = (data || []).length > 100;   // SL LB1
+      _sellers = (data || []).slice(0, 100); _readFailed.sellers = false;
     } catch (_err) {
       _sellers = []; _readFailed.sellers = true;
       if (typeof showToast === 'function') {
@@ -729,6 +732,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <p>${_tab === 'draft' ? 'All listings have been reviewed.' : 'No listings with this status.'}</p>
       </div>`;
       if (lmWrap) lmWrap.classList.add('hidden');
+      if (typeof whMoreNote === 'function') whMoreNote(area, null);
       return;
     }
 
@@ -789,6 +793,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => handleListingAction(btn.dataset.action, btn.dataset.id));
     });
+    // SL LB1: once every loaded row is on screen, say the queue holds more than the 100 read
+    if (typeof whMoreNote === 'function') whMoreNote(area, { shown: _listings.length, more: _listingsMore && !_query && visible.length >= filtered.length,
+      total: (typeof _stats[_tab] === 'number' ? _stats[_tab] : null),
+      noun: 'listings', order: 'oldest', where: 'Deciding these brings the next ones in.', src: 'v_marketplace_listings_truth' });
   }
 
   /* ============================================================
@@ -860,6 +868,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // BRP-A (2026-10-04): carry the row's PRIMARY KEY, not only its display name - see handleSellerAction.
       btn.addEventListener('click', () => handleSellerAction(btn.dataset.action, btn.dataset.worker, btn.dataset.sellerId));
     });
+    if (typeof whMoreNote === 'function') whMoreNote(area, { shown: _sellers.length, more: _sellersMore && !_query,
+      total: (typeof _stats.sellers === 'number' ? _stats.sellers : null),
+      noun: 'sellers', order: 'newest', src: 'v_marketplace_sellers_truth' });   // SL LB1
   }
 
   /* ============================================================

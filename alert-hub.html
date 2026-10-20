@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -729,6 +729,8 @@
   // the fire-and-forget loadAnomalyEngine could leave the verdict reading "All clear" for up to
   // 60s while critical signals were still loading). Starts null = "not yet known".
   let _anomalyCount = null;
+  let _anomalyTotal = null;
+  let _feedCaps = [];   // SL LB1: [{kind, said}] - a feed source that holds more than the feed lists   // SL LB1: every fused signal, counted - the panel shows the strongest five
 
   // Timer helpers — kept OUTSIDE any event handler so the timer validator
   // can see the named-variable assignment cleanly.
@@ -798,7 +800,7 @@
         .neq('shift_date', today)
         .order('generated_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(10),
+        .limit(10 + 1),   // more-said: by renderFeed (SL LB1: an 11th past brief says the feed lists the 10 most recent)
     ]);
     return {
       todayBrief: (todayRes.status === 'fulfilled' && todayRes.value.data && todayRes.value.data[0]) || null,
@@ -1347,13 +1349,16 @@
         if (stale) {
           try { await db.rpc('compute_anomaly_signals', { p_hive_id: HIVE_ID }); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         }
-        const { data } = await db.from('v_anomaly_truth')
-          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at')
+        // ★"5 SIGNALS" WAS THE CAP (SL LB1, 2026-10-21): the panel shows the five strongest, and its pill printed the
+        // list's length - a hive with 8 fused anomalies read "5 signals". The same read now counts them all.
+        const { data, count: _anTotal } = await db.from('v_anomaly_truth')
+          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at', { count: 'exact' })
           .eq('hive_id', HIVE_ID)
           .order('composite_score', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(5); // limit-as-count-allow: Top-5 Anomaly Engine surface; "5 signals" label is the list size by design
+          .limit(5); // more-said: by renderAnomalyEngine - the top 5 by score, and the pill and note say of how many
         rows = data || [];
+        _anomalyTotal = (typeof _anTotal === 'number') ? _anTotal : null;
       } catch (e) {
         console.warn('anomaly load failed:', e?.message || e);
       }
@@ -1387,6 +1392,7 @@
     if (!rows || rows.length === 0) {
       empty.style.display = 'block';
       list.innerHTML = '';
+      if (typeof whMoreNote === 'function') whMoreNote(list, null);   // SL LB1: no stale "of N" under an empty panel
       count.textContent = '0 signals';
       count.style.background = 'rgba(74,222,128,0.15)';
       count.style.color = '#4ade80';
@@ -1395,10 +1401,11 @@
       return;
     }
     empty.style.display = 'none';
-    count.textContent = rows.length + ' signal' + (rows.length === 1 ? '' : 's');
+    const _anAll = (typeof _anomalyTotal === 'number' && _anomalyTotal >= rows.length) ? _anomalyTotal : rows.length;
+    count.textContent = _anAll + ' signal' + (_anAll === 1 ? '' : 's');
     count.style.background = 'rgba(248,113,113,0.15)';
     count.style.color = '#f87171';
-    _anomalyCount = rows.length;
+    _anomalyCount = _anAll;
     try { renderAlertSummary(); } catch (_) { /* empty-catch-allow: summary refresh is best-effort; renderFeed already painted the feed */ }
 
     const isSupervisor = HIVE_ROLE === 'supervisor';
@@ -1428,6 +1435,9 @@
         </div>
       `;
     }).join('');
+    // SL LB1: the strongest five of how many
+    if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, total: _anAll, more: _anAll > rows.length,
+      noun: 'signals', order: 'strongest', src: 'v_anomaly_truth' });
 
     // Wire action buttons (delegation)
     list.querySelectorAll('[data-anomaly-id]').forEach(btn => {
@@ -1555,14 +1565,13 @@
         .limit(500),   // cap-ok: rows only (PM scope alerts)
 
       db.from('automation_log')
-        .select('job_name, status, detail, triggered_at').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        
+        .select('job_name, status, detail, triggered_at')
         .eq('hive_id', HIVE_ID)   // F3-arc F5: was RLS-only; every other feed source is hive-filtered
         .eq('status', 'failed')
         .gte('triggered_at', dayAgo)
         .order('triggered_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(10),   // cap-ok: rows only (latest automation log lines)
+        .limit(10 + 1),   // more-said: by renderFeed (SL LB1: an 11th failed run says the feed lists the 10 newest)
 
       // Phase 3 one-brain (2026-06-10): read the SAME alert composer the Hive
       // Board uses — v_alert_truth (alert_kind='signature') — instead of the raw
@@ -1573,12 +1582,12 @@
       // palette the risk/stock alerts in this feed already use. View renames:
       // alert_title→title, alert_detail→detail.
       db.from('v_alert_truth')
-        .select('alert_id, machine, rule_id, title, detail, severity, detected_at, status')
+        .select('alert_id, machine, rule_id, title, detail, severity, detected_at, status', { count: 'exact' })
         .eq('hive_id', HIVE_ID)
         .eq('alert_kind', 'signature')
         .order('detected_at', { ascending: false })
         .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(20),   // cap-ok: rows only (alert feed)
+        .limit(20),   // more-said: by renderFeed (SL LB1: the 20 newest of an exact count - a hive held 64)
 
       db.from('parts_staging_recommendations')
         // failure_mode is stored on every recommendation ('Repeat bearing failure pattern') and was
@@ -1616,6 +1625,7 @@
     }
 
     const all = [];
+    _feedCaps = [];   // SL LB1: the sources whose read stopped at its cap, said under the feed
 
     // Canonical-reuse (ASSET_ALERT_SHIFT F-staging-band): keep the canonical risk_level per
     // asset so the staging alert can reuse the SAME band the risk alert shows, instead of
@@ -1740,6 +1750,8 @@
 
     // Pattern alerts (only if table exists in this hive)
     if (patternRes.status === 'fulfilled') {
+      const _pn = (patternRes.value.data || []).length, _pc = patternRes.value.count;
+      if (typeof _pc === 'number' && _pc > _pn) _feedCaps.push({ kind: 'pattern', said: 'the ' + _pn + ' newest of ' + _pc.toLocaleString('en-PH') + ' failure-pattern alerts' });
       for (const p of (patternRes.value.data || [])) {
         all.push({
           kind: 'pattern',
@@ -1786,6 +1798,7 @@
 
     // System (failed cron / automation jobs in last 24h)
     if (autoLogRes.status === 'fulfilled') {
+      if ((autoLogRes.value.data || []).length > 10) { autoLogRes.value.data = autoLogRes.value.data.slice(0, 10); _feedCaps.push({ kind: 'system', said: 'the 10 newest failed automations' }); }
       for (const l of (autoLogRes.value.data || [])) {
         all.push({
           kind: 'system',
@@ -1823,6 +1836,7 @@
           if (_c) _c.style.display = 'none';
         }
       }
+      if ((amcRes.historic || []).length > 10) { amcRes.historic = amcRes.historic.slice(0, 10); _feedCaps.push({ kind: 'amc', said: 'the 10 most recent past briefs' }); }
       renderAmcCard(amcRes.todayBrief, amcRes.historic);
       for (const b of (amcRes.historic || [])) {
         // LM-S (2026-10-07, LM200 re-walk): the feed is the brief's SECOND render path - String() of a non-text
@@ -1893,9 +1907,21 @@
       // canonical-allow: alert_dismissals is UI-interaction state (per-hive alert
       // handled/snoozed/acknowledged dispositions), read directly to hide/show alerts.
       // It is NOT a KPI/metric, so there is no v_*_truth view to route through.
-      const { data: dz } = await db.from('alert_dismissals')
-        .select('alert_key, action, snooze_until').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        .eq('hive_id', HIVE_ID);
+      // ★THE HIVE'S WHOLE DISMISSAL HISTORY, CAPPED AT 500 (SL LB1, 2026-10-21). One row per alert key ever triaged -
+      // and new failure-pattern keys keep coming - so past 500 a handled alert's row could be left out and the alert
+      // would come back into the feed as if nobody had handled it. Only the keys IN THIS FEED matter: ask for those,
+      // 100 at a time. (hive_id, alert_key) is unique, so each key returns at most one row.
+      const _dzKeys = [...new Set(all.map(a => a.dedupeKey).filter(Boolean))];
+      const _dzReads = [];
+      for (let j = 0; j < _dzKeys.length; j += 100) {
+        _dzReads.push(db.from('alert_dismissals')
+          .select('alert_key, action, snooze_until')
+          .eq('hive_id', HIVE_ID)
+          .in('alert_key', _dzKeys.slice(j, j + 100))
+          .limit(100));   // in-list[hive_id, alert_key] (LB1): bounded by the keys asked for, one row each
+      }
+      const dz = [];
+      for (const r of await Promise.all(_dzReads)) { if (r.error) throw r.error; dz.push(...(r.data || [])); }
       const nowMs = Date.now();
       for (const d of (dz || [])) {
         // 'acknowledged' (seen) is kept in the feed but dimmed — NOT a hide.
@@ -2441,6 +2467,7 @@
       }
       empty.style.display = 'block';
       lmWrap.classList.add('hidden');
+      if (typeof whMoreNote === 'function') whMoreNote(feed, null);
       return;
     }
     empty.style.display = 'none';
@@ -2509,6 +2536,10 @@
         </div>
       </div>`;
     }).join('');
+    // SL LB1: once the feed's loaded alerts are all on screen, say which sources hold more than it lists
+    const _caps = (_feedCaps || []).filter((c) => _activeKind === 'all' || c.kind === _activeKind);
+    if (typeof whMoreNote === 'function') whMoreNote(feed, { more: _caps.length > 0 && visible.length >= items.length,
+      said: 'The feed lists ' + _caps.map((c) => c.said).join(', ') + '. Older ones are not listed here.', src: 'alert-feed' });
 
     // Arc Y Y3: one delegated listener on the feed container (survives re-render) →
     // "Handled" optimistically removes the alert + records the dismissal.

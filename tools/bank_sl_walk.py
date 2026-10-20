@@ -210,6 +210,13 @@ CONDITION["L3"] = ("the page read as served in its own browser context (service 
                    "the database to the cast's account, an active-membership hive and the account's own name (a visitor: no "
                    "account, hive or name), props free of a person's details; and founder_feature_use, read as a platform "
                    "admin, counted it")
+GATES["LB1"] = ["list-caps-say-more", "skew-heal", "scripts-parse"]
+CONDITION["LB1"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast "
+                    "(or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; "
+                    "every list read the page made was taken off the network - the source, the limit it asked for and the rows "
+                    "that came back - and the page was read for what it said: a list whose read came back full (more may "
+                    "exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own "
+                    "'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list")
 GATES["L4"] = ["told-failures-logged", "skew-heal", "scripts-parse"]
 CONDITION["L4"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast "
                    "(or signed out, for the visitor's page), on the LOCAL stack, with a failure induced at the network: for a "

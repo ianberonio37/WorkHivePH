@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf whUse">
+<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1134,6 +1134,7 @@
 
     // Cached state
     let _allNodes = [];
+    let _assetListMore = false;   // SL LB1: the hive holds more approved assets than the 200 read
     // Under an injected 500 this page rendered 258 characters and said NOTHING about the failure - no
     // sentence, no dash, no retry - on the surface that carries P-F intervals, Weibull fits and FMEA.
     // A silent blank is indistinguishable from a plant with no assets registered. The read error was
@@ -1286,7 +1287,7 @@
         .eq('status', 'approved')
         .order('tag', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(200);
+        .limit(200 + 1);   // more-said: by renderList (SL LB1: a 201st asset says the list holds the first 200)
 
       if (error) {
         // Missing-table / missing-column / RLS-denied are DEGRADED states, not bugs.
@@ -1305,7 +1306,8 @@
         _allNodes = [];
         _ahReadFailed = true;
       } else {
-        _allNodes = data || [];
+        _assetListMore = (data || []).length > 200;   // SL LB1
+        _allNodes = (data || []).slice(0, 200);
         _ahReadFailed = false;   // a recovered read clears it, or one glitch marks the page forever
       }
       // Exact (uncapped) hive counts for the summary tiles — head:true returns the count
@@ -1329,7 +1331,7 @@
       try {
         if (HIVE_ID && _allNodes.length) {
           const { data: rk } = await db.from('v_risk_truth')
-            .select('asset_name, risk_level, risk_score').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+            .select('asset_name, risk_level, risk_score').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
         
             .eq('hive_id', HIVE_ID);
           (rk || []).forEach(r => { if (r.asset_name) _riskByAsset[String(r.asset_name).toLowerCase()] = r; });
@@ -1368,12 +1370,11 @@
       // row was bound to on insert (bind_asset_nodes_submitter).
       let q = scopeNodes(db.from('asset_nodes')
         .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason'))
-        .in('status', ['pending', 'rejected']).limit(50);  // bound stated IN-CHAIN (the scope key moved inside scopeNodes, so the ratchet needs the limit here; the later .limit(50) is a no-op repeat)
+        .in('status', ['pending', 'rejected']).limit(50);  // bound stated IN-CHAIN (the scope key moved inside scopeNodes, so the ratchet needs the limit here, and it is the read's only cap) · cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
       if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
       const { data, error } = await q
         .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);
+        .order('id');   // MR4 tiebreaker: the sort above is not total on its own
       if (error) {
         // ★A FAILED APPROVALS READ USED TO PAINT GREEN (design lens critique, 2026-09-15). This branch
         // emptied the list and said nothing, so a fleet read that SUCCEEDED beside an approvals read that
@@ -1507,7 +1508,7 @@
           // from the bands that actually have rows, because this hive has ZERO critical assets and the
           // sentence was naming an empty band.
           const _rr = await db.from('v_risk_truth').select('asset_name, asset_id, risk_level')
-            .eq('hive_id', HIVE_ID).in('risk_level', ['critical', 'high']).limit(500);
+            .eq('hive_id', HIVE_ID).in('risk_level', ['critical', 'high']).limit(500);   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
           if (_rr && !_rr.error && Array.isArray(_rr.data)) {
             _riskHot = _rr.data.length;
             _riskQueued = _rr.data.filter(r => !r.asset_id).length;
@@ -1934,12 +1935,13 @@
       // the first customer big enough to hit it.
       const capNote = document.getElementById('asset-list-cap-note');
       if (capNote) {
-        const capped = _allNodes.length >= 200
-          && _assetTotalCount != null && _assetTotalCount > _allNodes.length;
+        const capped = _assetListMore || (_allNodes.length >= 200 && _assetTotalCount != null && _assetTotalCount > _allNodes.length);
         capNote.hidden = !capped;
+        // SL LB1: the walk reads every "more" sentence by this mark
+        if (capped) capNote.setAttribute('data-wh-more-note', ''); else capNote.removeAttribute('data-wh-more-note');
         if (capped) {
           capNote.textContent = _t(`Showing the first ${_allNodes.length} assets of `, `Ipinapakita ang unang ${_allNodes.length} asset mula sa `)
-            + `${_assetTotalCount}. Search to narrow the list.`;
+            + `${(_assetTotalCount != null && _assetTotalCount > _allNodes.length) ? _assetTotalCount : 'more'}. Search to narrow the list.`;
         }
       }
 
@@ -2248,10 +2250,11 @@
                 .not('readings_json', 'is', null))
                 // the user's event date, not created_at — a backdated fill logged later
                 // must still pair in odometer order
-                .order('date', { ascending: true })
-                .order('id')
-                .limit(200);
-              const fills = (fuels || [])
+                .order('date', { ascending: false })
+                .order('id', { ascending: false })
+                .limit(200 + 1);   // more-said: by loadDetailHeader (SL LB1: the pill says "the latest 200 fills" - it read the OLDEST 200 before)
+              const _fuelMore = (fuels || []).length > 200;
+              const fills = (fuels || []).slice(0, 200).reverse()
                 .map(r => r.readings_json)
                 .filter(j => j && Number(j.fuel_l) > 0 && Number(j.odometer_km) > 0);
               if (fills.length < 2) return;
@@ -2263,7 +2266,7 @@
               if (dist <= 0 || litres <= 0) return;
               const kml = dist / litres;
               vehFields.insertAdjacentHTML('beforeend',
-                `<span class="ext-pill"><strong>Fuel economy</strong>${e(kml.toFixed(1))} km/L over ${e(String(dist.toLocaleString()))} km (${fills.length} fills)</span>`);
+                `<span class="ext-pill"><strong>Fuel economy</strong>${e(kml.toFixed(1))} km/L over ${e(String(dist.toLocaleString()))} km (${_fuelMore ? 'the latest ' : ''}${fills.length} fills)</span>`);
             } catch (_) { /* empty-catch-allow: economy pill is best-effort enrichment */ }
           })();
         } else {
@@ -2508,8 +2511,7 @@
       if (!candidates.length) return;
 
       const { data, error } = await db.from('parts_staging_recommendations')
-        .select('id, asset_name, risk_score, failure_mode, parts, rationale, confidence, expires_at, generated_at, status').limit(200)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        
+        .select('id, asset_name, risk_score, failure_mode, parts, rationale, confidence, expires_at, generated_at, status')
         .eq('hive_id', HIVE_ID)
         // AH14 + the ...020 sweep: 'expired' is included ON PURPOSE. The sweep now moves stale
         // rows out of 'pending', and a pending-only filter would make the card silently VANISH —
@@ -2716,7 +2718,7 @@
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(20)
+          .limit(20 + 1)   // more-said: by loadDetailTimeline (SL LB1: a 21st entry says older history exists)
       );
       if (node.pm_asset_id) {
         queries.push(
@@ -2730,7 +2732,7 @@
             .eq('asset_id', node.pm_asset_id)
             .order('completed_at', { ascending: false })
             .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-            .limit(20)
+            .limit(20 + 1)   // more-said: by loadDetailTimeline (SL LB1: a 21st completion says older history exists)
         );
       }
 
@@ -2741,10 +2743,12 @@
 
       const results = await Promise.allSettled(queries);
       const events = [];
+      let _tlMore = false;   // SL LB1: a read found more than the 20 it keeps
 
       results.forEach((res, idx) => {
         if (res.status !== 'fulfilled' || res.value.error) return;
-        const rows = res.value.data || [];
+        if ((res.value.data || []).length > 20) _tlMore = true;
+        const rows = (res.value.data || []).slice(0, 20);
         // F19: query index 0 is ALWAYS the logbook query (pushed first); the pm_completions
         // query is index 1 (only present when node.pm_asset_id). The old guard also required
         // node.legacy_asset_id, but that text bridge was dropped in Phase 5b (see comment above),
@@ -2775,6 +2779,7 @@
 
       if (!top.length) {
         tl.innerHTML = '<div class="tl-empty">No history rows tied to this asset yet.</div>';
+        if (typeof whMoreNote === 'function') whMoreNote(tl, null);
         return;
       }
 
@@ -2784,6 +2789,9 @@
           <div class="tl-summary">${e(ev.summary)}</div>
         </div>
       `).join('');
+      // SL LB1: the timeline is this asset's most recent events - say when older ones exist, and where they are
+      if (typeof whMoreNote === 'function') whMoreNote(tl, { more: _tlMore || events.length > 30, src: 'asset-timeline',
+        said: 'Showing this asset\u2019s ' + top.length + ' most recent events. Older ones are in the Logbook and the PM Scheduler.' });
     }
 
     // Arc Y Y5: loadDetailNeighbors() removed (edges feature CUT per fork#1, 2026-06-27).
@@ -2856,7 +2864,7 @@
         .eq('asset_id', nodeId)
         .order('recorded_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);
+        .limit(500);   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 500 - sized live by list-caps-say-more
 
       if (error) {
         // PGRST205 = view not yet present (migration not applied) - silently hide.
@@ -3132,7 +3140,7 @@
         .eq('asset_id', nodeId)
         .order('rpn', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);
+        .limit(50);   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 50 - sized live by list-caps-say-more
 
       if (error) {
         console.warn('fmea load:', error.message);
@@ -3159,7 +3167,7 @@
           .order('updated_at', { ascending: false })
           // Arc L · L2: bounded-by-nature — modeIds comes from the prior .limit(50)
           // rcm_fmea_modes read (one asset's modes), and the replace policy keeps ~one
-          // strategy row per mode, so this set is <=50. A .limit(500) is safe insurance
+          // strategy row per mode, so this set is <=50. A .limit(500) is safe insurance · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
           // (can't truncate a set that never reaches 500) and caps free-tier egress.
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(500);
@@ -4010,7 +4018,7 @@
         .order('category', { ascending: true })
         .order('sort_order', { ascending: true })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);
+        .limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
       if (error) {
         console.warn('reading templates load:', error.message);
         _pfTemplatesByCategory = {};
@@ -4210,21 +4218,21 @@
           db.from('v_fmea_truth')
             .select('failure_mode, function_text, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, approved_at')
             .eq('hive_id', HIVE_ID).eq('asset_id', nodeId)
-            .order('rpn', { ascending: false }).order('fmea_mode_id').limit(50),
+            .order('rpn', { ascending: false }).order('fmea_mode_id').limit(50),   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 50 - sized live by list-caps-say-more
           db.from('v_rcm_truth')
             .select('strategy_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, approved_at')
-            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(50),
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(50),   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 50 - sized live by list-caps-say-more
           db.from('v_weibull_truth')
             .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, generated_at')
             .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).is('fmea_mode_id', null).limit(1),
           db.from('v_pf_truth')
             .select('parameter, p_threshold, f_threshold, pf_days, recommended_interval_days, basis, generated_at')
-            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(20),
+            .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(20),   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 20 - sized live by list-caps-say-more
           db.from('v_logbook_truth')
-            .select('created_at, problem, root_cause, downtime_hours, maintenance_type')
+            .select('created_at, problem, root_cause, downtime_hours, maintenance_type', { count: 'exact' })
             .eq('hive_id', HIVE_ID).eq('asset_node_id', node.id)
             .gte('created_at', sinceIso)
-            .order('created_at', { ascending: false }).order('id').limit(8),
+            .order('created_at', { ascending: false }).order('id').limit(8),   // more-said: by generateReliabilityReport (SL LB1: the report says "the 8 most recent of N" from this read's exact count)
         ]);
 
         const fmea    = (fmeaRes.status === 'fulfilled' && fmeaRes.value.data)    || [];
@@ -4344,7 +4352,11 @@
           <td>${esc((l.root_cause || '').slice(0, 60))}</td>
           <td class="num">${l.downtime_hours != null ? esc(l.downtime_hours) + ' h' : ''}</td>
         </tr>`).join('')
-        : '<tr><td colspan="5" class="empty">No corrective logbook entries in the last 365 days.</td></tr>';
+        : '<tr><td colspan="5" class="empty">No logbook entries in the last 365 days.</td></tr>';
+      // SL LB1: the table is the 8 most recent; the year can hold more - and it reads every type, not only corrective work
+      const _logTotal = (logRes.status === 'fulfilled' && typeof logRes.value.count === 'number') ? logRes.value.count : null;
+      const logNote = (_logTotal != null && _logTotal > logs.length)
+        ? `<p data-wh-more-note role="note">The ${logs.length} most recent of ${_logTotal} logbook entries in the last 365 days.</p>` : '';
 
       return `<!DOCTYPE html>
 <html lang="en"><head>
@@ -4479,13 +4491,14 @@
 </section>
 
 <section>
-  <h2>5. Recent corrective history (last 365 d)</h2>
+  <h2>5. Recent logbook history (last 365 d)</h2>
   <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
       <th>Date</th><th>Type</th><th>Problem</th><th>Root cause</th><th>Downtime</th>
     </tr></thead>
     <tbody>${logRows}</tbody>
   </table></div>
+  ${logNote}
 </section>
 
 <footer>
@@ -4515,18 +4528,21 @@
 
       const { data, error } = await db.from('v_marketplace_listings_truth')
         .select('id, title, section, category, price, condition, location, seller_name, seller_verified, seller_kyb_verified, status')
-        .eq('status', 'active')
+        // ★'active' IS NOT A LISTING STATUS (SL LB1, 2026-10-21): marketplace_listings' CHECK allows draft / published /
+        // sold / removed, so this card has matched nothing since it was built (80b0c44f) and never shown.
+        .eq('status', 'published')
         .ilike('category', '%' + safeClass + '%')
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(8);
+        .limit(8 + 1);   // more-said (SL LB1: a 9th listing says the marketplace holds more for this class)
 
       if (error) {
         console.warn('marketplace load:', error.message);
         card.style.display = 'none';
         return;
       }
-      const rows = data || [];
+      const _mkMore = (data || []).length > 8;   // SL LB1
+      const rows = (data || []).slice(0, 8);
       if (!rows.length) { card.style.display = 'none'; return; }
 
       card.style.display = 'block';
@@ -4541,6 +4557,9 @@
           <div class="mk-price">${r.price != null ? whFmtPeso(r.price) : ''}</div>
         </div>
       `).join('');
+      // SL LB1: eight listings for this class; when the marketplace holds more, say so and open the search
+      if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, more: _mkMore, noun: 'listings for this class',
+        order: 'newest', href: 'marketplace.html?q=' + encodeURIComponent(String(node.iso_class)), hrefLabel: 'Search the marketplace', src: 'v_marketplace_listings_truth' });
     }
 
     // ── External IDs / CMMS surface ────────────────────────────────────────────

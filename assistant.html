@@ -1424,23 +1424,29 @@
         ? q.or('auth_uid.eq.' + _gUid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(name || '')) + ')')
         : q.eq('worker_name', name);
       const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
-        _ownScope(db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used')).order('date', { ascending: false }).order('id').limit(10),
-        _ownScope(db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes')).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).order('id').limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
-        _ownScope(db.from('v_skill_badges_truth').select('discipline,level')).order('level', { ascending: false }).order('id').limit(6),
+        _ownScope(db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used')).order('date', { ascending: false }).order('id').limit(10 + 1),   // more-said: by buildSystemPrompt (SL LB1: an 11th says older entries exist)
+        _ownScope(db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes')).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).order('id').limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+        _ownScope(db.from('v_skill_badges_truth').select('discipline,level')).order('level', { ascending: false }).order('id').limit(6 + 1),   // more-said: by buildSystemPrompt (SL LB1: a 7th says more badges exist)
         hiveIdCtx
-          ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).order('id').limit(20)
+          // SL LB1: the LOW-STOCK items, counted - the 20 lowest quantities missed a part at 30 with a reorder point of 50
+          ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category', { count: 'exact' }).eq('hive_id', hiveIdCtx).eq('status', 'approved').eq('is_low_stock', true).order('qty_on_hand', { ascending: true }).order('id').limit(20)   // more-said: by buildSystemPrompt
           : Promise.resolve({ data: [] }),
         hiveIdCtx
-          ? db.from('v_pm_compliance_truth').select('asset_name,category', { count: 'exact' }).eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)
+          ? db.from('v_pm_compliance_truth').select('asset_name,category', { count: 'exact' }).eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)   // more-said: by buildSystemPrompt (the exact count states the slice)
           : Promise.resolve({ data: [] }),
-        _ownScope(db.from('voice_journal_entries').select('created_at,transcript,reply,lang')).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
+        _ownScope(db.from('voice_journal_entries').select('created_at,transcript,reply,lang')).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5 + 1),   // more-said: by buildSystemPrompt (SL LB1: "N entries" was the cap)
       ]);
-      const logbook  = lRes.data || [];
+      // SL LB1: each slice reads one past its cap, so the prompt can say "more exist" instead of passing a cap as a total
+      const logbookMore  = (lRes.data || []).length > 10;
+      const logbook  = (lRes.data || []).slice(0, 10);
       const schedule = sRes.data || [];
-      const skills   = skillRes.data || [];
+      const skillsMore   = (skillRes.data || []).length > 6;
+      const skills   = (skillRes.data || []).slice(0, 6);
       const invItems = invRes.data || [];
+      const lowTotal = (invRes && typeof invRes.count === 'number') ? invRes.count : null;
       const pmAssets = pmRes.data || [];
-      const journals = jRes.data || [];
+      const journalsMore = (jRes.data || []).length > 5;
+      const journals = (jRes.data || []).slice(0, 5);
 
       const fmtDate = iso => {
         try { return whFmtDate(iso); } // FD1a canonical
@@ -1474,6 +1480,7 @@
       const LEVEL_NAMES = ['', 'Awareness', 'Foundational', 'Competent', 'Proficient', 'Master'];
       const skillText = skills.length
         ? skills.map(s => `${s.discipline}: Level ${s.level} (${LEVEL_NAMES[s.level] || 'L' + s.level})`).join(' | ')
+          + (skillsMore ? ' | (these are the 6 highest; the worker holds more badges)' : '')
         : 'No skill badges earned yet.';
 
       // PM health: registered assets with schedules in this hive
@@ -1491,8 +1498,10 @@
 
       // Low-stock inventory: only items at or below min_qty (reorder threshold)
       const lowStock = invItems.filter(i => i.qty_on_hand != null && (i.min_qty != null ? i.qty_on_hand <= i.min_qty : i.qty_on_hand <= 2));
+      const _lowN = (typeof lowTotal === 'number' && lowTotal >= lowStock.length) ? lowTotal : lowStock.length;
       const invText = lowStock.length
-        ? lowStock.slice(0, 5).map(i => `${i.part_name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.min_qty != null ? ' (reorder at ' + i.min_qty + ')' : ' (LOW)'}`).join(' | ')
+        ? (_lowN > Math.min(5, lowStock.length) ? `${_lowN} low-stock items in the hive; the ${Math.min(5, lowStock.length)} lowest: ` : '')
+          + lowStock.slice(0, 5).map(i => `${i.part_name}: ${i.qty_on_hand} ${i.unit || 'units'}${i.min_qty != null ? ' (reorder at ' + i.min_qty + ')' : ' (LOW)'}`).join(' | ')
         : hiveIdCtx ? 'All inventory items are adequately stocked.' : 'Not in a hive: noshared inventory visible.';
 
       // Companion Streamline Step D: condensed journal context so the
@@ -1584,7 +1593,7 @@ ${contextNote ? `\nToday's context: ${contextNote}` : ''}
 
 --- WORKER RECORDS ---
 
-LOGBOOK: your ${logbook.length} most recent entries only (not a hive-wide failure history; for fleet-wide MTBF/reliability rankings, the Analytics Engine is authoritative). Most recent: ${logbook[0]?.date || 'none'}:
+LOGBOOK: your ${logbook.length} most recent entries only${logbookMore ? ' - older entries exist' : ''} (not a hive-wide failure history; for fleet-wide MTBF/reliability rankings, the Analytics Engine is authoritative). Most recent: ${logbook[0]?.date || 'none'}:
 ${logbookText}
 
 PARTS USED (from logbook entries):
@@ -1602,7 +1611,7 @@ ${pmText}
 INVENTORY ALERTS (low-stock items in hive):
 ${invText}
 
-RECENT JOURNAL (last 7 days, ${journals.length} entries: what the worker wrote/spoke privately):
+RECENT JOURNAL (last 7 days, ${journalsMore ? 'the ' + journals.length + ' most recent of more' : journals.length} entries: what the worker wrote/spoke privately):
 ${journalText}
 --- END OF RECORDS ---
 

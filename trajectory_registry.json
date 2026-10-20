@@ -942748,8 +942748,8 @@
     },
     {
       "id": "SL3050",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · achievements",
       "pages": [
@@ -942806,12 +942806,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on achievements.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:22:56.060Z (.tmp/slw/results/lb1w_3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 5 list read(s) (v_worker_achievements_truth 4/500, rpc:my_recent_xp 31/31, achievement_xp_log 0/1001, v_worker_truth 1/500, v_worker_achievements_truth 4/500); 1 came back full and each says so - rpc:my_recent_xp: \"days: +0 · latest 30 events; older events are not listed here 🔧 Logbook entry submitted ×30 Wrench Chronicle · 41d ago -6\" || desktop-1280: 5 list read(s) (v_worker_achievements_truth 4/500, rpc:my_recent_xp 31/31, achievement_xp_log 0/1001, v_worker_truth 1/500, v_worker_achievements_truth 4/500); 1 came back full and each says so - rpc:my_recent_xp: \"days: +0 · latest 30 events; older events are not listed here 🔧 Logbook entry submitted ×30 Wrench Chronicle · 41d ago -6\". Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3050.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3051",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · alert hub",
       "pages": [
@@ -942868,12 +942876,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on alert-hub.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:24:51.474Z (.tmp/slw/results/lb1w_4.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 8 list read(s) (v_inventory_items_truth 4/500, parts_staging_recommendations 0/20, automation_log 0/11, v_risk_truth 0/20, v_alert_truth 13/20, v_pm_scope_items_truth 4/500 ...); 1 came back full and each says so - amc_briefings: \"The feed lists the 10 most recent past briefs. Older ones are not listed here. ||  ||  || Skip to main co\" || desktop-1280: 8 list read(s) (parts_staging_recommendations 0/20, v_inventory_items_truth 4/500, automation_log 0/11, v_alert_truth 13/20, v_risk_truth 0/20, v_pm_scope_items_truth 4/500 ...); 1 came back full and each says so - amc_briefings: \"The feed lists the 10 most recent past briefs. Older ones are not listed here. ||  ||  || Skip to main co\". Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3051.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3052",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · analytics",
       "pages": [
@@ -942932,12 +942948,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on analytics.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:32:02.607Z (.tmp/slw/results/lb1w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (analytics_snapshots 4/500); every one came back short - each list is whole || desktop-1280: 1 list read(s) (analytics_snapshots 4/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3052.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3053",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · asset hub",
       "pages": [
@@ -942994,12 +943018,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on asset-hub.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:24:51.474Z (.tmp/slw/results/lb1w_4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 10 list read(s) (asset_nodes 9/201, v_risk_truth 8/500, asset_nodes 0/50, v_risk_truth 0/500, v_risk_truth 0/500, v_logbook_truth 0/201 ...); every one came back short - each list is whole || desktop-1280: 10 list read(s) (asset_nodes 9/201, v_risk_truth 8/500, asset_nodes 0/50, v_risk_truth 0/500, v_risk_truth 0/500, v_logbook_truth 0/201 ...); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3053.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3054",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · assistant",
       "pages": [
@@ -943056,12 +943088,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on assistant.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:24:51.474Z (.tmp/slw/results/lb1w_4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: no capped list read on this page for this cast - nothing it shows is a slice || desktop-1280: no capped list read on this page for this cast - nothing it shows is a slice. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3054.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3055",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · community",
       "pages": [
@@ -943118,12 +943158,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on community.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:28:36.298Z (.tmp/slw/results/lb1w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 7 list read(s) (community_posts 1/1001, hive_members 1/500, community_xp 2/10, v_community_posts_truth 0/501, v_community_posts_truth 1/20, community_replies 1/500 ...); every one came back short - each list is whole || desktop-1280: 7 list read(s) (community_posts 1/1001, community_xp 2/10, hive_members 1/500, v_community_posts_truth 1/20, v_community_posts_truth 0/501, community_replies 1/500 ...); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3055.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3056",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · dayplanner",
       "pages": [
@@ -943180,12 +943228,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on dayplanner.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:32:02.607Z (.tmp/slw/results/lb1w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (schedule_items 0/1001, v_logbook_truth 1/1001, v_pm_scope_items_truth 0/30); every one came back short - each list is whole || desktop-1280: 3 list read(s) (schedule_items 0/1001, v_logbook_truth 1/1001, v_pm_scope_items_truth 0/30); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3056.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3057",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · hive",
       "pages": [
@@ -943242,12 +943298,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on hive.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:26:52.433Z (.tmp/slw/results/lb1w_5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 7 list read(s) (v_worker_truth 2/500, v_hives_truth 2/500, rpc:get_hive_board_dashboard.feed_pm 2/20, rpc:get_hive_board_dashboard.benchmarks.hive 1/5, rpc:get_hive_board_dashboard.own_old_wos 0/5, rpc:get_hive_board_dashboard.feed_logbook 40/40 ...); 2 came back full and each says so - rpc:get_hive_board_dashboard.feed_logbook: \"e more. Open the Alert Hub || The board shows the newest activity. Older entries are in the team Logbook and the PM Scheduler\" ; rpc:get_hive_board_dashboard.pattern_alerts: \"Showing the 5 most severe active pattern alerts. There are more. Open the Alert Hub || The board shows the\" || desktop-1280: 7 list read(s) (v_worker_truth 2/500, rpc:get_hive_board_dashboard.feed_pm 2/20, rpc:get_hive_board_dashboard.benchmarks.hive 1/5, rpc:get_hive_board_dashboard.own_old_wos 0/5, rpc:get_hive_board_dashboard.feed_logbook 40/40, rpc:get_hive_board_dashboa Receipt .tmp/mcp_walks/SL3057.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3058",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · index",
       "pages": [
@@ -943304,12 +943368,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on index.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:26:52.433Z (.tmp/slw/results/lb1w_5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (rpc:get_hive_dashboard.risks 0/5, rpc:get_hive_dashboard.open_jobs 1/5, rpc:get_hive_dashboard.low_stock_items 0/100); every one came back short - each list is whole || desktop-1280: 3 list read(s) (rpc:get_hive_dashboard.risks 0/5, rpc:get_hive_dashboard.open_jobs 1/5, rpc:get_hive_dashboard.low_stock_items 0/100); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3058.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3059",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - solo-owner · integrations",
       "pages": [
@@ -943366,12 +943438,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on integrations.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:28:36.298Z (.tmp/slw/results/lb1w_6.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_worker_truth 0/500); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_worker_truth 0/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3059.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3060",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · inventory",
       "pages": [
@@ -943428,12 +943508,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on inventory.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:22:56.060Z (.tmp/slw/results/lb1w_3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 6 list read(s) (v_inventory_items_truth 2/2000, v_inventory_items_truth 27/2000, asset_nodes 7/2000, asset_nodes 30/2000, v_inventory_transactions_truth 21/501, parts_staged_reservations 2/500); every one came back short - each list is whole || desktop-1280: 6 list read(s) (v_inventory_items_truth 27/2000, v_inventory_items_truth 2/2000, asset_nodes 30/2000, asset_nodes 7/2000, v_inventory_transactions_truth 21/501, parts_staged_reservations 2/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3060.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3061",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · logbook",
       "pages": [
@@ -943490,12 +943578,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on logbook.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:19:25.093Z (.tmp/slw/results/lb1w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 6 list read(s) (v_inventory_items_truth 11/2000, asset_nodes 30/500, asset_nodes 8/500, v_inventory_items_truth 27/2000, asset_nodes 8/500, logbook 200/200); 1 came back full and each says so - logbook: \"Load More ||  || Skip to main content DIGITAL LOGBOOK Baguio Textile\" || desktop-1280: 6 list read(s) (asset_nodes 30/500, v_inventory_items_truth 11/2000, asset_nodes 8/500, asset_nodes 8/500, v_inventory_items_truth 27/2000, logbook 200/200); 1 came back full and each says so - logbook: \"Load More ||  || Skip to main content DIGITAL LOGBOOK Baguio Textile\". Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3061.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3062",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - buyer · marketplace seller profile",
       "pages": [
@@ -943552,12 +943648,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on marketplace-seller-profile.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:19:25.093Z (.tmp/slw/results/lb1w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 2 list read(s) (v_marketplace_listings_public 1/61, marketplace_reviews 0/21); every one came back short - each list is whole || desktop-1280: 2 list read(s) (v_marketplace_listings_public 1/61, marketplace_reviews 0/21); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3062.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3063",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - buyer · marketplace seller",
       "pages": [
@@ -943614,12 +943718,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on marketplace-seller.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:21:15.366Z (.tmp/slw/results/lb1w_2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (v_marketplace_listings_truth 5/501, v_marketplace_inquiries_truth 2/50, v_marketplace_inquiries_truth 2/50); every one came back short - each list is whole || desktop-1280: 3 list read(s) (v_marketplace_listings_truth 5/501, v_marketplace_inquiries_truth 2/50, v_marketplace_inquiries_truth 2/50); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3063.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3064",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - buyer · marketplace",
       "pages": [
@@ -943676,12 +943788,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on marketplace.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:26:52.433Z (.tmp/slw/results/lb1w_5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 4 list read(s) (marketplace_watchlist 1/500, v_marketplace_listings_public 9/24, v_marketplace_inquiries_truth 1/11, rpc:get_marketplace_parts_for_my_assets 0/25); every one came back short - each list is whole || desktop-1280: 4 list read(s) (marketplace_watchlist 1/500, v_marketplace_inquiries_truth 1/11, v_marketplace_listings_public 9/24, rpc:get_marketplace_parts_for_my_assets 0/25); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3064.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3065",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · ph intelligence",
       "pages": [
@@ -943738,12 +943858,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on ph-intelligence.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:21:15.366Z (.tmp/slw/results/lb1w_2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: no capped list read on this page for this cast - nothing it shows is a slice || desktop-1280: no capped list read on this page for this cast - nothing it shows is a slice. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3065.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3066",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - machine-client · plant connections",
       "pages": [
@@ -943800,12 +943928,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on plant-connections.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:21:15.366Z (.tmp/slw/results/lb1w_2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: no capped list read on this page for this cast - nothing it shows is a slice || desktop-1280: no capped list read on this page for this cast - nothing it shows is a slice. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3066.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3067",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · pm scheduler",
       "pages": [
@@ -943862,12 +943998,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on pm-scheduler.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:28:36.298Z (.tmp/slw/results/lb1w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (pm_assets 8/500, pm_completions 2/2001, v_pm_scope_items_truth 28/500); every one came back short - each list is whole || desktop-1280: 3 list read(s) (pm_assets 8/500, pm_completions 2/2001, v_pm_scope_items_truth 28/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3067.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3068",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · project manager",
       "pages": [
@@ -943924,12 +944068,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on project-manager.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:22:56.060Z (.tmp/slw/results/lb1w_3.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 4 list read(s) (hive_members 4/500, projects 4/1000, v_project_items_truth 30/500, v_project_truth 4/500); every one came back short - each list is whole || desktop-1280: 4 list read(s) (hive_members 4/500, projects 4/1000, v_project_items_truth 30/500, v_project_truth 4/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3068.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3069",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · project report",
       "pages": [
@@ -943986,12 +944138,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on project-report.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:32:38.869Z (.tmp/slw/results/lb1w_9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (v_project_items_truth 0/500, project_links 0/500, v_project_progress_truth 0/60); every one came back short - each list is whole || desktop-1280: 3 list read(s) (v_project_items_truth 0/500, v_project_progress_truth 0/60, project_links 0/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3069.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3070",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - an anonymous visitor · public feed",
       "pages": [
@@ -944042,12 +944202,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on public-feed.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:19:25.093Z (.tmp/slw/results/lb1w_1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_community_posts_truth 15/20); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_community_posts_truth 15/20); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3070.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3071",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · report sender",
       "pages": [
@@ -944104,12 +944272,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on report-sender.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:22:56.060Z (.tmp/slw/results/lb1w_3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (report_contacts 1/500, v_ai_reports_truth 5/5, automation_log 0/200); 1 came back full and each says so - v_ai_reports_truth: \"cipient Recent Reports: the 5 most recent of 61 PM Overdue 16h ago We have 30 overdue assets and no at‑risk\" || desktop-1280: 3 list read(s) (report_contacts 1/500, v_ai_reports_truth 5/5, automation_log 0/200); 1 came back full and each says so - v_ai_reports_truth: \"cipient Recent Reports: the 5 most recent of 61 PM Overdue 16h ago We have 30 overdue assets and no at‑risk\". Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3071.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3072",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · resume",
       "pages": [
@@ -944166,12 +944342,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on resume.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:26:52.433Z (.tmp/slw/results/lb1w_5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 3 list read(s) (v_skill_badges_truth 6/500, skill_badges 6/500, v_logbook_truth 301/301); 1 came back full and each says so - v_logbook_truth: \"aining 30 equipment types and 938 documented maintenance jobs. || Mechanical: Beginner || Electrical: Beginner || Instrum\" || desktop-1280: 3 list read(s) (skill_badges 6/500, v_skill_badges_truth 6/500, v_logbook_truth 301/301); 1 came back full and each says so - v_logbook_truth: \"aining 30 equipment types and 938 documented maintenance jobs. || Mechanical: Beginner || Electrical: Beginner || Instrum\". Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3072.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3073",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · shift brain",
       "pages": [
@@ -944228,12 +944412,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on shift-brain.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:28:36.298Z (.tmp/slw/results/lb1w_6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: no capped list read on this page for this cast - nothing it shows is a slice || desktop-1280: no capped list read on this page for this cast - nothing it shows is a slice. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3073.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3074",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - worker · skillmatrix",
       "pages": [
@@ -944290,12 +944482,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on skillmatrix.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:24:51.474Z (.tmp/slw/results/lb1w_4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_skill_badges_truth 11/500); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_skill_badges_truth 11/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3074.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3075",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - oversight · agentic rag observability",
       "pages": [
@@ -944346,12 +944546,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on agentic-rag-observability.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:30:11.652Z (.tmp/slw/results/lb1w_7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3075.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3076",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - supervisor · ai quality",
       "pages": [
@@ -944408,12 +944616,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on ai-quality.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:21:15.366Z (.tmp/slw/results/lb1w_2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: no capped list read on this page for this cast - nothing it shows is a slice || desktop-1280: no capped list read on this page for this cast - nothing it shows is a slice. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3076.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3077",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - fleet-supervisor · audit log",
       "pages": [
@@ -944470,12 +944686,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on audit-log.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:32:02.607Z (.tmp/slw/results/lb1w_8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 2 list read(s) (hive_audit_log 47/500, ai_audit_log 0/500); every one came back short - each list is whole || desktop-1280: 2 list read(s) (hive_audit_log 47/500, ai_audit_log 0/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3077.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3078",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - oversight · founder console",
       "pages": [
@@ -944526,12 +944750,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on founder-console.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:30:11.652Z (.tmp/slw/results/lb1w_7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3078.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3079",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - oversight · llm observability",
       "pages": [
@@ -944582,12 +944814,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on llm-observability.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:30:11.652Z (.tmp/slw/results/lb1w_7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3079.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3080",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - oversight · marketplace admin",
       "pages": [
@@ -944638,12 +944878,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on marketplace-admin.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:30:11.652Z (.tmp/slw/results/lb1w_7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole || desktop-1280: 1 list read(s) (v_worker_truth 1/50); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3080.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3081",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - oversight · platform actions",
       "pages": [
@@ -944694,12 +944942,20 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on platform-actions.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:32:02.607Z (.tmp/slw/results/lb1w_8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 7 list read(s) (v_worker_truth 1/50, v_marketplace_listings_truth 5/51, v_marketplace_sellers_truth 13/51, v_service_credit_topups_truth 1/51, v_gcash_receipts_needing_eyes 0/20, platform_feedback 10/501 ...); every one came back short - each list is whole || desktop-1280: 7 list read(s) (v_worker_truth 1/50, v_marketplace_listings_truth 5/51, v_marketplace_sellers_truth 13/51, v_gcash_receipts_needing_eyes 0/20, v_service_credit_topups_truth 1/51, platform_feedback 10/501 ...); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3081.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3082",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB1 · The platform must page or cap every list on this page and say when more exists than it shows - an anonymous visitor · feedback",
       "pages": [
@@ -944750,6 +945006,14 @@
         "engine": "chromium",
         "ask": "The platform must page or cap every list on this page and say when more exists than it shows",
         "closes": "the LB1 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page), on the LOCAL stack and its seeded volume, at rest after load; every list read the page made was taken off the network - the source, the limit it asked for and the rows that came back - and the page was read for what it said: a list whose read came back full (more may exist) must stand beside a sentence or a control that says so (the shared whMoreNote, the page's own 'N+' / 'of N' / 'most recent', a Load more); a list whose read came back short is the whole list): LB1: every list on feedback/index.html is paged or capped and says when more exists - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T22:19:25.093Z (.tmp/slw/results/lb1w_1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the page at rest on the local seeded volume; every list read taken off the network (limit asked, rows returned; an RPC's own arrays against its internal cap): phone-390: 2 list read(s) (platform_feedback_votes 0/500, platform_feedback 0/201); every one came back short - each list is whole || desktop-1280: 2 list read(s) (platform_feedback 0/201, platform_feedback_votes 0/500); every one came back short - each list is whole. Gates list-caps-say-more (every capped read on the page paged, saying more, a unique-keyed chunk, or sized live never to bite; streams may not claim cap-ok) and scripts-parse. Receipt .tmp/mcp_walks/SL3082.json.",
+      "artifacts": {
+        "gates": [
+          "list-caps-say-more",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1032224,5 +1032488,5 @@
       }
     }
   ],
-  "next": "SL LB1 row caps (33): finish - the chain-following gate (8 newly visible reads to dispose, 4 orphan caps, the 6 double-limit chains: alert-hub, asset-hub, dayplanner, marketplace x2, pm-scheduler), V3 RPC-own-caps + get_marketplace_parts_for_my_assets (p_limit + probe + note), batches 7-9 through the MCP browser, bank 33; then LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36). BRH 8 is 171/172 - BRH445 (pg_net) is Ian's dashboard toggle"
+  "next": "SL LB3 render budget on long lists (76): measure every long list's render cost at phone-390 and desktop-1280 as each row's cast, fix what blows the budget, lock it, bank 76; then LB4 (35), RL1 (31), RL2 (24), RL3 (36). BRH 8 is 171/172 - BRH445 (pg_net) is Ian's dashboard toggle"
 }

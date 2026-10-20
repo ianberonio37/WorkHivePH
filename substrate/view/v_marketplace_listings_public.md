@@ -2,13 +2,13 @@
 name: view-v_marketplace_listings_public
 type: view
 source: db:pg_get_viewdef:v_marketplace_listings_public
-source_sha: a03efb64ab125892
+source_sha: ec4fa4ab31f2be3a
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_marketplace_listings_public`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
 **Source tables:** `marketplace_sellers`
 **Trust/identity cols exposed:** `completed_sales`, `seller_kyb_verified`, `seller_rating_avg_live`, `seller_rating_count`, `seller_tier`, `seller_total_sales`, `seller_verified`  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 

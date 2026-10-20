@@ -2,7 +2,7 @@
 name: page-skillmatrix
 type: page
 source: file:skillmatrix.html
-source_sha: 18d1136bbc00b6aa
+source_sha: e2242bff9b934545
 last_verified: 2026-07-13
 supersedes: null
 ---

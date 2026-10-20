@@ -711,6 +711,7 @@ function showToast(msg, type) {
 let currentView = 'dilo';
 let currentDate = _phtWallNow();
 let logbookItems = [];
+let logbookMore = false;   // SL LB1: the open-items read found more than it shows
 let scheduleItems = [];
 let selectedLogbookItem = null;
 let plantWork = [];
@@ -955,12 +956,15 @@ async function loadSchedule() {
   _dpCloudReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
   try {
     const { data, error } = await db.from('schedule_items')
-      .select('*').limit(500)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        
+      .select('*')
       // BRP-A: mine = identity OR name (see _mineFilter). A name-only scope loses a renamed person
       // their whole planner; RLS (schedule_items_read keys on auth_uid) still bounds what comes back.
       .or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
-      .order('date', { ascending: true })
+            // ★A CAPPED PLANNER KEPT ITS OLDEST ITEMS AND DROPPED TODAY (SL LB1, 2026-10-21). This read was ordered oldest-first
+      // and capped at 1,000 - and carried a dead .limit(500) on its select line besides - so a planner past the cap lost
+      // the newest items: today's and the future's. It reads newest-first now, one row past the cap, and puts the rows
+      // back in the planner's order; past the cap, the summary says older items are not loaded.
+      .order('date', { ascending: false })
       // T75 (2026-08-28): the day was ordered by date then ID, and this form collects a Start Time
       // (#m-start) -- so two items on the SAME day appeared in neither chronological nor even
       // creation order: `id` here is a text key like 'svc-<uuid>', so its sort is effectively
@@ -970,11 +974,13 @@ async function loadSchedule() {
       // chronological. nullsFirst:false matters more than it looks: 126 of 228 rows are untimed,
       // and ascending-with-nulls-first would float every untimed item above the scheduled ones,
       // making the common case worse. Timed work reads in order; untimed to-dos follow it.
-      .order('start_time', { ascending: true, nullsFirst: false })
-      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(1000); // L2: a worker's planner is bounded-by-nature (dozens-hundreds); insurance cap
+      .order('start_time', { ascending: false, nullsFirst: true })
+      .order('id', { ascending: false })   // MR4 tiebreaker: the sort above is not total on its own
+      .limit(1000 + 1);   // more-said: by renderDayplannerSummary (SL LB1: newest first, so past 1,000 the planner keeps today and the future; the summary says older items are not loaded)
     if (error) throw error;
-    scheduleItems = (data || []).map(fromDBRow);
+    _dpItemsMore = (data || []).length > 1000;
+    // reversed, the newest-first page is the planner's own order again: date, then start time with untimed last, then id
+    scheduleItems = (data || []).slice(0, 1000).reverse().map(fromDBRow);
 
     // One-time migration from localStorage
     const lsKey = 'wh_lifeplanner_' + WORKER_NAME;
@@ -1430,10 +1436,17 @@ async function loadLogbook() {
   try {
     // BRP-B then BRP-A: v_logbook_truth could not express this at all until migration 20261004000001
     // gave it the auth_uid its base table always carried; now "mine" is the union (see _mineFilter).
-    const { data, error } = await db.from('v_logbook_truth').select('*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"').order('date', { ascending: false }).order('id').limit(1000); // L2: newest-first insurance cap on a worker's logbook
+    // ★THE OPEN FILTER RAN AFTER THE CAP (SL LB1, 2026-10-21). The read took the worker's newest 1,000 entries of ANY status
+    // and kept the open ones in the browser, so an entry still open but older than the newest 1,000 was simply absent -
+    // "No open items" while one waited (the busiest local worker holds 3,666). The database now returns only open
+    // entries, and one past the cap says more exist.
+    const { data, error } = await db.from('v_logbook_truth').select('*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
+      .not('status', 'in', '(Closed,Resolved)')
+      .order('date', { ascending: false }).order('id').limit(1000 + 1);   // more-said: by renderSidebar
     if (error) throw error;
-    // Show open items: not Closed/Resolved
-    logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
+    // Show open items: not Closed/Resolved (the query already asked; kept as the page's own guard)
+    logbookMore = (data || []).length > 1000;
+    logbookItems = (data || []).slice(0, 1000).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
     logbookFailed = false;   // a recovered read must clear it, or one glitch marks the page forever
     renderSidebar();
   } catch(e) {
@@ -1479,7 +1492,7 @@ async function loadPlantWork() {
       .order('is_overdue', { ascending: false })
       .order('next_due_date', { ascending: true })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(30);
+      .limit(30);   // more-said: by renderPlantWorkSection (an exact count rides the read; it says "Showing the 30 most urgent of N")
     if (error) throw error;
     plantWork = data || []; plantWorkFailed = false;
     plantWorkTotal = (typeof count === 'number') ? count : plantWork.length;
@@ -1602,8 +1615,9 @@ function renderSidebar() {
   const bar = document.getElementById('sidebar-count-bar');
   const total = logbookItems.length;
   // C-BR: Filipino has no plural -s, so the count carries the number on its own.
-  label.textContent = _t(`${total} open item${total !== 1 ? 's' : ''} from Logbook`,
-                         `${total} bukas na item mula sa Logbook`);
+  const _totalSaid = total.toLocaleString('en-PH') + (logbookMore ? '+' : '');   // SL LB1: past the cap, a floor
+  label.textContent = _t(`${_totalSaid} open item${total !== 1 ? 's' : ''} from Logbook`,
+                         `${_totalSaid} bukas na item mula sa Logbook`);
   // The transform, not the width: see the .cap-bar rule (design lens motion, 2026-09-15).
   bar.style.transform = 'scaleX(' + (Math.min(100, total * 10) / 100) + ')';
 
@@ -1694,7 +1708,12 @@ function renderSidebar() {
         <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
       </div>
     </div>`;
-  }).join('') + renderPlantWorkSection();
+  }).join('') + '<span data-dp-lb-end hidden></span>' + renderPlantWorkSection();
+  // SL LB1: the open items end at the marker; past the cap the note says more exist, right under them
+  if (typeof whMoreNote === 'function') {
+    whMoreNote(container.querySelector('[data-dp-lb-end]'), { shown: total, more: logbookMore, noun: 'open items',
+      order: 'newest', href: 'logbook.html', hrefLabel: 'Open the Logbook', src: 'v_logbook_truth' });
+  }
 }
 
 function selectLogbookItem(id) {
@@ -1797,6 +1816,7 @@ function render() {
 // plan" from "we could not read your plan". Not reset on success-after-failure by design: the flag
 // is cleared at the top of each load (see loadSchedule) so a recovered read renders normally again.
 let _dpCloudReadFailed = false;
+let _dpItemsMore = false;   // SL LB1: the planner read found more than the 1,000 items it loads
 
 // Layer D — Plain-Read summary for Day Planner.
 function renderDayplannerSummary() {
@@ -1842,6 +1862,9 @@ function renderDayplannerSummary() {
   // H1 goal-gradient — today's REAL done/planned (skips when nothing is planned:
   // an empty bar invents a journey). whProgressStrip is the shared utils.js strip.
   const dpProg = document.getElementById('dp-progress');
+  // SL LB1: past 1,000 items the planner loads the newest and says so, under the summary every view shows
+  if (dpProg && typeof whMoreNote === 'function') whMoreNote(dpProg, { shown: 1000, more: _dpItemsMore, noun: 'planner items',
+    order: 'newest', src: 'schedule_items' });
   if (dpProg && typeof whProgressStrip === 'function') {
     // Fallback chain keeps the gradient REAL: today's plan → this week's → the whole
     // backlog. Never an invented quota; empty only when no plan items exist at all.
@@ -3095,7 +3118,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whUse whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whMoreNote whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whUse whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

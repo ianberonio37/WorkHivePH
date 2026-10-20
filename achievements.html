@@ -653,6 +653,7 @@
   // ── State ───────────────────────────────────────────────────
   let _achievements = [];
   let _xpLog        = [];
+  let _xpLogMore    = false;   // SL LB1: the newest-30 read found a 31st, so older events are not listed
   // ★ THE `+` IS PART OF A CLAIM, SO IT CANNOT BE PRINTED WITHOUT THE NUMBER. Both XP rows hard-coded
   // "+" before an unguarded `e.xp_earned`, so a null rendered "+null" — ten times on one screen. The
   // sibling weekXP figure (:681) is carefully guarded with a `typeof === 'number'` check; these two,
@@ -990,7 +991,9 @@
     // the list and printed +630 under a tile that said +18,390 (the exact contradiction the critique lens exists to end)
     const shown = showAll ? groups : groups.slice(0, 10);
     const weekTotal = (typeof _weekXP === 'number') ? xpText(_weekXP) : '—';
-    const head = '<div class="activity-head">' + _t('Last 7 days', 'Nakaraang 7 araw') + ': <strong>' + weekTotal + '</strong> · ' + _t('latest', 'pinakabagong') + ' ' + _xpLog.length + ' ' + _t('events', 'kaganapan') + '</div>';
+    const head = '<div class="activity-head">' + _t('Last 7 days', 'Nakaraang 7 araw') + ': <strong>' + weekTotal + '</strong> · ' + _t('latest', 'pinakabagong') + ' ' + _xpLog.length + ' ' + _t('events', 'kaganapan')
+      // SL LB1: when the newest-30 read found more, the head says the older ones are not listed - not just "latest 30"
+      + (_xpLogMore ? '; older events are not listed here' : '') + '</div>';
     const rows = shown.map((g) => `<div class="activity-row">
         <div class="activity-icon-sm">${g.icon}</div>
         <div class="activity-body">
@@ -1061,7 +1064,8 @@
       if (!mine.length) return;                       // not a provider: render nothing
       const { data, error } = await db.from('v_service_provider_truth')
         .select('display_name, tier, completed_jobs, rating_avg, rating_count')
-        .in('id', mine).limit(3);
+        // SL LB1: only the first row is read - ask for ONE, the most established profile, instead of 3 in no order
+        .in('id', mine).order('completed_jobs', { ascending: false }).order('id').limit(1);
       if (error || !data || !data.length) return;
       const p = data[0];
       const jobs = Number(p.completed_jobs || 0);
@@ -1373,7 +1377,7 @@
          newest on idx_xp_log_worker and merges them, newest first with the id tiebreaker, so it reads (names x 30)
          rows whatever the platform's size. It is SECURITY INVOKER - ach_log_owner_read still decides every row - and
          was checked row for row, in order, against the direct read for every signed-in account. */
-      db.rpc('my_recent_xp', { p_limit: 30 }), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source.
+      db.rpc('my_recent_xp', { p_limit: 30 + 1 }), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source. more-said: by renderRecentActivity (SL LB1: one row past the 30 says older events exist)
       // BUGFIX (limit-as-aggregate): "XP this week" must be a WINDOW-scoped SUM, never
       // derived from the 30-row list above — an active worker can log >30 XP events in 7
       // days, which the 30-cap would silently undercount. Dedicated week-window query.
@@ -1382,7 +1386,7 @@
       db.from('achievement_xp_log')
         .select('xp_earned')
         .gte('earned_at', _weekAgoIso)
-        .limit(1000)
+        .limit(1000 + 1)   // more-said: by renderAchievementsSummary (SL LB1: a 1,001st row means the sum is a floor - "At least")
     ]);
 
     // BUGFIX: a query ERROR is NOT "no achievements". supabase-js returns {data:null,error}
@@ -1400,7 +1404,8 @@
     }
 
     _achievements = achRes.data  || [];
-    _xpLog        = logRes.data  || [];
+    _xpLog        = (logRes.data || []).slice(0, 30);
+    _xpLogMore    = (logRes.data || []).length > 30;   // SL LB1: older events exist beyond the newest 30
     _weekXP       = weekRes.error ? null : (weekRes.data || []).reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
     /* W3-AR (2026-09-09): this read is an AGGREGATE SOURCE, and a cap on one of those is a silently
        wrong number rather than a short list. The comment above the query already records that the
@@ -1410,7 +1415,7 @@
        moves the cliff, and the honest requirement (this page's own claim) is to SAY SO when a bound
        has bitten. Rows returned == the limit is the one observable signal that it may have, so record
        it and let the tile stop asserting a total it cannot stand behind. */
-    _weekXPCapped = !weekRes.error && (weekRes.data || []).length >= 1000;
+    _weekXPCapped = !weekRes.error && (weekRes.data || []).length > 1000;   // SL LB1: the read probes one row past 1,000
 
     renderHero();
     renderAchievementsSummary();

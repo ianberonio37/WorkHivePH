@@ -604,7 +604,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('last_synced_at', sinceIso)
         .order('last_synced_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);   // cap-ok: rows only (latest sync events)
+        .limit(50 + 1);   // more-said: by renderSyncCard (SL LB1: a 51st event says the 30 days hold more than the 50 read)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
     }
@@ -630,7 +630,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50);   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+        .limit(50 + 1);   // more-said: by renderGatewayCard (SL LB1: the pill and the non-2xx count were taken over this capped read; a 51st call says the week holds more)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
     }
@@ -786,6 +786,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     function renderSyncCard(syncs) {
+      // SL LB1: the read probes one past 50 - the pill and the status breakdown speak for the 50 newest, and say so
+      const _more = syncs.length > 50; syncs = syncs.slice(0, 50);
       if (!syncs.length) {
         return `
           <div class="card">
@@ -812,8 +814,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       `).join('');
       return `
         <div class="card">
-          <h3>External sync activity <span class="pill pill-grey">${syncs.length}</span></h3>
-          <p class="meta">Last 30 days · top 10 shown · ${summary}</p>
+          <h3>External sync activity <span class="pill pill-grey">${syncs.length}${_more ? '+' : ''}</span></h3>
+          <p class="meta"${_more ? ' data-wh-more-note' : ''}>Last 30 days · ${_more ? 'the 50 newest events (there are more) · ' : ''}top 10 shown · ${summary}</p>
           <div class="pc-table-wrap">
             <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
               <thead><tr><th>System</th><th>Entity</th><th>External ID</th><th>WorkHive table</th><th>Status</th><th class="num-right">Synced</th></tr></thead>
@@ -864,6 +866,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     function renderGatewayCard(audit) {
+      // SL LB1: the read probes one past 50 - the pill and the non-2xx count speak for the 50 newest calls, and say so
+      const _more = audit.length > 50; audit = audit.slice(0, 50);
       if (!audit.length) {
         return `
           <div class="card">
@@ -889,8 +893,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }).join('');
       return `
         <div class="card">
-          <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}</span></h3>
-          <p class="meta">Last 7 days · ${errCount} non-2xx · top 10 shown</p>
+          <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}${_more ? '+' : ''}</span></h3>
+          <p class="meta"${_more ? ' data-wh-more-note' : ''}>Last 7 days · ${errCount} non-2xx${_more ? ' among the 50 newest calls (there are more)' : ''} · top 10 shown</p>
           <div class="pc-table-wrap">
             <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
               <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>

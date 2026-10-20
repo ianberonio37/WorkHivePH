@@ -609,7 +609,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(2000);   // cap-ok: the summary carries `capped` and every painted total discloses it
+        .limit(2000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 2,001st call is the probe)
       if (error) throw error;
       return data || [];
     }
@@ -627,7 +627,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5000);   // cap-ok: the summary carries `capped` and every painted total discloses it
+        .limit(5000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 5,001st rating is the probe)
       if (error) throw error;   // surface via render()'s catch (whListError+Retry), not a fake empty
       return data || [];
     }
@@ -635,6 +635,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Build per-fn aggregates + a top-level summary. Cost/schema signals come
     // from ai_cost_log rows; worker thumbs come from ai_reply_feedback rows.
     function aggregate(costRows, feedbackRows) {
+      // SL LB1: each read asked one row past its cap; that row only says more exist - the totals are over the cap's rows
+      const _costMore = (costRows || []).length > 2000, _fbMore = (feedbackRows || []).length > 5000;
+      costRows = (costRows || []).slice(0, 2000); feedbackRows = (feedbackRows || []).slice(0, 5000);
       const fnMap = new Map();
       let totalCost = 0;
       let totalCalls = 0;
@@ -689,7 +692,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return {
         // cap is not a total (2026-09-05): the two reads are .limit(2000) / .limit(5000); when either is full the
         // totals below are sums over the latest rows, and every sentence that paints them says so.
-        capped: costRows.length >= 2000 || feedbackRows.length >= 5000,
+        capped: _costMore || _fbMore,
         totalCalls, totalCost, totalTokens, fallbackCount, successCount,
         schemaOk, schemaTotal,
         thumbsUp, thumbsDown,

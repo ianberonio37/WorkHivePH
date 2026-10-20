@@ -910,7 +910,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1070,8 +1070,9 @@ async function _loadMyPostIds() {
   try {
     // canonical-allow: ownership BY ACCOUNT - the truth view omits auth_uid on purpose (anon), so ids are asked of the base table
     const { data, error } = await db.from('community_posts').select('id')
-      .eq('hive_id', HIVE_ID).or(_mineAuthorFilter()).limit(1000);   // cap-ok: one person's own post ids in one hive
+      .eq('hive_id', HIVE_ID).or(_mineAuthorFilter()).limit(1000 + 1);   // more-said: by _loadMyPostIds (SL LB1: past 1,000 own posts the set is incomplete, so ownership stays decided by name)
     if (error || !data) return;
+    if (data.length > 1000) return;   // SL LB1: an incomplete set must not decide ownership
     data.forEach((r) => myPostIds.add(r.id));
     _myPostIdsKnown = true;
   } catch (_) { /* empty-catch-allow: ownership stays decided by the name, exactly as before */ }
@@ -1462,12 +1463,12 @@ function _isMinePost(p) {
   // ── Leaderboard (top XP earners in this hive) ────────────────────────────────
   async function loadLeaderboard() {
     const el = document.getElementById('leaderboard-list');
-    const { data, error } = await db.from('community_xp')
-      .select('worker_name, xp_total')
+    const { data, error, count: _lbTotal } = await db.from('community_xp')
+      .select('worker_name, xp_total', { count: 'exact' })
       .eq('hive_id', HIVE_ID)
       .order('xp_total', { ascending: false })
       .order('worker_name')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(10);
+      .limit(10);   // more-said (SL LB1: "the top 10 of N contributors" from this read's exact count)
 
     /* `error || empty` COLLAPSED A FAILED READ INTO "No activity yet." -- the exact class this whole
        bank was built around, on the one panel whose job is to say who is contributing. A hive whose
@@ -1525,6 +1526,9 @@ function _isMinePost(p) {
         <div style="font-size:0.75rem; font-weight:700; color:var(--wh-blue-text);">${Number.isFinite(Number(row.xp_total)) ? Number(row.xp_total) : 0} XP</div>
       </div>`;
     }).join('');
+    // SL LB1: a leaderboard of ten says how many it ranks among
+    if (typeof whMoreNote === 'function') whMoreNote(el, { shown: data.length, total: (typeof _lbTotal === 'number' ? _lbTotal : null),
+      more: typeof _lbTotal === 'number' && _lbTotal > data.length, noun: 'contributors', order: 'top', src: 'community_xp' });
   }
 
   // ── "My people" — same-trade discovery (U-axis belonging) ──────────────────────
@@ -1642,7 +1646,7 @@ function _isMinePost(p) {
     let q = db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
-      .order('created_at', { ascending: false }).order('id').limit(20);   // limit-as-count-allow: paginated feed page. A count WAS derived from it - the Mod Queue badge read `flagged.length` over the loaded page and under-reported the moderation queue (fixed 2026-09-08: the badge takes an exact head count, the list says "showing N of M"). The 2026-09-05 sweep classified this "rows only - no count or sum is derived", which was wrong; a cap is only safe while nothing counts it, and that is a property of every reader, not of the read.
+      .order('created_at', { ascending: false }).order('id').limit(20);   // paged: loadMorePosts - paginated feed page. A count WAS derived from it - the Mod Queue badge read `flagged.length` over the loaded page and under-reported the moderation queue (fixed 2026-09-08: the badge takes an exact head count, the list says "showing N of M"). The 2026-09-05 sweep classified this "rows only - no count or sum is derived", which was wrong; a cap is only safe while nothing counts it, and that is a property of every reader, not of the read.
     // T24 (2026-08-25): the AUTHOR's own flagged post used to VANISH from their own feed with no
     // word - an unexplained deletion to the person it matters most to (they re-post or assume a
     // bug). Workers still never see OTHERS' flagged posts; the author keeps seeing their OWN,
@@ -1694,7 +1698,7 @@ function _isMinePost(p) {
       _bound(db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
-        .order('created_at', { ascending: false }).order('id').limit(500)),   // cap-ok: rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
+        .order('created_at', { ascending: false }).order('id').limit(500 + 1)),   // more-said: by loadPosts (SL LB1: a 501st pinned post is said) - rows only - no count or sum is derived from this read (classified by the reference-pages-uncapped sweep, 2026-09-05)
       _bound(_fetchPage()),
     ]);
 
@@ -1753,7 +1757,8 @@ function _isMinePost(p) {
       return;
     }
 
-    pinnedPosts = pinnedRes.data || [];
+    pinnedPosts = (pinnedRes.data || []).slice(0, 500);
+    if ((pinnedRes.data || []).length > 500 && typeof showToast === 'function') showToast('Showing 500 pinned posts. Unpin some to see the rest.', 'info');   // SL LB1
     allPosts    = pageRes.data  || [];
     if (allPosts.length) _lastPostCreatedAt = allPosts[allPosts.length - 1].created_at;
     _hasMorePosts = allPosts.length === 20;
@@ -1780,7 +1785,7 @@ function _isMinePost(p) {
     const CAP = 500;
     // canonical-allow: community_replies is forum thread detail (reply counts for the hive's posts) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     const { data, count } = await db.from('community_replies')
-      .select('post_id', { count: 'exact' }).eq('hive_id', HIVE_ID).in('post_id', postIds).limit(CAP);
+      .select('post_id', { count: 'exact' }).eq('hive_id', HIVE_ID).in('post_id', postIds).limit(CAP);   // more-said: by loadReplyCounts (past the cap each visible post is counted exactly)
     replyCountMap = {};
     if (data) data.forEach(r => {
       replyCountMap[r.post_id] = (replyCountMap[r.post_id] || 0) + 1;
@@ -1930,7 +1935,10 @@ function _isMinePost(p) {
     const _rr = (p.flagged && HIVE_ROLE === 'supervisor' && typeof _reportReasons !== 'undefined') ? _reportReasons[p.id] : null;
     const reportReasonLine = _rr
       ? `<p class="text-xs mt-1" style="color:var(--wh-orange);">&#9873; Reported: ${escHtml(_rr.reason || 'no reason picked')}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
-      : '';
+      // SL LB1: a flagged post whose reason was not among the reports read says so, rather than showing no reason
+      : (p.flagged && HIVE_ROLE === 'supervisor' && _reportReasonsPartial)
+        ? '<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-more-note role="note">&#9873; Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
+        : '';
     const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
@@ -2153,19 +2161,23 @@ function _isMinePost(p) {
   // surface it ON the flagged card so the supervisor judges with context, not just a flag.
   // Best-effort batch fetch; keyed by post id, newest report wins.
   let _reportReasons = {};
+  let _reportReasonsPartial = false;   // SL LB1: more reports than the 200 read for these posts
   async function loadReportReasons(flaggedIds) {
     if (!flaggedIds.length) return;
     try {
       const { data } = await db.from('hive_audit_log')
         .select('meta, created_at')
         .eq('hive_id', HIVE_ID).eq('action', 'report_post')
+        // SL LB1: the reports OF THESE POSTS - the newest 200 of every report left an older flag without its reason
+        .in('meta->>target_id', (flaggedIds || []).slice(0, 100))
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: created_at alone is not total, and this function's whole
                        // contract is "newest report wins" - among rows sharing a timestamp the
                        // winner would otherwise be whichever the planner happened to return, so the
                        // reason shown on a flagged card could change between loads with no edit.
-        .limit(200); // bounded: recent reports only; older reasons age out of the card, not the audit
-      for (const row of (data || []).reverse()) {
+        .limit(200 + 1); // more-said: by loadReportReasons (SL LB1: a 201st report marks the reasons as partial)
+      _reportReasonsPartial = (data || []).length > 200;   // SL LB1
+      for (const row of (data || []).slice(0, 200).reverse()) {
         const m = row.meta || {};
         if (m.target_id && flaggedIds.includes(m.target_id) && (m.reason || m.details)) {
           _reportReasons[m.target_id] = { reason: m.reason || '', details: m.details || '' };
@@ -2235,7 +2247,7 @@ function _isMinePost(p) {
     const { data, error } = await db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
-      .order('created_at', { ascending: false }).order('id').limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);   // paged: loadMoreGlobalPosts
 
     if (error || !data || data.length === 0) {
       el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
@@ -2266,7 +2278,7 @@ function _isMinePost(p) {
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .lt('created_at', _globalLastCreatedAt)
-      .order('created_at', { ascending: false }).order('id').limit(20);   // cap-ok: paginated feed - hasMore/load-more discloses the rest (data.length === 20)
+      .order('created_at', { ascending: false }).order('id').limit(20);   // paged: loadMoreGlobalPosts - hasMore/load-more discloses the rest
 
     if (data && data.length > 0) {
       _globalLastCreatedAt = data[data.length - 1].created_at;
@@ -3015,9 +3027,18 @@ function _isMinePost(p) {
 
   async function loadReplies(postId) {
     // canonical-allow: community_replies is forum thread detail (the replies under one post) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
-    const { data, error } = await db.from('community_replies')
-      .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
-      .order('created_at', { ascending: true }).order('id').limit(200);   // cap-ok: replies render rows only; no total painted
+    // ★THE OLDEST 200 REPLIES (SL LB1, 2026-10-21): the thread read the first 200, so in a long thread the newest - the ones
+    // a reader came for - were the ones cut. It reads the LATEST 200 (shown oldest-first below), keeps the best answer
+    // wherever it sits, and says when earlier replies are not shown.
+    const [{ data: _rd, error }, { data: _acc }] = await Promise.all([
+      db.from('community_replies')
+        .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(200 + 1),   // more-said: by loadReplies
+      db.from('community_replies').select('*').eq('post_id', postId).eq('hive_id', HIVE_ID).eq('is_accepted', true).limit(1),
+    ]);
+    const _repliesMore = (_rd || []).length > 200;
+    const data = (_rd || []).slice(0, 200);
+    (_acc || []).forEach((a) => { if (!data.some((r) => r.id === a.id)) data.push(a); });
 
     const el = document.getElementById('thread-replies');
     if (error) {
@@ -3081,6 +3102,8 @@ function _isMinePost(p) {
         </div>
       </div>`;
     }).join('');
+    if (typeof whMoreNote === 'function') whMoreNote(el, { more: _repliesMore, src: 'community_replies',
+      said: 'Showing the latest 200 replies. Earlier ones are not shown here.' });   // SL LB1
   }
 
   async function markAnswer(replyId, accepted) {
@@ -3120,21 +3143,17 @@ function _isMinePost(p) {
     const words = ((post && post.content) || '').toLowerCase().match(/[a-z0-9]{4,}/g) || [];
     const keywords = [...new Set(words.filter(w => !_RL_STOP.has(w)))].slice(0, 5);
     if (!keywords.length) return;
-    let data = null;
+    let data = null, _relMore = false;   // _relMore: SL LB1
     try {
       // v_marketplace_listings_public (EX-HP H2, 2026-09-07): the truth view runs as the caller and anon lost the base-table
       // read, so a logged-out reader's related listings vanished silently inside this try. The public view serves everyone.
       const res = await db.from('v_marketplace_listings_public')
-        .select('id, title, price').limit(50)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
-        // cap-ok: this 50 is an intermediate bound, never a figure anyone sees. The chain ends in
-        // .limit(3) below and renders at most three RELATED-LISTING suggestions beside a post, so
-        // there is no total here for a cap to be mistaken for - the failure this gate exists to
-        // catch is a capped read painted as a count, and this read is never painted at all.
+        .select('id, title, price').limit(3 + 1)   // G1 (gate growth-honesty): bounded in-chain. more-said: by loadRelatedListings (SL LB1: three suggestions, and a 4th says the marketplace holds more - the old intermediate .limit(50) did nothing; the LAST limit is the one sent)
         
         .eq('status', 'published')
-        .or(keywords.map(w => { const kw = w.replace(/%/g, '').replace(/_/g, ''); return `title.ilike.%${kw}%`; }).join(','))
-        .limit(3);
-      data = res.data;
+        .or(keywords.map(w => { const kw = w.replace(/%/g, '').replace(/_/g, ''); return `title.ilike.%${kw}%`; }).join(','));
+      _relMore = (res.data || []).length > 3;   // SL LB1
+      data = (res.data || []).slice(0, 3);
     } catch (_) { return; }
     if (!data || !data.length) return;
     el.innerHTML = `
@@ -3145,6 +3164,7 @@ function _isMinePost(p) {
             <span style="font-size:0.8rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(l.title)}</span>
             <span style="font-size:0.75rem; color:var(--wh-orange-text); white-space:nowrap; font-weight:700;">${l.price ? whFmtPeso(l.price) : 'View'} →</span>
           </a>`).join('')}
+        ${_relMore ? `<a href="marketplace.html?q=${encodeURIComponent(keywords[0])}" data-wh-more-note style="display:inline-flex; align-items:center; min-height:44px; font-size:0.8125rem; font-weight:600; color:var(--wh-orange-text); text-decoration:underline; text-underline-offset:2px;">More in the marketplace</a>` : ''}
       </div>`;
     el.style.display = 'block';
   }

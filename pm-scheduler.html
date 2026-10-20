@@ -928,7 +928,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash whUse">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whMoreNote whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1232,6 +1232,7 @@ function daysLabel(nextDue) {
 let assets           = [];
 let scopeItems       = [];
 let completions      = [];
+let _compsMore       = false;   // SL LB1: the hive holds more completions than the 2,000 read
 let registeredAssets = []; // from the shared 'assets' table (logbook)
 let currentAsset          = null;
 let _pmAssetUpdatedAt     = null; // updated_at snapshot for optimistic lock
@@ -1620,8 +1621,8 @@ async function loadData() {
   const assetsRes = await (HIVE_ID
     ? db.from('pm_assets').select('*')
         .or(`hive_id.eq.${HIVE_ID},and(hive_id.is.null,auth_uid.eq.${_authUid})`)
-        .order('created_at', { ascending: true }).order('id').limit(500)
-    : db.from('pm_assets').select('*').or(_MINE()).order('created_at', { ascending: true }).order('id').limit(500)
+        .order('created_at', { ascending: true }).order('id').limit(500)   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+    : db.from('pm_assets').select('*').or(_MINE()).order('created_at', { ascending: true }).order('id').limit(500)   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
   // The toast alone was not enough: it persisted, but so did "OVERDUE 0 · No overdue PMs · CLEAR" beside
@@ -1643,12 +1644,12 @@ async function loadData() {
   // pm_completions stays raw: the detail view needs full completion history,
   // not just the latest one the view exposes. canonical-allow: history list
   let scopeQ = db.from('v_pm_scope_items_truth')
-    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due').limit(1000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit
+    .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due')
           // VEHICLE SEED: the meter half — the view ORs it into is_overdue/is_due_soon; these fields let the labels SAY it
-    .in('asset_id', assetIds).order('created_at', { ascending: true }).order('id').limit(500);
+    .in('asset_id', assetIds).order('created_at', { ascending: true }).order('id').limit(500);   // cap-ok[hive_id] (LB1): a hive's PM scope items - bounded by its assets x tasks, sized live
   // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
   // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
-  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).order('id').limit(2000);
+  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).order('id').limit(2000 + 1);   // more-said: by renderDetail (SL LB1: a 2,001st completion means an asset's older history is not loaded)
   // VM9: scope/completions follow the assets' homes — hive rows OR hive-less rows whose parent
   // asset already passed the assets filter above (RLS backstops; .in(asset_id) bounds it).
   if (HIVE_ID) {
@@ -1658,7 +1659,8 @@ async function loadData() {
   const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
 
   scopeItems  = itemsRes.data || [];
-  completions = compRes.data  || [];
+  _compsMore   = (compRes.data || []).length > 2000;   // SL LB1
+  completions = (compRes.data || []).slice(0, 2000);
 
   // Canonical SMRP 2.1.1 compliance (completed/scheduled, frequency-aware) from
   // the single source of truth shared with Analytics — NOT on-track/total, which
@@ -2203,7 +2205,7 @@ function renderDetail(asset) {
     if (mayContract) {
       // canonical-allow: auto_hail is a WRITE-PATH config column on the base table; the truth
       // view models PM due-ness, not contract settings, so there is nothing canonical to read here.
-      db.from('pm_scope_items').select('id, auto_hail').eq('asset_id', asset.id).limit(200)
+      db.from('pm_scope_items').select('id, auto_hail').eq('asset_id', asset.id).limit(200)   // cap-ok (LB1): its largest group (asset_id) is far under 200 - sized live by list-caps-say-more
         .then(({ data }) => {
           const items = data || [];
           const on = items.length > 0 && items.every(i => i.auto_hail);
@@ -2311,6 +2313,9 @@ function renderDetail(asset) {
   } else {
     histEmpty.classList.add('hidden');
     histMoreWrap.classList.toggle('hidden', _histDisplayCount >= allAssetComps.length);
+    // SL LB1: once this asset's loaded history is all on screen, say that older completions were not read
+    if (typeof whMoreNote === 'function') whMoreNote(histEl, { more: _compsMore && _histDisplayCount >= allAssetComps.length,
+      said: 'Older completions for this asset are not loaded here: the page reads the hive’s newest 2,000.', src: 'pm_completions' });
     histEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = assetComps.map(c => {
       const item    = scopeItems.find(i => i.id === c.scope_item_id);
       const itemTxt = item ? item.item_text : 'Unknown task';
@@ -2536,9 +2541,9 @@ async function _xpNoteFor(sourceId) {
   if (!sourceId) return '';
   try {
     const { data: rows } = await db.from('achievement_xp_log')
-      .select('xp_earned').eq('source_id', sourceId).is('reversed_at', null).limit(20);  // L2: a source pays a handful of awards at most
-    const sum = (rows || []).reduce((s, r) => s + (r.xp_earned || 0), 0);
-    return sum > 0 ? ' · +' + sum + ' XP' : '';
+      .select('xp_earned').eq('source_id', sourceId).is('reversed_at', null).limit(50 + 1);  // more-said: by _xpNoteFor (SL LB1: a source pays a handful of awards; a 51st makes the sum a floor, shown with +)
+    const sum = (rows || []).slice(0, 50).reduce((s, r) => s + (r.xp_earned || 0), 0);
+    return sum > 0 ? ' · +' + sum + ((rows || []).length > 50 ? '+' : '') + ' XP' : '';
   } catch (_) {
     return '';   // empty-catch-allow: a failed XP read must not invent an award
   }
@@ -2773,7 +2778,7 @@ async function _autoLinkPmToProject(compData, asset) {
     .eq('hive_id', HIVE_ID)
     .eq('link_type', 'asset')
     .eq('link_id', asset.id)
-    .limit(500);
+    .limit(500);   // cap-ok (LB1): its largest group (hive_id, link_id) is far under 500 - sized live by list-caps-say-more
   if (!assetLinks?.length) return;
   const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
   // canonical-allow: project_links join already constrained the id set; targeted fetch
@@ -2781,7 +2786,7 @@ async function _autoLinkPmToProject(compData, asset) {
     .select('id, project_code, status')
     .in('id', projectIds)
     .in('status', ['planning', 'active'])
-    .limit(500);
+    .limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   if (!projs?.length) return;
   const linkRows = projs.map(p => ({
     project_id: p.id, hive_id: HIVE_ID,
@@ -2865,12 +2870,12 @@ async function loadRegisteredAssets() {
 
   // canonical-allow: asset wizard picker uses legacy-aliased col shape (asset_id:tag, type:iso_class) for the existing _assets[] consumers; v_asset_truth uses canonical names
   const queries = [
-    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').or(_MINE()).is('hive_id', null).limit(500),
+    db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').or(_MINE()).is('hive_id', null).limit(500),   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   ];
   if (HIVE_ID) {
     queries.push(
       // canonical-allow: same picker shape requirement as solo branch above
-      db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500)
+      db.from('asset_nodes').select('id, name, asset_id:tag, type:iso_class, location, criticality').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500)   // cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     );
   }
 

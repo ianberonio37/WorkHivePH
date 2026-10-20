@@ -240,10 +240,15 @@ def parse_migration(path: Path, regs: dict) -> None:
                 "comment": "", "called_by_surfaces": [], "called_by_edge_fns": [],
             }
         else:
-            # Later definitions may add SECURITY DEFINER or change args.
+            # Later definitions may add SECURITY DEFINER or change args. ★The args used to be kept from the FIRST
+            # definition (2026-10-21): get_marketplace_parts_for_my_assets gained p_limit in a DROP + CREATE, and
+            # rpc-argument-consistency still checked every call against the original one-argument signature. Files are
+            # read in migration order and every exposed function has exactly one signature (rpc-overloads), so the
+            # latest definition IS the signature; defined_in keeps naming where the function was first created.
             regs["rpcs"][name]["security_definer"] = (
                 regs["rpcs"][name]["security_definer"] or is_definer
             )
+            regs["rpcs"][name]["args"] = args
 
     # CREATE VIEW — also extract the projected column list from the SELECT.
     # Heuristic: walk forward from CREATE VIEW ... AS to the next `;`. The

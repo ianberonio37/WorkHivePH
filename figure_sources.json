@@ -597,8 +597,8 @@
   {
    "sel": "#stat-replies",
    "shows": "buyer inquiries this seller has replied to",
-   "basedOn": "inquiries to this seller that carry a reply",
-   "reads": "v_marketplace_inquiries_truth",
+   "basedOn": "every inquiry to this seller that carries a reply - the seller's whole record, the same for every visitor",
+   "reads": "marketplace_seller_reply_stats",
    "period": "All time: every inquiry this seller has answered"
   },
   {

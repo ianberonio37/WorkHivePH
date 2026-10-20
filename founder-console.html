@@ -1971,7 +1971,7 @@
       try {
         const { data, error } = await db.from('v_hive_readiness_truth')
           .select('hive_id, current_stair, composite_score, blocker_summary')
-          .limit(2000);
+          .limit(2000);   // cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
         if (error) return { _error: error.message };
         const stairs = [0,0,0,0,0];
         const scores = [];
@@ -2033,7 +2033,7 @@
            platform label — a wrong number, not merely an un-canonical one. Service-side totals need a
            platform-scoped view before they can be reported here. */
         const listRes = await db.from('v_marketplace_listings_truth')
-          .select('id, status, price, seller_name').limit(5000);
+          .select('id, status, price, seller_name').limit(5000);   // cap-ok (LB1): its largest group (the whole table) is far under 5000 - sized live by list-caps-say-more
         if (listRes.error) return { _error: listRes.error.message };
         const listings = (listRes.data || []);
         const by = (s) => listings.filter(l => l.status === s);

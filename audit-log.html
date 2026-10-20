@@ -761,7 +761,7 @@
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(500);
+      .limit(500);   // more-said: by renderFeed (the summary says "N of the latest 500 (M total)" from the head counts read beside it)
     if (range.hours) {
       const since = new Date(Date.now() - range.hours * 3600 * 1000).toISOString();
       q = q.gte('created_at', since);
@@ -803,7 +803,7 @@
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .order('id')
-        .limit(500);
+        .limit(500);   // more-said: by renderFeed (the voice half of the same timeline; its head count is in the total)
       if (range.hours) vq = vq.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
       const { data: vdata, error: verror } = await vq;
       // a failed read of the second source must not silently shrink the timeline into a claim
@@ -910,7 +910,7 @@
           .eq('hive_id', HIVE_ID)
           .order('created_at', { ascending: false })
           .order('id')                 // MR4: the sort above is not total on its own
-          .range(from, from + PAGE - 1);
+          .range(from, from + PAGE - 1);   // paged: fetchFilterVocab (the fallback reads every page; audit_filter_vocab() above is the one request)
         if (error || !data || !data.length) break;
         data.forEach(function (r) {
           if (r.actor) actors.add(r.actor);
@@ -936,7 +936,7 @@
           .eq('hive_id', HIVE_ID)
           .order('created_at', { ascending: false })
           .order('id')
-          .range(from, from + PAGE - 1);
+          .range(from, from + PAGE - 1);   // paged: fetchFilterVocab (every page of the voice half)
         if (error || !data || !data.length) break;
         data.forEach(function (r) {
           if (r.worker_name) actors.add(r.worker_name);
@@ -1183,7 +1183,7 @@
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
         .order('id')                 // MR4: the sort above is not total on its own
-        .range(from, from + PAGE - 1);
+        .range(from, from + PAGE - 1);   // paged: fetchAllForExport (the export reads every page of the range)
       if (since) q = q.gte('created_at', since);
       const { data, error } = await q;
       if (error) throw error;
@@ -1202,7 +1202,7 @@
           .eq('hive_id', HIVE_ID)
           .order('created_at', { ascending: false })
           .order('id')
-          .range(from, from + PAGE - 1);
+          .range(from, from + PAGE - 1);   // paged: fetchAllForExport (every page of the voice half; voiceComplete says when it could not)
         if (since) q = q.gte('created_at', since);
         const { data, error } = await q;
         if (error) throw error;

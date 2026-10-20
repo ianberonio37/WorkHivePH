@@ -505,7 +505,6 @@
         "marketplace-admin.html",
         "marketplace-seller.html",
         "marketplace.html",
-        "platform-actions.html",
         "pm-scheduler.html"
       ],
       "written_by_surfaces": [
@@ -518,7 +517,6 @@
         "marketplace-admin.html",
         "marketplace-seller.html",
         "marketplace.html",
-        "platform-actions.html",
         "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
@@ -4436,7 +4434,9 @@
         "resolved_at",
         "is_public",
         "upvotes",
-        "updated_at"
+        "updated_at",
+        "triaged_by",
+        "triaged_at"
       ],
       "rls_enabled": true,
       "grants": {
@@ -5522,13 +5522,18 @@
         "stack",
         "page",
         "user_agent",
-        "created_at"
+        "created_at",
+        "shown",
+        "code"
       ],
       "rls_enabled": true,
       "grants": {
         "authenticated": [
           "INSERT",
           "SELECT"
+        ],
+        "anon": [
+          "INSERT"
         ]
       },
       "realtime_published": false,
@@ -6245,6 +6250,61 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "service_credit_ledger_totals": {
+      "defined_in": "20261020000003_lb2_read_shapes.sql",
+      "columns": [
+        "entry_type",
+        "total",
+        "entries",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ],
+        "service_role": [
+          "ALL"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "SL LB2 2026-10-20: the credit ledger's totals per entry type, kept by trg_keep_ledger_totals as the ledger is written; reconciled by the query-indexes gate.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "platform_audit_log": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "columns": [
+        "id",
+        "actor_uid",
+        "actor",
+        "action",
+        "target_type",
+        "target_id",
+        "target_name",
+        "meta",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ],
+        "service_role": [
+          "ALL"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "SL L2 2026-10-21: decisions a platform admin makes (top-ups, listing moderation, seller verification, feedback triage). Written by audit_platform_decision() only; read by platform admins.",
+      "read_by_surfaces": [
+        "platform-actions.html"
+      ],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
     }
   },
   "views": {
@@ -6376,7 +6436,27 @@
         "embed-entry",
         "trigger-ml-retrain"
       ],
-      "columns": []
+      "columns": [
+        "hive_id",
+        "pm_asset_id",
+        "asset_name",
+        "tag_id",
+        "category",
+        "criticality",
+        "location",
+        "last_anchor_date",
+        "days_since_last_completion",
+        "lifetime_completions",
+        "completions_30d",
+        "completions_90d",
+        "completions_365d",
+        "last_completion_at",
+        "is_due",
+        "lifetime_skips",
+        "skips_30d",
+        "skips_90d",
+        "last_skip_at"
+      ]
     },
     "v_fmea_truth": {
       "defined_in": "20260509000005_reliability_workbench_foundation.sql",
@@ -6387,7 +6467,30 @@
         "asset-brain-query",
         "batch-risk-scoring"
       ],
-      "columns": []
+      "columns": [
+        "fmea_mode_id",
+        "hive_id",
+        "asset_id",
+        "asset_tag",
+        "asset_name",
+        "iso_class",
+        "asset_criticality",
+        "function_text",
+        "failure_mode",
+        "effect_text",
+        "cause_text",
+        "severity",
+        "occurrence",
+        "detection",
+        "rpn",
+        "consequence_class",
+        "source",
+        "ai_confidence",
+        "created_at",
+        "updated_at",
+        "approved_at",
+        "approved_by"
+      ]
     },
     "v_rcm_truth": {
       "defined_in": "20260509000005_reliability_workbench_foundation.sql",
@@ -6455,6 +6558,7 @@
         "dayplanner.html",
         "hive.html",
         "integrations.html",
+        "logbook.html",
         "project-manager.html",
         "resume.html"
       ],
@@ -6722,7 +6826,21 @@
       "read_by_edge_fns": [
         "ai-orchestrator"
       ],
-      "columns": []
+      "columns": [
+        "hive_id",
+        "worker_name",
+        "role",
+        "joined_at",
+        "jobs_30d",
+        "open_jobs",
+        "assets_touched_30d",
+        "total_downtime_hours_30d",
+        "last_category",
+        "last_job_at",
+        "pms_30d",
+        "last_pm_at",
+        "capacity_signal"
+      ]
     },
     "v_project_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
@@ -7048,6 +7166,7 @@
         "hive.html"
       ],
       "read_by_edge_fns": [
+        "ai-eval-runner",
         "amc-orchestrator",
         "batch-risk-scoring",
         "benchmark-compute",
@@ -7075,7 +7194,6 @@
     "v_marketplace_inquiries_truth": {
       "defined_in": "20260520000020_v_marketplace_inquiries_truth.sql",
       "read_by_surfaces": [
-        "marketplace-seller-profile.html",
         "marketplace-seller.html",
         "marketplace.html"
       ],
@@ -7108,7 +7226,6 @@
       "read_by_surfaces": [
         "asset-hub.html",
         "integrations.html",
-        "logbook.html",
         "plant-connections.html"
       ],
       "read_by_edge_fns": [
@@ -7128,7 +7245,27 @@
         "batch-risk-scoring",
         "trigger-ml-retrain"
       ],
-      "columns": []
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "auth_uid",
+        "item_id",
+        "type",
+        "qty_change",
+        "qty_after",
+        "note",
+        "job_ref",
+        "created_at",
+        "item_part_name",
+        "item_part_number",
+        "item_category",
+        "item_unit",
+        "is_consume",
+        "is_restock",
+        "is_adjust",
+        "qty_delta"
+      ]
     },
     "v_marketplace_orders_truth": {
       "defined_in": "20260520000023_v_marketplace_orders_truth.sql",
@@ -7316,7 +7453,29 @@
         "marketplace.html"
       ],
       "read_by_edge_fns": [],
-      "columns": []
+      "columns": [
+        "id",
+        "provider_type",
+        "worker_name",
+        "hive_id",
+        "display_name",
+        "contact",
+        "categories",
+        "service_areas",
+        "base_lat",
+        "base_lng",
+        "availability",
+        "verified",
+        "verified_at",
+        "created_at",
+        "completed_jobs",
+        "rating_avg",
+        "rating_count",
+        "tier",
+        "_source_count",
+        "_freshness_ts",
+        "_canonical_version"
+      ]
     },
     "v_service_request_truth": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
@@ -7370,7 +7529,26 @@
         "marketplace-seller.html"
       ],
       "read_by_edge_fns": [],
-      "columns": []
+      "columns": [
+        "request_id",
+        "segment",
+        "mode",
+        "urgency",
+        "budget",
+        "catalog_item_id",
+        "catalog_name",
+        "catalog_category",
+        "catalog_unit",
+        "catalog_rate",
+        "custom_scope",
+        "area_hint",
+        "broadcast_radius_m",
+        "offer_ttl_expires_at",
+        "created_at",
+        "my_provider_id",
+        "distance_km",
+        "already_responded"
+      ]
     },
     "v_service_job_tracking": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
@@ -7378,7 +7556,17 @@
         "marketplace.html"
       ],
       "read_by_edge_fns": [],
-      "columns": []
+      "columns": [
+        "request_id",
+        "status",
+        "provider_id",
+        "provider_name",
+        "live_lat",
+        "live_lng",
+        "request_lat",
+        "request_lng",
+        "location_updated_at"
+      ]
     },
     "v_service_catalog_truth": {
       "defined_in": "20260728000043_v_service_catalog_truth.sql",
@@ -7420,8 +7608,7 @@
       "defined_in": "20260729000000_service_money_truth_views.sql",
       "read_by_surfaces": [
         "founder-console.html",
-        "marketplace-seller.html",
-        "platform-actions.html"
+        "marketplace-seller.html"
       ],
       "read_by_edge_fns": [],
       "columns": []
@@ -7487,7 +7674,13 @@
         "hive.html"
       ],
       "read_by_edge_fns": [],
-      "columns": []
+      "columns": [
+        "hive_id",
+        "hive_name",
+        "pms_kept",
+        "faults_resolved",
+        "knowledge_written"
+      ]
     },
     "v_marketplace_listings_public": {
       "defined_in": "20260907000004_listings_public_view.sql",
@@ -7590,7 +7783,7 @@
     },
     "get_downtime_pareto": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_hive_id\" \"uuid\" DEFAULT NULL::\"uuid\", \"p_worker\" \"text\" DEFAULT NULL::\"text\", \"p_period_days\" integer DEFAULT 90",
+      "args": "p_hive_id     uuid  DEFAULT NULL,\n  p_worker      text  DEFAULT NULL,\n  p_period_days int   DEFAULT 90",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7600,7 +7793,7 @@
     },
     "get_failure_frequency": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_hive_id\" \"uuid\" DEFAULT NULL::\"uuid\", \"p_worker\" \"text\" DEFAULT NULL::\"text\", \"p_period_days\" integer DEFAULT 90",
+      "args": "p_hive_id     uuid  DEFAULT NULL,\n  p_worker      text  DEFAULT NULL,\n  p_period_days int   DEFAULT 90",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7611,7 +7804,7 @@
     },
     "get_mtbf_by_machine": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_hive_id\" \"uuid\" DEFAULT NULL::\"uuid\", \"p_worker\" \"text\" DEFAULT NULL::\"text\", \"p_period_days\" integer DEFAULT 90",
+      "args": "p_hive_id    uuid    DEFAULT NULL,\n  p_worker     text    DEFAULT NULL,\n  p_period_days int   DEFAULT 90",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7623,7 +7816,7 @@
     },
     "get_mttr_by_machine": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_hive_id\" \"uuid\" DEFAULT NULL::\"uuid\", \"p_worker\" \"text\" DEFAULT NULL::\"text\", \"p_period_days\" integer DEFAULT 90",
+      "args": "p_hive_id     uuid  DEFAULT NULL,\n  p_worker      text  DEFAULT NULL,\n  p_period_days int   DEFAULT 90",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7634,7 +7827,7 @@
     },
     "get_repeat_failures": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_hive_id\" \"uuid\" DEFAULT NULL::\"uuid\", \"p_worker\" \"text\" DEFAULT NULL::\"text\", \"p_period_days\" integer DEFAULT 90",
+      "args": "p_hive_id     uuid  DEFAULT NULL,\n  p_worker      text  DEFAULT NULL,\n  p_period_days int   DEFAULT 90",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7669,7 +7862,7 @@
     },
     "increment_community_xp": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_worker_name\" \"text\", \"p_hive_id\" \"uuid\", \"p_amount\" integer",
+      "args": "p_worker_name text, p_hive_id uuid, p_amount integer",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
@@ -7677,7 +7870,7 @@
     },
     "increment_listing_view": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"p_listing_id\" \"uuid\"",
+      "args": "p_listing_id uuid",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -7687,7 +7880,7 @@
     },
     "search_all_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 3",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 3, match_owner uuid DEFAULT NULL",
       "security_definer": false,
       "comment": "Companion RAG over fault/skill/pm/project knowledge. match_hive_id NULL: the caller's OWN hive-less fault ",
       "called_by_surfaces": [],
@@ -7695,7 +7888,7 @@
     },
     "search_bom_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 5",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 5",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7703,7 +7896,7 @@
     },
     "search_calc_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 5",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 5",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7711,7 +7904,7 @@
     },
     "search_fault_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 5",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 5, match_owner uuid DEFAULT NULL",
       "security_definer": false,
       "comment": "Semantic search over fault_knowledge. match_hive_id = a hive: that hive's rows (RLS still applies to the ",
       "called_by_surfaces": [],
@@ -7722,7 +7915,7 @@
     },
     "search_pm_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 5",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 5",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -7732,7 +7925,7 @@
     },
     "search_skill_knowledge": {
       "defined_in": "20260420000000_baseline.sql",
-      "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 5",
+      "args": "query_embedding vector, match_hive_id uuid, match_count integer DEFAULT 5",
       "security_definer": true,
       "comment": "Vector-similarity search over worker skills. SECURITY DEFINER with SET search_path lockdown\n   (added 2026-05-18 to close skill-rule miner finding).",
       "called_by_surfaces": [],
@@ -7774,7 +7967,7 @@
     },
     "generate_project_code": {
       "defined_in": "20260505000000_project_manager.sql",
-      "args": "p_hive_id uuid, p_type text, p_year integer",
+      "args": "p_hive_id uuid,\n  p_type    text,\n  p_year    integer",
       "security_definer": true,
       "comment": "Next project code for a hive/type/year. Scans ALL projects including soft-deleted ones so a code ",
       "called_by_surfaces": [
@@ -7914,7 +8107,7 @@
     },
     "search_voice_journal_entries": {
       "defined_in": "20260511000014_voice_journal_entries.sql",
-      "args": "query_embedding vector(384),\n  match_auth_uid  uuid,\n  match_count     int DEFAULT 5",
+      "args": "query_embedding vector, match_auth_uid uuid, match_count integer DEFAULT 5",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [],
@@ -8057,7 +8250,7 @@
     },
     "store_memory_turn": {
       "defined_in": "20260516000001_agent_memory_phase2.sql",
-      "args": "p_hive_id uuid,\n  p_session_id text,\n  p_turn_num int,\n  p_user_input text,\n  p_assistant_response text,\n  p_intent text,\n  p_confidence real,\n  p_response_time_ms int",
+      "args": "p_hive_id uuid,\n  p_session_id text,\n  p_turn_num integer,\n  p_user_input text,\n  p_assistant_response text,\n  p_intent text,\n  p_confidence real,\n  p_response_time_ms integer",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
@@ -8097,7 +8290,7 @@
     },
     "suppress_alert": {
       "defined_in": "20260516000003_anomaly_alerts_phase5.sql",
-      "args": "p_alert_id bigint, p_hours int default 24",
+      "args": "p_alert_id bigint, p_hours integer default 24",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
@@ -8105,7 +8298,7 @@
     },
     "semantic_search_kb": {
       "defined_in": "20260516000004_kb_rag_phase3.sql",
-      "args": "p_hive_id uuid,\n  p_query_embedding vector,\n  p_similarity_threshold real default 0.7,\n  p_limit int default 5",
+      "args": "p_hive_id uuid, p_query_embedding vector, p_similarity_threshold real DEFAULT 0.7, p_limit integer DEFAULT 5",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
@@ -8121,7 +8314,7 @@
     },
     "semantic_search_industry_standards": {
       "defined_in": "20260518000001_industry_standards_chunks.sql",
-      "args": "p_query_embedding       vector,\n  p_similarity_threshold  real    DEFAULT 0.6,\n  p_limit                 int     DEFAULT 5,\n  p_family                text    DEFAULT NULL",
+      "args": "p_query_embedding vector, p_similarity_threshold real DEFAULT 0.6, p_limit integer DEFAULT 5, p_family text DEFAULT NULL::text",
       "security_definer": true,
       "comment": "Day 4 \u2014 platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
       "called_by_surfaces": [],
@@ -8129,7 +8322,7 @@
     },
     "semantic_search_kg_facts": {
       "defined_in": "20260518000003_semantic_search_kg_facts.sql",
-      "args": "p_hive_id               uuid,\n  p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
+      "args": "p_hive_id uuid, p_query_embedding vector, p_similarity_threshold real default 0.5, p_limit integer default 5, p_min_confidence real default 0.5",
       "security_definer": true,
       "comment": "Day 5 \u2014 hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
       "called_by_surfaces": [],
@@ -8137,7 +8330,7 @@
     },
     "semantic_search_platform_kg_facts": {
       "defined_in": "20260519000001_platform_knowledge_graph_facts.sql",
-      "args": "p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
+      "args": "p_query_embedding vector, p_similarity_threshold real DEFAULT 0.5, p_limit integer DEFAULT 5, p_min_confidence real DEFAULT 0.5",
       "security_definer": true,
       "comment": "Day 8 \u2014 platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
       "called_by_surfaces": [],
@@ -8169,7 +8362,7 @@
     },
     "get_oee_by_machine": {
       "defined_in": "20260520000002_get_oee_by_machine.sql",
-      "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
+      "args": "p_hive_id uuid, p_period_days integer DEFAULT 90",
       "security_definer": true,
       "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A \u00d7 P \u00d7 Q when ideal cycle time and units_produced are both present; otherwise returns partial (A \u00d7 Q) with is_partial=true.",
       "called_by_surfaces": [],
@@ -8205,7 +8398,7 @@
     },
     "match_procedural_memories": {
       "defined_in": "20260531000001_procedural_skill_matcher.sql",
-      "args": "p_query_embedding  vector,\n  p_hive_id          uuid,\n  p_worker_name      text DEFAULT NULL,\n  p_match_count      int  DEFAULT 5,\n  p_min_similarity   real DEFAULT 0.55",
+      "args": "p_query_embedding vector,\n  p_hive_id uuid,\n  p_worker_name text DEFAULT NULL::text,\n  p_match_count integer DEFAULT 5,\n  p_min_similarity real DEFAULT 0.55",
       "security_definer": true,
       "comment": "Turn 5 + C2.1 + Arc-R R0 - semantic retrieval over the procedural skill library ",
       "called_by_surfaces": [],
@@ -8224,7 +8417,7 @@
     },
     "get_hive_dashboard": {
       "defined_in": "20260606000000_get_hive_dashboard.sql",
-      "args": "p_hive_id   uuid,\n  p_day_start timestamptz DEFAULT date_trunc('day', now()",
+      "args": "p_hive_id uuid, p_day_start timestamp with time zone DEFAULT date_trunc('day'::text, now()",
       "security_definer": true,
       "comment": "Home (index.html) board fan-out collapse: returns all 12 canonical home signals in one jsonb round-trip. Membership-gated via auth.uid() (SECURITY DEFINER bypasses RLS). Reads the same v_*_truth views as the client loader so output is parity-equal. pm_overdue_count = DISTINCT assets with an overdue scope item from v_pm_scope_items_truth (frequency-aware), matching pm-scheduler #stat-overdue; unified 2026-06-07 from the old v_pm_compliance_truth.is_due flat-30-day proxy. critical_pm_overdue = top critical asset with an overdue scope item (drives the Today's-One-Thing nudge). Hive mode only; solo home keeps its legacy path.",
       "called_by_surfaces": [],
@@ -8250,7 +8443,7 @@
     },
     "get_pm_compliance_smrp": {
       "defined_in": "20260610000001_get_pm_compliance_smrp.sql",
-      "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
+      "args": "p_hive_id uuid, p_period_days integer DEFAULT 90",
       "security_definer": true,
       "comment": "Canonical SMRP 2.1.1 PM-compliance. overall_pct = WEIGHTED total_completed/total_scheduled ",
       "called_by_surfaces": [
@@ -8379,7 +8572,7 @@
     },
     "inventory_deduct": {
       "defined_in": "20260624000001_resilience_inventory_deduct_atomic.sql",
-      "args": "p_item_id text,\n  p_qty     numeric,\n  p_note    text DEFAULT NULL,\n  p_job_ref text DEFAULT NULL,\n  p_type    text DEFAULT 'use',\n  p_txn_id  text DEFAULT NULL",
+      "args": "p_item_id text, p_qty numeric, p_note text DEFAULT NULL::text, p_job_ref text DEFAULT NULL::text, p_type text DEFAULT 'use'::text, p_txn_id text DEFAULT NULL::text",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -8754,7 +8947,7 @@
     },
     "get_community_reputation": {
       "defined_in": "20260711000001_community_reputation_bridge.sql",
-      "args": "p_worker_name text,\n  p_hive_id     uuid",
+      "args": "p_worker_name text, p_hive_id uuid",
       "security_definer": true,
       "comment": "Cross-hive PORTABLE community reputation for a marketplace/global person card. Aggregate + public-scoped only; no post content; returns no row for purely-private workers. X-axis bridge (Community PDDA 7th).",
       "called_by_surfaces": [
@@ -8821,7 +9014,7 @@
     },
     "get_marketplace_parts_for_my_assets": {
       "defined_in": "20260712000005_marketplace_parts_for_my_assets.sql",
-      "args": "p_hive_id uuid",
+      "args": "p_hive_id uuid, p_limit integer default 24",
       "security_definer": true,
       "comment": "Discovery: published parts listings whose part_number matches the viewer hive's inventory (parts their machines use). DEFINER + active-membership-guarded so it never leaks another hive's part usage. (Marketplace PDDA U-axis \"Parts for YOUR assets\")",
       "called_by_surfaces": [
@@ -8957,7 +9150,7 @@
     },
     "inventory_restock": {
       "defined_in": "20260713000008_inventory_restock_rpc.sql",
-      "args": "p_item_id text, p_qty numeric, p_note text DEFAULT NULL, p_txn_id text DEFAULT NULL",
+      "args": "p_item_id text, p_qty numeric, p_note text DEFAULT NULL::text, p_txn_id text DEFAULT NULL::text",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -9426,7 +9619,7 @@
     },
     "accept_service_request": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
-      "args": "p_request_id uuid, p_eta_minutes integer default null",
+      "args": "p_request_id uuid, p_eta_minutes integer DEFAULT NULL::integer",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -9491,9 +9684,7 @@
       "args": "p_provider_id uuid",
       "security_definer": true,
       "comment": "",
-      "called_by_surfaces": [
-        "marketplace-seller.html"
-      ],
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "redeem_service_voucher": {
@@ -9656,7 +9847,7 @@
     },
     "apply_dispute_adjustment": {
       "defined_in": "20260731000018_dispute_adjustment_never_deletion.sql",
-      "args": "p_request_id uuid, p_reason text default null",
+      "args": "p_request_id uuid, p_reason text default null::text",
       "security_definer": true,
       "comment": "Adjudicates a disputed job with compensating ledger entries (never a rewrite). Recovery is bounded ",
       "called_by_surfaces": [],
@@ -9820,9 +10011,7 @@
       "args": "p_request uuid",
       "security_definer": true,
       "comment": "The single answer to \"what does this job cost\": amount_paid, else the agreed base, else the stated ",
-      "called_by_surfaces": [
-        "marketplace.html"
-      ],
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "my_credit_balance": {
@@ -9853,7 +10042,7 @@
     },
     "enqueue_user_push": {
       "defined_in": "20260803000033_a_silent_window_is_just_a_slower_way_to_lose.sql",
-      "args": "p_auth_uids uuid[], p_title text,\n                                                    p_body text, p_url text DEFAULT NULL",
+      "args": "p_auth_uids uuid[], p_title text, p_body text,\n    p_url text DEFAULT NULL::text, p_category text DEFAULT NULL::text",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
@@ -10405,6 +10594,308 @@
         "audit-log.html"
       ],
       "called_by_edge_fns": []
+    },
+    "hive_kpis": {
+      "defined_in": "20261015700000_brh_v_kpi_truth_member_read.sql",
+      "args": "p_hive_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_provider_credit_balance": {
+      "defined_in": "20261015950000_brh_s_definer_doors_closed.sql",
+      "args": "p_provider_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "my_service_request_price": {
+      "defined_in": "20261015950000_brh_s_definer_doors_closed.sql",
+      "args": "p_request uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "marketplace_sellers_public_rows": {
+      "defined_in": "20261015990000_brh_r_owner_rights_in_functions.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "service_job_tracking_rows": {
+      "defined_in": "20261015990000_brh_r_owner_rights_in_functions.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "service_open_broadcasts_rows": {
+      "defined_in": "20261015990000_brh_r_owner_rights_in_functions.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "wh_trash_scope": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "D3: true only inside wh_trash / wh_restore / wh_recently_deleted, which set workhive.trash_scope for their own ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "_wh_trash_id_type": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "p_table text",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "wh_retention_days": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "p_hive uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "wh_trash": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "p_table text, p_id text",
+      "security_definer": false,
+      "comment": "D3: delete a row recoverably - stamps deleted_at under the caller's own UPDATE permission. Returns when it ",
+      "called_by_surfaces": [
+        "community.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "wh_restore": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "p_table text, p_id text",
+      "security_definer": false,
+      "comment": "D3: bring back a deleted row under the caller's own UPDATE permission. Errors: P0001 purged / already back, ",
+      "called_by_surfaces": [
+        "community.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "wh_recently_deleted": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "p_table text default null, p_hive uuid default null",
+      "security_definer": false,
+      "comment": "D3: the Recently deleted list - deleted rows the caller can read, newest first, with who deleted each and ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "audit_trash_transition": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "trg_logbook_xp_on_trash": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_name_held_by_deleted": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "replace_deleted_pairing": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "trg_logbook_knowledge_on_trash": {
+      "defined_in": "20261016000001_d3_deletes_are_recoverable_for_30_days.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "set_hive_retention": {
+      "defined_in": "20261016000003_a_supervisor_sets_the_hives_retention.sql",
+      "args": "p_hive_id          uuid,\n  p_soft_delete_days integer",
+      "security_definer": true,
+      "comment": "D3: a supervisor sets how long their hive keeps deleted items (30-3650 days, never below the 30-day promise) ",
+      "called_by_surfaces": [
+        "plant-connections.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "get_credit_ledger_totals": {
+      "defined_in": "20261020000002_credit_ledger_totals.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "SL LB2 2026-10-20: the credit ledger summed by entry type for the platform-actions credit position (was a browser sum over a 2,000-row cap).",
+      "called_by_surfaces": [
+        "platform-actions.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "my_listing_ids": {
+      "defined_in": "20261020000003_lb2_read_shapes.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_inquiry_ids": {
+      "defined_in": "20261020000003_lb2_read_shapes.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "keep_service_credit_ledger_totals": {
+      "defined_in": "20261020000003_lb2_read_shapes.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_recent_xp": {
+      "defined_in": "20261020000003_lb2_read_shapes.sql",
+      "args": "p_limit integer default 30",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [
+        "achievements.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "audit_shared_change": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "SL L2 2026-10-21: one trail row per real change to a shared row (who is bound by wh_bind_audit_actor; changed column NAMES, and a state column's new value only).",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "audit_logbook_close": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "stamp_topup_decider": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "stamp_feedback_triage": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "audit_platform_decision": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "bind_listing_moderator": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "bind_shift_plan_publisher": {
+      "defined_in": "20261021000001_l2_change_trail.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "founder_feature_use": {
+      "defined_in": "20261021000002_l3_usage_events.sql",
+      "args": "p_days integer default 30",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [
+        "platform-actions.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "bind_client_errors_reporter": {
+      "defined_in": "20261021000003_l4_told_sentence.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_logbook_summary": {
+      "defined_in": "20261021000004_lb1_resume_logbook_summary.sql",
+      "args": "p_worker_name text default null",
+      "security_definer": false,
+      "comment": "SL LB1: the caller's whole logbook as three figures (entries, distinct equipment, first date) - the resume's summary ",
+      "called_by_surfaces": [
+        "resume.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "logbook_synced_machines": {
+      "defined_in": "20261021000004_lb1_resume_logbook_summary.sql",
+      "args": "p_hive_id uuid",
+      "security_definer": false,
+      "comment": "SL LB1: one row per machine a CMMS syncs work orders for, with its newest source - the logbook badge, which a ",
+      "called_by_surfaces": [
+        "logbook.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "marketplace_seller_reply_stats": {
+      "defined_in": "20261021000008_lb1_seller_reply_stats_for_every_visitor.sql",
+      "args": "p_worker_name text",
+      "security_definer": true,
+      "comment": "The public seller profile's reply figures: how many inquiries the seller has replied to and the average hours to reply, ",
+      "called_by_surfaces": [
+        "marketplace-seller-profile.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -10417,10 +10908,11 @@
       ],
       "tables_written": [],
       "rpcs_called": [
+        "my_recent_xp",
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 87.2
+      "size_kb": 96.3
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -10429,7 +10921,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 32.5
+      "size_kb": 40.9
     },
     "ai-quality.html": {
       "tables_read": [
@@ -10439,7 +10931,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 52.7
+      "size_kb": 60.3
     },
     "alert-hub.html": {
       "tables_read": [
@@ -10467,7 +10959,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 161.4
+      "size_kb": 175.1
     },
     "analytics-report.html": {
       "tables_read": [
@@ -10476,7 +10968,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 135.3
+      "size_kb": 140.9
     },
     "analytics.html": {
       "tables_read": [
@@ -10490,14 +10982,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 235.6
-    },
-    "architecture.html": {
-      "tables_read": [],
-      "tables_written": [],
-      "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 39.5
+      "size_kb": 246.3
     },
     "asset-hub.html": {
       "tables_read": [
@@ -10541,7 +11026,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 313.7
+      "size_kb": 327.2
     },
     "assistant.html": {
       "tables_read": [
@@ -10562,7 +11047,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 227.6
+      "size_kb": 236.9
     },
     "audit-log.html": {
       "tables_read": [
@@ -10574,7 +11059,7 @@
         "audit_filter_vocab"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 75.3
+      "size_kb": 84.7
     },
     "community.html": {
       "tables_read": [
@@ -10601,10 +11086,12 @@
         "notify_reply_accepted",
         "notify_reply_posted",
         "report_community_post",
-        "set_community_best_answer"
+        "set_community_best_answer",
+        "wh_restore",
+        "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 229.0
+      "size_kb": 251.4
     },
     "dayplanner.html": {
       "tables_read": [
@@ -10619,21 +11106,21 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 212.0
+      "size_kb": 228.8
     },
     "design-system.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 27.1
+      "size_kb": 32.6
     },
     "engineering-design.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 52.5
+      "size_kb": 55.6
     },
     "founder-console.html": {
       "tables_read": [
@@ -10668,7 +11155,7 @@
         "founder_page_heatmap"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 192.2
+      "size_kb": 200.9
     },
     "hive.html": {
       "tables_read": [
@@ -10724,7 +11211,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 495.9
+      "size_kb": 509.7
     },
     "index.html": {
       "tables_read": [],
@@ -10762,7 +11249,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 221.4
+      "size_kb": 235.1
     },
     "inventory.html": {
       "tables_read": [
@@ -10790,7 +11277,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 188.3
+      "size_kb": 206.9
     },
     "llm-observability.html": {
       "tables_read": [
@@ -10799,7 +11286,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 23.9
+      "size_kb": 32.3
     },
     "logbook.html": {
       "tables_read": [
@@ -10815,9 +11302,9 @@
         "pm_completions",
         "project_links",
         "projects",
-        "v_external_sync_truth",
         "v_inventory_items_truth",
         "v_inventory_transactions_truth",
+        "v_logbook_truth",
         "v_pm_compliance_truth",
         "v_pm_scope_items_truth"
       ],
@@ -10830,6 +11317,7 @@
       ],
       "rpcs_called": [
         "inventory_deduct",
+        "logbook_synced_machines",
         "notify_wo_assigned",
         "sync_asset_identity"
       ],
@@ -10839,7 +11327,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 475.9
+      "size_kb": 498.3
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -10861,22 +11349,22 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 66.7
+      "size_kb": 75.8
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
         "marketplace_reviews",
-        "v_marketplace_inquiries_truth",
         "v_marketplace_listings_public",
         "v_marketplace_sellers_public"
       ],
       "tables_written": [],
       "rpcs_called": [
         "get_marketplace_seller_public",
-        "get_seller_community_reputation"
+        "get_seller_community_reputation",
+        "marketplace_seller_reply_stats"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 81.3
+      "size_kb": 87.1
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -10917,15 +11405,15 @@
         "claim_starter_grant",
         "listing_reservation_amount",
         "marketplace_platform_response_hours",
+        "my_provider_credit_balance",
         "my_service_provider_ids",
-        "provider_credit_balance",
         "seller_credit_balance",
         "service_knob",
         "service_knob_pct",
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 261.9
+      "size_kb": 275.4
     },
     "marketplace.html": {
       "tables_read": [
@@ -10970,24 +11458,24 @@
         "increment_listing_view",
         "listing_reservation_amount",
         "my_credit_balance",
+        "my_service_request_price",
         "raise_service_objection",
         "select_quote",
         "service_knob",
-        "service_knob_pct",
-        "service_request_price"
+        "service_knob_pct"
       ],
       "edge_fns_invoked": [
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 394.5
+      "size_kb": 411.1
     },
     "offline-fallback.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 8.6
+      "size_kb": 9.8
     },
     "ph-intelligence.html": {
       "tables_read": [
@@ -10999,7 +11487,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 49.5
+      "size_kb": 54.8
     },
     "plant-connections.html": {
       "tables_read": [
@@ -11011,26 +11499,26 @@
         "v_external_sync_truth"
       ],
       "tables_written": [],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "set_hive_retention"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 50.1
+      "size_kb": 63.2
     },
     "platform-actions.html": {
       "tables_read": [
-        "hive_audit_log",
         "marketplace_listings",
         "marketplace_sellers",
+        "platform_audit_log",
         "platform_feedback",
         "service_credit_topups",
         "v_credit_posture",
         "v_gcash_receipts_needing_eyes",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth",
-        "v_service_credit_ledger_truth",
         "v_service_credit_topups_truth"
       ],
       "tables_written": [
-        "hive_audit_log",
         "marketplace_listings",
         "marketplace_sellers",
         "platform_feedback",
@@ -11040,11 +11528,13 @@
         "founder_active_hives",
         "founder_anon_sessions",
         "founder_dau_series",
+        "founder_feature_use",
         "founder_mau",
-        "founder_page_heatmap"
+        "founder_page_heatmap",
+        "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 120.7
+      "size_kb": 138.9
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -11075,7 +11565,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 199.5
+      "size_kb": 211.0
     },
     "project-manager.html": {
       "tables_read": [
@@ -11115,7 +11605,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 231.2
+      "size_kb": 246.0
     },
     "project-report.html": {
       "tables_read": [
@@ -11131,7 +11621,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 78.7
+      "size_kb": 91.9
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -11147,7 +11637,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 37.9
+      "size_kb": 44.1
     },
     "report-sender.html": {
       "tables_read": [
@@ -11164,7 +11654,7 @@
         "send-report-email",
         "voice-report-intent"
       ],
-      "size_kb": 154.8
+      "size_kb": 162.1
     },
     "resume.html": {
       "tables_read": [
@@ -11180,9 +11670,11 @@
         "resume_documents",
         "resume_versions"
       ],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "my_logbook_summary"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 182.8
+      "size_kb": 195.1
     },
     "shift-brain.html": {
       "tables_read": [
@@ -11197,7 +11689,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 101.0
+      "size_kb": 114.0
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -11212,28 +11704,14 @@
         "grade_skill_exam"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 102.6
+      "size_kb": 113.6
     },
     "status.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 33.9
-    },
-    "symbol-gallery.html": {
-      "tables_read": [],
-      "tables_written": [],
-      "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 14.1
-    },
-    "validator-catalog.html": {
-      "tables_read": [],
-      "tables_written": [],
-      "rpcs_called": [],
-      "edge_fns_invoked": [],
-      "size_kb": 15.7
+      "size_kb": 39.4
     },
     "voice-journal.html": {
       "tables_read": [
@@ -11248,7 +11726,14 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 101.5
+      "size_kb": 103.0
+    },
+    "export-truthful-teeth.html": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "size_kb": 3.6
     },
     "_beetest.html": {
       "tables_read": [],
@@ -11411,7 +11896,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 839
+      "loc": 841
     },
     "_shared/asset-codes.ts": {
       "tables_read": [],
@@ -11512,7 +11997,7 @@
         "match_procedural_memories"
       ],
       "edge_fns_invoked": [],
-      "loc": 292
+      "loc": 307
     },
     "_shared/error-tracker.ts": {
       "tables_read": [
@@ -11539,7 +12024,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 31
+      "loc": 32
     },
     "_shared/followups.ts": {
       "tables_read": [
@@ -11591,7 +12076,7 @@
         "search_voice_journal_entries"
       ],
       "edge_fns_invoked": [],
-      "loc": 170
+      "loc": 174
     },
     "_shared/logger.ts": {
       "tables_read": [],
@@ -11616,7 +12101,14 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 251
+      "loc": 272
+    },
+    "_shared/memory_age.ts": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 52
     },
     "_shared/model-calls.ts": {
       "tables_read": [],
@@ -11803,7 +12295,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 143
+      "loc": 161
     },
     "agentic-rag-loop": {
       "tables_read": [
@@ -11823,13 +12315,14 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 1311
+      "loc": 1332
     },
     "ai-eval-runner": {
       "tables_read": [
         "ai_quality_log",
         "hive_members",
         "hives",
+        "v_hives_truth",
         "worker_profiles"
       ],
       "tables_written": [
@@ -11843,7 +12336,7 @@
         "ai_eval_bench_reset_memory"
       ],
       "edge_fns_invoked": [],
-      "loc": 697
+      "loc": 702
     },
     "ai-gateway": {
       "tables_read": [
@@ -11856,7 +12349,7 @@
         "record_ai_chain_depth"
       ],
       "edge_fns_invoked": [],
-      "loc": 2006
+      "loc": 2007
     },
     "ai-orchestrator": {
       "tables_read": [
@@ -11874,7 +12367,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 986
+      "loc": 988
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -11940,7 +12433,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 755
+      "loc": 758
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -12070,7 +12563,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 372
+      "loc": 374
     },
     "engineering-bom-sow": {
       "tables_read": [],
@@ -12218,7 +12711,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 294
+      "loc": 296
     },
     "notify-push": {
       "tables_read": [
@@ -12398,7 +12891,7 @@
         "search_skill_knowledge"
       ],
       "edge_fns_invoked": [],
-      "loc": 217
+      "loc": 218
     },
     "send-report-email": {
       "tables_read": [
@@ -12487,14 +12980,14 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 291
+      "loc": 292
     },
     "vehicle-doc-extract": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 515
+      "loc": 519
     },
     "visual-defect-capture": {
       "tables_read": [
@@ -12597,24 +13090,6 @@
   },
   "phantom_tables": {},
   "duplicate_signals": [
-    {
-      "kind": "surface_overlap",
-      "surface_a": "founder-console.html",
-      "surface_b": "platform-actions.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_listings",
-        "marketplace_sellers",
-        "platform_feedback",
-        "service_credit_topups",
-        "v_credit_posture",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth",
-        "v_service_credit_ledger_truth",
-        "v_service_credit_topups_truth"
-      ],
-      "jaccard": 0.62
-    },
     {
       "kind": "surface_overlap",
       "surface_a": "logbook.html",
@@ -13038,6 +13513,11 @@
     {
       "kind": "dead_table",
       "table": "worker_known_devices",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_credit_ledger_totals",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]
