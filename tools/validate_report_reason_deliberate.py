@@ -28,7 +28,11 @@ CHECK_NAMES = ["report-reason-deliberate"]
 PLACEHOLDER_RE = re.compile(r'<option\b(?=[^>]*\bvalue=""[^>]*>)(?=[^>]*\bselected\b)(?=[^>]*\bdisabled\b)[^>]*>Choose a reason')
 VALIDATE_RE = re.compile(r"if \(!reason\) \{[\s\S]{0,300}?return;")
 RESET_RE = re.compile(r"function openReport\(postId\) \{[\s\S]{0,600}?report-reason'\)\.value = ''")
-TARGET_RE = re.compile(r"writeAuditLog\('report_post'[^;]{0,220}author_name")
+# SL L2 (2026-10-21): the name carries BOTH the post's words and whose post it was - an author's name alone read as the
+# post's title beside the shared words "Reported post". So: the report's audit write names it through _reportName(), and
+# _reportName builds from the post's content AND its author_name.
+TARGET_RE = re.compile(r"writeAuditLog\('report_post'[^;]{0,260}_reportName\(")
+NAMER_RE = re.compile(r"function _reportName\(p\) \{(?=[\s\S]{0,500}?author_name)(?=[\s\S]{0,500}?\.content)")
 
 
 def problems_for(src: str) -> list[str]:
@@ -41,7 +45,7 @@ def problems_for(src: str) -> list[str]:
     if not RESET_RE.search(src):
         out.append("community.html: openReport no longer resets to the placeholder — it pre-files "
                    "a reason again (the reset that defeated the placeholder)")
-    if not TARGET_RE.search(src):
+    if not TARGET_RE.search(src) or not NAMER_RE.search(src):
         out.append("community.html: the report's audit write no longer carries the reported post's "
                    "author — target_name goes blank again")
     return out
@@ -69,6 +73,11 @@ def self_test() -> int:
         fails.append("removing the placeholder must redden")
     if not any("pre-files" in p for p in problems_for(RESET_RE.sub("function openReport(postId) { document.getElementById('report-reason').value = 'harassment'", src))):
         fails.append("reverting the reset must redden")
+    # the report row loses its name, or its namer stops carrying the author
+    if not any("author" in p for p in problems_for(src.replace("_reportName(_reportedPost)", "null"))):
+        fails.append("a report written without a name must redden")
+    if not any("author" in p for p in problems_for(src.replace("p.author_name || p.worker_name", "''"))):
+        fails.append("a report name without the author must redden")
     if fails:
         print("SELF-TEST FAIL:", "; ".join(fails)); return 1
     print("PASS validate_report_reason_deliberate self-test (removed placeholder + reverted reset both redden; HEAD clean)")

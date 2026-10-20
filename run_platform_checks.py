@@ -6937,9 +6937,26 @@ VALIDATORS = [
         "id":      "audit-trail-coverage",
         "script":  "validate_audit_trail_coverage.py",
         "args":    [],
-        "label":   "Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)",
+        # SL L2 (2026-10-21): it read 12 named pages for action names while 10 of the 46 actions STORED in the trail had
+        # no words (supervisor_password_reset 71 rows, soft_delete_post 57, ...) - their writers were community,
+        # marketplace-seller and an edge function. Now every page, root script, edge function, migration, seeder and voice
+        # intent, plus what is stored, against utils.js's one vocabulary; both readers render through it; names not ids.
+        "label":   "Audit Trail Coverage (5-layer: lifecycle status updates are trailed; every action any writer produces AND every action stored in the trails has words in utils.js's one vocabulary; hive.html and audit-log.html render through it and the CSV carries the words; each writeAuditLog call names its thing, not an id; --self-test: 6 mutants)",
         "group":   "Platform",
         "report":  "audit_trail_coverage_report.json",
+        "skip_if_fast": False,
+    },
+    {
+        # SL L2 (2026-10-21): a change to shared state leaves who, what, which and when - on every path. Holds migration
+        # 20261021000001: the generic trail is attached exactly where it should be and nowhere it would duplicate a page's
+        # own row or show a two-party conversation to a hive's supervisors; the values it copies are state columns only;
+        # deactivation is trailed before the name is erased; a platform decision lands in platform_audit_log bound to the
+        # admin's account, never in a hive's trail. Live, rolled back, as a real supervisor / author / leaver / admin.
+        "id":      "change-trail",
+        "script":  os.path.join("tools", "validate_change_trail.py"),
+        "args":    [],
+        "label":   "Change trail (SL L2): shared changes leave who/what/which/when on every path - generic trail attachments, state-only values, no-op and bookkeeping write nothing, logbook close, deactivation before erasure, top-up / feedback deciders, platform decisions in platform_audit_log and in no hive's trail (live, rolled back; --self-test: 4 static + 9 live mutants)",
+        "group":   "Platform",
         "skip_if_fast": False,
     },
     {

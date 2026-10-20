@@ -191,6 +191,16 @@ CONDITION["LB2"] = ("the page read as served in its own browser context (service
                     "whose SQL had been EXPLAIN ANALYZEd as the same cast, RLS on, after its tables were grown from their own "
                     "rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an "
                     "index at that size")
+GATES["L2"] = ["change-trail", "audit-trail-coverage", "skew-heal", "scripts-parse"]
+CONDITION["L2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast in "
+                   "the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its "
+                   "confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack "
+                   "(.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request "
+                   "the page sent (method, relation, status) and the walk kept what the person was told; then the database "
+                   "was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform "
+                   "decision) with the actor bound to the signed-in account, the action rendered through utils.js's one "
+                   "vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record "
+                   "and nothing in a hive's trail; for the person's own row, owner-only reading as another member")
 GATES["C3"] = ["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
 CONDITION["C3"] = ("the page read as served in its own browser context (service workers blocked, downloads accepted), signed in "
                    "as the row's cast, settled, and prepared as a person would where its printable thing must first exist "

@@ -924696,8 +924696,8 @@
     },
     {
       "id": "SL2966",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · alert hub",
       "pages": [
@@ -924754,12 +924754,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on alert-hub.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:26:39.075Z (.tmp/slw/results/l2w_w2.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked; phone-390: \"Marked alert seen\" on \"FLT 9005 · failure pattern\" by Ben Ocampo; \"Cleared \"seen\" on alert\" on \"FLT 9005 · failure pattern\" by Ben Ocampo || desktop-1280: \"Marked alert seen\" on \"FLT 9005 · failure pattern\" by Ben Ocampo; \"Cleared \"seen\" on alert\" on \"FLT 9005 · failure pattern\" by Ben Ocampo. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2966.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2967",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · asset hub",
       "pages": [
@@ -924816,12 +924825,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on asset-hub.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:26:39.075Z (.tmp/slw/results/l2w_w2.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked; phone-390: \"Added FMEA failure mode\" on \"L2W SL2967 390 V-belt slips under load\" by Ben Ocampo || desktop-1280: \"Added FMEA failure mode\" on \"L2W SL2967 1280 V-belt slips under load\" by Ben Ocampo. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2967.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2968",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · assistant",
       "pages": [
@@ -924878,12 +924896,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: what assistant.html writes carries who and when on the record itself, and no hive's trail shows it - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:31:41.339Z (.tmp/slw/results/l2w_a1.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked; phone-390: ai_reply_feedback row by Ben Ocampo (auth_uid bound to the account) at 2026-10-20T12:31:23.475598+00:00, in no hive's trail || desktop-1280: ai_reply_feedback row by Ben Ocampo (auth_uid bound to the account) at 2026-10-20T12:31:36.921024+00:00, in no hive's trail. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2968.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2969",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - fleet-supervisor · community",
       "pages": [
@@ -924940,12 +924967,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on community.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:19:17.777Z (.tmp/slw/results/l2w_p1.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked; phone-390: \"Pinned post\" on \"L2P SL2969 390: pump P-3 bearing noise at start-up - has anyone seen this?\" by Oscar Ramos; \"Unpinned post\" on \"L2P SL2969 390: pump P-3 bearing noise at start-up - has anyone seen this?\" by Oscar Ramos || desktop-1280: \"Pinned post\" on \"L2P SL2969 1280: pump P-3 bearing noise at start-up - has anyone seen this?\" by Oscar Ramos; \"Unpinned post\" on \"L2P SL2969 1280: pump P-3 bearing noise at start-up - has anyone seen this?\" by Oscar Ramos. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2969.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2970",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - fleet-supervisor · dayplanner",
       "pages": [
@@ -925002,12 +925038,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on dayplanner.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:44:33.670Z (.tmp/slw/results/l2w_d1.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked; phone-390: \"Closed logbook entry\" on \"L2P-DP-390\" by Gloria Tan || desktop-1280: \"Closed logbook entry\" on \"L2P-DP-1280\" by Gloria Tan. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2970.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2971",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · hive",
       "pages": [
@@ -925064,12 +925109,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on hive.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:30:43.064Z (.tmp/slw/results/l2w_w3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked; phone-390: \"Brought their own history in\" by Ben Ocampo || desktop-1280: \"Brought their own history in\" by Ben Ocampo. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2971.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2972",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · index",
       "pages": [
@@ -925126,12 +925180,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: what index.html changes is the person's own row, read by nobody else in their hive - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:30:43.064Z (.tmp/slw/results/l2w_w3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked; phone-390: 2 write(s) to their own worker_profiles row, which another member of their hive reads none of || desktop-1280: 2 write(s) to their own worker_profiles row, which another member of their hive reads none of. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2972.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2973",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - solo-owner · integrations",
       "pages": [
@@ -925188,12 +925251,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: integrations.html offers a person with no hive no shared change, and says why - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:38:19.241Z (.tmp/slw/results/l2w_w5.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked; phone-390: refused up front: \"Join a hive first.\" - no change sent || desktop-1280: refused up front: \"Join a hive first.\" - no change sent. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2973.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2974",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · inventory",
       "pages": [
@@ -925250,12 +925322,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on inventory.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:26:39.075Z (.tmp/slw/results/l2w_w2.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked; phone-390: \"Added inventory item\" on \"L2W SL2974 390 drive belt B-48\" by David Velasco || desktop-1280: \"Added inventory item\" on \"L2W SL2974 1280 drive belt B-48\" by David Velasco. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2974.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2975",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · logbook",
       "pages": [
@@ -925312,12 +925393,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on logbook.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:24:33.148Z (.tmp/slw/results/l2w_r1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked; phone-390: \"Closed logbook entry\" on \"L2P-LB-390\" by Bryan Garcia || desktop-1280: \"Closed logbook entry\" on \"L2P-LB-1280\" by Bryan Garcia. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2975.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2976",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - buyer · marketplace seller",
       "pages": [
@@ -925374,12 +925464,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on marketplace-seller.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:24:33.148Z (.tmp/slw/results/l2w_r1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked; phone-390: \"Edited listing\" on \"L2P SL2976 390 bearing 6205 (sealed, 2 pcs)\" by Bryan Garcia || desktop-1280: \"Edited listing\" on \"L2P SL2976 1280 bearing 6205 (sealed, 2 pcs)\" by Bryan Garcia. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2976.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2977",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - buyer · marketplace",
       "pages": [
@@ -925436,12 +925535,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: what marketplace.html writes carries who and when on the record itself, and no hive's trail shows it - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:36:33.434Z (.tmp/slw/results/l2w_b1.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked; phone-390: marketplace_inquiries row by Isidro Suarez (buyer_auth_uid bound to the account) at 2026-10-20T12:35:41.185739+00:00, in no hive's trail || desktop-1280: marketplace_inquiries row by Isidro Suarez (buyer_auth_uid bound to the account) at 2026-10-20T12:35:58.175696+00:00, in no hive's trail. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2977.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2978",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · pm scheduler",
       "pages": [
@@ -925498,12 +925606,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on pm-scheduler.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:34:40.822Z (.tmp/slw/results/l2w_w4.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked; phone-390: \"Added PM task\" on \"L2P SL2978 390 check belt tension\" by Oscar Ramos || desktop-1280: \"Added PM task\" on \"L2P SL2978 1280 check belt tension\" by Oscar Ramos. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2978.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2979",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - fleet-supervisor · project manager",
       "pages": [
@@ -925560,12 +925677,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on project-manager.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:21:59.037Z (.tmp/slw/results/l2w_w1.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked; phone-390: \"Marked project item in progress\" on \"L2P SL2979 390 item: replace conveyor belt\" by Christine Dizon || desktop-1280: \"Marked project item in progress\" on \"L2P SL2979 1280 item: replace conveyor belt\" by Christine Dizon. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2979.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2980",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - fleet-supervisor · report sender",
       "pages": [
@@ -925622,12 +925748,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on report-sender.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:19:17.777Z (.tmp/slw/results/l2w_p1.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked; phone-390: \"Added report recipient\" on \"L2W SL2980 390 recipient\" by Christine Dizon; \"Removed report recipient\" on \"L2W SL2980 390 recipient\" by Christine Dizon || desktop-1280: \"Added report recipient\" on \"L2W SL2980 1280 recipient\" by Christine Dizon; \"Removed report recipient\" on \"L2W SL2980 1280 recipient\" by Christine Dizon. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2980.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2981",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · resume",
       "pages": [
@@ -925684,12 +925819,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: what resume.html changes is the person's own row, read by nobody else in their hive - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:36:33.434Z (.tmp/slw/results/l2w_b1.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked; phone-390: 1 write(s) to their own resume_documents row, which another member of their hive reads none of || desktop-1280: 1 write(s) to their own resume_documents row, which another member of their hive reads none of. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2981.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2982",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - worker · shift brain",
       "pages": [
@@ -925746,12 +925890,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on shift-brain.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:38:19.241Z (.tmp/slw/results/l2w_w5.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked; phone-390: \"Published shift plan\" on \"2026-10-20 14-22\" by Oscar Ramos || desktop-1280: \"Archived shift plan\" on \"2026-10-20 14-22\" by Oscar Ramos. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2982.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2983",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - fleet-supervisor · audit log",
       "pages": [
@@ -925808,12 +925961,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: audit-log.html reads the hive's trail back as words, never as codes - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:45:57.861Z (.tmp/slw/results/l2w_w7.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked; phone-390: 30 entries read as words (Added FMEA failure mode, Brought their own history in, Closed logbook entry among them), none as a code || desktop-1280: 30 entries read as words (Added FMEA failure mode, Brought their own history in, Closed logbook entry among them), none as a code. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2983.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2984",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - oversight · founder console",
       "pages": [
@@ -925864,12 +926026,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: founder-console.html is retired - its controls sit under the overlay and it sends no change - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:38:19.241Z (.tmp/slw/results/l2w_w5.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked; phone-390: retired - its controls under #wh-retired-overlay, no change sent || desktop-1280: retired - its controls under #wh-retired-overlay, no change sent. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2984.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2985",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - oversight · marketplace admin",
       "pages": [
@@ -925920,12 +926091,21 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: marketplace-admin.html is retired - its controls sit under the overlay and it sends no change - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:40:16.537Z (.tmp/slw/results/l2w_w6.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked; phone-390: retired - its controls under #wh-retired-overlay, no change sent || desktop-1280: retired - its controls under #wh-retired-overlay, no change sent. Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2985.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL2986",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L2 · The platform must leave a readable trail of who changed what on this page - oversight · platform actions",
       "pages": [
@@ -925976,6 +926156,15 @@
         "engine": "chromium",
         "ask": "The platform must leave a readable trail of who changed what on this page",
         "closes": "the L2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast in the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack (.tmp/slw/l2_seed.py, triggers off for the seed only), while an init script recorded every write request the page sent (method, relation, status) and the walk kept what the person was told; then the database was read for the trail that change left: the row in hive_audit_log (or platform_audit_log for a platform decision) with the actor bound to the signed-in account, the action rendered through utils.js's one vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record and nothing in a hive's trail; for the person's own row, owner-only reading as another member): L2: a change made on platform-actions.html leaves who, what and which in the trail, in words - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T12:40:16.537Z (.tmp/slw/results/l2w_w6.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked; phone-390: \"Rejected credit top-up\" on \"PHP 150.00 top-up from Bryan Garcia\" by Leandro Marquez (platform trail) || desktop-1280: \"Rejected credit top-up\" on \"PHP 150.00 top-up from Bryan Garcia\" by Leandro Marquez (platform trail). Gates change-trail (migration 20261021000001: the generic trail where it should be and nowhere it duplicates or leaks, state-only values, deactivation before erasure, the deciders stamped, platform decisions in platform_audit_log) and audit-trail-coverage (every action any writer produces and every stored action has words in utils.js; both readers render through it; names, not ids). Receipt .tmp/mcp_walks/SL2986.json.",
+      "artifacts": {
+        "gates": [
+          "audit-trail-coverage",
+          "change-trail",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1019318,5 +1019507,5 @@
       }
     }
   ],
-  "next": "SL L2 audit trail (21) - the platform must leave a readable trail of who changed what on each page: walk each row's cast at phone-390 and desktop-1280, make the change the page lets them make, then read the trail it left (hive_audit_log and the page's own history) for who, what and when, in words a person can read; fix pages whose writes leave no trail or a trail nobody can read; then L3-4, LB1, LB3, LB4, RL1-3. SL LB2 34/34 CLOSED (20261020000003: every policy asks auth.uid() once - 225 policies, hive_members on its index; the reader's own listings/inquiries/hives asked as one array; provider ids a UNION; per-provider counts; trade peers narrowed; credit totals kept by a trigger; my_recent_xp). LB-family follow-ups the walks never hit: service-request/broadcast views (marketplace 4311, seller 2264-2265), area presence 5304, community keyword search 3110, report-sender fallback 1364. Ian's gates: push 08cb9598..HEAD + migrations 20261016000001-3 and 20261020000001-3; skills_table approval; privacy wording; disclose the ~2 min baseline run against the production Supabase URL"
+  "next": "SL L3 usage events (31) - the platform must record this page's use as events someone can count: inventory each page's analytics_events writes (what is counted, by whom, which page), walk each row's cast at phone-390 and desktop-1280 using the page's main controls, then read analytics_events for one event per meaningful use with page, action and a hive/actor someone can count by (no PII, no double-fire); then L4 (32), LB1 (33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
 }

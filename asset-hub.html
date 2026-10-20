@@ -3212,7 +3212,7 @@
           : '';
         const fmeaActions = isSupervisor && !m.approved_at
           ? '<button data-i="approve" class="approve" data-action="approve" data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '">Approve</button>'
-          +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '" data-i="delete">Delete</button>'
+          +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '" data-i="delete">Delete</button>'
           : '';
         const cause  = m.cause_text  ? '<div style="font-size:0.8rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
         const effect = m.effect_text ? '<div style="font-size:0.8rem; color:rgba(255,255,255,0.83);">effect: ' + e(m.effect_text) + '</div>' : '';
@@ -3236,6 +3236,9 @@
           const linkedTxt     = strat.written_to_pm_scope_item_id
             ? '<span class="rcm-pm-linked">linked to PM</span>'
             : '';
+          // SL L2: what the trail calls this strategy - its task, else its decision for this failure mode (the trail
+          // used to store the strategy's id as its name, which the board then hides, leaving "Approved RCM strategy")
+          const stratName    = strat.task_text || (decisionLabel + ' for ' + (m.failure_mode || 'this failure mode'));
           const stratStatus = strat.approved_at
             ? '<span class="fmea-source-pill fmea-status-approved">approved</span>'
             : '<span class="fmea-source-pill fmea-status-pending">pending</span>';
@@ -3249,8 +3252,8 @@
             +   '<span style="flex:1;"></span>'
             +   '<button data-action="strat-edit" data-mode-id="' + e(m.id) + '" data-i="editstrategy">Edit strategy</button>'
             +   (canPushPm ? '<button data-action="strat-push" data-strategy-id="' + e(strat.id) + '" data-i="pushtopm">Push to PM</button>' : '')
-            +   (isSupervisor && !strat.approved_at ? '<button data-i="approve" class="approve" data-action="strat-approve" data-strategy-id="' + e(strat.id) + '">Approve</button>' : '')
-            +   (isSupervisor ? '<button class="delete" data-action="strat-delete" data-strategy-id="' + e(strat.id) + '" data-i="delete">Delete</button>' : '')
+            +   (isSupervisor && !strat.approved_at ? '<button data-i="approve" class="approve" data-action="strat-approve" data-strategy-id="' + e(strat.id) + '" data-strategy-name="' + e(stratName) + '">Approve</button>' : '')
+            +   (isSupervisor ? '<button class="delete" data-action="strat-delete" data-strategy-id="' + e(strat.id) + '" data-strategy-name="' + e(stratName) + '" data-i="delete">Delete</button>' : '')
             + '</div>';
         } else if (m.approved_at) {
           // Only offer "Set strategy" once the FMEA mode itself is approved.
@@ -3296,12 +3299,13 @@
           const modeId = btn.getAttribute('data-mode-id');
           const stratId = btn.getAttribute('data-strategy-id');
           const modeName = btn.getAttribute('data-mode-name') || '';
+          const stratName = btn.getAttribute('data-strategy-name') || '';
           if (action === 'approve')        approveFmeaMode(id, modeName);
-          else if (action === 'delete')    deleteFmeaMode(id);
+          else if (action === 'delete')    deleteFmeaMode(id, modeName);
           else if (action === 'strat-edit')    openStrategyModal(modeId);
           else if (action === 'strat-push')    pushStrategyToPm(stratId);
-          else if (action === 'strat-approve') approveStrategy(stratId);
-          else if (action === 'strat-delete')  deleteStrategy(stratId);
+          else if (action === 'strat-approve') approveStrategy(stratId, stratName);
+          else if (action === 'strat-delete')  deleteStrategy(stratId, stratName);
         });
       });
     }
@@ -3427,15 +3431,20 @@
       await loadDetailFmea(_selectedNodeId);
     }
 
-    async function deleteFmeaMode(id) {
+    async function deleteFmeaMode(id, modeName) {
       if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       if (!(await window.whConfirm('Delete this FMEA failure mode? Linked RCM strategies will cascade.', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
-      const { error } = await db.from('rcm_fmea_modes')
+      const { data: _gone, error } = await db.from('rcm_fmea_modes')
         .delete()
         .eq('id', id)
-        .eq('hive_id', HIVE_ID);
+        .eq('hive_id', HIVE_ID)
+        .select('id');
       if (error) { showToast(whWriteError(error, 'The delete did not go through. The row is still there.')); return; }
-      writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, id, { node_id: _selectedNodeId });
+      // SL L2 (2026-10-21): a delete RLS refuses matches zero rows and returns no error - the trail recorded deletes
+      // the database never made. It records only one that landed, under the mode's own name (the id it stored before
+      // reads as nothing: the board hides a bare id).
+      if (!_gone || !_gone.length) { showToast('The delete did not go through - this mode may already be gone, or your role in this hive changed. Reload to check.'); return; }
+      writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, modeName || null, { node_id: _selectedNodeId });
       showToast('FMEA mode deleted.');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -3612,7 +3621,7 @@
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
     }
 
-    async function approveStrategy(strategyId) {
+    async function approveStrategy(strategyId, strategyName) {
       if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       // P6-C1 optimistic lock (asset-hub approval-lock gap, 2026-07-19): only approve a STILL-UNAPPROVED
       // strategy (.is('approved_at', null)) so a concurrent approve / double-click cannot silently
@@ -3625,19 +3634,20 @@
         .select('id');
       if (error) { showToast(whWriteError(error, 'The approval did not go through. The item is still pending.')); return; }
       if (!updated || !updated.length) { showToast('That strategy was already approved.'); if (_selectedNodeId) await loadDetailFmea(_selectedNodeId); return; }
-      writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
+      writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyName || null,
         { node_id: _selectedNodeId });
       showToast('Strategy approved.');
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
     }
 
-    async function deleteStrategy(strategyId) {
+    async function deleteStrategy(strategyId, strategyName) {
       if (HIVE_ROLE !== 'supervisor') { showToast(_t('Supervisors only.', 'Para sa superbisor lamang.')); return; }
       if (!(await window.whConfirm('Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only).', { okLabel: 'Delete', cancelLabel: 'Keep' }))) return;
-      const { error } = await db.from('rcm_strategies')
-        .delete().eq('id', strategyId).eq('hive_id', HIVE_ID);
+      const { data: _gone, error } = await db.from('rcm_strategies')
+        .delete().eq('id', strategyId).eq('hive_id', HIVE_ID).select('id');
       if (error) { showToast(whWriteError(error, 'The delete did not go through. The row is still there.')); return; }
-      writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyId,
+      if (!_gone || !_gone.length) { showToast('The delete did not go through - this strategy may already be gone, or your role in this hive changed. Reload to check.'); return; }   // SL L2: see deleteFmeaMode
+      writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyName || null,
         { node_id: _selectedNodeId });
       showToast('Strategy deleted.');
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);

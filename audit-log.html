@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAuditLabel whAuditView whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -579,14 +579,50 @@
     logbook:'Logbook Entry', pm_assets:'PM Asset', pm_completions:'PM Completion',
     marketplace_listings:'Marketplace Listing', marketplace_sellers:'Marketplace Seller',
     marketplace_orders:'Marketplace Order', marketplace_disputes:'Marketplace Dispute',
-    worker_profiles:'Worker Profile', worker_profile:'Worker Profile', worker:'Worker', hive:'Hive'
+    worker_profiles:'Worker Profile', worker_profile:'Worker Profile', worker:'Worker', hive:'Hive', hives:'Hive',
+    // SL L2 (2026-10-21): the tables the database's own trail names (audit_shared_change), and community's posts
+    api_keys:'API Key', integration_configs:'Integration', project_items:'Project Item', project_links:'Project Link',
+    projects:'Project', report_contacts:'Report Recipient', pm_scope_items:'PM Task', shift_plans:'Shift Plan',
+    service_requests:'Service Request', service_providers:'Provider Profile', community_posts:'Post',
+    // a voice row's words already say "by voice" - a "(Voice)" chip beside them would say it twice
+    voice:''
   };
   function humanizeTargetType(t){
     if(!t) return '';
-    if(TARGET_TYPE_LABELS[t]) return TARGET_TYPE_LABELS[t];
+    if(Object.prototype.hasOwnProperty.call(TARGET_TYPE_LABELS, t)) return TARGET_TYPE_LABELS[t];
     return String(t).replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
   }
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  // SL L2 (2026-10-21): every row's words, glyph, tone and visible name come from utils.js's ONE vocabulary
+  // (whAuditView) - this page used to print the action code with its underscores opened up ("amend closed logbook
+  // entry") while the hive board said "Amended a signed-off entry". The fallback serves only the moment a stale
+  // utils.js is being healed (the skew-heal block reloads the page with the current one).
+  function auditView(en) {
+    if (typeof whAuditView === 'function') return whAuditView(en);
+    const t = String(en.target_name || '').trim();
+    return { label: String(en.action || 'Action recorded'), icon: '•', tone: '', target: t, targetIsId: false, targetIsSelf: false };
+  }
+  function auditLabel(action, meta) {
+    return (typeof whAuditLabel === 'function') ? whAuditLabel(action, meta) : String(action || '');
+  }
+  // the target is the person themselves: say what of theirs it was, not their name a second time
+  function selfLabel(t) {
+    return (t === 'worker_profiles' || t === 'worker_profile') ? 'own profile' : t === 'marketplace_sellers' ? 'own seller profile' : '';
+  }
+  // voice-handler keeps every confirmed voice action in ai_audit_log; both the feed and the export show them in this
+  // page's own row shape. Its `source` column is the code name of the program that wrote the row ('voice-handler'),
+  // which this page used to print as the thing acted on - the words ("Logged logbook entry by voice") say it instead.
+  function voiceEntry(v) {
+    return {
+      id:          'ai:' + v.id,           // ids from two tables share one list; keep them distinct
+      actor:       v.worker_name || '',
+      action:      v.event || '',
+      target_type: 'voice',
+      target_id:   null,
+      target_name: null,
+      meta:        v.payload || {},
+      created_at:  v.created_at,
+    };
+  }
 
   // ── Auto-refresh — Arc L scale-out (1M realtime decision: reduce + poll-fallback) ──
   // The audit feed is NOT safety-critical, so a 30s visibility-aware poll replaces the
@@ -772,18 +808,7 @@
       if (verror) { _voiceReadFailed = true; }
       else {
         _voiceReadFailed = false;
-        for (const v of (vdata || [])) {
-          _entries.push({
-            id:          'ai:' + v.id,           // ids from two tables share one list; keep them distinct
-            actor:       v.worker_name || '',
-            action:      v.event || '',
-            target_type: 'voice',
-            target_id:   null,
-            target_name: v.source || 'voice-handler',
-            meta:        v.payload || {},
-            created_at:  v.created_at,
-          });
-        }
+        for (const v of (vdata || [])) _entries.push(voiceEntry(v));
         _entries.sort(function (a, b) { return String(b.created_at || '').localeCompare(String(a.created_at || '')); });
         if (_entries.length > 500) _entries = _entries.slice(0, 500);
       }
@@ -953,7 +978,7 @@
       }
     }
     fillSelect('actor-filter',  actors);
-    fillSelect('action-filter', actions, (v) => String(v).replace(/_/g, ' '));
+    fillSelect('action-filter', actions, (v) => auditLabel(v));
     fillSelect('target-filter', targets, humanizeTargetType);
   }
 
@@ -978,12 +1003,26 @@
      which is the shape the description was already claiming. Keys keep their own words (they come
      from the data, not from us) with underscores opened up so they read as words. */
   function metaRows(detail) {
-    const show = (v) => (v === null || v === undefined || v === '') ? 'not set'
-      : (typeof v === 'object' ? JSON.stringify(v) : String(v));
     const label = (k) => String(k).replace(/_/g, ' ');
+    // ★A NESTED OBJECT STILL READ AS JSON (2026-10-21, T28 re-run after the SL L2 cleanup): a new-device entry's
+    // `inputs` object rendered `{"hc":8,"tz":"Pacific/Auckland",...}` in its details - the one shape metaRows still
+    // stringified. Any depth now reads as "key value" words, never braces and quoted keys.
+    const show = (v) => (v === null || v === undefined || v === '') ? 'not set'
+      : Array.isArray(v) ? (v.map(show).join(', ') || 'none')
+      : (typeof v === 'object' ? (Object.keys(v).map((kk) => label(kk) + ' ' + show(v[kk])).join(', ') || 'none') : String(v));
     const out = [];
     for (const k of Object.keys(detail || {})) {
       const v = detail[k];
+      // SL L2: the database's own trail records WHICH columns a change touched (meta.changed, names only - never
+      // their values) and, for a state column, what it became (meta.to). Read as words, not as a JSON array.
+      if (k === 'changed' && Array.isArray(v)) {
+        out.push(['changed', v.map(label).join(', ') || 'not set']);
+        continue;
+      }
+      if (k === 'to' && v && typeof v === 'object' && !Array.isArray(v)) {
+        for (const f of Object.keys(v)) out.push([label(f) + ' is now', show(v[f])]);
+        continue;
+      }
       if (k === 'changed_fields' && v && typeof v === 'object' && !Array.isArray(v)) {
         for (const f of Object.keys(v)) {
           const ch = v[f];
@@ -1039,17 +1078,17 @@
 
     const e = escHtml;
     feed.innerHTML = visible.map(en => {
-      const actionClass = classifyAction(en.action);
-      const icon  = iconForAction(en.action);
+      const v = auditView(en);
+      const actionClass = classifyAction(en.action, v.tone);
+      const icon  = v.icon;
       const meta  = (en.meta && typeof en.meta === 'object') ? en.meta : null;
       const expanded = _expanded.has(en.id);
-      const prettyAction = (en.action || '').replace(/_/g, ' ');
-      // P4: a raw UUID target_name (RCM/FMEA writers pass the id as the name too) is
+      // P4: a raw UUID target_name (RCM/FMEA writers passed the id as the name too) is
       // dropped from the scannable row and surfaced in Show-details instead, so the
       // audit trail stays complete without a "58f0bf52-…" wall in the feed.
-      const nameIsUuid = !!(en.target_name && UUID_RE.test(en.target_name));
-      const isSelf = !!(en.target_name && en.actor && en.target_type === 'worker_profiles'
-                        && en.target_name.trim().toLowerCase() === en.actor.trim().toLowerCase());
+      const nameIsUuid = v.targetIsId;
+      const isSelf = v.targetIsSelf;
+      const typeLabel = humanizeTargetType(en.target_type);
       const detail = Object.assign({}, meta || {}, nameIsUuid ? { id: en.target_id || en.target_name } : {});
       const hasDetail = Object.keys(detail).length > 0;
 
@@ -1062,13 +1101,14 @@
            +   '<div class="entry-body">'
            +     '<div class="entry-head">'
            +       '<span class="entry-actor">' + e(en.actor || 'unknown') + '</span>'
-           +       '<span class="entry-action">' + e(prettyAction) + '</span>'
+           +       '<span class="entry-action">' + e(v.label) + '</span>'
            /* An entry about the actor THEMSELF named them twice: "CHRISTINE DIZON · new device · Christine Dizon
               (Worker Profile)" (critique, 2026-10-13) - the eye reads two people where there is one. The target
-              collapses to "(own profile)" when it is the actor; the record keeps both fields and Show details. */
-           +       (isSelf ? '<span class="entry-target-type">(own profile)</span>'
-                     : ((en.target_name && !nameIsUuid ? '<span class="entry-target">' + e(en.target_name) + '</span>' : '')
-                      + (en.target_type ? '<span class="entry-target-type">(' + e(humanizeTargetType(en.target_type)) + ')</span>' : '')))
+              collapses to "(own profile)" when it is the actor; the record keeps both fields and Show details.
+              SL L2: the same holds for any row about the person themselves (their seller profile, their account). */
+           +       (isSelf ? (selfLabel(en.target_type) ? '<span class="entry-target-type">(' + e(selfLabel(en.target_type)) + ')</span>' : '')
+                     : ((v.target ? '<span class="entry-target">' + e(v.target) + '</span>' : '')
+                      + (typeLabel ? '<span class="entry-target-type">(' + e(typeLabel) + ')</span>' : '')))
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'
            +     (hasDetail
@@ -1130,6 +1170,11 @@
   async function fetchAllForExport() {
     const PAGE = 500;
     const out = [];
+    // Resolve the range the SAME way loadEntries does (:471) — RANGES is an ARRAY keyed by .id,
+    // not an object, so indexing it by _activeRange yields undefined and would silently widen the
+    // export to all history. Reusing the exact lookup keeps the file's scope equal to the screen's.
+    const _r = RANGES.find(r => r.id === _activeRange) || RANGES[1];
+    const since = (_r && _r.hours) ? new Date(Date.now() - _r.hours * 3600 * 1000).toISOString() : null;
     for (let from = 0; ; from += PAGE) {
       let q = db.from('hive_audit_log')
         .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
@@ -1137,22 +1182,41 @@
         .order('created_at', { ascending: false })
         .order('id')                 // MR4: the sort above is not total on its own
         .range(from, from + PAGE - 1);
-      // Resolve the range the SAME way loadEntries does (:471) — RANGES is an ARRAY keyed by .id,
-      // not an object, so indexing it by _activeRange yields undefined and would silently widen the
-      // export to all history. Reusing the exact lookup keeps the file's scope equal to the screen's.
-      const _r = RANGES.find(r => r.id === _activeRange) || RANGES[1];
-      if (_r && _r.hours) q = q.gte('created_at', new Date(Date.now() - _r.hours * 3600 * 1000).toISOString());
+      if (since) q = q.gte('created_at', since);
       const { data, error } = await q;
       if (error) throw error;
       out.push(...(data || []));
-      if (!data || data.length < PAGE) return out;
+      if (!data || data.length < PAGE) break;
     }
+    // ★THE FILE HELD HALF THE TIMELINE (SL L2, 2026-10-21). The feed merges voice-driven actions (ai_audit_log) into
+    // one timeline because "an action done by voice is the same event with a different hand on it" - and this export
+    // read hive_audit_log alone, so the artifact an auditor keeps said no action had ever been taken by voice. It reads
+    // the same two sources now; a failed read of the second marks the file partial instead of shrinking it in silence.
+    let voiceComplete = true;
+    try {
+      for (let from = 0; ; from += PAGE) {
+        let q = db.from('ai_audit_log')
+          .select('id, worker_name, event, payload, source, created_at')
+          .eq('hive_id', HIVE_ID)
+          .order('created_at', { ascending: false })
+          .order('id')
+          .range(from, from + PAGE - 1);
+        if (since) q = q.gte('created_at', since);
+        const { data, error } = await q;
+        if (error) throw error;
+        for (const v of (data || [])) out.push(voiceEntry(v));
+        if (!data || data.length < PAGE) break;
+      }
+    } catch (_) { voiceComplete = false; }
+    out.sort(function (a, b) { return String(b.created_at || '').localeCompare(String(a.created_at || '')); });
+    return { rows: out, voiceComplete };
   }
 
   async function exportCsv() {
     let source = _entries;
     let complete = false;
-    try { source = await fetchAllForExport(); complete = true; }
+    let voiceComplete = true;
+    try { const all = await fetchAllForExport(); source = all.rows; voiceComplete = all.voiceComplete; complete = true; }
     catch (e) {
       // Never hand over a shorter file silently — say what it contains.
       console.warn('audit export: full read failed, exporting the loaded window', e);
@@ -1174,20 +1238,24 @@
       // cannot say what it is a record OF. _exportHiveName() falls back to the name already on screen before it
       // gives up, so the artifact identifies itself from whatever the page actually knows.
       'Hive: ' + _exportHiveName(),
-      'Range: ' + ((_r2 && _r2.label) || _activeRange) + (complete ? '' : ' (PARTIAL - loaded window only)'),
+      'Range: ' + ((_r2 && _r2.label) || _activeRange) + (complete ? '' : ' (PARTIAL - loaded window only)')
+        + (complete && !voiceComplete ? ' (PARTIAL - voice-driven actions could not be read)' : ''),
       'Entries: ' + items.length,
       'Filters: ' + [_activeActor && ('actor=' + _activeActor), _activeAction && ('action=' + _activeAction),
                      _activeTarget && ('target=' + _activeTarget), _searchTerm && ('search=' + _searchTerm)]
                     .filter(Boolean).join('; ') || 'none',
       'Exported: ' + new Date().toISOString(),
     ].map(csvEscape).join(String.fromCharCode(13, 10));
-    const headers = ['created_at', 'actor', 'action', 'target_type', 'target_id', 'target_name', 'meta'];
+    // SL L2: the file carries the WORDS beside the code - an auditor holding the CSV has no page around it to look a
+    // code up in ("change_api_key" + {"changed":["enabled"],"to":{"enabled":false}} reads "Turned off API key").
+    const headers = ['created_at', 'actor', 'action', 'what_happened', 'target_type', 'target_id', 'target_name', 'meta'];
     const lines = [meta, '', headers.join(',')];
     for (const en of items) {
       const row = [
         en.created_at || '',
         en.actor || '',
         en.action || '',
+        auditLabel(en.action, en.meta),
         en.target_type || '',
         en.target_id || '',
         en.target_name || '',
@@ -1218,21 +1286,17 @@
   }
 
   // ── Action classification (drives left-border colour + icon) ───────────────
-  function classifyAction(a) {
+  // SL L2: the shared vocabulary's TONE decides first, so this page and the hive board colour an event alike - the
+  // substring guess alone drew every add_ / change_ / close_ / deactivated row as "other" and a removed member amber
+  // here and red on the board. The guess is kept only for neutral rows (a join, an edit).
+  function classifyAction(a, tone) {
+    if (tone === 'pos') return 'approve';
+    if (tone === 'neg') return 'delete';
+    if (tone === 'sec') return 'kick';
     const s = (a || '').toLowerCase();
-    if (s.includes('approve')) return 'approve';
-    if (s.includes('reject'))  return 'reject';
-    if (s.includes('kick'))    return 'kick';
     if (s.includes('join') || s.includes('member_joined')) return 'join';
-    if (s.includes('edit') || s.includes('update')) return 'edit';
-    if (s.includes('delete') || s.includes('remove')) return 'delete';
+    if (/(^|_)(edit|update|change|amend|set|rename)/.test(s) || /_renamed$/.test(s)) return 'edit';
     return 'other';
-  }
-  function iconForAction(a) {
-    return ({
-      approve: '✓', reject: '✗', kick: '⛔', join: '➕',
-      edit: '✎', delete: '🗑', other: '•'
-    })[classifyAction(a)] || '•';
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

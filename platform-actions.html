@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -337,6 +337,16 @@
       </div>
       <div id="fb-list" aria-live="polite"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
+
+    <!-- SL L2 (2026-10-21): WHO DECIDED. Every decision on this console - a top-up, a listing, a seller, a feedback
+         item - was written into the operator's OWN hive trail, where an unrelated hive's supervisors could read it and
+         no other admin could, under the thing's id as its name. The database now keeps them in platform_audit_log,
+         bound to the account that acted, whichever path made the change; this is where an admin reads them. -->
+    <div class="card" id="sec-decisions">
+      <div class="card-hdr"><h2>Recent decisions</h2><span id="decisions-count" class="count">-</span></div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Who decided what on this console, newest first: top-ups, listings, sellers and feedback.</div>
+      <div id="decisions-list" aria-live="polite"><div class="mod-empty">Loading…</div></div>
+    </div>
   </div>
 
   <!-- ★A CAPABILITY STRANDED ON A RETIRED PAGE IS A DELETED CAPABILITY (2026-09-06). The five founder rollup RPCs
@@ -442,21 +452,9 @@
       setTimeout(() => el.remove(), 3200);
     }
 
-    // Minimal audit-log write (best-effort; RLS + auth_uid attribution enforced server-side).
-    async function writeAuditLog(action, targetType, targetId, targetName, meta) {
-      try {
-        // hive_id + actor are NOT NULL, and the INSERT policy requires hive_id IN user_hive_ids()
-        // (the operator's own home hive). actor is REBOUND server-authoritatively by
-        // wh_bind_audit_actor() (mig 20260713000003 P4-03), so the client value is a NOT-NULL
-        // placeholder only, never trusted for attribution.
-        const { error } = await db.from('hive_audit_log').insert({
-          hive_id: whHiveId(),
-          actor: whWorker() || 'operator',
-          action, target_type: targetType, target_id: targetId, target_name: targetName, meta: meta || {}
-        });
-        if (error) console.debug('audit write failed (best-effort):', error.message); // capture PostgREST {error} (not thrown), keep non-blocking
-      } catch (_) { /* empty-catch-allow: best-effort, never block the action on the audit write */ }
-    }
+    // SL L2 (2026-10-21): this console's decisions are recorded by the DATABASE (audit_platform_decision ->
+    // platform_audit_log, read under "Recent decisions"). Its old writeAuditLog put each one into the operator's own
+    // home hive trail - the only hive hive_audit_log let it write - where an unrelated hive's supervisors read it.
 
     /* SESSION-LIMITED, NOT ALL CLEAR. When the localhost bypass opened the console for someone who is
        not a platform admin, RLS returns 0 rows with no error — so every queue below is empty for a
@@ -727,6 +725,50 @@
       setCount('svc-topups-count', rows.length >= 50 ? '50+' : rows.length, 'warn');   // cap is not a total (2026-09-05): the read is .limit(50)
     }
 
+    // ── Recent decisions (SL L2, 2026-10-21) ──────────────────────────────────────────────────────────────────────
+    // platform_audit_log is written by the database on every decision path (audit_platform_decision), the actor bound
+    // to the account that acted. Platform admins read it (RLS); for anyone else the read returns zero rows with no
+    // error, which emptyText() already words as "not visible with this session" rather than "nothing decided".
+    async function fetchDecisions() {
+      try {
+        const { data, error } = await db.from('platform_audit_log')
+          .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
+          .order('created_at', { ascending: false })
+          .order('id')   // MR4: created_at alone is not a total order
+          .limit(20);
+        if (error) throw error;
+        return { rows: data || [], _error: null };
+      } catch (err) {
+        return { rows: [], _error: (err && err.message) || 'fetch failed', _code: (err && err.code) || null };
+      }
+    }
+    function renderDecisions(m) {
+      const box = document.getElementById('decisions-list');
+      if (!box) return;
+      m = m || {};
+      if (m._error) {
+        box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
+        setCount('decisions-count', '—', '');
+        return;
+      }
+      const rows = m.rows || [];
+      if (!rows.length) {
+        box.innerHTML = `<div class="mod-empty">${e(emptyText('No decisions yet. Each top-up, listing, seller and feedback decision made here appears with who made it.'))}</div>`;
+      } else {
+        box.innerHTML = rows.map(r => {
+          const v = (typeof whAuditView === 'function') ? whAuditView(r)
+            : { label: String(r.action || ''), target: String(r.target_name || '') };
+          const reason = r.meta && r.meta.reason ? ' · reason: ' + r.meta.reason : '';
+          return `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e(v.label)}${v.target ? ': ' + e(v.target) : ''}</strong>
+              <span class="mod-sub">${e(r.actor || 'unknown')} · ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}${e(reason)}</span></div>
+          </div>`;
+        }).join('');
+      }
+      setCount('decisions-count', rows.length >= 20 ? 'latest 20' : rows.length, '');   // a cap is not a total: the read is .limit(20)
+    }
+
     let _svcTopupWired = false;
     function wireSvcTopups() {
       if (_svcTopupWired) return; _svcTopupWired = true;
@@ -773,8 +815,8 @@
           if (!data || !data.length) {
             showToast('No change saved: that top-up was already decided.', 'error');
           } else {
-            writeAuditLog(verify ? 'verify_topup' : 'reject_topup', 'service_credit_topups',
-              btn.dataset.id, btn.dataset.id, { verified: verify });
+            // SL L2: the decision is recorded by the database (audit_platform_decision -> platform_audit_log, and
+            // verified_by / verified_at on the top-up itself) - this page no longer writes it into its own hive's trail
             showToast(verify
               ? 'Verified. Credits minted to the provider\'s wallet.'
               : 'Rejected. No credits were minted.', verify ? 'success' : 'info');
@@ -1139,23 +1181,24 @@
          Marking the queue containers aria-busy costs nothing, does not disturb the rows already on
          screen (the admin can keep reading them), and is cleared by the renderers below on every
          path, success or failure, because they all overwrite innerHTML. */
-      const _boxes = ['svc-topups-content', 'mkt-listings-content', 'gcash-receipts-content', 'cp-content']
+      const _boxes = ['svc-topups-content', 'mkt-listings-content', 'gcash-receipts-content', 'cp-content', 'decisions-list']
         .map(id => document.getElementById(id)).filter(Boolean);
       const _sync = document.getElementById('last-sync');
       _boxes.forEach(b => b.setAttribute('aria-busy', 'true'));
       if (_sync) _sync.textContent = 'Refreshing…';
       const wantFeedback = !_fb.drawerId;
       try {
-        const [mod, tops, gcash, fb, cp, usage] = await Promise.all([
+        const [mod, tops, gcash, fb, cp, usage, decided] = await Promise.all([
           fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
           wantFeedback ? fetchFeedback() : Promise.resolve(null),
-          fetchCreditPosition(), fetchUsage()]);
+          fetchCreditPosition(), fetchUsage(), fetchDecisions()]);
         renderMktModeration(mod);
         renderSvcTopups(tops);
         renderGcashLeftovers(gcash);
         if (fb) renderFeedback(fb);
         renderCreditPosition(cp);
         renderUsage(usage);
+        renderDecisions(decided);
         if (_sync) _sync.textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
       } catch (err) {
         // The busy state must not outlive the attempt. A stamp stuck on "Refreshing…" says the
@@ -1237,10 +1280,17 @@
             } else {
               _patch.moderation_reason = null;   // approving clears a stale rejection note
             }
-            const { error } = await db.from('marketplace_listings')
-              .update(_patch).eq('id', btn.dataset.id);
+            const { data: _moderated, error } = await db.from('marketplace_listings')
+              .update(_patch).eq('id', btn.dataset.id).select('id');
             if (error) throw error;
-            writeAuditLog(act === 'approve-listing' ? 'approve_listing' : 'reject_listing', 'marketplace_listings', btn.dataset.id, btn.dataset.id, { new_status: newStatus });
+            // SL L2 (2026-10-21): a refused update matches zero rows and returns no error, and this said "Listing
+            // approved: now live to buyers" about a listing that was not. The database records the decision
+            // (platform_audit_log, moderated_by bound to this account) only when it lands, and so does this receipt.
+            if (!_moderated || !_moderated.length) {
+              _btnRestore();
+              showToast('Nothing was saved: this listing may already have been decided, or this session is not a platform admin. Reload the queue to see where it stands.', 'error');
+              return;
+            }
             // J3 receipt: name what actually happened. "Listing rejected." left the admin unsure
             // whether the reason they were required to type ever reaches the seller. It does.
             showToast(act === 'approve-listing'
@@ -1277,9 +1327,15 @@
         const _sellerId = btn.dataset.sellerId || '';
         // ★BY ID ONLY (2026-10-13): the by-name fallback is gone - the buttons and this handler come from the same page load and every button carries data-seller-id, so it never ran; had it run, it would have verified EVERY seller sharing the display name. A row without an id is refused, not guessed.
         if (!_sellerId) { showToast('This seller row has no id, so nothing was verified. Reload the queue and try again.', 'error'); return; }
-        const { error } = await db.from('marketplace_sellers').update(upd).eq('id', _sellerId);
+        const { data: _verified, error } = await db.from('marketplace_sellers').update(upd).eq('id', _sellerId).select('id');
             if (error) throw error;
-            writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
+            // SL L2: confirmed before the receipt (a refused update is not an error), and recorded by the database -
+            // platform_audit_log, bound to this account - not written into this operator's own hive trail
+            if (!_verified || !_verified.length) {
+              _btnRestore();
+              showToast('Nothing was verified: this seller may already be verified, or this session is not a platform admin. Reload the queue to see where it stands.', 'error');
+              return;
+            }
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
           }
           /* The 'dispute-buyer' / 'dispute-seller' writer was RETIRED 2026-08-03 with the ghost table.

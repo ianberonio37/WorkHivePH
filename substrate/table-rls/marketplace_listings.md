@@ -2,7 +2,7 @@
 name: table-rls-marketplace_listings
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_listings
-source_sha: cf58a487f99cf838
+source_sha: 0c1f2000b0a13bc9
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,7 +20,7 @@ Policies:
 - `mkt_listings_read` [SELECT · roles=public] USING=`((status = 'published'::text) OR (auth_uid = ( SELECT auth.uid() AS uid)) OR is_marketplace_admin())` CHECK=`∅`
 - `mkt_listings_update` [UPDATE · roles=public] USING=`((auth_uid = ( SELECT auth.uid() AS uid)) OR is_marketplace_admin())` CHECK=`((auth_uid = ( SELECT auth.uid() AS uid)) OR is_marketplace_admin())`
 
-Guard triggers: `trg_bind_listing_owner`, `trg_guard_listing_meets_minimum`, `trg_guard_listing_sale_needs_counterparty`, `trg_guard_listing_status`, `trg_text_caps_mkt_listings`
+Guard triggers: `trg_bind_listing_moderator`, `trg_bind_listing_owner`, `trg_guard_listing_meets_minimum`, `trg_guard_listing_sale_needs_counterparty`, `trg_guard_listing_status`, `trg_text_caps_mkt_listings`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

@@ -1115,7 +1115,7 @@ async function syncItemToSupabase(item, undo) {
       await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
       showToast(_t('Saved offline. Will sync when you reconnect.',
                     'Na-save offline. Magsi-sync kapag nakakonekta ka na.'));
-      return;
+      return 'queued';
     }
     // Tier F capture contract — schedule_item_v1 runtime validation.
     if (window.whValidateCapture) {
@@ -1128,7 +1128,7 @@ async function syncItemToSupabase(item, undo) {
         const undone = _dpRollbackLocal(item, undo);
         showToast(undone || _t('Could not save that change. Nothing on your schedule changed.',
                                'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
-        return;
+        return 'refused';
       }
     }
     // W3-LC W31395: a day plan has THREE writers (this worker's other tab, the accepted-marketplace-job
@@ -1170,7 +1170,7 @@ async function syncItemToSupabase(item, undo) {
                'May ibang nagbago nito habang nag-e-edit ka. Nasa plano mo na ang bersyon nila, at nasa editor pa rin ang sinulat mo - i-save ulit para ilapat ito.')
           : _t('Someone else removed this item while you were editing, so your change could not be saved.',
                'May ibang nag-alis nito habang nag-e-edit ka, kaya hindi na-save ang pagbabago mo.'), 'error');
-        return;
+        return 'refused';
       }
     } else {
       // .select() so a CREATE returns its server stamp: without it the first edit after a create
@@ -1185,7 +1185,7 @@ async function syncItemToSupabase(item, undo) {
         await window._whDpQueue.enqueue({ id: row.id, op: 'upsert', payload: row });
         showToast(_t('Network issue: saved offline, will retry automatically.',
                       'May problema sa koneksyon: na-save offline, awtomatikong susubukan ulit.'));
-        return;
+        return 'queued';
       }
       // The network branch above already claimed anything connection-shaped, so "check your
       // connection" was actively misleading here: what reaches this line is a REFUSAL. Guarded call
@@ -1195,7 +1195,7 @@ async function syncItemToSupabase(item, undo) {
       // reader looks up; `undone` names what he can now see, and falls back to the old wording only
       // for callers that pass no snapshot (the queue drain).
       const _undone = _dpRollbackLocal(item, undo);
-      if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(error, _undone) : _undone, 'error'); return; }
+      if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(error, _undone) : _undone, 'error'); return 'refused'; }
       showToast(typeof whWriteError === 'function'
         /* T176 (2026-08-27): the FALLBACK said "check your connection" while the comment three
            lines up already established that anything connection-shaped was claimed by the branch
@@ -1204,7 +1204,11 @@ async function syncItemToSupabase(item, undo) {
            for a problem their wifi cannot fix. */
         ? whWriteError(error, _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'))
         : _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
+      return 'refused';
     }
+    // SL L2 (2026-10-21): the outcome is RETURNED, so the save site can tell a landed write from a refused one - it
+    // closed the item's linked logbook entry even when this save was refused and the item rolled back.
+    return 'saved';
   } catch(e) {
     console.warn('Schedule sync error:', e);
     if (_ensureDpQueue() && item && item.id) {
@@ -1212,7 +1216,7 @@ async function syncItemToSupabase(item, undo) {
         await window._whDpQueue.enqueue({ id: item.id, op: 'upsert', payload: toDBRow(item) });
         showToast(_t('Network issue: saved offline, will retry automatically.',
                       'May problema sa koneksyon: na-save offline, awtomatikong susubukan ulit.'));
-        return;
+        return 'queued';
       } catch (_) { /* empty-catch-allow: fall through to the honest failure toast */ }
     }
     /* T176 (2026-08-27): THE THIRD SITE, missed when the other two were fixed. The save's `error`
@@ -1223,10 +1227,11 @@ async function syncItemToSupabase(item, undo) {
        refusal or a bug, and sending someone to their wifi for either wastes the one action they
        are willing to take. Say the outcome instead, matching its sibling three lines above. */
     const _undone = _dpRollbackLocal(item, undo);
-    if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(e, _undone) : _undone, 'error'); return; }
+    if (_undone) { showToast(typeof whWriteError === 'function' ? whWriteError(e, _undone) : _undone, 'error'); return 'refused'; }
     showToast(typeof whWriteError === 'function'
       ? whWriteError(e, _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'))
       : _t('Could not save that change. Nothing on your schedule changed.', 'Hindi ma-save ang pagbabagong iyon. Walang nagbago sa schedule mo.'), 'error');
+    return 'refused';
   }
 }
 
@@ -2920,7 +2925,7 @@ function saveScheduleItem() {
 
   // The snapshot travels with the write so a refusal can put the screen back to what is true.
   // `existing` is the object that WAS in the array - the line above replaced the slot, not the object.
-  syncItemToSupabase(payload, { prev: editingScheduleId ? (existing || null) : null });
+  const _itemSaved = syncItemToSupabase(payload, { prev: editingScheduleId ? (existing || null) : null });
 
   // ★A COMPLETED PM WAS RECORDED NOWHERE BUT THE PLAN. The block below syncs a done item back to
   // its LOGBOOK source, and that is the only source sync on this page - there is no sourceKind==='pm'
@@ -2936,7 +2941,12 @@ function saveScheduleItem() {
   // this page does what it already does when it cannot close a linked logbook entry: it says so, and
   // names where the record actually has to be made.
   // Sync Done → Closed in Logbook (Supabase)
-  if (payload.itemStatus === 'done' && payload.logbookRef) {
+  // ★SL L2 (2026-10-21): ONLY once the item's own save landed (or was queued to). The close ran beside the item's
+  // save, never after it - so when that save was refused (a capture-contract miss, a refusal, a conflict) the item
+  // rolled back and the page said "the item is as it was" while the LINKED LOGBOOK ENTRY had been closed for the
+  // whole hive, its close in the trail. Measured on the L2 walk as Gloria Tan. A refused item leaves its source alone.
+  if (payload.itemStatus === 'done' && payload.logbookRef) _itemSaved.then((outcome) => {
+    if (outcome !== 'saved' && outcome !== 'queued') return;
     // canonical-allow: write site (logbook.status update) — truth views
     // are read-only; writes must target the underlying table.
     db.from('logbook')
@@ -2957,7 +2967,7 @@ function saveScheduleItem() {
           renderSidebar();
         }
       });
-  }
+  });
 
   selectedLogbookItem = null;
   renderSidebar();

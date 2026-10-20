@@ -2,7 +2,7 @@
 name: table-rls-platform_feedback
 type: table-rls
 source: db:pg_policies+pg_trigger:platform_feedback
-source_sha: 7a64183a9a3bb017
+source_sha: 129d6b0320235669
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, created_at*, auth_uid, worker_name, hive_id, contact_email, kind*, rating, subject*, body*, page_url, user_agent, status*, priority, labels*, admin_note, resolved_at, is_public*, upvotes*, updated_at*
+Columns (*=NOT NULL): id*, created_at*, auth_uid, worker_name, hive_id, contact_email, kind*, rating, subject*, body*, page_url, user_agent, status*, priority, labels*, admin_note, resolved_at, is_public*, upvotes*, updated_at*, triaged_by, triaged_at
 
 Policies:
 - `feedback admin deletes` [DELETE · roles=public] USING=`is_platform_admin()` CHECK=`∅`

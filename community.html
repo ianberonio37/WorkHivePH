@@ -2327,12 +2327,17 @@ function _isMinePost(p) {
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline(currentlyPinned ? 'Unpinning this post' : 'Pinning this post',
                             (m) => showToast(m, 'error'))) return;
-    const { error } = await db.from('community_posts')
+    const { data: _changed, error } = await db.from('community_posts')
       .update({ pinned: !currentlyPinned })
-      .eq('id', postId).eq('hive_id', HIVE_ID);
+      .eq('id', postId).eq('hive_id', HIVE_ID)
+      .select('id');
     if (error) { showToast(whWriteError(error, 'The pin did NOT change - the post is where it was.'), 'error'); return; }
-    await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId);
+    // ★SL L2 (2026-10-21): a refused update is not an error - RLS matches zero rows and PostgREST says nothing - and
+    // this wrote "Pinned post" into the hive's trail for a pin the database never made. The trail records only a
+    // change that landed, and names the post (its opening words) so a supervisor can tell which one.
+    if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('The pin'), 'error'); return; }
     const post = allPosts.find(p => p.id === postId) || pinnedPosts.find(p => p.id === postId);
+    await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId, null, _postName(post));
     if (post) {
       post.pinned = !currentlyPinned;
       if (!currentlyPinned) {
@@ -2354,13 +2359,15 @@ function _isMinePost(p) {
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline(currentlyFlagged ? 'Unflagging this post' : 'Flagging this post',
                             (m) => showToast(m, 'error'))) return;
-    const { error } = await db.from('community_posts')
+    const { data: _changed, error } = await db.from('community_posts')
       .update({ flagged: !currentlyFlagged })
-      .eq('id', postId).eq('hive_id', HIVE_ID);
+      .eq('id', postId).eq('hive_id', HIVE_ID)
+      .select('id');
     if (error) { showToast(whWriteError(error, 'The flag did NOT change - this post is still in the state it was.'), 'error'); return; }
-    await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId);
+    if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('The flag'), 'error'); return; }   // SL L2: see togglePin
     const pa = allPosts.find(p => p.id === postId);
     const pp = pinnedPosts.find(p => p.id === postId);
+    await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId, null, _postName(pa || pp));
     if (pa) pa.flagged = !currentlyFlagged;
     if (pp) pp.flagged = !currentlyFlagged;
     _updateRenderedCard(postId); // refresh only this card if expanded
@@ -2386,12 +2393,14 @@ function _isMinePost(p) {
         { okLabel: _t('Make public', 'Gawing pampubliko'), cancelLabel: 'Keep it in this hive' });
       if (!ok) return;
     }
-    const { error } = await db.from('community_posts')
+    const { data: _changed, error } = await db.from('community_posts')
       .update({ public: !currentlyPublic })
-      .eq('id', postId).eq('hive_id', HIVE_ID);
+      .eq('id', postId).eq('hive_id', HIVE_ID)
+      .select('id');
     if (error) { showToast(whWriteError(error, 'Visibility did NOT change - the post keeps its current audience.'), 'error'); return; }
-    await writeAuditLog(currentlyPublic ? 'make_post_private' : 'make_post_public', postId);
+    if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('Visibility'), 'error'); return; }   // SL L2: see togglePin
     const post = _findPost(postId);
+    await writeAuditLog(currentlyPublic ? 'make_post_private' : 'make_post_public', postId, null, _postName(post));
     if (post) { post.public = !currentlyPublic; }
     _updateRenderedCard(postId);
 
@@ -2436,7 +2445,7 @@ function _isMinePost(p) {
     const deletedAt = new Date().toISOString();
     const { data: _trashed, error } = await db.rpc('wh_trash', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, 'The post was NOT deleted - it is still in the feed.'), 'error'); return; }
-    if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId);
+    if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId, null, _postName(post));
     // Tell teammates' open feeds to look again - the hidden row's UPDATE no longer reaches them (see post_hidden).
     try { if (feedChannel) feedChannel.send({ type: 'broadcast', event: 'post_hidden', payload: { id: postId } }); }
     catch (_) { /* empty-catch-allow: a missed hint only means a teammate sees the post until their next load */ }
@@ -2465,7 +2474,7 @@ function _isMinePost(p) {
     // D3: wh_restore, under the same permission as the delete (see deletePost).
     const { error } = await db.rpc('wh_restore', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, _t('The undo did NOT go through - the post is still deleted.', 'HINDI natuloy ang undo - deleted pa rin ang post.')), 'error'); return; }
-    if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId);
+    if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId, null, _postName(snapshot || _findPost(postId)));
 
     // Re-add to local state
     if (snapshot && snapshot._wasMine) myPostIds.add(postId);
@@ -3326,7 +3335,9 @@ function _isMinePost(p) {
       .on('broadcast', { event: 'post_hidden' }, async ({ payload }) => {
         const id = payload && payload.id;
         if (!id || ![...allPosts, ...pinnedPosts].some(p => p.id === id)) return;
-        const { data, error } = await db.from('community_posts').select('id').eq('id', id).is('deleted_at', null).maybeSingle();
+        // scoped to this hive like every other community_posts read here (validate_community L2): the card being checked
+        // is in this hive's own feed (allPosts / pinnedPosts), so the scope can only agree with it
+        const { data, error } = await db.from('community_posts').select('id').eq('id', id).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
         if (error || data) return;
         myPostIds.delete(id);
         allPosts    = allPosts.filter(p => p.id !== id);
@@ -3512,9 +3523,12 @@ function _isMinePost(p) {
     if (error) { showToast(whWriteError(error, _t('Could not send report. Try again.', 'Hindi maipadala ang report. Subukan muli.')), 'error'); return; }
 
     // T31: target_name was blank in the audit row - the supervisor saw a report pointing at
-    // nothing. Name the reported post's author (the audit table's target_name column).
+    // nothing - so it carries whose post it was. SL L2 (2026-10-21): beside the shared words "Reported post"
+    // an author's name ALONE read as the post's title ("Reported post Juan Cruz"), so the name is both: the
+    // post's opening words and whose post it is. The author also stays in the row's details.
     const _reportedPost = [...pinnedPosts, ...allPosts].find(p => p.id === _reportingPostId);
-    await writeAuditLog('report_post', _reportingPostId, { reason, details }, _reportedPost ? (_reportedPost.author_name || _reportedPost.worker_name || null) : null);
+    const _author = _reportedPost ? (_reportedPost.author_name || _reportedPost.worker_name || null) : null;
+    await writeAuditLog('report_post', _reportingPostId, { reason, details, author: _author }, _reportName(_reportedPost));
 
     // Local state: hide the post from this worker's feed (workers don't see flagged)
     const post = _findPost(_reportingPostId);
@@ -3535,12 +3549,32 @@ function _isMinePost(p) {
   }
 
   // ── Audit log ─────────────────────────────────────────────────────────────────
+  // SL L2 (2026-10-21): what a trail row calls a post - its opening words, whitespace folded, cut at 80 characters
+  // (the database's own trail uses the same rule). A post has no title; its words are what a supervisor recognises.
+  function _postName(p) {
+    const t = String((p && p.content) || '').replace(/\s+/g, ' ').trim();
+    return t ? (t.length > 80 ? t.slice(0, 79) + '…' : t) : null;
+  }
+  // a REPORTED post is named by its words AND whose post it was (T31): "<opening words> (by <author>)" - the words cut
+  // so the author always fits
+  function _reportName(p) {
+    const author = p ? (p.author_name || p.worker_name || '') : '';
+    const t = String((p && p.content) || '').replace(/\s+/g, ' ').trim();
+    const words = t.length > 56 ? t.slice(0, 55) + '…' : t;
+    return (words || author) ? (words || 'a post') + (author ? ' (by ' + author + ')' : '') : null;
+  }
+  // the update matched no row: RLS refused it, or the post is gone - say both causes, and how to find out which
+  const _POST_UNCHANGED = (what) => what + ' did NOT change - this post may have been removed, or your role in this hive changed. Reload to see where things stand.';
   async function writeAuditLog(action, targetId, extraMeta, targetName) {
     try {
       const { error: _auditErr } = await db.from('hive_audit_log').insert({
         hive_id: HIVE_ID,
         actor:   WORKER_NAME,
         action,
+        // SL L2: the row says which post in its own columns, not only inside meta (audit-log.html's filter, the CSV and
+        // the change-trail walk all read target_type / target_id). meta.target_id stays: loadReportReasons reads it.
+        target_type: 'community_posts',
+        target_id:   targetId == null ? null : String(targetId),
         target_name: targetName || null,   // T31: the audit row must say WHO/what it is about
         meta:    { target_id: targetId, page: 'community', ...(extraMeta || {}) }
       });

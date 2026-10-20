@@ -2,7 +2,7 @@
 name: table-rls-shift_plans
 type: table-rls
 source: db:pg_policies+pg_trigger:shift_plans
-source_sha: ef5095a88ca2a6cb
+source_sha: e9377ed88ba319e8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -16,6 +16,8 @@ Columns (*=NOT NULL): id*, hive_id*, shift_window*, shift_date*, status*, genera
 Policies:
 - `shift_plans_supervisor_write` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1 FROM hive_members hm WHERE ((hm.hive_id = shift_plans.` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid `
 - `shift_plans_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid ` CHECK=`∅`
+
+Guard triggers: `trg_bind_shift_plan_publisher`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

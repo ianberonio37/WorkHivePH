@@ -1963,7 +1963,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -6481,126 +6481,10 @@ async function loadAuditLog() {
     _alc.textContent = ' · ' + data.length + (_last ? ' · ' + _t('last', 'huli') + ' ' + _last : '');
   }
 
-  // Action vocabulary. Every writeAuditLog action across the platform
-  // must have an entry here so the audit log renders it with a meaningful
-  // icon + label instead of a generic dot. Enforced by
-  // validate_audit_trail_coverage.py L2 (walkthrough 2026-05-13 sweep).
-  const ACTION_ICON = {
-    // Membership lifecycle
-    member_joined:         { icon: '+',  color: '#29B6D9', label: 'Joined' },
-    alert_handled:         { icon: '✓',  color: '#4ade80', label: 'Marked alert handled' },  // Arc Y Y3 alert agency
-    alert_snoozed:         { icon: '⏳', color: '#F7A21B', label: 'Snoozed alert' },          // Arc Y Y3 alert agency
-    alert_acknowledged:    { icon: '👁', color: '#94a3b8', label: 'Marked alert seen' },      // Arc Y Y3 alert agency
-    // 2026-09-28: both were written by writeAuditLog() across the platform with NO viewer entry,
-    // so the audit log rendered each as a generic dot - the same gap H11's rename had.
-    alert_dismissal_undone:{ icon: '↺',  color: '#94a3b8', label: 'Undid alert dismissal' },
-    // 2026-10-13 (audit-trail-coverage): written server-side by set_federated_benchmark_opt_in (mig 20261008000017) and
-    // the bring-your-history RPC (mig 20261008000064), with no viewer entry, so each rendered as a generic dot.
-    benchmark_sharing_on:  { icon: '↗',  color: 'var(--wh-blue)', label: 'Turned on benchmark sharing' },
-    benchmark_sharing_off: { icon: '⊘',  color: '#94a3b8', label: 'Turned off benchmark sharing' },
-    personal_history_brought_in: { icon: '⇲', color: 'var(--wh-blue)', label: 'Brought their own history in' },
-    rejected:              { icon: '✕',  color: '#f87171', label: 'Rejected' },
-    member_left:           { icon: '↩',  color: '#94a3b8', label: 'Left hive' },
-    hive_renamed:          { icon: '✎',  color: 'var(--wh-blue)', label: 'Renamed the hive' },  // H11 rename shipped without its viewer entry, so it rendered as a generic dot
-    kick_member:           { icon: '⊘',  color: '#f87171', label: 'Removed member' },
-    role_change:           { icon: '⇄',  color: 'var(--wh-blue)', label: 'Changed role' },  // supervisor handoff-on-leave (hive.html transferOnLeave)
-    new_device:            { icon: '⚠',  color: '#F7A21B', label: 'New device' },
-    // Workforce assignment + verification (used by AMC crew suggestions
-    // + supervisor PM workflow). Also seeded by walkthrough scripts.
-    assign:                { icon: '→',  color: '#29B6D9', label: 'Assigned' },
-    verify:                { icon: '✓',  color: '#29B6D9', label: 'Verified' },
-    // Generic approval queue (assets / inventory submitted by workers)
-    approve_item:          { icon: '✓',  color: '#4ade80', label: 'Approved' },
-    reject_item:           { icon: '✗',  color: '#f87171', label: 'Rejected' },
-    // Asset registry CRUD
-    register_asset:        { icon: '＋', color: '#4ade80', label: 'Registered asset' },
-    edit_asset:            { icon: '✎',  color: '#29B6D9', label: 'Edited asset' },
-    delete_asset:          { icon: '⊘',  color: '#f87171', label: 'Deleted asset' },
-    approve_asset_node:    { icon: '✓',  color: '#4ade80', label: 'Approved asset' },
-    reject_asset_node:     { icon: '✗',  color: '#f87171', label: 'Rejected asset' },
-    restore_asset_node:    { icon: '↺',  color: '#29B6D9', label: 'Restored asset' },
-    // PM Scheduler + Asset Hub deepwalk arcs (2026-07-28). These are written by DB TRIGGERS, not
-    // by writeAuditLog callers, which is exactly why they were missed: the triggers were added to
-    // make an amendment or a deletion tamper-evident, and without a row here the audit log renders
-    // each one as a generic unlabelled dot - the trail exists but cannot be read, which defeats
-    // the point of adding it.
-    // No `color` key: it is DEAD in this map - nothing reads cfg.color, the glyph's colour comes
-    // from _auditColor() via the _AUD_SEC/_AUD_NEG/_AUD_POS sets below. Adding raw brand hexes
-    // here would have been dead weight AND a design-token regression, so these register their
-    // VALENCE in those sets instead, which is what actually reaches the screen.
-    // PJ12 (2026-07-28): project removal is now supervisor-gated AND audited — the first
-    // `projects` rows hive_audit_log has ever carried.
-    delete_project:        { icon: '⊘',  label: 'Removed project' },
-    hard_delete_project:   { icon: '⊘',  label: 'Permanently deleted project (and its change orders)' },
-    restore_project:       { icon: '↺',  label: 'Restored project' },
-    // 2026-10-08: the project page's authority decisions, written by DB triggers
-    // (20261008000014_project_authority_decisions_are_audited) - registered here in the same change, so the
-    // first rows never render as unlabelled dots.
-    approve_change_order:     { icon: '✓',  label: 'Approved change order' },
-    reject_change_order:      { icon: '✗',  label: 'Rejected change order' },
-    cancel_change_order:      { icon: '⊘',  label: 'Cancelled change order' },
-    assign_project_role:      { icon: '→',  label: 'Assigned project role' },
-    remove_project_role:      { icon: '⊘',  label: 'Removed project role' },
-    acknowledge_progress_log: { icon: '✓',  label: 'Acknowledged progress report' },
-    // performLeave: the member_left row precedes the delete (RLS), so a refused delete writes this correction.
-    member_leave_refused:     { icon: '⚠',  label: 'Tried to leave - membership kept' },
-    amend_pm_completion:   { icon: '✎',  label: 'Amended PM completion' },
-    amend_pm_schedule:     { icon: '⏱',  label: 'Changed PM schedule' },
-    delete_asset_node:     { icon: '⊘',  label: 'Deleted asset' },
-    approved:              { icon: '✓',  label: 'Approved' },
-    // D3 (2026-10-16): deletes are recoverable for 30 days. The database writes delete_* when a person deletes,
-    // recover_* when one is restored, and purge_* when the retention job removes it for good - registered here in
-    // the same change, so the first rows never render as unlabelled dots. delete_* labels stay neutral: rows
-    // written before this change were deletes that could not be undone.
-    recover_asset_node:     { icon: '↺',  color: '#4ade80', label: 'Restored deleted asset' },
-    purge_asset_node:       { icon: '⊘',  color: '#f87171', label: 'Removed deleted asset for good (and its reliability history)' },
-    delete_logbook_entry:   { icon: '⊘',  color: '#f87171', label: 'Deleted logbook entry' },
-    recover_logbook_entry:  { icon: '↺',  color: '#4ade80', label: 'Restored deleted logbook entry' },
-    recover_inventory_item: { icon: '↺',  color: '#4ade80', label: 'Restored deleted inventory item' },
-    recover_pm_asset:       { icon: '↺',  color: '#4ade80', label: 'Restored deleted PM template' },
-    purge_pm_asset:         { icon: '⊘',  color: '#f87171', label: 'Removed deleted PM template for good (and its history)' },
-    delete_project_link:    { icon: '⊘',  label: 'Removed project link' },
-    recover_project_link:   { icon: '↺',  label: 'Restored project link' },
-    recover_project_role:   { icon: '↺',  label: 'Restored project role' },
-    set_retention:          { icon: '⏱',  label: 'Changed how long deleted items are kept' },
-    // Inventory CRUD
-    create_inventory_item: { icon: '＋', color: '#4ade80', label: 'Added inventory item' },
-    edit_inventory_item:   { icon: '✎',  color: '#29B6D9', label: 'Edited inventory item' },
-    delete_inventory_item: { icon: '⊘',  color: '#f87171', label: 'Deleted inventory item' },
-    edit_part:             { icon: '✎',  color: '#29B6D9', label: 'Edited part' },
-    // Logbook
-    create_logbook_entry:  { icon: '＋', color: '#4ade80', label: 'New logbook entry' },
-    edit_logbook_entry:    { icon: '✎',  color: '#29B6D9', label: 'Edited logbook entry' },
-    // Post-sign-off amendments, written by the DATABASE (trg_logbook_post_close_audit), not the
-    // page — a client-written row is skipped by any write that does not go through logbook.html,
-    // and these are the two events an auditor most needs to see. Amber/red rather than blue:
-    // changing a signed-off record is not an ordinary edit.
-    amend_closed_logbook_entry:  { icon: '✎', color: 'var(--wh-orange)', label: 'Amended a signed-off entry' },
-    reopen_closed_logbook_entry: { icon: '↺', color: '#f87171', label: 'Re-opened a signed-off entry' },
-    // PM lifecycle
-    complete_pm:           { icon: '✓',  color: '#4ade80', label: 'Completed PM' },
-    edit_pm_asset:         { icon: '✎',  color: '#29B6D9', label: 'Edited PM template' },
-    delete_pm_asset:       { icon: '⊘',  color: '#f87171', label: 'Deleted PM template' },
-    // Reliability workbench
-    approve_fmea_mode:     { icon: '✓',  color: '#4ade80', label: 'Approved FMEA mode' },
-    delete_fmea_mode:      { icon: '⊘',  color: '#f87171', label: 'Deleted FMEA mode' },
-    approve_rcm_strategy:  { icon: '✓',  color: '#4ade80', label: 'Approved RCM strategy' },
-    delete_rcm_strategy:   { icon: '⊘',  color: '#f87171', label: 'Deleted RCM strategy' },
-    // Anomaly Engine 2.0 lifecycle (Phase 4.2)
-    anomaly_acknowledged:  { icon: '👁',  color: '#F7A21B', label: 'Anomaly acknowledged' },
-    anomaly_resolved:      { icon: '✓',  color: '#4ade80', label: 'Anomaly resolved' },
-    // AMC daily brief lifecycle
-    approve_amc_brief:     { icon: '✓',  color: '#4ade80', label: 'Approved AMC brief' },
-    reject_amc_brief:      { icon: '✗',  color: '#f87171', label: 'Rejected AMC brief' },
-    // Marketplace
-    create_listing:        { icon: '＋', color: '#4ade80', label: 'Listed in marketplace' },
-    open_dispute:          { icon: '⚠',  color: '#f87171', label: 'Opened dispute' },
-    resolve_dispute_order: { icon: '✓',  color: '#4ade80', label: 'Resolved dispute' },
-    submit_review:         { icon: '★',  color: '#F7A21B', label: 'Submitted review' },
-    // PDPA right-to-access + right-to-erasure (data_retention cron)
-    export_hive_data:      { icon: '⤓',  color: '#a78bfa', label: 'Exported hive data' },
-    right_to_erasure:      { icon: '✗',  color: '#a78bfa', label: 'Erased worker data (PDPA)' },
-  };
+  // Action vocabulary: utils.js WH_AUDIT_ACTIONS, through whAuditView (SL L2, 2026-10-21). This board kept its own
+  // 74-entry map and audit-log.html kept none, so one event read two ways and ten stored actions read as codes on both;
+  // the one map lives in utils.js now and validate_audit_trail_coverage.py holds every writer to it. Its per-action
+  // colours were dead here (nothing read cfg.color) - the tone in the shared map is what reaches the glyph.
 
   // N1: Filipino labels for the audit vocabulary, keyed by action (translated at render via _t).
   const FIL_ACTION = {
@@ -6629,36 +6513,26 @@ async function loadAuditLog() {
     export_hive_data: 'Nag-export ng hive data', right_to_erasure: 'Binura ang worker data (PDPA)',
   };
 
-  // U (Hive Board PDDA, 2026-07-11): never show a raw UUID on the glass. Some legacy audit rows
-  // stored an entity id as target_name (e.g. approve_fmea_mode logged the mode's uuid) — a
-  // supervisor reading "Approved FMEA mode bfc04f5f-..." learns nothing. Suppress a bare UUID so
-  // the row reads as just the action label; the write sites now pass readable names going forward.
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  // C1/K1: collapse the audit palette to a SEMANTIC set so red/amber stay meaningful instead of
-  // 7-way category coding. green=create/approve · red=destroy/reject · amber=security-only · neutral=rest.
-  // The glyph (from ACTION_ICON) carries the specific action; color carries only valence.
-  const _AUD_SEC = new Set(['new_device','amend_pm_completion','amend_pm_schedule','member_leave_refused']);
-  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved','restore_project','approve_change_order','acknowledge_progress_log']);
-  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node','delete_project','hard_delete_project','rejected','reject_change_order','cancel_change_order','remove_project_role']);
-  const _auditColor = a => _AUD_SEC.has(a) ? '#F7A21B' : _AUD_NEG.has(a) ? '#f87171' : _AUD_POS.has(a) ? '#4ade80' : '#94a3b8';
+  // U (Hive Board PDDA, 2026-07-11): never show a raw UUID on the glass (legacy RCM/FMEA rows stored the id as the
+  // name), and never the actor's own name twice ("Pablo Aguilar / Pablo Aguilar" on his own new device) - whAuditView
+  // applies both, so this board and audit-log.html apply the same two rules.
+  // C1/K1: the palette is SEMANTIC - green = made or approved, red = removed or rejected, amber = security only,
+  // neutral = the rest. The glyph carries the specific action; the colour carries only the tone.
+  const _AUD_TONE = { pos: '#4ade80', neg: '#f87171', sec: '#F7A21B' };
   list.innerHTML = data.map(row => {
-    const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: String(row.action || '').replace(/_/g, ' ') || 'Action recorded' };
+    const v = (typeof whAuditView === 'function') ? whAuditView(row)
+      : { label: String(row.action || 'Action recorded'), icon: '·', tone: '', target: String(row.target_name || '').trim() };
     const meta = row.meta || {};
     const sub  = meta.submitted_by ? ` · ${_t('submitted by', 'isinumite ni')} ${escHtml(meta.submitted_by)}` : '';
-    const rawTarget = (row.target_name || '').trim();
-    // A "new_device" row's target IS the actor (that worker signed in on a new device), so the
-    // name would repeat on the actor line below — drop it to avoid "Pablo Aguilar / Pablo Aguilar".
-    const isSelfTarget = row.action === 'new_device' && rawTarget && rawTarget === (row.actor || '').trim();
-    const targetName = (UUID_RE.test(rawTarget) || isSelfTarget) ? '' : rawTarget;
-    const targetHtml = targetName ? ` <span class="font-black text-white">${escHtml(targetName)}</span>` : '';
+    const targetHtml = v.target ? ` <span class="font-black text-white">${escHtml(v.target)}</span>` : '';
     const when = row.created_at
       ? new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : '';
     return `
     <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
-      <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_auditColor(row.action)};width:16px;text-align:center;">${cfg.icon}</span>
+      <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_AUD_TONE[v.tone] || '#94a3b8'};width:16px;text-align:center;">${escHtml(v.icon)}</span>
       <div class="flex-1 min-w-0">
-        <p class="text-xs font-semibold text-white/80">${escHtml(_t(cfg.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
+        <p class="text-xs font-semibold text-white/80">${escHtml(_t(v.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
         <p class="text-xs text-white/80 mt-0.5">${escHtml(row.actor)} · ${when}</p>
       </div>
     </div>`;

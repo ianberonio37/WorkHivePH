@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: c752d60fb2f3a432
+source_sha: 9ee61b464479ec60
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1408) — the 'what's already gated' brain
+## gate · registered validators (1409) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -374,7 +374,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1037)
+### Platform (1038)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -481,7 +481,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `audit-log-append-only` [regression] — T384 (audit tampering/gap): hive_audit_log has RLS on + INSERT(member) + SELECT(supervisor) policies and NO UPDATE/DELETE/ALL policy - RLS default-denies any ta
 - `audit-log-coverage` ⚡ [fail] — Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)
 - `audit-scanner-scope` ⚡ [fail] — Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)
-- `audit-trail-coverage` ⚡ [fail] — Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)
+- `audit-trail-coverage` ⚡ [fail] — Audit Trail Coverage (5-layer: lifecycle status updates are trailed; every action any writer produces AND every action stored in the trails has words in utils.j
 - `audit-visible-rect` [fail] — phone-fit audit teeth: a control scrolled into its clip band no longer false-flags as occluded, and a control under fixed chrome still does (the visible-rect oc
 - `auth-boundary` ⚡ [fail] — Auth Boundary Coverage (4-layer: HTML identity + edge auth + identity distribution + anon writes)
 - `auth-migration-readiness` ⚡ [fail] — Auth Migration Readiness (Phase A audit: sibling coverage + auth_uid columns + identity gate strength)
@@ -548,6 +548,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cf_units_visible` [fail] — CF units-visible (every examined quantity in each opened view carries its unit on screen)
 - `cg_offline_views` [fail] — CG offline-views representative case (the full sweep is the per-case loop; each run updates its cell in offline_refusal_report.json - refused BEFORE firing and 
 - `chain-journey` [fail] — T29: chain-journey gate - T29's per-hop context harness, slice 1 (2026-08-26). Runs tools/prove_chain_journey.mjs: a multi-page chain must CARRY its context at 
+- `change-trail` ⚡ [fail] — Change trail (SL L2): shared changes leave who/what/which/when on every path - generic trail attachments, state-only values, no-op and bookkeeping write nothing
 - `change_order_immutability` ⚡ [fail] — PJK1 - a raised change order is a CONTRACT, not a draft. project_change_orders carries cost_impact_php and schedule_impact_days, so approving one commits money.
 - `ci_domain_truth` [fail] — CI domain-truth (a metric names its standard AND its basis, a partial figure is labelled partial, a reorder names its threshold, a composite states its bands — 
 - `cj_dialog_layout` [fail] — CJ ui-layout inside the V2/V3 DIALOGS (each opened by its own source-read path: no unclipped horizontal overflow at 390 and every effective tap target >= 44px, 

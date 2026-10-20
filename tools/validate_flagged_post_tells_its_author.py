@@ -37,8 +37,14 @@ def main() -> int:
     failures = []
     src = io.open(ROOT / "community.html", encoding="utf-8", errors="replace").read()
 
-    # 1. the feed query exempts the author's OWN flagged rows
-    if not re.search(r"flagged\.eq\.false\s*,\s*author_name\.eq\.", src):
+    # 1. the feed query exempts the author's OWN flagged rows. (2026-10-21) SL AU3 moved "own" from the display name to
+    # the ACCOUNT - `.or('flagged.eq.false' + _ownFlagged)`, where _ownFlagged is `id.in.(<my post ids>)` once those are
+    # known, the name only before - and this literal-name pattern went red over an exemption that had become STRONGER.
+    # Either form passes; a feed query that filters flagged=false with no exemption still fails.
+    _legacy = re.search(r"flagged\.eq\.false\s*,\s*author_name\.eq\.", src)
+    _by_account = (re.search(r"\.or\(\s*'flagged\.eq\.false'\s*\+\s*_ownFlagged\s*\)", src)
+                   and re.search(r"_ownFlagged\s*=[^;]*id\.in\.\(", src))
+    if not (_legacy or _by_account):
         failures.append("the feed query no longer exempts the author's own flagged posts - a worker "
                         "whose post is reported watches it disappear from their own feed with no word, "
                         "and the badge below can never render because the row never arrives")

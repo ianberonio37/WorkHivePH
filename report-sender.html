@@ -1759,6 +1759,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           { okLabel: _t('Remove', 'Alisin'), cancelLabel: _t('Keep', 'Panatilihin') });
         if (!ok) return;
       }
+      const _removed = _contacts.find(c => c.id === id);
       _contacts = _contacts.filter(c => c.id !== id);
       _selectedContacts.delete(id);
       renderContacts();
@@ -1766,9 +1767,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Sync deletion to localStorage immediately
       localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
       if (HIVE_ID) {
-        const { error } = await db.from('report_contacts').delete()
-          .eq('id', id).eq('hive_id', HIVE_ID);
-        if (error) showToast(whWriteError(error, 'The contact was NOT removed - it is still saved and will still receive reports.'));
+        const { data: _gone, error } = await db.from('report_contacts').delete()
+          .eq('id', id).eq('hive_id', HIVE_ID).select('id');
+        // SL L2 (2026-10-21): a delete RLS refuses matches no row and returns no error - the contact left this list while
+        // it stayed saved and kept RECEIVING REPORTS, and the error path left it off the list too. Both put it back.
+        if (error || !_gone || !_gone.length) {
+          if (_removed && !_contacts.some(c => c.id === id)) _contacts.push(_removed);
+          renderContacts();
+          updateSendBtn();
+          localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
+          showToast(error
+            ? whWriteError(error, 'The contact was NOT removed - it is still saved and will still receive reports.')
+            : 'The contact was NOT removed - only a supervisor of this hive can remove recipients, or it was already gone. It is still saved and will still receive reports.');
+        }
       }
     }
 

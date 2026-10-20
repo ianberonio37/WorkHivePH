@@ -5648,11 +5648,27 @@ async function saveEditFromForm() {
   //
   // Placed AFTER the 0-row guard above on purpose, which is the asset-manager lesson: never write an
   // audit entry for an amendment the database refused.
-  writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
-    new_status: newStatus, prev_status: prevStatus,
-    new_category: updates.category, new_downtime_hours: updates.downtime_hours,
-    parts_added: _partsUsed.filter(p => p.partId && !p._existing).length,
-  });
+  //
+  // SL L2 (2026-10-21): closing an entry is recorded by the DATABASE now (trg_logbook_close_audit ->
+  // close_logbook_entry, on every path that closes one - the day planner's direct update had no trail at all). A save
+  // whose only change is that close wrote it twice: "Closed logbook entry" from the trigger and "Edited logbook entry"
+  // from here, in the same second. So a pure close leaves this row out; any other change keeps the amendment record,
+  // and now says WHICH fields it changed (it said only the status, category and downtime it ended with).
+  const _partsAdded = _partsUsed.filter(p => p.partId && !p._existing).length;
+  const _norm = (v) => JSON.stringify(v === undefined || v === '' ? null : v);
+  const _changed = existing
+    ? Object.keys(updates).filter(k => !['closed_at', 'updated_at', 'sync_meta'].includes(k) && _norm(updates[k]) !== _norm(existing[k]))
+    : Object.keys(updates);
+  const _pureClose = prevStatus !== 'Closed' && newStatus === 'Closed' && !_partsAdded
+    && _changed.every(k => k === 'status');
+  if (!_pureClose) {
+    writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
+      new_status: newStatus, prev_status: prevStatus,
+      new_category: updates.category, new_downtime_hours: updates.downtime_hours,
+      parts_added: _partsAdded,
+      changed: _changed,
+    });
+  }
 
   cancelEditMode();
   await renderEntries();

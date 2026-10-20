@@ -6092,6 +6092,284 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
   };
 }
 
+// ── The audit trail's ONE vocabulary (SL L2, 2026-10-21) ─────────────────────────────────────────────────────────
+// A trail is only as good as its reader can read it. The hive board kept its own 74-entry map and audit-log.html kept
+// none - it showed `action.replace(/_/g, ' ')`, so one event read "Amended a signed-off entry" on the board and "amend
+// closed logbook entry" on the page whose whole job is the trail, and 10 of the 46 actions stored locally had words on
+// neither (supervisor_password_reset, 71 rows; soft_delete_post, 57; edit_listing, 30; ...): the gate that owned this
+// read 12 named pages, and the writers of those 10 lived on two pages it did not name and in an edge function.
+// Both readers render through this map now, and validate_audit_trail_coverage.py reads it: every action a page, a root
+// script, an edge function, a migration, a seeder or a voice intent can write, and every action stored in the trail,
+// must have words here.
+//   icon  - the glyph beside the row.   label - "Verb thing"; the screen follows it with the thing's own name.
+//   tone  - 'pos' (made, approved, restored), 'neg' (removed, rejected), 'sec' (a security or integrity event worth a
+//           second look); none is neutral. The board colours the glyph by it and audit-log.html the row's border.
+// The DATABASE's generic trail (audit_shared_change, migration 20261021000001) writes add_/change_/remove_<thing>, with
+// meta.changed = the column NAMES a change touched and, for a state column, meta.to = its new value: phrased by the
+// grammar in whAuditLabel. Every <thing> it can write must be in WH_AUDIT_THINGS (the gate reads the attachments).
+const WH_AUDIT_ACTIONS = {
+  // Membership and the hive itself
+  member_joined:               { icon: '+',  label: 'Joined', tone: 'pos' },
+  member_left:                 { icon: '↩',  label: 'Left hive' },
+  member_leave_refused:        { icon: '⚠',  label: 'Tried to leave - membership kept', tone: 'sec' },
+  kick_member:                 { icon: '⊘',  label: 'Removed member', tone: 'neg' },
+  role_change:                 { icon: '⇄',  label: 'Changed role' },
+  new_device:                  { icon: '⚠',  label: 'New device', tone: 'sec' },
+  deactivated_account:         { icon: '↩',  label: 'Deactivated their account' },
+  supervisor_password_reset:   { icon: '⚿',  label: 'Reset member password', tone: 'sec' },
+  hive_renamed:                { icon: '✎',  label: 'Renamed the hive' },
+  benchmark_sharing_on:        { icon: '↗',  label: 'Turned on benchmark sharing' },
+  benchmark_sharing_off:       { icon: '⊘',  label: 'Turned off benchmark sharing' },
+  personal_history_brought_in: { icon: '⇲',  label: 'Brought their own history in' },
+  set_retention:               { icon: '⏱',  label: 'Changed how long deleted items are kept' },
+  export_hive_data:            { icon: '⤓',  label: 'Exported hive data' },
+  right_to_erasure:            { icon: '✗',  label: 'Erased worker data (PDPA)', tone: 'neg' },
+  // Alerts and anomalies
+  alert_handled:               { icon: '✓',  label: 'Marked alert handled', tone: 'pos' },
+  alert_snoozed:               { icon: '⏳', label: 'Snoozed alert' },
+  alert_acknowledged:          { icon: '👁', label: 'Marked alert seen' },
+  alert_unacknowledged:        { icon: '↺',  label: 'Cleared "seen" on alert' },
+  alert_dismissal_undone:      { icon: '↺',  label: 'Undid alert dismissal' },
+  anomaly_acknowledged:        { icon: '👁', label: 'Anomaly acknowledged' },
+  anomaly_resolved:            { icon: '✓',  label: 'Anomaly resolved', tone: 'pos' },
+  // Assignment, verification and the generic approval queue
+  assign:                      { icon: '→',  label: 'Assigned', tone: 'pos' },
+  verify:                      { icon: '✓',  label: 'Verified', tone: 'pos' },
+  approve_item:                { icon: '✓',  label: 'Approved', tone: 'pos' },
+  reject_item:                 { icon: '✗',  label: 'Rejected', tone: 'neg' },
+  approved:                    { icon: '✓',  label: 'Approved', tone: 'pos' },
+  rejected:                    { icon: '✕',  label: 'Rejected', tone: 'neg' },
+  // Assets
+  register_asset:              { icon: '＋', label: 'Registered asset', tone: 'pos' },
+  edit_asset:                  { icon: '✎',  label: 'Edited asset' },
+  delete_asset:                { icon: '⊘',  label: 'Deleted asset', tone: 'neg' },
+  approve_asset_node:          { icon: '✓',  label: 'Approved asset', tone: 'pos' },
+  reject_asset_node:           { icon: '✗',  label: 'Rejected asset', tone: 'neg' },
+  restore_asset_node:          { icon: '↺',  label: 'Restored asset', tone: 'pos' },
+  delete_asset_node:           { icon: '⊘',  label: 'Deleted asset', tone: 'neg' },
+  recover_asset_node:          { icon: '↺',  label: 'Restored deleted asset', tone: 'pos' },
+  purge_asset_node:            { icon: '⊘',  label: 'Removed deleted asset for good (and its reliability history)', tone: 'neg' },
+  // Projects
+  delete_project:              { icon: '⊘',  label: 'Removed project', tone: 'neg' },
+  hard_delete_project:         { icon: '⊘',  label: 'Permanently deleted project (and its change orders)', tone: 'neg' },
+  restore_project:             { icon: '↺',  label: 'Restored project', tone: 'pos' },
+  approve_change_order:        { icon: '✓',  label: 'Approved change order', tone: 'pos' },
+  reject_change_order:         { icon: '✗',  label: 'Rejected change order', tone: 'neg' },
+  cancel_change_order:         { icon: '⊘',  label: 'Cancelled change order', tone: 'neg' },
+  assign_project_role:         { icon: '→',  label: 'Assigned project role' },
+  remove_project_role:         { icon: '⊘',  label: 'Removed project role', tone: 'neg' },
+  recover_project_role:        { icon: '↺',  label: 'Restored project role' },
+  acknowledge_progress_log:    { icon: '✓',  label: 'Acknowledged progress report', tone: 'pos' },
+  delete_project_link:         { icon: '⊘',  label: 'Removed project link' },
+  recover_project_link:        { icon: '↺',  label: 'Restored project link' },
+  // Inventory
+  create_inventory_item:       { icon: '＋', label: 'Added inventory item', tone: 'pos' },
+  edit_inventory_item:         { icon: '✎',  label: 'Edited inventory item' },
+  delete_inventory_item:       { icon: '⊘',  label: 'Deleted inventory item', tone: 'neg' },
+  recover_inventory_item:      { icon: '↺',  label: 'Restored deleted inventory item', tone: 'pos' },
+  edit_part:                   { icon: '✎',  label: 'Edited part' },
+  // Logbook. Amending a signed-off record is not an ordinary edit (trg_logbook_post_close_audit): the board MEANT these
+  // amber and red and showed them grey - its per-action colours were dead, only its valence sets reached the screen.
+  create_logbook_entry:        { icon: '＋', label: 'New logbook entry', tone: 'pos' },
+  edit_logbook_entry:          { icon: '✎',  label: 'Edited logbook entry' },
+  close_logbook_entry:         { icon: '✓',  label: 'Closed logbook entry', tone: 'pos' },
+  delete_logbook_entry:        { icon: '⊘',  label: 'Deleted logbook entry', tone: 'neg' },
+  recover_logbook_entry:       { icon: '↺',  label: 'Restored deleted logbook entry', tone: 'pos' },
+  amend_closed_logbook_entry:  { icon: '✎',  label: 'Amended a signed-off entry', tone: 'sec' },
+  reopen_closed_logbook_entry: { icon: '↺',  label: 'Re-opened a signed-off entry', tone: 'neg' },
+  // PM
+  complete_pm:                 { icon: '✓',  label: 'Completed PM', tone: 'pos' },
+  amend_pm_completion:         { icon: '✎',  label: 'Amended PM completion', tone: 'sec' },
+  amend_pm_schedule:           { icon: '⏱',  label: 'Changed PM schedule', tone: 'sec' },
+  edit_pm_asset:               { icon: '✎',  label: 'Edited PM template' },
+  delete_pm_asset:             { icon: '⊘',  label: 'Deleted PM template', tone: 'neg' },
+  recover_pm_asset:            { icon: '↺',  label: 'Restored deleted PM template', tone: 'pos' },
+  purge_pm_asset:              { icon: '⊘',  label: 'Removed deleted PM template for good (and its history)', tone: 'neg' },
+  // Reliability
+  approve_fmea_mode:           { icon: '✓',  label: 'Approved FMEA mode', tone: 'pos' },
+  delete_fmea_mode:            { icon: '⊘',  label: 'Deleted FMEA mode', tone: 'neg' },
+  approve_rcm_strategy:        { icon: '✓',  label: 'Approved RCM strategy', tone: 'pos' },
+  delete_rcm_strategy:         { icon: '⊘',  label: 'Deleted RCM strategy', tone: 'neg' },
+  // AMC daily brief
+  approve_amc_brief:           { icon: '✓',  label: 'Approved AMC brief', tone: 'pos' },
+  reject_amc_brief:            { icon: '✗',  label: 'Rejected AMC brief', tone: 'neg' },
+  // Community moderation (community.html writes these after the database confirms the change)
+  pin_post:                    { icon: '⇡',  label: 'Pinned post' },
+  unpin_post:                  { icon: '⇣',  label: 'Unpinned post' },
+  flag_post:                   { icon: '⚑',  label: 'Flagged post', tone: 'sec' },
+  unflag_post:                 { icon: '⚐',  label: 'Cleared flag on post' },
+  report_post:                 { icon: '⚑',  label: 'Reported post', tone: 'sec' },
+  make_post_public:            { icon: '◎',  label: 'Made post public', tone: 'sec' },
+  make_post_private:           { icon: '◉',  label: 'Made post hive-only' },
+  soft_delete_post:            { icon: '⊘',  label: 'Deleted post', tone: 'neg' },
+  restore_post:                { icon: '↺',  label: 'Restored post', tone: 'pos' },
+  // Marketplace
+  create_listing:              { icon: '＋', label: 'Listed in marketplace', tone: 'pos' },
+  edit_listing:                { icon: '✎',  label: 'Edited listing' },
+  delete_listing:              { icon: '⊘',  label: 'Deleted listing', tone: 'neg' },
+  approve_listing:             { icon: '✓',  label: 'Approved listing', tone: 'pos' },
+  reject_listing:              { icon: '✗',  label: 'Rejected listing', tone: 'neg' },
+  moderate_listing:            { icon: '✎',  label: 'Changed listing status' },
+  triage_feedback:             { icon: '✎',  label: 'Triaged feedback' },
+  edit_seller_messenger:       { icon: '✎',  label: 'Changed seller Messenger link' },
+  edit_seller_certs:           { icon: '✎',  label: 'Updated seller certifications' },
+  verify_seller_cert:          { icon: '✓',  label: 'Verified seller certification', tone: 'pos' },
+  verify_seller_kyb:           { icon: '✓',  label: 'Verified seller business details', tone: 'pos' },
+  verify_topup:                { icon: '✓',  label: 'Verified credit top-up', tone: 'pos' },
+  reject_topup:                { icon: '✗',  label: 'Rejected credit top-up', tone: 'neg' },
+  open_dispute:                { icon: '⚠',  label: 'Opened dispute', tone: 'neg' },
+  resolve_dispute_order:       { icon: '✓',  label: 'Resolved dispute', tone: 'pos' },
+  submit_review:               { icon: '★',  label: 'Submitted review' },
+  // Voice: every confirmed voice action is kept in ai_audit_log under the intent's kind, and audit-log.html shows those
+  // rows in the same timeline as the rest
+  'logbook.create':            { icon: '🎙', label: 'Logged logbook entry by voice', tone: 'pos' },
+  'inventory.deduct':          { icon: '🎙', label: 'Took parts from inventory by voice' },
+  'pm.complete':               { icon: '🎙', label: 'Completed PM by voice', tone: 'pos' },
+  'asset.lookup':              { icon: '🎙', label: 'Looked up asset by voice' },
+  erasure_request:             { icon: '⊘',  label: 'Erased their voice journal', tone: 'neg' },
+};
+
+// The generic trail's things, keyed as the trigger writes them (lower(replace(thing, ' ', '_'))): the noun a person reads.
+const WH_AUDIT_THINGS = {
+  project_item: 'project item',
+  project_link: 'project link',
+  project: 'project',
+  report_recipient: 'report recipient',
+  integration_setting: 'integration setting',
+  api_key: 'API key',
+  rcm_strategy: 'RCM strategy',
+  fmea_failure_mode: 'FMEA failure mode',
+  pm_task: 'PM task',
+  shift_plan: 'shift plan',
+  service_request: 'service request',
+  service_provider_profile: 'service provider profile',
+  hive_setting: 'hive setting',
+};
+
+// What ONE changed column means, by thing. A function receives the new value when the database recorded it (meta.to:
+// a state column only - a boolean, a status, an availability, an RCM decision - never free text).
+const WH_AUDIT_CHANGES = {
+  api_key: {
+    enabled: (v) => v === false ? 'Turned off API key' : v === true ? 'Turned on API key' : 'Turned API key on or off',
+    label: 'Renamed API key',
+  },
+  integration_setting: {
+    label: 'Renamed integration',
+    endpoint_url: 'Changed integration endpoint',
+    auth_token: 'Changed integration credentials',
+    auth_method: 'Changed integration sign-in method',
+    sync_freq: 'Changed integration sync schedule',
+    system_type: 'Changed integrated system',
+  },
+  project_item: {
+    status: (v) => 'Marked project item ' + ({ pending: 'pending', in_progress: 'in progress', done: 'done',
+                                                blocked: 'blocked', skipped: 'skipped' }[v] || 'with a new status'),
+    title: 'Renamed project item',
+    owner_name: 'Reassigned project item',
+    notes: 'Edited notes on project item',
+    wbs_code: 'Changed WBS code of project item',
+  },
+  rcm_strategy: {
+    decision: (v) => 'Set RCM decision' + ({ run_to_failure: ': run to failure', scheduled_on_condition: ': on-condition task',
+                                             scheduled_restoration: ': scheduled restoration', scheduled_discard: ': scheduled discard',
+                                             failure_finding: ': failure-finding task', redesign_required: ': redesign required' }[v] || ''),
+    task_text: 'Edited RCM task',
+    rationale: 'Edited RCM rationale',
+  },
+  shift_plan: {
+    status: (v) => ({ published: 'Published shift plan', archived: 'Archived shift plan',
+                      draft: 'Moved shift plan back to draft' }[v] || 'Changed shift plan status'),
+  },
+  service_request: {
+    status: (v) => {
+      const w = { requested: 'requested', broadcasting: 'sent to providers', accepted: 'accepted', en_route: 'on the way',
+                  on_site: 'on site', in_progress: 'in progress', completed: 'completed', settled: 'settled',
+                  cancelled_by_client: 'cancelled by the client', cancelled_by_provider: 'cancelled by the provider',
+                  expired: 'expired', disputed: 'disputed' }[v];
+      return w ? 'Service request ' + w : 'Moved service request on';
+    },
+  },
+  service_provider_profile: {
+    availability: (v) => ({ online: 'Went online as a provider', offline: 'Went offline as a provider',
+                            on_job: 'Marked on a job' }[v] || 'Changed provider availability'),
+    categories: 'Changed services offered',
+    service_areas: 'Changed service areas',
+    display_name: 'Renamed provider profile',
+  },
+  report_recipient: { name: 'Renamed report recipient' },
+  hive_setting: { intent: "Set the hive's focus" },
+};
+const WH_AUDIT_COLUMN_WORDS = { owner_name: 'owner', wbs_code: 'WBS code', task_text: 'task', item_text: 'task',
+  auth_token: 'credentials', endpoint_url: 'endpoint', sync_freq: 'sync schedule', display_name: 'name',
+  system_type: 'system', auth_method: 'sign-in method' };
+
+function _whAuditOwn(map, k) {
+  return Object.prototype.hasOwnProperty.call(map, k) ? map[k] : null;
+}
+function _whAuditGeneric(action) {
+  const m = /^(add|change|remove)_(.+)$/.exec(String(action || ''));
+  return (m && _whAuditOwn(WH_AUDIT_THINGS, m[2])) ? { verb: m[1], key: m[2], thing: WH_AUDIT_THINGS[m[2]] } : null;
+}
+
+// The words for one trail row's action. meta is the row's meta (the generic trail's changed columns live there).
+function whAuditLabel(action, meta) {
+  const a = _whAuditOwn(WH_AUDIT_ACTIONS, action);
+  if (a) return a.label;
+  const g = _whAuditGeneric(action);
+  if (g) {
+    if (g.verb === 'add') return 'Added ' + g.thing;
+    if (g.verb === 'remove') return 'Removed ' + g.thing;
+    const changed = (meta && Array.isArray(meta.changed)) ? meta.changed : [];
+    const to = (meta && meta.to && typeof meta.to === 'object') ? meta.to : {};
+    // the headline is the STATE column when one changed - a status, availability, decision or on/off flip - because the
+    // columns stamped beside it (published_at / published_by, pct_complete) describe that same change: publishing a
+    // plan changes three columns and is still "Published shift plan"
+    const pick = changed.length === 1 ? changed[0]
+      : ['status', 'availability', 'decision', 'enabled'].find((c) => changed.indexOf(c) !== -1);
+    if (pick) {
+      const ph = _whAuditOwn(WH_AUDIT_CHANGES[g.key] || {}, pick);
+      if (typeof ph === 'function') return ph(to[pick]);
+      if (typeof ph === 'string') return ph;
+    }
+    if (changed.length) {
+      return 'Changed ' + g.thing + ' (' + changed.map((c) => _whAuditOwn(WH_AUDIT_COLUMN_WORDS, c) || String(c).replace(/_/g, ' ')).join(', ') + ')';
+    }
+    return 'Changed ' + g.thing;
+  }
+  // an action nobody registered still reads as words, never as a code (the gate fails it so this stays rare)
+  const t = String(action || '').replace(/[_.]+/g, ' ').trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'Action recorded';
+}
+
+// Everything a reader needs to draw one trail row: words, glyph, tone, and the thing's name as it should be SEEN -
+// never a bare id (a uuid stored as the name: legacy RCM / FMEA rows) and never the actor repeated (a row about the
+// person themselves - their own device, their own account, their own seller profile).
+function whAuditView(row) {
+  const r = row || {};
+  const a = _whAuditOwn(WH_AUDIT_ACTIONS, r.action);
+  const g = a ? null : _whAuditGeneric(r.action);
+  const meta = (r.meta && typeof r.meta === 'object') ? r.meta : {};
+  let tone = a ? (a.tone || '') : '';
+  if (g) {
+    tone = g.verb === 'add' ? 'pos' : g.verb === 'remove' ? 'neg' : '';
+    // credentials changed, or a key switched off: worth a second look
+    if (g.verb === 'change' && ((Array.isArray(meta.changed) && meta.changed.indexOf('auth_token') !== -1)
+                               || (meta.to && meta.to.enabled === false))) tone = 'sec';
+  }
+  const raw = String(r.target_name || '').trim();
+  const actor = String(r.actor || '').trim().toLowerCase();
+  const isId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw);
+  const isSelf = !!raw && !!actor && raw.toLowerCase() === actor;
+  return {
+    label: whAuditLabel(r.action, meta),
+    icon: a ? a.icon : g ? (g.verb === 'add' ? '＋' : g.verb === 'remove' ? '⊘' : '✎') : '·',
+    tone: tone,
+    target: (isId || isSelf) ? '' : raw,
+    targetIsId: isId,
+    targetIsSelf: isSelf,
+  };
+}
+
 // ── whModalA11y — retrofit the dialog a11y bar onto a HAND-ROLLED modal ──────
 // Grounded Sweep critique C7 / W2. whConfirm/whPrompt build their dialog in JS
 // with the a11y bar already set; pages with static hand-rolled overlays (logbook,

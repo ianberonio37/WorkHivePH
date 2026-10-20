@@ -37,7 +37,10 @@ SERVER = ROOT / "supabase" / "functions" / "send-report-email" / "index.ts"
 # back None for every row even though all four carried one. Its own self-test caught it: five logic
 # cases passed while the live check reported four chips "stating no window" that plainly stated one.
 CLIENT_ROW = re.compile(r"\{\s*id:\s*'(?P<id>[a-z_]+)'(?P<body>[^}]*)\}")
-CLIENT_WINDOW = re.compile(r"window:\s*'(?P<window>[^']*)'")
+# (2026-10-21) the bilingual pass wrapped each window as `window: _t('last 7 days', 'huling 7 araw')`, and a pattern
+# that wanted a bare string literal after `window:` read all four chips as stating no window - the gate went red over
+# chips that plainly state one. The English argument of _t() is the window the email must match.
+CLIENT_WINDOW = re.compile(r"window:\s*(?:_t\(\s*)?'(?P<window>[^']*)'")
 SERVER_ROW = re.compile(
     r"^\s*(?P<id>[a-z_]+):\s*\{[^}]*?window:\s*\"(?P<window>[^\"]*)\"", re.M)
 
@@ -96,6 +99,10 @@ def selftest() -> int:
         compare({"c": {"window": None, "phase3": True}}, srv), [])
     chk("an id the server does not know fails",
         len(compare({"zz": {"window": "x", "phase3": False}}, srv)), 1)
+    # the bilingual form: the English argument of _t() is the chip's window (read as none before 2026-10-21)
+    chk("a window wrapped in _t() is read",
+        parse_client("const REPORTS = [\n { id: 'a', label: 'A', window: _t('last 7 days', 'huling 7 araw') },\n];")["a"]["window"],
+        "last 7 days")
 
     live = compare(parse_client(io.open(CLIENT, encoding="utf-8", errors="replace").read()),
                    parse_server(io.open(SERVER, encoding="utf-8", errors="replace").read()))

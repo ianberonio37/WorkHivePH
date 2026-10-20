@@ -1292,6 +1292,17 @@
     }).then(({ error }) => { if (error) console.warn('audit log:', error.message); });
   }
 
+  // SL L2 (2026-10-21): what a trail row calls an alert. The dismissal KEY ('risk:Pump-01', 'stock:<id>') is the
+  // feed's internal code - stored as the name, a supervisor read "Marked alert handled risk:Pump-01". The alert as
+  // the feed shows it is its title and the kind of alert it was.
+  const _ALERT_KIND_WORDS = { risk: 'risk alert', stock: 'low stock', pm: 'PM due', pattern: 'failure pattern', staging: 'parts to stage' };
+  function _alertName(key, list) {
+    const a = (list || _alerts || []).find((x) => x && x.dedupeKey === key);
+    const t = a ? String(a.title || '').replace(/\s+/g, ' ').trim() : String(key || '').replace(/^[a-z]+:/, '');
+    const name = t + (a && _ALERT_KIND_WORDS[a.kind] ? ' · ' + _ALERT_KIND_WORDS[a.kind] : '');
+    return name ? (name.length > 80 ? name.slice(0, 79) + '…' : name) : null;
+  }
+
   async function loadAnomalyEngine() {
     const panel = document.getElementById('anomaly-engine-panel');
     if (!panel || !HIVE_ID) return;
@@ -2020,7 +2031,7 @@
         .upsert({ hive_id: HIVE_ID, alert_key: key, action, actor: WORKER_NAME, snooze_until: snoozeUntil },
                 { onConflict: 'hive_id,alert_key' });
       if (error) throw error;
-      writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, key,
+      writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, _alertName(key, prev),
                     snoozeUntil ? { snooze_until: snoozeUntil } : {});
       // ★SAY THAT THIS HIDES THE ALERT FOR EVERYONE. The upsert two lines above is keyed
       // onConflict: 'hive_id,alert_key' - the dismissal is HIVE state, not personal state - so one person
@@ -2044,7 +2055,7 @@
               delete _dismissals[key];
               _alerts = prev;
               renderFeed(); renderAlertSummary();
-              writeAuditLog('alert_dismissal_undone', 'alert', key, key, { undid: action });
+              writeAuditLog('alert_dismissal_undone', 'alert', key, _alertName(key, prev), { undid: action });
               showToast(_t('Put back → the alert is in your hive\u2019s feed again.',
                            'Naibalik → nasa feed na ulit ng hive mo ang alerto.'));
             } catch (undoE) {
@@ -2079,9 +2090,14 @@
     renderFeed();
     try {
       if (wasSeen) {
-        const { error } = await db.from('alert_dismissals')
-          .delete().eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'acknowledged');
+        const { data: _cleared, error } = await db.from('alert_dismissals')
+          .delete().eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'acknowledged').select('id');
         if (error) throw error;
+        // SL L2 (2026-10-21): the toast below told the crew THAT the alert was unseen again; the trail did not say WHO
+        // made it so - the same hive-wide change as marking it seen, recorded on one direction only. A delete that
+        // matched no row (another member already cleared it, or RLS refused) is not a change and is not recorded.
+        if (!_cleared || !_cleared.length) { renderFeed(); showToast('Nothing changed - this alert was no longer marked seen. Reload to see where it stands.'); return; }
+        writeAuditLog('alert_unacknowledged', 'alert', key, _alertName(key), {});
         // T19: un-marking was SILENT. It deletes the hive's row, so the alert returns to unseen for
         // everyone - a state change on shared data with nothing said about it. The dismissal path
         // has announced its scope since it was written; this one had a toast on the way in and
@@ -2093,7 +2109,7 @@
           .upsert({ hive_id: HIVE_ID, alert_key: key, action: 'acknowledged', actor: WORKER_NAME, snooze_until: null },
                   { onConflict: 'hive_id,alert_key' });
         if (error) throw error;
-        writeAuditLog('alert_acknowledged', 'alert', key, key, {});
+        writeAuditLog('alert_acknowledged', 'alert', key, _alertName(key), {});
         // T19: 'Marked seen' said nothing about SCOPE, and the scope is the whole hive. The upsert
         // right above is keyed onConflict: 'hive_id,alert_key' - identical to dismissAlert's - so
         // acknowledging is HIVE state, not a personal bookmark. Everything around it reads
