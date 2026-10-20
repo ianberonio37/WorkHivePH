@@ -1,7 +1,7 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-10-13T10:13:14.370787+00:00",
-  "family_pages": 42,
+  "generated": "2026-10-20T16:06:12.692988+00:00",
+  "family_pages": 39,
   "rows": [
     {
       "id": "FT1",
@@ -68,8 +68,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 22,
-      "need_n": 42,
-      "pct": 52,
+      "need_n": 39,
+      "pct": 56,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -96,7 +96,6 @@
       ],
       "gap": [
         "agentic-rag-observability.html",
-        "architecture.html",
         "assistant.html",
         "audit-log.html",
         "community.html",
@@ -112,8 +111,6 @@
         "public-feed.html",
         "resume.html",
         "status.html",
-        "symbol-gallery.html",
-        "validator-catalog.html",
         "voice-journal.html"
       ],
       "status": "built"
@@ -139,8 +136,8 @@
       "mode": "measured",
       "need_rule": "wide-table",
       "adopters_n": 11,
-      "need_n": 16,
-      "pct": 69,
+      "need_n": 14,
+      "pct": 79,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -156,10 +153,8 @@
       ],
       "gap": [
         "analytics-report.html",
-        "architecture.html",
         "assistant.html",
-        "llm-observability.html",
-        "validator-catalog.html"
+        "llm-observability.html"
       ],
       "status": "built"
     },
@@ -218,9 +213,9 @@
       "satisfies": "A3",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 38,
-      "need_n": 41,
-      "pct": 93,
+      "adopters_n": 37,
+      "need_n": 38,
+      "pct": 97,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -258,13 +253,10 @@
         "shift-brain.html",
         "skillmatrix.html",
         "status.html",
-        "validator-catalog.html",
         "voice-journal.html"
       ],
       "gap": [
-        "architecture.html",
-        "offline-fallback.html",
-        "symbol-gallery.html"
+        "offline-fallback.html"
       ],
       "status": "built"
     },
@@ -459,8 +451,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 6,
-      "need_n": 17,
-      "pct": 35,
+      "need_n": 16,
+      "pct": 38,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -477,7 +469,6 @@
         "founder-console.html",
         "hive.html",
         "llm-observability.html",
-        "logbook.html",
         "marketplace-seller.html",
         "platform-actions.html",
         "pm-scheduler.html"
@@ -640,8 +631,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 31,
-      "need_n": 39,
-      "pct": 79,
+      "need_n": 36,
+      "pct": 86,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -676,14 +667,11 @@
         "voice-journal.html"
       ],
       "gap": [
-        "architecture.html",
         "design-system.html",
         "founder-console.html",
         "llm-observability.html",
         "offline-fallback.html",
-        "platform-actions.html",
-        "symbol-gallery.html",
-        "validator-catalog.html"
+        "platform-actions.html"
       ],
       "status": "built"
     },
@@ -695,8 +683,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 29,
-      "need_n": 37,
-      "pct": 78,
+      "need_n": 34,
+      "pct": 85,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -729,14 +717,11 @@
         "voice-journal.html"
       ],
       "gap": [
-        "architecture.html",
         "design-system.html",
         "founder-console.html",
         "llm-observability.html",
         "offline-fallback.html",
-        "platform-actions.html",
-        "symbol-gallery.html",
-        "validator-catalog.html"
+        "platform-actions.html"
       ],
       "status": "built"
     },
@@ -748,8 +733,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 33,
-      "need_n": 39,
-      "pct": 85,
+      "need_n": 36,
+      "pct": 92,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -786,12 +771,9 @@
         "voice-journal.html"
       ],
       "gap": [
-        "architecture.html",
         "design-system.html",
         "llm-observability.html",
-        "offline-fallback.html",
-        "symbol-gallery.html",
-        "validator-catalog.html"
+        "offline-fallback.html"
       ],
       "status": "built"
     }
@@ -800,7 +782,7 @@
   "floors": {
     "FC1": 22,
     "FC3": 11,
-    "FI1": 38,
+    "FI1": 37,
     "FI2": 19,
     "FF1": 31,
     "FD1a": 23,

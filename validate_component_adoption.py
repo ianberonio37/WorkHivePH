@@ -87,14 +87,24 @@ def main() -> int:
             tightened.append(f"{cid} (new row, floor={measured[cid]['adopters_n']})")
 
     # A1 floors / A2 tighten
+    rebased: list[str] = []
     for cid, r in measured.items():
         floor = floors.get(cid)
         if floor is None:
             continue
         if r["adopters_n"] < floor:
             lost = sorted(set(base_rows.get(cid, {}).get("adopters", [])) - set(r["adopters"]))
-            failures.append(f"A1: {cid} ({r['name']}) adoption fell {floor} -> {r['adopters_n']}"
-                            + (f" — dropped by: {', '.join(lost[:6])}" if lost else ""))
+            # ★A PAGE DELETED FROM THE PLATFORM IS NOT A PAGE THAT STOPPED ADOPTING (2026-10-21). d7ecce37 deleted three
+            # dev pages (architecture, symbol-gallery, validator-catalog); validator-catalog was a disclosure adopter, so
+            # FI1 "fell 38 -> 37" and this gate stayed red for a week over a page that no longer exists. When the WHOLE
+            # shortfall is adopters gone from disk, the floor follows them down by exactly that many and says so; any
+            # page still on disk that dropped the component fails as before.
+            gone = [p for p in lost if not (ROOT / p).exists()]
+            if gone and r["adopters_n"] >= floor - len(gone):
+                rebased.append(f"{cid} {floor} -> {r['adopters_n']} (adopter page(s) deleted: {', '.join(gone)})")
+            else:
+                failures.append(f"A1: {cid} ({r['name']}) adoption fell {floor} -> {r['adopters_n']}"
+                                + (f" — dropped by: {', '.join(lost[:6])}" if lost else ""))
         elif r["adopters_n"] > floor:
             tightened.append(f"{cid} {floor} -> {r['adopters_n']}")
 
@@ -107,12 +117,14 @@ def main() -> int:
         write_baseline(rows, drift, n_pages, tightened=bool(tightened))
 
     REPORT.write_text(json.dumps({
-        "ok": ok, "checked": len(measured), "failures": failures, "tightened": tightened,
+        "ok": ok, "checked": len(measured), "failures": failures, "tightened": tightened, "rebased_for_deleted_pages": rebased,
         "generated": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print(f"component-adoption: {len(measured)} measured rows"
           + (f", tightened {len(tightened)}" if tightened else ""))
+    for b in rebased:
+        print(f"  REBASED {b}")
     for f in failures:
         print(f"  FAIL {f}")
     print("  " + ("PASS (forward-only floors held)" if ok else f"{len(failures)} FAILURE(S)"))
