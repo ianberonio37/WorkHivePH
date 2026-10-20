@@ -4710,7 +4710,8 @@ function whAutoRememberFilters(key, ids) {
        renders that as an empty list - which this platform has taught people to read as
        "there is nothing here" rather than "your filter is from another plant". */
     if (s.__hive !== _stateHive()) return;
-    ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('change', { bubbles: true })); } }); });
+    // a REPLAY of the person's earlier filter, not a new use (whReplay - SL L3)
+    ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; whReplay(function () { el.dispatchEvent(new Event('change', { bubbles: true })); }); } }); });
     ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['change', 'input'].forEach(function (ev) { el.addEventListener(ev, view.save); }); });
     return view;
   } catch (_) { return null; }
@@ -4736,7 +4737,8 @@ function whAutoRememberTabs(key, containerSel, dataAttr) {
       var cur = cont.querySelector('.active,[aria-pressed="true"],[aria-selected="true"]');
       if (cur && first && cur !== first) return;   // an explicit non-default (e.g. URL) selection WINS — don't override
       var b = cont.querySelector('[' + dataAttr + '="' + (window.CSS && CSS.escape ? CSS.escape(s.v) : s.v) + '"]');
-      if (b && b !== cur) b.click();
+      // the page's own handler runs, but this is the person's EARLIER choice replayed, not a new use (whReplay - SL L3)
+      if (b && b !== cur) whReplay(function () { b.click(); });
     });
     return view;
   } catch (_) { return null; }
@@ -7614,15 +7616,17 @@ function logEvent(db, eventName, props) {
     const insert = function () {
       /* attribution-allow: auth_uid is set dynamically at payload.auth_uid = session.user.id
          (getSession callback below) before this insert fires; statically invisible to the gate. */
-      db.from('analytics_events').insert(payload).then(function (r) {
+      return db.from('analytics_events').insert(payload).then(function (r) {
         if (r && r.error) console.warn('logEvent:', r.error.message);
-      });
+      }, function (e) { console.warn('logEvent:', e && e.message); });
     };
-    db.auth.getSession().then(function (res) {
+    // Returned so a page that LEAVES right after a use (a reload, a navigation) can wait for the row to land;
+    // every other caller ignores it and stays fire-and-forget (SL L3, 2026-10-21).
+    return db.auth.getSession().then(function (res) {
       if (res && res.data && res.data.session) {
         payload.auth_uid = res.data.session.user.id;
       }
-      insert();
+      return insert();
     }).catch(insert);
   } catch (e) {
     console.warn('logEvent err:', e && e.message);
@@ -7634,6 +7638,58 @@ function logPageView(db, extraProps) {
   const path = (location.pathname.split('/').pop() || 'index.html')
     .replace(/\.html$/i, '') || 'index';
   logEvent(db, 'page_view', Object.assign({ page: path }, extraProps || {}));
+}
+
+// ★WHAT A PAGE WAS USED FOR, AS EVENTS SOMEONE CAN COUNT (SL L3, 2026-10-21). The table's own migration promised
+// "feature pages ALSO emit feature_use"; 30 of 31 pages never did, so the operator could count VISITS per page and
+// never what a page was USED for. whUse(db, action, props) records ONE feature_use event for ONE use, and is called
+// where the use is CONFIRMED - after the save came back, never on the press (a refused save is not a use, and a
+// retried one is still one). The page name comes from the URL like logPageView's. props keep only short plain values
+// under keys that cannot carry a person or their words; the database screens them again and decides who, which hive
+// and what name (bind_analytics_events_submitter), so nothing here is trusted for identity. Read by the operator's
+// usage card through founder_feature_use.
+const WH_USE_PII_KEY = /^(email|phone|mobile|name|full_?name|display_?name|worker_?name|author|message|content|body|text|notes?|comment|address|password|token|query|q)$/i;
+// ★A RESTORED CHOICE IS NOT A USE (SL L3 walk, 2026-10-21). whAutoRememberTabs restores the last-active chip by CLICKING
+// it and whAutoRememberFilters by dispatching 'change' - both run the page's own handler, so the seller profile counted a
+// "section opened" 275 ms into a load nobody had touched. A helper that replays a person's earlier choice runs it inside
+// whReplay; whUse records nothing while it runs. (Synchronous only: a handler that awaits before recording is not covered.)
+var _whReplaying = 0;
+function whReplay(fn) { _whReplaying++; try { return fn(); } finally { _whReplaying--; } }
+function whUse(db, action, props) {
+  if (_whReplaying) return;
+  // a script that has no client of its own (index's stage menu runs before any is made) passes null: the shared one
+  db = db || window._whSupabaseClient || null;
+  if (!db || !action) return;
+  const page = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/i, '') || 'index';
+  const clean = { page: page, action: String(action).slice(0, 48) };
+  if (props && typeof props === 'object') {
+    Object.keys(props).forEach(function (k) {
+      const v = props[k];
+      if (k === 'page' || k === 'action' || WH_USE_PII_KEY.test(k)) return;
+      if (typeof v === 'number' || typeof v === 'boolean') clean[k] = v;
+      else if (typeof v === 'string' && v.length <= 60) clean[k] = v;
+    });
+  }
+  return logEvent(db, 'feature_use', clean);
+}
+// For a use followed at once by a reload or a navigation, which would cancel the insert in flight: wait for it to
+// land, never longer than `ms`. A slow network must not hold the person on the page.
+function whUseThen(db, action, props, ms) {
+  const p = (typeof whUse === 'function') ? whUse(db, action, props) : null;
+  return Promise.race([Promise.resolve(p).catch(function () {}), new Promise(function (r) { setTimeout(r, ms || 1500); })]);
+}
+// A LINK that is a page's use (a gate's way forward): pressed in the same tab, the navigation would cancel the event, so
+// it is recorded first (whUseThen, <= 1.5 s) and the link followed after. A modified press or a new-tab link leaves this
+// page standing, so it is recorded and the browser does what the person asked. Wired once per anchor.
+function whUseLink(a, action, props) {
+  if (!a || a.dataset.whUseLink) return;
+  a.dataset.whUseLink = '1';
+  a.addEventListener('click', function (e) {
+    const sameTab = !(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank');
+    if (!sameTab) { whUse(null, action, props); return; }
+    e.preventDefault();
+    whUseThen(null, action, props).then(function () { location.assign(a.href); });
+  });
 }
 
 // ─────────────────────────────────────────────

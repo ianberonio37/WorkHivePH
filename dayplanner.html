@@ -1296,6 +1296,8 @@ async function deleteItemFromSupabase(id, removed) {
       console.warn('Schedule delete removed no row (RLS or worker_name mismatch):', id);
       const _none = _dpRestoreDeleted(removed);
       showToast(_none || _t('Could not delete that item. It is still on your schedule.', 'Hindi ma-delete ang item na iyon. Nasa schedule mo pa ito.'), 'error');
+    } else if (typeof whUse === 'function') {
+      whUse(db, 'item_removed');   // SL L3: counted once the delete landed
     }
   } catch(e) {
     console.warn('Schedule delete error:', e);
@@ -2926,6 +2928,12 @@ function saveScheduleItem() {
   // The snapshot travels with the write so a refusal can put the screen back to what is true.
   // `existing` is the object that WAS in the array - the line above replaced the slot, not the object.
   const _itemSaved = syncItemToSupabase(payload, { prev: editingScheduleId ? (existing || null) : null });
+  // SL L3: one saved item is one use, counted when the database TOOK it - a refused save rolled back is not one,
+  // and a queued one is counted by nobody (the event cannot leave an offline device either)
+  const _dpIsEdit = !!editingScheduleId;
+  _itemSaved.then((outcome) => {
+    if (outcome === 'saved' && typeof whUse === 'function') whUse(db, _dpIsEdit ? 'item_edited' : 'item_added', { done: payload.itemStatus === 'done' });
+  });
 
   // ★A COMPLETED PM WAS RECORDED NOWHERE BUT THE PLAN. The block below syncs a done item back to
   // its LOGBOOK source, and that is the only source sync on this page - there is no sourceKind==='pm'
@@ -3087,7 +3095,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whUse whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

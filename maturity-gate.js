@@ -429,6 +429,19 @@
       </div>
       ${_srcAtFoot}
     `;
+    // ★A LOCKED PAGE IS STILL USED (SL L3 walk, 2026-10-21). For a hive below the required stair this panel IS the page
+    // (ai-quality and ph-intelligence were walked locked for their cast), and its one act that keeps the person here is
+    // reading how the stairway works - so that is the use it records. Its links leave for hive.html, whose own page
+    // view counts the arrival. Opening only: closing it again is not a use.
+    const _help = el.querySelector('details.wh-help');
+    if (_help) {
+      _help.addEventListener('toggle', function () {
+        if (_help.open && typeof root.whUse === 'function') root.whUse(null, 'stairway_explained', { stair: Number(gate.requiredStair) || 0 });
+      });
+    }
+    // ...and the unlock path is its way forward: recorded before the link leaves (whUseLink waits for the row, <= 1.5 s)
+    const _path = el.querySelector('a[href*="#maturity-stairway-card"]');
+    if (_path && typeof root.whUseLink === 'function') root.whUseLink(_path, 'stairway_opened', { stair: Number(gate.requiredStair) || 0 });
   }
 
   root.checkMaturityGate          = checkMaturityGate;

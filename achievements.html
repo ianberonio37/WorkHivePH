@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whFmtAgo whFreshnessFooter whListError whListSkeleton whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1018,6 +1018,8 @@
 
     card.classList.add('expanded');
     card.setAttribute('aria-expanded', 'true');
+    // SL L3: the page's own use - which achievement a person opened to read (closing one is not a use)
+    if (typeof whUse === 'function') whUse(null, 'achievement_opened', { id: String(achId || '').slice(0, 40) });
     const eventsEl = card.querySelector('.domain-events');
     const events   = _xpLog.filter(e => e.achievement_id === achId).slice(0, 3);
     if (!events.length) {

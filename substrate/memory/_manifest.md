@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1032-files
-source_sha: 1312a3fc61092da3
+source_sha: d9d17b7d26615283
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -27,7 +27,7 @@ Entries (name · type · sha):
 - `feedback_401_and_403_are_not_the_same_event` · feedback · 407a21a28d24a086
 - `feedback_42501_told_a_signed_in_buyer_to_sign_in` · feedback · e6bf2d7684259756
 - `feedback_87pct_of_entries_could_not_be_edited_by_their_authors` · feedback · 0a7626785c7a31ff
-- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · 96ba6a32c5fb2779
+- `feedback_a_backtick_in_a_comment_broke_the_page` · feedback · dd06367dad4e9dba
 - `feedback_a_baseline_page_must_be_served_like_the_page` · feedback · 3da261006cc1b31c
 - `feedback_a_basis_must_describe_the_page_in_its_own_receipt` · feedback · 1fce6d5fc53aa694
 - `feedback_a_big_finding_set_is_a_signal_to_check_the_record` · feedback · 664e95e988ba2da8
@@ -59,7 +59,7 @@ Entries (name · type · sha):
 - `feedback_a_dead_session_read_as_removal` · feedback · e3da539a1082ef88
 - `feedback_a_declaration_is_not_a_registration` · feedback · 26077d77981fc728
 - `feedback_a_declared_mechanism_is_not_a_mechanism` · feedback · cb8949fcbc15b9a9
-- `feedback_a_deep_link_is_input_and_some_of_them_wrote` · feedback · 55535b67a028aa4e
+- `feedback_a_deep_link_is_input_and_some_of_them_wrote` · feedback · f8e1bbd5e4f489f9
 - `feedback_a_default_guessed_before_the_role_outlived_it` · feedback · f72a4913f8e5e139
 - `feedback_a_default_hidden_on_domcontentloaded_is_a_layout_shift` · feedback · f7a4e527507083c3
 - `feedback_a_degraded_instrument_is_a_pivot_not_a_ceiling` · feedback · 6019f6569a1dfbd2
@@ -117,7 +117,7 @@ Entries (name · type · sha):
 - `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 3fd1de503c190f8e
-- `feedback_a_name_is_not_an_identity` · feedback · 022ee9cd4f419389
+- `feedback_a_name_is_not_an_identity` · feedback · 33f4821e7a1aeaeb
 - `feedback_a_needs_ian_list_is_a_stop` · feedback · 3a6dcd7f24cc8af4
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7
 - `feedback_a_new_guard_breaks_the_triggers_that_already_write` · feedback · d3dfa188021986ae

@@ -1203,7 +1203,7 @@
             </select>
             <input id="filter-date-from" aria-label="Filter from date" type="date" class="wh-input sm:w-36" />
             <input id="filter-date-to" aria-label="Filter to date" type="date" class="wh-input sm:w-36" />
-            <button id="btn-search-team" onclick="searchTeam()" style="min-height:44px;background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'" data-i="searchteam">Search Team</button>
+            <button id="btn-search-team" onclick="searchTeam(false, true)" style="min-height:44px;background:rgba(41,182,217,0.15);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.3);border-radius:0.75rem;padding:0 1.25rem;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(41,182,217,0.25)'" onmouseout="this.style.background='rgba(41,182,217,0.15)'" data-i="searchteam">Search Team</button>
           </div>
         </div>
 
@@ -1589,7 +1589,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2040,7 +2040,7 @@ async function loadMoreLogbook() {
 // ────────────────────────────────────────────
 // TEAM SEARCH: server-side filtered query
 // ────────────────────────────────────────────
-async function searchTeam(append = false) {
+async function searchTeam(append = false, byPress = false) {
   if (!HIVE_ID) return;
 
   if (!append) {
@@ -2131,6 +2131,8 @@ async function searchTeam(append = false) {
   const _fresh = mapped.filter(r => !_seen.has(r.id));
   _teamEntries = append ? [..._teamEntries, ..._fresh] : mapped;
   _teamHasMore = mapped.length === TEAM_PAGE;
+  // SL L3: a search the person pressed is a use; the same read re-run by a filter, a debounce or a view switch is not
+  if (byPress && typeof whUse === 'function') whUse(db, 'team_searched', { results: mapped.length });
   // nothing new came back, so the inclusive cursor has nothing further to reach (see the .lte note)
   if (append && !_fresh.length) _teamHasMore = false;
   if (mapped.length) _teamLastDate = mapped[mapped.length - 1].date;
@@ -2929,6 +2931,7 @@ async function addEntry(entry) {
     status: payload.status, downtime_hours: payload.downtime_hours,
     parts_count: Array.isArray(payload.parts_used) ? payload.parts_used.length : 0,
   });
+  if (typeof whUse === 'function') whUse(db, 'entry_logged', { type: String(payload.maintenance_type || ''), closed: payload.status === 'Closed' });
   document.getElementById('sync-badge').classList.remove('hidden');
   embedFaultEntry({ ...entry, ai_assisted_fields: payload.ai_assisted_fields });
   // T108's nudge, on the path that can now assign (2026-10-07): an edit that assigns the work order tells the
@@ -3367,6 +3370,7 @@ async function submitAsset() {
   writeAuditLog('register_asset', 'assets', asset.id, asset.asset_id, {
     name: asset.name, type: asset.type, criticality: asset.criticality, status: asset.status,
   });
+  if (typeof whUse === 'function') whUse(db, 'asset_registered');
   _assets = [...assets, asset];
   refreshAssetCountBadge();
   renderAssetList();
@@ -3536,6 +3540,7 @@ async function saveEditAsset() {
     name: updates.name, criticality: updates.criticality, location: updates.location,
     needs_reapproval: needsReapproval || false,
   });
+  if (typeof whUse === 'function') whUse(db, 'asset_edited');
 
   // Update local cache. `updates` uses asset_nodes column names; the local
   // _assets cache uses the legacy shape (asset_id, type) so render code
@@ -5673,6 +5678,7 @@ async function saveEditFromForm() {
   cancelEditMode();
   await renderEntries();
   showToast('Entry updated.');
+  if (typeof whUse === 'function') whUse(db, _pureClose ? 'entry_closed' : 'entry_edited');
 }
 
 document.getElementById('modal-close').addEventListener('click', () => {
@@ -7202,6 +7208,7 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
   a.click();
   URL.revokeObjectURL(url);
   showToast('Exported ' + entries.length + ' entries.');
+  if (typeof whUse === 'function') whUse(db, 'entries_exported', { rows: entries.length, team: _viewMode === 'team' });
 });
 
 // ────────────────────────────────────────────

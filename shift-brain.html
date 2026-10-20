@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFnError whFreshnessFooter whListSkeleton whRequireOnline whSourcesSync whStartupHive whStatValue">
+<script data-wh-skew-heal="whActionPlanHasContent whAiProgress whAiTrustRow whFmtDate whFnError whFreshnessFooter whListSkeleton whRequireOnline whSourcesSync whStartupHive whStatValue whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1337,6 +1337,7 @@
         // 'draft' until publishPlan sets 'published'.
         _sbNoteGenerated(data);
         showToast('Plan refreshed → rebuilt from your current jobs and PMs. Still a draft until you publish it.');
+        if (typeof whUse === 'function') whUse(db, 'plan_rerun');
         await loadPlan();
       } catch (err) {
         const msg = err && err.message ? err.message : 'unknown';
@@ -1412,6 +1413,7 @@
       // the same reasoning as alert-hub's dismissal, where an action with team-wide reach said nothing about
       // its reach. Claims only those three fields.
       showToast('Published → your crew can see this shift plan now, released under your name.');
+      if (typeof whUse === 'function') whUse(db, 'plan_published');
       await loadPlan();
     }
 
@@ -1425,16 +1427,26 @@
       if (!(await window.whConfirm('Archive this shift plan? It will be hidden from the active view but kept for history.', { okLabel: 'Archive', cancelLabel: 'Cancel' }))) return;
       const btn = document.getElementById('archive-btn');
       if (btn) btn.disabled = true;
-      const { error } = await db.from('shift_plans')
+      // ★A REFUSED UPDATE RETURNS NO ROWS AND NO ERROR (SL L3, 2026-10-21): the button shows for the role this device
+      // remembers, the write needs a supervisor the server still holds - a stale role read "Plan archived." over a plan
+      // that stayed active. shift_plans_read does not filter on status, so the archived row comes back when it landed.
+      const { data: _arch, error } = await db.from('shift_plans')
         .update({ status: 'archived' })
         .eq('id', _activePlan.id)
-        .eq('hive_id', HIVE_ID);
+        .eq('hive_id', HIVE_ID)
+        .select('id');
       if (error) {
         showToast(whWriteError(error, _t('The plan was NOT archived - it is still active. Try again.', 'HINDI na-archive ang plano - active pa ito. Subukan muli.')));
         if (btn) btn.disabled = false;
         return;
       }
+      if (!_arch || !_arch.length) {
+        showToast('The plan was NOT archived - it is still active. Only a supervisor of this hive can archive it, and your role here may have changed. Reload to check.');
+        if (btn) btn.disabled = false;
+        return;
+      }
       showToast('Plan archived.');
+      if (typeof whUse === 'function') whUse(db, 'plan_archived');
       await loadPlan();
     }
 
@@ -1521,7 +1533,11 @@
 
       // Wire shift toolbar
       document.querySelectorAll('.shift-pill').forEach(p => {
-        p.addEventListener('click', () => setShiftWindow(p.getAttribute('data-window')));
+        // SL L3: a window the person picked is a use; the same call at load is not
+        p.addEventListener('click', () => {
+          setShiftWindow(p.getAttribute('data-window'));
+          if (typeof whUse === 'function') whUse(db, 'shift_window_opened', { window: String(p.getAttribute('data-window') || '') });
+        });
       });
 
       // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).

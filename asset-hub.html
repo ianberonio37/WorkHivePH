@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf">
+<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1969,7 +1969,9 @@
       // its NAME is built from what the card shows (tag, name, location, the risk and criticality words) rather than
       // left to the whole card's text, which would run every nested chip and hidden suffix together.
       list.querySelectorAll('.asset-card').forEach(el => {
-        const _open = () => openDetail(el.getAttribute('data-node-id'));
+        // SL L3: a press that opened an asset is a use; the same openDetail run by a ?node_id= arrival is not
+        const _open = () => { const _id = el.getAttribute('data-node-id'); if (!_id) return;
+          openDetail(_id).then(() => { if (typeof whUse === 'function') whUse(db, 'asset_opened'); }); };
         el.addEventListener('click', _open);
         try {
           const _txt = (sel) => { const n = el.querySelector(sel); return n ? (n.textContent || '').replace(/\s+/g, ' ').trim() : ''; };
@@ -3405,6 +3407,7 @@
         // so it was the one message on the page that left WHEN unanswered. Aligned to its own siblings.
         ? '✓ FMEA mode added (approved) → feeds this asset’s risk score (RPN factor) on next recompute → Predictive · Alert Hub · Analytics.'
         : 'FMEA mode added (pending approval) → will feed the asset risk score once a supervisor approves.', 6000);
+      if (typeof whUse === 'function') whUse(db, 'fmea_mode_added', { approved: !!autoApproved });
       document.getElementById('fmea-modal')?.classList.remove('open');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -3427,6 +3430,7 @@
       // target_name = the readable failure-mode text (not the uuid) so the Supervisor Action Log
       // on the hive board reads "Approved FMEA mode <mode>" instead of a raw id.
       writeAuditLog('approve_fmea_mode', 'rcm_fmea_modes', id, modeName || id, { node_id: _selectedNodeId });
+      if (typeof whUse === 'function') whUse(db, 'fmea_mode_approved');
       showToast('FMEA mode approved.');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -3445,6 +3449,7 @@
       // reads as nothing: the board hides a bare id).
       if (!_gone || !_gone.length) { showToast('The delete did not go through - this mode may already be gone, or your role in this hive changed. Reload to check.'); return; }
       writeAuditLog('delete_fmea_mode', 'rcm_fmea_modes', id, modeName || null, { node_id: _selectedNodeId });
+      if (typeof whUse === 'function') whUse(db, 'fmea_mode_deleted');
       showToast('FMEA mode deleted.');
       await loadDetailFmea(_selectedNodeId);
     }
@@ -3617,6 +3622,7 @@
         return;
       }
       showToast(autoApproved ? 'Strategy saved (approved).' : 'Strategy saved (pending supervisor approval).');
+      if (typeof whUse === 'function') whUse(db, 'rcm_strategy_saved', { approved: !!autoApproved, replaced: !!existing });
       document.getElementById('rcm-modal')?.classList.remove('open');
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
     }
@@ -3636,6 +3642,7 @@
       if (!updated || !updated.length) { showToast('That strategy was already approved.'); if (_selectedNodeId) await loadDetailFmea(_selectedNodeId); return; }
       writeAuditLog('approve_rcm_strategy', 'rcm_strategies', strategyId, strategyName || null,
         { node_id: _selectedNodeId });
+      if (typeof whUse === 'function') whUse(db, 'rcm_strategy_approved');
       showToast('Strategy approved.');
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
     }
@@ -3649,6 +3656,7 @@
       if (!_gone || !_gone.length) { showToast('The delete did not go through - this strategy may already be gone, or your role in this hive changed. Reload to check.'); return; }   // SL L2: see deleteFmeaMode
       writeAuditLog('delete_rcm_strategy', 'rcm_strategies', strategyId, strategyName || null,
         { node_id: _selectedNodeId });
+      if (typeof whUse === 'function') whUse(db, 'rcm_strategy_deleted');
       showToast('Strategy deleted.');
       if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
     }

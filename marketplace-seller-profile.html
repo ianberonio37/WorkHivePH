@@ -404,7 +404,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whIsAccessDenied whListError whListSkeleton whLoadRewardKnobs whQueryTimeout whReadError whSourcesSync">
+<script data-wh-skew-heal="whCreditsBackChipHtml whFmtAgo whFmtPeso whFreshnessFooter whIsAccessDenied whListError whListSkeleton whLoadRewardKnobs whQueryTimeout whReadError whSourcesSync whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -773,6 +773,9 @@
     if (msgr && _seller?.messenger_username) {
       msgr.setAttribute('href', 'https://m.me/' + encodeURIComponent(_seller.messenger_username));
       msgr.style.display = 'inline-flex';
+      // SL L3: contacting the seller is this page's use; it opens a new tab, so this page stays to record it.
+      // Assigned, not added: this render can run again, and a second listener would count one press twice.
+      msgr.onclick = function () { if (typeof whUse === 'function') whUse(db, 'seller_contacted', { via: 'messenger' }); };
     }
 
     /* Render certifications section if seller has any */
@@ -1278,6 +1281,7 @@
           c.setAttribute('aria-selected', on ? 'true' : 'false');
         });
         renderListings();
+        if (typeof whUse === 'function') whUse(db, 'section_opened', { section: String(_section || '') });
       });
     });
 

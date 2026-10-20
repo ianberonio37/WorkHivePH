@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1195,6 +1195,7 @@
       'AMC brief ' + (_amcBrief.shift_date || ''),
       { shift_date: _amcBrief.shift_date }
     );
+    if (typeof whUse === 'function') whUse(db, newStatus === 'approved' ? 'brief_approved' : 'brief_rejected');
     showAmcMsg(newStatus === 'approved' ? _t('Brief approved: the crew suggestions are live.', 'Aprubado ang brief: live na ang mga suhestiyon sa crew.') : _t('Brief rejected: no crew suggestions go out.', 'Tinanggihan ang brief: walang lalabas na suhestiyon sa crew.'));
     // Local refresh — realtime will also fire, but be fast for the actor.
     _amcBrief = { ..._amcBrief, status: newStatus, approved_by: WORKER_NAME, approved_at: new Date().toISOString() };
@@ -2033,6 +2034,7 @@
       if (error) throw error;
       writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, _alertName(key, prev),
                     snoozeUntil ? { snooze_until: snoozeUntil } : {});
+      if (typeof whUse === 'function') whUse(db, action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', snoozeDays ? { days: snoozeDays } : {});
       // ★SAY THAT THIS HIDES THE ALERT FOR EVERYONE. The upsert two lines above is keyed
       // onConflict: 'hive_id,alert_key' - the dismissal is HIVE state, not personal state - so one person
       // marking an alert handled removes it from every teammate's inbox. The old copy ('Alert marked handled')
@@ -2056,6 +2058,7 @@
               _alerts = prev;
               renderFeed(); renderAlertSummary();
               writeAuditLog('alert_dismissal_undone', 'alert', key, _alertName(key, prev), { undid: action });
+              if (typeof whUse === 'function') whUse(db, 'alert_put_back');
               showToast(_t('Put back → the alert is in your hive\u2019s feed again.',
                            'Naibalik → nasa feed na ulit ng hive mo ang alerto.'));
             } catch (undoE) {
@@ -2098,6 +2101,7 @@
         // matched no row (another member already cleared it, or RLS refused) is not a change and is not recorded.
         if (!_cleared || !_cleared.length) { renderFeed(); showToast('Nothing changed - this alert was no longer marked seen. Reload to see where it stands.'); return; }
         writeAuditLog('alert_unacknowledged', 'alert', key, _alertName(key), {});
+        if (typeof whUse === 'function') whUse(db, 'alert_unseen');
         // T19: un-marking was SILENT. It deletes the hive's row, so the alert returns to unseen for
         // everyone - a state change on shared data with nothing said about it. The dismissal path
         // has announced its scope since it was written; this one had a toast on the way in and
@@ -2110,6 +2114,7 @@
                   { onConflict: 'hive_id,alert_key' });
         if (error) throw error;
         writeAuditLog('alert_acknowledged', 'alert', key, _alertName(key), {});
+        if (typeof whUse === 'function') whUse(db, 'alert_seen');
         // T19: 'Marked seen' said nothing about SCOPE, and the scope is the whole hive. The upsert
         // right above is keyed onConflict: 'hive_id,alert_key' - identical to dismissAlert's - so
         // acknowledging is HIVE state, not a personal bookmark. Everything around it reads

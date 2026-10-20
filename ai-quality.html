@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whViewerAdmits">
+<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whUse whViewerAdmits">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -580,6 +580,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Delegates to the shared utils.js wireDetailToggle (STREAMLINE S10).
       // Reads the pane from the button's aria-controls (here: #details-pane).
       if (typeof wireDetailToggle === 'function') wireDetailToggle();
+      // SL L3: this read-only page's deliberate act - opening the engineering details. Added after the shared toggle,
+      // so it reads the state that toggle just set; closing them again is not a use.
+      const _dt = document.getElementById('details-toggle-btn');
+      if (_dt && !_dt.dataset.whUse) {
+        _dt.dataset.whUse = '1';
+        _dt.addEventListener('click', () => {
+          if (_dt.getAttribute('aria-expanded') === 'true' && typeof whUse === 'function') whUse(db, 'details_opened');
+        });
+      }
     }
 
     function renderLoadingState() {

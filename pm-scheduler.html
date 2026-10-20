@@ -928,7 +928,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2368,6 +2368,7 @@ async function toggleAutoHail() {
     btn.style.background = turningOn ? 'rgba(74,222,128,0.13)' : 'rgba(255,255,255,0.06)';
     btn.style.borderColor = turningOn ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)';
   }
+  if (typeof whUse === 'function') whUse(db, turningOn ? 'auto_hail_on' : 'auto_hail_off');
   showToast(turningOn
     ? 'Auto-hail on for ' + data.length + ' PM item' + (data.length === 1 ? '' : 's') + '. Due work will be hailed for you.'
     : 'Auto-hail off. You can still hail a specialist manually.');
@@ -2509,6 +2510,7 @@ async function saveEditPMAsset() {
     new_criticality: updates.criticality,
     new_location: updates.location,
   });
+  if (typeof whUse === 'function') whUse(db, 'pm_asset_edited');
 
   // Update local cache
   const idx = assets.findIndex(a => a.id === currentAsset.id);
@@ -2651,6 +2653,7 @@ async function submitCompletion(kind) {
   writeAuditLog('complete_pm', 'pm_completions', compData.id,
     (currentAsset && currentAsset.asset_name) || compPayload.asset_id,
     { scope_item_id: _sheetScopeItemId, status: compPayload.status, has_findings: !!findings });
+  if (typeof whUse === 'function') whUse(db, 'pm_completed', { status: String(compPayload.status || ''), findings: !!findings });
 
   completions.unshift(compData);
 
@@ -3216,6 +3219,7 @@ async function saveAsset() {
   } catch (_) { /* empty-catch-allow: the date is a bonus; the save receipt must never fail on it */ }
   showToast(_t(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.${_firstDue}`,
       `Naidagdag ang ${name} → nasa PM schedule mo na, at bibilang ito sa PM compliance mula sa unang due date nito.${_firstDue}`));
+  if (typeof whUse === 'function') whUse(db, 'pm_asset_added');
   showScreen('dashboard');
   renderDashboard();
 
@@ -3344,6 +3348,7 @@ async function saveNewTask() {
   scopeItems.push(data);
   closeAddTaskSheet();
   showToast('Task added.');
+  if (typeof whUse === 'function') whUse(db, 'pm_task_added');
   renderDetail(currentAsset);
 
     } finally { window._busy_saveNewTask = false; }

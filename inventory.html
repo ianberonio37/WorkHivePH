@@ -667,7 +667,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1856,6 +1856,7 @@ async function submitPart() {
       items[idx] = { ...updated, updated_at: ocRes.row?.updated_at || now };
       saveInventory(items);
       writeAuditLog('edit_part', 'inventory_items', editingItemId, payload.part_name, payload);
+      if (typeof whUse === 'function') whUse(db, 'part_edited');
       closePartModal();
       renderParts();
       showToast('Part updated.');
@@ -1894,6 +1895,7 @@ async function submitPart() {
     const diff = qty - prev.qty_on_hand;   // the ledger row was written by inventory_adjust above, with the balance
     writeAuditLog('edit_inventory_item', 'inventory_items', editingItemId, partName,
       { prev_qty: prev.qty_on_hand, new_qty: qty, qty_diff: diff, new_status: editStatus });
+    if (typeof whUse === 'function') whUse(db, 'part_edited', { resubmitted: editStatus === 'pending' });
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
     const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
@@ -1942,6 +1944,7 @@ async function submitPart() {
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
     writeAuditLog('create_inventory_item', 'inventory_items', item.id, partName || partNumber,
       { initial_qty: qty, status: item.status || (HIVE_ID ? 'pending' : 'approved') });
+    if (typeof whUse === 'function') whUse(db, 'part_added');
     // NAMES THE EFFECT, NOT A CLOCK — asset-hub's shipped pattern ('... → feeds this asset's risk
     // score → Predictive · Alert Hub · Analytics'). 'Submitted for supervisor approval' says what
     // happens next without saying what it is FOR, so the person cannot tell whether the wait matters.
@@ -2131,6 +2134,7 @@ async function submitUse() {
     // smaller (or zero) qty_change; recording -qty here would put a movement in this page's own
     // transaction list that the database never made.
     addTransaction(activeItemId, 'use', -movedQty, newQty, '', jobRef, { serverWritten: true });    // RPC wrote the txn; cache-only
+    if (typeof whUse === 'function') whUse(db, 'part_used', { qty: Number(movedQty) || 0, short: Number(movedQty) < Number(qty) });
   } else if (!navigator.onLine && _ensureInvQueue()) {
     // ★OFFLINE, THE USE WAS FIRED AT A DEAD NETWORK (SL AV2 walk, 2026-10-19). This page's offline path was the solo
     // read-modify-write: an ABSOLUTE qty upsert and a ledger insert, both failing offline and neither kept, under
@@ -2242,6 +2246,7 @@ async function submitRestock() {
     items[idx].updated_at  = new Date().toISOString();
     _items = items;                                            // cache; RPC persisted qty+txn to DB
     addTransaction(activeItemId, 'restock', qty, newQty, note, null, { serverWritten: true }); // RPC wrote the txn; cache-only
+    if (typeof whUse === 'function') whUse(db, 'part_restocked', { qty: Number(qty) || 0 });
   } else if (!navigator.onLine && _ensureInvQueue()) {
     // offline: the atomic restock waits in the queue with its ledger id, as Use does (SL AV2) - never an absolute write
     const txnId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()

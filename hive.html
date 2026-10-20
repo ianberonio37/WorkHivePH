@@ -1963,7 +1963,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whRealtimeBackfill whRequireOnline whSourcesSync whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2958,6 +2958,7 @@ async function submitJoin() {
       role: 'worker',
       auth_uid: _authUid  // page guards !_authUid -> signin (line ~1232), so this is always the caller's uid
     });
+    if (typeof whUse === 'function') whUse(db, 'hive_joined');
     await showWelcome(hive);
     return;
   }
@@ -3199,6 +3200,7 @@ document.getElementById('btn-sup-transfer-leave').addEventListener('click', asyn
   // row is gone, hive_audit_log RLS (active member) rejects the insert, so the audit must
   // precede the self-delete (same ordering as the leave-audit). (Hive Board PDDA I5, 2026-07-10.)
   await writeAuditLog('role_change', 'member', targetId, target, { from: 'worker', to: 'supervisor', reason: 'supervisor handoff on leave' });
+  if (typeof whUse === 'function') whUse(db, 'supervisor_handed_off');
   document.getElementById('modal-sup-leave').classList.add('hidden');
   await performLeave();
 });
@@ -3264,6 +3266,7 @@ async function _performLeaveOnce() {
       : 'You have NOT left this hive: the server did not remove your membership. You are still a member; ask a supervisor if this keeps happening.');
     return;
   }
+  if (typeof whUse === 'function') whUse(db, 'hive_left');   // SL L3: counted once the membership is gone
 
   // Remove this hive from the list; switch to another if available
   const remaining = getHiveList().filter(h => h.id !== HIVE_ID);
@@ -3474,6 +3477,7 @@ async function _renameHiveInner() {
   // targetName is the thing ACTED ON (the hive), not the actor — matching member_joined, where the
   // target is the member. from/to stay in meta so the log reads as a change, not just a final state.
   writeAuditLog('hive_renamed', 'hives', HIVE_ID, name, { from: current, to: name });
+  if (typeof whUse === 'function') whUse(db, 'hive_renamed');
   showToast(_t('Hive renamed', 'Na-rename ang hive'));
 }
 document.getElementById('btn-rename-hive').addEventListener('click', renameHive);
@@ -4892,7 +4896,7 @@ function _openIntentModal(preset) {
       // silently hiding the modal. Walkthrough 2026-05-13.
       let res;
       try {
-        res = await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID);
+        res = await db.from('hives').update({ intent: payload }).eq('id', HIVE_ID).select('id');
       } catch (e) {
         console.error('hive save failed:', e);
         _releaseSave();                      // a refusal must leave the button usable, or one failure ends the task
@@ -4904,6 +4908,15 @@ function _openIntentModal(preset) {
         showToast(whWriteError(res.error, _t('Could not save. Nothing changed; try again.', 'Hindi na-save. Walang nabago; subukan ulit.')));
         return;
       }
+      // ★A REFUSED UPDATE RETURNS NO ROWS AND NO ERROR (SL L3, 2026-10-21). The modal opens for the role this device
+      // REMEMBERS; only a supervisor may update the hive, so a remembered role the server no longer holds matched
+      // nothing - and the page closed the modal and showed the focus as set. A save is a save only when a row came back.
+      if (!res || !res.data || !res.data.length) {
+        _releaseSave();
+        showToast('Nothing was saved - only a supervisor of this hive can set its focus, and your role here may have changed. Reload to check.');
+        return;
+      }
+      if (typeof whUse === 'function') whUse(db, 'hive_focus_set', { goal: payload && payload.goal ? String(payload.goal) : '' });
       // Inline `display:flex` on the modal markup beats Tailwind's .hidden
       // class in specificity, so setting the style directly is the only
       // way to actually close the modal. Walkthrough 2026-05-13.
@@ -5119,6 +5132,7 @@ async function kickMember(memberId, workerName) {
     .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('id', memberId);   // ONE row: a name match removed every namesake
   if (error) { showToast(whWriteError(error, _t('Could not remove the member. They are still in the hive.', 'Hindi natanggal ang miyembro. Nasa hive pa rin siya.'))); return; }
   writeAuditLog('kick_member', 'hive_members', memberId, workerName, {});
+  if (typeof whUse === 'function') whUse(db, 'member_removed');
   await loadMembers();
   await loadFeed();
   loadAuditLog();  // refresh the Supervisor Action Log card so the kick shows
@@ -6290,6 +6304,7 @@ async function approveItem(table, id, submittedBy, label) {
   showToast(escHtml(label) + ' approved and published to hive.');
   pushNotif('approval', 'Item Approved', `${label} submitted by ${submittedBy} was approved.`, null);
   writeAuditLog('approve_item', table, id, label, { submitted_by: submittedBy });
+  if (typeof whUse === 'function') whUse(db, 'submission_approved', { kind: String(table || '').slice(0, 40) });
   // T108 (2026-08-25): tell the SUBMITTER, not just this supervisor's own notif list —
   // the guarded server fn resolves the recipient + verifies this caller's role; push
   // reaches submitters who enabled alerts (best-effort, never blocks the approval).
@@ -6334,6 +6349,7 @@ async function rejectItem(table, id, submittedBy, label) {
   renderApprovalQueue();
   showToast(escHtml(label) + ' rejected.');
   writeAuditLog('reject_item', table, id, label, { submitted_by: submittedBy });
+  if (typeof whUse === 'function') whUse(db, 'submission_rejected', { kind: String(table || '').slice(0, 40) });
   // T108 (2026-08-25): the submitter hears the decision too — the push names the way
   // forward ('open Inventory to see why, fix it, and resubmit'), pairing the
   // rejection_reason card this session added. Guarded server-side; best-effort.
@@ -7165,6 +7181,7 @@ async function _offerPersonalHistory() {
     const moved = (res && res.moved) || 0;
     card.classList.add('hidden');
     showToast(`${moved} ${moved === 1 ? 'entry is' : 'entries are'} now part of ${nameAtAsk}.`, 'success');
+    if (typeof whUse === 'function') whUse(db, 'history_brought_in', { count: Number(moved) || 0 });
   };
   keep.onclick = () => {
     try { localStorage.setItem(key, String(Date.now())); } catch (_) { /* empty-catch-allow: nothing moved either way */ }
@@ -7494,11 +7511,15 @@ function generateHandover() {
 
   body.innerHTML = html;
   sheet.classList.remove('hidden');
+  if (typeof whUse === 'function') whUse(db, 'handover_generated');
 }
 
 function copyHandover() {
   const text = document.getElementById('handover-body').innerText;
-  navigator.clipboard.writeText(text).then(() => showToast(_t('Handover report copied.', 'Nakopya na ang handover report.')));
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(_t('Handover report copied.', 'Nakopya na ang handover report.'));
+    if (typeof whUse === 'function') whUse(db, 'handover_copied');
+  });
 }
 
 function printHandover() {
@@ -7513,6 +7534,9 @@ function printHandover() {
     .replace(/style="color:rgba\(255,255,255,[^)]+\)"/g, 'style="color:#777"');
 
   const win = window.open('', '_blank', 'width=700,height=900');
+  // a blocked pop-up returns null, and win.document below threw - the press did nothing and said nothing
+  if (!win) { showToast('The print window was blocked. Allow pop-ups for this site, then press Print again.'); return; }
+  if (typeof whUse === 'function') whUse(db, 'handover_printed');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
 <title>${escHtml(title)}</title>
 <style>

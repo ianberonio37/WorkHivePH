@@ -3116,6 +3116,8 @@
     });
     _popupSpringIn();
     _stagePopupFocusIn();
+    // SL L3: the home page's own use - which stage of the work a person opened (no client in this script: the shared one)
+    if (typeof whUse === 'function') whUse(null, 'stage_opened', { stage: Number(n) || 0 });
   }
 
   function openAllToolsPopup() {
@@ -3131,6 +3133,7 @@
     });
     _popupSpringIn();
     _stagePopupFocusIn();
+    if (typeof whUse === 'function') whUse(null, 'all_tools_opened');
   }
 
   function closeStagePopup() {
@@ -3174,7 +3177,7 @@
 </script>
 
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whWorker whWriteError">
+<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -4354,6 +4357,8 @@
     } catch (e) {
       console.warn('persona sync skipped:', e?.message || e);
     }
+    // the switch is the device's preference first (set above); the account copy is best-effort
+    if (typeof whUse === 'function') whUse(null, 'persona_switched', { persona: String(next) });
   }
 
   // ── Password show/hide toggle ─────────────────────────────────────────────

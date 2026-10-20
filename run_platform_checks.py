@@ -5073,7 +5073,7 @@ VALIDATORS = [
      "label":"BRH-H + BRH-G (Ian's missing hive assets, 2026-10-14): the stored hive and its name are caches of server facts, settled in each page's OWN start-up (utils.js whStartupHive). H (25 pages, at 390 and 1280): with the stored hive WIPED the page seats it from the account - one document load, no after-load recovery reload, and the page renders as on a device that never lost it (>= 85% of a clean baseline's text; an admitted supervisor is not refused). G (17): with the stored name STALE the page shows it nowhere and shows the REAL name (except the three that read it only at use time). Teeth: the pre-fix pages reload (H) and keep 'Old Plant Name' on screen (G); a variant that left a supervisor's console hidden read 1,020 of 2,237 characters and fails",
      "group":"Platform","skip_if_fast":True},
     {"id":"scripts-parse","script":"tools/validate_scripts_parse.mjs","args":[],
-     "label":"Every shared script and every classic inline script on every served page PARSES (2026-10-15): a comment written inside offline-banner.js's CSS closed the JS template literal that sheet lives in, the shared offline banner died on every page that loads it, and the console blamed utils.js. Static, one second; self-test: that backtick, a lost escape, a comment that mentions a script tag, an ES module",
+     "label":"Every shared script and every classic inline script on every served page PARSES (2026-10-15): a comment written inside offline-banner.js's CSS closed the JS template literal that sheet lives in, the shared offline banner died on every page that loads it, and the console blamed utils.js. AND every inline on* handler in the markup (2026-10-21: an edit left onclick=\"setPhase('diagnostic', true)\\\" on analytics' four phase tabs - each threw 'Invalid or unexpected token' when pressed, and this gate, which compiled only script blocks, passed). Static, one second; self-test: that backtick, a lost escape, a comment that mentions a script tag, an ES module, the stray-backslash handler, a handler written with character references, a handler built inside a script template",
      "group":"Platform","skip_if_fast":False},
     {"id":"skew-heal-live","script":"tools/prove_skew_heal.mjs","args":[],
      "label":"BRH-D, in a browser: each of those pages at 390 and 1280 leaves a current utils.js alone (no refetch, one navigation - a false heal would reload every visitor) and heals 'yesterday's utils.js' (its own functions unset): it refetches past the cache, reloads once and ends with every function there. STUCK (achievements, logbook): with no fresh copy to be had the page refetches once, reloads once and stays - never loops (a mutant without the guard reloaded 41 times in 12 s). Teeth: asset-hub and marketplace from before the blocks (7db71ff4) must run on the old copy",
@@ -6956,6 +6956,20 @@ VALIDATORS = [
         "script":  os.path.join("tools", "validate_change_trail.py"),
         "args":    [],
         "label":   "Change trail (SL L2): shared changes leave who/what/which/when on every path - generic trail attachments, state-only values, no-op and bookkeeping write nothing, logbook close, deactivation before erasure, top-up / feedback deciders, platform decisions in platform_audit_log and in no hive's trail (live, rolled back; --self-test: 4 static + 9 live mutants)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # SL L3 (2026-10-21): a page's USE is recorded as events someone can count. 30 of the 31 L3 pages logged a visit
+        # and nothing else, though the table's migration promised feature_use events; and a count by person or hive was a
+        # count of claims (an anonymous insert kept any auth_uid it sent; hive and name were the device's memory). Holds
+        # migration 20261021000002 (the binder decides who / which hive / what name and screens props; founder_feature_use
+        # counts accounts and signed-out sessions apart, as the caller), utils.js whUse, each page's confirmed-use events,
+        # the operator card that reads them, and the refused-update read-backs this unit fixed. Static + live, rolled back.
+        "id":      "usage-events",
+        "script":  os.path.join("tools", "validate_usage_events.py"),
+        "args":    [],
+        "label":   "Usage events (SL L3): every L3 page records its uses where they are confirmed (31 pages, retired pages their visit), props carry no person or their words, every use's client is in scope, one page_view per load; the database binds a visitor to no account/hive/name and a member to their own, and founder_feature_use counts accounts and signed-out sessions apart for an admin only (live, rolled back; --self-test: 8 static + 7 live mutants)",
         "group":   "Platform",
         "skip_if_fast": False,
     },

@@ -910,7 +910,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2086,6 +2086,7 @@ function _isMinePost(p) {
       const { error } = await db.from('community_reactions')
         .insert({ post_id: postId, hive_id: postHiveId, worker_name: WORKER_NAME, emoji });
       if (!error) {
+        if (typeof whUse === 'function') whUse(db, 'reaction_added');
         btn?.classList.add('active');
         const n = parseInt(countEl?.textContent, 10) + 1;
         if (countEl) countEl.textContent = n;
@@ -2338,6 +2339,7 @@ function _isMinePost(p) {
     if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('The pin'), 'error'); return; }
     const post = allPosts.find(p => p.id === postId) || pinnedPosts.find(p => p.id === postId);
     await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId, null, _postName(post));
+    if (typeof whUse === 'function') whUse(db, currentlyPinned ? 'post_unpinned' : 'post_pinned');
     if (post) {
       post.pinned = !currentlyPinned;
       if (!currentlyPinned) {
@@ -2368,6 +2370,7 @@ function _isMinePost(p) {
     const pa = allPosts.find(p => p.id === postId);
     const pp = pinnedPosts.find(p => p.id === postId);
     await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId, null, _postName(pa || pp));
+    if (typeof whUse === 'function') whUse(db, currentlyFlagged ? 'post_unflagged' : 'post_flagged');
     if (pa) pa.flagged = !currentlyFlagged;
     if (pp) pp.flagged = !currentlyFlagged;
     _updateRenderedCard(postId); // refresh only this card if expanded
@@ -2446,6 +2449,7 @@ function _isMinePost(p) {
     const { data: _trashed, error } = await db.rpc('wh_trash', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, 'The post was NOT deleted - it is still in the feed.'), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('soft_delete_post', postId, null, _postName(post));
+    if (typeof whUse === 'function') whUse(db, 'post_deleted', { own: myPostIds.has(postId) });
     // Tell teammates' open feeds to look again - the hidden row's UPDATE no longer reaches them (see post_hidden).
     try { if (feedChannel) feedChannel.send({ type: 'broadcast', event: 'post_hidden', payload: { id: postId } }); }
     catch (_) { /* empty-catch-allow: a missed hint only means a teammate sees the post until their next load */ }
@@ -2475,6 +2479,7 @@ function _isMinePost(p) {
     const { error } = await db.rpc('wh_restore', { p_table: 'community_posts', p_id: String(postId) });
     if (error) { showToast(whWriteError(error, _t('The undo did NOT go through - the post is still deleted.', 'HINDI natuloy ang undo - deleted pa rin ang post.')), 'error'); return; }
     if (HIVE_ROLE === 'supervisor') await writeAuditLog('restore_post', postId, null, _postName(snapshot || _findPost(postId)));
+    if (typeof whUse === 'function') whUse(db, 'post_restored');
 
     // Re-add to local state
     if (snapshot && snapshot._wasMine) myPostIds.add(postId);
@@ -2690,6 +2695,7 @@ function _isMinePost(p) {
       _updateRenderedCard(editId);
       closeComposer();
       showToast('Post updated');
+      if (typeof whUse === 'function') whUse(db, 'post_edited');
       return;
     }
 
@@ -2734,6 +2740,7 @@ function _isMinePost(p) {
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
     _postDraft.clear();       // X2b: post committed — wipe the draft so the next composer opens fresh
+    if (typeof whUse === 'function') whUse(db, 'post_published', { category: category, public: !!isPublic });
 
     // T108 (2026-08-26): BEING NAMED IS NOT A SIGNAL UNTIL SOMEONE IS TOLD. parseMentions already
     // stores the array and renderContentWithMentions already paints it, so the mention was a
@@ -3091,6 +3098,7 @@ function _isMinePost(p) {
     // the question this taxonomy exists for: what happened to my work.
     if (error) { showToast(whWriteError(error, _t('Could not update the best answer.', 'Hindi ma-update ang best answer.')), 'error'); return; }
     showToast(accepted ? '✓ Marked as the best answer' : 'Best answer removed');
+    if (typeof whUse === 'function') whUse(db, accepted ? 'best_answer_marked' : 'best_answer_removed');
     // T108 (2026-08-26): the reply author's answer wins, the XP ledger records it, and until now
     // they found out by revisiting. Only the ACCEPT direction announces - un-accepting someone is
     // not news worth pushing to them. The RPC re-reads is_accepted, so a race that flipped it back
@@ -3176,6 +3184,7 @@ function _isMinePost(p) {
 
     if (error) { showToast(whWriteError(error, _t('Your reply was NOT posted. It is still in the box - try again.', 'HINDI na-post ang reply mo. Nasa box pa ito - subukan muli.')), 'error'); return; }
     _lastReplyTs = Date.now();
+    if (typeof whUse === 'function') whUse(db, 'reply_posted');
     document.getElementById('reply-content').value = '';
     document.getElementById('reply-char-count').textContent = '0 / 1000';
     replyCountMap[replyingToPostId] = (replyCountMap[replyingToPostId] || 0) + 1;
@@ -3529,6 +3538,7 @@ function _isMinePost(p) {
     const _reportedPost = [...pinnedPosts, ...allPosts].find(p => p.id === _reportingPostId);
     const _author = _reportedPost ? (_reportedPost.author_name || _reportedPost.worker_name || null) : null;
     await writeAuditLog('report_post', _reportingPostId, { reason, details, author: _author }, _reportName(_reportedPost));
+    if (typeof whUse === 'function') whUse(db, 'post_reported', { reason: reason });
 
     // Local state: hide the post from this worker's feed (workers don't see flagged)
     const post = _findPost(_reportingPostId);

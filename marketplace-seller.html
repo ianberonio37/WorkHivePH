@@ -646,7 +646,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1409,6 +1409,7 @@
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       if (data?.granted) {
         showToast('Starter credits added. You can publish your first listings now.', 'success');
+        if (typeof whUse === 'function') whUse(db, 'starter_claimed');
         await loadCreditWallet();
       } else {
         // The RPC names WHY, so say that rather than a generic failure - "already claimed" and
@@ -2075,6 +2076,7 @@
 
       writeAuditLog('edit_listing', 'marketplace_listings', id, title,
         { category, price, new_status: 'draft' });
+      if (typeof whUse === 'function') whUse(db, 'listing_edited');
 
       try { localStorage.removeItem('wh_draft_listing_desc_' + id); } catch (_) { /* empty-catch-allow */ }
       /* "Re-submitted for review" does not say the part that costs the seller money: editing a LIVE
@@ -2131,6 +2133,7 @@
       } catch (_imgErr) { console.warn('listing image cleanup skipped:', _imgErr && _imgErr.message); }
       writeAuditLog('delete_listing', 'marketplace_listings', id, item.title,
         { prev_status: item.status });
+      if (typeof whUse === 'function') whUse(db, 'listing_deleted');
       showToast('Listing deleted.', 'success');
       await loadListings();
     } catch (_err) {
@@ -2152,12 +2155,21 @@
     if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
 
     try {
-      const { error } = await db
+      // ★A REFUSED UPDATE RETURNS NO ROWS AND NO ERROR (SL L3, 2026-10-21): an inquiry this account may no longer
+      // answer read "Marked as replied" while nothing was stored. A reply is sent only when a row came back.
+      const { data: _replied, error } = await db
         .from('marketplace_inquiries')
         .update({ status: 'replied', reply_text: replyText || null, replied_at: now })
-        .eq('id', inqId);
+        .eq('id', inqId)
+        .select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
+      if (!_replied || !_replied.length) {
+        showToast('Your reply was NOT saved: this inquiry is no longer yours to answer, or it was already closed. The list has been refreshed.', 'error');
+        await loadInquiries();
+        return;
+      }
       showToast('Marked as replied.', 'success');
+      if (typeof whUse === 'function') whUse(db, 'inquiry_replied', { with_text: !!replyText });
       await loadInquiries();
     } catch (_err) {
       showToast(whWriteError(_err, _t('Failed. Try again.', 'Hindi natuloy. Subukan muli.')), 'error');
@@ -2168,9 +2180,15 @@
   async function handleCloseInquiry(inqId) {
     if (!svcRequireOnline('Closing this inquiry')) return;
     try {
-      const { error } = await db.from('marketplace_inquiries').update({ status: 'closed' }).eq('id', inqId);
+      const { data: _closed, error } = await db.from('marketplace_inquiries').update({ status: 'closed' }).eq('id', inqId).select('id');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
+      if (!_closed || !_closed.length) {   // refused or already gone: no row came back (see handleReply)
+        showToast('Nothing was closed: this inquiry is no longer yours to close, or it was already closed. The list has been refreshed.', 'error');
+        await loadInquiries();
+        return;
+      }
       showToast('Inquiry closed.', 'info');
+      if (typeof whUse === 'function') whUse(db, 'inquiry_closed');
       await loadInquiries();
     /* `console.error(..., _)` -- a bare `_` that is declared NOWHERE on this page and is not lodash.
        The catch threw ReferenceError on its own first line, so showToast never ran: closing an
@@ -3093,6 +3111,7 @@
     if (error) { showToast(whWriteError(error, _t('Couldn\'t accept this job. It was NOT accepted - the client is still waiting, so try again.', 'Hindi matanggap ang job na ito. HINDI ito natanggap - naghihintay pa ang client, kaya subukan muli.')), 'error'); return; }
     if (data && data.accepted) {
       showToast('Job is yours. Head over when ready');
+      if (typeof whUse === 'function') whUse(db, 'job_accepted');
     } else {
       const why = {
         lost_race_or_closed: 'Another provider got this one first',
@@ -3147,7 +3166,10 @@
     const { data, error, status } = await db.from('service_requests').update(patch).eq('id', requestId).select('id');
     if (error) { showToast(whWriteError(error, 'Couldn\'t update the job status. It is unchanged - the client still sees the previous step.'), 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t update - the job may have moved on. Refreshing.', 'error'); }
-    else { showToast(next === 'completed' ? 'Job completed. Nice work!' : 'Status updated'); }
+    else {
+      showToast(next === 'completed' ? 'Job completed. Nice work!' : 'Status updated');
+      if (typeof whUse === 'function') whUse(db, 'job_advanced', { to: String(next) });
+    }
     loadServices();
   }
 
@@ -3536,6 +3558,7 @@
 
       writeAuditLog('edit_seller_messenger', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
         { has_handle: !!raw });
+      if (typeof whUse === 'function') whUse(db, 'messenger_saved', { has_handle: !!raw });
 
       if (_seller) _seller.messenger_username = raw || null;
       else _seller = { worker_name: WORKER_NAME, messenger_username: raw || null, tier: 'bronze' };
@@ -3606,6 +3629,7 @@
 
       writeAuditLog('edit_seller_certs', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
         { cert_count: lines.length, invalidated_verification: (update.cert_verified === false) && !!wasVerified });
+      if (typeof whUse === 'function') whUse(db, 'certs_saved', { count: lines.length });
 
       if (_seller) {
         _seller.certifications = normalized;

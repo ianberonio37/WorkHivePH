@@ -926169,8 +926169,8 @@
     },
     {
       "id": "SL2987",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · achievements",
       "pages": [
@@ -926227,12 +926227,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: achievements.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:13:11.467Z (.tmp/slw/results/l3w_b1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2987-390-mvgtm0c2 - 1 page_view(s) of achievements, one 'achievement_opened', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL2987-1280-mvgtm0c2 - 1 page_view(s) of achievements, one 'achievement_opened', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts achievement_opened on achievements: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2987.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2988",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · alert hub",
       "pages": [
@@ -926289,12 +926297,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: alert-hub.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:15:38.179Z (.tmp/slw/results/l3w_b2.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2988-390-mvgtp3q0 - 1 page_view(s) of alert-hub, one 'alert_seen' (and ['alert_unseen'], the recipe's own second step), every event bound to Ben Ocampo in hive 2807e679-788e-4738-a95a-a81c7abd4736 || desktop-1280: session WH-L3-PROBE-SL2988-1280-mvgtp3q0 - 1 page_view(s) of alert-hub, one 'alert_seen' (and ['alert_unseen'], the recipe's own second step), every event bound to Ben Ocampo in hive 2807e679-788e-4738-a95a-a81c7abd4736. founder_feature_use (read as a platform admin) counts alert_seen on alert-hub: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2988.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2989",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · analytics report",
       "pages": [
@@ -926351,12 +926367,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: analytics-report.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:20:56.071Z (.tmp/slw/results/l3w_b4.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2989-390-mvgtvxa1 - 1 page_view(s) of analytics-report, one 'report_generated', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736 || desktop-1280: session WH-L3-PROBE-SL2989-1280-mvgtvxa1 - 1 page_view(s) of analytics-report, one 'report_generated', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736. founder_feature_use (read as a platform admin) counts report_generated on analytics-report: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2989.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2990",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · analytics",
       "pages": [
@@ -926415,12 +926439,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: analytics.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:30:01.563Z (.tmp/slw/results/l3w_c1.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2990-390-mvgu78gz - 1 page_view(s) of analytics, one 'phase_opened', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2990-1280-mvgu78gz - 1 page_view(s) of analytics, one 'phase_opened', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts phase_opened on analytics: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2990.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2991",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · asset hub",
       "pages": [
@@ -926477,12 +926509,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: asset-hub.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:15:38.179Z (.tmp/slw/results/l3w_b2.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2991-390-mvgtp3q0 - 1 page_view(s) of asset-hub, one 'asset_opened', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2991-1280-mvgtp3q0 - 1 page_view(s) of asset-hub, one 'asset_opened', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts asset_opened on asset-hub: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2991.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2992",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · assistant",
       "pages": [
@@ -926539,12 +926579,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: assistant.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:15:38.179Z (.tmp/slw/results/l3w_b2.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2992-390-mvgtp3q0 - 1 page_view(s) of assistant, one 'answer_rated', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2992-1280-mvgtp3q0 - 1 page_view(s) of assistant, one 'answer_rated', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts answer_rated on assistant: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2992.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2993",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · community",
       "pages": [
@@ -926601,12 +926649,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: community.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:20:56.071Z (.tmp/slw/results/l3w_b4.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2993-390-mvgtvxa1 - 1 page_view(s) of community, one 'reaction_added', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736 || desktop-1280: session WH-L3-PROBE-SL2993-1280-mvgtvxa1 - 1 page_view(s) of community, one 'reaction_added', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736. founder_feature_use (read as a platform admin) counts reaction_added on community: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2993.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2994",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · dayplanner",
       "pages": [
@@ -926663,12 +926719,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: dayplanner.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:38:36.037Z (.tmp/slw/results/l3w_b6.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2994-390-mvguielx - 1 page_view(s) of dayplanner, one 'item_added', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2994-1280-mvguielx - 1 page_view(s) of dayplanner, one 'item_added', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts item_added on dayplanner: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2994.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2995",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · hive",
       "pages": [
@@ -926725,12 +926789,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: hive.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:18:31.443Z (.tmp/slw/results/l3w_b3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2995-390-mvgtsrzp - 1 page_view(s) of hive, one 'handover_generated', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2995-1280-mvgtsrzp - 1 page_view(s) of hive, one 'handover_generated', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts handover_generated on hive: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2995.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2996",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · index",
       "pages": [
@@ -926787,12 +926859,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: index.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:18:31.443Z (.tmp/slw/results/l3w_b3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2996-390-mvgtsrzp - 1 page_view(s) of index, one 'stage_opened', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL2996-1280-mvgtsrzp - 1 page_view(s) of index, one 'stage_opened', every event bound to Ben Ocampo in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts stage_opened on index: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2996.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2997",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - solo-owner · integrations",
       "pages": [
@@ -926849,12 +926929,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: integrations.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:35:53.381Z (.tmp/slw/results/l3w_e1.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2997-390-mvgugxza - 1 page_view(s) of integrations, one 'vehicle_added', every event bound to Jun Salvador || desktop-1280: session WH-L3-PROBE-SL2997-1280-mvgugxza - 1 page_view(s) of integrations, one 'vehicle_added', every event bound to Jun Salvador. founder_feature_use (read as a platform admin) counts vehicle_added on integrations: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2997.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2998",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · inventory",
       "pages": [
@@ -926911,12 +926999,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: inventory.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:13:11.467Z (.tmp/slw/results/l3w_b1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2998-390-mvgtm0c2 - 1 page_view(s) of inventory, one 'part_added', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL2998-1280-mvgtm0c2 - 1 page_view(s) of inventory, one 'part_added', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts part_added on inventory: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2998.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL2999",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · logbook",
       "pages": [
@@ -926973,12 +927069,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: logbook.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T14:59:54.515Z (.tmp/slw/results/l3w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL2999-390-mvgt4wmk - 1 page_view(s) of logbook, one 'team_searched', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d || desktop-1280: session WH-L3-PROBE-SL2999-1280-mvgt4wmk - 1 page_view(s) of logbook, one 'team_searched', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d. founder_feature_use (read as a platform admin) counts team_searched on logbook: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL2999.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3000",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - buyer · marketplace seller profile",
       "pages": [
@@ -927035,12 +927139,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: marketplace-seller-profile.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:13:11.467Z (.tmp/slw/results/l3w_b1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3000-390-mvgtm0c2 - 1 page_view(s) of marketplace-seller-profile, one 'section_opened', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d || desktop-1280: session WH-L3-PROBE-SL3000-1280-mvgtm0c2 - 1 page_view(s) of marketplace-seller-profile, one 'section_opened', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d. founder_feature_use (read as a platform admin) counts section_opened on marketplace-seller-profile: 5 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3000.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3001",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - buyer · marketplace seller",
       "pages": [
@@ -927097,12 +927209,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: marketplace-seller.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T14:59:54.515Z (.tmp/slw/results/l3w_1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3001-390-mvgt4wmk - 1 page_view(s) of marketplace-seller, one 'listing_edited', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d || desktop-1280: session WH-L3-PROBE-SL3001-1280-mvgt4wmk - 1 page_view(s) of marketplace-seller, one 'listing_edited', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d. founder_feature_use (read as a platform admin) counts listing_edited on marketplace-seller: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3001.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3002",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - buyer · marketplace",
       "pages": [
@@ -927159,12 +927279,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: marketplace.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:18:31.443Z (.tmp/slw/results/l3w_b3.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3002-390-mvgtsrzp - 1 page_view(s) of marketplace, one 'listing_opened', every event bound to Isidro Suarez in hive b4f7fe63-92e1-4f8d-b96e-625c3f85ba61 || desktop-1280: session WH-L3-PROBE-SL3002-1280-mvgtsrzp - 1 page_view(s) of marketplace, one 'listing_opened', every event bound to Isidro Suarez in hive b4f7fe63-92e1-4f8d-b96e-625c3f85ba61. founder_feature_use (read as a platform admin) counts listing_opened on marketplace: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3002.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3003",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · ph intelligence",
       "pages": [
@@ -927221,12 +927349,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: ph-intelligence.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:10:43.399Z (.tmp/slw/results/l3w_r1.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3003-390-mvgtjstl - 1 page_view(s) of ph-intelligence, one 'stairway_explained', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL3003-1280-mvgtjstl - 1 page_view(s) of ph-intelligence, one 'stairway_explained', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts stairway_explained on ph-intelligence: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3003.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3004",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - machine-client · plant connections",
       "pages": [
@@ -927283,12 +927419,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: plant-connections.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:06:18.093Z (.tmp/slw/results/l3w_2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3004-390-mvgtacci - 2 page_view(s) of plant-connections, one 'connections_refreshed', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d || desktop-1280: session WH-L3-PROBE-SL3004-1280-mvgtacci - 2 page_view(s) of plant-connections, one 'connections_refreshed', every event bound to Bryan Garcia in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d. founder_feature_use (read as a platform admin) counts connections_refreshed on plant-connections: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3004.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3005",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · pm scheduler",
       "pages": [
@@ -927345,12 +927489,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: pm-scheduler.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:20:56.071Z (.tmp/slw/results/l3w_b4.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3005-390-mvgtvxa1 - 1 page_view(s) of pm-scheduler, one 'pm_task_added', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736 || desktop-1280: session WH-L3-PROBE-SL3005-1280-mvgtvxa1 - 1 page_view(s) of pm-scheduler, one 'pm_task_added', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736. founder_feature_use (read as a platform admin) counts pm_task_added on pm-scheduler: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3005.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3006",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · project manager",
       "pages": [
@@ -927407,12 +927559,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: project-manager.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:06:18.093Z (.tmp/slw/results/l3w_2.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3006-390-mvgtacci - 1 page_view(s) of project-manager, one 'item_status_changed', every event bound to Christine Dizon in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d || desktop-1280: session WH-L3-PROBE-SL3006-1280-mvgtacci - 1 page_view(s) of project-manager, one 'item_status_changed', every event bound to Christine Dizon in hive 084c113b-99c0-45c6-a8e8-b4b8349da46d. founder_feature_use (read as a platform admin) counts item_status_changed on project-manager: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3006.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3007",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · project report",
       "pages": [
@@ -927469,12 +927629,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: project-report.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:38:36.037Z (.tmp/slw/results/l3w_b6.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3007-390-mvguielx - 1 page_view(s) of project-report, one 'report_exported', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL3007-1280-mvguielx - 1 page_view(s) of project-report, one 'report_exported', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts report_exported on project-report: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3007.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3008",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - an anonymous visitor · public feed",
       "pages": [
@@ -927525,12 +927693,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: public-feed.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T14:59:54.515Z (.tmp/slw/results/l3w_1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3008-390-mvgt4wmk - 1 page_view(s) of public-feed, one 'more_loaded', every event bound to no account, no hive and no name (a visitor) || desktop-1280: session WH-L3-PROBE-SL3008-1280-mvgt4wmk - 1 page_view(s) of public-feed, one 'more_loaded', every event bound to no account, no hive and no name (a visitor). founder_feature_use (read as a platform admin) counts more_loaded on public-feed: 2 uses by 0 account(s) and 2 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3008.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3009",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · report sender",
       "pages": [
@@ -927587,12 +927763,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: report-sender.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:13:11.467Z (.tmp/slw/results/l3w_b1.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3009-390-mvgtm0c2 - 1 page_view(s) of report-sender, one 'recipient_added', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL3009-1280-mvgtm0c2 - 1 page_view(s) of report-sender, one 'recipient_added', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts recipient_added on report-sender: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3009.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3010",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · resume",
       "pages": [
@@ -927649,12 +927833,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: resume.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:18:31.443Z (.tmp/slw/results/l3w_b3.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3010-390-mvgtsrzp - 1 page_view(s) of resume, one 'resume_export', every event bound to Isidro Suarez in hive b4f7fe63-92e1-4f8d-b96e-625c3f85ba61 || desktop-1280: session WH-L3-PROBE-SL3010-1280-mvgtsrzp - 1 page_view(s) of resume, one 'resume_export', every event bound to Isidro Suarez in hive b4f7fe63-92e1-4f8d-b96e-625c3f85ba61. founder_feature_use (read as a platform admin) counts resume_export on resume: 7 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3010.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3011",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · shift brain",
       "pages": [
@@ -927711,12 +927903,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: shift-brain.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:20:56.071Z (.tmp/slw/results/l3w_b4.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3011-390-mvgtvxa1 - 1 page_view(s) of shift-brain, one 'shift_window_opened', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736 || desktop-1280: session WH-L3-PROBE-SL3011-1280-mvgtvxa1 - 1 page_view(s) of shift-brain, one 'shift_window_opened', every event bound to Oscar Ramos in hive 042e2176-39f2-488f-b21b-fc9ba9b82736. founder_feature_use (read as a platform admin) counts shift_window_opened on shift-brain: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3011.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3012",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - worker · skillmatrix",
       "pages": [
@@ -927773,12 +927973,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: skillmatrix.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:34:35.485Z (.tmp/slw/results/l3w_d1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3012-390-mvgudndr - 1 page_view(s) of skillmatrix, one 'lesson_opened', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL3012-1280-mvgudndr - 1 page_view(s) of skillmatrix, one 'lesson_opened', every event bound to David Velasco in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts lesson_opened on skillmatrix: 3 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3012.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3013",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - supervisor · ai quality",
       "pages": [
@@ -927835,12 +928043,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: ai-quality.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:10:43.399Z (.tmp/slw/results/l3w_r1.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3013-390-mvgtjstl - 1 page_view(s) of ai-quality, one 'stairway_explained', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe || desktop-1280: session WH-L3-PROBE-SL3013-1280-mvgtjstl - 1 page_view(s) of ai-quality, one 'stairway_explained', every event bound to Christine Dizon in hive 4eec150e-4837-417b-bdd8-009b0192acfe. founder_feature_use (read as a platform admin) counts stairway_explained on ai-quality: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3013.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3014",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - fleet-supervisor · audit log",
       "pages": [
@@ -927897,12 +928113,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: audit-log.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:38:36.037Z (.tmp/slw/results/l3w_b6.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3014-390-mvguielx - 1 page_view(s) of audit-log, one 'trail_exported', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740 || desktop-1280: session WH-L3-PROBE-SL3014-1280-mvguielx - 1 page_view(s) of audit-log, one 'trail_exported', every event bound to Gloria Tan in hive fb702c73-4dcf-4fe5-bd7f-f5353524e740. founder_feature_use (read as a platform admin) counts trail_exported on audit-log: 2 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3014.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3015",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - oversight · founder console",
       "pages": [
@@ -927953,12 +928177,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: founder-console.html is retired - it records its visit, bound to the account, and no use - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:24:01.614Z (.tmp/slw/results/l3w_b5.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3015-390-mvgtz1kw - 1 page_view(s) of founder-console, no use (retired), every event bound to Leandro Marquez || desktop-1280: session WH-L3-PROBE-SL3015-1280-mvgtz1kw - 1 page_view(s) of founder-console, no use (retired), every event bound to Leandro Marquez. Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3015.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3016",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - oversight · marketplace admin",
       "pages": [
@@ -928009,12 +928241,20 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: marketplace-admin.html is retired - it records its visit, bound to the account, and no use - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:24:01.614Z (.tmp/slw/results/l3w_b5.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3016-390-mvgtz1kw - 1 page_view(s) of marketplace-admin, no use (retired), every event bound to Leandro Marquez || desktop-1280: session WH-L3-PROBE-SL3016-1280-mvgtz1kw - 1 page_view(s) of marketplace-admin, no use (retired), every event bound to Leandro Marquez. Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3016.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
       "id": "SL3017",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-L",
       "title": "L3 · The platform must record this page's use as events someone can count - oversight · platform actions",
       "pages": [
@@ -928065,6 +928305,14 @@
         "engine": "chromium",
         "ask": "The platform must record this page's use as events someone can count",
         "closes": "the L3 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast (or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly one page_view for the load and exactly one event for the use, carrying the page and the action, bound by the database to the cast's account, an active-membership hive and the account's own name (a visitor: no account, hive or name), props free of a person's details; and founder_feature_use, read as a platform admin, counted it): L3: platform-actions.html records its visit and its use as events someone can count - under the account, hive and name the database bound - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-20T15:42:06.962Z (.tmp/slw/results/l3w_f1.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, each load under its own WH-L3-PROBE session; phone-390: session WH-L3-PROBE-SL3017-390-mvgup3in - 1 page_view(s) of platform-actions, one 'topup_rejected', every event bound to Leandro Marquez || desktop-1280: session WH-L3-PROBE-SL3017-1280-mvgup3in - 1 page_view(s) of platform-actions, one 'topup_rejected', every event bound to Leandro Marquez. founder_feature_use (read as a platform admin) counts topup_rejected on platform-actions: 4 uses by 1 account(s) and 0 signed-out session(s). Gates usage-events (migration 20261021000002: the database binds account, hive and name and screens props; founder_feature_use counts accounts and signed-out sessions apart, for an admin only; every L3 page records its confirmed uses through utils.js whUse, none counts a replayed choice) and scripts-parse (every script and every inline handler compiles). Receipt .tmp/mcp_walks/SL3017.json.",
+      "artifacts": {
+        "gates": [
+          "scripts-parse",
+          "skew-heal",
+          "usage-events"
+        ]
       }
     },
     {
@@ -1019507,5 +1019755,5 @@
       }
     }
   ],
-  "next": "SL L3 usage events (31) - the platform must record this page's use as events someone can count: inventory each page's analytics_events writes (what is counted, by whom, which page), walk each row's cast at phone-390 and desktop-1280 using the page's main controls, then read analytics_events for one event per meaningful use with page, action and a hive/actor someone can count by (no PII, no double-fire); then L4 (32), LB1 (33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
+  "next": "SL L4 the sentence a person saw is logged (32) - the platform must log the sentence this page showed a person when something failed, not only the code: inventory each L4 page's failure paths (whWriteError / whReadError / whFnError / showToast on a refusal) against what client_errors records, induce each row's failure as its cast at phone-390 and desktop-1280, then read client_errors for the SAME words the person saw beside the code; then LB1 (33), LB3 (76), LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
 }

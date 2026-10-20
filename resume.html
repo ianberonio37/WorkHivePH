@@ -2412,6 +2412,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { css, html } = buildResumeHTML();
       const w = window.open('', '_blank', 'width=720,height=900');
       if (!w) { toast('Allow pop-ups to print.'); return; }
+      // SL L3: the same family as resume_export; a print dialog cannot report print vs cancel, so it counts the opening
+      if (typeof logEvent === 'function') logEvent(db, 'resume_print_opened', { page: 'resume' });
       w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(resume.basics.name || 'Resume')}</title>`
         + `<style>@page{margin:14mm;}body{margin:0;}${css}    /* I2 (2026-09-05): the builder paints its sections after its reads; reserve the first screen */
     @media (min-width: 768px) { main, #resume-app, #builder { min-height: 480px; } }

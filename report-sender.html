@@ -21,7 +21,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1779,6 +1779,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           showToast(error
             ? whWriteError(error, 'The contact was NOT removed - it is still saved and will still receive reports.')
             : 'The contact was NOT removed - only a supervisor of this hive can remove recipients, or it was already gone. It is still saved and will still receive reports.');
+        } else if (typeof whUse === 'function') {
+          whUse(db, 'recipient_removed');   // SL L3: counted once the row is gone
         }
       }
     }
@@ -1879,6 +1881,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // localStorage so it survives navigation. So the confirmation says exactly that and nothing more.
       showToast(_t(`${name} added → in your recipient list now, and saved for future reports.`,
         `Naidagdag ang ${name} → nasa listahan mo na ng tatanggap, at naka-save para sa susunod na mga report.`));
+      if (typeof whUse === 'function') whUse(db, 'recipient_added');
     }
 
     // ── Card state machine ────────────────────────────────────────────────────────
@@ -2579,6 +2582,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const failed = sendResults.filter(r => r.status === 'rejected');
 
         if (sent.length > 0) {
+          // SL L3: a report is a use once it REACHED someone; a send that reached no one is not one
+          if (typeof whUse === 'function') whUse(db, 'report_sent', { recipients: sent.length, failed: failed.length, reports: successReports.length });
           const label = sent.length === 1
             ? sent[0].value
             : `${sent.length} recipients`;

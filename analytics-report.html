@@ -17,7 +17,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtDate whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whFmtDate whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1005,6 +1005,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         await hivePromise;
         _data = data;
         renderReport(data);
+        if (typeof whUse === 'function') whUse(db, 'report_generated');
         pdfBtn.disabled = false;
         // the CSV carries the same generated data, so it becomes available at the same moment
         var _csvBtn = document.getElementById('csv-btn');
@@ -2261,6 +2262,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
       showToast(_t('Exported ' + rows.length + ' figures.', 'Na-export ang ' + rows.length + ' na numero.'));
+      if (typeof whUse === 'function') whUse(db, 'report_exported', { format: 'csv', figures: rows.length });
     };
 
     window.saveAsPdf = function(){
@@ -2311,6 +2313,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       // Slight delay so the styleEl mounts before print sees it
       setTimeout(function(){ window.print(); }, 50);
+      // SL L3: a print dialog cannot report print vs cancel, so the counted fact is that it was opened
+      if (typeof whUse === 'function') whUse(db, 'print_opened', { as: 'pdf' });
     };
 
     // ── N1 i18n ────────────────────────────────────────────────────────────

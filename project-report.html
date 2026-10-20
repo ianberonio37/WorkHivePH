@@ -325,7 +325,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <span id="ai-narrative-status" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"></span>
     <!-- one amber action (W46013): Print was a second, gradient-gold primary beside Save as PDF; both open the print
          dialog, and Save as PDF also names the file, so it keeps the accent -->
-    <button class="btn" onclick="window.print()" data-i="print">Print</button>
+    <button class="btn" onclick="prPrint()" data-i="print">Print</button>
     <button class="btn primary" onclick="saveAsPdf()" data-i="saveaspdf">Save as PDF</button>
     <!-- Print and Save-as-PDF both make a picture of this report. A project report is also the record a
          client, an auditor or the next project manager works FROM - the scope items, the linked
@@ -408,7 +408,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -803,6 +803,7 @@ async function aiGenerateNarrative() {
     const _txt = (v) => (typeof v === 'string' ? v.trim() : '');
     const _hero = _txt(data?.hero_finding), _exec = _txt(data?.executive_summary), _lessons = _txt(data?.lessons_synthesis);
     if (!_hero && !_exec && !_lessons) { showToast("AI didn't send back a narrative this time. Please try again.", 'error'); return; }
+    if (typeof whUse === 'function') whUse(db, 'narrative_generated');
     // Replace the rule-based hero finding + exec summary with AI versions, tagged
     const insightCard = $('exec-summary').querySelector('.insight-card .text');
     if (insightCard && _hero) insightCard.textContent = _hero;
@@ -1206,9 +1207,18 @@ function saveAsCsv() {
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   if (typeof showToast === 'function') showToast('Exported ' + rows.length + ' fields.');
+  if (typeof whUse === 'function') whUse(db, 'report_exported', { format: 'csv', fields: rows.length });
+}
+
+// SL L3: a print dialog cannot say whether it was printed or cancelled (afterprint fires either way), so what is
+// counted is what is known - the person opened it, as a print or as a PDF save
+function prPrint() {
+  if (typeof whUse === 'function') whUse(db, 'print_opened', { as: 'print' });
+  window.print();
 }
 
 function saveAsPdf() {
+  if (typeof whUse === 'function') whUse(db, 'print_opened', { as: 'pdf' });
   const code = ($('cov-code').textContent || 'project').trim();
   // Manila's date, not UTC's: toISOString() dated a PDF saved before 08:00 PHT with yesterday (critique W46013)
   const filename = `${code}_report_${_phtYmd(new Date())}.pdf`;

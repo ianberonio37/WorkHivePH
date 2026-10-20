@@ -2,7 +2,7 @@
 name: page-plant-connections
 type: page
 source: file:plant-connections.html
-source_sha: 1ece893280c5e4d9
+source_sha: e9dbb34bb89760f5
 last_verified: 2026-07-13
 supersedes: null
 ---

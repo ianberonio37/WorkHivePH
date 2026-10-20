@@ -923,7 +923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1045,6 +1045,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!HIVE_ID) {
       document.getElementById('hive-gate').classList.remove('hidden');
       document.getElementById('wizard').classList.add('hidden');
+      // SL L3: for a hive-less owner this gate IS the page, and its way forward is the use it records
+      const _gateLink = document.querySelector('#hive-gate a[href="hive.html"]');
+      if (_gateLink && typeof whUseLink === 'function') whUseLink(_gateLink, 'hive_gate_followed');
     }
     // Show Getting Started guide unless explicitly dismissed via the Dismiss link.
     // T121 (2026-08-28): owner-stamped, so one evaluator's dismissal on a shared machine
@@ -1478,6 +1481,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       _vehCreated = created;
       vehShowReceipt(vName, rows.length, parts.length);
+      // SL L3: the solo owner's use of this page (the CMMS tools are a supervisor's) - counted once all four writes landed
+      if (typeof whUse === 'function') whUse(db, 'vehicle_added', { pm_tasks: rows.length, parts: parts.length, fleet: !!hive });
     } catch (err) {
       console.error('vehCreate failed (rolling back):', err);  // L-layer: surface AND capture
       const failed = await vehRollback(created);
@@ -2341,6 +2346,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const quality = computeQualityScore(validRows, entityType);
     await writeAuditLog(total, imported, failed, entityType, quality);
+    if (typeof whUse === 'function') whUse(db, 'import_run', { kind: String(entityType || ''), imported: imported, failed: failed });
     setTimeout(() => showResults(total, imported, failed, validRows, quality), 600);
   }
 
@@ -2527,6 +2533,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (tab === 'sync') { loadSyncConfigs(); }
     if (tab === 'api')  loadApiKeys();
     if (tab === 'import') loadImportHistory();
+    // SL L3: every caller is a button a person pressed (the landing cards and the tab row) - nothing switches on load
+    if (typeof whUse === 'function') whUse(db, 'tab_opened', { tab: String(tab) });
   }
 
   // ── Live Sync ─────────────────────────────────────────────────────────────
@@ -2833,6 +2841,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('sc-url').value   = '';
     document.getElementById('sc-token').value = '';
     showToast('Sync config saved.');
+    if (typeof whUse === 'function') whUse(db, 'sync_config_saved');
     loadSyncConfigs();
   
     } finally { window._busy_saveSyncConfig = false; }
@@ -2893,6 +2902,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: configId } });
       if (error) { showToast(whWriteError(error, _t('The sync did not start. Check the config row and try again.', 'Hindi nag-start ang sync. Suriin ang config row at subukan muli.'))); return; }
       const r = data?.results?.[0];
+      if (typeof whUse === 'function') whUse(db, 'sync_run', { ok: !r?.error, synced: Number(r?.synced) || 0 });
       // r.error is the sync fn's own sentence (server-composed, human) - surface it; fall back if empty.
       if (r?.error) showToast(String(r.error).length < 200 ? ('Sync failed: ' + r.error) : 'The sync failed on the CMMS side. Open the Live Sync tab and check the config row.');
       else showToast('✓ Synced ' + (r?.synced || 0) + ' records → new work orders in Logbook · feeds Analytics & Shift Brain.'
@@ -2937,6 +2947,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       hive_id: HIVE_ID, key_prefix: prefix, key_hash: keyHash, label, enabled: true
     });
     if (error) { showToast(whWriteError(error, _t('That did not go through. Nothing changed; try again.', 'Hindi iyon natuloy. Walang nagbago; subukan muli.'))); return; }
+    if (typeof whUse === 'function') whUse(db, 'api_key_created');
 
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
@@ -2988,6 +2999,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return;
     }
     showToast('API key revoked. Anything still using it is refused from now on.', 4000);
+    if (typeof whUse === 'function') whUse(db, 'api_key_revoked');
     loadApiKeys();
   }
 
@@ -3179,6 +3191,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? `Sync records removed. ${_manual} imported logbook ${_manual === 1 ? 'entry' : 'entries'} could NOT be removed automatically. Imported entries are not marked as such, so please delete them by hand in the Logbook.`
         : `Import rolled back. ${_removed} imported ${_removed === 1 ? 'row' : 'rows'} removed.`,
         _manual ? 'error' : 'success');
+      if (typeof whUse === 'function') whUse(db, 'import_rolled_back', { removed: Number(_removed) || 0, left_by_hand: Number(_manual) || 0 });
       await loadImportHistory();
     } catch (e) {
       console.error('integrations rollback failed:', e);
@@ -3324,6 +3337,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           return;
         }
         showToast('Resolved: logbook updated to match SAP.');
+      if (typeof whUse === 'function') whUse(db, 'conflict_resolved', { kept: 'external' });
       } else {
         // WorkHive wins: write OUR status onto the external record, not back onto our own.
         if (!extId) { showToast('Cannot keep WorkHive status: the external record is unknown.', '⚠️'); return; }
@@ -3336,6 +3350,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           return;
         }
         showToast('Kept WorkHive status. SAP will receive the update on next push.');
+      if (typeof whUse === 'function') whUse(db, 'conflict_resolved', { kept: 'workhive' });
       }
       loadConflicts();
     } catch (e) {

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: ebebb62dd725fd49
+source_sha: 2d1a8b6ce5bab200
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1410) — the 'what's already gated' brain
+## gate · registered validators (1411) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -375,7 +375,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1038)
+### Platform (1039)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1362,6 +1362,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `unchecked-writes` ⚡ [fail] — Every edge-function write is checked (a discarded { error } lets a function answer ok over a failed write - forward-only ratchet)
 - `unconfirmed-write-is-not-a-failure` [fail] — T176: an empty RETURNING is an UNCONFIRMED write, not a failed one (2026-08-27). supabase-js resolves `.insert(...).select(...)` with { data: [], error: null } 
 - `units_at_boundary` [fail] — Units at the boundary (every money/credit/percent/duration column declares its unit by CHECK, comment, sibling column or name — and no column mixes two scales)
+- `usage-events` ⚡ [fail] — Usage events (SL L3): every L3 page records its uses where they are confirmed (31 pages, retired pages their visit), props carry no person or their words, every
 - `user-facing-jargon` ⚡ [fail] — User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)
 - `user-facing-kpi-canonical` ⚡ [fail] — User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)
 - `ux-contract` ⚡ [fail] — WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)

@@ -52,7 +52,32 @@ export function scriptProblems(name, src, isHtml, opts = {}) {
     try { new vm.Script(m[2], { filename: name }); }
     catch (e) { out.push(`${name}:${src.slice(0, m.index).split('\n').length}: inline script - ${e.message}`); }
   }
+  // ★AN INLINE HANDLER IS A SCRIPT TOO (2026-10-21, SL L3 walk). An edit left onclick="setPhase('diagnostic', true)\" on
+  // all four analytics phase tabs: the attribute's code ended in a backslash, every tab threw "Invalid or unexpected
+  // token" when pressed, and this gate - which compiled only <script> blocks - passed. Every on* attribute in the
+  // markup is compiled as the function body the browser makes of it. The markup is read with its scripts and styles
+  // blanked (a script's template strings BUILD handlers from data and are checked as that script), and only inside a
+  // tag (text that merely says "onclick=" is not one).
+  const markup = src.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, (s) => s.replace(/[^\n]/g, ' '))
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, (s) => s.replace(/[^\n]/g, ' '));
+  const ATTR = /\s(on[a-z]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+  let a;
+  while ((a = ATTR.exec(markup))) {
+    if (markup.lastIndexOf('<', a.index) < markup.lastIndexOf('>', a.index)) continue;
+    const code = decodeEntities(a[2] != null ? a[2] : a[3]);
+    try { new vm.Script('(function (event) {\n' + code + '\n})', { filename: name }); }
+    catch (e) { out.push(`${name}:${markup.slice(0, a.index).split('\n').length}: ${a[1]} handler - ${e.message}`); }
+  }
   return out;
+}
+
+// the browser decodes an attribute's character references before it compiles the handler
+function decodeEntities(s) {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|quot|apos|lt|gt|amp|nbsp);/gi, (m, e) => {
+    const k = e.toLowerCase();
+    if (k[0] === '#') return String.fromCodePoint(k[1] === 'x' ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10));
+    return { quot: '"', apos: "'", lt: '<', gt: '>', amp: '&', nbsp: ' ' }[k];
+  });
 }
 
 function files() {
@@ -82,6 +107,12 @@ function selfTest() {
     ["a lost escape in an inline script (day\\'s -> day's)", scriptProblems('p.html', html("var s = 'day's';"), true).length === 1],
     ['a clean page with JSON-LD, a module and a src script', scriptProblems('p.html', html('var s = 1;'), true).length === 0],
     ['a comment that mentions a <script> tag', scriptProblems('p.html', '<!-- must be in the DOM before the <script> block runs --><script>var s = 1;</script>', true).length === 0],
+    ['a handler that ends in a stray backslash (analytics phase tabs, 2026-10-21)',
+      scriptProblems('p.html', '<button onclick="setPhase(\'diagnostic\', true)\\">Why</button>', true).length === 1],
+    ['a clean handler written with character references',
+      scriptProblems('p.html', '<button onclick="go(&quot;a&quot;, 1 &amp;&amp; 2)">Go</button>', true).length === 0],
+    ['a handler BUILT inside a script template is that script\'s, not markup',
+      scriptProblems('p.html', '<script>var h = `<b onclick="f(\'${x}\')">`;</script>', true).length === 0],
   ];
   const bad = cases.filter(([, pass]) => !pass);
   for (const [name, pass] of cases) console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${name}`);

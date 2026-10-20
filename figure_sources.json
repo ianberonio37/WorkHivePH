@@ -654,9 +654,9 @@
   },
   {
    "sel": "#usage-body",
-   "shows": "platform usage over the last 30 days",
-   "basedOn": "active hives, people seen, signed-out sessions and daily actives, rolled up per day",
-   "reads": "founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series",
+   "shows": "platform usage over the last 30 days, and what each page was used for",
+   "basedOn": "active hives, people seen, signed-out sessions and daily actives rolled up per day; uses counted per page and action, accounts and signed-out sessions apart",
+   "reads": "founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series, founder_feature_use",
    "period": "The last 30 days, rolling to now"
   }
  ],

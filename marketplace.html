@@ -1273,7 +1273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1728,6 +1728,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }));
       const { error } = await db.from('marketplace_inquiries').insert(rows);
       if (error) throw error;
+      if (typeof whUse === 'function') whUse(db, 'quotes_requested', { sellers: rows.length });
 
       showToast(_t(`Quote requests sent to ${rows.length} seller${rows.length !== 1 ? 's' : ''}.`,
       `Naipadala ang quote request sa ${rows.length} seller.`), 'success');
@@ -1945,6 +1946,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       }]);
       if (error) throw error;
       showToast('Search saved.', 'success');
+      if (typeof whUse === 'function') whUse(db, 'search_saved', { alerts: !!email });
       /* Reload the sheet content with the new entry */
       openSavedSearchesSheet();
       /* J5 (2026-07-24): the sheet was reloaded but the HEADER badge was not, so right after a save the
@@ -2160,6 +2162,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           .insert([{ worker_name: WORKER_NAME, listing_id: listingId }]);
         if (error) throw error;
         showToast('Saved to watchlist.', 'success');
+        if (typeof whUse === 'function') whUse(db, 'listing_watched');
       }
     } catch (_err) {
       /* Rollback the optimistic change */
@@ -2303,7 +2306,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       content.querySelectorAll('.btn-watch-view').forEach(btn => {
         btn.addEventListener('click', () => {
           closeSheet('watchlist');
-          openDetailSheet(btn.dataset.id);
+          openDetailSheet(btn.dataset.id, true);
         });
       });
       content.querySelectorAll('.btn-watch-remove').forEach(btn => {
@@ -2757,7 +2760,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     grid.querySelectorAll('.btn-view').forEach(btn => {
       btn.addEventListener('click', ev => {
         ev.stopPropagation();
-        openDetailSheet(btn.dataset.id);
+        openDetailSheet(btn.dataset.id, true);
       });
     });
     grid.querySelectorAll('.listing-card').forEach(card => {
@@ -2771,7 +2774,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           toggleCompareItem(card.dataset.id);
           return;
         }
-        openDetailSheet(card.dataset.id);
+        openDetailSheet(card.dataset.id, true);
       });
     });
 
@@ -3072,9 +3075,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       + `<span>AI helped draft the ${escHtml(list)}. The seller kept that draft.</span></p>`;
   }
 
-  async function openDetailSheet(id) {
+  async function openDetailSheet(id, byPress) {
     const item = _listings.find(l => l.id === id);
     if (!item) return;
+    // SL L3: a listing a person pressed open is a use; the same sheet opened by a deep link on arrival is not
+    if (byPress && typeof whUse === 'function') whUse(db, 'listing_opened', { section: String(item.section || '') });
 
     /* PUT THE LISTING IN THE URL. The detail is a sheet, so opening one never changed the address:
        a listing could not be shared, bookmarked, or returned to after a sign-in, and the account gate
@@ -3394,6 +3399,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         }]);
         if (error) throw error;
         showToast('Review posted. Thanks for helping other buyers.', 'success');
+        if (typeof whUse === 'function') whUse(db, 'review_posted');
         openDetailSheet(item.id);            // MK12: re-derive the list we just changed
       } catch (err) {
         console.error('[marketplace] review insert failed', err);
@@ -4171,6 +4177,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
 
       writeAuditLog('create_listing', 'marketplace_listings', null, title,
         { section, category, price, status: 'draft' });
+      if (typeof whUse === 'function') whUse(db, 'listing_submitted', { section: String(section || '') });
 
       showToast('✓ Listing submitted for review → in your Seller dashboard now · goes live to buyers in the Marketplace once approved', 'success');
       closeSheet('post');
@@ -4257,6 +4264,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       if (error) throw error;
 
       showToast('Inquiry sent! Seller responds within 48 hours.', 'success');
+      if (typeof whUse === 'function') whUse(db, 'inquiry_sent');
       closeSheet('inquiry');
       document.getElementById('form-inquiry')?.reset();
     } catch (err) {
@@ -5972,7 +5980,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           if (one) _listings.push(one);
         } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
       }
-      openDetailSheet(lid);
+      openDetailSheet(lid, true);
     });
 
     /* Load watchlist first so heart states render correctly on first paint */

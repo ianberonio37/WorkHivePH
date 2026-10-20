@@ -201,6 +201,15 @@ CONDITION["L2"] = ("the page read as served in its own browser context (service 
                    "decision) with the actor bound to the signed-in account, the action rendered through utils.js's one "
                    "vocabulary as words, and the thing's own name - or, for a two-party record, who and when on the record "
                    "and nothing in a hive's trail; for the person's own row, owner-only reading as another member")
+GATES["L3"] = ["usage-events", "skew-heal", "scripts-parse"]
+CONDITION["L3"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast "
+                   "(or signed out, for the visitor's page); the page loaded ONCE and its own main use was made once - the "
+                   "page's control pressed as a person presses it, or its own use function called - on the LOCAL stack, "
+                   "with walk sessions tagged WH-L3-PROBE; then analytics_events was read for that browser session: exactly "
+                   "one page_view for the load and exactly one event for the use, carrying the page and the action, bound by "
+                   "the database to the cast's account, an active-membership hive and the account's own name (a visitor: no "
+                   "account, hive or name), props free of a person's details; and founder_feature_use, read as a platform "
+                   "admin, counted it")
 GATES["C3"] = ["print-export-stamped", "period-stated", "skew-heal", "scripts-parse"]
 CONDITION["C3"] = ("the page read as served in its own browser context (service workers blocked, downloads accepted), signed in "
                    "as the row's cast, settled, and prepared as a person would where its printable thing must first exist "

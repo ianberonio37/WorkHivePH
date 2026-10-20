@@ -719,10 +719,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Arc Y Y5 (fork#4): plain job-to-be-done labels lead; the standards-anchored
          academic term is kept as a subtitle (discoverable for engineers, comprehensible
          for technicians). setPhase matches on data-phase, not the visible text. -->
-    <button class="phase-tab active" aria-pressed="true" data-phase="descriptive"  onclick="setPhase('descriptive')"><span data-i="ph1">What happened</span><span class="phase-sub" data-i="ph1s">Descriptive</span></button>
-    <button class="phase-tab" aria-pressed="false" data-phase="diagnostic"   onclick="setPhase('diagnostic')"><span data-i="ph2">Why it happened</span><span class="phase-sub" data-i="ph2s">Diagnostic</span></button>
-    <button class="phase-tab" aria-pressed="false" data-phase="predictive"   onclick="setPhase('predictive')"><span data-i="ph3">What's coming</span><span class="phase-sub" data-i="ph3s">Predictive</span></button>
-    <button class="phase-tab" aria-pressed="false" data-phase="prescriptive"  onclick="setPhase('prescriptive')"><span data-i="ph4">What to do</span><span class="phase-sub" data-i="ph4s">Prescriptive</span></button>
+    <button class="phase-tab active" aria-pressed="true" data-phase="descriptive"  onclick="setPhase('descriptive', true)"><span data-i="ph1">What happened</span><span class="phase-sub" data-i="ph1s">Descriptive</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="diagnostic"   onclick="setPhase('diagnostic', true)"><span data-i="ph2">Why it happened</span><span class="phase-sub" data-i="ph2s">Diagnostic</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="predictive"   onclick="setPhase('predictive', true)"><span data-i="ph3">What's coming</span><span class="phase-sub" data-i="ph3s">Predictive</span></button>
+    <button class="phase-tab" aria-pressed="false" data-phase="prescriptive"  onclick="setPhase('prescriptive', true)"><span data-i="ph4">What to do</span><span class="phase-sub" data-i="ph4s">Prescriptive</span></button>
   </div>
 
   <!-- Global filters: narrow every panel by criticality + discipline.
@@ -810,7 +810,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -972,6 +972,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   function setPeriod(days, rerun = false) {
     _period = days;
+    if (rerun && typeof whUse === 'function') whUse(db, 'period_changed', { days: Number(days) || 0 });   // rerun = a button press
     document.querySelectorAll('.period-btn').forEach(b => {
       setActive(b, Number(b.dataset.days) === days);
     });
@@ -1007,8 +1008,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     setTimeout(off, 260);
   }
 
-  function setPhase(phase) {
+  function setPhase(phase, byPress) {
     _phase = phase;
+    // SL L3: a phase the person opened is a use; the same call from a deep link or a re-render is not
+    if (byPress && typeof whUse === 'function') whUse(db, 'phase_opened', { phase: String(phase) });
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
       setActive(b, (b.dataset.phase || b.textContent.toLowerCase()) === phase);
     });

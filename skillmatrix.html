@@ -631,7 +631,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whSourcesSync whStartupHive">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1135,6 +1135,7 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     // is not an end in itself: it is what the gap analysis measures against and what decides which quizzes
     // a person can take, which is the thing they came to this page to move.
     showToast('Targets saved → your skill gaps and available quizzes update now.', '✓');
+    if (typeof whUse === 'function') whUse(db, 'targets_saved');
     _smMarkTargetsSaved();
     // Embed each discipline skill level in background
     Object.entries(_profile.targets).forEach(([discipline, level]) => {
@@ -1468,6 +1469,7 @@ async function openDiscipline(disc) {
   }
 
   openLesson(disc, nextLevel);
+  if (typeof whUse === 'function') whUse(db, 'lesson_opened', { level: Number(nextLevel) || 0 });
 }
 
 // ─── Lesson Modal ─────────────────────────────────────────────────────────────
@@ -1586,6 +1588,7 @@ function closeLesson() {
 document.getElementById('lesson-exam-btn').addEventListener('click', () => {
   closeModal('lesson-modal');
   openExam();
+  if (typeof whUse === 'function') whUse(db, 'exam_started', { level: Number(_activeLevel) || 0 });
 });
 
 // ─── Exam Modal ───────────────────────────────────────────────────────────────
@@ -1778,6 +1781,8 @@ async function submitExam() {
   } else {
     srvScore  = graded.score;
     srvPassed = graded.passed;
+    // SL L3: an exam is a use once the SERVER graded it; a submit that could not be graded is not one
+    if (typeof whUse === 'function') whUse(db, 'exam_graded', { level: Number(level) || 0, passed: !!srvPassed });
     if (srvPassed) {
       // Update local badge state + embed the new skill level in the background.
       if (!_badges[disc].includes(level)) _badges[disc].push(level);

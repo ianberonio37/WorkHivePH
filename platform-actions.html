@@ -155,7 +155,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whWorker">
+<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whManilaYmd whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -605,13 +605,41 @@
       // the RPC names are LITERAL on purpose: a capability the static roster cannot see is a capability the
       // platform cannot prove it still hosts (validate_retired_page_sole_control reads these names)
       const ok = (r) => (r && !r.error ? r.data : null), no = () => null;
-      const [hives, mau, anon, dau, heat] = await Promise.all([
+      const [hives, mau, anon, dau, heat, uses] = await Promise.all([
         db.rpc('founder_active_hives', { p_days: 30 }).then(ok, no),
         db.rpc('founder_mau', { p_days: 30 }).then(ok, no),
         db.rpc('founder_anon_sessions', { p_days: 30 }).then(ok, no),
         db.rpc('founder_dau_series', { p_days: 14 }).then(ok, no),
-        db.rpc('founder_page_heatmap', { p_days: 30 }).then(ok, no)]);
-      return { hives, mau, anon, dau, heat };
+        db.rpc('founder_page_heatmap', { p_days: 30 }).then(ok, no),
+        // SL L3 (2026-10-21): what the pages were USED for - the five above count visits and people, never a use
+        db.rpc('founder_feature_use', { p_days: 30 }).then(ok, no)]);
+      return { hives, mau, anon, dau, heat, uses };
+    }
+    // One line per page and action, the busiest first; the accounts and the signed-out sessions are counted apart
+    // (founder_feature_use), because one "people" figure would add an account to a browser tab.
+    function _usesBlock(uses) {
+      if (!Array.isArray(uses)) {
+        return '<div class="mod-empty" style="margin-top:14px;">What the pages were used for could not be read, so it is unknown - not unused.</div>';
+      }
+      if (!uses.length) {
+        return '<div class="mod-empty" style="margin-top:14px;">No uses recorded in the last 30 days - only page visits.</div>';
+      }
+      const top = uses.slice(0, 8);
+      const line = (r) => {
+        const acc = Number(r.accounts) || 0, vis = Number(r.visitor_sessions) || 0;
+        const who = acc.toLocaleString() + (acc === 1 ? ' account' : ' accounts')
+          + (vis ? ' + ' + vis.toLocaleString() + ' signed-out ' + (vis === 1 ? 'session' : 'sessions') : '');
+        return '<li style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+          + '<span>' + escHtml(String(r.page || '-')) + ' · ' + escHtml(String(r.action || '').replace(/_/g, ' ')) + '</span>'
+          + '<span style="font-variant-numeric:tabular-nums;">' + (Number(r.uses) || 0).toLocaleString() + ' by ' + who + '</span></li>';
+      };
+      return '<div style="margin-top:14px;"><div class="mod-empty">What the pages were used for (30d)</div>'
+        + '<ul style="list-style:none; margin:6px 0 0; padding:0; display:grid; gap:4px;">' + top.map(line).join('') + '</ul>'
+        + (uses.length > top.length
+          ? '<div class="mod-empty" style="margin-top:4px;">and ' + (uses.length - top.length) + ' more page '
+            + (uses.length - top.length === 1 ? 'action' : 'actions') + ' with fewer uses</div>'
+          : '')
+        + '</div>';
     }
     function renderUsage(u) {
       const host = document.getElementById('usage-body');
@@ -639,7 +667,7 @@
         if (chip) chip.style.display = 'none';
         return;
       }
-      const rollups = [u.hives, u.mau, u.anon, u.dau, u.heat];
+      const rollups = [u.hives, u.mau, u.anon, u.dau, u.heat, u.uses];
       if (rollups.every((v) => v === null || v === undefined)) {
         // It guessed "a connection or permission problem" - and in the outage that found this it was neither: the
         // device was online and the account was the same one that reads it on a good day. Say what is known.
@@ -652,7 +680,13 @@
       if (chip) chip.style.display = '';
       const num = (v) => (v === null || v === undefined || Number.isNaN(Number(v)) ? '-' : Number(v).toLocaleString());
       const one = (v) => (Array.isArray(v) ? (v.length ? (v[0].count ?? v[0].value ?? v[0].n ?? v.length) : 0) : v);
-      const dauToday = Array.isArray(u.dau) && u.dau.length ? (u.dau[u.dau.length - 1].count ?? u.dau[u.dau.length - 1].value) : null;
+      // ★"PEOPLE TODAY" READ A COLUMN THE ROLLUP DOES NOT HAVE (SL L3 walk, 2026-10-21). founder_dau_series returns
+      // {day, dau, events}; this read .count / .value, so the figure printed "-" beside 13 people that day. And it took
+      // the LAST row, which is the last day anyone came - not today. Today's row by the platform's day (Manila), else
+      // 0 from a read that worked.
+      const _todayPh = (typeof whManilaYmd === 'function') ? whManilaYmd() : new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+      const _dauRow = Array.isArray(u.dau) ? u.dau.find((r) => String(r && r.day).slice(0, 10) === _todayPh) : null;
+      const dauToday = Array.isArray(u.dau) ? (_dauRow ? Number(_dauRow.dau) : 0) : null;
       const topPage = Array.isArray(u.heat) && u.heat.length ? (u.heat[0].page || u.heat[0].path || '-') : '-';
       host.innerHTML =
         '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">'
@@ -661,7 +695,8 @@
         + '<div><div class="mod-empty">Signed-out sessions (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.anon)) + '</div></div>'
         + '<div><div class="mod-empty">People today</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(dauToday) + '</div></div>'
         + '<div><div class="mod-empty">Most-opened page (30d)</div><div style="font-size:1rem; font-weight:700;">' + escHtml(String(topPage)) + '</div></div>'
-        + '</div>';
+        + '</div>'
+        + _usesBlock(u.uses);
       const st = document.getElementById('usage-updated');
       if (st) st.textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
     }
@@ -820,6 +855,7 @@
             showToast(verify
               ? 'Verified. Credits minted to the provider\'s wallet.'
               : 'Rejected. No credits were minted.', verify ? 'success' : 'info');
+            if (typeof whUse === 'function') whUse(db, verify ? 'topup_verified' : 'topup_rejected');
           }
           await refreshQueues();
           _restore();
@@ -1297,6 +1333,7 @@
               ? 'Listing approved: now live to buyers.'
               : 'Listing rejected. The seller can see your reason and resubmit.',
               act === 'approve-listing' ? 'success' : 'info');
+            if (typeof whUse === 'function') whUse(db, act === 'approve-listing' ? 'listing_approved' : 'listing_rejected');
           } else if (act === 'verify-kyb' || act === 'verify-cert') {
             // T67/T50 (2026-08-26): granting the badge BUYERS RELY ON asked nothing here either.
             // Names WHO, because in a per-seller row list the name is what a misclick gets wrong.
@@ -1337,6 +1374,7 @@
               return;
             }
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
+            if (typeof whUse === 'function') whUse(db, act === 'verify-kyb' ? 'seller_identity_verified' : 'seller_certs_verified');
           }
           /* The 'dispute-buyer' / 'dispute-seller' writer was RETIRED 2026-08-03 with the ghost table.
              Nothing emits those data-mkt-act values now, and leaving the writer would keep a live path
@@ -1624,6 +1662,7 @@
         closeFeedbackDrawer();
         _fbDraft.clear();
         showToast(isPublic && !wasPublic ? 'Saved, and now public on /feedback/' : 'Saved.', 'success');
+        if (typeof whUse === 'function') whUse(db, 'feedback_triaged', { status: String(status || ''), published: !!(isPublic && !wasPublic) });
       } catch (err) {
         console.error('[platform-actions] feedback save failed:', err);
         btn.textContent = 'Save changes'; btn.disabled = false;
@@ -1834,6 +1873,6 @@ window.addEventListener('load', function () { setTimeout(function () {
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
 }, 2500); });</script>
 <!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
-<script type="application/json" id="wh-figure-sources">[{"sel":"#cp-cover","shows":"liability cover: cash in against credits owed","basedOn":"verified top-ups and starter grants divided by the credits outstanding","reads":"v_service_credit_ledger_truth","period":"Now: the credit ledger when the page loaded"},{"sel":"#cp-content","shows":"the credit position: liability, cover and the treasury","basedOn":"the credit ledger, and the treasury's cap and credits issued","reads":"v_service_credit_ledger_truth, v_credit_posture","period":"Now: the credit ledger when the page loaded"},{"sel":"#svc-topups-count","shows":"top-ups waiting for verification (read up to 50)","basedOn":"service credit top-ups not yet verified","reads":"v_service_credit_topups_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-listings-count","shows":"listing drafts waiting for review (read up to 50)","basedOn":"marketplace listings still in draft","reads":"v_marketplace_listings_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-sellers-count","shows":"sellers waiting for review (read up to 50)","basedOn":"marketplace sellers not yet verified","reads":"v_marketplace_sellers_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#fb-count-badge","shows":"feedback waiting for triage","basedOn":"feedback marked new or not yet answered","reads":"platform_feedback","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#usage-body","shows":"platform usage over the last 30 days","basedOn":"active hives, people seen, signed-out sessions and daily actives, rolled up per day","reads":"founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series","period":"The last 30 days, rolling to now"}]</script>
+<script type="application/json" id="wh-figure-sources">[{"sel":"#cp-cover","shows":"liability cover: cash in against credits owed","basedOn":"verified top-ups and starter grants divided by the credits outstanding","reads":"v_service_credit_ledger_truth","period":"Now: the credit ledger when the page loaded"},{"sel":"#cp-content","shows":"the credit position: liability, cover and the treasury","basedOn":"the credit ledger, and the treasury's cap and credits issued","reads":"v_service_credit_ledger_truth, v_credit_posture","period":"Now: the credit ledger when the page loaded"},{"sel":"#svc-topups-count","shows":"top-ups waiting for verification (read up to 50)","basedOn":"service credit top-ups not yet verified","reads":"v_service_credit_topups_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-listings-count","shows":"listing drafts waiting for review (read up to 50)","basedOn":"marketplace listings still in draft","reads":"v_marketplace_listings_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-sellers-count","shows":"sellers waiting for review (read up to 50)","basedOn":"marketplace sellers not yet verified","reads":"v_marketplace_sellers_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#fb-count-badge","shows":"feedback waiting for triage","basedOn":"feedback marked new or not yet answered","reads":"platform_feedback","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#usage-body","shows":"platform usage over the last 30 days, and what each page was used for","basedOn":"active hives, people seen, signed-out sessions and daily actives rolled up per day; uses counted per page and action, accounts and signed-out sessions apart","reads":"founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series, founder_feature_use","period":"The last 30 days, rolling to now"}]</script>
 </body>
 </html>

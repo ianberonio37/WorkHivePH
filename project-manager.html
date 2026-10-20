@@ -947,7 +947,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTrash">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whTrash whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2151,6 +2151,7 @@ async function saveProject() {
       if (_bres && _bres.ok === false) showToast(_bres.detail || 'Budget was not changed.', 'error');
     }
     showToast('✓ Project saved → Project Report updated · refreshes wherever it is linked (Logbook · PM Scheduler)', 'success', 5000);
+    if (typeof whUse === 'function') whUse(db, 'project_edited');
     closeModal('modal-project');
     await loadProjects();
     if (_detailId === _editingId) await openDetail(_editingId);
@@ -2186,6 +2187,7 @@ async function saveProject() {
   }
   showToast(_t(`✓ Project ${payload.project_code} created → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`,
     `✓ Nagawa ang proyektong ${payload.project_code} → lalabas na sa Project Report · maii-link sa mga asset mula sa Logbook at PM Scheduler`), 'success', 6000);
+  if (typeof whUse === 'function') whUse(db, 'project_created');
   closeModal('modal-project');
   await loadProjects();
   await openDetail(ins.id);
@@ -2199,10 +2201,12 @@ async function deleteProject() {
       && !whRequireOnline('Deleting this project', (m) => showToast(m, 'error'))) return;
   if (!_detail) return;
   if (!(await window.whConfirm('Hide project ' + _detail.project_code + '? It disappears from every view, and its record is kept so it can be brought back.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
-  const { error } = await db.from('projects')
+  const { data: _hidden, error } = await db.from('projects')
     .update({ deleted_at: new Date().toISOString() })
-    .eq('id', _detail.id).eq('hive_id', HIVE_ID);
+    .eq('id', _detail.id).eq('hive_id', HIVE_ID).select('id');   // the read policy does not filter deleted_at, so RETURNING is safe
   if (error) { showToast(whWriteError(error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.')), 'error'); return; }
+  if (!_hidden || !_hidden.length) { showToast('Nothing was deleted: this account is no longer a member of the hive that owns this project, or it was already removed. Reload to check.', 'error'); return; }
+  if (typeof whUse === 'function') whUse(db, 'project_deleted');
   // ★'Deleted.' CONTRADICTED THIS PAGE'S OWN CONFIRM. The dialog above is admirably precise -
   // 'Soft-delete project <code>? It will be hidden from views.' - and then the confirmation collapsed
   // that into a word that means the opposite. This is an UPDATE stamping deleted_at, not a DELETE: the
@@ -2443,9 +2447,11 @@ async function cycleScopeStatus(id, ev) {
              : it.status === 'in_progress' ? 'done'
              : 'pending';
   const pct = next === 'done' ? 100 : next === 'in_progress' ? Math.max(it.pct_complete || 0, 50) : 0;
-  const { error } = await db.from('project_items')
-    .update({ status: next, pct_complete: pct }).eq('id', id);
+  const { data: _moved, error } = await db.from('project_items')
+    .update({ status: next, pct_complete: pct }).eq('id', id).select('id');
   if (error) { showToast(whWriteError(error, 'The task status was not saved.'), 'error'); return; }
+  if (!_moved || !_moved.length) { showToast('The task status was NOT changed: this account is no longer a member of the hive that owns it, or the task is gone. Refreshed.', 'error'); await refreshDetail(); return; }
+  if (typeof whUse === 'function') whUse(db, 'item_status_changed', { to: next });
   await refreshDetail();
 }
 
@@ -2584,6 +2590,7 @@ async function importBomItems(calcRow, btn) {
   closeModal('modal-bom-import');
   showToast(_t(`${payload.length} scope item(s) imported from ${calcRow.calc_type || 'the calculation'}.`,
       `${payload.length} scope item ang na-import mula sa ${calcRow.calc_type || 'kalkulasyon'}.`), 'success');
+  if (typeof whUse === 'function') whUse(db, 'scope_imported', { items: payload.length });
   await refreshDetail();
   // refreshDetail re-opens on the Overview tab, which would HIDE the import's receipt — land
   // the user back on Scope where the new items are visible.
@@ -2811,6 +2818,7 @@ async function saveLink() {
   // Arc S C-lens (gap-C-010): 23505 = link already exists (dedup guard) -> benign.
   if (error && error.code !== '23505') { showToast(whWriteError(error, 'The link was NOT created. Nothing changed; try again.'), 'error'); return; }
   showToast('Linked.', 'success');
+  if (!error && typeof whUse === 'function') whUse(db, 'project_linked', { kind: String(t || '') });
   closeModal('modal-link');
   await refreshDetail();
 }
@@ -2962,6 +2970,7 @@ async function ackLog(id) {
     return;
   }
   showToast('Progress report acknowledged.', 'success');
+  if (typeof whUse === 'function') whUse(db, 'progress_acknowledged');
   await refreshDetail();
 }
 
@@ -3271,6 +3280,7 @@ async function saveChangeOrder() {
   showToast(_t(`${coNum} submitted for approval → once approved, its cost and schedule impact land on the project.`,
               `Naisumite ang ${coNum} para sa pag-apruba → kapag naaprubahan, mararamdaman sa proyekto ang epekto nito sa gastos at iskedyul.`),
             'success');
+  if (typeof whUse === 'function') whUse(db, 'change_order_submitted');
   closeModal('modal-co');
   await refreshDetail();
 }
@@ -3298,6 +3308,7 @@ async function approveCO(id) {
   if (error) { showToast(whWriteError(error, 'The change order was not approved.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Approved.', 'success');
+  if (typeof whUse === 'function') whUse(db, 'change_order_approved');
   await refreshDetail();
 }
 async function rejectCO(id) {
@@ -3321,6 +3332,7 @@ async function rejectCO(id) {
   if (error) { showToast(whWriteError(error, 'The change order was not rejected.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided by another supervisor.'); await refreshDetail(); return; }
   showToast('Rejected.', 'success');
+  if (typeof whUse === 'function') whUse(db, 'change_order_rejected');
   await refreshDetail();
 }
 async function cancelCO(id) {
@@ -3352,6 +3364,7 @@ async function cancelCO(id) {
   if (error) { showToast(whWriteError(error, 'The change order was not cancelled.'), 'error'); return; }
   if (!updated || !updated.length) { showToast('That change order was already decided and can no longer be cancelled.'); await refreshDetail(); return; }
   showToast('Change order cancelled.', 'success');
+  if (typeof whUse === 'function') whUse(db, 'change_order_cancelled');
   await refreshDetail();
 }
 
@@ -3515,6 +3528,7 @@ async function saveLessons() {
     return;
   }
   showToast('Lessons saved.', 'success');
+  if (typeof whUse === 'function') whUse(db, 'lessons_saved');
   _detail.meta = data[0].meta || meta;
   _detail.updated_at = data[0].updated_at; // refresh snapshot for a subsequent edit
   // Phase 6.4 — embed lessons text for semantic search across projects
@@ -3574,10 +3588,14 @@ async function markComplete() {
   await markStatus('complete', { closed_at: new Date().toISOString() });
 }
 async function markStatus(status, extra = {}) {
-  const { error } = await db.from('projects')
-    .update({ status, ...extra }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
+  // ★A REFUSED UPDATE RETURNS NO ROWS AND NO ERROR (SL L3, 2026-10-21): projects_hive_rw admits only this hive's
+  // members, so a device still holding a hive it was removed from matched nothing - and read "Status: done".
+  const { data: _set, error } = await db.from('projects')
+    .update({ status, ...extra }).eq('id', _detail.id).eq('hive_id', HIVE_ID).select('id');
   if (error) { showToast(whWriteError(error, 'The project status was not saved.'), 'error'); return; }
+  if (!_set || !_set.length) { showToast('The project status was NOT changed: this account is no longer a member of the hive that owns it, or the project is gone. Reload to check.', 'error'); return; }
   showToast('Status: ' + status, 'success');
+  if (typeof whUse === 'function') whUse(db, 'project_status_set', { to: String(status) });
   await openDetail(_detail.id);
   await loadProjects();
 }

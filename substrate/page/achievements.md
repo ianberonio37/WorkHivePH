@@ -2,7 +2,7 @@
 name: page-achievements
 type: page
 source: file:achievements.html
-source_sha: ab91dee93c6f0696
+source_sha: 8ca231d0526fd3e9
 last_verified: 2026-07-13
 supersedes: null
 ---
