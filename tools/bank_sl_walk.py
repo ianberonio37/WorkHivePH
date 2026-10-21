@@ -562,7 +562,9 @@ def _bank(reg: dict, rid: str, basis: str, gates: list[str]) -> None:
     st, pct = ("locked", 100) if locked else ("locking", 60)
     old = t.get("basis") or ""
     t["status"], t["pct"] = st, pct
-    t["basis"] = basis.replace("{pct}", str(pct)) + (" || " + old if old else "")
+    # append-only, newest LAST: the registry gate reads the last "pct -> N" as the row's account of itself, and a
+    # new entry written in front of an older one left SL3121 at 60 with its basis ending "pct -> 40" (2026-10-22)
+    t["basis"] = (old + " || " if old else "") + basis.replace("{pct}", str(pct))
     arts = t.setdefault("artifacts", {})
     arts["gates"] = sorted(set(arts.get("gates") or []) | set(gates))
 

@@ -949303,8 +949303,8 @@
     },
     {
       "id": "SL3121",
-      "status": "fixing",
-      "pct": 40,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - fleet-supervisor · analytics",
       "pages": [
@@ -949364,7 +949364,12 @@
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
       },
-      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: analytics: the longest task 236 ms, its charts drawn as the walk opens the cards. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19)."
+      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: analytics: the longest task 236 ms, its charts drawn as the walk opens the cards. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19). || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: analytics.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T12:28:06.562Z (.tmp/slw/results/lb3w_mc3.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; a RETURNING visit - the page opened once first with the cast's real rows (fonts, scripts and glyph caches held, as for anyone who has used the platform; the thousand rows arrive only on the measured visit); every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 14 rows (div.page); 1 list read(s) answered from the 1,000-row pool (analytics_snapshots; up to 500 rows served); DOM 1050 elements; slowest interaction 116 ms CPU (pointerdown, 112 ms wall); longest task after the rows arrived 146 ms CPU (170 ms wall) || desktop-1280: longest list 14 rows (div.page); 1 list read(s) answered from the 1,000-row pool (analytics_snapshots; up to 500 rows served); DOM 1059 elements; slowest interaction 12 ms CPU (pointerdown, 48 ms wall); longest task after the rows arrived 21 ms CPU (0 ms wa Receipt .tmp/mcp_walks/SL3121.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
+      }
     },
     {
       "id": "SL3122",
@@ -1034603,5 +1034608,5 @@
       }
     }
   ],
-  "next": "BRH 9 AB banked 8/8 locally (production move owed: push, move --target prod, --clear). Next: analytics' Plotly vendored (cdn.plot.ly answered 503; same SRI), the innerText-on-long-lists prover audit, then LB3's six open rows with the CPU-time instrument, then LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
+  "next": "SL LB3 71/76: the scroll anchor walk fixed (only the rows the browser draws are candidates) and the shared chrome passes moved after the paint; five rows open 19-65 ms of CPU over budget at phone speed on a paging host (SL.19). Next: the innerText-on-long-lists prover audit, then LB4 (35), RL1 (31), RL2 (24), RL3 (36); LB3's five and the scroll-up layout shift (SL.19 NEXT) stay queued"
 }

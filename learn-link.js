@@ -439,11 +439,18 @@
           if (fresh.length) vacateSoon();
           scheduleFull();
         }
+        // ★AFTER THE PAINT, NOT BEFORE IT (SL LB3, 2026-10-22). The pass ran in a requestAnimationFrame callback, and a Load
+        // More press's own insertion scheduled it - so it ran inside the press's frame, before the paint the press was
+        // waiting for: 33-41 ms of every press at phone speed (one press traced near a thousand rows, logbook and
+        // inventory). The frame's callback now hands it to a task, which runs once that frame is painted. Getting out of
+        // a control's way stays immediate (vacateFresh, after the frame's layout).
         function runFull() {
           fullTimer = 0;
           if (fullFrame) return;
           fullFrame = true;
-          requestAnimationFrame(function () { fullFrame = false; ctrlCache = null; lastSync = performance.now(); sync(); });
+          requestAnimationFrame(function () {
+            setTimeout(function () { fullFrame = false; ctrlCache = null; lastSync = performance.now(); sync(); }, 0);
+          });
         }
         // the quarter-second pass alone
         function scheduleFull() {

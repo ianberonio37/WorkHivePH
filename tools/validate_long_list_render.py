@@ -66,6 +66,16 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
         R17 a row drawn through whRenderRows carries no HTML comment in its template: a comment is one more node in
            every row, parsed, kept and traced by the collector - inventory's part card carried three (~1.5 KB of notes a
            card), and around each press the browser's collections were the longest tasks; notes live as JS comments.
+        R18 only a row the browser is drawing is a scroll anchor: the long-list rows are out of the anchor choice
+           (overflow-anchor:none) and utils.js marks the rows the browser starts drawing (a contentvisibilityautostatechange
+           listener setting the data-wh-drawn ATTRIBUTE - every page's observer answers class changes) and lets those
+           back in. With every row in, the browser walked a thousand rows to pick its anchor on each frame that changed
+           layout (logbook presses 208/256/192 ms to paint at 390, CPU 4x; 152/176/136 with the rows out; the choice
+           alone at the foot of 920 rows 6.6 ms against 3.7 at full speed); with every row out, the list itself is the
+           anchor and a row above the screen 300 px taller moved the screen 300 px (0 with the drawn rows in).
+        R19 the shared chrome's quarter-second passes run after the paint, not before it: learn-link.js runFull hands the
+           guide chip's full pass from its frame callback to a task (33-41 ms of each press at phone speed ran inside the
+           press's own frame), and nav-hub.js runs every pass but a dialog's the same way (afterPaint; 14-16 ms a press).
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -531,11 +541,50 @@ def check_shared(utils: str, learn: str) -> list[str]:
     return issues
 
 
+# R18 (2026-10-22): the rows out of the scroll-anchor choice, the drawn ones back in
+ANCHOR_OUT = re.compile(r"\.wh-rows-cv>\*\{[^}]*overflow-anchor:\s*none[^}]*\}")
+ANCHOR_DRAWN = re.compile(r"\.wh-rows-cv>\[data-wh-drawn\]\{[^}]*overflow-anchor:\s*auto[^}]*\}")
+
+
+def check_anchor_and_paint(utils: str, learn: str, nav: str) -> list[str]:
+    """R18 + R19: what a press's frame does besides the page's own script."""
+    issues = []
+    ub = blank_comments(utils)
+    if not ANCHOR_OUT.search(ub) or not ANCHOR_DRAWN.search(ub):
+        issues.append("R18 utils.js lets every long-list row be a scroll anchor, or none - with every row in, the browser "
+                      "walks a thousand rows to pick one on each frame that changes layout (presses 208/256/192 ms to "
+                      "paint at phone speed, 152/176/136 without); with none, a row above the screen that changes height "
+                      "moves the screen. Rows out (overflow-anchor:none), the drawn ones in ([data-wh-drawn] auto)")
+    i = ub.find("addEventListener('contentvisibilityautostatechange'")
+    body = ub[i:_block_end(ub, ub.find("{", i) + 1) + 1] if i >= 0 else ""
+    if i < 0 or "ev.skipped" not in body or "setAttribute('data-wh-drawn'" not in body \
+            or "removeAttribute('data-wh-drawn'" not in body:
+        issues.append("R18 utils.js no longer marks the rows the browser is drawing - a contentvisibilityautostatechange "
+                      "listener sets data-wh-drawn on a row it starts drawing and removes it when it stops; without it no "
+                      "row is a scroll anchor and a row above the screen that changes height moves the screen")
+    elif re.search(r"classList\.(?:add|remove|toggle)\(|className\s*=", body):
+        issues.append("R18 utils.js marks the drawn rows with a class - every page's observer answers class changes (each "
+                      "filters on class, style, hidden, open, role, aria-hidden); mark them with the data-wh-drawn attribute")
+    rf = fn_body(blank_comments(learn), "runFull") or ""
+    if not re.search(r"requestAnimationFrame\(\s*function\s*\(\)\s*\{\s*setTimeout\(\s*function\s*\(\)\s*\{[^}]*\bsync\(\)", rf):
+        issues.append("R19 learn-link.js runs the guide chip's full pass inside a frame callback - a press's own insertion "
+                      "schedules it, so it ran in the press's frame before the paint (33-41 ms of a press at phone speed); "
+                      "the frame's callback hands it to a task (setTimeout), which runs once the frame is painted")
+    sb = fn_body(blank_comments(nav), "schedule") or ""
+    if not re.search(r"afterPaint\s*=\s*function\s*\(\)\s*\{\s*requestAnimationFrame\(\s*function\s*\(\)\s*\{\s*setTimeout\(\s*run\s*,", sb) \
+            or not re.search(r"else\s+if\s*\(\s*wait\s*>\s*0\s*\)\s*setTimeout\(\s*afterPaint\s*,\s*wait\s*\)", sb) \
+            or not re.search(r"else\s+afterPaint\(\)", sb):
+        issues.append("R19 nav-hub.js runs its quarter-second pass inside a frame callback - a press's class and style "
+                      "changes put it in the press's own frame (14-16 ms of a press at phone speed); only a dialog's pass "
+                      "runs before the paint, every other one after it (afterPaint)")
+    return issues
+
 def check(files: dict[str, str] | None = None, utils_override: str | None = None) -> list[str]:
     def text(rel: str) -> str:
         return files[rel] if files and rel in files else (ROOT / rel).read_text(encoding="utf-8", errors="replace")
     issues = check_helper(text("utils.js"), utils_override)
     issues += check_shared(text("utils.js"), text("learn-link.js"))
+    issues += check_anchor_and_paint(text("utils.js"), text("learn-link.js"), text("nav-hub.js"))
     for page in DATA_PAGES:
         issues += check_page(page, text(page))
     for page in STATIC_PAGES:
@@ -560,6 +609,9 @@ async function loadSynPage(append) {
 }
 function renderSynPage() { whRenderRows(document.getElementById('syn-page'), _synPage, r => '<li>' + r + '</li>', { key: 'html' }); }
 </script>"""
+
+
+MUTANTS_RUN = [0]
 
 
 def self_test() -> list[str]:
@@ -649,7 +701,25 @@ def self_test() -> list[str]:
         ("the chip shown to be measured", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
             "var h = home();\n          if (!h) { setState('flex', 0); h = home(); }",
             "setState('flex', lastLift || 0);\n          var h = home();\n          if (!h) { setState('flex', 0); h = home(); }", 1)}, None, "R8"),
+        ("every long-list row a scroll anchor again", {"utils.js": utils.replace(";overflow-anchor:none}'", "}'", 1)}, None, "R18"),
+        ("no long-list row a scroll anchor", {"utils.js": utils.replace(
+            "'.wh-rows-cv>[data-wh-drawn]{overflow-anchor:auto}'", "'.wh-rows-cv>[data-wh-drawn]{}'", 1)}, None, "R18"),
+        ("the drawn rows never marked", {"utils.js": utils.replace(
+            "document.addEventListener('contentvisibilityautostatechange', function (ev) {\n    var t = ev.target, pe",
+            "document.addEventListener('contentvisibilitychange', function (ev) {\n    var t = ev.target, pe", 1)}, None, "R18"),
+        ("the drawn rows marked by a class", {"utils.js": utils.replace(
+            "if (ev.skipped) t.removeAttribute('data-wh-drawn');\n    else t.setAttribute('data-wh-drawn', '');",
+            "if (ev.skipped) { t.classList.remove('wh-drawn'); t.removeAttribute('data-wh-drawn'); }\n    else { t.classList.add('wh-drawn'); t.setAttribute('data-wh-drawn', ''); }", 1)}, None, "R18"),
+        ("the guide chip's full pass back inside the press's frame", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
+            "requestAnimationFrame(function () {\n            setTimeout(function () { fullFrame = false; ctrlCache = null; lastSync = performance.now(); sync(); }, 0);\n          });",
+            "requestAnimationFrame(function () { fullFrame = false; ctrlCache = null; lastSync = performance.now(); sync(); });", 1)}, None, "R19"),
+        ("the nav hub's pass back inside the press's frame", {"nav-hub.js": (ROOT / "nav-hub.js").read_text(encoding="utf-8").replace(
+            "var afterPaint = function () { requestAnimationFrame(function () { setTimeout(run, 0); }); };",
+            "var afterPaint = function () { requestAnimationFrame(run); };", 1)}, None, "R19"),
+        ("the nav hub's waited pass back inside a frame", {"nav-hub.js": (ROOT / "nav-hub.js").read_text(encoding="utf-8").replace(
+            "else if (wait > 0) setTimeout(afterPaint, wait);", "else if (wait > 0) setTimeout(function () { requestAnimationFrame(run); }, wait);", 1)}, None, "R19"),
     ]
+    MUTANTS_RUN[0] = len(mutants)
     for name, files, utils_src, want in mutants:
         got = check(files, utils_src)
         if not any(g.startswith(want) for g in got):
@@ -660,7 +730,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (34 mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print(f"SELF-TEST PASS ({MUTANTS_RUN[0]} mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     issues = check()
     print("Long-list render (SL LB3): every list on the LB3 pages stays responsive with a thousand rows in it")

@@ -4320,9 +4320,29 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-more-note .wh-more-btn[disabled]{opacity:0.6;cursor:default}' +
     '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#F7A21B);font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
     /* SL LB3: a long list's off-screen rows skip layout and paint until they near the viewport (whRenderRows long:true);
-       the browser keeps each row's last real height, and the rows stay in find-in-page and the accessibility tree */
-    '.wh-rows-cv>*{content-visibility:auto;contain-intrinsic-size:auto 160px}';
+       the browser keeps each row's last real height, and the rows stay in find-in-page and the accessibility tree.
+       ★ONLY A ROW THE BROWSER IS DRAWING IS A SCROLL ANCHOR (2026-10-22): on every frame that changes layout the
+       browser picks the element its scroll position holds on to, walking the rows in order - a thousand rows, each its
+       own containment root, every frame of a Load More press. The browser's own frame timing (Long Animation Frames,
+       logbook at 390, CPU 4x slower, three presses near a thousand rows) put the presses at 208 / 256 / 192 ms to paint;
+       with the rows left out of that choice, 152 / 176 / 136 ms. But a list whose rows all stay out holds on to the
+       list itself, and then a row above the screen that changes height (a row patched in place, say) pushes what is
+       on screen down - measured: a row 300 px taller moved the screen 300 px. So the rows the browser draws, the ones
+       on and near the screen, are marked as it starts drawing them (data-wh-drawn, below) and stay in the choice.
+       The choice alone at the foot of 920 rows (append 20 rows, lay out, take them away, lay out; fastest of 9 rounds,
+       CPU at full speed): every row 6.6 ms, no row 3.8, the drawn rows only 3.7 - and with them in, the row 300 px
+       taller moves nothing on screen; 14 rows drawn, 14 marked, none missed. */
+    '.wh-rows-cv>*{content-visibility:auto;contain-intrinsic-size:auto 160px;overflow-anchor:none}' +
+    '.wh-rows-cv>[data-wh-drawn]{overflow-anchor:auto}';
   (document.head || document.documentElement).appendChild(whListStatesCss);
+  // the browser says when it starts or stops drawing a row (content-visibility:auto); an attribute, not a class, so no
+  // page's observer (each filters on class, style, hidden, open, role, aria-hidden) answers it
+  document.addEventListener('contentvisibilityautostatechange', function (ev) {
+    var t = ev.target, pe = t && t.parentElement;
+    if (!pe || !pe.classList || !pe.classList.contains('wh-rows-cv')) return;
+    if (ev.skipped) t.removeAttribute('data-wh-drawn');
+    else t.setAttribute('data-wh-drawn', '');
+  }, true);
 }
 
 // Arc P · FUSION 5: the .wh-method disclosure emitted by renderSourceChip() (methodology

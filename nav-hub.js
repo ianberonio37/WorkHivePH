@@ -1449,8 +1449,14 @@
         if (queued && !urgent) return;
         queued = true;
         var wait = urgent ? 0 : SYNC_GAP - (performance.now() - lastSync);
-        if (wait > 0) setTimeout(function () { requestAnimationFrame(run); }, wait);
-        else requestAnimationFrame(run);
+        /* ★A DIALOG BEFORE ITS FIRST PAINT, EVERYTHING ELSE AFTER THE PAINT (SL LB3, 2026-10-22). The quarter-second pass
+           ran in a frame callback, so the class and style changes of a Load More press put it inside the press's own
+           frame - 14-16 ms of every press at phone speed (traced near a thousand rows). A dialog still stands the hub down
+           before it paints; any other pass now waits for a task after the frame is painted. */
+        var afterPaint = function () { requestAnimationFrame(function () { setTimeout(run, 0); }); };
+        if (urgent) requestAnimationFrame(run);
+        else if (wait > 0) setTimeout(afterPaint, wait);
+        else afterPaint();
       }
       /* A dialog that settles via a CSS transition emits no further mutation, so listen for the transition
          too — belt and braces against the one-frame race above. */
