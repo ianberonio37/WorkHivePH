@@ -533,7 +533,9 @@ def main() -> int:
     if "--stdout" in sys.argv:
         print(block)
         return 0
-    ROADMAP.write_text(new, encoding="utf-8")
+    # newline="\n": a bare write_text on Windows turns every "\n" into "\r\n", flipping the whole roadmap's line endings on
+    # each regeneration - git normalises the commit, but every tool that anchors on "\n" in between reads a different file
+    ROADMAP.write_text(new, encoding="utf-8", newline="\n")
     print("scoreboard regenerated in UFAI_TRAJECTORY_ROADMAP.md")
     return 0
 

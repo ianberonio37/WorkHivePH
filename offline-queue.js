@@ -100,6 +100,9 @@
       rpcs:         [],
       onSyncedRow:  null,
       postSync:     null,
+      // BRH 9 AB (2026-10-21): async (item, supabase) => payload. Runs before an insert/upsert/update is sent; a payload it
+      // returns changed is stored before the write, so a retry never repeats the work (a photo uploaded to Storage).
+      prepare:      null,
     }, opts || {});
 
     if (!cfg.table) throw new Error('whCreateQueue: opts.table is required');
@@ -238,6 +241,18 @@
           // is DONE, so the item drains, but it is worth distinguishing from a first-try write.
           let alreadyApplied = false;
           try {
+            // ★A PHOTO IS UPLOADED BEFORE ITS ROW (BRH 9 AB, 2026-10-21). A queued write may carry a picture its row will
+            // name (a part saved offline with a photo): cfg.prepare uploads it and returns the payload naming the objects.
+            // That payload is STORED before the write is sent, so a write that fails and is retried names the photo already
+            // uploaded instead of uploading it a second time. A prepare that throws is a write that did not go: the
+            // backoff below retries it.
+            if (typeof cfg.prepare === 'function' && (op === 'insert' || op === 'upsert' || op === 'update')) {
+              const prepared = await cfg.prepare(item, supabase);
+              if (prepared && prepared !== item.payload) {
+                item.payload = prepared;
+                await _run('readwrite', (s) => s.put(item));
+              }
+            }
             if (op === 'insert') {
               const r = await supabase.from(tbl).insert(item.payload);
               error = r.error;

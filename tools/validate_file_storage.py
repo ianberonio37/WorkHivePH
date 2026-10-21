@@ -20,7 +20,9 @@ WHAT THE D4 WALK FOUND (receipts SL845-SL850, phone-390 and desktop-1280, each p
 WHAT THIS HOLDS (static, every run):
   1. ROSTER  - every file input on every served page has a disposition below. A new one fails until it is walked.
   2. BUCKET  - the page holds its upload (whHeldUpload hold / release / commit), and Remove sits above the input.
-  3. INLINE  - no `currentPhotoData ||` fallback can put a removed photo back; the table's photo has its server cap.
+  3. STORED  - logbook's and inventory's photo is kept with its row: uploaded to the private bucket entry-photos at
+               save (BRH 9 AB; photos-in-storage holds the upload, the reads and the bucket). No `currentPhotoData ||`
+               fallback can put a removed photo back, and the photo column keeps its server cap.
   4. READ    - the function the file goes to stores nothing (no storage call, no insert), and the page says so.
   5. LOGBOOK - the defect capture and Attach Photo share one encoder; a fresh entry resets the capture.
   6. SHELL   - whHeldUpload deletes on pagehide with a keepalive request; the voice file helper has no caller.
@@ -49,10 +51,10 @@ ROSTER = {
         "veh-doc-file": ("read", "vehicle-doc-extract", "The file stays on your device. Only its text is sent to be read"),
         "file-input":   ("read", "", "The file is read in your browser and not uploaded."),
     },
-    "inventory.html": {"f-photo-input": ("inline", "inventory_items", "")},
+    "inventory.html": {"f-photo-input": ("stored", "inventory_items", "")},
     "logbook.html": {
-        "f-photo":        ("inline", "logbook", ""),
-        "vdc-file-input": ("inline", "logbook", "This photo is saved with the entry."),
+        "f-photo":        ("stored", "logbook", ""),
+        "vdc-file-input": ("stored", "logbook", "This photo is saved with the entry."),
         "a-scan-input":   ("read", "equipment-label-ocr", "The photo itself is not kept."),
     },
     "marketplace.html": {
@@ -244,12 +246,12 @@ def run() -> int:
         for iid, (kind, where, sentence) in inputs.items():
             if kind == "read":
                 bad += check_read(page, iid, where, sentence, text)
-            elif kind == "inline":
+            elif kind == "stored":
                 if sentence and sentence not in text:
                     bad.append(f"{page}: {iid} no longer tells the person the photo is saved with the entry")
         if page in BUCKET_WIRING:
             bad += check_bucket(page, text)
-        tables = {w for k, w, _ in inputs.values() if k == "inline"}
+        tables = {w for k, w, _ in inputs.values() if k == "stored"}
         for t in tables:
             bad += check_inline(page, text, t, migrations)
     bad += check_logbook(pages.get("logbook.html", ""))
@@ -263,8 +265,9 @@ def run() -> int:
         print(f"FAIL file-storage-owned - {len(bad)} problem(s)")
         return 1
     print(f"PASS file-storage-owned - {n_inputs} file inputs on {len(ROSTER)} pages each have a walked disposition: 2 bucket"
-          f" pickers hold their upload until a save names it, 3 inline photos save and remove in their row under a server"
-          f" cap, {sum(1 for v in ROSTER.values() for k in v.values() if k[0] == 'read')} reads keep nothing and say so;"
+          f" pickers hold their upload until a save names it, 3 photos are uploaded to entry-photos at save and named by"
+          f" their row (photos-in-storage), {sum(1 for v in ROSTER.values() for k in v.values() if k[0] == 'read')} reads"
+          f" keep nothing and say so;"
           f" live orphan check {live}")
     return 0
 
@@ -285,7 +288,7 @@ def self_test() -> int:
     expect("Remove under the input fails",
            bool(check_bucket("marketplace-seller.html", sel.replace('id="edit-image-remove" style="position:relative;z-index:1;', 'id="edit-image-remove" style="'))))
     expect("the prev.photo fallback fails",
-           bool(check_inline("inventory.html", inv.replace("photo: currentPhotoData || null };", "photo: currentPhotoData || prev.photo || null };"), "inventory_items", "trg_inline_image_size_inventory")))
+           bool(check_inline("inventory.html", inv.replace("const updated = { ...prev, ...payload };", "const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };"), "inventory_items", "trg_inline_image_size_inventory")))
     expect("a missing size-cap trigger fails", bool(check_inline("inventory.html", inv, "inventory_items", "")))
     expect("a read page without its sentence fails",
            bool(check_read("resume.html", "file-any", "resume-extract", "Your files are read just to fill in your resume, then discarded.", "nothing said")))

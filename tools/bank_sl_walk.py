@@ -79,6 +79,7 @@ GATES = {
     "BRH-E": ["scope-empty", "hive-startup", "hive-restore-adoption"],
     "BRH-J": ["live-page-journeys"],
     "BRH-K": ["design-detector-ratchet", "scripts-parse"],
+    "BRH-AB": ["photos-in-storage", "free-plan-budget", "file-storage-owned", "skew-heal"],
 }
 # how the walk induced its condition, per sub-layer (the basis states it; walk 1's wording is the default)
 CONDITION = {
@@ -148,6 +149,10 @@ CONDITION["BRH-K"] = ("the page read in the LIVE render as the row's cast (the l
                       "it; a page that refuses the cast also read as the person it admits), per viewport in a fresh tab: one "
                       "probe per antipattern on the computed styles, the live stylesheets and the rendered text - the offline "
                       "banner raised with the page's own offline event")
+CONDITION["BRH-AB"] = ("each page the row names opened as its cast, every GET of logbook / inventory_items and their truth "
+                       "views read off the wire with its select (whether it asks for the picture), each stored photo "
+                       "checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline "
+                       "through the page's own form, and the row and the bucket read back from the LOCAL database")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
@@ -296,7 +301,8 @@ BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a contr
                       "H": "BRH-H", "G": "BRH-G",           # H/G - the stored hive and its name settled in the page's start-up (whStartupHive)
                       "E": "BRH-E",                         # E - an empty state never speaks for the personal list while the hive holds X
                       "J": "BRH-J",
-                      "K": "BRH-K"}                         # K - design slop the detector ratchet held, fixed and walked in the live render                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
+                      "K": "BRH-K",
+                      "AB": "BRH-AB"}                       # AB - a photo stored inside its row: walked as the cast, the reads read off the wire                         # K - design slop the detector ratchet held, fixed and walked in the live render                         # J - a live-as-a-user journey that was not live (pinned in live-page-journeys)
 # which prover settles a contract sub-layer, and which of its readings: (condition or None, engines that must ALL be clean)
 PROVER_READS = {
     "H1": {"prover": PROVER, "gate": "page-survives-optional-failures", "condition": "as-served",

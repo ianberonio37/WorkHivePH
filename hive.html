@@ -1967,7 +1967,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whMoreNote whRealtimeBackfill whRequireOnline whSourcesSync whUse">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whMoreNote whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -6129,7 +6129,7 @@ async function loadApprovalQueue() {
   } else {
     const [assetsRes, partsRes] = await Promise.all([
       db.from('asset_nodes').select('id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, submitted_by, created_at').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500),  // L2: pending-approval queue is transient (items leave 'pending' on approve/reject) -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500)  // L2: pending-approval queue is transient -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).eq('status', 'pending').limit(500)  // L2: pending-approval queue is transient -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     ]);
     // P2-01 honest-degraded: a FAILED read must NOT render as a fake "All caught up" (which hides
     // pending items awaiting supervisor approval). Capture the error so renderApprovalQueue shows it.

@@ -11,8 +11,9 @@ STATIC  F1 every operational table (OPERATIONAL) has a scheduled purge in a migr
            or stands in PENDING_PURGE, which may only shrink (a pending table that has gained its purge is a stale entry
            and fails, so the list can never hide one). An audit trail (AUDIT_KEPT) is the opposite: the privacy policy
            keeps audit logs AUDIT_YEARS years, so a scheduled purge inside that window fails;
-        F3 the list reads that ship an inline photo column (select * or naming photo, on logbook / inventory) are no more
-           than PHOTO_READS_BASELINE, which may only fall as photos move to Storage.
+        F3 no list read ships an inline photo (select * or naming photo, on logbook / inventory and their truth views):
+           photos live in Storage since BRH 9 AB (2026-10-21), and a list reads every column but photo (whRowCols).
+           The measurement is free_plan_evidence.photo_reads - shared with photos-in-storage, which holds the rest.
         F4 what Vercel stores stays under STORE_SHARE of the free 10 GB: the payload every build uploads now
            (deploy_payload) times the builds the project keeps - the greater of its keep-newest count and the busiest
            30 days of production builds in the CADENCE_DAYS before the record was read (free_plan_evidence.json, the
@@ -64,7 +65,7 @@ AUDIT_YEARS = 10
 # measured without a purge on 2026-10-21 (free_plan_evidence.json); all closed the same day (20261015998000), so the
 # list is empty and may stay so
 PENDING_PURGE: set[str] = set()
-PHOTO_READS_BASELINE = 23
+PHOTO_READS_BASELINE = 0   # BRH 9 AB: was 23 - fourteen of them writes that return no rows, nine real reads
 EVIDENCE = ROOT / "free_plan_evidence.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 KEEPALIVE_MAX_DAYS = 6  # Supabase Free pauses a project after 7 days of low activity
@@ -280,8 +281,8 @@ def check(migrations: dict[str, str] | None = None, pending: set | None = None, 
                                   f"move it to OPERATIONAL and give it a purge")
     n = photo_read_count() if photo_reads is None else photo_reads
     if n > PHOTO_READS_BASELINE:
-        issues.append(f"F3 {n} list reads ship an inline photo column (baseline {PHOTO_READS_BASELINE}) - a new read selects "
-                      "the image; select the columns the list shows")
+        issues.append(f"F3 {n} list reads ship an inline photo column (allowed {PHOTO_READS_BASELINE}) - a read selects "
+                      "the image; read whRowCols('<source>') (every column but photo) or the columns the list shows")
     ev = evidence if evidence is not None else json.loads(EVIDENCE.read_text(encoding="utf-8"))
     mb = payload_mb() if payload is None else payload
     builds, why = kept_builds(ev)
@@ -369,7 +370,7 @@ def main() -> int:
     builds, _ = kept_builds(json.loads(EVIDENCE.read_text(encoding="utf-8")))
     print(f"  PASS - {len(done)} of {len(OPERATIONAL)} operational tables purge on a schedule ({', '.join(done)}); "
           f"{len(PENDING_PURGE)} pending; {len(AUDIT_KEPT)} audit trail kept ({', '.join(AUDIT_KEPT)}); "
-          f"photo-shipping reads at most {PHOTO_READS_BASELINE}; Vercel keeps "
+          f"photo-shipping reads {PHOTO_READS_BASELINE}; Vercel keeps "
           f"{mb:.1f} MB x {builds} builds = {mb * builds / 1024:.2f} GB of the free 10 GB" if not issues
           else f"  FAIL - {len(issues)} problem(s)")
     return 1 if issues else 0

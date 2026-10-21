@@ -1597,7 +1597,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whMoreNote whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whMoreNote whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2079,7 +2079,7 @@ async function searchTeam(append = false, byPress = false) {
   // team card's work-order badge was undefined. Both are now selected; validate_logbook.py checks every r.<col> the
   // mapping reads is in this list, and that updated_at survives into the cached row (see the mine loader).
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2114,7 +2114,7 @@ async function searchTeam(append = false, byPress = false) {
     id: r.id, date: r.date, machine: r.machine || '', category: r.category,
     maintenance_type: r.maintenance_type, root_cause: r.root_cause,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
-    downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
+    downtime_hours: r.downtime_hours, photo_path: r.photo_path || null, photo_thumb_path: r.photo_thumb_path || null, status: r.status,
     asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
     closed_at: r.closed_at || null, created_at: r.created_at || null,
     updated_at: r.updated_at || null,   // the edit path's optimistic-lock snapshot (see the mine loader's ★ note)
@@ -2353,6 +2353,9 @@ document.addEventListener('click', async function (ev) {
       { okLabel: 'Discard', cancelLabel: 'Keep it' });
     if (!ok) return;
     await removeFromQueue(id);
+    // a photo the drain uploaded before the server refused the save: no row will ever name it
+    const _up = item._queueOp === 'update' ? (item.updates || {}) : item;
+    if (typeof whPhotoDrop === 'function') whPhotoDrop(db, [_up.photo_path, _up.photo_thumb_path]);
     await updateOfflineBadge();
     showToast('Discarded. Nothing was saved to the server.');
     return;
@@ -2377,6 +2380,15 @@ async function openParkedItem(item) {
   if (error) { showToast(whWriteError(error, 'Could not read the saved entry. Try again.'), '⚠️'); return; }
   if (!cur) { showToast('That entry no longer exists. It was deleted. Discard this edit, or log it as a new entry.', '⚠️'); return; }
   await openEditModal(item.id, { ...cur, ...(item.updates || {}), updated_at: cur.updated_at, _prevAssignee: cur.wo_assigned_to || '' });
+  // A photo this parked edit changed is still a change to save (BRH 9 AB): picked offline (still a data: URL), already
+  // uploaded by a drain before the write was refused, or removed. What it replaces is the photo the row has NOW.
+  const _u = item.updates || {};
+  if ('photo' in _u || 'photo_path' in _u) {
+    _lbPhotoStored = (cur.photo_path || cur.photo_thumb_path) ? { path: cur.photo_path || null, thumb: cur.photo_thumb_path || null } : null;
+    if (_u.photo && String(_u.photo).startsWith('data:')) lbShowEntryPhoto(_u.photo);
+    else if (_u.photo_path) lbShowUploadedPhoto(_u.photo_path, _u.photo_thumb_path || null);
+    else lbClearEntryPhoto();
+  }
   _editingParkedId = item.id;
   showToast('Your offline changes are filled in over the latest saved version. Check them, then save.');
 }
@@ -2461,12 +2473,31 @@ async function _drainOfflineQueue() {
   let synced = 0, unapplied = 0, refused = 0, stallReason = '', refusedReason = '';
   for (const p of pending) {
     if (p._stalled) continue;   // dead-lettered: retrying can't help, and it must not read as pending work
-    const { _queueOp, _snapshot, _prevAssignee } = p;
+    const { _queueOp, _snapshot, _prevAssignee, _photoWas } = p;
     // Only the queue's own bookkeeping starts with "_" (_offline, _queueOp, _snapshot, _stallReason ...); no logbook
     // column does. Stripping by prefix rather than by a list means a new bookkeeping key can never reach the INSERT.
     const rest = Object.fromEntries(Object.entries(p).filter(([k]) => k.charAt(0) !== '_')); // keeps worker_name and hive_id
     let error = null, unconfirmed = false, parkWhy = '';
-    if (_queueOp === 'update' && !_snapshot) {
+    // ★A PHOTO TAKEN OFFLINE IS UPLOADED HERE, BEFORE ITS ROW (BRH 9 AB, 2026-10-21). The queued write still holds the
+    // picture (a data: URL); it goes to Storage first and the queued copy is rewritten to name the objects BEFORE the
+    // write is sent, so a write that fails and is retried names the photo already uploaded instead of uploading it again.
+    // No answer from Storage is retried like any other; Storage refusing the picture parks the save with its reason.
+    const _photoOf = _queueOp === 'update' ? (rest.updates || {}) : rest;
+    if (_photoOf.photo && String(_photoOf.photo).startsWith('data:')) {
+      if (typeof whPhotoSettle !== 'function') {
+        error = { code: '', message: 'this page needs a reload before it can upload a photo', status: 0 };
+      } else {
+        try {
+          const _up = await whPhotoSettle(db, _authUid, _photoOf);
+          if (_up.length) await queueEntryOffline(_queueOp === 'update' ? { ...p, updates: _photoOf } : { ...p, ..._photoOf });
+        } catch (x) {
+          error = { code: '', message: String((x && x.message) || x), status: Number((x && (x.status || x.statusCode)) || 0) };
+        }
+      }
+    }
+    if (error) {
+      // the photo did not reach Storage: the row is not sent this pass (handled below as a retry or a refusal)
+    } else if (_queueOp === 'update' && !_snapshot) {
       parkWhy = 'This edit could not be checked for newer changes, so it was not applied. Open it, check it against the saved entry and save again.';
     } else if (_queueOp === 'update') {
       // Offline edit — apply update to existing DB row.
@@ -2518,6 +2549,8 @@ async function _drainOfflineQueue() {
     }
     if (!error && !unconfirmed && !parkWhy) {
       await removeFromQueue(p.id);
+      // the photo this edit replaced or removed: no row names it now
+      if (Array.isArray(_photoWas) && typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoWas);
       synced++;
     } else if (unconfirmed) {
       // Never drop the worker's text: keep the item so it stays recoverable, mark it so it
@@ -2640,7 +2673,7 @@ async function loadEntries(append = false) {
   // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
   if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4, 'your logbook entries');
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .or(_MINE())
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2747,7 +2780,7 @@ async function loadEntries(append = false) {
         id: r.id, date: r.date, machine: r.machine || '', category: r.category,
         maintenance_type: r.maintenance_type, root_cause: r.root_cause,
         problem: r.problem, action: r.action, knowledge: r.knowledge,
-        downtime_hours: r.downtime_hours, photo: r.photo, status: r.status,
+        downtime_hours: r.downtime_hours, photo_path: r.photo_path || null, photo_thumb_path: r.photo_thumb_path || null, status: r.status,
         asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
         closed_at: r.closed_at || null, created_at: r.created_at || null,
         updated_at: r.updated_at || null,
@@ -2906,10 +2939,27 @@ async function addEntry(entry) {
     }
   }
 
+  // ★THE PICTURE GOES TO STORAGE BEFORE ITS ROW (BRH 9 AB, 2026-10-21): the row names it and never holds it. An upload
+  // that fails saves nothing and says so, with the form exactly as it was; an insert that is then refused takes the
+  // upload back (below), so a failed save leaves no object behind.
+  let _photoNames = [];
+  if (payload.photo) {
+    if (typeof whPhotoSettle === 'function') {
+      try { _photoNames = await whPhotoSettle(db, _authUid, payload); }
+      catch (e) {
+        showToast(whWriteError(e, 'The photo did not upload, so nothing was saved. Your entry is still here - try again, or remove the photo to save without it.'));
+        return { ok: false, reason: 'photo_upload', error: e };
+      }
+    } else {
+      showToast('This page needs a reload before it can save a photo. Your entry is still here.');
+      return { ok: false, reason: 'photo_upload' };
+    }
+  }
+
   // payload.worker_name is set upstream from WORKER_NAME (governance: owner present)
   console.log('[logbook.insert] attempting', { id: payload.id, worker_name: payload.worker_name,
     hive_id: payload.hive_id, machine: payload.machine, status: payload.status });
-  const { data: insertedData, error } = await db.from('logbook').insert(payload).select();
+  const { data: insertedData, error } = await db.from('logbook').insert(payload).select('id');   // the id is all this reads back: never the row's photo
   if (error) {
     // Q0 free-tier quota: the per-day rate-limit trigger raises SQLSTATE 54000
     // with a friendly message ("You have logged today's free limit (200).
@@ -2932,6 +2982,7 @@ async function addEntry(entry) {
     }
     showToast(_wMsg);
     console.error('[logbook.insert] FAILED', { error, payload });
+    if (typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoNames);   // no row names it: take the upload back
     return { ok: false, reason: isQuota ? 'quota_daily' : 'db_insert', error };
   }
   console.log('[logbook.insert] success', insertedData);
@@ -5103,7 +5154,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
         <p class="text-xs text-white/80 mt-1 leading-relaxed line-clamp-2">${knowledge}</p>
       </div>` : ''}
 
-      ${e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? `<div class="mt-3"><img src="${escHtml(e.photo)}" alt="Logbook entry photo" class="photo-thumb" /></div>` : ''}
+      ${lbPhotoImg(e, 'thumb', 'alt="Logbook entry photo" class="photo-thumb"', '<div class="mt-3">', '</div>')}
     </div>`;
   }, {
     // the key is the entry's data (whRenderRows' default) - building every card's HTML on each press just to compare it
@@ -5112,6 +5163,8 @@ async function renderEntries(reload = true, fromStatPills = false) {
     sig: JSON.stringify([query, _viewMode, Object.keys(_syncedMachineSource).length]),
     long: true,
   });
+  // photos by name: one signed-URL request for the thumbnails on screen (BRH 9 AB); a list with none asks nothing
+  if (typeof whPhotoHydrate === 'function' && visible.some(e => e.photo_thumb_path || e.photo_path)) whPhotoHydrate(db, list);
 }
 
 // ────────────────────────────────────────────
@@ -5184,11 +5237,8 @@ async function openModal(id) {
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.knowledge)}</p>
     </div>` : ''}
 
-    ${entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')) ? `
-    <div class="mb-5">
-      <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Photo</p>
-      <img src="${escHtml(entry.photo)}" alt="Logbook entry photo (full size)" class="w-full rounded-xl border border-white/10 object-cover max-h-64" />
-    </div>` : ''}
+    ${lbPhotoImg(entry, 'full', 'alt="Logbook entry photo (full size)" class="w-full rounded-xl border border-white/10 object-cover max-h-64"',
+      '<div class="mb-5"><p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Photo</p>', '</div>')}
 
     ${entry.parts_used && entry.parts_used.length ? `
     <div class="mb-5">
@@ -5229,6 +5279,7 @@ async function openModal(id) {
     </div>`}
   `;
 
+  if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('modal-content'));
   document.getElementById('modal').classList.remove('hidden');
 }
 
@@ -5313,13 +5364,21 @@ async function openEditModal(id, given) {
   _partsUsed = (entry.parts_used || []).map(p => ({ ...p, _existing: true }));
   renderSelectedParts();
 
-  // ── Photo ──
-  currentPhotoData = (entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://')))
-    ? entry.photo : null;
-  if (currentPhotoData) {
-    document.getElementById('photo-thumb').src = currentPhotoData;
+  // ── Photo ── the one the entry already has (BRH 9 AB): shown by its thumbnail's name, or - for a picture still on
+  // this device or a legacy row read whole - from its own data. Nothing is picked yet, so a save leaves it alone.
+  currentPhotoData = null;
+  _lbPhotoChanged = false;
+  _lbPhotoUploaded = null;
+  _lbPhotoStored = (entry.photo_path || entry.photo_thumb_path)
+    ? { path: entry.photo_path || null, thumb: entry.photo_thumb_path || null }
+    : ((entry.photo && (entry.photo.startsWith('data:image/') || entry.photo.startsWith('https://'))) ? { inline: entry.photo } : null);
+  if (_lbPhotoStored) {
+    const _thumb = document.getElementById('photo-thumb');
+    if (_lbPhotoStored.inline) { _thumb.removeAttribute('data-wh-photo'); _thumb.src = _lbPhotoStored.inline; }
+    else { _thumb.src = LB_PHOTO_BLANK; _thumb.setAttribute('data-wh-photo', _lbPhotoStored.thumb || _lbPhotoStored.path); }
     document.getElementById('photo-preview').classList.remove('hidden');
     document.getElementById('photo-dropzone').classList.add('hidden');
+    if (!_lbPhotoStored.inline && typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('photo-preview'));
   }
 
   // ── Failure consequence ──
@@ -5428,11 +5487,15 @@ async function openEditModal(id, given) {
 // ────────────────────────────────────────────
 // EDIT-IN-PLACE: cancel + save via main form
 // ────────────────────────────────────────────
+// ★AN EDIT THAT SAVED LEFT "SAVE ENTRY" DEAD (BRH 9 AB walk, 2026-10-21). saveEditFromForm disables the button while it
+// writes and every way it finishes well ends here - the online update, an offline edit, a corrected queued entry - and
+// this put the label back but never the button: the next job could not be logged until the page was reloaded.
 function cancelEditMode() {
   clearForm();
   document.getElementById('log-form').classList.remove('editing');
   document.getElementById('edit-mode-banner').classList.add('hidden');
   document.getElementById('save-entry-btn').textContent = 'Save Entry';
+  document.getElementById('save-entry-btn').disabled = false;
   _editingId    = null;
   _editingEntry = null;
   _editingParkedId = null;
@@ -5477,7 +5540,6 @@ async function saveEditFromForm() {
     action:                document.getElementById('f-action').value.trim(),
     knowledge:             document.getElementById('f-knowledge').value.trim(),
     downtime_hours:        downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
-    photo:                 currentPhotoData,
     status:                newStatus,
     // Phase 5b: assetMatch.id is text; _pendingAssetRefId is already uuid (resolved in selectAsset).
     asset_node_id:         assetMatch
@@ -5504,6 +5566,18 @@ async function saveEditFromForm() {
   const _woAssignedVal = (document.getElementById('f-wo-assigned-to')?.value || '').trim();
   if (_woStateVal)    updates.wo_state       = _woStateVal;
   if (_woAssignedVal) updates.wo_assigned_to = _woAssignedVal;
+
+  // ★THE PHOTO COLUMNS GO ONLY WHEN THE PERSON CHANGED THE PHOTO (BRH 9 AB, 2026-10-21). The list never reads the
+  // picture, so an edit cannot resend it - and it must never erase it either: a photo left alone is not in this update.
+  // A picture picked here is uploaded before the write (whPhotoSettle, below); the one it replaces or removes
+  // (_photoOld) is deleted once the write has landed, never before.
+  let _photoOld = [];
+  if (_lbPhotoChanged) {
+    updates.photo = currentPhotoData || null;
+    updates.photo_path = (!currentPhotoData && _lbPhotoUploaded) ? _lbPhotoUploaded.path : null;
+    updates.photo_thumb_path = (!currentPhotoData && _lbPhotoUploaded) ? _lbPhotoUploaded.thumb : null;
+    if (_lbPhotoStored) _photoOld = [_lbPhotoStored.path, _lbPhotoStored.thumb].filter(Boolean);
+  }
 
   // ★WHICH WORDS THE AI WROTE, ON AN AMENDMENT (LM-V, LM422, 2026-10-07). The entry's earlier marks survive this edit
   // for every field the edit leaves as it was; a field the person rewrote is theirs now. Fields an AI path filled
@@ -5537,6 +5611,8 @@ async function saveEditFromForm() {
     const queuedInsert = Object.fromEntries(Object.entries(existing).filter(([k]) => k.charAt(0) !== '_'));
     const insertPayload = { ...queuedInsert, ...updates, id, date: existing.date };
     await queueEntryOffline(insertPayload); // put() replaces by id keyPath
+    // a photo the drain had uploaded for this save before it was refused: no row names it, and this save replaced it
+    if (_photoOld.length && typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoOld);
     const idx = _allEntries.findIndex(e => e.id === id);
     if (idx !== -1) _allEntries[idx] = { ...insertPayload, _offline: true };
     await updateOfflineBadge();
@@ -5560,9 +5636,17 @@ async function saveEditFromForm() {
     let _prior = null;
     try { _prior = (await getPendingEntries()).find(q => q.id === id && q._queueOp === 'update' && !q._stalled) || null; }
     catch (_) { /* empty-catch-allow: no earlier queued edit could be read; this edit's own base stands */ }
-    await queueEntryOffline({ id, _queueOp: 'update', updates,
+    // put() replaces an earlier queued edit of this entry. Its photo change rides along unless this edit changed the
+    // photo again; then whatever the earlier one had uploaded is replaced too, and goes once this edit lands.
+    const _pu = (_prior && _prior.updates) || {};
+    const _priorPhoto = !_lbPhotoChanged && ('photo' in _pu || 'photo_path' in _pu)
+      ? { photo: _pu.photo, photo_path: _pu.photo_path, photo_thumb_path: _pu.photo_thumb_path } : {};
+    const _was = [...((_prior && _prior._photoWas) || []), ..._photoOld,
+      ...(_lbPhotoChanged ? [_pu.photo_path, _pu.photo_thumb_path] : [])].filter(Boolean);
+    await queueEntryOffline({ id, _queueOp: 'update', updates: { ..._priorPhoto, ...updates },
       _snapshot: _editingUpdatedAt || null,
-      _prevAssignee: _prior ? (_prior._prevAssignee || '') : _editingPrevAssignee });
+      _prevAssignee: _prior ? (_prior._prevAssignee || '') : _editingPrevAssignee,
+      _photoWas: [...new Set(_was)] });
     const idx = _allEntries.findIndex(e => e.id === id);
     if (idx !== -1) _allEntries[idx] = { ..._allEntries[idx], ...updates, _pending_edit: true };
     await updateOfflineBadge();
@@ -5583,6 +5667,23 @@ async function saveEditFromForm() {
     saveBtn.textContent = 'Update Entry';
     return;
   }
+  let _photoNew = [];
+  if (updates.photo) {
+    if (typeof whPhotoSettle === 'function') {
+      try { _photoNew = await whPhotoSettle(db, _authUid, updates); }
+      catch (e) {
+        showToast(whWriteError(e, 'The new photo did not upload, so nothing was saved. Your changes are still here - try again.'));
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Update Entry';
+        return;
+      }
+    } else {
+      showToast('This page needs a reload before it can save a photo. Your changes are still here.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Update Entry';
+      return;
+    }
+  }
   let updateQuery = db.from('logbook')
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
@@ -5598,6 +5699,8 @@ async function saveEditFromForm() {
   }
 
   const { data: updatedRows, error } = await updateQuery.select('id, updated_at');
+  // the write did not land: the photo it would have named is taken back; the old one stays where it was
+  if ((error || (Array.isArray(updatedRows) && updatedRows.length === 0)) && typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoNew);
   if (error) {
     console.error('logbook edit-save failed:', { error, id, worker_name: WORKER_NAME, updates });
     showToast(whWriteError(error, 'The update did not go through. The entry is unchanged; try again.'));
@@ -5622,6 +5725,8 @@ async function saveEditFromForm() {
   for (const _cached of [_allEntries.find(e => e.id === id), _teamEntries.find(e => e.id === id)]) {
     if (_cached) Object.assign(_cached, updates, _savedStamp ? { updated_at: _savedStamp } : {});
   }
+  // the photo this edit replaced or removed: the row no longer names it, so it goes (BRH 9 AB)
+  if (_photoOld.length && typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoOld);
 
   // A parked offline edit this save has now carried to the server (opened via openParkedItem) is done: take it off
   // the device, or the stuck list would go on offering to fix work that has landed.
@@ -6334,6 +6439,24 @@ function toggleExtras() {
 const _origClearForm = typeof clearForm === 'function' ? clearForm : null;
 
 let currentPhotoData = null;
+// ★THE PHOTO IS KEPT IN STORAGE, NOT IN THE ROW (BRH 9 AB, 2026-10-21). currentPhotoData is a picture picked in THIS
+// form and not yet uploaded (a data: URL). _lbPhotoStored is the photo the entry already has - {path, thumb} by object
+// name, or {inline} for a picture still on this device or a legacy row - and _lbPhotoChanged says the person picked or
+// removed one. A save sends the photo columns only when they changed, so an edit never touches a photo left alone; a
+// picked photo is uploaded at save time (whPhotoSettle), never when it is picked, so a form abandoned leaves nothing.
+// _lbPhotoUploaded: a picture this change already put in Storage (a parked offline edit whose drain uploaded it).
+let _lbPhotoStored = null, _lbPhotoChanged = false, _lbPhotoUploaded = null;
+const LB_PHOTO_BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+function lbEntryHasPhoto() { return !!currentPhotoData || !!_lbPhotoUploaded || (!!_lbPhotoStored && !_lbPhotoChanged); }
+// An entry's photo as an <img>: by object name, filled by whPhotoHydrate (the list's copy is the thumbnail); or from its
+// own data when it is still on this device (an entry queued offline) or a legacy row read whole. '' when it has none.
+function lbPhotoImg(e, which, attrs, before, after) {
+  const name = which === 'thumb' ? (e.photo_thumb_path || e.photo_path) : (e.photo_path || e.photo_thumb_path);
+  const own = !name && e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? e.photo : '';
+  if (!name && !own) return '';
+  return (before || '') + (name ? `<img data-wh-photo="${escHtml(name)}" src="${LB_PHOTO_BLANK}" ${attrs} />`
+    : `<img src="${escHtml(own)}" ${attrs} />`) + (after || '');
+}
 
 function clearForm() {
   document.getElementById('log-form').reset();
@@ -6348,7 +6471,11 @@ function clearForm() {
   const preview = document.getElementById('photo-preview');
   preview.classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
+  document.getElementById('photo-thumb').removeAttribute('data-wh-photo');
   currentPhotoData    = null;
+  _lbPhotoStored      = null;
+  _lbPhotoChanged     = false;
+  _lbPhotoUploaded    = null;
   // and the defect capture above the form: a saved or cancelled entry's photo is not the next entry's photo, and
   // "Analyze with AI" must not draft a new entry from the last one's picture
   vdcReset();
@@ -6419,12 +6546,30 @@ function lbEncodeEntryPhoto(src) {
 }
 function lbShowEntryPhoto(dataUrl) {
   currentPhotoData = dataUrl;
+  _lbPhotoChanged = true;
+  _lbPhotoUploaded = null;
+  document.getElementById('photo-thumb').removeAttribute('data-wh-photo');   // the stored photo's name must not repaint over it
   document.getElementById('photo-thumb').src = dataUrl;
   document.getElementById('photo-dropzone').classList.add('hidden');
   document.getElementById('photo-preview').classList.remove('hidden');
 }
+// A picture already in Storage that this change sets (a parked edit's): shown by its thumbnail, written by its names.
+function lbShowUploadedPhoto(path, thumb) {
+  currentPhotoData = null;
+  _lbPhotoChanged = true;
+  _lbPhotoUploaded = { path, thumb };
+  const t = document.getElementById('photo-thumb');
+  t.src = LB_PHOTO_BLANK;
+  t.setAttribute('data-wh-photo', thumb || path);
+  document.getElementById('photo-dropzone').classList.add('hidden');
+  document.getElementById('photo-preview').classList.remove('hidden');
+  if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('photo-preview'));
+}
 function lbClearEntryPhoto() {
   currentPhotoData = null;
+  _lbPhotoChanged = true;
+  _lbPhotoUploaded = null;
+  document.getElementById('photo-thumb').removeAttribute('data-wh-photo');
   document.getElementById('f-photo').value = '';
   document.getElementById('photo-preview').classList.add('hidden');
   document.getElementById('photo-dropzone').classList.remove('hidden');
@@ -6721,9 +6866,9 @@ function vdcWireOnce() {
       if (previewWrap) previewWrap.style.display = 'block';
       vdcShowStatus('');
       // the entry keeps the defect photo (see _vdcAttached) - unless the person attached a photo of their own
-      if (!currentPhotoData || currentPhotoData === _vdcAttached) {
+      if (!lbEntryHasPhoto() || currentPhotoData === _vdcAttached) {
         const got = await lbEncodeEntryPhoto(compressed);
-        if (got.data && (!currentPhotoData || currentPhotoData === _vdcAttached)) {
+        if (got.data && (!lbEntryHasPhoto() || currentPhotoData === _vdcAttached)) {
           lbShowEntryPhoto(got.data);
           _vdcAttached = got.data;
           vdcShowStatus('This photo is saved with the entry. To leave it off, remove it under Add details.');

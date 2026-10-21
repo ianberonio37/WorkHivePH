@@ -1446,7 +1446,7 @@ async function loadLogbook() {
     // and kept the open ones in the browser, so an entry still open but older than the newest 1,000 was simply absent -
     // "No open items" while one waited (the busiest local worker holds 3,666). The database now returns only open
     // entries, and one past the cap says more exist.
-    const { data, error } = await db.from('v_logbook_truth').select('*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
+    const { data, error } = await db.from('v_logbook_truth').select(typeof whRowCols === 'function' ? whRowCols('v_logbook_truth') : '*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
       .not('status', 'in', '(Closed,Resolved)')
       .order('date', { ascending: false }).order('id').limit(1000 + 1);   // more-said: by renderSidebar
     if (error) throw error;
@@ -3162,7 +3162,7 @@ document.addEventListener('keydown', e => {
 </script>
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whMoreNote whProgressStrip whRecentlyDeleted whSourcesSync whStartupHive whTrash whUse whWorker whWriteError">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whHiveId whHiveMembershipLost whListError whListSkeleton whMoreNote whProgressStrip whRecentlyDeleted whRowCols whSourcesSync whStartupHive whTrash whUse whWorker whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it

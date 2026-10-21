@@ -73,7 +73,10 @@ try {
   measured.badges = await page.evaluate(() => {
     const cards = [...document.querySelectorAll('#entries-list .entry-card')];
     const re = /Safety risk|Stopped production|Running reduced|Hidden/;
-    return { cards: cards.length, withBadge: cards.filter((c) => re.test(c.innerText || '')).length };
+    // textContent, not innerText (2026-10-22): since SL LB3 the list draws its rows with content-visibility:auto, so a
+    // card below the fold has no RENDERED text until it nears the screen - innerText read the badge on the tenth card as
+    // absent while the card held it (the detail modal showed the same consequence). What a card carries is its content.
+    return { cards: cards.length, withBadge: cards.filter((c) => re.test(c.textContent || '')).length };
   });
 
   // ── surface 2: the detail modal ───────────────────────────────────────────────────────────────

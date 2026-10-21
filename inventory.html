@@ -673,7 +673,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -882,7 +882,10 @@ function saveInventory(arr) {
       // which silently dropped the qty_on_hand write on every Use/Restock —
       // the transaction logged but stock never decremented. Strip the
       // view-only fields before persisting.
-      const { is_out_of_stock, is_low_stock, is_critical_low, reorder_point, ...row } = item;
+      // ★AND NEVER THE PHOTO (BRH 9 AB, 2026-10-21): only the part form writes a part's photo (uploading a picked one
+      // first). A cached copy holds a picture still on this device, or names that another device may since have
+      // replaced, so this whole-row sync leaves the three photo columns out and the stored ones stand.
+      const { is_out_of_stock, is_low_stock, is_critical_low, reorder_point, photo, photo_path, photo_thumb_path, ...row } = item;
       db.from('inventory_items').upsert({ ...row, worker_name: row.worker_name || WORKER_NAME, auth_uid: _authUid || null })
         .then(({ error }) => { if (error) { console.error('inv sync:', error.message); showToast(whWriteError(error, 'This part did not save to the hive. It is still on this device; try again when you are back online.'), 'error'); } });
     }
@@ -1447,7 +1450,7 @@ function _invRenderList() {
     return `
     <div class="part-card stock-${st} p-5 mb-3" data-part-id="${escHtml(String(item.id))}">
       <div class="flex items-start gap-4">
-        ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
+        ${invPhotoImg(item, 'alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5"')}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 flex-wrap min-w-0">
@@ -1526,6 +1529,8 @@ function _invRenderList() {
       + (item.linked_asset_node_ids || []).map(u => _nodeIdToAssetId[u] || '').join(','),
     long: true,
   });
+  // photos by name: one signed-URL request for the thumbnails on screen (BRH 9 AB); a list with none asks nothing
+  if (typeof whPhotoHydrate === 'function' && visible.some(i => i.photo_thumb_path || i.photo_path)) whPhotoHydrate(db, list);
 }
 
 // ────────────────────────────────────────────
@@ -1614,7 +1619,22 @@ function renderAssetLinker() {
 // ────────────────────────────────────────────
 // PHOTO ATTACH
 // ────────────────────────────────────────────
+// ★THE PHOTO IS KEPT IN STORAGE, NOT IN THE ROW (BRH 9 AB, 2026-10-21). currentPhotoData is a picture picked in THIS form
+// and not yet uploaded (a data: URL); _invPhotoStored is the photo the part already has - {path, thumb} by object name,
+// or {inline} for one still on this device - and _invPhotoChanged says the person picked or removed one. A save writes
+// the photo columns only when they changed, and uploads a picked photo first (whPhotoSettle) - never when it is picked,
+// so a form closed unsaved leaves nothing behind.
 let currentPhotoData = null;
+let _invPhotoStored = null, _invPhotoChanged = false;
+const INV_PHOTO_BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+// A part's photo as an <img>: its thumbnail by object name, filled by whPhotoHydrate; or from its own data while it is
+// still on this device (a part saved offline). '' when it has none.
+function invPhotoImg(item, attrs) {
+  const name = item.photo_thumb_path || item.photo_path;
+  const own = !name && item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? item.photo : '';
+  if (name) return `<img data-wh-photo="${escHtml(name)}" src="${INV_PHOTO_BLANK}" ${attrs} />`;
+  return own ? `<img src="${escHtml(own)}" ${attrs} />` : '';
+}
 
 document.getElementById('f-photo-input').addEventListener('change', function() {
   const file = this.files[0];
@@ -1631,17 +1651,21 @@ document.getElementById('f-photo-input').addEventListener('change', function() {
       canvas.width  = Math.round(img.width  * scale);
       canvas.height = Math.round(img.height * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+      let out = canvas.toDataURL('image/jpeg', 0.7);
       // Q3 free-tier guard: post-compression size assert (600px/0.7 is ~30-100 KB;
-      // re-encode harder once, then reject rather than inline a huge base64 blob).
+      // re-encode harder once, then reject rather than upload a huge picture). A rejected pick changes nothing: the
+      // photo already on screen (picked or stored) stays the one a save keeps - it used to clear currentPhotoData under a
+      // preview still showing it, so the save then removed the photo the person was looking at.
       const _b64bytes = (s) => Math.ceil((s.length - (s.indexOf(',') + 1)) * 0.75);
-      if (_b64bytes(currentPhotoData) > 700000) currentPhotoData = canvas.toDataURL('image/jpeg', 0.5);
-      if (_b64bytes(currentPhotoData) > 700000) {
-        currentPhotoData = null;
+      if (_b64bytes(out) > 700000) out = canvas.toDataURL('image/jpeg', 0.5);
+      if (_b64bytes(out) > 700000) {
         showToast('Photo is too large even after compression. Try a smaller or simpler image.', 'error');
         document.getElementById('f-photo-input').value = '';
         return;
       }
+      currentPhotoData = out;
+      _invPhotoChanged = true;
+      document.getElementById('f-photo-thumb').removeAttribute('data-wh-photo');   // the stored photo must not repaint over it
       document.getElementById('f-photo-thumb').src = currentPhotoData;
       document.getElementById('f-photo-dropzone').classList.add('hidden');
       const prev = document.getElementById('f-photo-preview');
@@ -1669,6 +1693,8 @@ document.getElementById('f-photo-thumb').addEventListener('keydown', (e) => {
 document.getElementById('f-photo-remove').addEventListener('click', (e) => {
   e.stopPropagation();
   currentPhotoData = null;
+  _invPhotoChanged = true;
+  document.getElementById('f-photo-thumb').removeAttribute('data-wh-photo');
   document.getElementById('f-photo-input').value = '';
   document.getElementById('f-photo-preview').style.display = 'none';
   document.getElementById('f-photo-preview').classList.add('hidden');
@@ -1684,6 +1710,9 @@ function openAddModal(prefillId) {
   editingItemId    = prefillId || null;
   selectedAssetIds = new Set();
   currentPhotoData = null;
+  _invPhotoStored  = null;
+  _invPhotoChanged = false;
+  document.getElementById('f-photo-thumb').removeAttribute('data-wh-photo');
 
   // Reset form
   ['f-part-number','f-part-name','f-location','f-notes'].forEach(id => { document.getElementById(id).value = ''; });
@@ -1719,12 +1748,17 @@ function openAddModal(prefillId) {
         .map(uuid => _nodeIdToAssetId[uuid])
         .filter(Boolean),
     );
-    if (item.photo) {
-      currentPhotoData = item.photo;
-      document.getElementById('f-photo-thumb').src = item.photo;
+    // the photo the part already has: by its thumbnail's name, or its own data while it is still on this device
+    if (item.photo_path || item.photo_thumb_path) _invPhotoStored = { path: item.photo_path || null, thumb: item.photo_thumb_path || null };
+    else if (item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://'))) _invPhotoStored = { inline: item.photo };
+    if (_invPhotoStored) {
+      const t = document.getElementById('f-photo-thumb');
+      if (_invPhotoStored.inline) t.src = _invPhotoStored.inline;
+      else { t.src = INV_PHOTO_BLANK; t.setAttribute('data-wh-photo', _invPhotoStored.thumb || _invPhotoStored.path); }
       document.getElementById('f-photo-dropzone').classList.add('hidden');
       const prev = document.getElementById('f-photo-preview');
       prev.classList.remove('hidden'); prev.style.display = 'inline-block';
+      if (!_invPhotoStored.inline && typeof whPhotoHydrate === 'function') whPhotoHydrate(db, prev);
     }
   } else {
     document.getElementById('part-modal-title').textContent = 'Add Part';
@@ -1743,6 +1777,8 @@ function closePartModal() {
   editingItemId    = null;
   selectedAssetIds = new Set();
   currentPhotoData = null;
+  _invPhotoStored  = null;
+  _invPhotoChanged = false;
 }
 
 // T14 (2026-08-25) — lazy queue ensure, the pm-scheduler race class: an immediate async init
@@ -1756,6 +1792,14 @@ function _ensureInvQueue() {
       identityKey: 'worker_name', identityFn: () => WORKER_NAME,
       // offline Use and Restock queue the atomic functions themselves (SL AV2) - never an absolute qty write
       rpcs: ['inventory_deduct', 'inventory_restock'],
+      // a part saved offline with a photo: the picture goes to Storage before the row, which then names it (BRH 9 AB)
+      prepare: async (item, sb) => {
+        const p = item.payload;
+        if (!p || !p.photo || typeof whPhotoSettle !== 'function') return p;
+        const q = { ...p };
+        await whPhotoSettle(sb, _authUid, q);   // throws: the queue retries it like any write that did not go
+        return q;
+      },
       postSync: () => { try { initData(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
     });
     window.whRegisterQueue('inventory', window._whInvQueue);
@@ -1821,23 +1865,51 @@ async function submitPart() {
       .map(code => _assetIdToNodeId[code])
       .filter(Boolean),
     notes:             document.getElementById('f-notes').value.trim(),
-    photo:             currentPhotoData,
     updated_at:        now,
     status:            editingItemId ? editStatus : (HIVE_ID && HIVE_ROLE !== 'supervisor' ? 'pending' : 'approved'),
     hive_id:           HIVE_ID || null,   // always include hive_id so supervisor can see it
     submitted_by:      editingItemId ? (existingItem?.submitted_by || WORKER_NAME) : WORKER_NAME,
   };
 
+  // ★THE PHOTO COLUMNS GO ONLY WHEN THE PHOTO CHANGED, AND A PICKED PHOTO IS UPLOADED FIRST (BRH 9 AB, 2026-10-21). The
+  // list no longer reads the picture, so a save can neither resend it nor erase it by accident: a photo left alone is not
+  // in this write. A picked photo goes to Storage before anything is written - an upload that fails saves nothing - and
+  // the one it replaces or removes (_photoOld) is deleted only once the write has landed. A new part saved with no
+  // connection keeps its picture in the queue, which uploads it on reconnect (the queue's prepare).
+  let _photoOld = [], _photoNew = [], _photoQueued = false;
+  if (editingItemId ? _invPhotoChanged : !!currentPhotoData) {
+    payload.photo = currentPhotoData || null;
+    payload.photo_path = null;
+    payload.photo_thumb_path = null;
+    if (editingItemId && _invPhotoStored) _photoOld = [_invPhotoStored.path, _invPhotoStored.thumb].filter(Boolean);
+  }
+  if (payload.photo) {
+    if (typeof whPhotoSettle === 'function') {
+      if (navigator.onLine || editingItemId) {
+        try { _photoNew = await whPhotoSettle(db, _authUid, payload); }
+        catch (e) {
+          // no answer at all, on a NEW part: it waits in the queue with its photo, like any part saved offline
+          if (!editingItemId && !(e && (e.status || e.statusCode)) && _ensureInvQueue()) _photoQueued = true;
+          else { showFormError(errEl, whWriteError(e, 'The photo did not upload, so nothing was saved. Try again, or remove the photo to save without it.')); return; }
+        }
+      }
+    } else {
+      showFormError(errEl, 'This page needs a reload before it can save a photo. Nothing was saved.');
+      return;
+    }
+  }
+  const _dropNew = () => { if (typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoNew); };
+  const _dropOld = () => { if (typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoOld); };
+
   if (editingItemId) {
     const idx  = items.findIndex(i => i.id === editingItemId);
-    if (idx === -1) return;
+    if (idx === -1) { _dropNew(); return; }
     const prev = items[idx];
     // ★REMOVE PHOTO COULD NOT REMOVE A PHOTO (SL D4, 2026-10-19). This read `currentPhotoData || prev.photo`, so the X a
-    // person tapped set currentPhotoData to null and the save put the old photo straight back - the form closed with
-    // "updated" and the part kept the picture they had just taken off it. The fallback guarded nothing: openAddModal
-    // loads currentPhotoData from this same cached row (the list reads every column of v_inventory_items_truth), so an
-    // untouched photo is already in currentPhotoData. null here means the person removed it.
-    const updated = { ...prev, ...payload, photo: currentPhotoData || null };
+    // person tapped set currentPhotoData to null and the save put the old photo straight back. Since BRH 9 AB the photo
+    // columns are in `payload` only when the person changed the photo (picked one: its new names; removed it: nulls), so
+    // a removal writes nulls and an untouched photo keeps the cached row's names.
+    const updated = { ...prev, ...payload };
     // ★AN EDITED COUNT MOVED THE STOCK AND THE LEDGER NEVER HEARD (2026-10-08, UI-write recipes): qty_on_hand rode
     // inside the part UPDATE, so the balance moved with no inventory_transactions row - an untraceable movement and a
     // reconciliation break (restock/deduct write both in one transaction). A changed count now goes through
@@ -1850,10 +1922,12 @@ async function submitPart() {
         p_item_id: editingItemId, p_expected_qty: _prevQty, p_new_qty: qty, p_note: 'Edited via part form',
       });
       if (_adjErr) {
+        _dropNew();
         showFormError(errEl, whWriteError(_adjErr, 'The stock count was not changed and nothing was saved. Try again.'));
         return;
       }
       if (!_adj || !_adj.ok) {
+        _dropNew();
         showFormError(errEl, (_adj && _adj.reason === 'changed')
           ? 'The stock count changed to ' + _adj.qty_on_hand + ' since you opened this part (someone used or restocked it). Nothing was saved; check the count and edit again.'
           : 'This part is no longer available to you. Nothing was saved.');
@@ -1883,6 +1957,7 @@ async function submitPart() {
     // and it keeps the guard working if a future caller forgets to send the field.
     if (prev.updated_at && typeof ocUpdate === 'function') {
       const ocRes = await ocUpdate(db, 'inventory_items', editingItemId, detail, _stamp);
+      if (ocRes.conflict || (!ocRes.ok && ocRes.error)) _dropNew();   // not written: the new photo is taken back
       if (ocRes.conflict) {
         showFormError(errEl, (qty !== _prevQty ? 'The new stock count was saved, but ' : '') + 'Another worker just edited this part. Refresh the list and try again.');
         return;
@@ -1893,6 +1968,7 @@ async function submitPart() {
       }
       // Update local cache from the canonical row + close modal.
       items[idx] = { ...updated, updated_at: ocRes.row?.updated_at || now };
+      _dropOld();   // the photo this save replaced or removed: no row names it now
       saveInventory(items);
       writeAuditLog('edit_part', 'inventory_items', editingItemId, payload.part_name, payload);
       if (typeof whUse === 'function') whUse(db, 'part_edited');
@@ -1912,7 +1988,7 @@ async function submitPart() {
     // inventory_items_write enforces it anyway), the hive for a supervisor, the identity for a solo owner. `.select`
     // makes a zero-row update a failure the person sees, never a silent success.
     let _editQ = db.from('inventory_items')
-      .update({ ...detail, photo: updated.photo })
+      .update(detail)
       .eq('id', editingItemId);
     if (HIVE_ID) {
       _editQ = _editQ.eq('hive_id', HIVE_ID);
@@ -1923,6 +1999,7 @@ async function submitPart() {
     const { data: _edited, error: editErr } = await _editQ.select('id');
 
     if (editErr || !(_edited && _edited.length)) {
+      _dropNew();
       showFormError(errEl, editErr
         ? 'Could not save edit: ' + editErr.message
         : 'Could not save edit: this part is no longer in your inventory, or it is not yours to change. Refresh the list and try again.');
@@ -1931,18 +2008,19 @@ async function submitPart() {
     }
 
     _items = items;
+    _dropOld();
     const diff = qty - prev.qty_on_hand;   // the ledger row was written by inventory_adjust above, with the balance
     writeAuditLog('edit_inventory_item', 'inventory_items', editingItemId, partName,
       { prev_qty: prev.qty_on_hand, new_qty: qty, qty_diff: diff, new_status: editStatus });
     if (typeof whUse === 'function') whUse(db, 'part_edited', { resubmitted: editStatus === 'pending' });
     showToast(editStatus === 'pending' ? `${partName} resubmitted for supervisor approval.` : `${partName} updated.`);
   } else {
-    const item = { id: Date.now().toString(), ...payload, photo: currentPhotoData || null, created_at: now };
+    const item = { id: Date.now().toString(), ...payload, created_at: now };
 
     // Tier F capture contract — inventory_add_part_v1 runtime validation.
     if (window.whValidateCapture) {
       const vr = await window.whValidateCapture(db, 'inventory_add_part_v1', item);
-      if (!vr.ok) { showFormError(errEl, 'Cannot save: ' + (vr.errors[0]?.message || 'contract violation')); return; }
+      if (!vr.ok) { _dropNew(); showFormError(errEl, 'Cannot save: ' + (vr.errors[0]?.message || 'contract violation')); return; }
     }
 
     items.push(item);
@@ -1950,7 +2028,7 @@ async function submitPart() {
 
     // Await DB insert before adding transaction: FK constraint requires item to exist first
     const _row = { ...item, worker_name: WORKER_NAME, auth_uid: _authUid || null };
-    if (!navigator.onLine && _ensureInvQueue()) {
+    if ((!navigator.onLine || _photoQueued) && _ensureInvQueue()) {
       // Arc S D-001: offline -> queue the create (drains on reconnect). The item is
       // already in the local cache (_items), so the worker sees it immediately.
       await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
@@ -1965,6 +2043,7 @@ async function submitPart() {
         // message as the pre-check and revert the phantom local row.
         const isDup = insertErr.code === '23505' || /duplicate key|already exists/i.test(insertErr.message || '');
         if (isDup) {
+          _dropNew();
           items.pop(); _items = items;   // undo the optimistic push (item is the last element)
           showFormError(errEl, 'A part with this Part Number already exists.');
           document.getElementById('f-part-number').focus();
@@ -1980,6 +2059,7 @@ async function submitPart() {
           await window._whInvQueue.enqueue({ id: item.id, op: 'insert', payload: _row });
           showToast('Network issue: saved offline, will retry automatically.');
         } else {
+          _dropNew();
           items.pop(); _items = items;   // revert the phantom local row on a hard failure
           showFormError(errEl, typeof whWriteError === 'function'
             ? whWriteError(insertErr, 'The part was NOT saved. Nothing changed - check the details and try again.')
@@ -2427,7 +2507,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/85 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
-      ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0" />` : ''}
+      ${invPhotoImg(item, 'alt="Inventory item photo" class="photo-thumb flex-shrink-0"')}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
@@ -2497,6 +2577,7 @@ function openDetailModal(id) {
       }
     </div>`;
 
+  if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('detail-content'));
   document.getElementById('detail-modal').style.display = 'flex';
 }
 
@@ -2806,7 +2887,7 @@ async function initData() {
     // stock only (+ their own items, fetched separately below). RLS (inventory_items_read)
     // already scopes BOTH reads to active hive members, so this widens nothing cross-hive.
     // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap.
-    const _hiveItemsQ = db.from('v_inventory_items_truth').select('*').limit(2000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more (the read's only cap: the 1000 here was overridden by a 2000 chained after the role ternary, and only the last cap is sent)
+    const _hiveItemsQ = db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').limit(2000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more (the read's only cap: the 1000 here was overridden by a 2000 chained after the role ternary, and only the last cap is sent)
         .eq('hive_id', HIVE_ID);
     itemsFetches = Promise.all([
       (HIVE_ROLE === 'supervisor'
@@ -2820,7 +2901,7 @@ async function initData() {
       // the planner and free to differ on every read. A supervisor comparing two loads of the hive's
       // spares would see the list reshuffle with nothing having changed.
       ).order('created_at').order('id'),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -2837,7 +2918,7 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
@@ -2878,7 +2959,13 @@ async function initData() {
   // Migrate inventory items + transactions from localStorage if Supabase is empty
   if (mergedItems.length === 0 && lsItems.length > 0 && !_invReadErr) {
     for (const item of lsItems) {
-      await db.from('inventory_items').upsert({ ...item, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null });
+      const _ls = { ...item, worker_name: WORKER_NAME, status: 'approved', auth_uid: _authUid || null };
+      // a photo kept on this device from before the cloud goes to Storage with it (BRH 9 AB); one that cannot is left
+      // off rather than costing the part
+      if (_ls.photo && typeof whPhotoSettle === 'function') {
+        try { await whPhotoSettle(db, _authUid, _ls); } catch (_) { _ls.photo = null; }
+      } else if (_ls.photo) _ls.photo = null;
+      await db.from('inventory_items').upsert(_ls);
     }
     for (const txn of lsTxns) {
       await db.from('inventory_transactions').insert({ ...txn, auth_uid: txn.auth_uid || _authUid || null }).catch(e => console.warn('txn migrate:', e.message));
@@ -2886,7 +2973,7 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select('*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+      db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
       // Same window/cap as the primary fetch above — keep the two paths consistent.
       db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500 + 1)   // more-said: by openDetailModal (SL LB1: a 501st row means a part's history may be cut short)
     ]);

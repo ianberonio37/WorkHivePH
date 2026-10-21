@@ -4907,6 +4907,13 @@ VALIDATORS = [
     {"id":"free-plan-budget","script":os.path.join("tools", "validate_free_plan_budget.py"),"args":[],
      "label":"Free-plan budget (BRH 9): every operational table (cron history, traces, analytics events, automation log, AI cost log, client errors) has a scheduled purge in a migration and live in the database, or stands in a pending list that may only shrink; list reads that ship an inline photo column may only fall from 23; what Vercel stores - each build's upload times the builds the project keeps (its keep-newest count, or the busiest 30 days of builds in the last 90) - stays under a tenth of the free 10 GB, which the old 612.7 MB builds had filled to 9.90 GB (--self-test: 5 mutants)",
      "group":"Platform","skip_if_fast":False},
+    # BRH 9 AB (2026-10-21): photos lived inside their rows as base64 text - production's logbook held 22 (4.35 MB) and
+    # nine list reads shipped every one in free egress. They live in the private bucket entry-photos now, the row keeps
+    # the object's names, and a photo is exactly as private as its row. Static + local DB (the live part skips, never
+    # passes, when the database is down; a live query that fails turns it red).
+    {"id":"photos-in-storage","script":os.path.join("tools", "validate_photos_in_storage.py"),"args":[],
+     "label":"Photos in Storage (BRH 9 AB): no list read of logbook / inventory or their truth views ships the picture (select * or a list naming photo; utils.js whRowCols is every live column but photo, held to the schema); every write of a picked photo uploads it first (logbook new / edit / offline drain, inventory part form / offline queue prepare / old-device migration) and the whole-row inventory sync never carries the photo columns; cards and details draw a photo by name and fill it from one signed-URL request; live: entry-photos is private (<= 1 MB, images), uploads only into the uploader's folder, reads by the uploader or whoever can read a row naming it (invoker), deletes by the owner once no row names it, and a signed-in member's new inline photo is refused (rolled-back probe). Self-test: 21 mutants",
+     "group":"Platform","skip_if_fast":False},
     # BRH 9 AD (2026-10-21): hive.html called compute_hive_readiness, which 20260619000000 had revoked from members on
     # the premise that no browser code called it - so production refused every board's readiness refresh for four
     # months. rpc-argument-consistency checks a called function exists; this checks its reader may run it.

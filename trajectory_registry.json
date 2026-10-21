@@ -739904,8 +739904,8 @@
     },
     {
       "id": "BRH501",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - dayplanner:1443 · list reads - worker",
       "pages": [
@@ -739964,12 +739964,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): dayplanner's open-items read (v_logbook_truth select=*, up to 1,001 rows) shipped every photo; it reads whRowCols('v_logbook_truth') now. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), dayplanner.html (1122, 1962 chars), logbook.html (1470, 1856 chars); 8 reads of the four photo sources on the wire, 0 asking for the picture; 4 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH501.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH502",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - hive:6076 · list reads - worker",
       "pages": [
@@ -740028,12 +740037,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): hive's pending-approval read (v_inventory_items_truth select=*, up to 500 parts) shipped every part photo; it reads whRowCols now (the cited 6076 was a write; the read was 6132). Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), logbook.html (1470, 1856 chars), pm-scheduler.html (1751, 1751 chars); 6 reads of the four photo sources on the wire, 0 asking for the picture; 4 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH502.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH503",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - index · inventory_items.photo - oversight",
       "pages": [
@@ -740094,12 +740112,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): 5 part photos lived in inventory_items.photo; a part's photo is now two objects its row names, and inventory's four list reads read every column but photo. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Rosa dela Cruz of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (978, 1065 chars), hive.html (3569, 3569 chars), analytics.html (3842, 3842 chars), audit-log.html (1496, 1691 chars); 4 reads of the four photo sources on the wire, 0 asking for the picture; 0 stored photos drawn by name, all painted. Rosa saved a part with a photo: two uploads, then a 689-byte insert; a replacement sent the new names in a 531-byte update and deleted the old objects after it; Ben, her teammate, sees the thumbnail from Storage. Receipt .tmp/mcp_walks/BRH503.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH504",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - index · logbook.photo - oversight",
       "pages": [
@@ -740160,12 +740187,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): 22 logbook photos lived in logbook.photo; an entry's photo is now two objects its row names, and every logbook list read carries the names only. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Rosa dela Cruz of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (978, 1065 chars), hive.html (3569, 3569 chars), analytics.html (3842, 3842 chars), audit-log.html (1496, 1691 chars); 4 reads of the four photo sources on the wire, 0 asking for the picture; 0 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH504.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH505",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - integrations:1535 · list reads - worker",
       "pages": [
@@ -740224,12 +740260,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): integrations never shipped a photo: its cited lines (1535, 2211, 2343) are writes with no .select(), which return no rows - the old detector counted them as reads. Walked: it reads none of the four sources; the corrected measurement is what the gate holds. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), integrations.html (517, 517 chars), logbook.html (1470, 1856 chars); 6 reads of the four photo sources on the wire, 0 asking for the picture; 4 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH505.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH506",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - inventory:880 · list reads - worker",
       "pages": [
@@ -740288,12 +740333,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): inventory's four list reads (select=*, up to 2,000 parts) shipped every part photo; they read whRowCols now, and the whole-row sync never carries the photo columns (the cited 880 was a write). Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), inventory.html (1485, 1699 chars), logbook.html (1470, 1856 chars); 10 reads of the four photo sources on the wire, 0 asking for the picture; 6 stored photos drawn by name, all painted. Rosa saved a part with a photo: two uploads, then a 689-byte insert; a replacement sent the new names in a 531-byte update and deleted the old objects after it; Ben, her teammate, sees the thumbnail from Storage. Receipt .tmp/mcp_walks/BRH506.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH507",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - logbook:2073 · list reads - worker",
       "pages": [
@@ -740352,12 +740406,21 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): logbook's two feeds named photo and its insert read the whole row back; the feeds read the two names and the insert its id. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), logbook.html (1470, 1856 chars), pm-scheduler.html (1751, 1751 chars); 6 reads of the four photo sources on the wire, 0 asking for the picture; 4 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH507.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "BRH508",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AB",
       "title": "a photo stored inside a table row as base64 text - pm scheduler:2735 · list reads - worker",
       "pages": [
@@ -740416,6 +740479,15 @@
         "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
         "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; each page the row names opened as its cast, every GET of logbook / inventory_items and their truth views read off the wire with its select (whether it asks for the picture), each stored photo checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline through the page's own form, and the row and the bucket read back from the LOCAL database): pm-scheduler never shipped a photo: its cited 2735 is the PM mirror's logbook insert, with no .select() - the old detector counted it as a read. Walked: it reads none of the four sources. Production, read-only (Supabase connector, 2026-10-21): logbook.photo held 22 photos as base64 text (4,346,102 bytes), inventory_items.photo 5 (541,747). FAILED on demand (tools/prove_photos_in_storage.py, as the real cast, on rows holding inline photos as production does): select=* over 4 logbook rows returned 825,202 bytes with 4 images; the pages' read (whRowCols) 3,702 bytes, 0 images; a new inline photo from the signed-in worker: HTTP 400 P0001, 0 rows. Fix: migration 20261021000010 (private bucket entry-photos; the row keeps photo_path + a 160 px photo_thumb_path; a photo is as private as its row; the server refuses new inline data) and utils.js whPhotoSettle / whPhotoHydrate / whRowCols - a picked photo uploads before its row on every write path. Gate: photos-in-storage (21 mutants; the pre-fix files turn it red with 30 problems), free-plan-budget F3 = 0. Owed: the production move (push, then tools/move_inline_photos_to_storage.py --target prod, then --clear) - proven locally 6/6. Witness: As Ben Ocampo of Dela Cruz Delivery Fleet via playwright-mcp at phone-390 (CPU 4x slower) and desktop-1280: index.html (900, 949 chars), hive.html (2305, 2343 chars), pm-scheduler.html (1751, 1751 chars), logbook.html (1470, 1856 chars); 6 reads of the four photo sources on the wire, 0 asking for the picture; 4 stored photos drawn by name, all painted. Ben saved a 1.39 MB camera photo through Log a Repair: two uploads (163,738 + 7,349 bytes), then a 1,029-byte insert with photo NULL and its two names; thumbnail and 800x600 detail drawn from Storage; a text edit kept the names; a replacement deleted the old objects only after the write; Remove cleared names and objects; an OFFLINE save waited with its picture and uploaded it before a 919-byte insert. Found: Save Entry stayed disabled after any edit (fixed). Receipt .tmp/mcp_walks/BRH508.json.",
+      "artifacts": {
+        "gates": [
+          "file-storage-owned",
+          "free-plan-budget",
+          "photos-in-storage",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1034531,5 +1034603,5 @@
       }
     }
   ],
-  "next": "BRH 9 AB photos to Storage (8 rows): compressed before upload, list reads never select the image, the free plan's 1 GB respected. AC (5, the production embedding relay) and AE (backups) wait on Ian's credentials. Then SL LB3's six open rows re-walked with tasks booked by CPU time (SL.19), then LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
+  "next": "BRH 9 AB banked 8/8 locally (production move owed: push, move --target prod, --clear). Next: analytics' Plotly vendored (cdn.plot.ly answered 503; same SRI), the innerText-on-long-lists prover audit, then LB3's six open rows with the CPU-time instrument, then LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
 }

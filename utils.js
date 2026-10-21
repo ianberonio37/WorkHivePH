@@ -8167,7 +8167,7 @@ function whUse(db, action, props) {
 // land, never longer than `ms`. A slow network must not hold the person on the page.
 function whUseThen(db, action, props, ms) {
   const p = (typeof whUse === 'function') ? whUse(db, action, props) : null;
-  return Promise.race([Promise.resolve(p).catch(function () {}), new Promise(function (r) { setTimeout(r, ms || 1500); })]);
+  return Promise.race([Promise.resolve(p).catch(function () { /* empty-catch-allow: a use that was not recorded must not hold the person on the page */ }), new Promise(function (r) { setTimeout(r, ms || 1500); })]);
 }
 // A LINK that is a page's use (a gate's way forward): pressed in the same tab, the navigation would cancel the event, so
 // it is recorded first (whUseThen, <= 1.5 s) and the link followed after. A modified press or a new-tab link leaves this
@@ -8739,6 +8739,134 @@ function whHeldUpload(db, bucket, opts) {
   };
 }
 if (typeof window !== 'undefined') { window.whHeldUpload = whHeldUpload; }
+
+// ★A PHOTO IS KEPT IN STORAGE, NEVER INSIDE ITS ROW (BRH 9 AB, 2026-10-21). logbook.photo and inventory_items.photo held
+// each picture as base64 text - production's logbook carried 22 photos (4.35 MB) inside its rows - so the free plan's
+// 500 MB database grew by every photo, and every read of a row shipped its photo in free egress whether the screen showed
+// it or not: the dayplanner read up to a thousand logbook rows with select *, the inventory up to 2,000 parts. A photo
+// now goes to the private bucket entry-photos as two objects in the uploader's folder - the picture as the page
+// compressed it, and a 160 px thumbnail for lists - and the row keeps only their names (photo_path, photo_thumb_path).
+// Who may see an object is decided by its row (migration 20261021000010), so a photo is exactly as private as its entry,
+// and the server refuses new image data in photo, so a write that skips these helpers fails instead of growing the table.
+//   whPhotoSettle(db, uid, payload) - before a write: a data: URL in payload.photo is uploaded and replaced by the two
+//                                     names (payload.photo becomes null). Resolves the names it uploaded, so a write that
+//                                     then fails can take them back with whPhotoDrop; rejects when an upload fails.
+//   whPhotoDrop(db, names)          - best-effort delete; the server deletes only the caller's own objects no row names.
+//   whPhotoHydrate(db, root)        - fills every <img data-wh-photo="name"> under root from one signed-URL request.
+//   whRowCols(source)               - every column of the row source except photo, for a list read.
+var WH_PHOTO_BUCKET = 'entry-photos';
+var WH_PHOTO_DATA = /^data:image\/(jpeg|png|webp);base64,/;
+// Every column but the inline photo, so a list read carries a photo's two names and never the picture. The gate
+// photos-in-storage holds each list to the live schema: a column added to the table has to be added here.
+var WH_ROW_COLS = {
+  logbook: 'id,worker_name,date,machine,category,problem,action,knowledge,status,created_at,maintenance_type,root_cause,' +
+    'downtime_hours,hive_id,parts_used,closed_at,tasklist_acknowledged,tasklist_note,pm_completion_id,failure_consequence,' +
+    'readings_json,production_output,auth_uid,wo_state,wo_assigned_to,updated_at,asset_node_id,sync_meta,loto_applied,' +
+    'permit_reference,ai_assisted_fields,deleted_at,deleted_by,photo_path,photo_thumb_path',
+  inventory_items: 'id,worker_name,part_number,part_name,category,unit,qty_on_hand,min_qty,bin_location,notes,updated_at,' +
+    'created_at,status,hive_id,submitted_by,approved_by,approved_at,auth_uid,linked_asset_node_ids,lead_time_days,' +
+    'rejection_reason,deleted_at,deleted_by,photo_path,photo_thumb_path',
+  v_logbook_truth: 'id,hive_id,worker_name,created_at,closed_at,date,status,maintenance_type,category,machine,problem,' +
+    'action,root_cause,failure_consequence,downtime_hours,production_output,parts_used,readings_json,knowledge,' +
+    'tasklist_acknowledged,tasklist_note,pm_completion_id,wo_state,wo_assigned_to,asset_node_id,asset_tag,asset_node_name,' +
+    'asset_iso_class,asset_criticality,asset_location,is_corrective,loto_applied,permit_reference,auth_uid,photo_path,' +
+    'photo_thumb_path',
+  v_inventory_items_truth: 'id,hive_id,worker_name,part_number,part_name,category,unit,qty_on_hand,min_qty,reorder_point,' +
+    'bin_location,linked_asset_node_ids,notes,status,submitted_by,approved_by,approved_at,created_at,updated_at,' +
+    'is_out_of_stock,is_low_stock,is_critical_low,lead_time_days,rejection_reason,auth_uid,photo_path,photo_thumb_path',
+};
+function whRowCols(source) { return WH_ROW_COLS[source] || '*'; }
+function _whPhotoName() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  var b = new Uint8Array(16); crypto.getRandomValues(b);
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  var h = Array.prototype.map.call(b, function (x) { return (x + 256).toString(16).slice(1); }).join('');
+  return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+}
+function _whPhotoBlob(dataUrl, type) {
+  var bin = atob(dataUrl.slice(dataUrl.indexOf(',') + 1)), bytes = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: type });
+}
+// The list's copy: 160 px on its longest edge covers the 56-64 px thumbnails at 2-3x, at a few KB a photo.
+function _whPhotoThumb(dataUrl) {
+  return new Promise(function (resolve, reject) {
+    var img = new Image();
+    img.onload = function () {
+      var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      var s = Math.min(1, 160 / Math.max(w || 1, h || 1));
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
+      var g = c.getContext('2d');
+      g.fillStyle = '#ffffff'; g.fillRect(0, 0, c.width, c.height);   // a transparent PNG must not turn black as a JPEG
+      g.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(function (b) { if (b) resolve(b); else reject(new Error('The photo could not be read.')); }, 'image/jpeg', 0.72);
+    };
+    img.onerror = function () { reject(new Error('The photo could not be read.')); };
+    img.src = dataUrl;
+  });
+}
+async function whPhotoSettle(db, uid, payload) {
+  var m = payload && typeof payload.photo === 'string' ? WH_PHOTO_DATA.exec(payload.photo) : null;
+  if (!m) return [];
+  if (!uid) throw new Error('Sign in to save a photo: it is kept under your account.');
+  var id = _whPhotoName(), ext = m[1] === 'jpeg' ? 'jpg' : m[1];
+  var name = uid + '/' + id + '.' + ext, thumb = uid + '/' + id + '.t.jpg';
+  var full = _whPhotoBlob(payload.photo, 'image/' + m[1]);
+  var small = await _whPhotoThumb(payload.photo);
+  var bucket = db.storage.from(WH_PHOTO_BUCKET);
+  var a = await bucket.upload(name, full, { contentType: full.type, cacheControl: '31536000', upsert: false });
+  if (a.error) throw a.error;
+  var b = await bucket.upload(thumb, small, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
+  if (b.error) { whPhotoDrop(db, [name]); throw b.error; }
+  payload.photo = null;
+  payload.photo_path = name;
+  payload.photo_thumb_path = thumb;
+  return [name, thumb];
+}
+function whPhotoDrop(db, names) {
+  var list = (names || []).filter(Boolean);
+  if (!list.length || !db || !db.storage) return;
+  try { db.storage.from(WH_PHOTO_BUCKET).remove(list).then(function () {}, function () {}); }
+  catch (_) { /* empty-catch-allow: a cleanup must never cost the person their entry */ }
+}
+// A signed URL is good for an hour; one is reused for 50 minutes, so a list that re-renders asks for nothing again.
+var _whPhotoUrl = new Map(), _whPhotoAsk = new Map();
+function _whPhotoPaint(root) {
+  var imgs = (root || document).querySelectorAll('img[data-wh-photo]'), now = Date.now();
+  for (var i = 0; i < imgs.length; i++) {
+    var name = imgs[i].getAttribute('data-wh-photo'), hit = _whPhotoUrl.get(name);
+    if (hit && hit.until > now && imgs[i].getAttribute('src') !== hit.url) imgs[i].setAttribute('src', hit.url);
+  }
+}
+function whPhotoHydrate(db, root) {
+  root = root || document;
+  if (!db || !db.storage || !root.querySelectorAll) return Promise.resolve();
+  var imgs = root.querySelectorAll('img[data-wh-photo]'), now = Date.now(), want = [], ask = [];
+  for (var i = 0; i < imgs.length; i++) {
+    var name = imgs[i].getAttribute('data-wh-photo'), hit = _whPhotoUrl.get(name);
+    if (!name || (hit && hit.until > now) || want.indexOf(name) >= 0) continue;
+    want.push(name);
+    if (!_whPhotoAsk.has(name)) ask.push(name);
+  }
+  if (ask.length) {
+    var p = db.storage.from(WH_PHOTO_BUCKET).createSignedUrls(ask, 3600).then(function (r) {
+      var until = Date.now() + 50 * 60 * 1000;
+      ((r && r.data) || []).forEach(function (s) { if (s && s.signedUrl && !s.error) _whPhotoUrl.set(s.path, { url: s.signedUrl, until: until }); });
+    }, function () { /* empty-catch-allow: no connection - the frames stay empty and the next render asks again */ })
+      .then(function () { ask.forEach(function (n) { _whPhotoAsk.delete(n); }); });
+    ask.forEach(function (n) { _whPhotoAsk.set(n, p); });
+  }
+  _whPhotoPaint(root);
+  if (!want.length) return Promise.resolve();
+  return Promise.all(want.map(function (n) { return _whPhotoAsk.get(n); })).then(function () { _whPhotoPaint(root); });
+}
+if (typeof window !== 'undefined') {
+  window.whRowCols = whRowCols;
+  window.whPhotoSettle = whPhotoSettle;
+  window.whPhotoDrop = whPhotoDrop;
+  window.whPhotoHydrate = whPhotoHydrate;
+}
 
 // ── whPoll — Arc L scale-out (2026-06-23): visibility-aware polling fallback ──
 // The 1M realtime decision (Ian: "reduce + poll-fallback, no new infra"): Supabase

@@ -64,26 +64,66 @@ def psql(sql: str) -> str:
     return r.stdout
 
 
-def photo_reads() -> list[dict]:
-    """List reads of logbook / inventory that ship the inline photo column (select * or naming photo)."""
+PHOTO_SOURCES = ("logbook", "v_logbook_truth", "inventory_items", "v_inventory_items_truth")
+_SELECT = re.compile(r"\.select\(")
+_ROW_COLS = re.compile(r"\bwhRowCols\(\s*['\"]([a-z_]+)['\"]\s*\)")
+_CONST = re.compile(r"\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(['\"`])(.*?)\2", re.S)
+
+
+def _ships(cols: str) -> str | None:
+    """'*' or 'names photo' when a column list carries the inline picture, else None (photo_path / photo_thumb_path are
+    an object's NAMES and ship nothing)."""
+    toks = [t.strip().split(":")[-1].split("(")[0].strip() for t in re.sub(r"\$\{[^}]*\}", "", cols).split(",")]
+    if not cols.strip() or "*" in toks:
+        return "*"
+    return "names photo" if "photo" in toks else None
+
+
+def select_verdict(stmt: str, source: str, consts: dict) -> str | None:
+    """How a read of `source` treats the picture. None = it ships none: a write with no .select() returns no rows, a
+    column list without photo, or whRowCols('<the same source>') (utils.js: every column but photo - held to the live
+    schema by photos-in-storage). Otherwise the reason it ships it, or why it cannot be told."""
+    m = _SELECT.search(stmt)
+    if not m:
+        return None
+    sys.path.insert(0, str(ROOT / "tools"))
+    import validate_list_caps_say_more as g
+    arg = stmt[m.end():g._close_paren(stmt, m.end() - 1) - 1].strip()
+    rc = _ROW_COLS.search(arg)
+    if rc:
+        return None if rc.group(1) == source else f"whRowCols('{rc.group(1)}') on {source}"
+    lit = re.match(r"(['\"`])(.*?)\1", arg, re.S)
+    if lit or not arg:
+        return _ships(lit.group(2) if lit else "")
+    ident = re.match(r"([A-Za-z_$][\w$]*)\s*(?:,|$)", arg)
+    if ident and ident.group(1) in consts:
+        return _ships(consts[ident.group(1)])
+    return "unresolved select: " + arg[:40]
+
+
+def photo_reads(files: dict[str, str] | None = None) -> list[dict]:
+    """Reads of logbook / inventory (and their truth views) that ship the inline photo: a list read whose select is * or
+    names photo. A single-row read (.single / .maybeSingle / head) is not a list read. `files` ({path: source}) lets the
+    gate's self-test measure a planted page instead of the tree."""
     sys.path.insert(0, str(ROOT / "tools"))
     import validate_list_caps_say_more as g
     out = []
-    pages = sorted(set(ROOT.glob("*.html")) | set(ROOT.glob("*/index.html")))
-    for p in pages:
-        src = g.blank_comments(p.read_text(encoding="utf-8", errors="replace"))
+    if files is None:
+        pages = sorted(set(ROOT.glob("*.html")) | set(ROOT.glob("*/index.html")))
+        files = {p.relative_to(ROOT).as_posix(): p.read_text(encoding="utf-8", errors="replace") for p in pages}
+    for rel, raw in files.items():
+        src = g.blank_comments(raw)
+        consts = {c.group(1): c.group(3) for c in _CONST.finditer(src)}
         for m in g.START.finditer(src):
             name = m.group(1) or ""
-            if name not in ("logbook", "v_logbook_truth", "inventory_items", "v_inventory_items_truth"):
+            if name not in PHOTO_SOURCES:
                 continue
             stmt = src[m.start():g.chain_end(src, m)]
             if g.SINGLE.search(stmt):
                 continue
-            sel = re.search(r"\.select\(\s*(['\"`])(.*?)\1", stmt, re.S)
-            cols = sel.group(2) if sel else "*"
-            if cols.strip() == "*" or re.search(r"\bphoto\b", cols):
-                out.append({"page": p.relative_to(ROOT).as_posix(), "line": src.count("\n", 0, m.start()) + 1, "src": name,
-                            "cols": "*" if cols.strip() == "*" else "names photo"})
+            why = select_verdict(stmt, name, consts)
+            if why:
+                out.append({"page": rel, "line": src.count("\n", 0, m.start()) + 1, "src": name, "cols": why})
     return out
 
 
