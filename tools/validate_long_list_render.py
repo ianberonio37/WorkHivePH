@@ -51,6 +51,18 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
         R14 a row drawn through whRenderRows runs no animation of its own each time the list draws it - only a row
            marked as just arrived (.new-entry) moves (every logbook and inventory card slid in on every render: ~245 ms
            of rendering per 20-card append at phone speed, ~26 ms without).
+        R15 every box that searches or filters - however it is named, and whatever its handler does - runs its inline
+           handler after the typing pauses (a debounced function, a named wrapper of one, or a body that defers itself):
+           R4 read a box by its id and a handler by what it re-renders, and analytics' list filters had no id and only
+           hid rows - each keystroke read every row's text and laid out every match, 472 ms to paint with a thousand
+           rows at 390 (CPU 4x slower).
+        R16 the Sources area's room below is sampled when the fixed controls change, not on every pass: clearBottom keeps
+           its sample by window and column (needAt), the observer drops it when a control at the foot of the screen
+           changes (bottomChanged), and the area coming within reach runs only the room pass (roomSoon) - each Load More
+           press scrolled the list's end into view and brought the area back, 21 hit tests through a thousand rows'
+           layers and two queries over the whole document each time (2.6 s + 1.3 s of an 82-press inventory walk); each
+           sample asks elementFromPoint for the top element (the stack walked every row's layer), and the guide chip
+           moving itself is not a change at the foot of the screen.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -276,6 +288,31 @@ def check_page(page: str, raw: str) -> list[str]:
         if heavy:
             issues.append(f"R4 {page}:{line} re-renders a list ({', '.join(heavy)}) in the keystroke's own task on "
                           f"#{sid} - debounce it")
+    # R15 (2026-10-21): R4 reads a box by its id and a handler by what it RE-RENDERS - analytics' list filters have no id
+    # and only hide rows, so each keystroke read the text of every row and laid out every match (472 ms to paint with a
+    # thousand rows at 390, CPU 4x slower). Every box that searches or filters, however it is named, runs its inline
+    # handler after the typing pauses: a debounced function, a named wrapper of one, or a body that defers itself.
+    for m in re.finditer(r"<input\b([^>]*)>", src, re.S):
+        attrs = m.group(1)
+        oi = re.search(r'\boninput="([^"]+)"', attrs)
+        if not oi or not re.search(r'type="search"|class="[^"]*search|placeholder="[^"]*(?:[Ss]earch|[Ff]ilter)'
+                                   r'|aria-label="[^"]*(?:[Ss]earch|[Ff]ilter)|id="[^"]*(?:search|filter|query|find)', attrs):
+            continue
+        handler = oi.group(1)
+        if re.search(r"\bdebounce\(|setTimeout\(", handler):
+            continue
+        slow = []
+        for c in calls_in(handler):
+            if c in soon:
+                continue
+            body = fn_body(src, c)
+            if body is None or re.search(r"\bdebounce\(|setTimeout\(", body):
+                continue
+            slow.append(c)
+        if slow:
+            line = src.count("\n", 0, m.start()) + 1
+            issues.append(f"R15 {page}:{line} a search box runs {', '.join(slow)} in the keystroke's own task - let it "
+                          "wait for the typing to pause")
     return issues
 
 
@@ -367,15 +404,45 @@ def check_shared(utils: str, learn: str) -> list[str]:
     if "whOverlayBackDismiss" in ub and not re.search(r"\.matches\(\s*OVERLAY\s*\)", ob):
         issues.append("R11 utils.js whOverlayBackDismiss queries the whole document on every class change on the page - "
                       "only an overlay's own class change opens or closes it (tg.matches(OVERLAY))")
-    if not re.search(r"if\s*\(\s*el\s*&&\s*!\(\s*t\s*&&\s*t\.closest\s*&&\s*t\.closest\('\.wh-rows-cv'\)\)\)\s*outCache\s*=\s*null", src):
-        issues.append("R11 learn-link.js drops its remembered controls on any childList change outside a list - a label "
-                      "rewriting its words adds no control; drop them only when an ELEMENT is inserted or removed")
+    if not re.search(r"if\s*\(\s*el\s*&&\s*!\(\s*t\s*&&\s*t\.closest\s*&&\s*t\.closest\('\.wh-rows-cv'\)\)\)\s*followOut\(\s*rec\s*\)", src):
+        issues.append("R11 learn-link.js answers any childList change outside a list - a label rewriting its words adds no "
+                      "control; only an ELEMENT inserted or removed outside a list reaches the remembered controls (followOut)")
+    # ...and an element inserted outside a list ADDS its controls to the remembered ones instead of throwing them away: a
+    # list's "Showing N of M" note is replaced on every press, and dropping the cache for it re-queried the whole page
+    fo = src[src.find("function followOut("):]
+    fo = fo[:fo.find("\n        }") + 10]
+    if "function followOut(" not in src or "addOut(" not in fo or re.search(r"(?<!if \(outGone > 200\) )outCache\s*=\s*null", fo):
+        issues.append("R11 learn-link.js throws its remembered controls away when an element is inserted outside a list - "
+                      "followOut adds the inserted element's controls (addOut) and rebuilds only once removed ones pile up")
     sa = ub[ub.find("function carries(nodes)"):]
     sa = sa[:sa.find(".observe(document.body")]
     if "function carries(nodes)" not in ub or not re.search(r"!\s*holdsMark\(\s*t\s*\)\s*&&[^;]*closest\(\s*BOTTOM\s*\)[^;]*continue", sa):
         issues.append("R12 utils.js's Sources area answers every attribute change on the page with its layout-reading pass "
                       "- count one only on an element that holds a carrier, anchor or slot (holdsMark) or on a fixed "
                       "control at the foot of the screen (BOTTOM)")
+    # R16: the Sources area's room below is sampled when the fixed controls change, not on every pass - clearBottom keeps
+    # its sample by the window and column it was taken in (needAt), the observer drops it when a control at the foot of the
+    # screen changes (bottomChanged), and the area coming within reach runs only that room pass (roomSoon), never the full
+    # pass: each Load More press scrolls the list's end into view and brought the area back, 21 hit tests through a
+    # thousand rows' layers and two queries over the whole document each time (2.6 s + 1.3 s of an inventory walk)
+    cb = fn_body(ub, "clearBottom") or ""
+    io = ub[ub.find("new IntersectionObserver(function (es)"):]
+    io = io[:io.find("observe(area)")]
+    if "needAt.key === key" not in cb or "bottomChanged()" not in sa or "roomSoon()" not in io or "queue()" in io:
+        issues.append("R16 utils.js's Sources area samples the foot of the screen on every pass - keep the sample until a "
+                      "fixed control or the window changes (needAt, bottomChanged), and let the area coming within reach "
+                      "run only the room pass (roomSoon), not the full one")
+    # ...each sample asks for the TOP element at its point (elementsFromPoint walked every row's paint layer: ~1.5 ms a
+    # sample at phone speed, 2.6 s of an 82-press walk; elementFromPoint ~0.15 ms), and the guide chip moving itself is not a change at the
+    # foot of the screen (it moved twice a press, and each move re-ran the pass and the samples)
+    if "elementsFromPoint(" in cb or "elementFromPoint(" not in cb or "t.id === 'wh-guide-link' && m.attributeName === 'style'" not in sa:
+        issues.append("R16 utils.js's Sources area samples with elementsFromPoint, or answers the guide chip moving itself - "
+                      "ask elementFromPoint for the top element, and pass over the chip's own style changes")
+    # R11, the role branch: only a role that makes a dialog rebuilds the chip's remembered controls - inventory's figure
+    # marking gives each stat number a role on every press, and an unconditional rebuild re-ran the whole-page query
+    if re.search(r"rec\.attributeName\s*===\s*'role'\s*\)\s*outCache\s*=\s*null", src) or "rv === 'dialog'" not in src:
+        issues.append("R11 learn-link.js rebuilds its remembered controls on every role change - only a role that makes a "
+                      "dialog hides controls; any other role change adds the element if it is now a control")
     fb = fn_body(blank_comments(utils), "whFmtDate")
     if fb is None or "toLocaleString(" in fb or "_whDateFmts" not in fb:
         issues.append("R7 utils.js whFmtDate builds a new date formatter on every call - a thousand-row list draws two or "
@@ -458,6 +525,8 @@ def self_test() -> list[str]:
             "      border-left-width: 1px;\n      animation: slide-in 0.22s ease-out;\n      transition: border-color 0.2s;", 1)}, None, "R14"),
         ("a logbook card that slides in every time the list draws it", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
             "    .entry-card.new-entry { animation:", "    .entry-card { animation:", 1)}, None, "R14"),
+        ("an analytics list filter run in the keystroke's own task", {"analytics.html": (ROOT / "analytics.html").read_text(encoding="utf-8").replace(
+            'oninput="filterShowAllListSoon(this)"', 'oninput="filterShowAllList(this)"', 1)}, None, "R15"),
         ("the instant check back inside the page's task", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
             "if (fresh.length) vacateSoon();", "if (fresh.length) vacateFresh();", 1)}, None, "R13"),
         ("the chip hit-testing the page again", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
@@ -470,8 +539,22 @@ def self_test() -> list[str]:
         ("the Sources area answering every attribute change", {"utils.js": utils.replace(
             "if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;", "", 1)}, None, "R12"),
         ("the chip dropping its controls on a rewritten label", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
-            "if (el && !(t && t.closest && t.closest('.wh-rows-cv'))) outCache = null;",
-            "if (!(t && t.closest && t.closest('.wh-rows-cv'))) outCache = null;", 1)}, None, "R11"),
+            "if (el && !(t && t.closest && t.closest('.wh-rows-cv'))) followOut(rec);",
+            "if (!(t && t.closest && t.closest('.wh-rows-cv'))) followOut(rec);", 1)}, None, "R11"),
+        ("the Sources area's full pass on every Load More", {"utils.js": utils.replace(
+            "if (es[i].isIntersecting) { roomSoon(); break; }", "if (es[i].isIntersecting) { queue(); break; }", 1)}, None, "R16"),
+        ("the Sources area sampling the foot of the screen every pass", {"utils.js": utils.replace(
+            "if (needAt && needAt.key === key) need = needAt.need;", "if (false) need = 0;", 1)}, None, "R16"),
+        ("the Sources area walking every layer under a sample", {"utils.js": utils.replace(
+            "var top = document.elementFromPoint(xs[xi], H - 10 - yi * 40);",
+            "var top = (document.elementsFromPoint(xs[xi], H - 10 - yi * 40) || [])[0];", 1)}, None, "R16"),
+        ("the Sources area answering the guide chip moving itself", {"utils.js": utils.replace(
+            "if (t.id === 'wh-guide-link' && m.attributeName === 'style') continue;", "", 1)}, None, "R16"),
+        ("the chip rebuilding its controls on every role change", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
+            "if (rv === 'dialog' || rv === 'alertdialog') outCache = null;", "outCache = null;", 1)}, None, "R11"),
+        ("the chip throwing its controls away for a replaced note", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
+            "for (var i = 0; i < rec.addedNodes.length; i++) addOut(rec.addedNodes[i]);",
+            "outCache = null; return;", 1)}, None, "R11"),
         ("the chip answers its own style writes", {"learn-link.js": SELF_WRITE_SKIP.sub("false) continue",
             (ROOT / "learn-link.js").read_text(encoding="utf-8"), count=1)}, None, "R8"),
         ("the chip hidden by its resting box", {"learn-link.js": (ROOT / "learn-link.js").read_text(encoding="utf-8").replace(
@@ -494,7 +577,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (26 mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print("SELF-TEST PASS (33 mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     issues = check()
     print("Long-list render (SL LB3): every list on the LB3 pages stays responsive with a thousand rows in it")

@@ -2240,15 +2240,20 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         return;
       }
 
-      const { data, error } = await db
-        // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap (one worker's watchlist, ≤ dozens); .limit(500) is safe insurance on the same bound.
+      // SL LB3 (2026-10-21): the saved ids asked 100 at a time (whInChunks). A UUID is ~39 bytes of URL, so ~200 saved
+      // listings in one in.() pass what the gateway accepts (414) and the whole saved list failed to open. The pieces
+      // are sorted together, newest first, as the single read ordered them.
+      const { data: _wlRows, error } = await whInChunks(ids, (part) => db
+        // unbounded-query-allow: bounded by .in('id', ids) — ids array is the upstream cap (one worker's watchlist, ≤ dozens); .limit(500) is safe insurance on the same bound.   // in-list-bounded: the note above the read; the read itself asks through whInChunks
         .from('v_marketplace_listings_public')
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
-        .in('id', ids)
+        .in('id', part)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
-        .limit(500 + 1);   // more-said: by openWatchlistSheet (SL LB1: bounded by the saved ids; a 501st row would be said, not dropped)
+        .limit(500 + 1));   // more-said: by openWatchlistSheet (SL LB1: bounded by the saved ids; a 501st row would be said, not dropped)
       if (error) throw error;
+      const _desc = (x, y) => (x < y ? 1 : x > y ? -1 : 0);
+      const data = (_wlRows || []).sort((a, b) => _desc(String(a.created_at || ''), String(b.created_at || '')) || _desc(String(a.id), String(b.id)));
 
       const _wlMore = (data || []).length > 500;   // SL LB1
       const items = (data || []).slice(0, 500);
@@ -2304,7 +2309,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           const _liveIds = new Set(items.map(i => i.id));
           const _dead = ids.filter(id => !_liveIds.has(id));
           if (_dead.length) {
-            await db.from('marketplace_watchlist').delete().in('listing_id', _dead);  // BRP-C: RLS scopes it
+            await db.from('marketplace_watchlist').delete().in('listing_id', _dead);  // BRP-C: RLS scopes it   // in-list-bounded: the saved listings found gone (part of one person's watchlist)
             _dead.forEach(id => _watchlist.delete(id));
             syncHeartIcons();
             updateCountBadges();
@@ -4910,7 +4915,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     if (error) { showToast(_svcErrorText(error, false), 'error'); return; }
     if (!offers || !offers.length) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">No quotes yet - check back soon.</p>'; return; }
     const ids = offers.map(o => o.provider_id);
-    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
+    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more   // in-list-bounded: the providers who quoted on one request
     const byId = {}; (provs || []).forEach(p => { byId[p.id] = p; });
     slot.innerHTML = offers.map(o => {
       const p = byId[o.provider_id] || {};

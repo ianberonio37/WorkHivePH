@@ -1071,7 +1071,7 @@
       const { data, error } = await db
         .from('marketplace_reviews')
         .select('reviewer_name, rating, comment, created_at, verified_purchase')
-        .in('listing_id', listingIds)
+        .in('listing_id', listingIds)   // in-list-bounded: this seller's listings on the page (at most 60)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(REVIEWS_SHOWN + 1);   // more-said: by renderReviews (SL LB1: one past the cap says more reviews exist)

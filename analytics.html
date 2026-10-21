@@ -1449,6 +1449,36 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } catch (_) { return []; }
   }
 
+  // ★PLOTLY'S FIRST CHART PAYS FOR COMPILING PLOTLY (SL LB3, 2026-10-21). On a bare page at 390 with the CPU 4x slower,
+  // one of this page's charts costs ~120 ms - but the FIRST one costs ~570 ms, because the browser compiles Plotly's
+  // code the first time it runs it; traced on this page, that first chart was a 461 ms task the moment the numbers
+  // arrived. The page now draws one throwaway chart, off screen with the page's own config, while its snapshot read
+  // is still in flight - time the main thread spends waiting anyway - so the first chart a person waits for costs
+  // what the others cost. Never slower: when the read is already back, the warm-up is work the first chart would
+  // have done.
+  function warmPlotly() {
+    if (typeof Plotly === 'undefined' || warmPlotly.done) return;
+    warmPlotly.done = true;
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.setAttribute('aria-hidden', 'true');
+      el.style.cssText = 'position:absolute;left:-10000px;top:0;width:320px;height:220px;';
+      // purged only once Plotly is finished with it: newPlot's margin pass can run after newPlot has returned, and on
+      // a chart already purged it reads a layout that is gone (the walk caught it as a page error at both widths)
+      const done = () => {
+        try { Plotly.purge(el); } catch (_) { /* empty-catch-allow: warming is a courtesy; the real charts draw either way */ }
+        el.remove();
+      };
+      try {
+        document.body.appendChild(el);
+        Promise.resolve(Plotly.newPlot(el, [
+          { type: 'bar', orientation: 'h', x: [3, 1], y: ['a', 'b'], text: ['3', '1'], textposition: 'outside' },
+          { type: 'scatter', mode: 'lines+markers', x: ['w1', 'w2'], y: [1, 2] },
+        ], { ...PLOTLY_BASE_LAYOUT, height: 220 }, PLOTLY_CONFIG)).then(done, done);
+      } catch (_) { done(); }
+    }, 0);
+  }
+
   // ── Auto-load on page open ─────────────────────────────────────────────────
   async function autoLoad() {
     // Show current phase skeleton immediately
@@ -1466,7 +1496,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // Open-fast: today's saved snapshots render instantly; only stale or
     // missing phases hit the compute engine (which re-saves them).
-    const hydrated = await loadSnapshots();
+    const _snaps = loadSnapshots();   // the read goes out first...
+    warmPlotly();                     // ...and Plotly is warmed while it is in flight
+    const hydrated = await _snaps;
     if (hydrated.includes('descriptive')) {
       renderPhase('descriptive', _cache['descriptive']);
       renderRoleQuickView();
@@ -1932,14 +1964,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     detail.inert = !isOpen;
     const ctl = document.querySelector('[aria-controls="' + id + '"]');
     if (ctl) ctl.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    // Plotly charts inside collapsed cards render at 0px — resize on open
+    // A chart that waited for this card is drawn once the opening has painted (the tap answers first); a chart already
+    // drawn in it - the card was open before - is fitted to the card's width again
     if (isOpen) {
-      requestAnimationFrame(() => {
-        const charts = detail.querySelectorAll('[id^="chart-"]');
-        charts.forEach(el => {
-          try { Plotly.Plots.resize(el); } catch(e) { /* empty-catch-allow: best-effort silent swallow */ }
+      const waiting = _chartsForCard[id];
+      if (waiting && waiting.length) {
+        delete _chartsForCard[id];
+        _pendingCharts.push(...waiting);
+        requestAnimationFrame(() => setTimeout(drawPendingChart, 0));
+      } else {
+        requestAnimationFrame(() => {
+          const charts = detail.querySelectorAll('[id^="chart-"]');
+          charts.forEach(el => {
+            try { Plotly.Plots.resize(el); } catch(e) { /* empty-catch-allow: best-effort silent swallow */ }
+          });
         });
-      });
+      }
     }
   }
 
@@ -2193,16 +2233,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   // Deferred chart draws — called after innerHTML is set
   const _pendingCharts = [];
-
-  function queueChart(fn) { _pendingCharts.push(fn); }
+  // ★A CHART IN A CLOSED CARD IS DRAWN WHEN THE CARD OPENS (SL LB3, 2026-10-21). Every chart was drawn at load, and a
+  // card that is not red starts closed - its chart drawn at 0px where nobody could see it (each one a 150-230 ms task at
+  // 390 with the CPU 4x slower), then laid out again on open (Plotly.Plots.resize). A chart whose card is closed now
+  // waits for its card: toggleKPI draws it after the opening frame has painted. queueChart(chartId, fn) names the chart
+  // so its card can be found; queueChart(fn) still draws at once.
+  const _chartsForCard = {};
+  function queueChart(a, b) { _pendingCharts.push(typeof a === 'function' ? { fn: a, id: null } : { fn: b, id: a }); }
+  function runChart(job) {
+    const el = job.id ? document.getElementById(job.id) : null;
+    if (job.id && !el) return;                          // its card was drawn over since
+    const card = el && el.closest('.kpi-detail');
+    if (card && card.id && !card.classList.contains('open')) {
+      (_chartsForCard[card.id] = _chartsForCard[card.id] || []).push(job);
+      return;
+    }
+    job.fn();
+  }
 
   function flushCharts() {
     // Small delay so collapsible cards that auto-open have time to expand
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        while (_pendingCharts.length) _pendingCharts.shift()();
-      });
-    }, 350); // matches the CSS transition duration
+    setTimeout(drawPendingChart, 350); // matches the CSS transition duration
+  }
+  // ★ONE CHART A TASK (SL LB3, 2026-10-21, CPU-profiled at 390 with the CPU 4x slower). Every queued chart was drawn in
+  // one animation frame, so the page's Plotly charts were one 723 ms task (newPlot 622 ms of it): nothing could paint and
+  // no tap could land until the last chart was done. Each chart now draws in a frame of its own, and the browser paints
+  // and answers between them. An error in one chart still surfaces, and the charts after it are still drawn.
+  function drawPendingChart() {
+    requestAnimationFrame(() => {
+      const job = _pendingCharts.shift();
+      try { if (job) runChart(job); }
+      finally { if (_pendingCharts.length) setTimeout(drawPendingChart, 0); }
+    });
   }
 
   function renderDowntimePareto(d) {
@@ -2220,7 +2282,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _hasTail   = _shown.some(r => (r.cumulative_pct ?? 0) > 80);
     const _concentrated = _hasTail || _cumShown >= 80;
 
-    queueChart(() => {
+    queueChart(chartId, () => {
       const items = d.pareto.slice(0, 8);
       // Colour encodes the Pareto 80% rule -- a real property of each row -- and not
       // its rank. The previous `i === 0 ? red : i < 3 ? orange` did two wrong things:
@@ -2684,7 +2746,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const heroColor = worst.color === 'red' ? 'red' : worst.color === 'yellow' ? 'yellow' : worst.color === 'grey' ? 'grey' : 'green';
     const chartId = `chart-health-${_kpiCardId}`;
 
-    queueChart(() => {
+    queueChart(chartId, () => {
       const top5 = d.health_scores.slice(0, 5);
       // Plotly needs a resolved literal -- var(--wh-*) does NOT work inside a chart
       // colour array, which is why the E4 migration deliberately left JS hexes alone.
@@ -2922,7 +2984,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const dirColor = d.direction === 'INCREASING' ? 'red' : d.direction === 'DECREASING' ? 'green' : 'grey';
     const chartId  = `chart-trend-${_kpiCardId}`;
 
-    queueChart(() => {
+    queueChart(chartId, () => {
       const weeks  = d.trend.map(t => t.week);
       const counts = d.trend.map(t => t.count);
       const fWks   = (d.forecast || []).map(f => f.week);
@@ -3253,7 +3315,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _searchLbl = searchPlaceholder || _t(`Filter ${_pn}`, `Salain ang ${_pn}`);
     const searchInput = showSearch ? `
       <input type="search" class="list-search" aria-label="${escHtml(_searchLbl)}" placeholder="${escHtml(_searchLbl + '…')}"
-        oninput="filterShowAllList(this)" />
+        oninput="filterShowAllListSoon(this)" />
     ` : '';
 
     if (wrap === 'table') {
@@ -3275,6 +3337,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       ${total > defaultN ? `<button type="button" class="showall-toggle" aria-expanded="false" onclick="toggleShowAll(this)"
         data-show-all="${escHtml(showAllTxt)}" data-show-less="${escHtml(showLessTxt)}">${escHtml(showAllTxt)}</button>` : ''}
     </div>`;
+  }
+
+  // ★A KEYSTROKE FILTERED A THOUSAND ROWS (SL LB3, 2026-10-21). Walked with a thousand rows behind a list at 390 with
+  // the CPU 4x slower, typing into its filter took 472 ms to paint: every keystroke read the text of every row, revealed
+  // the hidden rows, and laid out every match. The filter now waits for the typing to pause (one run per pause, per
+  // list), reads each row's text once, and shows at most FILTER_SHOWN matches - the note says how many matched.
+  const FILTER_SHOWN = 50;
+  function filterShowAllListSoon(input) {
+    clearTimeout(input._whFilterT);
+    input._whFilterT = setTimeout(() => filterShowAllList(input), 180);
+  }
+  function _rowText(r) {
+    const m = _rowText.cache || (_rowText.cache = new WeakMap());
+    let t = m.get(r);
+    if (t === undefined) { t = (r.textContent || '').toLowerCase(); m.set(r, t); }
+    return t;
   }
 
   // Filter rows/cards by typed query. Reveals hidden rows so matches anywhere
@@ -3325,10 +3403,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     let matchCount = 0;
     allRows.forEach(r => {
-      const text = (r.textContent || '').toLowerCase();
-      const hit = text.includes(q);
-      r.style.display = hit ? '' : 'none';
+      const hit = _rowText(r).includes(q);
       if (hit) matchCount++;
+      const show = hit && matchCount <= FILTER_SHOWN;
+      const want = show ? '' : 'none';
+      if (r.style.display !== want) r.style.display = want;   // untouched rows cost no style work
     });
     // ★matchCount WAS COUNTED AND NEVER READ (design lens critique, 2026-09-15). A typo in any of the
     // four search boxes on this tab left a bare table head, or a blank region for the card lists, with
@@ -3338,6 +3417,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const total = allRows.length;
       note.textContent = _t(`No row matches "${input.value.trim()}". Clear the box to see all ${total}.`,
                             `Walang tugma sa "${input.value.trim()}". I-clear ang kahon para makita lahat ng ${total}.`);
+      note.hidden = false;
+    } else if (matchCount > FILTER_SHOWN) {
+      // a cap shown as everything would be a claim the list cannot make: say how many matched
+      note.textContent = `Showing the first ${FILTER_SHOWN} of ${matchCount.toLocaleString('en-PH')} matching rows. Keep typing to narrow it.`;
       note.hidden = false;
     } else {
       note.hidden = true;

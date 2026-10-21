@@ -7031,7 +7031,20 @@ VALIDATORS = [
         "id":      "long-list-render",
         "script":  os.path.join("tools", "validate_long_list_render.py"),
         "args":    [],
-        "label":   "Long-list render (SL LB3): every show-more on the 34 LB3 data pages appends through utils.js whRenderRows instead of rebuilding every row (its 21-case unit test runs under node: append, patch in place with focus carried, replace), no row an append kept is bound a second time, every search that re-renders a list waits for the typing to pause, no row drawn through whRenderRows animates on every render (only a .new-entry arrival), and the 42 static pages build no list from data; the shared chrome stays cheap with a thousand rows - the guide chip skips rows the browser is not drawing, never answers its own writes, vacates after the frame's layout asking only about what was inserted, runs its full pass at most four times a second and leaves dialogs' controls out; figure marking reads a long list by its words; the Sources area and the overlay Back-dismiss answer only the changes that concern them (--self-test: 26 mutants)",
+        "label":   "Long-list render (SL LB3): every show-more on the 34 LB3 data pages appends through utils.js whRenderRows instead of rebuilding every row (its 21-case unit test runs under node: append, patch in place with focus carried, replace), no row an append kept is bound a second time, every search that re-renders a list waits for the typing to pause, no row drawn through whRenderRows animates on every render (only a .new-entry arrival), and the 42 static pages build no list from data; the shared chrome stays cheap with a thousand rows - the guide chip skips rows the browser is not drawing, never answers its own writes, vacates after the frame's layout asking only about what was inserted, runs its full pass at most four times a second and leaves dialogs' controls out; figure marking reads a long list by its words; the Sources area and the overlay Back-dismiss answer only the changes that concern them; the chip's remembered controls follow an insertion instead of being thrown away (a replaced 'Showing N of M' note); every box that searches or filters, however it is named, waits for the typing to pause (R15); the Sources area keeps its sample of the fixed controls until one changes and runs only its room pass when it comes within reach, asking for the top element at each sample and passing over the guide chip moving itself (R16); only a role that makes a dialog rebuilds the chip's controls (--self-test: 33 mutants)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # SL LB3 (2026-10-21): a lookup by many keys reaches the database in pieces the gateway accepts. `.in(col, keys)`
+        # carries every key in the URL, and past ~8 KB the gateway answers 414 (measured: 400 names = 8.7 KB; ~200 UUIDs).
+        # Walked with a thousand rows: pm-scheduler read no PM work for a plant of a few hundred assets, project-manager
+        # showed every project at 0%, every avatar in a big hive showed the lowest tier. Static (the helper's unit test
+        # runs under node).
+        "id":      "in-list-chunked",
+        "script":  os.path.join("tools", "validate_in_list_chunked.py"),
+        "args":    [],
+        "label":   "In-list lookups chunked (SL LB3): every .in() on the served pages and shared scripts is a fixed list, asked through utils.js whInChunks (100 keys a request, de-duplicated, counts summed, the first error kept - its 18-case unit test runs under node), sliced by hand, or marked 'in-list-bounded: <why>' where it stands; a lookup whose list grows with the page (a hive's assets, members, projects, the posts on screen) can no longer send a URL the gateway refuses (414) and show the lookup as empty. Self-test: 6 mutants (the helper unchunked / not de-duplicated / swallowing an error, pm-scheduler and project-manager put back, a reason removed)",
         "group":   "Performance",
         "skip_if_fast": False,
     },

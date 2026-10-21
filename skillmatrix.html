@@ -1047,8 +1047,20 @@ function showMatrix() {
 
   renderTargetGrid();
   renderDisciplineCards();
-  renderRadarChart();
+  renderRadarSoon();
   renderSkillSummary();
+}
+
+// ★THE RADAR IS DRAWN AFTER THE FRAME THAT LAYS OUT THE MATRIX (SL LB3, 2026-10-21, CPU-profiled at 390 with the CPU
+// 4x slower). Built in the same task as the grid and cards, Chart.js read its container's size (responsive) while
+// everything just written was still un-laid-out, and so laid it out on the spot: one 311 ms task on load, 125 ms of it
+// that size read - and every press of a target's +/- paid the same inside the press. After the frame the size is
+// already known and the chart is a task of its own; requests in one frame (a fast run of presses) draw it once.
+function renderRadarSoon() {
+  // the flag lives on the function, so a call made before this line of the script has run still finds it
+  if (renderRadarSoon.pending) return;
+  renderRadarSoon.pending = true;
+  requestAnimationFrame(() => setTimeout(() => { renderRadarSoon.pending = false; renderRadarChart(); }, 0));
 }
 
 // ─── Target Grid ──────────────────────────────────────────────────────────────
@@ -1091,7 +1103,7 @@ function renderTargetGrid() {
       const _back = (_again && !_again.disabled) ? _again : grid.querySelector(_sel(-dir));
       if (_back && !_back.disabled) _back.focus();
       renderDisciplineCards();
-      renderRadarChart();
+      renderRadarSoon();
       renderSkillSummary();
     });
   });
@@ -1892,7 +1904,7 @@ function resetExamFlow() {
 function refreshMatrix() {
   renderTargetGrid();
   renderDisciplineCards();
-  renderRadarChart();
+  renderRadarSoon();
   renderSkillSummary();
 }
 

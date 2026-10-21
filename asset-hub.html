@@ -2365,7 +2365,7 @@
       const { data, error } = await db.from('v_risk_truth')
         .select('asset_name, risk_score, risk_level, mtbf_days, days_until_failure, top_factors, model_version, generated_at')
         .eq('hive_id', HIVE_ID)
-        .in('asset_name', candidates)
+        .in('asset_name', candidates)   // in-list-bounded: this asset's tag and name (two values)
         .limit(1);
 
       if (error) {
@@ -2526,7 +2526,7 @@
         // act on; alert-hub still filters expired out, because there it would be noise competing
         // with live alerts. The two surfaces disagree on VISIBILITY by design, never on the FACT.
         .in('status', ['pending', 'expired'])
-        .in('asset_name', candidates)
+        .in('asset_name', candidates)   // in-list-bounded: this asset's tag and name (two values)
         .order('generated_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
@@ -3169,7 +3169,7 @@
         const { data: stratRows, error: stratErr } = await db.from('rcm_strategies')
           .select('id, hive_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, ai_confidence, approved_by, approved_at, created_at, updated_at')
           .eq('hive_id', HIVE_ID)
-          .in('fmea_mode_id', modeIds)
+          .in('fmea_mode_id', modeIds)   // in-list-bounded: one asset's failure modes (dozens at most)
           .order('updated_at', { ascending: false })
           // Arc L · L2: bounded-by-nature — modeIds comes from the prior .limit(50)
           // rcm_fmea_modes read (one asset's modes), and the replace policy keeps ~one
@@ -4598,7 +4598,7 @@
         .select('system_type, external_id, entity_type, sync_status, last_synced_at')
         .eq('hive_id', HIVE_ID)
         .eq('entity_type', 'asset')
-        .in('external_id', ids)
+        .in('external_id', ids)   // in-list-bounded: this asset's own external ids (one per linked system)
         .order('last_synced_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);

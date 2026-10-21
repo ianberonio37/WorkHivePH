@@ -3793,11 +3793,11 @@
       // On error or no membership: stay cleared = solo mode (honest-empty, not wrong-tenant).
       if (recErr || !memberships || !memberships.length) return null;
 
-      const hiveIds = memberships.map(m => m.hive_id);
+      const hiveIds = [...new Set(memberships.map(m => m.hive_id))];
       const { data: hives } = await db
         .from('v_hives_truth')
         .select('id, name')
-        .in('id', hiveIds)
+        .in('id', hiveIds)   // in-list-bounded: one person's own hive memberships, each hive once (a person belongs to a few hives)
         // ORDER BY is not decoration here: `hives[0]` below picks this worker's ACTIVE hive, and an
         // unordered select has no guaranteed order, so for a member of two hives the tenant they
         // land in was left to whatever the planner returned. Ordered by name, with id as the
@@ -5504,14 +5504,18 @@
           // ★THE NEWEST 500 OF EVERY COMPLETION, THEN A 30-DAY TEST (SL LB1, 2026-10-21): an asset last serviced within 30
           // days but outside the newest 500 read as never serviced and counted overdue. Only the window matters, so the
           // read asks for the window.
-          const { data: comps } = await db.from('pm_completions')
+          // SL LB3 (2026-10-21): the assets asked 100 at a time (whInChunks) - past ~200 asset ids one in.() is a URL the
+          // gateway refuses (414), and every asset then read as never serviced. An asset's completions all come back in
+          // its own piece, newest first, so the first one seen per asset is still its newest.
+          const _since = new Date(Date.now() - 30 * 86400000).toISOString();
+          const { data: comps } = await whInChunks(assetIds, (part) => db.from('pm_completions')
             .select('asset_id, completed_at')
-            .in('asset_id', assetIds)
+            .in('asset_id', part)
             .eq('status', 'done')
-            .gte('completed_at', new Date(Date.now() - 30 * 86400000).toISOString())
+            .gte('completed_at', _since)
             .order('completed_at', { ascending: false })
             .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-            .limit(500);   // window-ok[30d] (LB1): one worker's PM completions in 30 days, sized live
+            .limit(500));   // window-ok[30d] (LB1): one worker's PM completions in 30 days, sized live
           const lastByAsset = {};
           (comps || []).forEach(c => {
             if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();

@@ -176,6 +176,11 @@
     .lb-card { background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; overflow: hidden; flex-shrink: 0; }
     .lb-card:hover { border-color: rgba(247,162,27,0.3); background: linear-gradient(145deg, rgba(52,74,108,0.6) 0%, rgba(35,52,78,0.8) 100%); }
     .lb-card.selected { border-color: rgba(247,162,27,0.6); box-shadow: 0 0 0 2px rgba(247,162,27,0.15); }
+    /* SL LB3: the open items are a long list of their own inside the sidebar (whRenderRows, see renderSidebar) - the same
+       column and gap the cards had as the sidebar's children; never shrunk (the 2px crush this file already met); a card
+       the browser has not drawn yet keeps a card's height, not the shared 160px row */
+    #sidebar-items > [data-dp-lb-rows] { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+    #sidebar-items > [data-dp-lb-rows] > * { contain-intrinsic-size: auto 64px; }
     /* ★ONE VALUE, RENDERED SEVENTY TIMES (design lens craft, 2026-09-15): 10px on the header of every
        logbook card down a sidebar of 35. A single declaration was 70 of the page's 187 off-grid
        paddings. 12px is the grid step above it. */
@@ -712,6 +717,7 @@ let currentView = 'dilo';
 let currentDate = _phtWallNow();
 let logbookItems = [];
 let logbookMore = false;   // SL LB1: the open-items read found more than it shows
+let _dpOpenShown = 50;     // SL LB3: the open items drawn at once (newest first); "Show more open items" adds 50
 let scheduleItems = [];
 let selectedLogbookItem = null;
 let plantWork = [];
@@ -1643,14 +1649,44 @@ function renderSidebar() {
     return;
   }
 
-  container.innerHTML = logbookItems.map(item => {
+  // ★SL LB3 (2026-10-21): A THOUSAND OPEN ITEMS WERE ONE innerHTML, AND EVERY TAP ON ONE REDREW THEM ALL. Walked with a
+  // thousand open items at 390 with the CPU 4x slower, the sidebar drew every card in one task (each card also scanned
+  // every schedule entry for its links), and a tap on a card - which re-renders to show the selection - did it again:
+  // a 758 ms task after the rows arrived. The cards are now a long list of their own (whRenderRows): drawn as rows the
+  // browser skips while they are off screen, and a tap redraws only the two cards whose selection changed. Each card's
+  // schedule links are found once per render from an index, not by a scan of the whole schedule per card.
+  let rowsEl = container.querySelector(':scope > [data-dp-lb-rows]');
+  if (!rowsEl) {
+    container.innerHTML = '<div data-dp-lb-rows></div><span data-dp-lb-end hidden></span><div data-dp-plant></div>';
+    rowsEl = container.firstElementChild;
+  }
+  const byRef = new Map();
+  for (const s of scheduleItems) {
+    if (s.logbookRef == null) continue;
+    const k = String(s.logbookRef);
+    if (!byRef.has(k)) byRef.set(k, []);
+    byRef.get(k).push(s);
+  }
+  // ...and drawn fifty at a time (SL LB3): the sidebar starts folded on a phone, so skipping off-screen cards saved
+  // nothing there - building and parsing a thousand cards' markup was itself a 635 ms task. The newest fifty are
+  // drawn, "Show more open items" adds the next fifty, and a selected card further down widens the window to itself.
+  let _need = _dpOpenShown;
+  if (selectedLogbookItem) {
+    const _at = logbookItems.findIndex(i => i.id === selectedLogbookItem.id);
+    if (_at + 1 > _need) _need = _at + 1;
+  }
+  const cards = logbookItems.slice(0, _need).map(item => {
+    const linked = byRef.get(String(item.id)) || [];
+    return { item, linked, isSelected: !!(selectedLogbookItem && selectedLogbookItem.id === item.id),
+             hasDone: linked.some(s => getItemStatus(s) === 'done'), hasMissed: linked.some(s => getItemStatus(s) === 'missed') };
+  });
+  // item.date is a raw DB timestamptz and was printed VERBATIM on the card: it read "AC-02 2026-07-19T23:48:14.44094+00:00
+  // . Pneumatic". Found 2026-08-06 while measuring this card's 2px collapse - the defect was hidden inside a box clipped
+  // to two pixels. whFmtDate is the platform's canonical formatter (en-PH, Asia/Manila), null/NaN-safe ('-' for an
+  // unparseable value). (This note lived inside the card's markup as an HTML comment, so every one of a thousand cards
+  // carried it - SL LB3.)
+  whRenderRows(rowsEl, cards, ({ item, linked, isSelected, hasDone, hasMissed }) => {
     const c = catColors[item.category] || catColors.General;
-    const isSelected = selectedLogbookItem && selectedLogbookItem.id === item.id;
-
-    // Find all schedule entries linked to this logbook item
-    const linked = scheduleItems.filter(s => s.logbookRef == item.id);
-    const hasDone    = linked.some(s => getItemStatus(s) === 'done');
-    const hasMissed  = linked.some(s => getItemStatus(s) === 'missed');
     const hasLinked  = linked.length > 0;
 
     // Badge config
@@ -1685,12 +1721,6 @@ function renderSidebar() {
         <div class="lb-dot" style="background:${c.text}"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
-          <!-- item.date is a raw DB timestamptz and was printed VERBATIM here: the card read
-               "AC-02 2026-07-19T23:48:14.44094+00:00 . Pneumatic". Found 2026-08-06 while measuring
-               this card's 2px collapse - the defect was hidden inside a box clipped to two pixels.
-               whFmtDate is the platform's canonical formatter (en-PH, Asia/Manila) and is already used
-               four times elsewhere in this same file, so this was an adoption gap, not a missing tool.
-               It is null/NaN-safe and returns '-' for an unparseable value, so no guard is needed. -->
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;font-weight:400">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
@@ -1708,11 +1738,25 @@ function renderSidebar() {
         <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
       </div>
     </div>`;
-  }).join('') + '<span data-dp-lb-end hidden></span>' + renderPlantWorkSection();
-  // SL LB1: the open items end at the marker; past the cap the note says more exist, right under them
+  }, { sig: 'dp-open-items', long: true,
+       // a card shows its item, whether it is selected, and its schedule links' state - so those are its key
+       key: (r) => JSON.stringify(r.item) + '|' + r.isSelected + '|' + r.hasDone + '|' + r.hasMissed + '|' + r.linked.length });
+  const plantEl = container.querySelector(':scope > [data-dp-plant]');
+  const plantHtml = renderPlantWorkSection();
+  plantEl.innerHTML = plantHtml;
+  plantEl.hidden = !plantHtml;
+  // SL LB1: the open items end at the marker; past the cap the note says more exist, right under them. SL LB3: while
+  // more are loaded than drawn, the note says how many are showing and draws the next fifty
   if (typeof whMoreNote === 'function') {
-    whMoreNote(container.querySelector('[data-dp-lb-end]'), { shown: total, more: logbookMore, noun: 'open items',
-      order: 'newest', href: 'logbook.html', hrefLabel: 'Open the Logbook', src: 'v_logbook_truth' });
+    const _end = container.querySelector('[data-dp-lb-end]');
+    if (cards.length < total) {
+      whMoreNote(_end, { more: true, shown: cards.length, total, noun: 'open items',
+        said: `Showing ${cards.length.toLocaleString('en-PH')} of ${_totalSaid} open items, newest first.`,
+        onMore: () => { _dpOpenShown += 50; renderSidebar(); }, moreLabel: 'Show more open items', src: 'v_logbook_truth' });
+    } else {
+      whMoreNote(_end, { shown: total, more: logbookMore, noun: 'open items',
+        order: 'newest', href: 'logbook.html', hrefLabel: 'Open the Logbook', src: 'v_logbook_truth' });
+    }
   }
 }
 

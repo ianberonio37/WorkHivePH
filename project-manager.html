@@ -1163,8 +1163,11 @@ async function loadProjects() {
   // Pull rollup from project_items in batch (one query, then group)
   const ids = _projects.map(p => p.id);
   if (ids.length) {
-    const { data: items } = await db.from('v_project_items_truth')
-      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+    // SL LB3 (2026-10-21): the projects asked 100 at a time (whInChunks). A hive's projects (up to the 1,000 read above)
+    // went into one in.() list, and past ~200 ids the URL passes what the gateway accepts (414) - every card then read 0%
+    // with 0 items, and no project carried its late work. Each piece keeps this read's cap.
+    const { data: items } = await whInChunks(ids, (part) => db.from('v_project_items_truth')
+      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', part).limit(500)); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     const rollup = {};
     (items || []).forEach(it => {
       if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0, hours: 0, lateItems: 0 };
@@ -1199,8 +1202,8 @@ async function loadProjects() {
     });
     // Extension 1: the canonical maintenance-nature facet (reactive/preventive/project)
     // from v_project_truth — WAT: derived server-side, never re-computed on the client.
-    const { data: nat } = await db.from('v_project_truth')
-      .select('project_id, maintenance_nature').in('project_id', ids).limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+    const { data: nat } = await whInChunks(ids, (part) => db.from('v_project_truth')
+      .select('project_id, maintenance_nature').in('project_id', part).limit(500));   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     const natMap = {};
     (nat || []).forEach(n => { natMap[n.project_id] = n.maintenance_nature; });
     _projects.forEach(p => { p._nature = natMap[p.id] || null; });

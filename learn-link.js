@@ -216,13 +216,30 @@
         }, true);
         // the controls outside the long lists, remembered until something outside a list is inserted or removed (the
         // observer) - appending rows to a list leaves them as they were, and the query was 7.7 s of an inventory walk
-        var outCache = null;
+        var outCache = null, outGone = 0;
+        // ...and they follow what is inserted instead of being thrown away (SL LB3, 2026-10-21): a list's "Showing N of M"
+        // note is REPLACED on every press (utils.js whMoreNote), and dropping the cache for it made the next pass query the
+        // whole page again with CTRL_OUT - 2.6 s of an 82-press inventory walk at phone speed. An inserted element's own
+        // controls join the cache (one query over that element alone), a removed control is passed over when the pass
+        // meets it (isConnected), and the cache is rebuilt only once removed ones pile up.
+        function addOut(n) {
+          if (!outCache || !n || n.nodeType !== 1) return;
+          if (n.matches(CTRL_OUT) && outCache.indexOf(n) < 0) outCache.push(n);
+          var cs = n.querySelectorAll(CTRL_OUT);
+          for (var i = 0; i < cs.length; i++) if (outCache.indexOf(cs[i]) < 0) outCache.push(cs[i]);
+        }
+        function followOut(rec) {
+          if (!outCache) return;
+          for (var i = 0; i < rec.addedNodes.length; i++) addOut(rec.addedNodes[i]);
+          for (var j = 0; j < rec.removedNodes.length; j++) if (rec.removedNodes[j].nodeType === 1) outGone++;
+          if (outGone > 200) outCache = null;
+        }
         function pageControls() {
           if (ctrlCache) return ctrlCache;
           var out = [], lists = document.getElementsByClassName('wh-rows-cv');
           if (!lists.length) takeControls(document.querySelectorAll(CTRL), out);
           else {
-            if (!outCache) outCache = document.querySelectorAll(CTRL_OUT);
+            if (!outCache) { outCache = Array.prototype.slice.call(document.querySelectorAll(CTRL_OUT)); outGone = 0; }
             takeControls(outCache, out);
             for (var l = 0; l < lists.length && out.length < 60; l++) {
               for (var row = lists[l].firstElementChild; row && out.length < 60; row = row.nextElementSibling) {
@@ -238,6 +255,7 @@
         function takeControls(list, out) {
           for (var i = 0; i < list.length && out.length < 60; i++) {
             var e = list[i];
+            if (!e.isConnected) continue;   // removed since it was remembered (followOut)
             // ★A THOUSAND-ROW LIST MADE EVERY SCAN A FULL LAYOUT (SL LB3, 2026-10-21, CPU-profiled at 390 with the CPU
             // 4x slower). Long lists render their rows with content-visibility:auto (whRenderRows long:true), so a row
             // off screen is never laid out - until something reads a rect inside it. This loop read one for EVERY
@@ -468,6 +486,8 @@
           for (var i = 0; i < records.length; i++) {
             var rec = records[i], t = rec.target;
             if (t === bar && rec.type === 'attributes' && rec.attributeName === 'style') continue;
+            // a chart's drawing holds no control and moves none: its hundreds of SVG nodes were kept and checked one by one
+            if (t && t.namespaceURI === 'http://www.w3.org/2000/svg') continue;
             if (t && (t === bar || (bar.contains && bar.contains(t)))) { moved = true; continue; }
             if ((t === document.documentElement || t === document.body) && rec.type === 'attributes'
                 && rec.attributeName === 'style') moved = true;
@@ -483,9 +503,16 @@
                 if (keep) fresh.push(rec.addedNodes[ia]);
               }
               for (var ir = 0; !el && ir < rec.removedNodes.length; ir++) if (rec.removedNodes[ir].nodeType === 1) el = true;
-              if (el && !(t && t.closest && t.closest('.wh-rows-cv'))) outCache = null;
+              if (el && !(t && t.closest && t.closest('.wh-rows-cv'))) followOut(rec);
             }
-            if (rec.attributeName === 'role') outCache = null;
+            // a role that makes a dialog hides the controls inside it, so the remembered set is rebuilt; any other role
+            // change only adds the element if it is now a control - inventory's figure marking gives every stat number a
+            // role on each press, and rebuilding the set for each re-ran the whole-page query (SL LB3)
+            if (rec.attributeName === 'role') {
+              var rv = t && t.getAttribute ? t.getAttribute('role') : null;
+              if (rv === 'dialog' || rv === 'alertdialog') outCache = null;
+              else if (outCache && t.matches && t.matches(CTRL_OUT) && outCache.indexOf(t) < 0) outCache.push(t);
+            }
             // a dialog opening is caught where it happens - its own attribute change, or its insertion - and only then
             // is the page asked whether one is up (the full scan no longer runs on every burst)
             if (!dialog && t && t.nodeType === 1 && t.matches && t.matches(DIALOGISH)) dialog = true;

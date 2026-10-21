@@ -1065,7 +1065,7 @@
       const { data, error } = await db.from('v_service_provider_truth')
         .select('display_name, tier, completed_jobs, rating_avg, rating_count')
         // SL LB1: only the first row is read - ask for ONE, the most established profile, instead of 3 in no order
-        .in('id', mine).order('completed_jobs', { ascending: false }).order('id').limit(1);
+        .in('id', mine).order('completed_jobs', { ascending: false }).order('id').limit(1);   // in-list-bounded: the viewer's own service-provider profiles (one or two)
       if (error || !data || !data.length) return;
       const p = data[0];
       const jobs = Number(p.completed_jobs || 0);
@@ -1128,11 +1128,14 @@
       return;
     }
 
-    const { data: achs } = await db
+    // SL LB3 (2026-10-21): asked 40 names at a time (whInChunks). One in.() of a few hundred names is a URL the gateway
+    // refuses (414) - every member then totalled 0 - and past 41 members one 500-row read could not hold 12 domains each,
+    // so the standings were cut short. 40 names x 12 fixed domains is 480 rows: no piece reaches the cap.
+    const { data: achs } = await whInChunks(names, (part) => db
       .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
-      .in('worker_name', names)
-      .limit(500); // Arc L · L2: row cap. names[] is bounded by the .limit(500) roster read above; each worker has ≤12 achievement domains (fixed ACHIEVEMENT_DEFS enum) → set can't reach 500.   // cap-ok: bounded - a hive roster (<= dozens of members) x 12 fixed domains sits under 500; past 41 members the standings need a rollup
+      .in('worker_name', part)
+      .limit(500), { size: 40 }); // Arc L · L2: row cap. each worker has ≤12 achievement domains (fixed ACHIEVEMENT_DEFS enum).   // cap-ok: bounded - each piece is 40 names x 12 fixed domains = 480 rows, under 500
 
     const sums = {};
     for (const row of (achs || [])) {

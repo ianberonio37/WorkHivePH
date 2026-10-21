@@ -1783,20 +1783,29 @@ function _isMinePost(p) {
        size, and only on the rare saturated path). Counts still rebuild from the server every load,
        so a stale or double-counted badge self-corrects - that half was already right. */
     const CAP = 500;
+    // SL LB3 (2026-10-21): asked 100 posts at a time (whInChunks). Every post on screen went into one in.() list, and a
+    // feed grown to a thousand posts made a ~39 KB URL the gateway refuses (414) - so no post showed a reply count. A
+    // piece whose replies pass the cap has ITS posts counted exactly below, not every post on the page.
+    // The posts asked about are counted afresh - and only they. A Load More asks about its 20 new posts, and this used to
+    // start from an empty map, taking every earlier post's count with it: a card collapsed off screen (collapseIO) and
+    // re-rendered on the way back read "0" replies, and the unanswered tally counted every earlier post as unanswered.
+    postIds.forEach(pid => { delete replyCountMap[pid]; });
+    const saturated = [];
     // canonical-allow: community_replies is forum thread detail (reply counts for the hive's posts) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
-    const { data, count } = await db.from('community_replies')
-      .select('post_id', { count: 'exact' }).eq('hive_id', HIVE_ID).in('post_id', postIds).limit(CAP);   // more-said: by loadReplyCounts (past the cap each visible post is counted exactly)
-    replyCountMap = {};
-    if (data) data.forEach(r => {
-      replyCountMap[r.post_id] = (replyCountMap[r.post_id] || 0) + 1;
-    });
-    if (typeof count === 'number' && count > (data ? data.length : 0)) {
-      // the cap bit: tally each visible post exactly rather than shipping low numbers
+    await whInChunks(postIds, (part) => db.from('community_replies')
+      .select('post_id', { count: 'exact' }).eq('hive_id', HIVE_ID).in('post_id', part).limit(CAP)   // more-said: by loadReplyCounts (past the cap each visible post is counted exactly)
+      .then((r) => {
+        (r.data || []).forEach(x => { replyCountMap[x.post_id] = (replyCountMap[x.post_id] || 0) + 1; });
+        if (typeof r.count === 'number' && r.count > (r.data ? r.data.length : 0)) saturated.push(...part);
+        return r;
+      }));
+    if (saturated.length) {
+      // the cap bit: tally each post of a saturated piece exactly rather than shipping low numbers
       try {
         // canonical-allow: same forum thread detail the batched read above is already allowed to
         // use (single-surface community data, no cross-surface truth view) - this is that read
         // counted exactly per post, taken only when the batched one saturates its cap.
-        const exact = await Promise.all((postIds || []).map((pid) =>
+        const exact = await Promise.all(saturated.map((pid) =>
           db.from('community_replies').select('post_id', { count: 'exact', head: true })
             .eq('hive_id', HIVE_ID).eq('post_id', pid)
             .then((r) => ({ pid, n: (r && !r.error && typeof r.count === 'number') ? r.count : null }))));
@@ -2022,16 +2031,26 @@ function _isMinePost(p) {
   // while every query stays explicitly hive-scoped.
   async function loadReactions(postIds, hiveIds = [HIVE_ID]) {
     if (!postIds.length) return;
+    // SL LB3 (2026-10-21): asked 100 posts at a time (whInChunks) - a thousand posts on screen made one in.() URL the
+    // gateway refuses (414). A piece that could not be read leaves ITS posts' reactions as they were, never zeros.
+    let _rxFull = false;
+    const _rxUnread = new Set();
     // canonical-allow: community_reactions is forum thread detail (per-post emoji reactions) — single-surface community data, not a cross-surface KPI/aggregate (the XP aggregate lives in community_xp via DB triggers), so no v_*_truth wrapper applies.
-    const { data } = await db.from('community_reactions')
+    const { data } = await whInChunks(postIds, (part) => db.from('community_reactions')
       .select('post_id, emoji, worker_name, auth_uid')
-      .in('hive_id', hiveIds)
-      .in('post_id', postIds).limit(500);   // cap-ok: reaction counts disclose '+' when this read is full
-    window._rxCapped = (data || []).length >= 500;   // cap is not a total (2026-09-05)
-    if (!data) return;
+      .in('hive_id', hiveIds)   // in-list-bounded: this hive, or the hives of one global page (20 posts)
+      .in('post_id', part).limit(500)   // cap-ok: reaction counts disclose '+' when a piece of this read is full
+      .then((r) => {
+        if (r.error) part.forEach(pid => _rxUnread.add(pid));
+        else if ((r.data || []).length >= 500) _rxFull = true;
+        return r;
+      }));
+    window._rxCapped = _rxFull;   // cap is not a total (2026-09-05)
+    if (_rxUnread.size >= postIds.length) return;
 
     // Initialise reactionMap entries for requested posts
     postIds.forEach(pid => {
+      if (_rxUnread.has(pid)) return;
       if (!reactionMap[pid]) reactionMap[pid] = {};
       ['thumbs_up','wrench','fire','eyes'].forEach(e => {
         reactionMap[pid][e] = { count: 0, mine: false };

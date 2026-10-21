@@ -136,7 +136,9 @@ const LIVE_HIVE = process.env.WH_TEST_HIVE || '084c113b-99c0-45c6-a8e8-b4b8349da
 const LIVE_USER = process.env.WH_TEST_USER || 'leandromarquez';
 const LIVE_PASS = process.env.WH_TEST_PASSWORD || 'test1234';
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
-const TOP_UP = 17;
+// the glass gets the size asked for (--members): 17 by default, and past the roster's 50-member window (SL LB3) the live
+// half proves the shortened roster says so and grows through its own "Show more members"
+const TOP_UP = argN > -1 ? Math.max(17, N) : 17;
 
 function addFixturesTo(hiveId, n) {
   const users = Array.from({ length: n }, (_, k) => k + 1).map((i) =>
@@ -184,10 +186,32 @@ try {
     await page.waitForTimeout(2500);
     await page.evaluate(() => document.getElementById('btn-toggle-members')?.click());
     await page.waitForTimeout(2500);
+    // SL LB3 (2026-10-21): the roster draws 50 members at a time (whRenderRows) inside its own rows element, and says
+    // "Showing 50 of N members" with a "Show more members" under it. Shortened is allowed; shortened WITHOUT saying so
+    // is the failure this prover exists for - so past the window the note must name the true total, and then the
+    // roster's own control is pressed until every member is on screen before the rows are counted.
+    const rowsOf = () => page.evaluate(() => {
+      const list = document.getElementById('members-list');
+      const rows = list && list.querySelector(':scope > [data-hv-rows]');
+      const note = list && list.querySelector('[data-wh-more-note]');
+      return { n: rows ? rows.children.length : (list ? list.children.length : -1), note: note ? note.textContent.trim() : '' };
+    });
+    const first = await rowsOf();
+    if (first.n < expected) {
+      if (!first.note.includes(expected.toLocaleString('en-PH'))) {
+        fails.push(`the roster shows ${first.n} of ${expected} members and its note says "${first.note}" - shortened `
+                 + 'without naming how many there are');
+      }
+      for (let k = 0; k < 40 && (await page.$('#members-list .wh-more-btn')); k++) {
+        await page.click('#members-list .wh-more-btn');
+        await page.waitForTimeout(1200);
+      }
+    }
     const seen = await page.evaluate(() => {
       const list = document.getElementById('members-list');
+      const rows = list && list.querySelector(':scope > [data-hv-rows]');
       const countEl = document.getElementById('roster-count');
-      return { rendered: list ? list.children.length : -1,
+      return { rendered: rows ? rows.children.length : (list ? list.children.length : -1),
                countText: countEl ? countEl.textContent.trim() : '' };
     });
     const claimed = parseInt((seen.countText.match(/(\d+)/) || [])[1] || '-1', 10);

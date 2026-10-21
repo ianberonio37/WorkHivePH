@@ -3287,18 +3287,31 @@ function renderSourceChip(opts) {
   // there is no further scroll to bring the words out from under it. The fixed controls are found where they are, by
   // sampling the bottom of the screen over the area's column, and the area takes just the room that clears the tallest.
   var BASE_BOTTOM = 24;
+  // ★THE FIXED CONTROLS ARE SAMPLED WHEN THEY CHANGE, NOT ON EVERY PASS (SL LB3, 2026-10-21). The 21 hit tests below walk
+  // every paint layer under each point - each row of a long list is one - and the pass came back on every press of a Load
+  // More, because each press scrolls to the list's end and brings the area within reach: 2.6 s of an 82-press inventory
+  // walk at phone speed. What they find - how far the controls fixed at the foot of the screen reach up over the area's
+  // column - changes only when one of those controls changes (bottomChanged, from the observer) or the window or the
+  // column does, so it is kept and sampled again then.
+  var needAt = null;
+  function bottomChanged() { needAt = null; }
   function clearBottom(area) {
     var de = document.documentElement, H = window.innerHeight;
     var cur = parseFloat(area.style.marginBottom) || BASE_BOTTOM;
     var ar = area.getBoundingClientRect();
     if (!ar.width || de.scrollHeight <= H + 4) { if (cur !== BASE_BOTTOM) area.style.marginBottom = BASE_BOTTOM + 'px'; return; }
-    var need = 0, seen = [];
-    var xs = [ar.left + 12, ar.left + ar.width / 2, ar.right - 12];
-    for (var yi = 0; yi < 7; yi++) {
-      for (var xi = 0; xi < xs.length; xi++) {
-        var stack = document.elementsFromPoint(xs[xi], H - 10 - yi * 40) || [];
-        for (var s = 0; s < stack.length; s++) {
-          for (var el = stack[s]; el && el !== document.body; el = el.parentElement) {
+    var key = window.innerWidth + 'x' + H + ':' + Math.round(ar.left) + '-' + Math.round(ar.right);
+    var need = 0;
+    if (needAt && needAt.key === key) need = needAt.need;
+    else {
+      var seen = [];
+      var xs = [ar.left + 12, ar.left + ar.width / 2, ar.right - 12];
+      for (var yi = 0; yi < 7; yi++) {
+        for (var xi = 0; xi < xs.length; xi++) {
+          // the TOP element at each point: a control fixed over the column is on top of what it covers, and asking for the
+          // whole stack (elementsFromPoint) walked every paint layer under the point - each row of a long list is one
+          var top = document.elementFromPoint(xs[xi], H - 10 - yi * 40);
+          for (var el = top; el && el !== document.body; el = el.parentElement) {
             if (seen.indexOf(el) >= 0) break;
             if (area.contains(el)) break;
             if (getComputedStyle(el).position === 'fixed') {
@@ -3310,6 +3323,7 @@ function renderSourceChip(opts) {
           }
         }
       }
+      needAt = { key: key, need: need };
     }
     var tail = de.scrollHeight - (ar.bottom + window.scrollY) - (cur - BASE_BOTTOM);
     var want = BASE_BOTTOM + Math.max(0, Math.round(need - tail));
@@ -3449,22 +3463,44 @@ function renderSourceChip(opts) {
       }
       return marks.has(t);
     }
+    // a control fixed to the foot of the screen arriving or leaving changes the room the area needs below it
+    function bottomIn(nodes) {
+      for (var k = 0; k < nodes.length; k++) {
+        var nd = nodes[k];
+        if (nd.nodeType === 1 && (nd.matches(BOTTOM) || nd.querySelector(BOTTOM))) return true;
+      }
+      return false;
+    }
     new MutationObserver(function (muts) {
-      var outside = false, added = false;
+      var outside = false, added = false, bottom = false;
       for (var i = 0; i < muts.length; i++) {
         var m = muts[i];
         if (area.contains(m.target)) continue;
+        // inside a drawing there is no source line and no control fixed to the screen: a chart's SVG takes hundreds of
+        // inserted and restyled nodes, and each was searched for both (26 ms of an analytics chart's frame, SL LB3)
+        if (m.target.namespaceURI === 'http://www.w3.org/2000/svg') continue;
         if (m.type === 'childList') {
+          // a long list's rows carry no source line and no control fixed to the screen: a search that replaced a thousand
+          // logbook cards with twenty had each removed card searched twice here (63 ms of the keystroke, SL LB3)
+          if (m.target.closest && m.target.closest('.wh-rows-cv')) continue;
           var inMark = m.target.nodeType === 1 && m.target.closest && m.target.closest(MARK);
-          if (!inMark && !carries(m.addedNodes) && !carries(m.removedNodes)) continue;
+          if (!inMark && !carries(m.addedNodes) && !carries(m.removedNodes)) {
+            if (!bottom && (bottomIn(m.addedNodes) || bottomIn(m.removedNodes))) { bottom = true; bottomChanged(); }
+            continue;
+          }
           added = true;
           marks = null;
-        } else if (!outside) {
+        } else if (!outside || !bottom) {
           var t = m.target;
           if (t.nodeType !== 1) continue;
+          // the guide chip moving itself (learn-link lifts it clear of a control and lowers it back) changes no line and
+          // not the room below it: it moved twice on every Load More press, and each move re-ran this pass and the 21
+          // samples at the foot of the screen (SL LB3)
+          if (t.id === 'wh-guide-link' && m.attributeName === 'style') continue;
           // inside a long list's row nothing is fixed to the screen (the row's containment holds it), so there only a
           // mark counts - that is where a thousand figures are marked and a thousand cards restyled
           if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;
+          if (!bottom && !t.closest('.wh-rows-cv') && t.closest(BOTTOM)) { bottom = true; bottomChanged(); }
         }
         outside = true;
       }
@@ -3472,10 +3508,22 @@ function renderSourceChip(opts) {
       if (outside) queue();
     }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'open'] });
     window.addEventListener('resize', queue);
-    // the area coming within half a screen runs the pass that gives it room below the fixed controls (see nearView)
+    // the area coming within half a screen gives it room below the fixed controls (see nearView) - and only that: its lines
+    // were mirrored by the pass that ran when they changed. A full pass here (two queries over the whole document, and the
+    // anchors) ran on every press of a Load More, because each press scrolls to the list's end and brings the area back
+    // within reach (SL LB3, 2026-10-21)
+    var roomQueued = false;
+    function roomSoon() {
+      if (roomQueued) return;
+      roomQueued = true;
+      requestAnimationFrame(function () {
+        roomQueued = false;
+        if (!area.hidden && nearView(area)) clearBottom(area);
+      });
+    }
     if (typeof IntersectionObserver === 'function') {
       new IntersectionObserver(function (es) {
-        for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { queue(); break; }
+        for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { roomSoon(); break; }
       }, { rootMargin: '50% 0px 50% 0px' }).observe(area);
     }
   }
@@ -4131,6 +4179,45 @@ function whMoreNote(listEl, state) {
   } catch (_) { return null; }   // empty-catch-allow: the list already rendered; a missing note beats a broken page
 }
 if (typeof window !== 'undefined') window.whMoreNote = whMoreNote;
+
+// whInChunks - SL LB3 (2026-10-21): a lookup by many keys, asked in pieces the gateway accepts. `.in(col, keys)` carries
+// every key in the URL, and past ~8 KB the gateway answers 414 URI Too Long - measured on the local gateway: 400 worker
+// names made an 8.7 KB URL; a UUID costs ~39 bytes, so ~200 ids reach it. The pages build those key lists from what they
+// listed (posts on screen, a hive's assets, its members), so a list that grows to a thousand rows sends a lookup the
+// gateway refuses - and a page that swallows the error shows the lookup as empty (hive's tier badges went to the lowest
+// tier for everyone). The keys are de-duplicated (null and undefined dropped - `in (null)` matches nothing) and asked
+// `size` at a time (default 100), at most `parallel` (default 4) in flight; rows come back in chunk order, a count is
+// summed, and the first error is returned beside whatever the other pieces read.
+//   const { data, error } = await whInChunks(ids, (part) => db.from('t').select('a, b').in('id', part).limit(500));
+// The builder runs once per piece, so its order and limit apply to each piece: a limit over the whole lookup is the
+// caller's to apply to `data`. A list that fits in one piece is one request, exactly as before.
+async function whInChunks(keys, build, opts) {
+  opts = opts || {};
+  var size = Math.max(1, opts.size || 100);
+  var list = Array.from(new Set((keys || []).filter(function (k) { return k !== null && k !== undefined; })));
+  if (!list.length) return { data: [], error: null, count: 0 };
+  var parts = [];
+  for (var i = 0; i < list.length; i += size) parts.push(list.slice(i, i + size));
+  var got = new Array(parts.length), error = null, count = null, next = 0;
+  async function drain() {
+    while (next < parts.length) {
+      var k = next++;
+      try {
+        var r = await build(parts[k]);
+        if (r && r.error && !error) error = r.error;
+        got[k] = (r && r.data) || [];
+        if (r && typeof r.count === 'number') count = (count || 0) + r.count;
+      } catch (e) { if (!error) error = e; got[k] = []; }
+    }
+  }
+  var lanes = [];
+  for (var w = 0; w < Math.min(opts.parallel || 4, parts.length); w++) lanes.push(drain());
+  await Promise.all(lanes);
+  var data = [];
+  for (var j = 0; j < got.length; j++) data = data.concat(Array.isArray(got[j]) ? got[j] : (got[j] ? [got[j]] : []));
+  return { data: data, error: error, count: count };
+}
+if (typeof window !== 'undefined') window.whInChunks = whInChunks;
 
 // whRenderRows - SL LB3 (2026-10-21): a list that grows renders only what is new. Measured with a thousand rows behind
 // the logbook: every "Load More" re-rendered the WHOLE list (innerHTML of every card again), so reaching 1,000 entries
@@ -5368,8 +5455,8 @@ async function whEnsureHiveContext(db) {
       .limit(500);   // one person's memberships are bounded-by-nature; insurance cap
     if (mem.error) { window._whHiveSeatUnread = true; return null; }
     if (!mem.data || !mem.data.length) return null;
-    var ids = mem.data.map(function (m) { return m.hive_id; });
-    var hv = await db.from('v_hives_truth').select('id, name').in('id', ids)
+    var ids = Array.from(new Set(mem.data.map(function (m) { return m.hive_id; })));
+    var hv = await db.from('v_hives_truth').select('id, name').in('id', ids)   // in-list-bounded: one person's own hive memberships, each hive once
       .order('name', { ascending: true }).order('id', { ascending: true })
       .limit(500);   // bounded by the memberships above
     if (hv.error) { window._whHiveSeatUnread = true; return null; }
@@ -6809,6 +6896,8 @@ function whAuditView(row) {
     if (!window.__whToggleObs) {
       window.__whToggleObs = new MutationObserver(function (muts) {
         muts.forEach(function (m) {
+          // a toggle is never drawn inside an SVG: a chart restyles hundreds of its nodes (SL LB3, 8 ms a chart frame)
+          if (m.target.namespaceURI === 'http://www.w3.org/2000/svg') return;
           if (m.type === 'attributes' && m.attributeName === 'class') {
             var el = m.target;
             if (window.WH_TOGGLE_CLASSES.some(function (c) { return el.classList && el.classList.contains(c); })) sync(el);
@@ -8224,7 +8313,7 @@ async function whPlatformAdminAnswer(db) {
     if (r1.error) return 'unreachable';
     const names = [...new Set((r1.data || []).map(p => p && p.worker_name).filter(Boolean))];
     if (!names.length) return 'no';
-    const r2 = await db.from('marketplace_platform_admins').select('worker_name').in('worker_name', names).limit(1);
+    const r2 = await db.from('marketplace_platform_admins').select('worker_name').in('worker_name', names).limit(1);   // in-list-bounded: one account's own names, de-duplicated, from a read of at most 50
     if (r2.error) return 'unreachable';
     const yes = !!(r2.data && r2.data.length);
     // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
@@ -8408,13 +8497,20 @@ function renderWorkerAvatar(workerName, topLevel, size) {
 
 // Batch-load highest achievement level per worker.
 // Returns { workerName: topLevel }. Safe to call when table does not exist yet.
+// ★A FEW HUNDRED NAMES WERE ONE URL THE GATEWAY REFUSES (SL LB3, 2026-10-21). in.(...) carries every name in the query
+// string, and callers pass whole lists (a hive's roster, a feed's authors, a page of sellers) with repeats: measured on
+// the local gateway, 200 names made a 4.4 KB URL (200) and 400 names an 8.7 KB one (414 URI Too Long) - which the catch
+// turned into "no tiers", so every avatar in a hive of a few hundred members silently showed the lowest tier. Each name
+// is asked once, 50 to a request through whInChunks (~1.2 KB; a worker holds at most 8 achievement rows, so a piece stays
+// far under the API's row cap), and the answers are merged. A piece that cannot be read leaves only its own names at the
+// default.
 async function loadWorkerTiers(db, workerNames) {
   if (!workerNames || !workerNames.length) return {};
   try {
-    const { data } = await db
+    const { data } = await whInChunks(workerNames.filter(Boolean), (part) => db
       .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
-      .in('worker_name', workerNames);
+      .in('worker_name', part), { size: 50 });
     const map = {};
     for (const row of (data || [])) {
       if (!map[row.worker_name] || row.current_level > map[row.worker_name]) {

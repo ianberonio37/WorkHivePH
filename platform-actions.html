@@ -119,6 +119,8 @@
     .fb-card { display:block; width:100%; text-align:left; cursor:pointer; padding:0.75rem 0.25rem;
                background:none; border:0; border-top:1px solid var(--border); color:#fff; min-height:44px; }
     .fb-card:first-child { border-top:0; }
+    /* SL LB3: a card the browser has not laid out yet keeps a card's height (top row, subject, two snippet lines) */
+    #fb-list [data-fb-rows] > .fb-card { contain-intrinsic-size: auto 96px; }
     .fb-card:hover { background:rgba(255,255,255,0.03); }
     .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
     .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: 0.75rem; color:var(--muted); }
@@ -1420,7 +1422,10 @@
       if (d < 3600) return Math.floor(d / 60) + 'm ago';
       if (d < 86400) return Math.floor(d / 3600) + 'h ago';
       if (d < 86400 * 7) return Math.floor(d / 86400) + 'd ago';
-      return new Date(iso).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' });
+      // one formatter, kept (SL LB3, 2026-10-21): toLocaleDateString builds a new one for every call, and with the
+      // feedback list's 500 rows that was 141 ms of one render at phone speed - the same output, built once
+      const f = fbTimeAgo.fmt || (fbTimeAgo.fmt = new Intl.DateTimeFormat(undefined, { timeZone: 'Asia/Manila' }));
+      return f.format(new Date(iso));
     }
 
     async function fetchFeedback() {
@@ -1499,7 +1504,17 @@
         return;
       }
 
-      list.innerHTML = view.slice(0, 100).map(r => {
+      // ★SL LB3 (2026-10-21, traced at 390 with the CPU 4x slower): a hundred cards, each a subject and a two-line
+      // snippet of up to 220 characters, were laid out in one go - a 429 ms layout, the longest task on the page. They are
+      // now a long list's rows (whRenderRows): the browser lays out only the cards near the screen, and a re-render (a
+      // filter, a status change) replaces only the cards that changed. The cards sit in their own container, the note
+      // under them in another.
+      let rowsEl = list.querySelector(':scope > [data-fb-rows]');
+      if (!rowsEl) {
+        list.innerHTML = '<div data-fb-rows></div><div data-fb-more class="mod-empty" style="text-align:center" hidden></div>';
+        rowsEl = list.firstElementChild;
+      }
+      whRenderRows(rowsEl, view.slice(0, 100), r => {
         const who = r.worker_name ? e(r.worker_name) : (r.hive_id ? e(r.hive_id.slice(0, 8)) : 'anonymous');
         const stars = (r.kind === 'review' && r.rating)
           ? `<span aria-label="${e(r.rating)} out of 5 stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>` : '';
@@ -1514,9 +1529,11 @@
           <span class="fb-subject">${e(r.subject || '(no subject)')}</span>
           <span class="fb-snippet">${e((r.body || '').slice(0, 220))}</span>
         </button>`;
-      }).join('') + (view.length > 100
-        ? `<div class="mod-empty" style="text-align:center">Showing the first 100 of ${view.length}. Narrow the filters to see more.</div>`
-        : '');
+      // the key is the card's own markup: it carries a relative time ("3m ago") that changes with no change to the row
+      }, { key: 'html', long: true });
+      const moreEl = list.querySelector(':scope > [data-fb-more]');
+      moreEl.textContent = view.length > 100 ? `Showing the first 100 of ${view.length}. Narrow the filters to see more.` : '';
+      moreEl.hidden = !(view.length > 100);
     }
 
     function openFeedbackDrawer(id, opener) {

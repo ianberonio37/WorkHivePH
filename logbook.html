@@ -2992,7 +2992,7 @@ async function _autoLinkLogbookToProject(entry) {
   // canonical-allow: project_links join already constrained the id set; this is a narrow targeted fetch
   const { data: projs } = await db.from('projects')
     .select('id, project_code, name, status')
-    .in('id', projectIds)
+    .in('id', projectIds)   // in-list-bounded: the projects linked to one asset
     .in('status', ['planning', 'active'])
     .limit(500); // Arc L · L2: row cap (.in() over the prior bounded project_links set; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
   if (!projs?.length) return;
@@ -3814,7 +3814,7 @@ async function loadAssetDetail(asset) {
     const ids = _detailLinkedItems.map(i => i.id);
     const { data: t } = await db.from('v_inventory_transactions_truth')
       .select('id, item_id, qty_change, note, job_ref, created_at')
-      .in('item_id', ids)
+      .in('item_id', ids)   // in-list-bounded: the inventory items linked to one entry
       .eq('type', 'use')
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -5799,7 +5799,7 @@ async function loadPMTasksForAsset() {
   // status math — exactly the semantic-drift class caught by mine_truth_view_signal_trust.py.
   let scopeQ = db.from('v_pm_scope_items_truth')
     .select('id:scope_item_id, asset_id, item_text, frequency, anchor_date, next_due_date, days_until_due, is_overdue, is_due_soon')
-    .in('asset_id', assetIds)
+    .in('asset_id', assetIds)   // in-list-bounded: the PM assets whose name or tag matches this one machine
     .limit(500); // cap-ok[asset_id]: scope items per asset are bounded-by-nature (≤ dozens), cap never truncates so needsAttention.length stays accurate. Arc L · L2 row cap
   // SL LB1 (2026-10-21): a 2,000-row pm_completions read ran here on every lookup and its rows were never used - the
   // panel's status comes from the view's own is_overdue / is_due_soon / next_due_date. Removed.

@@ -2298,11 +2298,11 @@
       _svcMyIds = (ids || []).map(r => (typeof r === 'string' ? r : (r && (r.my_service_provider_ids || r.id)))).filter(Boolean);
       if (!_svcMyIds.length) { await renderSvcOnboard(area); return; }
       const [provRes, feedRes, jobsRes] = await Promise.all([
-        db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
+        db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more   // in-list-bounded: the viewer's own service-provider profiles
         db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30 + 1),   // more-said: by renderSvcConsole (SL LB1: a 31st open request is said, and the badge reads 30+)
         // SL LB1: the provider's OWN jobs, filtered in the query - they were filtered after the cap, so a person who also
         // hires services could see their provider jobs crowded out of the 60 newest
-        db.from('v_service_request_truth').select('*').in('matched_provider_id', _svcMyIds).in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60 + 1)   // more-said: by renderSvcConsole
+        db.from('v_service_request_truth').select('*').in('matched_provider_id', _svcMyIds).in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60 + 1)   // more-said: by renderSvcConsole   // in-list-bounded: the viewer's own service-provider profiles
       ]);
       /* ALL THREE, not just the first. Only provRes was checked, so a failure of the BROADCAST FEED
          or the JOBS read resolved with { data: null, error } and became an empty array -- the

@@ -2346,21 +2346,21 @@ async function _autoLinkInventoryToProject(item) {
   try {
     const { data: assetLinks } = await db.from('project_links')
       .select('project_id')
-      .eq('hive_id', HIVE_ID).eq('link_type', 'asset').in('link_id', legacyIds)
+      .eq('hive_id', HIVE_ID).eq('link_type', 'asset').in('link_id', legacyIds)   // in-list-bounded: the assets this one part is linked to (a handful)
       .limit(500); // Arc L L2: links for a handful of assets; bounded-by-nature · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (!assetLinks?.length) return;
     const projectIds = [...new Set(assetLinks.map(l => l.project_id))];
     // canonical-allow: narrow targeted fetch over the bounded project_links id set
     const { data: projs } = await db.from('projects')
       .select('id, project_code')
-      .in('id', projectIds).in('status', ['planning', 'active'])
+      .in('id', projectIds).in('status', ['planning', 'active'])   // in-list-bounded: the projects of this part's few asset links
       .limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
     if (!projs?.length) return;
     // Only insert links that don't already exist (avoid a batch 23505 on partial dupes).
     const { data: existing } = await db.from('project_links')
       .select('project_id')
       .eq('hive_id', HIVE_ID).eq('link_type', 'inventory_item').eq('link_id', String(item.id))
-      .in('project_id', projectIds).limit(500);   // cap-ok (LB1): its largest group (hive_id, link_id) is far under 500 - sized live by list-caps-say-more
+      .in('project_id', projectIds).limit(500);   // cap-ok (LB1): its largest group (hive_id, link_id) is far under 500 - sized live by list-caps-say-more   // in-list-bounded: the projects of this part's few asset links
     const have = new Set((existing || []).map(l => l.project_id));
     const fresh = projs.filter(p => !have.has(p.id));
     if (!fresh.length) return;

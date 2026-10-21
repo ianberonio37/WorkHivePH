@@ -1532,8 +1532,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ago (the Undo on its receipt, or the rollback of a half-finished create) - no work was ever recorded on them,
     // and a soft-deleted copy would keep holding the vehicle's tag and part numbers, so running the wizard again
     // would collide with its own leftovers. Every OTHER delete of these tables goes through whTrash.
-    if (c.parts.length) await step('parts',    db.from('inventory_items').delete().in('id', c.parts));   // d3-allow: wizard rollback of its own just-created rows
-    if (c.scope.length) await step('schedule', db.from('pm_scope_items').delete().in('id', c.scope));
+    if (c.parts.length) await step('parts',    db.from('inventory_items').delete().in('id', c.parts));   // d3-allow: wizard rollback of its own just-created rows   // in-list-bounded: the parts the wizard created moments ago for one vehicle
+    if (c.scope.length) await step('schedule', db.from('pm_scope_items').delete().in('id', c.scope));   // in-list-bounded: the schedule rows the wizard created moments ago for one vehicle
     if (c.node)         await step('asset',    db.from('asset_nodes').delete().eq('id', c.node));        // d3-allow: wizard rollback of its own just-created rows
     if (c.pm_asset)     await step('PM asset', db.from('pm_assets').delete().eq('id', c.pm_asset));     // d3-allow: wizard rollback of its own just-created rows
     return failed;
@@ -2214,7 +2214,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               // a later import brings them in instead of skipping them as already imported (cmms-sync's rule)
               const { error: backErr } = await db.from('external_sync').delete()
                 .eq('hive_id', HIVE_ID).eq('system_type', sysType).eq('entity_type', 'work_order')
-                .in('external_id', fresh.map(r => r.external_id));
+                .in('external_id', fresh.map(r => r.external_id));   // in-list-bounded: one import chunk's new ids (at most 300 short codes - the chunk the duplicate check above asks)
               if (backErr) console.warn('import: the ledger rows of a failed chunk could not be taken back:', backErr.message);
               throw lErr;
             }
@@ -3165,11 +3165,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // removed nothing while reporting a completed rollback.
       if (_batchRows.length) {
         const _ids = [...new Set(_batchRows.map(r => r.external_id).filter(Boolean))];
-        const _rb1 = await db.from('external_sync')
+        // SL LB3 (2026-10-21): 100 ids a request (whInChunks) - a batch of a few thousand rows in one in.() is a URL the
+        // gateway refuses (414), and the rollback then removed none of its sync rows
+        const _rb1 = await whInChunks(_ids, (part) => db.from('external_sync')
           .delete()
           .eq('hive_id', HIVE_ID)
           .eq('entity_type', entityType === 'work_order' ? 'work_order' : entityType)
-          .in('external_id', _ids);
+          .in('external_id', part));
         if (_rb1 && _rb1.error) _rbErrors.push(_rb1.error);
       }
 

@@ -985,7 +985,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // Prune to the 10 most recent.
         // canonical-allow: resume_versions is owner-scoped private version history (RLS owner-only), read here only to prune the worker's OWN snapshots — single-surface, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
         const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).order('id').range(10, 49);   // cap-ok[resume_id] (LB1): versions are pruned to 10 on every save, so one resume never nears 40 - sized live
-        if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
+        if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));   // in-list-bounded: at most 40 old snapshots - the range 10-49 read just above
       } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
     }
 

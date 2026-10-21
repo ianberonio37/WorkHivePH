@@ -418,6 +418,10 @@
     .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
     .ho-input::placeholder { color: rgba(255,255,255,0.80); }
     .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
+    /* SL LB3: the roster draws through whRenderRows as a long list - its rows keep the column and spacing they had as
+       the roster's own children, and an off-screen member row holds a member row's height */
+    #members-list > [data-hv-rows] { display: flex; flex-direction: column; gap: 0.5rem; }
+    #members-list > [data-hv-rows] > * { contain-intrinsic-size: auto 70px; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/hive.html" />
 </head>
@@ -2537,7 +2541,8 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
           .neq('hive_status', 'kicked').limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
         if (mErr || !mems || !mems.length) return;
         const { data: hs } = await db.from('v_hives_truth')
-          .select('id, name').in('id', mems.map(m => m.hive_id)).limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+          // in-list-bounded: one person's own hive memberships, each hive once (a person belongs to a few hives)
+          .select('id, name').in('id', [...new Set(mems.map(m => m.hive_id))]).limit(500);   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
         if (!hs || !hs.length) return;
         const prev = getHiveList();
         saveHiveList(hs.map(h => ({
@@ -2622,11 +2627,11 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     }
 
     // Fetch hive names for all found memberships
-    const hiveIds = memberships.map(m => m.hive_id);
+    const hiveIds = [...new Set(memberships.map(m => m.hive_id))];
     const { data: hives } = await db
       .from('v_hives_truth')
       .select('id, name, created_by')
-      .in('id', hiveIds)
+      .in('id', hiveIds)   // in-list-bounded: one person's own hive memberships, each hive once (a person belongs to a few hives)
       .limit(500);  // L2: hiveIds comes from the bounded membership query above -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
 
     if (!hives || !hives.length) {
@@ -5012,13 +5017,37 @@ async function loadMembers() {
   const _rcEl = document.getElementById('roster-count');
   if (_rcEl) _rcEl.textContent = memberNames.length ? ' · ' + memberNames.length : '';
 
-  const memberTiers = await loadWorkerTiers(db, memberNames);
-
   // Count open jobs per worker
   const openByWorker = {};
   openJobsData.forEach(r => {
     openByWorker[r.worker_name] = (openByWorker[r.worker_name] || 0) + 1;
   });
+  // the roster as read, kept for the draws that follow (state on the function, so a call before this line of the script
+  // has run still finds it)
+  loadMembers.last = { membersData, openByWorker, membersErr, openJobsErr };
+  return renderRoster();
+}
+
+// ★SL LB3 (2026-10-21): A THOUSAND MEMBERS WERE ONE innerHTML, BUILT WHILE THE ROSTER WAS FOLDED. The board answers every
+// member, and the roster drew all of them into its folded card - ~10 elements a member, a 10,418-element page at a
+// thousand - and first asked the tiers of every name in one read. The roster now draws 50 members (whRenderRows, a long
+// list), "Show more members" draws 50 more FROM THE ROSTER ALREADY READ, and the tiers are asked only for the members drawn.
+// Drawing more must not read again: the board's payload is consumed once, so a re-read goes to the direct query, which is
+// capped at 500 - a press in a thousand-member hive would have shrunk the roster and the total it states.
+async function renderRoster() {
+  const st = loadMembers.last;
+  if (!st) return;
+  const { membersData, openByWorker, membersErr, openJobsErr } = st;
+  loadMembers.shown = loadMembers.shown || 50;
+  loadMembers.tiers = loadMembers.tiers || {};
+  loadMembers.asked = loadMembers.asked || new Set();
+  const _shown = membersData.slice(0, loadMembers.shown);
+  const _ask = Array.from(new Set(_shown.map(m => m.worker_name))).filter(n => !loadMembers.asked.has(n));
+  if (_ask.length) {
+    _ask.forEach(n => loadMembers.asked.add(n));
+    Object.assign(loadMembers.tiers, await loadWorkerTiers(db, _ask));
+  }
+  const memberTiers = loadMembers.tiers;
 
   const list = document.getElementById('members-list');
   // E2: distinguish a failed read (retry) from a genuinely empty roster (honest empty state) —
@@ -5038,7 +5067,15 @@ async function loadMembers() {
   const _wlNote = openJobsErr
     ? `<p class="text-xs text-white/80" style="padding:4px 2px;">${_t('Workload counts are unavailable right now, so no busy/heavy marks are shown.', 'Hindi available ang bilang ng workload ngayon, kaya walang abala/mabigat na marka.')}</p>`
     : '';
-  list.innerHTML = _wlNote + membersData.map(m => {
+  let rowsEl = list.querySelector(':scope > [data-hv-rows]');
+  if (!rowsEl) {
+    list.innerHTML = '<div data-hv-wl></div><div data-hv-rows></div><span data-hv-end hidden></span>';
+    rowsEl = list.querySelector(':scope > [data-hv-rows]');
+  }
+  const _wlEl = list.querySelector(':scope > [data-hv-wl]');
+  _wlEl.innerHTML = _wlNote;
+  _wlEl.hidden = !_wlNote;
+  whRenderRows(rowsEl, _shown, m => {
     const isMe    = _whIsSelf(m);
     const isSup   = m.role === 'supervisor'; // role-check-allow: m.role is a per-member DB field (the listed member's role), not the ambient user role
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
@@ -5060,7 +5097,15 @@ async function loadMembers() {
       ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
       ${canKick ? `<button onclick="kickMember('${escJsAttr(m.id)}', '${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
     </div>`;
-  }).join('');
+  }, { sig: JSON.stringify([HIVE_ROLE, !!_openJobsMore]), long: true,
+       // a member row shows the member, their open-job tally and their tier - so those are its key
+       key: (m) => JSON.stringify(m) + '|' + (openByWorker[m.worker_name] || 0) + '|' + (memberTiers[m.worker_name] || 0) });
+  if (typeof whMoreNote === 'function') {
+    whMoreNote(list.querySelector(':scope > [data-hv-end]'), {
+      more: _shown.length < membersData.length, shown: _shown.length, total: membersData.length, noun: 'members', order: '',
+      said: `Showing ${_shown.length.toLocaleString('en-PH')} of ${membersData.length.toLocaleString('en-PH')} members, in the order they joined.`,
+      onMore: () => { loadMembers.shown += 50; return renderRoster(); }, moreLabel: 'Show more members', src: 'hive_members' });
+  }
 }
 
 // Arc I I3/I — supervisor-assisted password recovery. A worker with no reachable email gets reset in
@@ -5282,13 +5327,15 @@ async function loadFeed() {
     }
     // Fallback: if hive_id not yet on old entries, check by member names so existing hives aren't blank
     if (memberNames.length > 1) {
+      // SL LB3 (2026-10-21): asked 100 names at a time (whInChunks) - a roster of a few hundred names in one in.() is a
+      // URL the gateway refuses (414). Each piece answers its newest 41; they are sorted together before the 40 are kept.
       const [oldLogRes] = await Promise.all([
-        db.from('v_logbook_truth').select('id, worker_name, date, machine, category, problem, status, created_at')
-          .in('worker_name', memberNames).is('hive_id', null)
-          .order('created_at', { ascending: false }).order('id').limit(40 + 1)   // more-said: by renderFeed (SL LB1)
+        whInChunks(memberNames, (part) => db.from('v_logbook_truth').select('id, worker_name, date, machine, category, problem, status, created_at')
+          .in('worker_name', part).is('hive_id', null)
+          .order('created_at', { ascending: false }).order('id').limit(40 + 1))   // more-said: by renderFeed (SL LB1)
       ]);
       _feedMore = (oldLogRes.data || []).length > 40;   // SL LB1
-      const oldMerged = (oldLogRes.data || []).slice(0, 40).map(e => ({ ...e, _type: 'logbook' }))
+      const oldMerged = (oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' }))
         .sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
       if (oldMerged.length) {
         emptyEl.classList.add('hidden');
@@ -5992,12 +6039,14 @@ async function checkTeamStockAlert() {
     const othersSet = new Set(others);
     inv = (_board.team_inventory || []).filter(i => othersSet.has(i.worker_name));
   } else {
-    const res = await db.from('v_inventory_items_truth')
+    // SL LB3 (2026-10-21): the other members' names asked 100 at a time (whInChunks) - a roster of a few hundred names in
+    // one in.() is a URL the gateway refuses (414), and this read's failure hides a safety-relevant stock alert
+    const res = await whInChunks(others, (part) => db.from('v_inventory_items_truth')
       .select('worker_name, part_name, qty_on_hand, min_qty')
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved')
-      .in('worker_name', others)
-      .limit(500);  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      .in('worker_name', part)
+      .limit(500));  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
     if (res.error) {
       // E2/G1: a failed read must NOT render identically to "no teammates low" — a safety-relevant
       // stock alert vanishing with no signal is dangerous. Surface a neutral inline retry instead.
@@ -7240,11 +7289,13 @@ async function runHiveIdBackfill() {
   if (sessionStorage.getItem(key)) return;
   sessionStorage.setItem(key, '1');
 
-  // Stamp hive_id on logbook rows that belong to hive members but have no hive_id yet
-  await db.from('logbook')
+  // Stamp hive_id on logbook rows that belong to hive members but have no hive_id yet. SL LB3 (2026-10-21): the names go
+  // 100 to a request (whInChunks) - one in.() of a few hundred names is a URL the gateway refuses (414), and this write
+  // runs once a session, so a refused one never stamped anything
+  await whInChunks(memberNames, (part) => db.from('logbook')
     .update({ hive_id: HIVE_ID })
-    .in('worker_name', memberNames)
-    .is('hive_id', null);
+    .in('worker_name', part)
+    .is('hive_id', null));
 
   // parts_records table retired: no backfill needed
 }
