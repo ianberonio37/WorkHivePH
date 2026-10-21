@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -661,6 +661,7 @@
   // threw ReferenceError (temporal dead zone) on EVERY load, healthy included - caught by the probe's
   // pageerror listener on the first verification run.
   let _ahAlertReadFailed = false;
+  let _ahAlertReadError = null;   // the first failed read's error - the verdict names its cause and wait (SL RL2)
   // A DEAD SESSION IS NOT A READ FAILURE, AND THAT IS EXACTLY WHY IT SLIPPED PAST THE FLAG ABOVE.
   // `_ahAlertReadFailed` catches an ERRORING read (a 500, a rejection, a `.value.error`). But when the
   // session dies while the cached WORKER_NAME survives, the reads do not error at all — RLS simply
@@ -1627,9 +1628,11 @@
     // Errors must be counted, not skipped. `.value.error` is the half the status check misses.
     _ahAlertReadFailed = [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]
       .some(r => r && (r.status === 'rejected' || (r.value && r.value.error)));
+    _ahAlertReadError = null;
     if (_ahAlertReadFailed) {
       const first = [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]
         .find(r => r && (r.status === 'rejected' || (r.value && r.value.error)));
+      _ahAlertReadError = (first && (first.reason || (first.value && first.value.error))) || null;
       console.error('alert-hub read failed:',
         (first && (first.reason || (first.value && first.value.error && first.value.error.message))) || 'unknown');
     }
@@ -2210,7 +2213,11 @@
       if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
       setTxt('ah-verdict-icon', '⚠');
       setTxt('ah-verdict-label', _t('Could not load your alerts', 'Hindi ma-load ang mga alert mo'));
-      setTxt('ah-verdict-sub', 'Critical alerts are unknown right now, not zero. Reload before treating this plant as quiet.');
+      // SL RL2 (2026-10-22): under a rate limit this named no limit and said "Reload" - the one remedy that repeats every
+      // read at once. The read's own error leads (whReadError: a limit and its wait, a session, an outage), and the rule
+      // for the reader no longer prescribes a reload.
+      setTxt('ah-verdict-sub', ((_ahAlertReadError && typeof whReadError === 'function') ? whReadError(_ahAlertReadError, 'your alerts') + ' ' : '')
+        + 'Critical alerts are unknown right now, not zero. Do not treat this plant as quiet until they load.');
       // ★"RELOAD TO READ YOUR ALERT STATE" IS ADVICE, NOT A PATH. Measured by failing every
       // /rest/v1/ read with a 500: this page said the failure exactly right — "Critical alerts are
       // unknown right now, not zero. Reload before treating this plant as quiet" — and rendered ZERO

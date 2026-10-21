@@ -4961,6 +4961,22 @@ function whHiveMembershipLost(db, hiveId, workerName) {
 }
 if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;
 
+// A refusal for a LIMIT - PostgREST's or a gateway's 429, a function's 429 (on .context), or a limit's own words. The one
+// test the read voice below and a page's own sentence share, so a page that words its failure itself can still tell a
+// limit (wait, then try again) from an outage without re-deriving it (SL RL2, 2026-10-22).
+function whIsRateLimited(err) {
+  if (!err) return false;
+  var st = err._httpStatus || err.status || (err.context && err.context.status);
+  return st === 429 || String(err.code) === '429' || /rate ?limit|too many/i.test(String(err.message || ''));
+}
+if (typeof window !== 'undefined') window.whIsRateLimited = whIsRateLimited;
+// how long a limit's refusal says to wait, in a person's words: '30 seconds', or 'a moment' when it names no time
+function whLimitWait(err) {
+  var e = err || {};
+  var m = String((e.message || '') + ' ' + (e.hint || '') + ' ' + (e.details || '')).match(/(\d+)\s*(?:s|sec|secs|seconds?)\b/i);
+  return m ? m[1] + ' seconds' : 'a moment';
+}
+if (typeof window !== 'undefined') window.whLimitWait = whLimitWait;
 function whReadError(err, what) { var s = _whReadErrorText(err, what); whTold('read', s, err); return s; }   // SL L4: logs what it says
 function _whReadErrorText(err, what) {
   var thing = what || 'this';
@@ -4974,8 +4990,6 @@ function _whReadErrorText(err, what) {
 
   var msg  = err && err.message ? String(err.message) : '';
   var hint = String((err && err.hint) || '') + ' ' + String((err && err.details) || '');
-  var code = err && err.code != null ? String(err.code) : '';
-  var st   = err && (err._httpStatus || err.status);
   if (whIsAuthFailure(err)) {
     // "Nothing you did was lost" belongs here, not only in the pages that happened to write it.
     // A person whose session dies mid-page cannot tell whether the thing they just tapped went
@@ -4996,7 +5010,7 @@ function _whReadErrorText(err, what) {
              'Walang access ang account mo sa ' + thingFil + '. Ayos ang session mo. Magtanong sa '
            + 'supervisor kung kailangan mo ito.');
   }
-  if (st === 429 || code === '429' || /rate ?limit|too many/i.test(msg)) {
+  if (whIsRateLimited(err)) {
     var secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);
     return T('Too many requests, so ' + thing + ' could not be loaded. Try again in '
            + (secs ? secs[1] + ' seconds' : 'a moment') + '.',
@@ -5513,6 +5527,7 @@ async function whEnsureHiveContext(db) {
   // supervisor whose device had lost its hive. The return stays a hive id or null (every caller tests its truth);
   // window._whHiveSeatUnread carries the third answer for a caller that must say WHY it closed (whStartupHive's .unread).
   window._whHiveSeatUnread = false;
+  window._whHiveSeatUnreadError = null;   // and WHY it could not ask (whAdminCheckOfflineText says a limit's wait)
   try {
     var sess = (await db.auth.getSession()).data.session;
     var uid = sess && sess.user ? sess.user.id : null;
@@ -5520,13 +5535,13 @@ async function whEnsureHiveContext(db) {
     var mem = await db.from('v_worker_truth').select('hive_id, role')
       .eq('auth_uid', uid).neq('hive_status', 'kicked')
       .limit(500);   // one person's memberships are bounded-by-nature; insurance cap
-    if (mem.error) { window._whHiveSeatUnread = true; return null; }
+    if (mem.error) { window._whHiveSeatUnread = true; window._whHiveSeatUnreadError = mem.error; return null; }
     if (!mem.data || !mem.data.length) return null;
     var ids = Array.from(new Set(mem.data.map(function (m) { return m.hive_id; })));
     var hv = await db.from('v_hives_truth').select('id, name').in('id', ids)   // in-list-bounded: one person's own hive memberships, each hive once
       .order('name', { ascending: true }).order('id', { ascending: true })
       .limit(500);   // bounded by the memberships above
-    if (hv.error) { window._whHiveSeatUnread = true; return null; }
+    if (hv.error) { window._whHiveSeatUnread = true; window._whHiveSeatUnreadError = hv.error; return null; }
     if (!hv.data || !hv.data.length) return null;
     var roleOf = function (id) { var m = mem.data.find(function (x) { return x.hive_id === id; }); return m ? m.role : 'worker'; };
     var first = hv.data[0];
@@ -5538,8 +5553,8 @@ async function whEnsureHiveContext(db) {
       localStorage.setItem('wh_hives', JSON.stringify(hv.data.map(function (h) { return { id: h.id, name: h.name, role: roleOf(h.id), code: '' }; })));
     } catch (_) { /* empty-catch-allow: quota on iOS Safari; the active hive above is what the page needs */ }
     return first.id;
-  } catch (_) {
-    window._whHiveSeatUnread = true;
+  } catch (_e) {
+    window._whHiveSeatUnread = true; window._whHiveSeatUnreadError = _e || null;
     return null;   // offline or storage blocked: change nothing, the page runs as it would have
   }
 }
@@ -5672,6 +5687,7 @@ async function whReconcileHiveRole(db, hiveId) {
   // role says "Supervisor access only" as if the server had just said so. The cache is still the right fallback (the last
   // server fact); window._whRoleUnread lets that gate say the answer is the device's, not a fresh one.
   window._whRoleUnread = false;
+  window._whRoleUnreadError = null;   // and WHY it could not be asked - whRoleUnreadNote says it
   try {
     if (typeof db !== 'object' || !db || !db.auth) return null;
     var id = hiveId || whHiveId();                            // a page that resolved its hive another way passes it
@@ -5685,7 +5701,7 @@ async function whReconcileHiveRole(db, hiveId) {
     if (id) {
       // canonical-allow: auth-check probe on the membership row (by auth_uid); this is the access gate, not a display read
       var res = await db.from('hive_members').select('role, status').eq('hive_id', id).eq('auth_uid', uid).maybeSingle();
-      if (!res || res.error) { window._whRoleUnread = true; return null; }   // an unreadable answer is not a demotion; keep the cache
+      if (!res || res.error) { window._whRoleUnread = true; window._whRoleUnreadError = (res && res.error) || null; return null; }   // an unreadable answer is not a demotion; keep the cache
       live = (res.data && res.data.status === 'active') ? res.data.role : null;
     } else {
       // ★A ROLE WITH NO HIVE IS A LEFTOVER (SL AU2, solo cast, 2026-10-14) - when the account holds no membership at
@@ -5694,7 +5710,7 @@ async function whReconcileHiveRole(db, hiveId) {
       // is whEnsureHiveContext's job, and it writes the role it seats.
       // canonical-allow: auth-check probe - does this account hold any active membership (by auth_uid)
       var any = await db.from('hive_members').select('hive_id').eq('auth_uid', uid).eq('status', 'active').limit(1);
-      if (!any || any.error) { window._whRoleUnread = true; return null; }
+      if (!any || any.error) { window._whRoleUnread = true; window._whRoleUnreadError = (any && any.error) || null; return null; }
       if (any.data && any.data.length) return null;
     }
     if (live === cached) return null;
@@ -5718,8 +5734,18 @@ async function whReconcileHiveRole(db, hiveId) {
     // a control to a supervisors-only page follows the corrected role (BRH-L): withheld on demotion, back on promotion
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return { was: cached, now: live };
-  } catch (_) { window._whRoleUnread = true; return null; /* a role check must never break a page */ }
+  } catch (_e) { window._whRoleUnread = true; window._whRoleUnreadError = _e || null; return null; /* a role check must never break a page */ }
 }
+// ★"COULD NOT BE CHECKED", AND NOT WHY (SL RL2, 2026-10-22). A wall standing on the device's last-seen role said the role
+// could not be checked - and under a rate limit it said only that, beside a Reload button: the one remedy that repeats
+// every read at once, with no word of the limit or of when it clears. The read's own error now gives the cause and the
+// wait, in the shared read voice (whReadError), before the sentence about whose answer decided the wall.
+function whRoleUnreadNote() {
+  var err = window._whRoleUnreadError;
+  var why = err ? whReadError(err, 'your role') : 'Your role could not be checked just now.';
+  return why + ' Until it can be, this page goes by the role this device last saw.';
+}
+if (typeof window !== 'undefined') window.whRoleUnreadNote = whRoleUnreadNote;
 if (typeof window !== 'undefined') window.whReconcileHiveRole = whReconcileHiveRole;
 
 // ── whEmbedEntry — the RAG index write that retries instead of vanishing (T10 AI4, 2026-09-02) ──
@@ -8357,6 +8383,7 @@ if (typeof window !== 'undefined') window._whLiveState = _whLiveState;
    every gate stays fail-closed; a gate that wants to say WHY it is closed asks for the answer itself. */
 async function whPlatformAdminAnswer(db) {
   if (!db) return 'no';
+  window._whAdminCheckError = null;   // why an 'unreachable' could not ask - its gate sentence names a limit's wait
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return 'no';
@@ -8377,11 +8404,11 @@ async function whPlatformAdminAnswer(db) {
        and 42501, the founder console and Marketplace Admin both showed their no-access gate to the founder. Only a
        read that ANSWERED - rows or no rows - is a yes or a no. Every caller stays fail-closed: 'unreachable' keeps the
        page shut and says why. */
-    if (r1.error) return 'unreachable';
+    if (r1.error) { window._whAdminCheckError = r1.error; return 'unreachable'; }
     const names = [...new Set((r1.data || []).map(p => p && p.worker_name).filter(Boolean))];
     if (!names.length) return 'no';
     const r2 = await db.from('marketplace_platform_admins').select('worker_name').in('worker_name', names).limit(1);   // in-list-bounded: one account's own names, de-duplicated, from a read of at most 50
-    if (r2.error) return 'unreachable';
+    if (r2.error) { window._whAdminCheckError = r2.error; return 'unreachable'; }
     const yes = !!(r2.data && r2.data.length);
     // the answer, kept for this tab, so a control leading to an admin page can be offered or withheld before paint
     // (whViewerAdmits). It decides only what is OFFERED; every admin page still asks the server itself. Only an answer
@@ -8389,23 +8416,31 @@ async function whPlatformAdminAnswer(db) {
     try { sessionStorage.setItem('wh_platform_admin', yes ? '1' : '0'); } catch (_) { /* empty-catch-allow: storage blocked - the answer is still returned; only the before-paint offer loses its hint */ }
     if (typeof whApplyOfferGates === 'function') whApplyOfferGates(document);
     return yes ? 'yes' : 'no';
-  } catch (_) {
+  } catch (_e) {
+    window._whAdminCheckError = _e || null;
     return 'unreachable';   // it threw before an answer arrived: it could not ask (still closed)
   }
 }
 // the sentence an admin gate shows when it could not ask the server: the page stays closed, and this says why. (Named
 // for its first cause; since SL A1 it is also the sentence for a check the server failed or refused while online.)
-function whAdminCheckOfflineText(what) {
+// ★AND A LIMIT WAS TOLD TO RELOAD (SL RL2 walk, 2026-10-22). With the access lookup answered 429, this said "could not
+// check your access just now ... Reload the page" - no limit, no wait, and a remedy that repeats every read at once. The
+// lookup's error (passed, or the one whPlatformAdminAnswer kept) decides: a limit says so and how long to wait.
+function whAdminCheckOfflineText(what, err) {
   var w = what || 'This page', off = false;
   try { off = (typeof navigator !== 'undefined' && navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
+  var e = err || window._whAdminCheckError || null;
   var s = off
     ? "You're offline. " + w + ' needs a connection to check your access - it will try again as soon as you are back online.'
+    : (e && whIsRateLimited(e))
+    ? w + ' could not check your access just now: too many requests. It stays closed - try again in ' + whLimitWait(e) + '.'
     : w + ' could not check your access just now, so it stays closed. Reload the page to try again.';
   // SL L4 (2026-10-21): the operator pages show this sentence as the whole page when the admin check cannot be asked -
   // it is logged where it is made (offline it cannot reach the table either; whTold drops it quietly then)
   if (typeof whTold === 'function') whTold('access', s);
   return s;
 }
+if (typeof window !== 'undefined') window.whAdminCheckOfflineText = whAdminCheckOfflineText;   // a global already; named so the limit test reaches it
 async function isPlatformAdmin(db) {
   return (await whPlatformAdminAnswer(db)) === 'yes';
 }

@@ -154,6 +154,9 @@ def check_db_live(names: set[str]) -> tuple[list[str], str]:
 
 
 # ── L1: the sentence makers, called for real ──────────────────────────────────────────────────────────────────────
+L1_SHAPES = {"n": None}   # how many limit shapes the harness asked about, read from its own PASS line
+
+
 def check_makers(utils_src: str | None = None) -> list[str]:
     path, tmp = ROOT / "utils.js", None
     if utils_src is not None:
@@ -168,6 +171,9 @@ def check_makers(utils_src: str | None = None) -> list[str]:
             bad = [ln[5:] for ln in (r.stdout or "").splitlines() if ln.startswith("FAIL ")]
             return ["L1 a limit no longer reaches a person as a sentence naming it and when it clears: "
                     + ("; ".join(bad[:3]) or (r.stderr or r.stdout).strip()[-200:])]
+        m = re.search(r"PASS limit-says-when - (\d+) limit shapes", r.stdout or "")
+        if utils_src is None and m:
+            L1_SHAPES["n"] = int(m.group(1))
         return []
     except (OSError, subprocess.TimeoutExpired) as e:
         return [f"L1 could not run tools/test_limit_says_when.mjs: {e}"]
@@ -313,6 +319,12 @@ def self_test() -> list[str]:
         "if (code === '54000' || (code === '23P01' && /limit/i.test(msg))) {", "if (false) {", 1))
     mut("whWriteError forgetting a gateway's 429", "L1", utils_src=ut.replace(
         "if (code === '429' || _st === '429' || /\\brate.?limit|too many requests/i.test(msg)) {", "if (false) {", 1))
+    # SL RL2 walk (2026-10-22): the two sentence makers the walk added - a role wall and an access gate under a limit
+    mut("the role wall's note ignoring the read's error", "L1", utils_src=ut.replace(
+        "var why = err ? whReadError(err, 'your role') : 'Your role could not be checked just now.';",
+        "var why = 'Your role could not be checked just now.';", 1))
+    mut("the access gate telling a limit to reload", "L1", utils_src=ut.replace(
+        "    : (e && whIsRateLimited(e))\n", "    : (false)\n", 1))
     newest = sorted(migs)[-1]
     mut("the listing limit worded without its when again", "L2", migs_={"99999999999999_mutant.sql": (
         "CREATE OR REPLACE FUNCTION public.check_listing_rate() RETURNS trigger LANGUAGE plpgsql AS $function$\n"
@@ -353,7 +365,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (11 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print("SELF-TEST PASS (13 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     pages, migs, fns = load()
     issues, info = check(pages, migs, fns)
@@ -366,7 +378,7 @@ def main() -> int:
         print("  note: " + info["live_note"])
     for i in issues[:40]:
         print("  [FAIL] " + i)
-    print(f"  PASS - 21 limit shapes through the four sentence makers; {info['db_limits']} database limits say when; the "
+    print(f"  PASS - {L1_SHAPES['n'] or '?'} limit shapes through the shared sentence makers; {info['db_limits']} database limits say when; the "
           f"shared chrome and the pages speak the limit; {info['edge_calls']} edge refusals are handed their window"
           if not issues else f"  FAIL - {len(issues)} problem(s)")
     return 1 if issues else 0

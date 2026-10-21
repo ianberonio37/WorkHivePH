@@ -129,8 +129,8 @@
   .card.nohealth{ background: var(--wh-navy-2);       border-color: rgba(255,255,255,0.08); }
   /* T198: silence is amber, never red — a probe that timed out did not observe an outage. Kept
      exactly: the tint carries the same distinction the border colour used to, in the same hue. */
-  .card.timeout { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
-  .dot.timeout { background: var(--wh-amber); }
+  .card.timeout, .card.limited { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
+  .dot.timeout, .dot.limited { background: var(--wh-amber); }
   .dot.nohealth { background: var(--wh-grey); }
   .fn { font-size: 0.95rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wh-grey); display: inline-block; }
@@ -364,11 +364,18 @@
         var res = await fetchWithTimeout(EDGE + '/' + fn + '/health', { method: 'GET' }, PROBE_MS);
         var ms = Math.round(performance.now() - t0);
         var body = null; try { body = await res.json(); } catch (e) { /* empty-catch-allow: non-JSON health body → body stays null, handled by the status checks below */ }
-        var state;
+        var state, wait = 0;
         if (res.status === 200 && body && body.ok !== false) state = (ms > SLOW_MS) ? 'slow' : 'ok';
+        // ★A 429 IS AN ANSWER (SL RL2 walk, 2026-10-22). With every probe answered 429 this page said "0/0 services
+        // answering (0%) · 10 without /health" - a function refusing for a request limit is up and answering, and it
+        // read as ten missing probes. It is its own state, counted neither healthy nor down, with the wait it gave.
+        else if (res.status === 429) {
+          state = 'limited';
+          wait = Number(res.headers.get('Retry-After')) || Number(body && (body.retry_after || body.retryAfter)) || 0;
+        }
         else if (res.status >= 500 || res.status === 0)       state = 'down';
         else                                                  state = 'nohealth'; // 4xx = no probe
-        return { fn: fn, state: state, status: res.status, ms: ms, deps: (body && body.deps) || [] };
+        return { fn: fn, state: state, status: res.status, ms: ms, deps: (body && body.deps) || [], wait: wait };
       } catch (e) {
         // The local wrapper rethrows the AbortError, so a timeout is distinguishable from a
         // refused connection here — which is the whole distinction this state exists to make.
@@ -384,7 +391,11 @@
       }
     }
 
-    var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe',
+    // a wait in a person's units: seconds under a minute and a half, then minutes, then hours
+    function waitText(s) {
+      return s < 90 ? s + ' seconds' : s < 5400 ? 'about ' + Math.ceil(s / 60) + ' minutes' : 'about ' + Math.round(s / 3600) + ' hours';
+    }
+    var LABEL = { ok: 'healthy', slow: 'slow', nohealth: 'no /health probe', limited: 'answering, but at its request limit',
                   timeout: 'no answer in ' + Math.round(PROBE_MS / 1000) + 's (may be cold-starting)',
                   unreachable: _t('could not be reached from this browser', 'hindi maabot mula sa browser na ito'),
                   down: 'DOWN' };
@@ -407,7 +418,8 @@
         }).join('');
         return '<div class="card ' + r.state + '" data-fn="' + esc(r.fn) + '">' +
           '<div class="fn"><span>' + esc(NAMES[r.fn] || r.fn) + '</span><span class="dot ' + r.state + '"></span></div>' +
-          '<div class="meta">' + esc(r.fn) + ' · ' + esc(LABEL[r.state]) + ' · HTTP ' + esc(r.status) + ' · ' + esc(r.ms) + ' ms' + (r.err ? ' · ' + esc(r.err) : '') + '</div>' +
+          '<div class="meta">' + esc(r.fn) + ' · ' + esc(LABEL[r.state]) + ' · HTTP ' + esc(r.status) + ' · ' + esc(r.ms) + ' ms' + (r.err ? ' · ' + esc(r.err) : '') +
+          (r.wait ? ' · try again in ' + esc(waitText(r.wait)) : '') + '</div>' +
           (deps ? '<div class="deps">' + deps + '</div>' : '') +
           '</div>';
       }).join('');
@@ -428,8 +440,20 @@
       // would be the page asserting something it did not observe.
       var tmo = rows.filter(function (r) { return r.state === 'timeout'; }).length;
       var unr = rows.filter(function (r) { return r.state === 'unreachable'; }).length;
-      var probed = rows.length - noh - tmo - unr;
+      // a probe refused for a request limit is answering, and answers neither question either (SL RL2)
+      var limRows = rows.filter(function (r) { return r.state === 'limited'; });
+      var lim = limRows.length;
+      var limWait = limRows.reduce(function (m, r) { return Math.max(m, r.wait || 0); }, 0);
+      var probed = rows.length - noh - tmo - unr - lim;
       var avail = probed ? Math.round(100 * ok / probed) : 0;
+      if (lim && !probed && !unr) {
+        sum.textContent = 'Every check was refused for a request limit (' + lim + ' of ' + rows.length + '). The services are '
+          + 'answering, but are limiting requests from here, so their health is not known yet. Try again in '
+          + (limWait ? waitText(limWait) : 'a moment') + ' and press Refresh.'
+          + ' - ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' }));
+        btn.disabled = false;
+        return;
+      }
       if (unr && !probed) {
         // nothing answered and nothing refused on its own merits: the honest reading is about THIS browser's
         // connection, not about the platform, and saying "0% healthy" here would page someone for a non-incident.
@@ -462,6 +486,7 @@
         (down ? ' · ' + down + _t(' DOWN', ' ang DOWN') : '') +
         (tmo ? ' · ' + tmo + _t(' did not answer in time (not counted either way)', ' ang hindi sumagot sa oras (hindi binibilang kahit saang panig)') : '') +
         (unr ? ' · ' + unr + _t(' unreachable from here (not counted either way)', ' ang hindi maabot mula rito (hindi binibilang kahit saang panig)') : '') +
+        (lim ? ' · ' + lim + ' at a request limit (answering; not counted either way) - try again in ' + (limWait ? waitText(limWait) : 'a moment') : '') +
         (noh ? ' · ' + noh + _t(' without /health', ' ang walang /health') : '') +
         ' · ' + (typeof whFmtDate === 'function' ? whFmtDate(new Date(), { timeOnly: true }) : new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' }));
       btn.disabled = false;

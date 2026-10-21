@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive whUse whUseThen whWriteError">
+<script data-wh-skew-heal="whListError whListSkeleton whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -301,7 +301,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="denied" data-wh-gate="supervisor-only">
           <h2 data-i="pc_sup_only">Supervisor access only</h2>
           <p>${escHtml(_t('Supervisors manage CMMS integrations, sensor topics and gateway audits here. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
-          ${_unread ? `<p role="status" style="margin-top:0.75rem;">Your role could not be checked just now, so this is based on the role this device last saw. Reload the page to check again.</p>
+          ${_unread ? `<p role="status" style="margin-top:0.75rem;">${escHtml(typeof whRoleUnreadNote === 'function' ? whRoleUnreadNote() : 'Your role could not be checked just now, so this is based on the role this device last saw. Reload the page to check again.')}</p>
           <button type="button" onclick="location.reload()" style="margin-top:0.75rem; min-height:44px; padding:0.5rem 1rem; border-radius:8px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); font:inherit; font-weight:700; cursor:pointer;">Reload</button>` : ''}
         </div>
       `;
@@ -329,7 +329,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (typeof whListError === 'function') {
           // 2026-10-06 (plant-connections x assistive-tech, PostgREST stopped): blamed the connection while
           // navigator.onLine was TRUE and the service was what failed.
-          whListError(host, (navigator.onLine === false)
+          // SL RL2 (2026-10-22): and a rate limit read as "WorkHive did not answer" - the sentence was picked by which
+          // branch ran, not by the error. The error decides it now (whReadError: offline, a limit and its wait, a
+          // session, a refusal, an outage).
+          whListError(host, (typeof whReadError === 'function')
+            ? whReadError(err, 'your plant connections')
+            : (navigator.onLine === false)
             ? _t("You are offline, so your plant connections could not be read. They will load when your connection is back.", "Offline ka, kaya hindi mabasa ang plant connections mo. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.")
             : _t("Couldn’t load your plant connections - WorkHive did not answer. Try again in a moment.", "Hindi ma-load ang plant connections mo - hindi sumagot ang WorkHive. Subukan muli maya-maya."), () => renderAll());
         }

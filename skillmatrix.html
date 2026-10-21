@@ -631,7 +631,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -851,6 +851,7 @@ async function init() {
   // G1 (FF1): canonical skeleton on the target grid while profile/badges load.
   const _tg = document.getElementById('target-grid');
   if (_tg && !_tg.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_tg, 3, 'your skill targets');
+  _smReadError = null;
   _smReadFailed = false;   // a recovered read must clear it, or the Retry can never succeed: the flag
                            // stayed true after a successful re-read and the three-way branch below took
                            // the failure path again, so the error panel outlived the fix that cleared it
@@ -908,6 +909,7 @@ async function init() {
     // class). The branch that CHOOSES between onboarding and the matrix is the only place that can also
     // choose the failure state, so the decision is made there.
     _smReadFailed = true;
+    _smReadError = profileRes.error;   // and its cause, which the failure sentence names (SL RL2)
   }
 
   _profile = profileRes.data || null;
@@ -945,7 +947,11 @@ async function init() {
     if (_smOnb) _smOnb.style.display = 'none';   // never offer a first-run picker on a failed read
     if (_smErr && typeof whListError === 'function') {
       _smErr.style.display = 'block';
-      whListError(_smErr, _t('Couldn’t load your skill matrix. Your levels are unknown right now, not zero. ', 'Hindi ma-load ang skill matrix mo. Hindi alam ang mga level mo ngayon, hindi zero. ')
+      // SL RL2 (2026-10-22): under a rate limit this named no limit and no wait - the sentence did not look at the error.
+      // The read's own error now leads (whReadError: a limit and its wait, a session, an outage).
+      whListError(_smErr, ((_smReadError && typeof whReadError === 'function')
+                    ? whReadError(_smReadError, 'your skill matrix') + ' Your levels are unknown right now, not zero. '
+                    : _t('Couldn’t load your skill matrix. Your levels are unknown right now, not zero. ', 'Hindi ma-load ang skill matrix mo. Hindi alam ang mga level mo ngayon, hindi zero. '))
                   + 'Do not re-pick your discipline; your profile is saved.', () => init());
     } else if (typeof showToast === 'function') {
       showToast(_t('Couldn’t load your skill matrix. Please retry.', 'Hindi ma-load ang skill matrix mo. Pakisubukan muli.'), '✗');
@@ -965,6 +971,7 @@ async function init() {
 // A failed profile read must not be indistinguishable from a first run. Declared at module scope so the
 // loader can set it before the onboarding/matrix decision reads it.
 let _smReadFailed = false;
+let _smReadError = null;   // the failed read's error: a limit, a session, an outage - said, not guessed
 
 // ─── Onboarding ───────────────────────────────────────────────────────────────
 function showOnboarding() {

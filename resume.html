@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whSourcesSync whStartupHive whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whAutoSaveDraft whIsAuthFailure whIsRateLimited whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -730,7 +730,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                else's. The page already calls _t() twenty times; these three strings simply never went
                through it. It is the mirror of the public-feed finding, where the page was Filipino and
                the chrome was English - the seam is the same either way. -->
-          <p><b>${_t('Could not load your saved resume.', 'Hindi ma-load ang naka-save mong resume.')}</b></p>
+          <!-- SL RL2 (2026-10-22): under a rate limit this heading named no limit and no wait. A limit leads with the shared
+               read voice's own sentence (which limit, and when to try again); every other cause keeps this heading. -->
+          <p><b>${(_cloudLoadError && typeof whIsRateLimited === 'function' && typeof whReadError === 'function' && whIsRateLimited(_cloudLoadError))
+            ? escHtml(whReadError(_cloudLoadError, 'your saved resume'))
+            : _t('Could not load your saved resume.', 'Hindi ma-load ang naka-save mong resume.')}</b></p>
           <p>${isEmptyResume()
             ? _t('This is a loading problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.',
                   'Problema ito sa pag-load, hindi dahil walang laman ang resume mo. Nasa server pa rin ang lahat ng na-save mo. Subukan muli bago mo i-type ulit mula sa simula.')
@@ -1063,6 +1067,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // worker to re-pick their discipline. Here the stakes are a person's own employment document.
     // The flag is not just for the message — a false empty invites RE-TYPING work that already exists.
     let _cloudLoadFailed = false;
+    let _cloudLoadError = null;   // the failed read's error - a limit is said with its wait (SL RL2)
 
     // ONE load sequence, used by first paint AND by Retry. A Retry that re-implements the load is a
     // second definition of "how this page opens", and the two drift — so the button re-runs exactly
@@ -1079,7 +1084,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     async function loadResumeIntoView() {
       const _sections = document.getElementById('sections');
       if (_sections && typeof whListSkeleton === 'function') whListSkeleton(_sections, 4, 'your resume');
-      _cloudLoadFailed = false;
+      _cloudLoadFailed = false; _cloudLoadError = null;
       let draft = null, loaded = false;
       try {
         draft = await idbGet('current');
@@ -1099,7 +1104,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!loaded && draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
         if (!loaded) loaded = await loadCloud();
       } catch (err) {
-        _cloudLoadFailed = true;
+        _cloudLoadFailed = true; _cloudLoadError = err || null;
         console.error('resume load failed:', err && err.message ? err.message : err);
       }
       if (!loaded) {
@@ -1116,12 +1121,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid)
           .order('updated_at', { ascending: false }).order('id').limit(1).maybeSingle();
-        if (error) { _cloudLoadFailed = true; console.warn('resume cloud read failed:', error.message); return false; }
+        if (error) { _cloudLoadFailed = true; _cloudLoadError = error; console.warn('resume cloud read failed:', error.message); return false; }
         if (!data || !data.doc || !data.doc.basics) return false;
         resume = mergeDefaults(data.doc);
         _resumeId = data.id;
         return true;
-      } catch (e) { _cloudLoadFailed = true; console.warn('resume cloud read threw:', e && e.message); return false; }
+      } catch (e) { _cloudLoadFailed = true; _cloudLoadError = e || null; console.warn('resume cloud read threw:', e && e.message); return false; }
     }
 
     // Guard against older/partial docs missing newer keys.
@@ -1158,11 +1163,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // Same collapse as loadCloud, and it matters MORE here: this path loads the resume the person
         // last had OPEN. A failed read falling through to "no resume" is how someone gets shown an
         // empty page for a document they were editing minutes ago.
-        if (error) { _cloudLoadFailed = true; console.warn('resume cloud read (by id) failed:', error.message); return false; }
+        if (error) { _cloudLoadFailed = true; _cloudLoadError = error; console.warn('resume cloud read (by id) failed:', error.message); return false; }
         if (!data || !data.doc || !data.doc.basics) return false;
         resume = mergeDefaults(data.doc); _resumeId = data.id;
         return true;
-      } catch (e) { _cloudLoadFailed = true; console.warn('resume cloud read (by id) threw:', e && e.message); return false; }
+      } catch (e) { _cloudLoadFailed = true; _cloudLoadError = e || null; console.warn('resume cloud read (by id) threw:', e && e.message); return false; }
     }
     // Only persist-before-switch if there is real content worth a row (a brand-new
     // blank carrying just the worker's name should NOT spawn an "Untitled" doc).

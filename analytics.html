@@ -812,7 +812,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whIsRateLimited whLimitWait whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1361,6 +1361,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // reads it, because "Recomputed just now" over a page missing its snapshot content is a claim about
   // completeness that nobody checked.
   let _snapshotReadFailed = false;
+  let _snapshotReadError = null;   // and why: a limit is said with its wait on the freshness line (SL RL2)
   // ★A ONE-PERSON OPERATOR PAID FOR FOUR AI CALLS ON EVERY OPEN (LM-R, LM60, 2026-10-07). A hive member's page
   // hydrates from today's analytics_snapshots row and calls nothing; a person with no hive had no saved copy at all,
   // so every open of this page ran analytics-orchestrator for all four phases - the prescriptive one a model call -
@@ -1406,7 +1407,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   async function loadSnapshots() {
     if (!HIVE_ID) return _loadSoloDayCache();
-    _snapshotReadFailed = false;
+    _snapshotReadFailed = false; _snapshotReadError = null;
     loadPmOntime();  // the cached path renders without ever calling fetchPhase
     if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
     try {
@@ -1431,7 +1432,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Measured 2026-08-14 under an injected 500: the recommendation and its verdict disappeared with
       // no message anywhere. A SILENT DEGRADATION is the hardest kind to notice, because what remains
       // looks healthy.
-      if (error) { _snapshotReadFailed = true; console.warn('[analytics] snapshot read failed:', error.message); return []; }
+      if (error) { _snapshotReadFailed = true; _snapshotReadError = error; console.warn('[analytics] snapshot read failed:', error.message); return []; }
       if (!data) return [];
       // Fresh = computed today in PHT (UTC+8); the first opener after the PHT
       // day rolls over recomputes, mirroring the "first view of the day" rule.
@@ -3639,8 +3640,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } else if (_snapshotReadFailed) {
       // The figures below ARE freshly computed, so "Recomputed just now" is true — but it is not the
       // whole truth while the saved copy (and the AI recommendation it carries) could not be read.
-      _freshness = _t('Recomputed just now · saved copy could not be read, so some sections are missing',
-                      'Kakakalkula lang · hindi mabasa ang naka-save na kopya, may mga seksyong nawawala');
+      // SL RL2 (2026-10-22): under a rate limit this named no limit and no wait. A limit says so, and when the saved copy
+      // (with the sections it carries) can be read again.
+      const _lim = (typeof whIsRateLimited === 'function' && typeof whLimitWait === 'function' && whIsRateLimited(_snapshotReadError));
+      _freshness = _lim
+        ? 'Recomputed just now · the saved copy was refused for too many requests, so some sections are missing - try again in '
+          + whLimitWait(_snapshotReadError)
+        : _t('Recomputed just now · saved copy could not be read, so some sections are missing',
+             'Kakakalkula lang · hindi mabasa ang naka-save na kopya, may mga seksyong nawawala');
     } else {
       _freshness = _t('Recomputed just now', 'Kakakalkula lang');
     }

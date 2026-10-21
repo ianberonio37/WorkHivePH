@@ -672,7 +672,7 @@
 
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whHiveId whListError whListSkeleton whReadError whSourcesSync whStartupHive whTold whUse">
+<script data-wh-skew-heal="whHiveId whIsRateLimited whListError whListSkeleton whReadError whSourcesSync whStartupHive whTold whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1781,7 +1781,12 @@ happens to know maintenance, not a manual.`;
         ? _t("I can see your job records and will reference them when relevant.",
               "Nakikita ko ang mga tala mo sa trabaho at sasangguni ako sa mga ito kapag may kinalaman.")
         : lcUnknown
-        ? _t("I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history.", "Hindi ko maabot ang job records mo ngayon, kaya baka wala ako nito sa kamay. Hindi ibig sabihin nawala ang mga ito. Magtanong ka muna ng kahit anong teknikal, at subukan muli mamaya para sa sarili mong history.")
+        // SL RL2 (2026-10-22): under a rate limit this said "I couldn't reach your job records ... try again in a moment" -
+        // the limit's own wait was dropped. A limit is named, with its wait, in the shared read voice (not whReadError's
+        // outage sentence, whose "Status page below" has no link under a chat bubble).
+        ? ((lc && typeof whIsRateLimited === 'function' && typeof _whReadErrorText === 'function' && whIsRateLimited(lc.error))
+          ? _whReadErrorText(lc.error, 'your job records') + ' That does not mean they are missing. Ask me anything technical in the meantime.'
+          : _t("I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history.", "Hindi ko maabot ang job records mo ngayon, kaya baka wala ako nito sa kamay. Hindi ibig sabihin nawala ang mga ito. Magtanong ka muna ng kahit anong teknikal, at subukan muli mamaya para sa sarili mong history."))
         // ★THE SAME SENTENCE AS THE MARKUP NUDGE, AND ONLY THE MARKUP ONE WAS FIXED (design lens critique,
         // 2026-09-15). "parts" moves none of the three counts hasRecords reads - logbook, asset_nodes,
         // pm_assets - so a worker who adds parts and comes back is told again that he has no records.

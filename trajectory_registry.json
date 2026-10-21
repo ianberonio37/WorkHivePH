@@ -958859,8 +958859,8 @@
     },
     {
       "id": "SL3265",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · alert hub",
       "pages": [
@@ -958918,12 +958918,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: alert-hub.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:17:27.446Z (.tmp/slw/results/rl2w_m3.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your alerts could not be loaded. Try again in 30 seconds. Critical alerts are unknown right now, not zero. Do not treat this plant as quie\"; edge calls answered 429: \"The live refresh did not run: AI call limit reached for this hive. Try again in about 12 minutes. The brief below is the stored one.\"; its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your alerts could not be loaded. Try again in 30 seconds. Critical alerts are unknown right now, not zero. Do not treat this plant as quie\"; edge calls answered 429: \"The live refresh did not run: AI call limit reached for this hive. Try again in about 12 minutes. The brief below is the stored one.\"; its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. G Receipt .tmp/mcp_walks/SL3265.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3266",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - fleet-supervisor · analytics",
       "pages": [
@@ -958983,12 +958993,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: analytics.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:53:26.545Z (.tmp/slw/results/rl2w_m6.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Recomputed just now · the saved copy was refused for too many requests, so some sections are missing - try again in 30 seconds · Based on your logbook · last 90\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Recomputed just now · the saved copy was refused for too many requests, so some sections are missing - try again in 30 seconds · Based on your logbook · last 90\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3266.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3267",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · asset hub",
       "pages": [
@@ -959046,12 +959066,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: asset-hub.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:17:27.446Z (.tmp/slw/results/rl2w_m3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your assets could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your assets could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3267.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3268",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · assistant",
       "pages": [
@@ -959109,12 +959139,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: assistant.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:17:27.446Z (.tmp/slw/results/rl2w_m3.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. Too many requests, so your job records could not be loaded. Try again in 30 seconds. That does not mean they ar\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Hi Ben Ocampo! I'm your WorkHive Work Assistant. Too many requests, so your job records could not be loaded. Try again in 30 seconds. That does not mean they ar\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3268.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3269",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - fleet-supervisor · community",
       "pages": [
@@ -959172,12 +959212,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: community.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:36:10.061Z (.tmp/slw/results/rl2w_m5.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so the community feed could not be read. Your connection is fine: wait about 30 seconds, then retry.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so the community feed could not be read. Your connection is fine: wait about 30 seconds, then retry.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3269.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3270",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · hive",
       "pages": [
@@ -959235,12 +959285,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: hive.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:28:54.288Z (.tmp/slw/results/rl2w_m4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your jobs could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your jobs could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3270.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3271",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · index",
       "pages": [
@@ -959298,12 +959358,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: index.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:28:54.288Z (.tmp/slw/results/rl2w_m4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your latest hive data could not be loaded. Try again in 30 seconds. These numbers are unknown right now, not zero.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your latest hive data could not be loaded. Try again in 30 seconds. These numbers are unknown right now, not zero.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3271.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3272",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - solo-owner · integrations",
       "pages": [
@@ -959361,12 +959431,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: integrations.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:43:05.265Z (.tmp/slw/results/rl2w_r1.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"The connections console could not check your access just now: too many requests. It stays closed - try again in 30 seconds. The vehicle wizard above is yours to\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"The connections console could not check your access just now: too many requests. It stays closed - try again in 30 seconds. The vehicle wizard above is yours to\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3272.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3273",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · inventory",
       "pages": [
@@ -959424,12 +959504,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: inventory.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:08:08.051Z (.tmp/slw/results/rl2w_m2.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Stock levels are unknown right now, not zero. Too many requests, so stock levels could not be loaded. Try again in 30 seconds. Do not order or issue parts from \"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Stock levels are unknown right now, not zero. Too many requests, so stock levels could not be loaded. Try again in 30 seconds. Do not order or issue parts from \"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3273.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3274",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · logbook",
       "pages": [
@@ -959487,12 +959577,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: logbook.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:55:48.357Z (.tmp/slw/results/rl2w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Your entries are unknown right now, not missing. Too many requests, so your logbook could not be loaded. Try again in 30 seconds. Do not log a repeat of work yo\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Your entries are unknown right now, not missing. Too many requests, so your logbook could not be loaded. Try again in 30 seconds. Do not log a repeat of work yo\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3274.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3275",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - buyer · marketplace seller profile",
       "pages": [
@@ -959550,12 +959650,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: marketplace-seller-profile.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:55:48.357Z (.tmp/slw/results/rl2w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so the profile of \"Bryan Garcia\" could not be loaded. Try again in 30 seconds. This does not mean the seller is gone.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so the profile of \"Bryan Garcia\" could not be loaded. Try again in 30 seconds. This does not mean the seller is gone.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3275.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3276",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - buyer · marketplace seller",
       "pages": [
@@ -959613,12 +959723,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: marketplace-seller.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:55:48.357Z (.tmp/slw/results/rl2w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Couldn't load these numbers, so they're showing as a dash rather than as zero. Too many requests. Your connection is fine: wait about 30 seconds, then retry. Re\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Couldn't load these numbers, so they're showing as a dash rather than as zero. Too many requests. Your connection is fine: wait about 30 seconds, then retry. Re\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3276.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3277",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - buyer · marketplace",
       "pages": [
@@ -959676,12 +959796,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: marketplace.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:28:54.288Z (.tmp/slw/results/rl2w_m4.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about 30 seconds, then us\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about 30 seconds, then us\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3277.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3278",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - machine-client · plant connections",
       "pages": [
@@ -959739,12 +959869,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: plant-connections.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:08:08.051Z (.tmp/slw/results/rl2w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your role could not be loaded. Try again in 30 seconds. Until it can be, this page goes by the role this device last saw.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your role could not be loaded. Try again in 30 seconds. Until it can be, this page goes by the role this device last saw.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3278.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3279",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · pm scheduler",
       "pages": [
@@ -959802,12 +959942,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: pm-scheduler.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:36:10.061Z (.tmp/slw/results/rl2w_m5.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so PM assets could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so PM assets could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3279.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3280",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - fleet-supervisor · project manager",
       "pages": [
@@ -959865,12 +960015,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: project-manager.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:08:08.051Z (.tmp/slw/results/rl2w_m2.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your projects could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your projects could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3280.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3281",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - fleet-supervisor · project report",
       "pages": [
@@ -959928,12 +960088,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: project-report.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:53:26.545Z (.tmp/slw/results/rl2w_m6.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so this report could not be loaded. Try again in 30 seconds. The report is unknown right now, not empty, so do not report status from this pa\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so this report could not be loaded. Try again in 30 seconds. The report is unknown right now, not empty, so do not report status from this pa\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3281.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3282",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - an anonymous visitor · public feed",
       "pages": [
@@ -959985,12 +960155,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: public-feed.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:55:48.357Z (.tmp/slw/results/rl2w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so the public feed could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so the public feed could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3282.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3283",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - fleet-supervisor · report sender",
       "pages": [
@@ -960048,12 +960228,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: report-sender.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:08:08.051Z (.tmp/slw/results/rl2w_m2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"⚠ Showing your saved copy, which may be out of date. Too many requests, so your contacts could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"⚠ Showing your saved copy, which may be out of date. Too many requests, so your contacts could not be loaded. Try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3283.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3284",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · resume",
       "pages": [
@@ -960111,12 +960301,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: resume.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:54:43.824Z (.tmp/slw/results/rl2w_res1.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"⚠️ Too many requests, so your saved resume could not be loaded. Try again in 30 seconds. This is a loading problem, not an empty resume. Anything you saved is s\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"⚠️ Too many requests, so your saved resume could not be loaded. Try again in 30 seconds. This is a loading problem, not an empty resume. Anything you saved is s\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3284.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3285",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · shift brain",
       "pages": [
@@ -960174,12 +960374,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: shift-brain.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:36:10.061Z (.tmp/slw/results/rl2w_m5.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Risk, PMs due and carry-forward are unknown right now, not zero. Too many requests, so your shift plan could not be loaded. Try again in 30 seconds. A plan may \"; edge calls answered 429: \"The live refresh did not run: AI call limit reached for this hive. Try again in about 12 minutes. The briefing below is the stored one.\"; its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Risk, PMs due and carry-forward are unknown right now, not zero. Too many requests, so your shift plan could not be loaded. Try again in 30 seconds. A plan may \"; edge calls answered 429: \"The live refresh did not run: AI call limit reached for this hive. Try again in about 12 minutes. The briefing below is the stored one.\"; its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off Receipt .tmp/mcp_walks/SL3285.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3286",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - worker · skillmatrix",
       "pages": [
@@ -960237,12 +960447,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: skillmatrix.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:17:27.446Z (.tmp/slw/results/rl2w_m3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Too many requests, so your skill matrix could not be loaded. Try again in 30 seconds. Your levels are unknown right now, not zero. Do not re-pick your disciplin\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Too many requests, so your skill matrix could not be loaded. Try again in 30 seconds. Your levels are unknown right now, not zero. Do not re-pick your disciplin\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3286.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3287",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - oversight · platform actions",
       "pages": [
@@ -960294,12 +960514,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: platform-actions.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:53:26.545Z (.tmp/slw/results/rl2w_m6.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: reads answered 429: \"Platform Actions could not check your access just now: too many requests. It stays closed - try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: reads answered 429: \"Platform Actions could not check your access just now: too many requests. It stays closed - try again in 30 seconds.\"; no edge call at start-up (f429 ungraded); its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3287.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3288",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL2 · The platform must tell a person, in a sentence, when this page has hit a limit and when to try again - oversight · status",
       "pages": [
@@ -960351,12 +960581,22 @@
         "engine": "chromium",
         "ask": "The platform must tell a person, in a sentence, when this page has hit a limit and when to try again",
         "closes": "the RL2 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it (429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s with every live region recorded; and the page's own save-sentence maker handed each limit the database refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): every new sentence graded on naming the limit AND when to try again, no machine text, no move off the page): RL2: status.html tells a person in one sentence that a limit was hit and when to try again - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T22:53:26.545Z (.tmp/slw/results/rl2w_m6.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no data read on this page (r429 ungraded); edge calls answered 429: \"Every check was refused for a request limit (10 of 10). The services are answering, but are limiting requests from here, so their health is not known yet. Try a\"; its save-sentence maker named the limit and when for all 5 database limits || desktop-1280: no data read on this page (r429 ungraded); edge calls answered 429: \"Every check was refused for a request limit (10 of 10). The services are answering, but are limiting requests from here, so their health is not known yet. Try a\"; its save-sentence maker named the limit and when for all 5 database limits. A sentence counts when it names the limit and when to try again; machine text, a move off the page and the caller's fallback fail. Gates limit-says-when, refusal-has-a-sentence, rate-limit-handling, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3288.json.",
+      "artifacts": {
+        "gates": [
+          "limit-says-when",
+          "rate-limit-handling",
+          "refusal-has-a-sentence",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3289",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · achievements",
       "pages": [
@@ -960414,12 +960654,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: achievements.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:38:01.658Z (.tmp/slw/results/rl3w_m4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: .domain-card[data-ach] held Enter: 1 request(s) || desktop-1280: .domain-card[data-ach] held Enter: 1 request(s) || LB4 phone-390 visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr3.json, 2026-10-21T19:04:03.931Z, SL3197), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3289.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3290",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · alert hub",
       "pages": [
@@ -960477,12 +960727,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: alert-hub.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:38:01.658Z (.tmp/slw/results/rl3w_m4.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 10 request(s) (GET /rest/v1/v_risk_truth?hive_id=eq,limit,order,risk_level= x1, GET /rest/v1/v_inventory_items_truth?hive_id=eq,limit,or=,or x1, GET /rest/v1/v_pm_scope_items_truth?hive_id=eq,is_overdue=eq x1); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 10 request(s) (GET /rest/v1/v_risk_truth?hive_id=eq,limit,order,risk_level= x1, GET /rest/v1/v_inventory_items_truth?hive_id=eq,limit,or=,or x1, GET /rest/v1/v_pm_scope_items_truth?hive_id=eq,is_overdue=eq x1); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr4.json, 2026-10-21T19:23:27.278Z, SL3198), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-f Receipt .tmp/mcp_walks/SL3290.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3291",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · analytics report",
       "pages": [
@@ -960540,12 +960800,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: analytics-report.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:43:17.978Z (.tmp/slw/results/rl3w_m6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr6.json, 2026-10-21T19:55:58.126Z, SL3199), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3291.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3292",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · analytics",
       "pages": [
@@ -960605,12 +960875,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: analytics.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:50:11.896Z (.tmp/slw/results/rl3w_m9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Filter assets' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Filter assets' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr8.json, 2026-10-21T20:28:44.092Z, SL3200), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3292.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3293",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · asset hub",
       "pages": [
@@ -960668,12 +960948,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: asset-hub.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:39:10.873Z (.tmp/slw/results/rl3w_m5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search by tag, name, or location' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search by tag, name, or location' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr4.json, 2026-10-21T19:23:27.278Z, SL3201), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3293.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3294",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · assistant",
       "pages": [
@@ -960731,12 +961021,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: assistant.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:39:10.873Z (.tmp/slw/results/rl3w_m5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr5.json, 2026-10-21T19:39:43.792Z, SL3202), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3294.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3295",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · community",
       "pages": [
@@ -960794,12 +961094,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: community.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:43:17.978Z (.tmp/slw/results/rl3w_m6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search posts' typed 10 keys 90 ms apart: 3 request(s), 0 while typing, busiest shape x1; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search posts' typed 10 keys 90 ms apart: 3 request(s), 0 while typing, busiest shape x1; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr6.json, 2026-10-21T19:55:58.126Z, SL3203), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3295.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3296",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · dayplanner",
       "pages": [
@@ -960857,12 +961167,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: dayplanner.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:50:11.896Z (.tmp/slw/results/rl3w_m9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr9.json, 2026-10-21T20:41:23.235Z, SL3204), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3296.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3297",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · hive",
       "pages": [
@@ -960920,12 +961240,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: hive.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:39:10.873Z (.tmp/slw/results/rl3w_m5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr5.json, 2026-10-21T19:39:43.792Z, SL3205), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3297.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3298",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · index",
       "pages": [
@@ -960983,12 +961313,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: index.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:39:10.873Z (.tmp/slw/results/rl3w_m5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr5.json, 2026-10-21T19:39:43.792Z, SL3206), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3298.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3299",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - solo-owner · integrations",
       "pages": [
@@ -961046,12 +961386,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: integrations.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:46:59.921Z (.tmp/slw/results/rl3w_m7.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr7.json, 2026-10-21T20:12:07.755Z, SL3207), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3299.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3300",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · inventory",
       "pages": [
@@ -961109,12 +961459,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: inventory.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:38:01.658Z (.tmp/slw/results/rl3w_m4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search part name, number, or linked asse' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter parts by category' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search part name, number, or linked asse' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter parts by category' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr4.json, 2026-10-21T19:23:27.278Z, SL3208), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held E Receipt .tmp/mcp_walks/SL3300.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3301",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · logbook",
       "pages": [
@@ -961172,12 +961532,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: logbook.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:35:01.467Z (.tmp/slw/results/rl3w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search machine, failure, keyword...' typed 10 keys 90 ms apart: 2 request(s), 0 while typing, busiest shape x1; held Enter (1 + 9 repeats): 0 request(s); .entry-card[data-entry-id] held Enter: 0 request(s) || desktop-1280: 'Search machine, failure, keyword...' typed 10 keys 90 ms apart: 2 request(s), 0 while typing, busiest shape x1; held Enter (1 + 9 repeats): 0 request(s); .entry-card[data-entry-id] held Enter: 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr1.json, 2026-10-21T18:31:23.031Z, SL3209), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-h Receipt .tmp/mcp_walks/SL3301.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3302",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - buyer · marketplace seller profile",
       "pages": [
@@ -961235,12 +961605,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: marketplace-seller-profile.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:35:01.467Z (.tmp/slw/results/rl3w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr2.json, 2026-10-21T18:47:52.311Z, SL3210), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3302.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3303",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - buyer · marketplace seller",
       "pages": [
@@ -961298,12 +961678,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: marketplace-seller.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:35:01.467Z (.tmp/slw/results/rl3w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr2.json, 2026-10-21T18:47:52.311Z, SL3211), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3303.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3304",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - buyer · marketplace",
       "pages": [
@@ -961361,12 +961751,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: marketplace.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:43:17.978Z (.tmp/slw/results/rl3w_m6.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search listings...' typed 10 keys 90 ms apart: 3 request(s), 0 while typing, busiest shape x2; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search listings...' typed 10 keys 90 ms apart: 3 request(s), 0 while typing, busiest shape x2; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr5.json, 2026-10-21T19:39:43.792Z, SL3212), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3304.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3305",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · ph intelligence",
       "pages": [
@@ -961424,12 +961824,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: ph-intelligence.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:36:09.865Z (.tmp/slw/results/rl3w_m3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr3.json, 2026-10-21T19:04:03.931Z, SL3213), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3305.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3306",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - machine-client · plant connections",
       "pages": [
@@ -961487,12 +961897,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: plant-connections.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:35:01.467Z (.tmp/slw/results/rl3w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr2.json, 2026-10-21T18:47:52.311Z, SL3214), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3306.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3307",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · pm scheduler",
       "pages": [
@@ -961550,12 +961970,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: pm-scheduler.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:46:59.921Z (.tmp/slw/results/rl3w_m7.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Filter assets by category' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Filter assets by category' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 0 request(s); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr6.json, 2026-10-21T19:55:58.126Z, SL3215), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3307.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3308",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · project manager",
       "pages": [
@@ -961613,12 +962043,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: project-manager.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:36:09.865Z (.tmp/slw/results/rl3w_m3.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search by name or code…' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search by name or code…' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr3.json, 2026-10-21T19:04:03.931Z, SL3216), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3308.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3309",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · project report",
       "pages": [
@@ -961676,12 +962116,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: project-report.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:50:11.896Z (.tmp/slw/results/rl3w_m9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr9.json, 2026-10-21T20:41:23.235Z, SL3217), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3309.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3310",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - an anonymous visitor · public feed",
       "pages": [
@@ -961733,12 +962183,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: public-feed.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:33:40.371Z (.tmp/slw/results/rl3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr1.json, 2026-10-21T18:31:23.031Z, SL3218), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3310.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3311",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · report sender",
       "pages": [
@@ -961796,12 +962256,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: report-sender.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:36:09.865Z (.tmp/slw/results/rl3w_m3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr3.json, 2026-10-21T19:04:03.931Z, SL3219), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3311.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3312",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · resume",
       "pages": [
@@ -961859,12 +962329,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: resume.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:43:17.978Z (.tmp/slw/results/rl3w_m6.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || phone-390 idle 75 s: 0 request(s); no socket frame || desktop-1280 idle 75 s: 0 request(s); no socket frame. Polling: this walk's own 75 s idle window at each width. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3312.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3313",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · shift brain",
       "pages": [
@@ -961922,12 +962402,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: shift-brain.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:46:59.921Z (.tmp/slw/results/rl3w_m7.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr6.json, 2026-10-21T19:55:58.126Z, SL3220), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3313.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3314",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - worker · skillmatrix",
       "pages": [
@@ -961985,12 +962475,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: skillmatrix.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:38:01.658Z (.tmp/slw/results/rl3w_m4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: .disc-card held Enter: 0 request(s) || desktop-1280: .disc-card held Enter: 0 request(s) || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr4.json, 2026-10-21T19:23:27.278Z, SL3221), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3314.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3315",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - supervisor · ai quality",
       "pages": [
@@ -962048,6 +962548,16 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: ai-quality.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:36:09.865Z (.tmp/slw/results/rl3w_m3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr2.json, 2026-10-21T18:47:52.311Z, SL3223), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3315.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
@@ -962110,8 +962620,8 @@
     },
     {
       "id": "SL3317",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - fleet-supervisor · audit log",
       "pages": [
@@ -962169,12 +962679,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: audit-log.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:50:11.896Z (.tmp/slw/results/rl3w_m9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Filter by actor' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter by action' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter by target type' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 4 request(s) || desktop-1280: 'Filter by actor' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter by action' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s); 'Filter by target type' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 4 request(s) || LB4 phone-390 visible 75 s: 8 request(s) (GET /rest/v1/hive_audit_log?created_at=gte,hive_id=eq,limit, x2 every 30 s, GET /rest/v1/ai_audit_log? Receipt .tmp/mcp_walks/SL3317.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3318",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - oversight · design system",
       "pages": [
@@ -962226,12 +962746,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from design system itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: design-system.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:46:59.921Z (.tmp/slw/results/rl3w_m7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || phone-390 idle 75 s: 0 request(s); no socket frame || desktop-1280 idle 75 s: 0 request(s); no socket frame. Polling: this walk's own 75 s idle window at each width. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3318.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3319",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - oversight · founder console",
       "pages": [
@@ -962283,12 +962813,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: founder-console.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:48:00.596Z (.tmp/slw/results/rl3w_m8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr7.json, 2026-10-21T20:12:07.755Z, SL3225), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3319.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3320",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - oversight · marketplace admin",
       "pages": [
@@ -962340,12 +962880,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: marketplace-admin.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:48:00.596Z (.tmp/slw/results/rl3w_m8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr8.json, 2026-10-21T20:28:44.092Z, SL3227), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3320.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3321",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - oversight · platform actions",
       "pages": [
@@ -962397,12 +962947,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: platform-actions.html waits for a pause in its typing, acts once on a held key and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:48:00.596Z (.tmp/slw/results/rl3w_m8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: 'Search feedback subject or body' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || desktop-1280: 'Search feedback subject or body' typed 10 keys 90 ms apart: 0 request(s), 0 while typing, busiest shape x0; held Enter (1 + 9 repeats): 0 request(s) || LB4 phone-390 visible 75 s: 15 request(s) (GET /auth/v1/health x1, POST /rest/v1/rpc/founder_active_hives x1, POST /rest/v1/rpc/founder_mau x1); socket frames heartbeat 3 || LB4 desktop-1280 visible 75 s: 14 request(s) (POST /rest/v1/rpc/founder_active_hives x1, POST /rest/v1/rpc/founder_mau x1, POST /rest/v1/rpc/founder_anon_sessions x1); socket frames heartbeat 3. Polling: the LB4 walk's reading of the page (lb4w_mr8.json, 2026-10-21T20:28:44.092Z, SL3228), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - n Receipt .tmp/mcp_walks/SL3321.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3322",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - oversight · status",
       "pages": [
@@ -962454,6 +963014,16 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: status.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:48:00.596Z (.tmp/slw/results/rl3w_m8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 0 request(s); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr8.json, 2026-10-21T20:28:44.092Z, SL3229), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3322.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
@@ -962574,8 +963144,8 @@
     },
     {
       "id": "SL3325",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - an anonymous visitor · feedback",
       "pages": [
@@ -962627,12 +963197,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: feedback/index.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:33:40.371Z (.tmp/slw/results/rl3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || LB4 phone-390 visible 75 s: 0 request(s); no socket frame || LB4 desktop-1280 visible 75 s: 1 request(s) (POST /g/collect x1); no socket frame. Polling: the LB4 walk's reading of the page (lb4w_mr1.json, 2026-10-21T18:31:23.031Z, SL3231), reused as it stands. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3325.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3326",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - an anonymous visitor · privacy policy",
       "pages": [
@@ -962684,12 +963264,22 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from privacy policy itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: privacy-policy/index.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:33:40.371Z (.tmp/slw/results/rl3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || phone-390 idle 75 s: 1 request(s) (POST /g/collect x1); no socket frame || desktop-1280 idle 75 s: 1 request(s) (POST /g/collect x1); no socket frame. Polling: this walk's own 75 s idle window at each width. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3326.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3327",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL3 · The platform must debounce this page's typing and space its polling so one person cannot flood the backend - an anonymous visitor · terms of service",
       "pages": [
@@ -962741,6 +963331,16 @@
         "engine": "chromium",
         "ask": "The platform must debounce this page's typing and space its polling so one person cannot flood the backend",
         "closes": "the RL3 ask is answered from terms of service itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms apart) and every request from the first key to 3 s after the last recorded by its shape, then the box given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered views put back; the page's own key-command card given the same held Enter; its idle polling read from the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice in a burst, a held key acting once, nothing polled faster than every 10 s): RL3: terms-of-service/index.html offers no search or filter box to type into, and spaces its polling - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T21:33:40.371Z (.tmp/slw/results/rl3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: no search or filter box on screen || desktop-1280: no search or filter box on screen || phone-390 idle 75 s: 1 request(s) (POST /g/collect x1); no socket frame || desktop-1280 idle 75 s: 1 request(s) (POST /g/collect x1); no socket frame. Polling: this walk's own 75 s idle window at each width. Budget: in a 10-key burst no request shape more than 2 times and at most 2 while typing; a held Enter (1 press + 9 repeats) at most 6 requests and no shape more than 2 times; idle - nothing repeating faster than every 10 s. Gates one-person-cannot-flood, refresh-stands-down-hidden, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3327.json.",
+      "artifacts": {
+        "gates": [
+          "one-person-cannot-flood",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {

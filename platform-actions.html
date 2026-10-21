@@ -157,7 +157,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whManilaYmd whMoreNote whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
+<script data-wh-skew-heal="whAdminCheckOfflineText whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whIsRateLimited whManilaYmd whMoreNote whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1782,8 +1782,12 @@
         // SL A1 (2026-10-19): 'unreachable' now also means a check the server failed or refused while ONLINE, so the
         // sentence asks the browser which it is - "you're offline" to a connected founder is the wrong cause and the
         // wrong wait (the reload-on-reconnect below never fires for them).
+        // SL RL2 (2026-10-22): a check refused for a LIMIT said "Reload the page" too - no limit, no wait, and a reload that
+        // repeats every read. whPlatformAdminAnswer keeps the refusal's error; a limit gets the shared gate sentence and its wait.
         cg.textContent = (navigator.onLine === false)
           ? "You're offline. Platform Actions needs a connection to check your access and load its queues - it will try again as soon as you are back online."
+          : (typeof whIsRateLimited === 'function' && typeof whAdminCheckOfflineText === 'function' && whIsRateLimited(window._whAdminCheckError))
+          ? whAdminCheckOfflineText('Platform Actions')
           : 'Platform Actions could not check your access just now, so its queues stay closed. Reload the page to try again.';
         if (typeof whTold === 'function') whTold('access', cg.textContent);   // SL L4: the whole page's sentence, logged
         if (typeof whReloadWhenBack === 'function') whReloadWhenBack();   // SL AV4: ask the database first, reload once - a bare reload on every reconnect looped while it was down

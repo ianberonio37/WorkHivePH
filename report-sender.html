@@ -21,7 +21,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whMoreNote whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whUse">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1251,7 +1251,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         setCard('contacts',
           String(saved),
           _rsUsedFallback
-            ? `${saved}${_t(' from your saved copy · could not reach the server, may be out of date', ' mula sa saved copy mo · hindi maabot ang server, baka luma na')}`
+            ? `${saved}${_t(' from your saved copy · the server\'s list could not be loaded, may be out of date')}`
             : (saved === 0 ? _t('No contacts saved yet, add one above', 'Wala pang naka-save na contact, magdagdag sa itaas')
                            : _t('reusable on this hive', 'magagamit muli sa hive na ito')),
           _rsUsedFallback ? _t('SAVED COPY', 'NAKA-SAVE NA KOPYA') : (saved === 0 ? _t('START', 'SIMULAN') : _t('LIST', 'LISTAHAN')),
@@ -1280,8 +1280,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ? _t(`${SELECTABLE_REPORTS} reports available · your saved contacts could not be loaded, so their number is unknown.`,
                `${SELECTABLE_REPORTS} report ang available · hindi ma-load ang mga naka-save mong contact, kaya hindi alam kung ilan.`)
           : _rsUsedFallback
-          ? _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} from your saved copy (the server did not answer).`,
-               `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact mula sa saved copy mo (hindi sumagot ang server).`)
+          ? _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} from your saved copy (the server's list could not be loaded).`)
           : _t(`${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`,
                `${SELECTABLE_REPORTS} report ang available · ${saved} naka-save na contact ang handa.`);
       } else if (reports === 0) {
@@ -1712,7 +1711,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         list.innerHTML = '<div data-rs-notice></div><div data-rs-chips style="display:flex;flex-direction:column;gap:0.4rem;"></div>';
         _rsNote = list.firstElementChild; _rsChips = list.lastElementChild;
       }
-      _rsNote.innerHTML = _rsUsedFallback ? `<div class="contacts-empty" style="opacity:1;font-size: 0.75rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>` : '';
+      // ★"COULD NOT REACH THE SERVER" FOR A SERVER THAT ANSWERED (SL RL2, 2026-10-22). Walked with every read answered 429:
+      // the saved copy was shown (rightly) under a sentence that blamed the connection - picked by the fallback branch, not
+      // by the error, which _rsReadFailed holds. The error says which it was and when to try again (whReadError).
+      _rsNote.innerHTML = _rsUsedFallback ? `<div class="contacts-empty" style="opacity:1;font-size: 0.75rem;">${escHtml('⚠ ' + _t('Showing your saved copy, which may be out of date.') + ' '
+        + ((typeof whReadError === 'function' && _rsReadFailed && typeof _rsReadFailed === 'object') ? whReadError(_rsReadFailed, 'your contacts') : _t('The server\'s list could not be loaded.')))}</div>` : '';
       _rsNote.hidden = !_rsUsedFallback;
       _rsSummaryAfterContacts();
       let _need = _rsShown;

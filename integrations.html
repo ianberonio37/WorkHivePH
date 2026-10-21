@@ -923,7 +923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whRoleUnreadNote whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1018,7 +1018,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             + '<p style="color:rgba(255,255,255,0.83); margin:0 0 16px;"></p>'
             + '<button type="button" class="btn btn-ghost">Reload</button>';
           _wall.querySelector('p').textContent = ((typeof whAdminCheckOfflineText === 'function')
-            ? whAdminCheckOfflineText('The connections console')
+            // the seat lookup's own error: a limit says how long to wait (SL RL2, 2026-10-22)
+            ? whAdminCheckOfflineText('The connections console', window._whHiveSeatUnreadError)
             : 'The connections console could not check your access just now, so it stays closed. Reload the page to try again.')
             + ' The vehicle wizard above is yours to use.';
           _wall.querySelector('button').addEventListener('click', () => location.reload());
@@ -1034,8 +1035,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           + 'wizard above is yours to use.</p>'
           // the role could not be asked just now: the wall is the device's last-seen role, and says so (see whReconcileHiveRole)
           + (window._whRoleUnread === true
-            ? '<p role="status" style="color:rgba(255,255,255,0.83); margin:12px 0 0;">Your role could not be checked just '
-              + 'now, so this is based on the role this device last saw. Reload the page to check again.</p>'
+            ? '<p role="status" style="color:rgba(255,255,255,0.83); margin:12px 0 0;">'
+              + escHtml(typeof whRoleUnreadNote === 'function' ? whRoleUnreadNote()
+                : 'Your role could not be checked just now, so this is based on the role this device last saw. Reload the page to check again.')
+              + '</p>'
               + '<button type="button" class="btn btn-ghost" style="margin-top:12px;" onclick="location.reload()">Reload</button>'
             : '');
         _pg.appendChild(_wall);

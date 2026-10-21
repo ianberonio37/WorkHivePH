@@ -28,6 +28,11 @@ try {
   Object.defineProperty(globalThis, 'navigator', { value: { onLine: true, userAgent: 'node' }, configurable: true, writable: true });
 } catch (_) { /* whatever navigator already is will do */ }
 global.location = { pathname: '/x', search: '', hash: '' };
+// the observers and the frame callback the shared chrome wires at load - stubbed, so the shim runs utils.js far enough to
+// reach the sentence makers defined after them (whAdminCheckOfflineText is past the first observer)
+global.MutationObserver = class { observe() {} disconnect() {} takeRecords() { return []; } };
+global.requestAnimationFrame = () => 0;
+global.cancelAnimationFrame = () => {};
 // the told-sentence log (whTold) writes to client_errors through the page's client: a stub that records nothing
 global.window._whSupabaseClient = { from: () => ({ insert: () => Promise.resolve({ error: null }) }) };
 
@@ -71,6 +76,13 @@ const CASES = [
   ['the platform\'s day budget', 'fn', httpError(429, { error: "The platform's shared AI budget for today is fully used. Please try again tomorrow.", scope: 'global-day' }), 'verbatim'],
   ['a limiter that could not count (503)', 'fn', httpError(503, { error: 'We could not check your usage limit just now, so nothing was run. Try again in about a minute.', scope: 'unavailable' }), 'verbatim'],
   ['a function\'s 429 with no sentence', 'fn', httpError(429, 'not json'), 'limit'],
+  // SL RL2 walk (2026-10-22): a wall standing on the device's last-seen role said only "could not be checked" beside a
+  // Reload button when the role read met a rate limit (plant-connections, integrations). whRoleUnreadNote must name the
+  // limit and its wait from the read's own error - and still say whose answer the wall is.
+  ['the role read refused by a limit', 'role', { status: 429, message: 'rate limit exceeded', hint: 'retry after 30s' }, 'limit'],
+  // the same walk: an access gate (the admin pages, integrations' hive-seat lookup) said "could not check your access just
+  // now ... Reload the page" under a limit - whAdminCheckOfflineText must name the limit and the wait from the error
+  ['the access check refused by a limit', 'access', { status: 429, message: 'rate limit exceeded', hint: 'retry after 30s' }, 'limit'],
 ];
 
 const fails = [];
@@ -79,6 +91,15 @@ for (const [label, maker, err, want] of CASES) {
   if (maker === 'write') out = whWriteError(err, FALLBACK);
   else if (maker === 'read') out = whReadError(err, 'the logbook');
   else if (maker === 'ai') out = whAiError(err, FALLBACK);
+  else if (maker === 'role') {
+    global.window._whRoleUnreadError = err;
+    out = typeof global.window.whRoleUnreadNote === 'function' ? global.window.whRoleUnreadNote() : '';
+    if (!/role this device last saw/.test(out)) out = '';   // the note must still say whose answer decided the wall
+  }
+  else if (maker === 'access') {
+    out = typeof global.window.whAdminCheckOfflineText === 'function' ? global.window.whAdminCheckOfflineText('This page', err) : '';
+    if (!/stays closed/.test(out)) out = '';   // and the gate still says it stays shut
+  }
   else out = await whFnError(err, FALLBACK);
   out = String(out == null ? '' : out);
   const own = err.message && !/non-2xx/.test(err.message) ? err.message : (err.context ? '(body)' : '');
