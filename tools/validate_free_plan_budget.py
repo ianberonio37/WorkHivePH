@@ -19,6 +19,8 @@ STATIC  F1 every operational table (OPERATIONAL) has a scheduled purge in a migr
            retention as Vercel's dashboard showed it). On 2026-10-21 the dashboard drew 9.90 of 10 GB for six days:
            the 612.7 MB builds of the old denylist, kept for 30 days. Either lever alone breaks it - the denylist's
            payload, or April's cadence (639 builds in 30 days) even at today's 20.5 MB.
+        F5 Supabase Free pauses a project after 7 days of low activity, which takes every page down: a scheduled
+           workflow (.github/workflows) asks production a REST question at least every KEEPALIVE_MAX_DAYS days.
 LIVE    F2 each purge F1 found is a job the local database has active (cron.job, read-only); a function purge is a
            function the database holds with that delete, called by an active job; an audit table is still read by its
            audit view (if the view stops reading it, the exemption is stale and fails).
@@ -64,6 +66,8 @@ AUDIT_YEARS = 10
 PENDING_PURGE: set[str] = set()
 PHOTO_READS_BASELINE = 23
 EVIDENCE = ROOT / "free_plan_evidence.json"
+WORKFLOWS = ROOT / ".github" / "workflows"
+KEEPALIVE_MAX_DAYS = 6  # Supabase Free pauses a project after 7 days of low activity
 STORE_SHARE = 0.10      # of the free allowance, for every build the project keeps
 CADENCE_DAYS = 90       # the recent cadence: pushes go out in batches at the owner's say (April pushed every commit)
 # a scheduled job's command in any quoting a migration uses: $$...$$, a tagged $cron$...$cron$, or '...'
@@ -193,9 +197,54 @@ def kept_builds(ev: dict) -> tuple[int, str]:
     return max(keep, best), why
 
 
+def cron_gap_days(expr: str) -> float | None:
+    """The longest gap in days between a 5-field cron's runs, for the shapes a keep-alive uses; None when unknown."""
+    f = expr.split()
+    if len(f) != 5 or f[3] != "*":
+        return None
+    dom, dow = f[2], f[4]
+    if dom == "*" and dow == "*":
+        return 1.0
+    if dow == "*":
+        m = re.fullmatch(r"\*/(\d+)", dom)
+        return float(m.group(1)) if m else None    # day N of a month restarts at 1: a gap is never longer than N
+    if dom == "*":
+        days = set()
+        for part in dow.split(","):
+            r = re.fullmatch(r"(\d)(?:-(\d))?", part)
+            if not r:
+                return None
+            lo, hi = int(r.group(1)), int(r.group(2) or r.group(1))
+            days |= set(range(lo, hi + 1))
+        days = sorted(d % 7 for d in days)
+        return float(max((days[(i + 1) % len(days)] - d) % 7 or 7 for i, d in enumerate(days)))
+    return None
+
+
+def keepalive(workflows: dict[str, str] | None = None) -> list[str]:
+    """F5: some scheduled workflow asks production a REST question at least every KEEPALIVE_MAX_DAYS days."""
+    files = workflows if workflows is not None else {p.name: p.read_text(encoding="utf-8", errors="replace")
+                                                     for p in sorted(WORKFLOWS.glob("*.y*ml"))}
+    best = None
+    for name, text in files.items():
+        if "/rest/v1/" not in text:
+            continue
+        for c in re.findall(r"cron:\s*['\"]([^'\"]+)['\"]", text):
+            g = cron_gap_days(c)
+            if g is not None and (best is None or g < best[0]):
+                best = (g, name, c)
+    if best is None:
+        return ["F5 no scheduled workflow asks production a REST question - Supabase Free pauses a project after 7 days "
+                "of low activity, and a paused project takes every page down"]
+    if best[0] > KEEPALIVE_MAX_DAYS:
+        return [f"F5 {best[1]} asks production every {best[0]:g} days ({best[2]}) - over {KEEPALIVE_MAX_DAYS}; the Free plan "
+                "pauses a project after 7 idle days"]
+    return []
+
+
 def check(migrations: dict[str, str] | None = None, pending: set | None = None, photo_reads: int | None = None,
           live: bool = True, payload: float | None = None, evidence: dict | None = None,
-          state: dict | None = None) -> list[str]:
+          state: dict | None = None, workflows: dict[str, str] | None = None) -> list[str]:
     migrations = migrations if migrations is not None else {p.name: p.read_text(encoding="utf-8", errors="replace")
                                                             for p in sorted(MIG.glob("*.sql"))}
     pending = PENDING_PURGE if pending is None else pending
@@ -240,6 +289,7 @@ def check(migrations: dict[str, str] | None = None, pending: set | None = None, 
     if mb * builds > STORE_SHARE * allowance:
         issues.append(f"F4 {mb:.1f} MB a build x {builds} builds kept ({why}) = {mb * builds / 1024:.2f} GB - over "
                       f"{STORE_SHARE:.0%} of the free {allowance / 1024:.0f} GB of Deployment Storage")
+    issues += keepalive(workflows)
     return issues
 
 
@@ -272,6 +322,15 @@ def self_test() -> list[str]:
                                         "$$ delete from public.automation_log where created_at < now() - interval '90 days' $$);")
     if not any("audit trail" in i for i in check(mut, live=False, payload=mb)):
         fails.append("mutant 'a 90-day purge scheduled on the audit trail' was not caught")
+    flows = {p.name: p.read_text(encoding="utf-8", errors="replace") for p in sorted(WORKFLOWS.glob("*.y*ml"))}
+    unscheduled = {n: re.sub(r"(?m)^\s*-\s*cron:.*$", "", t) for n, t in flows.items()}
+    if not any(i.startswith("F5") for i in check(live=False, payload=mb, workflows=unscheduled)):
+        fails.append("mutant 'the keep-alive's schedule taken out' was not caught")
+    slow = {n: re.sub(r"cron:\s*'23 3 \*/2 \* \*'", "cron: '23 3 */9 * *'", t) for n, t in flows.items()}
+    if not any(i.startswith("F5") and "every 9 days" in i for i in check(live=False, payload=mb, workflows=slow)):
+        fails.append("mutant 'a keep-alive every 9 days' was not caught")
+    if cron_gap_days("0 6 * * 1,4") != 4.0 or cron_gap_days("0 6 * * 1-5") != 3.0:
+        fails.append("cron_gap_days misreads a weekday list")
     st = live_state()
     if st is not None:
         st_mut = dict(st, views={v: "select 1" for v in st["views"]})
@@ -298,7 +357,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (10 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print("SELF-TEST PASS (12 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     mb = payload_mb()
     issues = check(payload=mb)

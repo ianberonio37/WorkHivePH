@@ -740885,8 +740885,8 @@
     },
     {
       "id": "BRH516",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AE",
       "title": "a free-plan gap the platform covers with nothing - index · pausing - oversight",
       "pages": [
@@ -740946,6 +740946,12 @@
         "repro": "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
         "fix": "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN THE REPOSITORY, FIXED LOCALLY, GATED. Supabase's Free plan pauses a project after 7 days of low activity, and a paused project takes every page down until someone restores it by hand. Nothing covered that gap: none of the four workflows in HEAD (ci, browser-persona-ci, companion-guardrails, persona-corpus-freshness) asked production anything on a schedule, and production's own pg_cron jobs are database activity, not requests. Production's quiet weeks are real: 3,046 usage events in six months is about 17 a day. Fix: .github/workflows/keep-alive.yml runs at 03:23 UTC on every second day of the month, so its runs are never more than two days apart, plus on demand. It asks production one cheap question - one id from industry_standards, the public reference table any visitor may read. It reads the address and public key from engineering-design.js, a shipped file, so nothing is copied into the workflow and no secret is used. Free for a public repository. Witness: the workflow's own command, run once against production on 2026-10-21 -> 200. It takes effect when the workflow reaches GitHub with the next push, since schedules run from the default branch. Gate free-plan-budget F5: some scheduled workflow asks production a REST question at least every 6 days. HEAD's workflows redden it; its --self-test takes the schedule out and slows it to every 9 days, and both redden.",
+      "artifacts": {
+        "gates": [
+          "free-plan-budget"
+        ]
       }
     },
     {

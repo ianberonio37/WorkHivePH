@@ -1,0 +1,36 @@
+name: Keep production awake
+
+# BRH 9 AE (2026-10-21): Supabase's Free plan pauses a project after 7 days of low activity, and a paused project
+# takes every page down until someone restores it by hand. The platform has quiet weeks, so every second day this asks
+# production one cheap question: one id from industry_standards, the public reference table any visitor may read.
+# It uses the public key and address the pages already ship, read from a shipped file at run time - nothing is copied
+# here and no secret is used. Held by run_platform_checks' free-plan-budget (F5).
+
+on:
+  schedule:
+    - cron: '23 3 */2 * *'   # 03:23 UTC on every second day of the month - never more than two days apart
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: engineering-design.js
+          sparse-checkout-cone-mode: false
+      - name: Ask production one cheap question
+        run: |
+          set -eu
+          url=$(grep -o "https://[a-z0-9]*\.supabase\.co" engineering-design.js | head -1)
+          key=$(grep -o "sb_publishable_[A-Za-z0-9_-]*" engineering-design.js | head -1)
+          test -n "$url" && test -n "$key"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            "$url/rest/v1/industry_standards?select=id&limit=1" \
+            -H "apikey: $key" -H "Authorization: Bearer $key")
+          echo "production answered $code"
+          test "$code" = 200
