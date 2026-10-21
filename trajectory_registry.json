@@ -954339,8 +954339,8 @@
     },
     {
       "id": "SL3197",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · achievements",
       "pages": [
@@ -954397,12 +954397,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: achievements.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:04:03.931Z (.tmp/slw/results/lb4w_mr3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 57 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 56 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3197.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3198",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · alert hub",
       "pages": [
@@ -954459,12 +954469,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: alert-hub.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:23:27.278Z (.tmp/slw/results/lb4w_mr4.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 62 boot request(s); visible 75 s: 10 request(s) (GET /rest/v1/v_risk_truth?hive_id=eq,limit,order,risk_level= x1, GET /rest/v1/v_inventory_items_truth?hive_id=eq,limit,or=,or x1, GET /rest/v1/v_pm_scope_items_truth?hive_id=eq,is_overdue=eq x1); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 61 boot request(s); visible 75 s: 10 request(s) (GET /rest/v1/v_risk_truth?hive_id=eq,limit,order,risk_level= x1, GET /rest/v1/v_inventory_items_truth?hive_id=eq,limit,or=,or x1, GET /rest/v1/v_pm_scope_items_truth?hive_id=eq,is_overdue=eq x1); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers Receipt .tmp/mcp_walks/SL3198.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3199",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · analytics report",
       "pages": [
@@ -954521,12 +954541,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: analytics-report.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:55:58.126Z (.tmp/slw/results/lb4w_mr6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 47 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 46 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3199.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3200",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · analytics",
       "pages": [
@@ -954585,12 +954615,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: analytics.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:28:44.092Z (.tmp/slw/results/lb4w_mr8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 2s, 4s, 30s, 60s || desktop-1280: settled by networkidle after 49 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 2s, 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3200.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3201",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · asset hub",
       "pages": [
@@ -954647,12 +954687,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: asset-hub.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:23:27.278Z (.tmp/slw/results/lb4w_mr4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 57 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 56 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3201.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3202",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · assistant",
       "pages": [
@@ -954709,12 +954759,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: assistant.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:39:43.792Z (.tmp/slw/results/lb4w_mr5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 49 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3202.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3203",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · community",
       "pages": [
@@ -954771,12 +954831,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: community.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:55:58.126Z (.tmp/slw/results/lb4w_mr6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 61 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 61 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3203.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3204",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · dayplanner",
       "pages": [
@@ -954833,12 +954903,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: dayplanner.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:41:23.235Z (.tmp/slw/results/lb4w_mr9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 53 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 53 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3204.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3205",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · hive",
       "pages": [
@@ -954895,12 +954975,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: hive.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:39:43.792Z (.tmp/slw/results/lb4w_mr5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 64 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 64 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3205.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3206",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · index",
       "pages": [
@@ -954957,12 +955047,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: index.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:39:43.792Z (.tmp/slw/results/lb4w_mr5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 56 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 86400s || desktop-1280: settled by networkidle after 56 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s, 86400s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3206.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3207",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - solo-owner · integrations",
       "pages": [
@@ -955019,12 +955119,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: integrations.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:12:07.755Z (.tmp/slw/results/lb4w_mr7.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 39 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 39 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3207.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3208",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · inventory",
       "pages": [
@@ -955081,12 +955191,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: inventory.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:23:27.278Z (.tmp/slw/results/lb4w_mr4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 64 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 250ms, 4s, 30s, 60s || desktop-1280: settled by networkidle after 63 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3208.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3209",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · logbook",
       "pages": [
@@ -955143,12 +955263,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: logbook.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:31:23.031Z (.tmp/slw/results/lb4w_mr1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 66 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 250ms, 4s, 30s || desktop-1280: settled by networkidle after 65 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 250ms, 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3209.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3210",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - buyer · marketplace seller profile",
       "pages": [
@@ -955205,12 +955335,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: marketplace-seller-profile.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:47:52.311Z (.tmp/slw/results/lb4w_mr2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 53 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 52 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3210.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3211",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - buyer · marketplace seller",
       "pages": [
@@ -955267,12 +955407,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: marketplace-seller.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:47:52.311Z (.tmp/slw/results/lb4w_mr2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 60 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 58 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3211.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3212",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - buyer · marketplace",
       "pages": [
@@ -955329,12 +955479,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: marketplace.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:39:43.792Z (.tmp/slw/results/lb4w_mr5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 75 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 74 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3212.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3213",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · ph intelligence",
       "pages": [
@@ -955391,12 +955551,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: ph-intelligence.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:04:03.931Z (.tmp/slw/results/lb4w_mr3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 51 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3213.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3214",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - machine-client · plant connections",
       "pages": [
@@ -955453,12 +955623,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: plant-connections.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:47:52.311Z (.tmp/slw/results/lb4w_mr2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 46 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 46 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3214.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3215",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · pm scheduler",
       "pages": [
@@ -955515,12 +955695,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: pm-scheduler.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:55:58.126Z (.tmp/slw/results/lb4w_mr6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 57 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 250ms, 4s, 30s, 60s || desktop-1280: settled by networkidle after 57 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3215.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3216",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · project manager",
       "pages": [
@@ -955577,12 +955767,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: project-manager.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:04:03.931Z (.tmp/slw/results/lb4w_mr3.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 52 boot request(s); visible 75 s: 0 request(s); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 51 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); socket frames heartbeat 3; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3216.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3217",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · project report",
       "pages": [
@@ -955639,12 +955839,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: project-report.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:41:23.235Z (.tmp/slw/results/lb4w_mr9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 54 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 55 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3217.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3218",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - an anonymous visitor · public feed",
       "pages": [
@@ -955695,12 +955905,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: public-feed.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:31:23.031Z (.tmp/slw/results/lb4w_mr1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 39 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 38 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3218.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3219",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · report sender",
       "pages": [
@@ -955757,12 +955977,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: report-sender.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:04:03.931Z (.tmp/slw/results/lb4w_mr3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 54 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 52 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3219.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3220",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · shift brain",
       "pages": [
@@ -955819,12 +956049,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: shift-brain.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:55:58.126Z (.tmp/slw/results/lb4w_mr6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3220.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3221",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - worker · skillmatrix",
       "pages": [
@@ -955881,12 +956121,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: skillmatrix.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T19:23:27.278Z (.tmp/slw/results/lb4w_mr4.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 50 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3221.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3222",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · agentic rag observability",
       "pages": [
@@ -955937,12 +956187,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: agentic-rag-observability.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:12:07.755Z (.tmp/slw/results/lb4w_mr7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 12 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 30s || desktop-1280: settled by networkidle after 12 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3222.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3223",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - supervisor · ai quality",
       "pages": [
@@ -955999,12 +956259,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: ai-quality.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:47:52.311Z (.tmp/slw/results/lb4w_mr2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 43 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 42 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3223.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3224",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - fleet-supervisor · audit log",
       "pages": [
@@ -956061,12 +956331,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: audit-log.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:41:23.235Z (.tmp/slw/results/lb4w_mr9.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 53 boot request(s); visible 75 s: 8 request(s) (GET /rest/v1/hive_audit_log?created_at=gte,hive_id=eq,limit, x2 every 30 s, GET /rest/v1/ai_audit_log?created_at=gte,hive_id=eq,limit,or x2 every 30 s, HEAD /rest/v1/hive_audit_log?created_at=gte,hive_id=eq,selec x2 every 30 s); no socket frame; hidden 75 s: 1 request(s) (GET /auth/v1/health x1); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 52 boot request(s); visible 75 s: 8 request(s) (GET /rest/v1/hive_audit_log?created_at=gte,hive_id=eq,limit, x2 every 30 s, GET /rest/v1/ai_audit_log?created_at=gte,hive_id=eq,limit,or x2 every 30.2 s, HEAD /rest/v1/hive_audit_log?created_at=gte,hive_id=eq,selec x2 every 30.2 s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle Receipt .tmp/mcp_walks/SL3224.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3225",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · founder console",
       "pages": [
@@ -956117,12 +956397,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: founder-console.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:12:07.755Z (.tmp/slw/results/lb4w_mr7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 23 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 22 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3225.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3226",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · llm observability",
       "pages": [
@@ -956173,12 +956463,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: llm-observability.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:12:07.755Z (.tmp/slw/results/lb4w_mr7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 18 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 30s || desktop-1280: settled by networkidle after 18 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3226.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3227",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · marketplace admin",
       "pages": [
@@ -956229,12 +956529,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: marketplace-admin.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:28:44.092Z (.tmp/slw/results/lb4w_mr8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 52 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 4s, 30s || desktop-1280: settled by networkidle after 51 boot request(s); visible 75 s: 1 request(s) (GET /auth/v1/health x1); no socket frame; repeating timers 4s, 30s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3227.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3228",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · platform actions",
       "pages": [
@@ -956285,12 +956595,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from platform actions itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: platform-actions.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:28:44.092Z (.tmp/slw/results/lb4w_mr8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 39 boot request(s); visible 75 s: 15 request(s) (GET /auth/v1/health x1, POST /rest/v1/rpc/founder_active_hives x1, POST /rest/v1/rpc/founder_mau x1); socket frames heartbeat 3; hidden 75 s: 0 request(s); repeating timers 4s, 30s, 60s || desktop-1280: settled by networkidle after 39 boot request(s); visible 75 s: 14 request(s) (POST /rest/v1/rpc/founder_active_hives x1, POST /rest/v1/rpc/founder_mau x1, POST /rest/v1/rpc/founder_anon_sessions x1); socket frames heartbeat 3; repeating timers 4s, 30s, 60s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3228.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3229",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - oversight · status",
       "pages": [
@@ -956341,6 +956661,16 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: status.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T20:28:44.092Z (.tmp/slw/results/lb4w_mr8.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 15 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers none || desktop-1280: settled by networkidle after 15 boot request(s); visible 75 s: 0 request(s); no socket frame; repeating timers none. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3229.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
@@ -956402,8 +956732,8 @@
     },
     {
       "id": "SL3231",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - an anonymous visitor · feedback",
       "pages": [
@@ -956454,12 +956784,22 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: feedback/index.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:31:23.031Z (.tmp/slw/results/lb4w_mr1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 23 boot request(s); visible 75 s: 0 request(s); no socket frame; hidden 75 s: 0 request(s); repeating timers 30s, 86400s || desktop-1280: settled by networkidle after 17 boot request(s); visible 75 s: 1 request(s) (POST /g/collect x1); no socket frame; repeating timers 30s, 86400s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3231.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
       "id": "SL3232",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB4 · The platform must refresh this page on a bounded cadence, never two refreshers feeding each other - an anonymous visitor · gamifying maintenance for engagement",
       "pages": [
@@ -956510,6 +956850,16 @@
         "engine": "chromium",
         "ask": "The platform must refresh this page on a bounded cadence, never two refreshers feeding each other",
         "closes": "the LB4 ask is answered from gamifying maintenance for engagement itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so every request it made was seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request it made on its own, every frame on its realtime socket and every repeating timer it started recorded: no request repeating faster than every 10 s, no two copies of one request landing together, no realtime channel joining again, no write while idle, and nothing refreshed while nobody could see it): LB4: learn/gamifying-maintenance-for-engagement/index.html refreshes on a bounded cadence and no two refreshers feed each other - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T18:31:23.031Z (.tmp/slw/results/lb4w_mr1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, the page left alone after its network went quiet: phone-390: settled by networkidle after 15 boot request(s); visible 75 s: 1 request(s) (POST /g/collect x1); no socket frame; hidden 75 s: 0 request(s); repeating timers 86400s || desktop-1280: settled by networkidle after 15 boot request(s); visible 75 s: 1 request(s) (POST /g/collect x1); no socket frame; repeating timers 86400s. Budget: no request repeating faster than every 10 s or more than 8 times in 75 s, at most 40 requests in a quiet window, no two copies landing together more than once, no channel joining again, no repeated idle write, at most 2 requests while hidden. Gates idle-network, timers, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3232.json.",
+      "artifacts": {
+        "gates": [
+          "idle-network",
+          "refresh-stands-down-hidden",
+          "scripts-parse",
+          "skew-heal",
+          "timers"
+        ]
       }
     },
     {
@@ -1034821,5 +1035171,5 @@
       }
     }
   ],
-  "next": "SL LB3 71/76: the scroll anchor walk fixed (only the rows the browser draws are candidates) and the shared chrome passes moved after the paint; five rows open 19-65 ms of CPU over budget at phone speed on a paging host (SL.19). Next: the innerText-on-long-lists prover audit, then LB4 (35), RL1 (31), RL2 (24), RL3 (36); LB3's five and the scroll-up layout shift (SL.19 NEXT) stay queued"
+  "next": "SL LB4 35/35 banked (SL.20): platform-actions polled 14 reads a minute into a hidden tab - fixed with whPoll, four refreshers of the same shape fixed, gate refresh-stands-down-hidden. Next: RL1 (31), RL2 (24), RL3 (36) - survey, fixes, gates and walk instruments being prepared in parallel, then their MCP walks; LB3's five and the scroll-up layout shift (SL.19 NEXT) stay queued"
 }
