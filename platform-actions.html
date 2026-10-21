@@ -1845,8 +1845,12 @@
         document.getElementById('usage-card').hidden = false;
       }
       document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
-      const _refreshTimer = setInterval(refreshQueues, 60000);
-      window.addEventListener('pagehide', () => clearInterval(_refreshTimer), { once: true }); // stop polling when the page is backgrounded/navigated (no leaked interval)
+      // ★NOT WHILE NOBODY IS LOOKING (SL LB4, 2026-10-22). The minute's refresh ran on in a hidden tab - walked as the
+      // platform admin and hidden for 75 s, the console sent all 14 of its queue reads anyway, every minute, for a tab
+      // nobody could see (pagehide fires on leaving the page, not on hiding it). whPoll (utils.js) skips a hidden tab,
+      // refreshes the moment it is shown again and never runs two refreshes at once; the first load has already run.
+      const _refreshPoll = whPoll(refreshQueues, 60000, { immediate: false });
+      window.addEventListener('pagehide', () => _refreshPoll.stop(), { once: true }); // and none left running after the page goes
     })();
 
     // E3 provenance. This was the ONLY surface in the marketplace set with no source chip at all

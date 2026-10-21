@@ -1404,7 +1404,9 @@
         const secs = Number(e.target.value);
         if (_state.autoTimer) { clearInterval(_state.autoTimer); _state.autoTimer = null; }
         if (secs > 0) {
-          const intervalId = setInterval(() => refreshAll(), secs * 1000);
+          // the chosen cadence while the console is on screen; a hidden tab refreshes nothing until it is shown again
+          // (SL LB4, 2026-10-22)
+          const intervalId = setInterval(() => { if (!document.hidden) refreshAll(); }, secs * 1000);
           _state.autoTimer = intervalId;
         }
       });

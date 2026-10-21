@@ -206,7 +206,7 @@ CONDITION["LB3"] = ("the page read as served in its own browser context (service
                     "through the page's own Load more until it held 1,000, the main thread settled, its search typed and "
                     "cleared; every task booked by its main-thread CPU time x the throttle (phone-390 at 4x): every interaction "
                     "under 200 ms and no task over 200 ms after the rows arrived")
-GATES["LB4"] = ["idle-network", "timers", "skew-heal", "scripts-parse"]
+GATES["LB4"] = ["refresh-stands-down-hidden", "idle-network", "timers", "skew-heal", "scripts-parse"]
 CONDITION["LB4"] = ("the page read as served in its own browser context (service workers blocked, so every request it made was "
                     "seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network "
                     "went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll "

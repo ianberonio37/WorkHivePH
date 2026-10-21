@@ -4336,7 +4336,8 @@
   function _startPresenceHeartbeat(db, ctx) {
     if (_presenceHandle) return _presenceHandle;
     _writePresence(db, ctx);
-    _presenceHandle = setInterval(() => _writePresence(db, ctx), _PRESENCE_INTERVAL_MS);
+    // present means here: a hidden tab writes no heartbeat, and its last_seen ages out like a closed one (SL LB4)
+    _presenceHandle = setInterval(() => { if (!document.hidden) _writePresence(db, ctx); }, _PRESENCE_INTERVAL_MS);
     return _presenceHandle;
   }
   function _stopPresenceHeartbeat() {

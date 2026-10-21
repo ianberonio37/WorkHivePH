@@ -443,6 +443,7 @@
       // page's entire life by design. Stored so it can be cleared on unload
       // (defence-in-depth against a leaked timer; the page usually unloads first).
       if (typeof setInterval === 'function') {
+        // refresh-hidden: a drain sends only what the person queued, and a queued write should reach the server from a background tab too
         const _syncTimer = setInterval(tick, period);
         if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
           window.addEventListener('beforeunload', () => clearInterval(_syncTimer));

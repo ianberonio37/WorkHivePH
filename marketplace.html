@@ -5562,7 +5562,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       }
     };
     await tick();
-    _svcTrackTimers[requestId] = setInterval(tick, 10000);
+    // the provider's position is read every 10 s while the job is live - and not while the tab is hidden, when it would
+    // be read for nobody; the next tick after the tab is shown catches up (SL LB4, 2026-10-22)
+    _svcTrackTimers[requestId] = setInterval(() => { if (!document.hidden) tick(); }, 10000);
   }
   window.svcTrack = svcTrack;
 

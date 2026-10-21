@@ -2659,6 +2659,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       let count    = seconds;
       const el     = document.getElementById('results-countdown');
       el.textContent = _t(`Resetting in ${count}s`, `Magre-reset sa ${count}s`);
+      // refresh-hidden: not a refresh - a countdown of a few seconds that resets the page once and stops itself
       const timer  = setInterval(() => {
         count--;
         if (count <= 0) { clearInterval(timer); resetPage(); }

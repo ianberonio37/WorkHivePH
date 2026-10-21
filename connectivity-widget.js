@@ -321,7 +321,10 @@
     // Periodic queue-depth refresh while popover is open OR offline.
     // Stored so it can be cleared if the page navigates away (defence-in-depth
     // against leaked timers — the page typically unloads first).
+    // ...and not in a hidden tab: online, refresh() pings the backend, and a popover left open in a tab switched away
+    // pinged it every 4 s for nobody (SL LB4, 2026-10-22); the next tick after the tab is shown catches up
     window._whConnRefreshTimer = setInterval(() => {
+      if (document.hidden) return;
       if (!pop.classList.contains('hidden') || !navigator.onLine) refresh();
     }, 4000);
     window.addEventListener('beforeunload', () => {

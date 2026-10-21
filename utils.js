@@ -104,6 +104,7 @@ function whTold(kind, sentence, err) {
       if (_whToldPending.length < 10) _whToldPending.push([kind, shown, err]);
       if (!_whToldTimer) {
         var _tries = 0;
+        // refresh-hidden: not a refresh - at most 20 tries to hand over notices the page already showed, then it stops itself
         _whToldTimer = setInterval(function () {
           _tries++;
           if (window._whSupabaseClient || _tries > 20) {

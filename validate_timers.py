@@ -164,12 +164,85 @@ def check_interval_in_event_handler(pages):
 
 # ── Layer 2: setTimeout hygiene ───────────────────────────────────────────────
 
+def _js_skip_str(s, j):
+    q = s[j]; j += 1
+    while j < len(s):
+        c = s[j]
+        if c == "\\":
+            j += 2; continue
+        if q == "`" and c == "$" and j + 1 < len(s) and s[j + 1] == "{":
+            j = _js_match(s, j + 1) + 1; continue
+        if c == q:
+            return j + 1
+        j += 1
+    return j
+
+
+def _js_match(s, i):
+    """i at an opening ( [ or {; the index of its close (strings, template literals and comments skipped)"""
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    stack = [pairs[s[i]]]; j = i + 1
+    while j < len(s) and stack:
+        c = s[j]
+        if c in "'\"`":
+            j = _js_skip_str(s, j); continue
+        if c == "/" and s[j:j + 2] == "//":
+            k = s.find("\n", j); j = len(s) if k < 0 else k; continue
+        if c == "/" and s[j:j + 2] == "/*":
+            k = s.find("*/", j); j = len(s) if k < 0 else k + 2; continue
+        if c in pairs:
+            stack.append(pairs[c])
+        elif c in ")]}":
+            if stack and c == stack[-1]:
+                stack.pop()
+                if not stack:
+                    return j
+        j += 1
+    return len(s) - 1
+
+
+def _loop_body(content, at):
+    """(start, end) of the loop body opened by the match at `at` (forEach( / map( / for (...)), or None"""
+    m = re.match(r"(forEach|map)\s*\(", content[at:])
+    if m:
+        o = at + m.end() - 1
+        return o, _js_match(content, o)
+    m = re.match(r"for\s*\(", content[at:])
+    if not m:
+        return None
+    o = at + m.end() - 1
+    h = _js_match(content, o)
+    k = h + 1
+    while k < len(content) and content[k] in " \t\r\n":
+        k += 1
+    if k < len(content) and content[k] == "{":
+        return h, _js_match(content, k)
+    # a single statement: to its ';' at depth 0
+    depth, e = 0, k
+    while e < len(content):
+        c = content[e]
+        if c in "'\"`":
+            e = _js_skip_str(content, e); continue
+        if c in "([{":
+            e = _js_match(content, e) + 1; continue
+        if c == ";" or c == "\n":
+            break
+        e += 1
+    return h, e
+
+
 def check_timeout_in_loop(pages):
     """
     setTimeout (or setInterval) inside a forEach, map, or for loop creates
     N timers simultaneously — one per iteration.
     Exception: loops that exit immediately after the timer (return/break on
     the next 2 lines) create at most one timer and are safe.
+    ★INSIDE MEANS INSIDE THE LOOP'S BODY (2026-10-22). The check looked back four lines for a loop opener and called
+    any timer below one "inside a loop": utils.js's overlay observer runs a one-line `for (...) hit = ...;` and THEN
+    queues one setTimeout behind a `queued` flag, and the figure marker's `for (...) mark(...);` sits two lines above a
+    debounce - two false FAILs that kept this gate red. A timer now counts only when its call lies within the body of
+    a loop opened above it (a for's braces or its single statement, a forEach/map callback's parentheses); the timer's
+    own line counts too, so `rows.forEach(r => setTimeout(...))` on one line is caught.
     """
     issues = []
     for page in pages:
@@ -177,14 +250,25 @@ def check_timeout_in_loop(pages):
         if not content:
             continue
         lines = content.splitlines()
+        starts, acc = [], 0
+        for ln in lines:
+            starts.append(acc); acc += len(ln) + 1
         for i, line in enumerate(lines):
-            if not re.search(r"\b(setInterval|setTimeout)\s*\(", line):
+            tm = re.search(r"\b(setInterval|setTimeout)\s*\(", line)
+            if not tm:
                 continue
             if line.strip().startswith("//"):
                 continue
-            # Look back 4 lines for a loop opener
-            window_back = "\n".join(lines[max(0, i - 4):i])
-            if not re.search(r"\bforEach\s*\(|\bfor\s*\(|\bfor\s+(?:const|let|var)\b|\bmap\s*\(", window_back):
+            t_abs = starts[i] + tm.start()
+            lo = starts[max(0, i - 4)]
+            inside = False
+            for lm in re.finditer(r"\bforEach\s*\(|\bfor\s*\(|\bmap\s*\(", content[lo:t_abs]):
+                at = lo + lm.start()
+                body = _loop_body(content, at)
+                if body and body[0] < t_abs <= body[1]:
+                    inside = True
+                    break
+            if not inside:
                 continue
             # Safe exception: timer is immediately followed by return/break (at most 1 timer created)
             window_after = "\n".join(lines[i + 1:min(len(lines), i + 3)])
@@ -199,7 +283,7 @@ def check_timeout_in_loop(pages):
             #     assistant.html [[8000, ...], [20000, ...], [40000, ...]].forEach(...)          3 timers,
             #                    every one pushed onto _typingTimers and cleared with the bubble
             # A data-driven `rows.forEach(r => setTimeout(...))` has no literal to match and still fails,
-            # which is what the added self-test case pins.
+            # which is what the self-test case pins.
             window_back_wide = "\n".join(lines[max(0, i - 6):i + 1])
             if re.search(r"\[\s*(?:\[|[0-9'\"])[\s\S]{0,400}?\]\s*\.\s*(?:forEach|map)\s*\(", window_back_wide):
                 continue
@@ -208,6 +292,34 @@ def check_timeout_in_loop(pages):
                            "reason": f"{page}:{i+1} {fn}() inside a loop — creates N timers simultaneously: `{line.strip()[:70]}`"})
     return issues
 
+
+def _self_test():
+    """the loop check against short sources: what must fail fails, what must pass passes"""
+    import tempfile, os
+    cases = [
+        ("rows.forEach((r) => {\n  setTimeout(() => go(r), 100);\n});\n", True, "a timer per row"),
+        ("rows.forEach((r) => setTimeout(() => go(r), 100));\n", True, "a timer per row, one line"),
+        ("for (let i = 0; i < n; i++) {\n  x(i);\n  setTimeout(() => y(i), 10);\n}\n", True, "a timer per pass of a for"),
+        ("for (var r = 0; r < n && !hit; r++) { hit = ok(r); }\nif (!hit) return;\nqueued = true;\nsetTimeout(sync, 0);\n", False, "a for that closed before the timer"),
+        ("for (var f = 0; f < n; f++) mark(f);\n}\nfunction schedule() { timer = setTimeout(decorate, 250); }\n", False, "a one-line for above a debounce"),
+        ("[500, 1500, 3000].forEach((ms) => setTimeout(() => ping(), ms));\n", False, "a literal schedule"),
+    ]
+    fails = []
+    for src, want, label in cases:
+        fd, path = tempfile.mkstemp(suffix=".js"); os.close(fd)
+        try:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(src)
+            got = bool(check_timeout_in_loop([path]))
+        finally:
+            os.unlink(path)
+        if got != want:
+            fails.append(f"{label}: {'flagged' if got else 'passed'}, should have {'been flagged' if want else 'passed'}")
+    clean = check_timeout_in_loop(LIVE_PAGES)
+    if clean:
+        fails.append(f"the live pages are not clean: {[c['reason'] for c in clean[:2]]}")
+    print("SELF-TEST PASS (6 cases; the live pages are clean)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+    return 1 if fails else 0
 
 # ── Layer 3: Long-running timer UX ───────────────────────────────────────────
 
@@ -343,6 +455,8 @@ CHECK_LABELS = {
 
 
 def main():
+    if "--self-test" in sys.argv:
+        return _self_test()
     def bold(s): return f"\033[1m{s}\033[0m"
     print(bold("\nTimer and Scheduled Job Hygiene Validator (4-layer)"))
     print("=" * 55)

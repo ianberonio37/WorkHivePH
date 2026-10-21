@@ -7057,6 +7057,19 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL LB4 (2026-10-22): a page refreshes on a bounded cadence, and never for nobody. Walked as each of 35 rows' casts
+        # (75 s untouched and visible, then 75 s hidden): 34 refreshed on a bounded cadence and fell silent hidden;
+        # platform-actions sent all 14 of its queue reads every minute to a tab nobody could see (its only stop was
+        # pagehide). Holds every network setInterval on the served pages and shared scripts to stand down while hidden
+        # (reads document.hidden, runs through whPoll/whLivePoll, stops on visibilitychange) or to say why it must not.
+        "id":      "refresh-stands-down-hidden",
+        "script":  os.path.join("tools", "validate_refresh_stands_down_hidden.py"),
+        "args":    [],
+        "label":   "Refresh stands down when hidden (SL LB4): every setInterval that reaches the network on a served page or shared script skips a hidden tab (document.hidden, whPoll/whLivePoll, or a stop on visibilitychange) or declares why it must run hidden; whPoll's and whLivePoll's ticks skip a hidden tab",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
         # SL LB3 (2026-10-21): a lookup by many keys reaches the database in pieces the gateway accepts. `.in(col, keys)`
         # carries every key in the URL, and past ~8 KB the gateway answers 414 (measured: 400 names = 8.7 KB; ~200 UUIDs).
         # Walked with a thousand rows: pm-scheduler read no PM work for a plant of a few hundred assets, project-manager
