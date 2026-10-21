@@ -1948,6 +1948,11 @@
       /* ★SL LB3 (2026-10-21): "Load more" rebuilt every card (30 more a press, each press re-rendering and re-binding all of
          them). whRenderRows appends the new cards; a card's risk chip comes from risk data that arrives on its own, so it
          is part of the card's key and a card whose risk changed renders the list again. */
+      // ★TWO SEVERITY WORDS ON ONE ROW, ONE OF THEM NAMELESS (design lens critique, 2026-09-15): the risk chip says
+      // "HIGH RISK 76%" and the criticality chip said a bare "MEDIUM", drawn from the same four words, so the pair read as a
+      // contradiction - the only thing telling them apart was a hover title, which a phone does not have. The criticality
+      // chip now names itself. (This note lived inside the row's template as an HTML comment: one more node in every row,
+      // kept and traced a thousand times over - SL LB3.)
       whRenderRows(list, visible, n => `
         <div class="asset-card" data-node-id="${e(n.id)}">
           <div class="asset-card-main">
@@ -1957,10 +1962,6 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;">
             ${riskChip(n)}
-            <!-- ★TWO SEVERITY WORDS ON ONE ROW, ONE OF THEM NAMELESS (design lens critique, 2026-09-15):
-                 the risk chip above says "HIGH RISK 76%" and this said a bare "MEDIUM", drawn from the same
-                 four words, so the pair read as a contradiction. The only thing telling them apart was a
-                 hover title, which does not exist on the phone this page is built for. -->
             <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(_t('CRITICALITY ', 'KRITIKALIDAD '))}${e(typeof whLevelWord === 'function' ? whLevelWord(n.criticality || 'medium') : (n.criticality || 'medium'))}</span>
           </div>
         </div>

@@ -63,6 +63,9 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
            layers and two queries over the whole document each time (2.6 s + 1.3 s of an 82-press inventory walk); each
            sample asks elementFromPoint for the top element (the stack walked every row's layer), and the guide chip
            moving itself is not a change at the foot of the screen.
+        R17 a row drawn through whRenderRows carries no HTML comment in its template: a comment is one more node in
+           every row, parsed, kept and traced by the collector - inventory's part card carried three (~1.5 KB of notes a
+           card), and around each press the browser's collections were the longest tasks; notes live as JS comments.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -235,15 +238,15 @@ def check_page(page: str, raw: str) -> list[str]:
     # as just arrived (.new-entry) moves. Every logbook and inventory card slid in on every search, filter and Load More,
     # and each sliding card made the browser re-check every row's place on every frame (~245 ms of rendering per 20-card
     # append at 390 with the CPU 4x slower, ~26 ms without; SL LB3, 2026-10-21)
-    for m in re.finditer(r"whRenderRows\(", src):
-        cm = re.search(r"class=\"([^\"$]+)", src[m.end():m.end() + 1500])
+    for start, end, _f in row_calls(src):
+        cm = re.search(r"class=\"([^\"$]+)", src[start:end])
         if not cm:
             continue
         for c in cm.group(1).split():
             if not re.fullmatch(r"[A-Za-z][\w-]*", c):
                 continue
             if re.search(r"(?:^|[\s,}])\." + re.escape(c) + r"\s*\{[^}]*\banimation\s*:\s*(?!none\b)", src):
-                line = src.count("\n", 0, m.start()) + 1
+                line = src.count("\n", 0, start) + 1
                 issues.append(f"R14 {page}:{line} every .{c} row runs an animation each time the list draws it (a search, a "
                               f"filter, a Load More) - animate only the row that just arrived (.{c}.new-entry)")
     # R4: typing into a search or filter box that re-renders a list is debounced
@@ -313,7 +316,85 @@ def check_page(page: str, raw: str) -> list[str]:
             line = src.count("\n", 0, m.start()) + 1
             issues.append(f"R15 {page}:{line} a search box runs {', '.join(slow)} in the keystroke's own task - let it "
                           "wait for the typing to pause")
+    # R17 (2026-10-21): a row drawn through whRenderRows carries no HTML comment in its template - a comment is one more
+    # node in EVERY row, parsed, kept and traced by the collector: inventory's part card carried three (~1.5 KB of notes a
+    # card), and with a thousand cards on screen the browser's collections were the longest tasks around each press
+    for line, n in comments_in_row_templates(raw):   # the RAW page: blank_comments removes exactly what this looks for
+        issues.append(f"R17 {page}:{line} a row template drawn through whRenderRows carries {n} HTML comment(s) - one more "
+                      "node in every row; keep the note as a JS comment beside the template")
     return issues
+
+
+def comments_in_row_templates(src: str) -> list[tuple[int, int]]:
+    """For each whRenderRows( call whose template literals hold '<!--': (its line, how many)."""
+    return [(src.count("\n", 0, s) + 1, f) for s, _e, f in row_calls(src) if f]
+
+
+def row_calls(src: str) -> list[tuple[int, int, int]]:
+    """Every whRenderRows( call as (start, end, '<!--' count inside its template literals) - a scanner that follows
+    strings, comments, template literals and the ${...} nested in them, so the call ends where JS ends it. (R14 read a
+    fixed 1,500 characters past the call for the row's class, and a note moved above a template's return pushed the class
+    out of its window - the call's own extent has no such edge.)"""
+    out = []
+    for m in re.finditer(r"\bwhRenderRows\(", src):
+        i, n, depth = m.end() - 1, len(src), 0
+        stack = []           # frames: 'tpl', or ['expr', brace depth] for a ${...} inside a template literal
+        found = 0
+        while i < n:
+            ch = src[i]
+            top = stack[-1] if stack else None
+            if top == "tpl":
+                if ch == "\\":
+                    i += 2
+                    continue
+                if ch == "`":
+                    stack.pop()
+                elif ch == "$" and src[i + 1:i + 2] == "{":
+                    stack.append(["expr", 0])
+                    i += 2
+                    continue
+                elif src.startswith("<!--", i):
+                    found += 1
+                i += 1
+                continue
+            # code (top level or inside ${...})
+            if ch in "'\"":
+                j = i + 1
+                while j < n and src[j] != ch:
+                    j += 2 if src[j] == "\\" else 1
+                i = j + 1
+                continue
+            if ch == "`":
+                stack.append("tpl")
+                i += 1
+                continue
+            if src.startswith("//", i):
+                i = src.find("\n", i)
+                i = n if i < 0 else i
+                continue
+            if src.startswith("/*", i):
+                i = src.find("*/", i + 2)
+                i = n if i < 0 else i + 2
+                continue
+            if isinstance(top, list):
+                if ch == "{":
+                    top[1] += 1
+                elif ch == "}":
+                    if top[1] == 0:
+                        stack.pop()
+                    else:
+                        top[1] -= 1
+                i += 1
+                continue
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            i += 1
+        out.append((m.start(), i, found))
+    return out
 
 
 def check_static(page: str, raw: str) -> list[str]:
@@ -545,6 +626,8 @@ def self_test() -> list[str]:
             "if (es[i].isIntersecting) { roomSoon(); break; }", "if (es[i].isIntersecting) { queue(); break; }", 1)}, None, "R16"),
         ("the Sources area sampling the foot of the screen every pass", {"utils.js": utils.replace(
             "if (needAt && needAt.key === key) need = needAt.need;", "if (false) need = 0;", 1)}, None, "R16"),
+        ("a note written into every inventory card as an HTML comment", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
+            '<div class="part-card stock-${st} p-5 mb-3"', '<!-- a note --><div class="part-card stock-${st} p-5 mb-3"', 1)}, None, "R17"),
         ("the Sources area walking every layer under a sample", {"utils.js": utils.replace(
             "var top = document.elementFromPoint(xs[xi], H - 10 - yi * 40);",
             "var top = (document.elementsFromPoint(xs[xi], H - 10 - yi * 40) || [])[0];", 1)}, None, "R16"),
@@ -577,7 +660,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (33 mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print("SELF-TEST PASS (34 mutants caught; the clean runs are green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     issues = check()
     print("Long-list render (SL LB3): every list on the LB3 pages stays responsive with a thousand rows in it")

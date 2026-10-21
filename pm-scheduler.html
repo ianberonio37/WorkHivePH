@@ -2123,6 +2123,16 @@ function _pmRenderList() {
       ? `${nextDueItem.itemStatus === 'overdue' ? 'Overdue since' : 'Next:'} ${formatDate(nextDueItem.nextDue)} (${(nextDueItem.item_text || '').split(' ').slice(0, 4).join(' ')}...)`
       : 'No scheduled tasks';
 
+    // Notes on the card (kept here, not as HTML comments in it: a comment in a row's template is one more node in every
+    // row, kept and traced a thousand times over - SL LB3):
+    // - AA RED (2026-09-16): the overdue count used text-red-400 (#f87171, --wh-red, whose own comment says "alert /
+    //   danger FILL (AA text = --wh-red-text)"); it measured 3.98:1 on this CARD at rgb(42,61,88), not the page ground
+    //   where the same red reaches 5.9:1. .badge-overdue already used var(--wh-red-text), and now so does the count:
+    //   7.7:1 on the card.
+    // - ★SIX GREEN BARS UNDER "0 OF 8 ON TRACK" (critique W45999, 2026-10-13): an asset with no PM tasks got --p:1 and,
+    //   its status being "nodata", fell through to green - a full green bar, the picture of "all on track", on six of
+    //   Oscar's eight jeepneys, under the tile saying none of the eight is on track. No tasks is no data: the track stays
+    //   empty and grey, and the words under it ("No scheduled tasks", "0 PM tasks") carry the state.
     return `
       <div class="asset-card ${asset.overall}" onclick="openDetail('${escJsAttr(asset.id)}')"
            role="button" tabindex="0" aria-label="Open PM details for ${escHtml(asset.asset_name)}${asset.tag_id ? ', tag ' + escHtml(asset.tag_id) : (asset.location ? ', ' + escHtml(asset.location) : '')}, ${escHtml(statusLabel(asset.overall))}"
@@ -2145,20 +2155,11 @@ function _pmRenderList() {
           ${HIVE_ID && asset.worker_name ? (_isMine(asset)
             ? '<span class="text-xs font-semibold" style="color:var(--wh-orange);">yours</span>'
             : `<span class="text-xs text-white/60">${escHtml(asset.worker_name)}</span>`) : ''}
-          ${overdueItems > 0 ? `<!-- AA RED (2026-09-16): text-red-400 is #f87171, which is --wh-red - the token whose own comment says
-               "alert / danger FILL (AA text = --wh-red-text)". It measured 3.98:1 here because this span sits
-               on a CARD at rgb(42,61,88), not on the page ground where the same red reaches 5.9:1. This page
-               already gets it right one rule away: .badge-overdue uses var(--wh-red-text). Now so does this.
-               --wh-red-text on the card measures 7.7:1. -->
-          <span class="text-xs font-semibold" style="color: var(--wh-red-text);">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
+          ${overdueItems > 0 ? `<span class="text-xs font-semibold" style="color: var(--wh-red-text);">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
         <p class="text-xs text-white/80 mb-2 truncate">${escHtml(nextDueLabel)}</p>
 
-        <!-- ★SIX GREEN BARS UNDER "0 OF 8 ON TRACK" (critique W45999, 2026-10-13). An asset with no PM tasks got --p:1 and,
-             its status being "nodata", fell through to green: a full green bar - the picture of "all on track" - on six of
-             Oscar's eight jeepneys, directly below the tile saying none of the eight is on track. No tasks is no data: the
-             track stays empty and grey, and the words under it ("No scheduled tasks", "0 PM tasks") carry the state. -->
         <div class="progress-bar">
           <div class="progress-fill" style="
             --p:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) / 100 : 0};

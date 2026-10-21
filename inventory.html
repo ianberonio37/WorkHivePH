@@ -1432,15 +1432,24 @@ function _invRenderList() {
     const nm      = highlight(item.part_name, q);
     const locked  = HIVE_ID && (item.status === 'pending' || item.status === 'rejected');
 
+    // Notes on the card (kept here, not as HTML comments in it: a comment in the template is one more node in every card,
+    // parsed, kept and traced by the collector a thousand times over - SL LB3):
+    // - the code's group is min-w-0 and the code may wrap (2026-10-12, W4371 at 320): with a photo beside it the group
+    //   could not shrink below its widest child, and pushed the 44px "Open item details" chevron out of its card and 6px
+    //   past a 320px screen;
+    // - the count is 24px, the KPI tiles' step (critic DD1, 2026-10-13): at 30px each card's count outranked the summary
+    //   above it;
+    // - "Use" keeps its gap by an INLINE margin-right, not a Tailwind class: this page's purged Tailwind build does not
+    //   generate mr-5 (it computed to 0px). The destructive "Use" (btn-danger, deducts stock) sat 8px from "Restock" in a
+    //   flex gap-2 row - under WCAG 2.5.8's 24px, so a thumb aiming at one mis-taps the other. 20px + the row's 8px gap =
+    //   28px separation, clearing Z3's destructive-adjacency floor. Found on J23/J2 narrow-320 + tablet-768 walks (both
+    //   widths). Same fix pattern as resume.html's destructive-gap.
     return `
     <div class="part-card stock-${st} p-5 mb-3" data-part-id="${escHtml(String(item.id))}">
       <div class="flex items-start gap-4">
         ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
-            <!-- min-w-0 + a code that may wrap (2026-10-12, W4371 at 320): with a photo beside it this group could not
-                 shrink below its widest child, and pushed the 44px "Open item details" chevron out of its card and 6px
-                 past a 320px screen -->
             <div class="flex items-center gap-2 flex-wrap min-w-0">
               <span class="font-black text-sm tracking-wide text-white" style="overflow-wrap:anywhere;">${pn}</span>
               ${catBadge(item.category)}
@@ -1465,7 +1474,6 @@ function _invRenderList() {
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
-              <!-- 24px, the KPI tiles' step (critic DD1, 2026-10-13): at 30px each card's count outranked the summary above it -->
               <span data-fig="qty" class="text-2xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
               <span class="text-xs text-white/80">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-xs text-white/80">Min: ${item.min_qty}</span>` : ''}
@@ -1488,12 +1496,6 @@ function _invRenderList() {
               })() : ''}
             </div>
             <div class="flex gap-2 flex-wrap">
-              <!-- margin-right via INLINE style, not a Tailwind class: this page's purged Tailwind build
-                   does not generate mr-5 (it computed to 0px). The destructive "Use" (btn-danger, deducts
-                   stock) sat 8px from "Restock" in a flex gap-2 row — under WCAG 2.5.8's 24px, so a thumb
-                   aiming at one mis-taps the other. 20px + the row's 8px gap = 28px separation, clearing
-                   Z3's destructive-adjacency floor. Found on J23/J2 narrow-320 + tablet-768 walks (both
-                   widths). Same fix pattern as resume.html's destructive-gap. -->
               <button onclick="openUseModal('${escJsAttr(item.id)}')" class="btn-danger text-xs px-3 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0" style="margin-right:1.25rem;${locked ? 'opacity:0.4;cursor:not-allowed;' : ''}">
                 <span class="ic ic-minus" aria-hidden="true"></span>
                 <span data-i="inv_use">Use</span>

@@ -2511,6 +2511,9 @@
        them). whRenderRows appends the new ones. A row's name can depend on the rows around it (a tag that repeats takes
        its lead phrase), and its time is relative - both are part of its key, so a press that changes an earlier row
        renders the list again rather than leaving a stale name. */
+    // Every control in a row's actions names ITS alert (ledger C33, 2026-09-15): thirty identical names in one region were
+    // one name to a screen reader. (Kept here, not as an HTML comment in the row: a comment in the template is one more
+    // node in every row - SL LB3.)
     whRenderRows(feed, visible, a => {
       const nm = _alertName(a);
       const sev = a.severity || 'medium';
@@ -2534,7 +2537,7 @@
           <div class="alert-msg">${(a.aiHead && String(a.msg || '').startsWith(a.aiHead))
             ? '<span data-ai-generated>' + e(a.aiHead) + '</span>' + e(String(a.msg).slice(a.aiHead.length))
             : e(a.msg || '')}</div>
-          <div class="alert-actions"><!-- every control names ITS alert (ledger C33, 2026-09-15): thirty identical names in one region were one name to a screen reader -->
+          <div class="alert-actions">
             ${a.actionLabel && a.href !== '#'
               ? `<a class="alert-action" href="${e(a.href)}" aria-label="${e(a.actionLabel)}: ${e(nm)}">${e(a.actionLabel)} →</a>`
               : ''}
