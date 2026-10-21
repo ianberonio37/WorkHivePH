@@ -1,0 +1,313 @@
+{
+ "_doc": "Committed evidence for BRH classes Z..AE (tools/free_plan_evidence.py). Re-read production and re-run to refresh.",
+ "read": "2026-10-21",
+ "vercel": {
+  "plan": "Hobby",
+  "allowance_gb": 10,
+  "reported_use_pct": 70,
+  "payload_mb_denylist": 612.7,
+  "payload_mb_allowlist": 19.7,
+  "projects": {
+   "Production": {
+    "deployments": 725,
+    "first": "2026-04-04",
+    "last": "2026-10-15"
+   },
+   "skillful-growth / production": {
+    "deployments": 60,
+    "first": "2026-04-25",
+    "last": "2026-04-26"
+   }
+  }
+ },
+ "db": {
+  "bytes": 140602515,
+  "free_limit_bytes": 524288000,
+  "largest": [
+   {
+    "table": "cron.job_run_details",
+    "bytes": 80502784
+   },
+   {
+    "table": "extensions.spatial_ref_sys",
+    "bytes": 7315456
+   },
+   {
+    "table": "public.logbook",
+    "bytes": 5316608
+   },
+   {
+    "table": "supabase_migrations.schema_migrations",
+    "bytes": 2080768
+   },
+   {
+    "table": "public.wh_traces",
+    "bytes": 1925120
+   },
+   {
+    "table": "public.analytics_events",
+    "bytes": 1875968
+   },
+   {
+    "table": "public.pm_knowledge",
+    "bytes": 1425408
+   },
+   {
+    "table": "public.fault_knowledge",
+    "bytes": 1220608
+   }
+  ]
+ },
+ "growth_no_purge": [
+  {
+   "table": "cron.job_run_details",
+   "rows": 443228,
+   "since": "2026-04-25",
+   "bytes": 80502784,
+   "per_day": 5814,
+   "purged": false
+  },
+  {
+   "table": "public.wh_traces",
+   "rows": 5124,
+   "inserted": 5124,
+   "deleted": 0,
+   "size": "1880 kB",
+   "purged": false
+  },
+  {
+   "table": "public.analytics_events",
+   "rows": 3005,
+   "inserted": 3046,
+   "deleted": 0,
+   "size": "1832 kB",
+   "purged": false
+  },
+  {
+   "table": "public.automation_log",
+   "rows": 675,
+   "inserted": 675,
+   "deleted": 0,
+   "size": "272 kB",
+   "purged": false
+  },
+  {
+   "table": "public.ai_cost_log",
+   "rows": 62,
+   "inserted": 62,
+   "deleted": 0,
+   "size": "152 kB",
+   "purged": false
+  },
+  {
+   "table": "public.client_errors",
+   "rows": 58,
+   "inserted": 58,
+   "deleted": 0,
+   "size": "104 kB",
+   "purged": false
+  }
+ ],
+ "inline_photos": [
+  {
+   "column": "logbook.photo",
+   "rows": 22,
+   "bytes": 4346102
+  },
+  {
+   "column": "inventory_items.photo",
+   "rows": 5,
+   "bytes": 541747
+  }
+ ],
+ "photo_reads": [
+  {
+   "page": "dayplanner.html",
+   "line": 1443,
+   "src": "v_logbook_truth",
+   "cols": "*"
+  },
+  {
+   "page": "hive.html",
+   "line": 6076,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "hive.html",
+   "line": 7237,
+   "src": "logbook",
+   "cols": "*"
+  },
+  {
+   "page": "integrations.html",
+   "line": 1535,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "integrations.html",
+   "line": 2211,
+   "src": "logbook",
+   "cols": "*"
+  },
+  {
+   "page": "integrations.html",
+   "line": 2343,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 880,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 1905,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 1950,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 2795,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 2809,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 2826,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 2867,
+   "src": "inventory_items",
+   "cols": "*"
+  },
+  {
+   "page": "inventory.html",
+   "line": 2875,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 2073,
+   "src": "logbook",
+   "cols": "names photo"
+  },
+  {
+   "page": "logbook.html",
+   "line": 2497,
+   "src": "logbook",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 2634,
+   "src": "logbook",
+   "cols": "names photo"
+  },
+  {
+   "page": "logbook.html",
+   "line": 2904,
+   "src": "logbook",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 5571,
+   "src": "logbook",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 7577,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 7578,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "logbook.html",
+   "line": 7587,
+   "src": "v_inventory_items_truth",
+   "cols": "*"
+  },
+  {
+   "page": "pm-scheduler.html",
+   "line": 2735,
+   "src": "logbook",
+   "cols": "*"
+  }
+ ],
+ "corpus": [
+  {
+   "table": "industry_standards",
+   "prod_rows": 10,
+   "prod_embedded": 0,
+   "local_rows": 41
+  },
+  {
+   "table": "industry_standards_chunks",
+   "prod_rows": 0,
+   "prod_embedded": 0,
+   "local_rows": 781
+  },
+  {
+   "table": "persona_knowledge",
+   "prod_rows": 0,
+   "prod_embedded": 0,
+   "local_rows": 434
+  }
+ ],
+ "outbox": {
+  "queued": 58,
+  "inserted": 58,
+  "drained": 0,
+  "relay_job": false
+ },
+ "voice_journal": {
+  "rows": 7,
+  "embedded": 3
+ },
+ "refused": [
+  {
+   "function": "compute_hive_readiness",
+   "authenticated": false,
+   "anon": false,
+   "pages": [
+    "hive.html"
+   ]
+  }
+ ],
+ "plan_gaps": [
+  {
+   "key": "backups",
+   "what": "the Free plan keeps no daily backups of the database"
+  },
+  {
+   "key": "pausing",
+   "what": "the Free plan pauses a project after 7 days of low activity"
+  }
+ ]
+}

@@ -1192,8 +1192,10 @@ BRH_CLASS = {
           "sign-up and password change accept passwords known to be leaked",
           "the advisor's auth_leaked_password_protection: Supabase Auth's check against breached-password lists is off, "
           "so a password from a public breach is accepted at sign-up and on a password change",
-          "turn on leaked-password protection in Supabase Auth's password settings (Ian's dashboard) and re-read the "
-          "advisor"),
+          "on the free plan (Supabase's own check is a Pro feature, and the platform stays free): the page that sets a "
+          "password asks the Pwned Passwords range API before it sends one - only the first 5 characters of the "
+          "password's SHA-1 leave the browser - under a CSP and a service worker that let it through "
+          "(gate breached-password-check)"),
     "X": ("CI", "oversight",
           "API access that rests on Supabase's automatic grant, which stops on 2026-10-30",
           "replay the schema with the automatic grant off - what a local supabase db reset, a preview branch or a new "
@@ -1208,6 +1210,47 @@ BRH_CLASS = {
           "DROP + CREATE restores the defaults (enqueue_user_push, open in production from 2026-09-01)",
           "revoke from anon (and authenticated where the migration meant it) explicitly, every overload by name; a gate "
           "holds every function a migration closed to anon closed, including after a re-creation"),
+    # ...and six more, from Ian's 2026-10-21 message (§BRH.9): "my platform always free ... I am not upgrading to pro".
+    # Measured in free_plan_evidence.json from the public repository's deployment record, production (read-only, through
+    # the Supabase connector) and the local tree. Every fix stays on the free plans - no paid feature is a fix.
+    "Z": ("H", "oversight",
+          "deployments that outgrow the free plan's 10 GB of Deployment Storage",
+          "count the deployments Vercel recorded on the repository and what each build uploads: the denylist "
+          ".vercelignore uploaded 612.7 MB a build for a 19.5 MB site, Hobby keeps the newest production builds, and "
+          "the allowance read 70-75% of 10 GB",
+          "the allowlist .vercelignore (19.7 MB a build) shipped, so the protected builds are the small kind; a second "
+          "project that builds the same repository removed; and a gate that bounds what every build uploads times the "
+          "builds Hobby keeps under a tenth of the allowance"),
+    "AA": ("RL", "oversight",
+           "a table that grows with every use and that nothing ever purges",
+           "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, "
+           "and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+           "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry "
+           "90 days - never an audit trail's stated window; and a gate that every operational table has its purge"),
+    "AB": ("RL", "worker",
+           "a photo stored inside a table row as base64 text",
+           "read the column: data:image/... text in the row, so the database grows by every photo and every list read "
+           "of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+           "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's "
+           "path; list reads select a thumbnail path, never the image; the stored rows moved once and checked"),
+    "AC": ("AV", "oversight",
+           "the AI's reference corpus or its embeddings missing in production",
+           "count production's knowledge tables against the corpus the AI is built and tested on: standards and "
+           "persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+           "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free "
+           "infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus "
+           "matches what the AI expects"),
+    "AD": ("A", "worker",
+           "a page that calls a function production refuses its caller",
+           "as a signed-in member, call the function the page calls: production refuses it (authenticated has no "
+           "EXECUTE), so the page falls back on every load without saying so",
+           "the page asks what production lets its reader ask (a function that answers for the reader's own hive, or "
+           "the stored figure), and a gate compares every function a page calls with what production grants its reader"),
+    "AE": ("A", "oversight",
+           "a free-plan gap the platform covers with nothing",
+           "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
+           "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps "
+           "(backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run"),
 }
 
 

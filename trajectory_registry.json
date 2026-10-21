@@ -1,7 +1,7 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
   "updated": "2026-10-13",
-  "count": 18350,
+  "count": 18374,
   "trajectories": [
     {
       "id": "T1",
@@ -739481,6 +739481,1571 @@
       }
     },
     {
+      "id": "BRH495",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · cron.job_run_details - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: cron.job_run_details holds 443,228 rows, about 5,814 more a day and nothing ever removes one (80.5 MB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "cron.job_run_details",
+        "detail": "cron.job_run_details holds 443,228 rows, about 5,814 more a day and nothing ever removes one (80.5 MB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH496",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · public.ai_cost_log - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: public.ai_cost_log holds 62 rows and nothing ever removes one (152 kB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "public.ai_cost_log",
+        "detail": "public.ai_cost_log holds 62 rows and nothing ever removes one (152 kB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH497",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · public.analytics_events - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: public.analytics_events holds 3,005 rows and nothing ever removes one (1832 kB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "public.analytics_events",
+        "detail": "public.analytics_events holds 3,005 rows and nothing ever removes one (1832 kB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH498",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · public.automation_log - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: public.automation_log holds 675 rows and nothing ever removes one (272 kB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "public.automation_log",
+        "detail": "public.automation_log holds 675 rows and nothing ever removes one (272 kB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH499",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · public.client_errors - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: public.client_errors holds 58 rows and nothing ever removes one (104 kB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "public.client_errors",
+        "detail": "public.client_errors holds 58 rows and nothing ever removes one (104 kB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH500",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AA",
+      "title": "a table that grows with every use and that nothing ever purges - index · public.wh_traces - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: public.wh_traces holds 5,124 rows and nothing ever removes one (1880 kB) - operational records that grow with every use toward the free plan's 500 MB database. MECHANISM: a table that grows with every use and that nothing ever purges. REPRO: read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day). FIX: a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AA:oversight",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AA",
+        "page": "index.html",
+        "line": 0,
+        "key": "public.wh_traces",
+        "detail": "public.wh_traces holds 5,124 rows and nothing ever removes one (1880 kB) - operational records that grow with every use toward the free plan's 500 MB database",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a table that grows with every use and that nothing ever purges",
+        "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
+        "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH501",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - dayplanner:1443 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches dayplanner and meets a defect of a class a real person met on 2026-10-13/14: 1 list read(s) on dayplanner.html ship the inline photo column (v_logbook_truth:1443 *) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "dayplanner.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "dayplanner.html",
+        "line": 1443,
+        "key": "list reads",
+        "detail": "1 list read(s) on dayplanner.html ship the inline photo column (v_logbook_truth:1443 *) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH502",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - hive:6076 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches hive and meets a defect of a class a real person met on 2026-10-13/14: 2 list read(s) on hive.html ship the inline photo column (v_inventory_items_truth:6076 *, logbook:7237 *) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "hive.html",
+        "line": 6076,
+        "key": "list reads",
+        "detail": "2 list read(s) on hive.html ship the inline photo column (v_inventory_items_truth:6076 *, logbook:7237 *) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH503",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - index · inventory_items.photo - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: 5 photos are stored inside inventory_items.photo as base64 text (0.54 MB): they count against the free 500 MB database, and every read of the row carries them. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:oversight",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "index.html",
+        "line": 0,
+        "key": "inventory_items.photo",
+        "detail": "5 photos are stored inside inventory_items.photo as base64 text (0.54 MB): they count against the free 500 MB database, and every read of the row carries them",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH504",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - index · logbook.photo - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: 22 photos are stored inside logbook.photo as base64 text (4.35 MB): they count against the free 500 MB database, and every read of the row carries them. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "index.html",
+        "line": 0,
+        "key": "logbook.photo",
+        "detail": "22 photos are stored inside logbook.photo as base64 text (4.35 MB): they count against the free 500 MB database, and every read of the row carries them",
+        "layer": "RL",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH505",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - integrations:1535 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches integrations and meets a defect of a class a real person met on 2026-10-13/14: 3 list read(s) on integrations.html ship the inline photo column (inventory_items:1535 *, logbook:2211 *, inventory_items:2343 *) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "integrations.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "integrations.html",
+        "line": 1535,
+        "key": "list reads",
+        "detail": "3 list read(s) on integrations.html ship the inline photo column (inventory_items:1535 *, logbook:2211 *, inventory_items:2343 *) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH506",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - inventory:880 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches inventory and meets a defect of a class a real person met on 2026-10-13/14: 8 list read(s) on inventory.html ship the inline photo column (inventory_items:880 *, inventory_items:1905 *, inventory_items:1950 *, v_inventory_items_truth:2795 *, v_inventory_items_truth:2809 *, v_inventory_items_truth:2826 * ...) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "inventory.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "inventory.html",
+        "line": 880,
+        "key": "list reads",
+        "detail": "8 list read(s) on inventory.html ship the inline photo column (inventory_items:880 *, inventory_items:1905 *, inventory_items:1950 *, v_inventory_items_truth:2795 *, v_inventory_items_truth:2809 *, v_inventory_items_truth:2826 * ...) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH507",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - logbook:2073 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches logbook and meets a defect of a class a real person met on 2026-10-13/14: 8 list read(s) on logbook.html ship the inline photo column (logbook:2073 names photo, logbook:2497 *, logbook:2634 names photo, logbook:2904 *, logbook:5571 *, v_inventory_items_truth:7577 * ...) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "logbook.html",
+        "line": 2073,
+        "key": "list reads",
+        "detail": "8 list read(s) on logbook.html ship the inline photo column (logbook:2073 names photo, logbook:2497 *, logbook:2634 names photo, logbook:2904 *, logbook:5571 *, v_inventory_items_truth:7577 * ...) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH508",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AB",
+      "title": "a photo stored inside a table row as base64 text - pm scheduler:2735 · list reads - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "RL"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches pm scheduler and meets a defect of a class a real person met on 2026-10-13/14: 1 list read(s) on pm-scheduler.html ship the inline photo column (logbook:2735 *) - every load pays for every photo in free egress. MECHANISM: a photo stored inside a table row as base64 text. REPRO: read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages). FIX: photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AB:worker",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "pm-scheduler.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AB",
+        "page": "pm-scheduler.html",
+        "line": 2735,
+        "key": "list reads",
+        "detail": "1 list read(s) on pm-scheduler.html ship the inline photo column (logbook:2735 *) - every load pays for every photo in free egress",
+        "layer": "RL",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a photo stored inside a table row as base64 text",
+        "repro": "read the column: data:image/... text in the row, so the database grows by every photo and every list read of the row ships every photo in free egress (logbook 22 photos, 4.35 MB; 23 list reads on 7 pages)",
+        "fix": "photos stored in Supabase Storage (1 GB free), compressed before upload, the row keeping only the object's path; list reads select a thumbnail path, never the image; the stored rows moved once and checked",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH509",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AC",
+      "title": "the AI's reference corpus or its embeddings missing in production - index · embedding_outbox - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "AV"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: production's embedding outbox holds 58 rows and has drained 0: no relay runs in production (tools/drain_embedding_outbox.py runs only locally), so nothing a person writes there is embedded or found again. MECHANISM: the AI's reference corpus or its embeddings missing in production. REPRO: count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it. FIX: the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AC:oversight",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AC",
+        "page": "index.html",
+        "line": 0,
+        "key": "embedding_outbox",
+        "detail": "production's embedding outbox holds 58 rows and has drained 0: no relay runs in production (tools/drain_embedding_outbox.py runs only locally), so nothing a person writes there is embedded or found again",
+        "layer": "AV",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "the AI's reference corpus or its embeddings missing in production",
+        "repro": "count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+        "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH510",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AC",
+      "title": "the AI's reference corpus or its embeddings missing in production - index · industry_standards - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "AV"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: production's industry_standards holds 10 rows (0 embedded) where the AI is built on 41 - the assistant answers production's questions without the reference it was given. MECHANISM: the AI's reference corpus or its embeddings missing in production. REPRO: count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it. FIX: the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AC:oversight",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AC",
+        "page": "index.html",
+        "line": 0,
+        "key": "industry_standards",
+        "detail": "production's industry_standards holds 10 rows (0 embedded) where the AI is built on 41 - the assistant answers production's questions without the reference it was given",
+        "layer": "AV",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "the AI's reference corpus or its embeddings missing in production",
+        "repro": "count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+        "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH511",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AC",
+      "title": "the AI's reference corpus or its embeddings missing in production - index · industry_standards_chunks - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "AV"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: production's industry_standards_chunks holds 0 rows (0 embedded) where the AI is built on 781 - the assistant answers production's questions without the reference it was given. MECHANISM: the AI's reference corpus or its embeddings missing in production. REPRO: count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it. FIX: the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AC:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AC",
+        "page": "index.html",
+        "line": 0,
+        "key": "industry_standards_chunks",
+        "detail": "production's industry_standards_chunks holds 0 rows (0 embedded) where the AI is built on 781 - the assistant answers production's questions without the reference it was given",
+        "layer": "AV",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "the AI's reference corpus or its embeddings missing in production",
+        "repro": "count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+        "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH512",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AC",
+      "title": "the AI's reference corpus or its embeddings missing in production - index · persona_knowledge - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "AV"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: production's persona_knowledge holds 0 rows (0 embedded) where the AI is built on 434 - the assistant answers production's questions without the reference it was given. MECHANISM: the AI's reference corpus or its embeddings missing in production. REPRO: count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it. FIX: the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AC:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AC",
+        "page": "index.html",
+        "line": 0,
+        "key": "persona_knowledge",
+        "detail": "production's persona_knowledge holds 0 rows (0 embedded) where the AI is built on 434 - the assistant answers production's questions without the reference it was given",
+        "layer": "AV",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "the AI's reference corpus or its embeddings missing in production",
+        "repro": "count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+        "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH513",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AC",
+      "title": "the AI's reference corpus or its embeddings missing in production - index · voice_journal_entries - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "AV"
+      ],
+      "ufai": [
+        "I",
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: 4 of 7 voice journal entries in production were never embedded - a person's own notes the assistant cannot find. MECHANISM: the AI's reference corpus or its embeddings missing in production. REPRO: count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it. FIX: the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AC:oversight",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AC",
+        "page": "index.html",
+        "line": 0,
+        "key": "voice_journal_entries",
+        "detail": "4 of 7 voice journal entries in production were never embedded - a person's own notes the assistant cannot find",
+        "layer": "AV",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "the AI's reference corpus or its embeddings missing in production",
+        "repro": "count production's knowledge tables against the corpus the AI is built and tested on: standards and persona knowledge are empty there, and the embedding outbox fills with no relay draining it",
+        "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH514",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AD",
+      "title": "a page that calls a function production refuses its caller - hive · compute_hive_readiness - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "A"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches hive and meets a defect of a class a real person met on 2026-10-13/14: hive.html calls compute_hive_readiness(), which production refuses a signed-in member (authenticated may not execute it) - every load falls back without saying so. MECHANISM: a page that calls a function production refuses its caller. REPRO: as a signed-in member, call the function the page calls: production refuses it (authenticated has no EXECUTE), so the page falls back on every load without saying so. FIX: the page asks what production lets its reader ask (a function that answers for the reader's own hive, or the stored figure), and a gate compares every function a page calls with what production grants its reader. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AD:worker",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AD",
+        "page": "hive.html",
+        "line": 0,
+        "key": "compute_hive_readiness",
+        "detail": "hive.html calls compute_hive_readiness(), which production refuses a signed-in member (authenticated may not execute it) - every load falls back without saying so",
+        "layer": "A",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page that calls a function production refuses its caller",
+        "repro": "as a signed-in member, call the function the page calls: production refuses it (authenticated has no EXECUTE), so the page falls back on every load without saying so",
+        "fix": "the page asks what production lets its reader ask (a function that answers for the reader's own hive, or the stored figure), and a gate compares every function a page calls with what production grants its reader",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH515",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AE",
+      "title": "a free-plan gap the platform covers with nothing - index · backups - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "A"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the Free plan keeps no daily backups of the database - a gap the platform must cover itself, on free services, without a paid plan. MECHANISM: a free-plan gap the platform covers with nothing. REPRO: read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity. FIX: a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AE:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AE",
+        "page": "index.html",
+        "line": 0,
+        "key": "backups",
+        "detail": "the Free plan keeps no daily backups of the database - a gap the platform must cover itself, on free services, without a paid plan",
+        "layer": "A",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a free-plan gap the platform covers with nothing",
+        "repro": "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
+        "fix": "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH516",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AE",
+      "title": "a free-plan gap the platform covers with nothing - index · pausing - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "A"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the Free plan pauses a project after 7 days of low activity - a gap the platform must cover itself, on free services, without a paid plan. MECHANISM: a free-plan gap the platform covers with nothing. REPRO: read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity. FIX: a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AE:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AE",
+        "page": "index.html",
+        "line": 0,
+        "key": "pausing",
+        "detail": "the Free plan pauses a project after 7 days of low activity - a gap the platform must cover itself, on free services, without a paid plan",
+        "layer": "A",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a free-plan gap the platform covers with nothing",
+        "repro": "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
+        "fix": "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH517",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-Z",
+      "title": "deployments that outgrow the free plan's 10 GB of Deployment Storage - index · Production - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "H"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: Vercel built the production project 725 times (2026-04-04 to 2026-10-15); each build stored 612.7 MB under the denylist .vercelignore, and Hobby keeps the newest production builds - Deployment Storage read 70% of 10 GB for a site of 19.7 MB. MECHANISM: deployments that outgrow the free plan's 10 GB of Deployment Storage. REPRO: count the deployments Vercel recorded on the repository and what each build uploads: the denylist .vercelignore uploaded 612.7 MB a build for a 19.5 MB site, Hobby keeps the newest production builds, and the allowance read 70-75% of 10 GB. FIX: the allowlist .vercelignore (19.7 MB a build) shipped, so the protected builds are the small kind; a second project that builds the same repository removed; and a gate that bounds what every build uploads times the builds Hobby keeps under a tenth of the allowance. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-Z:oversight",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "Z",
+        "page": "index.html",
+        "line": 0,
+        "key": "Production",
+        "detail": "Vercel built the production project 725 times (2026-04-04 to 2026-10-15); each build stored 612.7 MB under the denylist .vercelignore, and Hobby keeps the newest production builds - Deployment Storage read 70% of 10 GB for a site of 19.7 MB",
+        "layer": "H",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "deployments that outgrow the free plan's 10 GB of Deployment Storage",
+        "repro": "count the deployments Vercel recorded on the repository and what each build uploads: the denylist .vercelignore uploaded 612.7 MB a build for a 19.5 MB site, Hobby keeps the newest production builds, and the allowance read 70-75% of 10 GB",
+        "fix": "the allowlist .vercelignore (19.7 MB a build) shipped, so the protected builds are the small kind; a second project that builds the same repository removed; and a gate that bounds what every build uploads times the builds Hobby keeps under a tenth of the allowance",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH518",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-Z",
+      "title": "deployments that outgrow the free plan's 10 GB of Deployment Storage - index · skillful-growth / production - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "H"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: a second Vercel project, 'skillful-growth', built this repository 60 times (2026-04-25 to 2026-04-26) and still holds the builds Hobby protects - storage for a project nobody serves. MECHANISM: deployments that outgrow the free plan's 10 GB of Deployment Storage. REPRO: count the deployments Vercel recorded on the repository and what each build uploads: the denylist .vercelignore uploaded 612.7 MB a build for a 19.5 MB site, Hobby keeps the newest production builds, and the allowance read 70-75% of 10 GB. FIX: the allowlist .vercelignore (19.7 MB a build) shipped, so the protected builds are the small kind; a second project that builds the same repository removed; and a gate that bounds what every build uploads times the builds Hobby keeps under a tenth of the allowance. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-Z:oversight",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "Z",
+        "page": "index.html",
+        "line": 0,
+        "key": "skillful-growth / production",
+        "detail": "a second Vercel project, 'skillful-growth', built this repository 60 times (2026-04-25 to 2026-04-26) and still holds the builds Hobby protects - storage for a project nobody serves",
+        "layer": "H",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "deployments that outgrow the free plan's 10 GB of Deployment Storage",
+        "repro": "count the deployments Vercel recorded on the repository and what each build uploads: the denylist .vercelignore uploaded 612.7 MB a build for a 19.5 MB site, Hobby keeps the newest production builds, and the allowance read 70-75% of 10 GB",
+        "fix": "the allowlist .vercelignore (19.7 MB a build) shipped, so the protected builds are the small kind; a second project that builds the same repository removed; and a gate that bounds what every build uploads times the builds Hobby keeps under a tenth of the allowance",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
       "id": "SL1",
       "status": "locking",
       "pct": 60,
@@ -1032488,5 +1034053,5 @@
       }
     }
   ],
-  "next": "SL LB3 render budget on long lists (76): measure every long list's render cost at phone-390 and desktop-1280 as each row's cast, fix what blows the budget, lock it, bank 76; then LB4 (35), RL1 (31), RL2 (24), RL3 (36). BRH 8 is 171/172 - BRH445 (pg_net) is Ian's dashboard toggle"
+  "next": "SL LB3 render budget on long lists (76): the show-more appends (whRenderRows) and the debounced searches are in on 13 pages and the gate long-list-render holds them; finish the per-page profile (logbook phone, inventory, report-sender), re-walk the 34 data pages and the 42 static ones through the MCP browser, bank 76. Then BRH 9 free-plan rows (24): AA purge windows + free-plan-budget gate, AC the production embedding relay + corpora, AB photos to Storage, AD hive readiness, AE backups + keep-alive, Z build bound. Then LB4 (35), RL1 (31), RL2 (24), RL3 (36)"
 }

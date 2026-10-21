@@ -92,6 +92,7 @@ OWNS_SEATING = {"index.html", "hive.html"}          # these pages seat the hive 
 JOURNEYS = ROOT / "live_page_journeys_results.json"
 DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
 ADVISOR = ROOT / "supabase_advisor_evidence.json"   # P..Y, read from production's advisor (tools/supabase_advisor_evidence.py)
+FREE_PLAN = ROOT / "free_plan_evidence.json"        # Z..AE, the two free plans (tools/free_plan_evidence.py)
 
 GUARD = re.compile(r"typeof\s+(wh[A-Za-z0-9_]+)\s*(?:===|==)\s*'function'")
 DEFINED = re.compile(r"^(?:async\s+)?function\s+(wh[A-Za-z0-9_]+)\s*\(|^\s*window\.(wh[A-Za-z0-9_]+)\s*=", re.M)
@@ -413,8 +414,72 @@ def collect(sources: dict | None = None) -> list[dict]:
     # P..Y - what Supabase's advisor and production's schema said (2026-10-21), one row per site
     if sources is None and ADVISOR.exists():
         sites += advisor_sites(json.loads(ADVISOR.read_text(encoding="utf-8")))
+    # Z..AE - what keeps the platform on the two free plans (2026-10-21), from free_plan_evidence.json
+    if sources is None and FREE_PLAN.exists():
+        sites += free_plan_sites(json.loads(FREE_PLAN.read_text(encoding="utf-8")))
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
+
+
+def free_plan_sites(ev: dict) -> list[dict]:
+    """One site per measured way the platform could leave a free plan (free_plan_evidence.json). Ian, 2026-10-21: "my
+    platform always free ... I am not upgrading to pro". Vercel Hobby holds 10 GB of deployments; Supabase Free holds a
+    500 MB database, keeps no daily backups and pauses a project after a week of low activity."""
+    out = []
+
+    def add(cls: str, key: str, detail: str, page: str = "index.html", persona: str = "oversight", line: int = 0) -> None:
+        out.append({"cls": cls, "page": page, "line": line, "key": key, "persona": persona, "detail": detail})
+
+    v = ev.get("vercel") or {}
+    for proj, p in (v.get("projects") or {}).items():
+        if proj == "Production":
+            add("Z", proj, f"Vercel built the production project {p['deployments']} times ({p['first']} to {p['last']}); each "
+                           f"build stored {v.get('payload_mb_denylist')} MB under the denylist .vercelignore, and Hobby keeps the "
+                           f"newest production builds - Deployment Storage read {v.get('reported_use_pct')}% of "
+                           f"{v.get('allowance_gb')} GB for a site of {v.get('payload_mb_allowlist')} MB")
+        else:
+            add("Z", proj, f"a second Vercel project, '{proj.split(' /')[0]}', built this repository {p['deployments']} times "
+                           f"({p['first']} to {p['last']}) and still holds the builds Hobby protects - storage for a project "
+                           f"nobody serves")
+    for t in ev.get("growth_no_purge", []):
+        rows = t.get("rows")
+        per = f", about {t['per_day']:,} more a day" if t.get("per_day") else ""
+        add("AA", t["table"], f"{t['table']} holds {rows:,} rows{per} and nothing ever removes one "
+                              f"({t.get('size') or str(round((t.get('bytes') or 0) / 1e6, 1)) + ' MB'}) - operational records "
+                              f"that grow with every use toward the free plan's 500 MB database")
+    for c in ev.get("inline_photos", []):
+        add("AB", c["column"], f"{c['rows']} photos are stored inside {c['column']} as base64 text ({c['bytes'] / 1e6:.2f} MB): "
+                               f"they count against the free 500 MB database, and every read of the row carries them")
+    by_page: dict[str, list] = {}
+    for r in ev.get("photo_reads", []):
+        by_page.setdefault(r["page"], []).append(r)
+    for page, rs in sorted(by_page.items()):
+        add("AB", "list reads", f"{len(rs)} list read(s) on {page} ship the inline photo column "
+                                f"({', '.join(str(r['src']) + ':' + str(r['line']) + ' ' + r['cols'] for r in rs[:6])}"
+                                f"{' ...' if len(rs) > 6 else ''}) - every load pays for every photo in free egress",
+            page=page, persona="worker", line=rs[0]["line"])
+    for c in ev.get("corpus", []):
+        add("AC", c["table"], f"production's {c['table']} holds {c['prod_rows']} rows ({c['prod_embedded']} embedded) where the "
+                              f"AI is built on {c['local_rows']} - the assistant answers production's questions without the "
+                              f"reference it was given")
+    ob = ev.get("outbox") or {}
+    if ob and not ob.get("relay_job"):
+        add("AC", "embedding_outbox", f"production's embedding outbox holds {ob.get('queued')} rows and has drained "
+                                      f"{ob.get('drained')}: no relay runs in production (tools/drain_embedding_outbox.py runs "
+                                      f"only locally), so nothing a person writes there is embedded or found again")
+    vj = ev.get("voice_journal") or {}
+    if vj and (vj.get("embedded") or 0) < (vj.get("rows") or 0):
+        add("AC", "voice_journal_entries", f"{(vj['rows'] or 0) - (vj['embedded'] or 0)} of {vj['rows']} voice journal "
+                                           f"entries in production were never embedded - a person's own notes the assistant "
+                                           f"cannot find")
+    for r in ev.get("refused", []):
+        for page in r.get("pages") or ["index.html"]:
+            add("AD", r["function"], f"{page} calls {r['function']}(), which production refuses a signed-in member "
+                                     f"(authenticated may not execute it) - every load falls back without saying so",
+                page=page, persona="worker")
+    for gp in ev.get("plan_gaps", []):
+        add("AE", gp["key"], f"{gp['what']} - a gap the platform must cover itself, on free services, without a paid plan")
+    return out
 
 
 def advisor_sites(ev: dict) -> list[dict]:
@@ -550,10 +615,16 @@ def main() -> int:
                      ("V", "a materialized view past every policy      (layer S, per view)"),
                      ("W", "leaked passwords accepted                  (layer S, one setting)"),
                      ("X", "access resting on the grant ending 10-30   (layer CI, per role x kind)"),
-                     ("Y", "a revoke a migration meant, not holding    (layer S, per function)")):
+                     ("Y", "a revoke a migration meant, not holding    (layer S, per function)"),
+                     ("Z", "deployments that outgrow Vercel's 10 GB    (layer H, per project)"),
+                     ("AA", "a table that grows with no purge           (layer RL, per table)"),
+                     ("AB", "a photo stored inside a row               (layer RL, per column / page)"),
+                     ("AC", "the AI's corpus missing in production      (layer AV, per table)"),
+                     ("AD", "a function production refuses its caller   (layer A, per page)"),
+                     ("AE", "a free-plan gap covered by nothing         (layer A, per gap)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
-    for c in "DEFGHJKLMNPQRSTUVWXY":
+    for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE"]:
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue
